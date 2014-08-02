@@ -23,7 +23,7 @@ before_script:
 
 script:  
   - make install
-  - cp -R test-bin/ ../src
+  - cp -R test-bin/ bin/ cgi-bin/ ../src
   - export PATH=$PATH:$HOME/overpass/bin:$HOME/overpass/cgi-bin:$HOME/overpass/test-bin  
   - cd ../osm-3s_testing/
   - ../src/test-bin/run_testsuite.sh 40
