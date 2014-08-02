@@ -7,8 +7,9 @@ before_install:
   - sudo apt-get install expat libexpat1-dev 
   
 before_script:  
-  - mkdir -p $HOME/bin
+  - mkdir -p $HOME/overpass
   - pushd src/
+  - chmod u+x test-bin/*.sh
   - autoscan
   - aclocal
   - autoheader
@@ -21,7 +22,10 @@ before_script:
   - ../src/configure CXXFLAGS="-O3" --prefix=$EXEC_DIR
 
 script:  
-  - make
+  - make install
+  - export PATH=$PATH:$HOME/overpass/bin:$HOME/overpass/cgi-bin:$HOME/overpass/test-bin  
+  - cd ../osm-3s_testing/
+  - ../src/test-bin/run_testsuite.sh 40
 
 branches:
   only:
@@ -31,4 +35,5 @@ os:
   - linux
   
 env:
-  - EXEC_DIR=$HOME/bin
+  - EXEC_DIR=$HOME/overpass
+
