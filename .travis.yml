@@ -3,10 +3,10 @@ language: cpp
 compiler:
   - gcc
 
-before-install:
+before_install:
   - sudo apt-get install expat libexpat1-dev 
   
-before-script:  
+before_script:  
   - pushd src/
   - autoscan
   - aclocal
