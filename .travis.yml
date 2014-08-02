@@ -7,6 +7,7 @@ before_install:
   - sudo apt-get install expat libexpat1-dev 
   
 before_script:  
+  - mkdir -p $HOME/bin
   - pushd src/
   - autoscan
   - aclocal
@@ -17,7 +18,7 @@ before_script:
   - popd
   - mkdir -p build
   - cd build
-  - ../src/configure CXXFLAGS="-O3" --prefix="."
+  - ../src/configure CXXFLAGS="-O3" --prefix=$EXEC_DIR
 
 script:  
   - make
@@ -28,3 +29,6 @@ branches:
 
 os:
   - linux
+  
+env:
+  - EXEC_DIR=$HOME/bin
