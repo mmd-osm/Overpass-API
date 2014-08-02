@@ -1,0 +1,30 @@
+language: cpp
+
+compiler:
+  - gcc
+
+before-install:
+  - sudo apt-get install expat libexpat1-dev 
+  
+before-script:  
+  - pushd src/
+  - autoscan
+  - aclocal
+  - autoheader
+  - libtoolize
+  - automake --add-missing
+  - autoconf
+  - popd
+  - mkdir -p build
+  - cd build
+  - ../src/configure CXXFLAGS="-O3" --prefix="."
+
+script:  
+  - make
+
+branches:
+  only:
+    - travis_test
+
+os:
+  - linux
