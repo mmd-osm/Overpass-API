@@ -21,17 +21,18 @@ before_script:
   - mkdir -p build
   - cd build
 #  - ../src/configure CXXFLAGS="-O3" --prefix=$EXEC_DIR
-  - ../src/configure CXXFLAGS="-ggdb" --enable-gcov --prefix=$EXEC_DIR
+  - ../src/configure --enable-gcov CXXFLAGS="-ggdb -fprofile-arcs -ftest-coverage" LDFLAGS="-lgcov" --prefix=$EXEC_DIR
 
 script:  
   - make install
   - cp -R test-bin/ bin/ cgi-bin/ ../src
   - export PATH=$PATH:$HOME/overpass/bin:$HOME/overpass/cgi-bin:$HOME/overpass/test-bin  
-  - cd ../osm-3s_testing/
+  - cd ../osm-3s_testing
   - ../src/test-bin/run_testsuite.sh 40
 
 after_success:
-  - coveralls --exclude lib --exclude tests --gcov-options '\-lp'
+  - cd ../build
+  - coveralls --gcov-options '\-lp'
 
 branches:
   only:
