@@ -5,6 +5,7 @@ compiler:
 
 before_install:
   - sudo apt-get install expat libexpat1-dev 
+  - sudo pip install cpp-coveralls  
   
 before_script:  
   - mkdir -p $HOME/overpass
@@ -19,7 +20,8 @@ before_script:
   - popd
   - mkdir -p build
   - cd build
-  - ../src/configure CXXFLAGS="-O3" --prefix=$EXEC_DIR
+#  - ../src/configure CXXFLAGS="-O3" --prefix=$EXEC_DIR
+  - ../src/configure CXXFLAGS="-ggdb" --enable-gcov --prefix=$EXEC_DIR
 
 script:  
   - make install
@@ -27,6 +29,9 @@ script:
   - export PATH=$PATH:$HOME/overpass/bin:$HOME/overpass/cgi-bin:$HOME/overpass/test-bin  
   - cd ../osm-3s_testing/
   - ../src/test-bin/run_testsuite.sh 40
+
+after_success:
+  - coveralls --exclude lib --exclude tests --gcov-options '\-lp'
 
 branches:
   only:
