@@ -21,10 +21,10 @@ before_script:
   - mkdir -p build
   - cd build
 #  - ../src/configure CXXFLAGS="-O3" --prefix=$EXEC_DIR
-  - ../src/configure --enable-gcov CXXFLAGS="-ggdb -fprofile-arcs -ftest-coverage" LDFLAGS="-lgcov" --prefix=$EXEC_DIR
+  - ../src/configure CXXFLAGS="-ggdb -fprofile-arcs -ftest-coverage" LDFLAGS="-lgcov" --prefix=$EXEC_DIR
 
 script:  
-  - make install
+  - make -j3
   - cp -R test-bin/ bin/ cgi-bin/ ../src
   - export PATH=$PATH:$HOME/overpass/bin:$HOME/overpass/cgi-bin:$HOME/overpass/test-bin  
   - cd ../osm-3s_testing
@@ -32,7 +32,7 @@ script:
 
 after_success:
   - cd ../build
-  - coveralls --gcov-options '\-lp'
+  - coveralls
 
 branches:
   only:
