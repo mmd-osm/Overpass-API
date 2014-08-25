@@ -37,6 +37,7 @@ script:
 branches:
   only:
     - travis_test
+    - test751
 
 os:
   - linux
