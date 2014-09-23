@@ -110,10 +110,11 @@ class Print_Target_Json : public Print_Target
 class Print_Target_Csv : public Print_Target
 {
   public:
-    Print_Target_Csv(uint32 mode, Transaction& transaction, const Csv_Settings& csv_settings_)
+    Print_Target_Csv(uint32 mode, Transaction& transaction, bool first_target,
+         const Csv_Settings& csv_settings_)
         : Print_Target(mode, transaction) {
       csv_settings = csv_settings_;
-      needs_headerline = csv_settings.with_headerline;
+      needs_headerline = first_target ? csv_settings.with_headerline : false;
     }
     
     virtual void print_item(uint32 ll_upper, const Node_Skeleton& skel,
@@ -934,32 +935,6 @@ void Print_Target_Json::print_item(uint32 ll_upper, const Area_Skeleton& skel,
 
 //-----------------------------------------------------------------------------
 
-string timestamp_to_string(uint64 ts)
-{
-  uint32 year = (ts)>>26;
-  uint32 month = ((ts)>>22) & 0xf;
-  uint32 day = ((ts)>>17) & 0x1f;
-  uint32 hour = ((ts)>>12) & 0x1f;
-  uint32 minute = ((ts)>>6) & 0x3f;
-  uint32 second = ts & 0x3f;
-  string timestamp("    -  -  T  :  :  Z");
-  timestamp[0] = (year / 1000) % 10 + '0';
-  timestamp[1] = (year / 100) % 10 + '0';
-  timestamp[2] = (year / 10) % 10 + '0';
-  timestamp[3] = year % 10 + '0';
-  timestamp[5] = (month / 10) % 10 + '0';
-  timestamp[6] = month % 10 + '0';
-  timestamp[8] = (day / 10) % 10 + '0';
-  timestamp[9] = day % 10 + '0';
-  timestamp[11] = (hour / 10) % 10 + '0';
-  timestamp[12] = hour % 10 + '0';
-  timestamp[14] = (minute / 10) % 10 + '0';
-  timestamp[15] = minute % 10 + '0';
-  timestamp[17] = (second / 10) % 10 + '0';
-  timestamp[18] = second % 10 + '0';
-  return timestamp;
-}
-
 void Print_Target_Csv::print_headerline_if_needed()
 {
   vector<string>::const_iterator it;
@@ -974,8 +949,8 @@ void Print_Target_Csv::print_headerline_if_needed()
         cout << csv_settings.separator;
     }
     cout << "\n";
+    needs_headerline = false;
   }
-  needs_headerline = false;
 }
 
 template< typename OSM_Element_Metadata_Skeleton >
@@ -986,17 +961,23 @@ string Print_Target_Csv::process_csv_line(uint32 otype,
 {
   ostringstream result;
   vector<string>::const_iterator it;
-  std::map<std::string, std::string> tags_map(tags->begin(), tags->end());
+  vector<pair<string, string> > tags_;
 
-  for (it = csv_settings.keyfields.begin(); it != csv_settings.keyfields.end();
-      ++it)
+  if ((tags == 0) || (tags->empty()))
+    tags_.clear();
+  else
+    tags_.assign(tags->begin(),tags->end());
+
+  std::map<std::string, std::string> tags_map(tags_.begin(), tags_.end());
+
+  for (it = csv_settings.keyfields.begin(); it != csv_settings.keyfields.end(); ++it)
   {
     if (meta)
     {
       if (*it == "@version")
         result << meta->version;
       else if (*it == "@timestamp")
-        result << timestamp_to_string(meta->timestamp);
+        result << Timestamp(meta->timestamp).str();
       else if (*it == "@changeset")
         result << meta->changeset;
       else if (*it == "@uid")
@@ -1047,8 +1028,7 @@ string Print_Target_Csv::process_csv_line(uint32 otype,
     }
     else
     {
-      map<std::string, std::string>::const_iterator it_tags = tags_map.find(
-          *it);
+      map<std::string, std::string>::const_iterator it_tags = tags_map.find(*it);
       if (it_tags != tags_map.end())
         result << it_tags->second;
     }
@@ -1124,8 +1104,11 @@ void Print_Target_Csv::print_item(uint32 ll_upper, const Area_Skeleton& skel,
 		const map< uint32, string >* users, const Action& action)
 
 {
+  double lat(100.0), lon(200.0);
+
   print_headerline_if_needed();
-// TODO: not implemented yet
+
+  cout << process_csv_line(3, meta, tags, users, skel.id.val(), lat, lon);
 }
 
 
@@ -2008,7 +1991,7 @@ Print_Target& Output_Handle::get_print_target(uint32 current_mode, Transaction& 
     else if (type == "json")
       print_target = new Print_Target_Json(mode, transaction, first_target);
     else if (type == "csv")
-      print_target = new Print_Target_Csv(mode, transaction, csv_settings);
+      print_target = new Print_Target_Csv(mode, transaction, first_target, csv_settings);
     else if (type == "custom")
       print_target = new Print_Target_Custom(mode, transaction, first_target,
 					     node_template, way_template, relation_template);
