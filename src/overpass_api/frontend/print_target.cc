@@ -64,6 +64,8 @@ class Print_Target_Xml : public Print_Target
 			    const vector< pair< string, string > >* tags = 0,
 			    const OSM_Element_Metadata_Skeleton< Area::Id_Type >* meta = 0,
 			    const map< uint32, string >* users = 0, const Action& action = KEEP);
+
+    virtual void print_item_count(const Output_Item_Count& item_count);
 };
 
 
@@ -101,6 +103,8 @@ class Print_Target_Json : public Print_Target
 			    const OSM_Element_Metadata_Skeleton< Area::Id_Type >* meta = 0,
 			    const map< uint32, string >* users = 0, const Action& action = KEEP);
     
+    virtual void print_item_count(const Output_Item_Count& item_count);
+
     bool nothing_written() const { return first_elem; }
 			    
   private:
@@ -144,6 +148,9 @@ class Print_Target_Csv : public Print_Target
 			    const vector< pair< string, string > >* tags = 0,
 			    const OSM_Element_Metadata_Skeleton< Area::Id_Type >* meta = 0,
 			    const map< uint32, string >* users = 0, const Action& action = KEEP);
+
+    virtual void print_item_count(const Output_Item_Count& item_count);
+
   private:
     template< typename OSM_Element_Metadata_Skeleton >
     string process_csv_line(uint32 otype,
@@ -197,6 +204,8 @@ class Print_Target_Custom : public Print_Target
 			    const vector< pair< string, string > >* tags = 0,
 			    const OSM_Element_Metadata_Skeleton< Area::Id_Type >* meta = 0,
 			    const map< uint32, string >* users = 0, const Action& action = KEEP);
+
+    virtual void print_item_count(const Output_Item_Count& item_count);
 			    
     string get_output() const { return output; }
     uint32 get_written_elements_count() const { return written_elements_count; }
@@ -301,6 +310,8 @@ class Print_Target_Popup : public Print_Target
 			    const vector< pair< string, string > >* tags = 0,
 			    const OSM_Element_Metadata_Skeleton< Area::Id_Type >* meta = 0,
 			    const map< uint32, string >* users = 0, const Action& action = KEEP);
+
+    virtual void print_item_count(const Output_Item_Count& item_count);
 			    
     string get_output() const;
     
@@ -649,6 +660,14 @@ void Print_Target_Xml::print_item(uint32 ll_upper, const Area_Skeleton& skel,
   }
 }
 
+void Print_Target_Xml::print_item_count(const Output_Item_Count& item_count)
+{
+  cout<<"  <count total=\"" << item_count.total << "\" "
+        "nodes=\"" << item_count.nodes << "\" "
+        "ways=\"" << item_count.ways << "\" "
+        "relations=\"" << item_count.relations << "\"/>\n";
+}
+
 //-----------------------------------------------------------------------------
 
 template< typename Id_Type >
@@ -933,6 +952,25 @@ void Print_Target_Json::print_item(uint32 ll_upper, const Area_Skeleton& skel,
   cout<<"\n}\n";
 }
 
+
+void Print_Target_Json::print_item_count(const Output_Item_Count& item_count)
+{
+  if (first_elem)
+    first_elem = false;
+  else
+    cout<<",\n";
+
+  cout<<"{\n"
+        "  \"count\": {";
+  cout<<"\n    \"total\": " << item_count.total
+      <<"\n    \"nodes\": " << item_count.nodes
+      <<"\n    \"ways\": " << item_count.ways
+      <<"\n    \"relations\": " << item_count.relations
+      <<"\n    \"areas\": " << item_count.areas
+      <<"\n  }";
+  cout<<"\n}\n";
+}
+
 //-----------------------------------------------------------------------------
 
 void Print_Target_Csv::print_headerline_if_needed()
@@ -1111,6 +1149,11 @@ void Print_Target_Csv::print_item(uint32 ll_upper, const Area_Skeleton& skel,
   cout << process_csv_line(3, meta, tags, users, skel.id.val(), lat, lon);
 }
 
+void Print_Target_Csv::print_item_count(const Output_Item_Count& item_count)
+{
+  print_headerline_if_needed();
+
+}
 
 //-----------------------------------------------------------------------------
 
@@ -1594,6 +1637,11 @@ void Print_Target_Custom::print_item(uint32 ll_upper, const Area_Skeleton& skel,
 {
 }
 
+void Print_Target_Custom::print_item_count(const Output_Item_Count& item_count)
+{
+
+}
+
 //-----------------------------------------------------------------------------
 
 Element_Collector::Element_Collector(const string& title_key_)
@@ -1921,6 +1969,10 @@ void Print_Target_Popup::print_item(uint32 ll_upper, const Area_Skeleton& skel,
   }
 }
 
+void Print_Target_Popup::print_item_count(const Output_Item_Count& item_count)
+{
+
+}
 
 string Print_Target_Popup::get_output() const
 {
