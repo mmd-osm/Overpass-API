@@ -43,8 +43,10 @@
 #include <string>
 #include <vector>
 
+#include "fcgio.h"
 
-int main(int argc, char *argv[])
+
+int handle_request(const std::string & content, bool is_cgi)
 {
   Web_Output error_output(Error_Output::ASSISTING);
   Statement::set_error_output(&error_output);
@@ -54,8 +56,8 @@ int main(int argc, char *argv[])
     string url = "http://www.openstreetmap.org/browse/{{{type}}}/{{{id}}}";
     string template_name = "default.wiki";
     bool redirect = true;
-    string xml_raw(get_xml_cgi(&error_output, 16*1024*1024, url, redirect, template_name,
-	error_output.http_method, error_output.allow_headers, error_output.has_origin));
+    string xml_raw(get_xml_cgi(content, &error_output, 16*1024*1024, url, redirect, template_name,
+	error_output.http_method, error_output.allow_headers, error_output.has_origin, is_cgi));
     
     if (error_output.display_encoding_errors())
       return 0;
@@ -173,7 +175,7 @@ int main(int argc, char *argv[])
         error_output.write_footer();
     }
   }
-  catch(File_Error e)
+  catch(const File_Error & e)
   {
     ostringstream temp;
     if (e.origin.substr(e.origin.size()-9) == "::timeout")
@@ -195,8 +197,9 @@ int main(int argc, char *argv[])
     else
       temp<<"open64: "<<e.error_number<<' '<<strerror(e.error_number)<<' '<<e.filename<<' '<<e.origin;
     error_output.runtime_error(temp.str());
+    return -1;
   }
-  catch(Resource_Error e)
+  catch(const Resource_Error & e)
   {
     ostringstream temp;
     if (e.timed_out)
@@ -206,6 +209,7 @@ int main(int argc, char *argv[])
       temp<<"Query ran out of memory in \""<<e.stmt_name<<"\" at line "
           <<e.line_number<<". It would need at least "<<e.size/(1024*1024)<<" MB of RAM to continue.";
     error_output.runtime_error(temp.str());
+    return -2;
   }
   catch(std::bad_alloc& e)
   {
@@ -217,9 +221,111 @@ int main(int argc, char *argv[])
   }
   catch(std::exception& e)
   {
-    error_output.runtime_error(std::string("Query failed with the exception: ") + e.what());    
+    error_output.runtime_error(std::string("Query failed with the exception: ") + e.what());
   }
-  catch(Exit_Error e) {}
+  catch(Exit_Error e) {
+    return -3;
+  }
+
+  return 0;
+}
+
+
+// Maximum bytes
+const unsigned long STDIN_MAX = 1000000;
+
+/**
+ * Note this is not thread safe due to the static allocation of the
+ * content_buffer.
+ */
+string get_request_content(const FCGX_Request & request) {
+    char * content_length_str = FCGX_GetParam("CONTENT_LENGTH", request.envp);
+    unsigned long content_length = STDIN_MAX;
+
+    if (content_length_str) {
+        content_length = strtol(content_length_str, &content_length_str, 10);
+        if (*content_length_str) {
+            cerr << "Can't Parse 'CONTENT_LENGTH='"
+                 << FCGX_GetParam("CONTENT_LENGTH", request.envp)
+                 << "'. Consuming stdin up to " << STDIN_MAX << endl;
+        }
+
+        if (content_length > STDIN_MAX) {
+            content_length = STDIN_MAX;
+        }
+    } else {
+        // Do not read from stdin if CONTENT_LENGTH is missing
+        content_length = 0;
+    }
+
+    char * content_buffer = new char[content_length];
+    cin.read(content_buffer, content_length);
+    content_length = cin.gcount();
+
+    // Chew up any remaining stdin - this shouldn't be necessary
+    // but is because mod_fastcgi doesn't handle it correctly.
+
+    // ignore() doesn't set the eof bit in some versions of glibc++
+    // so use gcount() instead of eof()...
+    do cin.ignore(1024); while (cin.gcount() == 1024);
+
+    string content(content_buffer, content_length);
+    delete [] content_buffer;
+    return content;
+}
+
+int main(int argc, char *argv[])
+{
+  if (FCGX_IsCGI())
+  {
+    handle_request("", FCGX_IsCGI());
+  }
+  else
+  {
+    // Backup the stdio streambufs
+    streambuf * cin_streambuf  = std::cin.rdbuf();
+    streambuf * cout_streambuf = std::cout.rdbuf();
+    streambuf * cerr_streambuf = std::cerr.rdbuf();
+
+    FCGX_Request request;
+
+    FCGX_Init();
+    FCGX_InitRequest(&request, 0, 0);
+
+    while (FCGX_Accept_r(&request) == 0) {
+      fcgi_streambuf cin_fcgi_streambuf(request.in);
+      fcgi_streambuf cout_fcgi_streambuf(request.out);
+      fcgi_streambuf cerr_fcgi_streambuf(request.err);
+
+      std::cin.rdbuf(&cin_fcgi_streambuf);
+      std::cout.rdbuf(&cout_fcgi_streambuf);
+      std::cerr.rdbuf(&cerr_fcgi_streambuf);
+
+      string content = get_request_content(request);
+
+      char* request_method = FCGX_GetParam("REQUEST_METHOD", request.envp);
+      char* access_control_headers = FCGX_GetParam("HTTP_ACCESS_CONTROL_REQUEST_HEADERS", request.envp);
+      char* http_origin = FCGX_GetParam("HTTP_ORIGIN", request.envp);
+      char* remote_addr = FCGX_GetParam("REMOTE_ADDR", request.envp);
+      char* query_string = FCGX_GetParam("QUERY_STRING", request.envp);
+
+      setenv("REQUEST_METHOD", request_method != NULL ? request_method : "", true);
+      setenv("HTTP_ACCESS_CONTROL_REQUEST_HEADERS", access_control_headers != NULL ? access_control_headers : "" , true);
+      setenv("HTTP_ORIGIN", http_origin != NULL ? http_origin : "", true);
+      setenv("REMOTE_ADDR", remote_addr != NULL ? remote_addr : "", true);
+      setenv("QUERY_STRING", query_string != NULL ? query_string : "", true);
+
+      initialize();
+      int ret = handle_request(content, FCGX_IsCGI());
+
+    }
+
+    // restore stdio streambufs
+    std::cin.rdbuf(cin_streambuf);
+    std::cout.rdbuf(cout_streambuf);
+    std::cerr.rdbuf(cerr_streambuf);
+
+  }
 
   return 0;
 }

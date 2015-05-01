@@ -42,10 +42,10 @@ class Make_Area_Statement : public Output_Statement
                         Query_Constraint* bbox_limitation = 0);
     virtual string get_name() const { return "make-area"; }
     virtual void execute(Resource_Manager& rman);
-    virtual ~Make_Area_Statement() {}    
+    virtual ~Make_Area_Statement() { if (is_used_ > 0) --is_used_; }
     static Generic_Statement_Maker< Make_Area_Statement > statement_maker;
     
-    static bool is_used() { return is_used_; }
+    static bool is_used() { return is_used_ > 0; }
     
   private:
     string input, pivot;
@@ -60,7 +60,7 @@ class Make_Area_Statement : public Output_Statement
     static void add_segment_blocks
         (map< Uint31_Index, vector< Area_Block > >& areas, uint32 id);
 	
-    static bool is_used_;
+    static int is_used_;
 };
 
 #endif

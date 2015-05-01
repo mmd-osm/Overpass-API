@@ -28,7 +28,7 @@
 
 using namespace std;
 
-bool Id_Query_Statement::area_query_exists_ = false;
+int Id_Query_Statement::area_query_exists_ = 0;
 
 Generic_Statement_Maker< Id_Query_Statement > Id_Query_Statement::statement_maker("id-query");
 
@@ -283,7 +283,7 @@ Id_Query_Statement::Id_Query_Statement
   else if (attributes["type"] == "area")
   {
     type = Statement::AREA;
-    area_query_exists_ = true;
+    ++area_query_exists_;
   }
   else
   {
@@ -413,6 +413,8 @@ Id_Query_Statement::~Id_Query_Statement()
   for (vector< Query_Constraint* >::const_iterator it = constraints.begin();
       it != constraints.end(); ++it)
     delete *it;
+  if (type == Statement::AREA &&  area_query_exists_ > 0)
+    --area_query_exists_;
 }
 
 Query_Constraint* Id_Query_Statement::get_query_constraint()

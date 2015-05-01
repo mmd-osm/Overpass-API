@@ -43,14 +43,17 @@ class Query_Statement : public Output_Statement
   public:
     Query_Statement(int line_number_, const map< string, string >& input_attributes, 
                     Query_Constraint* bbox_limitation = 0);
-    virtual ~Query_Statement() {}
+    virtual ~Query_Statement() {
+      if (type == QUERY_AREA && area_query_exists_ > 0)
+        --area_query_exists_;
+    }
     virtual void add_statement(Statement* statement, string text);
     virtual string get_name() const { return "query"; }
     virtual void execute(Resource_Manager& rman);
     
     static Generic_Statement_Maker< Query_Statement > statement_maker;
     
-    static bool area_query_exists() { return area_query_exists_; }
+    static bool area_query_exists() { return area_query_exists_ > 0; }
     
   private:
     int type;
@@ -63,7 +66,7 @@ class Query_Statement : public Output_Statement
     vector< pair< Regular_Expression*, Regular_Expression* > > regkey_nregexes;    
     vector< Query_Constraint* > constraints;
     
-    static bool area_query_exists_;
+    static int area_query_exists_;
     
     template< typename Skeleton, typename Id_Type >
     std::vector< std::pair< Id_Type, Uint31_Index > > collect_ids

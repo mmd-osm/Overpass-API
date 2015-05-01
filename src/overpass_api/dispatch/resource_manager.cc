@@ -209,21 +209,14 @@ void Resource_Manager::health_check(const Statement& stmt, uint32 extra_time, ui
           (elapsed_time, stmt.get_name(), stmt.get_progress(), stmt.get_line_number(),
            stack_progress);
     }
-    
-    Resource_Error* error = new Resource_Error();
-    error->timed_out = true;
-    error->stmt_name = stmt.get_name();
-    error->line_number = stmt.get_line_number();
-    error->size = size;
-    error->runtime = elapsed_time;
-    
+
     Logger logger(transaction->get_db_dir());
     ostringstream out;
-    out<<"Timeout: runtime "<<error->runtime<<" seconds, size "<<error->size<<" bytes, "
-        "in line "<<error->line_number<<", statement "<<error->stmt_name;
+    out<<"Timeout: runtime "<<elapsed_time<<" seconds, size "<<size<<" bytes, "
+        "in line "<<stmt.get_line_number()<<", statement "<<stmt.get_name();
     logger.annotated_log(out.str());
     
-    throw *error;
+    throw Resource_Error(true, stmt.get_name(), stmt.get_line_number(), size, elapsed_time);
   }
 
   if (size > max_allowed_space)
@@ -235,19 +228,12 @@ void Resource_Manager::health_check(const Statement& stmt, uint32 extra_time, ui
            stack_progress);
     }
     
-    Resource_Error* error = new Resource_Error();
-    error->timed_out = false;
-    error->stmt_name = stmt.get_name();
-    error->line_number = stmt.get_line_number();
-    error->size = size;
-    error->runtime = elapsed_time;
-    
     Logger logger(transaction->get_db_dir());
     ostringstream out;
-    out<<"Oversized: runtime "<<error->runtime<<" seconds, size "<<error->size<<" bytes, "
-        "in line "<<error->line_number<<", statement "<<error->stmt_name;
+    out<<"Oversized: runtime "<<elapsed_time<<" seconds, size "<<size<<" bytes, "
+        "in line "<<stmt.get_line_number()<<", statement "<<stmt.get_name();
     logger.annotated_log(out.str());
     
-    throw *error;
+    throw Resource_Error(false, stmt.get_name(), stmt.get_line_number(), size, elapsed_time);
   }  
 }

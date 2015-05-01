@@ -23,13 +23,13 @@ using namespace std;
 
 Generic_Statement_Maker< Map_To_Area_Statement > Map_To_Area_Statement::statement_maker("map-to-area");
 
-bool Map_To_Area_Statement::is_used_ = false;
+int Map_To_Area_Statement::is_used_ = 0;
 
 Map_To_Area_Statement::Map_To_Area_Statement
     (int line_number_, const map< string, string >& input_attributes, Query_Constraint* bbox_limitation)
     : Output_Statement(line_number_)
 {
-  is_used_ = true;
+  ++is_used_;
 
   map< string, string > attributes;
   

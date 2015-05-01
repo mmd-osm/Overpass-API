@@ -462,4 +462,6 @@ Osm_Script_Statement::~Osm_Script_Statement()
 {
   if (output_handle)
     delete output_handle;
+  if (bbox_statement)
+    delete bbox_statement;
 }

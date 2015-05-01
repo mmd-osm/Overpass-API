@@ -107,9 +107,9 @@ namespace
   }
 }
 
-string get_xml_cgi(Error_Output* error_output, uint32 max_input_size, string& url, bool& redirect,
+string get_xml_cgi(const string& content, Error_Output* error_output, uint32 max_input_size, string& url, bool& redirect,
 		   string& template_name, Web_Output::Http_Methods& http_method, string& allow_header,
-                   bool& has_origin)
+                   bool& has_origin, bool is_cgi)
 {
   // Check for various HTTP headers
   char* method = getenv("REQUEST_METHOD");
@@ -155,7 +155,8 @@ string get_xml_cgi(Error_Output* error_output, uint32 max_input_size, string& ur
 	error_output->add_encoding_remark("Only whitespace found from GET method. Trying to retrieve input by POST method.");
     }
     
-    input = cgi_post_to_text();
+    input = (is_cgi ? cgi_post_to_text() : content);
+
     pos = 0;
     line_number = 1;
     while ((pos < input.size()) && (isspace(input[pos])))

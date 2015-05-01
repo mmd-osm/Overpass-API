@@ -137,6 +137,9 @@ uint64 eval_map(const std::map< Uint31_Index, vector< Area_Skeleton > >& areas);
 
 struct Resource_Error
 {
+  Resource_Error(bool timed_out_, string stmt_name_, uint line_number_, uint64 size_, uint runtime_) :
+      timed_out(timed_out_), stmt_name(stmt_name_), line_number(line_number_), size(size_), runtime(runtime_) {}
+
   bool timed_out;
   string stmt_name;
   uint line_number;

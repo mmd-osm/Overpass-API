@@ -42,14 +42,14 @@ class Id_Query_Statement : public Output_Statement
     Uint64 get_upper() const { return upper; }
     int get_type() const { return type; }
     
-    static bool area_query_exists() { return area_query_exists_; }
+    static bool area_query_exists() { return area_query_exists_ > 0; }
     
   private:
     int type;
     Uint64 ref, lower, upper;
     vector< Query_Constraint* > constraints;
     
-    static bool area_query_exists_;
+    static int area_query_exists_;
 };
 
 #endif

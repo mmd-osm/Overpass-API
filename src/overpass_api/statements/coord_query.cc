@@ -34,7 +34,7 @@
 
 using namespace std;
 
-bool Coord_Query_Statement::is_used_ = false;
+int Coord_Query_Statement::is_used_ = 0;
 
 Generic_Statement_Maker< Coord_Query_Statement > Coord_Query_Statement::statement_maker("coord-query");
 
@@ -42,7 +42,7 @@ Coord_Query_Statement::Coord_Query_Statement
     (int line_number_, const map< string, string >& input_attributes, Query_Constraint* bbox_limitation)
     : Output_Statement(line_number_)
 {
-  is_used_ = true;
+  ++is_used_;
 
   map< string, string > attributes;
   

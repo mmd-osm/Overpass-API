@@ -36,12 +36,12 @@ class Map_To_Area_Statement : public Output_Statement
     virtual ~Map_To_Area_Statement() {}    
     static Generic_Statement_Maker< Map_To_Area_Statement > statement_maker;
       
-    static bool is_used() { return is_used_; }
+    static bool is_used() { return is_used_ > 0; }
   
   private:
     string input;
 
-    static bool is_used_;
+    static int is_used_;
 };
 
 #endif

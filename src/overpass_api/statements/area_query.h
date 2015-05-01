@@ -73,13 +73,13 @@ class Area_Query_Statement : public Output_Statement
     bool areas_from_input() const { return (submitted_id == 0); }
     string get_input() const { return input; }
     
-    static bool is_used() { return is_used_; }
+    static bool is_used() { return is_used_ > 0; }
   
   private:
     string input;
     long long submitted_id;
     vector< Area_Skeleton::Id_Type > area_id;    
-    static bool is_used_;
+    static int is_used_;
     vector< Query_Constraint* > constraints;
 };
 
