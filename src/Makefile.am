@@ -94,6 +94,7 @@ overpass_api/statements/around.cc \
 overpass_api/statements/bbox_query.cc \
 overpass_api/statements/changed.cc \
 overpass_api/statements/coord_query.cc \
+overpass_api/statements/complete.cc \
 overpass_api/statements/difference.cc \
 overpass_api/statements/foreach.cc \
 overpass_api/statements/id_query.cc \
@@ -110,6 +111,7 @@ overpass_api/statements/recurse.cc \
 overpass_api/statements/union.cc \
 overpass_api/statements/user.cc \
 overpass_api/frontend/print_target.cc expat/escape_xml.cc
+
 
 libcore_la_SOURCES = overpass_api/frontend/map_ql_parser.cc overpass_api/statements/statement_dump.cc expat/map_ql_input.cc
 libcore_la_LIBADD = libdispatcher.la libexpatwrapper.la libsettings.la libweboutput.la
@@ -219,6 +221,7 @@ nobase_dist_HEADERS = \
   overpass_api/statements/bbox_query.h\
   overpass_api/statements/changed.h\
   overpass_api/statements/coord_query.h\
+  overpass_api/statements/complete.h\
   overpass_api/statements/difference.h\
   overpass_api/statements/foreach.h\
   overpass_api/statements/id_query.h\
