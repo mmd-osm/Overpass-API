@@ -130,7 +130,7 @@ libsettings_la_LIBADD =
 libweboutput_la_SOURCES = overpass_api/frontend/web_output.cc
 libweboutput_la_LIBADD = libfrontend.la
 
-osm_updater_cc = overpass_api/osm-backend/meta_updater.cc overpass_api/osm-backend/basic_updater.cc overpass_api/osm-backend/node_updater.cc overpass_api/osm-backend/way_updater.cc overpass_api/osm-backend/relation_updater.cc overpass_api/osm-backend/osm_updater.cc expat/escape_xml.cc
+osm_updater_cc = overpass_api/osm-backend/meta_updater.cc overpass_api/osm-backend/basic_updater.cc overpass_api/osm-backend/node_updater.cc overpass_api/osm-backend/way_updater.cc overpass_api/osm-backend/relation_updater.cc overpass_api/osm-backend/osm_updater.cc overpass_api/osm-backend/osmium_updater.cc expat/escape_xml.cc
 
 
 bin_update_database_SOURCES = ${osm_updater_cc} overpass_api/osm-backend/update_database.cc template_db/types.cc template_db/zlib_wrapper.cc template_db/lz4_wrapper.cc
@@ -210,6 +210,7 @@ nobase_dist_HEADERS = \
   overpass_api/osm-backend/meta_updater.h\
   overpass_api/osm-backend/node_updater.h\
   overpass_api/osm-backend/osm_updater.h\
+  overpass_api/osm-backend/osmium_updater.h\
   overpass_api/osm-backend/relation_updater.h\
   overpass_api/osm-backend/tags_updater.h\
   overpass_api/osm-backend/way_updater.h\

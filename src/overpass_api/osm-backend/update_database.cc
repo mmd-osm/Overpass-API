@@ -29,6 +29,7 @@
 #include "../core/settings.h"
 #include "../frontend/output.h"
 #include "osm_updater.h"
+#include "osmium_updater.h"
 
 
 int main(int argc, char* argv[])
@@ -92,13 +93,13 @@ int main(int argc, char* argv[])
   {
     if (transactional)
     {
-      Osm_Updater osm_updater(get_verbatim_callback(), data_version, meta, flush_limit);
+      Osmium_Updater osm_updater(get_verbatim_callback(), data_version, meta, flush_limit);
       //reading the main document
       osm_updater.parse_file_completely(stdin);
     }
     else
     {
-      Osm_Updater osm_updater(get_verbatim_callback(), db_dir, data_version, meta, flush_limit);
+      Osmium_Updater osm_updater(get_verbatim_callback(), db_dir, data_version, meta, flush_limit);
       //reading the main document
       osm_updater.parse_file_completely(stdin);
     }
