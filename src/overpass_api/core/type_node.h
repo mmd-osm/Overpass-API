@@ -94,7 +94,8 @@ struct Node_Skeleton
   Node_Skeleton() : id(0ull) {}
   
   Node_Skeleton(void* data)
-    : id(*(Id_Type*)data), ll_lower(*(uint32*)((uint8*)data+8)) {}
+    : id(unalignedLoad<Id_Type>(data)),
+      ll_lower(unalignedLoad<uint32>((uint8*)data+8)) {}
   
   Node_Skeleton(const Node& node)
   : id(node.id), ll_lower(node.ll_lower_) {}
@@ -117,13 +118,13 @@ struct Node_Skeleton
   
   static Id_Type get_id(void* data)
   {
-    return *(Id_Type*)data;
+    return unalignedLoad<Id_Type>(data);
   }
   
   void to_data(void* data) const
   {
-    *(Id_Type*)data = id.val();
-    *(uint32*)((uint8*)data+8) = ll_lower;
+    unalignedStore(data, id.val());
+    unalignedStore((uint8*)data+8, ll_lower);
   }
   
   bool operator<(const Node_Skeleton& a) const

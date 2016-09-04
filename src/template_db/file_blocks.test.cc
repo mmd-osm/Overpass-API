@@ -35,20 +35,21 @@
 struct IntIndex
 {
   IntIndex(uint32 i) : value(i) {}
-  IntIndex(void* data) : value(*(uint32*)data) {}
+  IntIndex(void* data) : value(unalignedLoad<uint32>(data)) {}
   
   uint32 size_of() const { return (value < 24 ? 12 : value-12); }
-  static uint32 size_of(void* data) { return ((*(uint32*)data) < 24 ? 12 : (*(uint32*)data)-12); }
+  static uint32 size_of(void* data) { return (unalignedLoad<uint32>(data) < 24 ?
+                                              12 : unalignedLoad<uint32>(data) - 12); }
   
   void to_data(void* data) const
   {
     uint32 size = size_of();
-    *(uint32*)(((uint8*)data) + size - 4) = 0x5a5a5a5a;
-    *(uint32*)data = value;
+    unalignedStore(((uint8*)data) + size - 4, 0x5a5a5a5a);
+    unalignedStore(data, value);
     uint32 i = 1;
     while (i < size/4)
     {
-      *(uint32*)(((uint8*)data) + 4*i) = 4*i/3;
+      unalignedStore( (((uint8*)data) + 4*i), 4*i/3);
       ++i;
     }
   }
@@ -386,8 +387,8 @@ void read_loop
     {
       uint8* pos(data+sizeof(uint32));
       pos += *(uint32*)pos;
-      std::cout<<", second block size "<<(*(uint32*)pos)<<" bytes, "
-      <<"second index "<<*(uint32*)(pos+sizeof(uint32));
+      std::cout<<", second block size "<< unalignedLoad<uint32>(pos) <<" bytes, "
+      <<"second index "<<unalignedLoad<uint32>(pos+sizeof(uint32));
     }
     std::cout<<'\n';
     ++it;
@@ -412,8 +413,8 @@ void read_loop
       {
 	uint8* pos(data+sizeof(uint32));
 	pos += *(uint32*)pos;
-	std::cout<<", second block size "<<(*(uint32*)pos)<<" bytes, "
-	    <<"second index "<<*(uint32*)(pos+sizeof(uint32));
+	std::cout<<", second block size "<<unalignedLoad<uint32>(pos)<<" bytes, "
+	    <<"second index "<<unalignedLoad<uint32>(pos+sizeof(uint32));
       }
     }
     std::cout<<'\n';
@@ -436,8 +437,8 @@ void read_loop
     {
       uint8* pos(data+sizeof(uint32));
       pos += *(uint32*)pos;
-      std::cout<<", second block size "<<(*(uint32*)pos)<<" bytes, "
-      <<"second index "<<*(uint32*)(pos+sizeof(uint32));
+      std::cout<<", second block size "<<unalignedLoad<uint32>(pos)<<" bytes, "
+      <<"second index "<<unalignedLoad<uint32>(pos+sizeof(uint32));
     }
     std::cout<<'\n';
     ++it;
@@ -652,7 +653,8 @@ uint32 prepare_block(void* block, const std::list< IntIndex >& indices)
     if ((*it).val() + 12 > max_keysize)
       max_keysize = (*it).val() + 12;
     
-    *(uint32*)(((uint8*)block)+pos) = (*it).val() + 12;
+    unalignedStore((((uint8*)block)+pos), (*it).val() + 12);
+
     (*it).to_data(((uint8*)block)+pos+sizeof(uint32));
     pos += (*it).val() + 12;
   }

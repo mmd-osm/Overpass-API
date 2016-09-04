@@ -177,9 +177,9 @@ File_Blocks_Index< TIndex >::File_Blocks_Index
         TIndex index(index_buf.ptr + pos + 12);
         File_Block_Index_Entry< TIndex >
             entry(index,
-	    *(uint32*)(index_buf.ptr + pos),
-	    *(uint32*)(index_buf.ptr + pos + 4),
-	    *(uint32*)(index_buf.ptr + pos + 8));
+            unalignedLoad<uint32>(index_buf.ptr + pos),
+            unalignedLoad<uint32>(index_buf.ptr + pos + 4),
+            unalignedLoad<uint32>(index_buf.ptr + pos + 8));
         blocks.push_back(entry);
         if (entry.pos > block_count)
 	  throw File_Error(0, index_file_name, "File_Blocks_Index: bad pos in index file");
@@ -264,11 +264,14 @@ File_Blocks_Index< TIndex >::~File_Blocks_Index()
   for (typename std::list< File_Block_Index_Entry< TIndex > >::const_iterator
       it(blocks.begin()); it != blocks.end(); ++it)
   {
-    *(uint32*)(index_buf.ptr+pos) = it->pos;
+    unalignedStore(index_buf.ptr+pos, it->pos);
+
     pos += 4;
-    *(uint32*)(index_buf.ptr+pos) = it->size;
+    unalignedStore(index_buf.ptr+pos, it->size);
+
     pos += 4;
-    *(uint32*)(index_buf.ptr+pos) = it->max_keysize;
+    unalignedStore(index_buf.ptr+pos, it->max_keysize);
+
     pos += 4;
     it->index.to_data(index_buf.ptr+pos);
     pos += it->index.size_of();

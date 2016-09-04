@@ -1027,7 +1027,7 @@ void Block_Backend< TIndex, TObject, TIterator >::create_from_scratch
 	it2->to_data(pos);
 	pos = pos + it2->size_of();
       }
-      *(uint32*)current_pos = pos - buffer.ptr;
+      unalignedStore(current_pos, (uint32) (pos - buffer.ptr));
     }
     else
     {

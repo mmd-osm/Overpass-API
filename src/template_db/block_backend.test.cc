@@ -38,7 +38,7 @@ struct IntIndex
 {
   typedef uint32 Id_Type;
   
-  IntIndex(void* data) : value(*(uint32*)data) {}
+  IntIndex(void* data) : value(unalignedLoad<uint32>(data)) {}
   IntIndex(int i) : value(i) {}
   
   uint32 size_of() const
@@ -53,7 +53,7 @@ struct IntIndex
   
   void to_data(void* data) const
   {
-    *(uint32*)data = value;
+    unalignedStore(data, value);
   }
   
   bool operator<(const IntIndex& index) const
@@ -79,7 +79,7 @@ struct IntObject
 {
   typedef uint32 Id_Type;
   
-  IntObject(void* data) : value(*(uint32*)data) {}
+  IntObject(void* data) : value(unalignedLoad<uint32>(data)) {}
   IntObject(int i) : value(i) {}
   
   uint32 size_of() const
@@ -94,7 +94,7 @@ struct IntObject
   
   void to_data(void* data) const
   {
-    *(uint32*)data = value;
+    unalignedStore(data, value);
   }
   
   bool operator<(const IntObject& index) const

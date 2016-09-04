@@ -26,6 +26,7 @@
 
 #include <cerrno>
 #include <cstdlib>
+#include <cstring>
 #include <string>
 #include <vector>
 
@@ -50,6 +51,39 @@ typedef unsigned long long uint64;
 
 
 const int S_666 = S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH;
+
+
+#ifdef __has_builtin
+#  define OVERPASS_HAS_BUILTIN(x)     __has_builtin(x)
+#else
+#  define OVERPASS_HAS_BUILTIN(x)     0
+#endif
+
+template <typename T>
+inline T unalignedLoad(const void *ptr)
+{
+    T result;
+#if OVERPASS_HAS_BUILTIN(__builtin_memcpy)
+    __builtin_memcpy
+#else
+    std::memcpy
+#endif
+    /*memcpy*/(&result, ptr, sizeof result);
+    return result;
+}
+
+template <typename T>
+inline void unalignedStore(void *ptr, T t)
+{
+#if OVERPASS_HAS_BUILTIN(__builtin_memcpy)
+    __builtin_memcpy
+#else
+    memcpy
+#endif
+    /*memcpy*/(ptr, &t, sizeof t);
+}
+
+#undef OVERPASS_HAS_BUILTIN
 
 
 struct File_Error

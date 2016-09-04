@@ -43,7 +43,7 @@ struct String_Object
   String_Object(string s) : value(s) {}
   String_Object(void* data) : value()
   {
-    value = string(((int8*)data + 2), *(uint16*)data);
+    value = string(((int8*)data + 2), unalignedLoad<uint16>(data));
   }
   
   uint32 size_of() const
@@ -58,7 +58,7 @@ struct String_Object
   
   void to_data(void* data) const
   {
-    *(uint16*)data = value.length();
+    unalignedStore(data, (uint16) value.length());
     memcpy(((uint8*)data + 2), value.data(), value.length());
   }
   
@@ -277,8 +277,8 @@ struct User_Data
   
   User_Data(void* data)
   {
-    id = *(uint32*)data;
-    name = string(((int8*)data + 6), *(uint16*)((int8*)data + 4));
+    id = unalignedLoad<uint32>(data);
+    name = string(((int8*)data + 6), unalignedLoad<uint16>((int8*)data + 4));
   }
   
   uint32 size_of() const
@@ -288,13 +288,13 @@ struct User_Data
   
   static uint32 size_of(void* data)
   {
-    return 6 + *(uint16*)((int8*)data + 4);
+    return 6 + unalignedLoad<uint16>((int8*)data + 4);
   }
   
   void to_data(void* data) const
   {
-    *(uint32*)data = id;
-    *(uint16*)((int8*)data + 4) = name.length();
+    unalignedStore(data, id);
+    unalignedStore((int8*)data + 4, (uint16) name.length());
     memcpy(((int8*)data + 6), name.data(), name.length());
   }
   

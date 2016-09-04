@@ -19,8 +19,9 @@
 #ifndef DE__OSM3S___OVERPASS_API__CORE__BASIC_TYPES_H
 #define DE__OSM3S___OVERPASS_API__CORE__BASIC_TYPES_H
 
-
+#include "../../template_db/types.h"
 #include <vector>
+
 
 
 typedef unsigned int uint;
@@ -41,7 +42,7 @@ struct Uint32_Index
   
   Uint32_Index() : value(0u) {}
   Uint32_Index(uint32 i) : value(i) {}
-  Uint32_Index(void* data) : value(*(uint32*)data) {}
+  Uint32_Index(void* data) : value(unalignedLoad<uint32>(data)) {}
   
   uint32 size_of() const
   {
@@ -60,7 +61,7 @@ struct Uint32_Index
   
   void to_data(void* data) const
   {
-    *(uint32*)data = value;
+    unalignedStore(data, value);
   }
   
   bool operator<(const Uint32_Index& index) const
@@ -123,7 +124,8 @@ struct Uint31_Index : Uint32_Index
 {
   Uint31_Index() : Uint32_Index() {}
   Uint31_Index(uint32 i) : Uint32_Index(i) {}
-  Uint31_Index(void* data) : Uint32_Index(*(uint32*)data) {}
+  Uint31_Index(void* data) : Uint32_Index(unalignedLoad<uint32>(data)) {}
+
   
   bool operator<(const Uint31_Index& index) const
   {
@@ -157,7 +159,7 @@ struct Uint64
   
   Uint64() : value(0ull) {}
   Uint64(uint64 i) : value(i) {}
-  Uint64(void* data) : value(*(uint64*)data) {}
+  Uint64(void* data) : value(unalignedLoad<uint64>(data)) {}
   
   uint32 size_of() const { return 8; }
   static uint32 max_size_of() { return 8; }
@@ -165,7 +167,7 @@ struct Uint64
   
   void to_data(void* data) const
   {
-    *(uint64*)data = value;
+    unalignedStore(data, value);
   }
   
   bool operator<(const Uint64& index) const
