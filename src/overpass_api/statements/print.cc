@@ -581,9 +581,12 @@ void Print_Statement::tags_quadtile
      const File_Properties* meta_file_prop, uint32& element_count)
 {
   //generate set of relevant coarse indices
-  set< Index > coarse_indices;
   map< uint32, vector< typename Object::Id_Type > > ids_by_coarse;
-  generate_ids_by_coarse(coarse_indices, ids_by_coarse, items);
+  generate_ids_by_coarse(ids_by_coarse, items);
+  set< Index > coarse_indices;
+  for (typename map< uint32, vector< typename Object::Id_Type > >::const_iterator it = ids_by_coarse.begin();
+      it != ids_by_coarse.end(); ++it)
+    coarse_indices.insert(Index(it->first));
   
   //formulate range query
   set< pair< Tag_Index_Local, Tag_Index_Local > > range_set;
@@ -603,8 +606,8 @@ void Print_Statement::tags_quadtile
       item_it(items.begin());
       
   //uint coarse_count = 0;
-  for (typename set< Index >::const_iterator
-      it(coarse_indices.begin()); it != coarse_indices.end(); ++it)
+  for (typename map< uint32, vector< typename Object::Id_Type > >::const_iterator
+      it = ids_by_coarse.begin(); it != ids_by_coarse.end(); ++it)
   {
     // Disable health_check: This ensures that a result will be always printed completely
 //     if (++coarse_count >= 1024)
@@ -613,14 +616,12 @@ void Print_Statement::tags_quadtile
 //       rman.health_check(*this);
 //     }
     
-    sort(ids_by_coarse[it->val()].begin(), ids_by_coarse[it->val()].end());
-    
     map< typename Object::Id_Type, vector< pair< string, string > > > tags_by_id;
-    collect_tags(tags_by_id, items_db, tag_it, ids_by_coarse, it->val());
+    collect_tags(tags_by_id, items_db, tag_it, ids_by_coarse, it->first);
     
     // print the result
     while ((item_it != items.end()) &&
-        ((item_it->first.val() & 0x7fffff00) == it->val()))
+        ((item_it->first.val() & 0x7fffff00) == it->first))
     {
       for (typename vector< Object >::const_iterator it2(item_it->second.begin());
           it2 != item_it->second.end(); ++it2)
@@ -646,9 +647,12 @@ void Print_Statement::tags_quadtile_attic
      uint32& element_count)
 {
   //generate set of relevant coarse indices
-  set< Index > coarse_indices;
   map< uint32, vector< Attic< typename Object::Id_Type > > > ids_by_coarse;
-  generate_ids_by_coarse(coarse_indices, ids_by_coarse, items);
+  generate_ids_by_coarse(ids_by_coarse, items);
+  set< Index > coarse_indices;
+  for (typename map< uint32, vector< Attic< typename Object::Id_Type > > >::const_iterator
+      it = ids_by_coarse.begin(); it != ids_by_coarse.end(); ++it)
+    coarse_indices.insert(Index(it->first));
   
   //formulate range query
   set< pair< Tag_Index_Local, Tag_Index_Local > > range_set;
@@ -680,8 +684,8 @@ void Print_Statement::tags_quadtile_attic
       item_it(items.begin());
       
   //uint coarse_count = 0;
-  for (typename set< Index >::const_iterator
-      it(coarse_indices.begin()); it != coarse_indices.end(); ++it)
+  for (typename map< uint32, vector< Attic< typename Object::Id_Type > > >::const_iterator
+      it = ids_by_coarse.begin(); it != ids_by_coarse.end(); ++it)
   {
     // Disable health_check: This ensures that a result will be always printed completely
 //     if (++coarse_count >= 1024)
@@ -690,15 +694,13 @@ void Print_Statement::tags_quadtile_attic
 //       rman.health_check(*this);
 //     }
     
-    sort(ids_by_coarse[it->val()].begin(), ids_by_coarse[it->val()].end());
-    
     map< Attic< typename Object::Id_Type >, vector< pair< string, string > > > tags_by_id;
     collect_tags(tags_by_id, current_tags_db, current_tag_it, attic_tags_db, attic_tag_it,
-                 ids_by_coarse, it->val(), typename Object::Id_Type(), typename Object::Id_Type());
+                 ids_by_coarse, it->first, typename Object::Id_Type(), typename Object::Id_Type());
     
     // print the result
     while ((item_it != items.end()) &&
-        ((item_it->first.val() & 0x7fffff00) == it->val()))
+        ((item_it->first.val() & 0x7fffff00) == it->first))
     {
       for (typename vector< Attic< Object > >::const_iterator it2(item_it->second.begin());
           it2 != item_it->second.end(); ++it2)
@@ -881,17 +883,16 @@ void Print_Statement::tags_by_id
        Skeleton_Comparator_By_Id< TObject >());
   
   //generate set of relevant coarse indices
-  set< TIndex > coarse_indices;
   map< uint32, vector< typename TObject::Id_Type > > ids_by_coarse;
-  generate_ids_by_coarse(coarse_indices, ids_by_coarse, items);
+  generate_ids_by_coarse(ids_by_coarse, items);
+  set< TIndex > coarse_indices;
+  for (typename map< uint32, vector< typename TObject::Id_Type > >::const_iterator it = ids_by_coarse.begin();
+      it != ids_by_coarse.end(); ++it)
+    coarse_indices.insert(TIndex(it->first));
   
   //formulate range query
   set< pair< Tag_Index_Local, Tag_Index_Local > > range_set;
   formulate_range_query(range_set, coarse_indices);
-  
-  for (typename set< TIndex >::const_iterator
-      it(coarse_indices.begin()); it != coarse_indices.end(); ++it)
-    sort(ids_by_coarse[it->val()].begin(), ids_by_coarse[it->val()].end());
   
   // formulate meta query if meta data shall be printed
   Meta_Collector< TIndex, typename TObject::Id_Type > meta_printer(items, *rman.get_transaction(), meta_file_prop);
@@ -919,9 +920,9 @@ void Print_Statement::tags_by_id
         tag_it(items_db.range_begin
         (Default_Range_Iterator< Tag_Index_Local >(range_set.begin()),
          Default_Range_Iterator< Tag_Index_Local >(range_set.end())));
-    for (typename set< TIndex >::const_iterator
-        it(coarse_indices.begin()); it != coarse_indices.end(); ++it)
-      collect_tags_framed< typename TObject::Id_Type >(tags_by_id, items_db, tag_it, ids_by_coarse, it->val(),
+    for (typename map< uint32, vector< typename TObject::Id_Type > >::const_iterator it = ids_by_coarse.begin();
+        it != ids_by_coarse.end(); ++it)
+      collect_tags_framed< typename TObject::Id_Type >(tags_by_id, items_db, tag_it, ids_by_coarse, it->first,
 			  lower_id_bound, upper_id_bound);
     
     // collect metadata if required
@@ -995,13 +996,19 @@ void Print_Statement::tags_by_id_attic
   sort(items_by_id.begin(), items_by_id.end());
   
   //generate set of relevant coarse indices
-  std::set< Index > current_coarse_indices;
   std::map< uint32, std::vector< typename Object::Id_Type > > current_ids_by_coarse;
-  generate_ids_by_coarse(current_coarse_indices, current_ids_by_coarse, current_items);
+  generate_ids_by_coarse(current_ids_by_coarse, current_items);
+  std::set< Index > current_coarse_indices;
+  for (typename std::map< uint32, vector< typename Object::Id_Type > >::const_iterator
+      it = current_ids_by_coarse.begin(); it != current_ids_by_coarse.end(); ++it)
+    current_coarse_indices.insert(Index(it->first));
   
-  std::set< Index > attic_coarse_indices;
   std::map< uint32, std::vector< Attic< typename Object::Id_Type > > > attic_ids_by_coarse;
-  generate_ids_by_coarse(attic_coarse_indices, attic_ids_by_coarse, attic_items);
+  generate_ids_by_coarse(attic_ids_by_coarse, attic_items);
+  std::set< Index > attic_coarse_indices;
+  for (typename std::map< uint32, std::vector< Attic< typename Object::Id_Type > > >::const_iterator
+      it = attic_ids_by_coarse.begin(); it != attic_ids_by_coarse.end(); ++it)
+    attic_coarse_indices.insert(Index(it->first));
   
   //formulate range query
   set< pair< Tag_Index_Local, Tag_Index_Local > > current_range_set;
@@ -1009,14 +1016,6 @@ void Print_Statement::tags_by_id_attic
   
   set< pair< Tag_Index_Local, Tag_Index_Local > > attic_range_set;
   formulate_range_query(attic_range_set, attic_coarse_indices);
-  
-  for (typename set< Index >::const_iterator
-      it(current_coarse_indices.begin()); it != current_coarse_indices.end(); ++it)
-    sort(current_ids_by_coarse[it->val()].begin(), current_ids_by_coarse[it->val()].end());
-  
-  for (typename set< Index >::const_iterator
-      it(attic_coarse_indices.begin()); it != attic_coarse_indices.end(); ++it)
-    sort(attic_ids_by_coarse[it->val()].begin(), attic_ids_by_coarse[it->val()].end());
   
   // formulate meta query if meta data shall be printed
   Meta_Collector< Index, typename Object::Id_Type > only_current_meta_printer
@@ -1053,10 +1052,10 @@ void Print_Statement::tags_by_id_attic
         only_current_tag_it(current_tags_db.range_begin
         (Default_Range_Iterator< Tag_Index_Local >(current_range_set.begin()),
          Default_Range_Iterator< Tag_Index_Local >(current_range_set.end())));
-    for (typename set< Index >::const_iterator
-        it(current_coarse_indices.begin()); it != current_coarse_indices.end(); ++it)
+    for (typename std::map< uint32, vector< typename Object::Id_Type > >::const_iterator
+        it = current_ids_by_coarse.begin(); it != current_ids_by_coarse.end(); ++it)
       collect_tags_framed< typename Object::Id_Type >(current_tags_by_id, current_tags_db, only_current_tag_it,
-	  current_ids_by_coarse, it->val(), lower_id_bound, upper_id_bound);
+	  current_ids_by_coarse, it->first, lower_id_bound, upper_id_bound);
       
     map< Attic< typename Object::Id_Type >, vector< pair< string, string > > > attic_tags_by_id;
     typename Block_Backend< Tag_Index_Local, typename Object::Id_Type >::Range_Iterator
@@ -1067,10 +1066,10 @@ void Print_Statement::tags_by_id_attic
         attic_tag_it(attic_tags_db.range_begin
         (Default_Range_Iterator< Tag_Index_Local >(attic_range_set.begin()),
          Default_Range_Iterator< Tag_Index_Local >(attic_range_set.end())));
-    for (typename set< Index >::const_iterator
-        it(attic_coarse_indices.begin()); it != attic_coarse_indices.end(); ++it)
+    for (typename std::map< uint32, std::vector< Attic< typename Object::Id_Type > > >::const_iterator
+        it = attic_ids_by_coarse.begin(); it != attic_ids_by_coarse.end(); ++it)
       collect_tags(attic_tags_by_id, current_tags_db, current_tag_it, attic_tags_db, attic_tag_it,
-                 attic_ids_by_coarse, it->val(), lower_id_bound, upper_id_bound);
+                 attic_ids_by_coarse, it->first, lower_id_bound, upper_id_bound);
     
     // collect metadata if required
     set< OSM_Element_Metadata_Skeleton< typename Object::Id_Type > > only_current_metadata;
