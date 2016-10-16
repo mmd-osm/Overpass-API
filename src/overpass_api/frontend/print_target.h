@@ -24,13 +24,29 @@
 
 #include <string>
 
+#include <osmium/builder/osm_object_builder.hpp>
+#include <osmium/io/pbf_output.hpp>
+#include <osmium/io/error.hpp>
+#include <osmium/io/any_compression.hpp>
+#include <osmium/io/header.hpp>
+#include <osmium/memory/buffer.hpp>
+#include <osmium/osm/box.hpp>
+#include <osmium/osm/item_type.hpp>
+#include <osmium/osm/location.hpp>
+#include <osmium/osm/node.hpp>
+#include <osmium/osm/relation.hpp>
+#include <osmium/osm/timestamp.hpp>
+#include <osmium/osm/types.hpp>
+#include <osmium/osm/way.hpp>
+
 using namespace std;
 
 class Output_Handle
 {
   public:
     Output_Handle(string type_)
-      : type(type_), mode(0), print_target(0), written_elements_count(0), first_id(0) {}
+      : type(type_), mode(0), print_target(0), written_elements_count(0), first_id(0),
+        output_file(nullptr), header(nullptr), writer(nullptr) {}
     ~Output_Handle();
     
     Print_Target& get_print_target(uint32 mode, Transaction& transaction);
@@ -71,6 +87,9 @@ class Output_Handle
     string relation_template;
     vector< Category_Filter > categories;
     Csv_Settings csv_settings;
+    osmium::io::File * output_file;
+    osmium::io::Header* header;
+    osmium::io::Writer * writer;
 };
 
 string::size_type find_block_end(string data, string::size_type pos);

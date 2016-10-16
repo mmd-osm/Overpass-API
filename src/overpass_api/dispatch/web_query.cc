@@ -91,6 +91,9 @@ int main(int argc, char *argv[])
         error_output.write_json_header("", "");
       else if (osm_script->get_type() == "csv")
         error_output.write_csv_header("", "");
+      else if (osm_script->get_type() == "pbf")
+//        error_output.write_csv_header("", "")
+        ;
       else
         osm_script->set_template_name(template_name);
     }
@@ -115,6 +118,11 @@ int main(int argc, char *argv[])
         error_output.write_csv_header
             (dispatcher.get_timestamp(),
 	     area_level > 0 ? dispatcher.get_area_timestamp() : "");
+      else if (osm_script->get_type() == "pbf")
+//        error_output.write_csv_header
+//            (dispatcher.get_timestamp(),
+//             area_level > 0 ? dispatcher.get_area_timestamp() : "")
+        ;
       else
         osm_script->set_template_name(template_name);
       

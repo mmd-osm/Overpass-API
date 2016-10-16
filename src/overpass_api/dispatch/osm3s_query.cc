@@ -183,6 +183,8 @@ int main(int argc, char *argv[])
       web_output.write_json_header
           (dispatcher.get_timestamp(),
 	   area_level > 0 ? dispatcher.get_area_timestamp() : "", false);
+    else if (osm_script->get_type() == "pbf")
+      ;
     else
       ;
     

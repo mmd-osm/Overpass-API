@@ -27,7 +27,23 @@
 #include <set>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
+
+#include <osmium/builder/osm_object_builder.hpp>
+#include <osmium/io/pbf_output.hpp>
+#include <osmium/io/error.hpp>
+#include <osmium/io/any_compression.hpp>
+#include <osmium/io/header.hpp>
+#include <osmium/memory/buffer.hpp>
+#include <osmium/osm/box.hpp>
+#include <osmium/osm/item_type.hpp>
+#include <osmium/osm/location.hpp>
+#include <osmium/osm/node.hpp>
+#include <osmium/osm/relation.hpp>
+#include <osmium/osm/timestamp.hpp>
+#include <osmium/osm/types.hpp>
+#include <osmium/osm/way.hpp>
 
 using namespace std;
 
@@ -173,6 +189,52 @@ class Print_Target_Csv : public Print_Target
 
     Csv_Settings csv_settings;
     mutable bool needs_headerline;
+};
+
+class Print_Target_Pbf : public Print_Target
+{
+  public:
+    Print_Target_Pbf(uint32 mode, Transaction& transaction, osmium::io::Writer& w)
+        : Print_Target(mode, transaction), writer(&w) {
+
+    }
+
+    virtual void print_item(uint32 ll_upper, const Node_Skeleton& skel,
+                            const vector< pair< string, string > >* tags = 0,
+                            const OSM_Element_Metadata_Skeleton< Node::Id_Type >* meta = 0,
+                            const map< uint32, string >* users = 0, const Action& action = KEEP,
+                            const OSM_Element_Metadata_Skeleton< Node::Id_Type >* new_meta = 0,
+                            Show_New_Elem show_new_elem = visible_void);
+    virtual void print_item(uint32 ll_upper, const Way_Skeleton& skel,
+                            const vector< pair< string, string > >* tags = 0,
+                            const std::pair< Quad_Coord, Quad_Coord* >* bounds = 0,
+                            const std::vector< Quad_Coord >* geometry = 0,
+                            const OSM_Element_Metadata_Skeleton< Way::Id_Type >* meta = 0,
+                            const map< uint32, string >* users = 0, const Action& action = KEEP,
+                            const OSM_Element_Metadata_Skeleton< Way::Id_Type >* new_meta = 0,
+                            Show_New_Elem show_new_elem = visible_void);
+    virtual void print_item(uint32 ll_upper, const Relation_Skeleton& skel,
+                            const vector< pair< string, string > >* tags = 0,
+                            const std::pair< Quad_Coord, Quad_Coord* >* bounds = 0,
+                            const std::vector< std::vector< Quad_Coord > >* geometry = 0,
+                            const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* meta = 0,
+                            const map< uint32, string >* users = 0, const Action& action = KEEP,
+                            const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* new_meta = 0,
+                            Show_New_Elem show_new_elem = visible_void);
+
+    virtual void print_item(uint32 ll_upper, const Area_Skeleton& skel,
+                            const vector< pair< string, string > >* tags = 0,
+                            const OSM_Element_Metadata_Skeleton< Area::Id_Type >* meta = 0,
+                            const map< uint32, string >* users = 0, const Action& action = KEEP);
+
+    virtual void print_item_count(const Output_Item_Count& item_count);
+
+  private:
+
+    void maybe_flush();
+
+    osmium::memory::Buffer buffer{1024*1024};
+    osmium::io::Writer* writer;
 };
 
 
@@ -713,6 +775,32 @@ void print_meta_json(const OSM_Element_Metadata_Skeleton< Id_Type >& meta,
   cout<<",\n  \"uid\": "<<meta.user_id;
 }
 
+template< typename Id_Type >
+std::string get_timestamp_iso(const OSM_Element_Metadata_Skeleton< Id_Type >& meta)
+{
+  uint32 year = (meta.timestamp)>>26;
+  uint32 month = ((meta.timestamp)>>22) & 0xf;
+  uint32 day = ((meta.timestamp)>>17) & 0x1f;
+  uint32 hour = ((meta.timestamp)>>12) & 0x1f;
+  uint32 minute = ((meta.timestamp)>>6) & 0x3f;
+  uint32 second = meta.timestamp & 0x3f;
+  std::string timestamp("    -  -  T  :  :  Z");
+  timestamp[0] = (year / 1000) % 10 + '0';
+  timestamp[1] = (year / 100) % 10 + '0';
+  timestamp[2] = (year / 10) % 10 + '0';
+  timestamp[3] = year % 10 + '0';
+  timestamp[5] = (month / 10) % 10 + '0';
+  timestamp[6] = month % 10 + '0';
+  timestamp[8] = (day / 10) % 10 + '0';
+  timestamp[9] = day % 10 + '0';
+  timestamp[11] = (hour / 10) % 10 + '0';
+  timestamp[12] = hour % 10 + '0';
+  timestamp[14] = (minute / 10) % 10 + '0';
+  timestamp[15] = minute % 10 + '0';
+  timestamp[17] = (second / 10) % 10 + '0';
+  timestamp[18] = second % 10 + '0';
+  return timestamp;
+}
 
 void Print_Target_Json::print_item(uint32 ll_upper, const Node_Skeleton& skel,
 		const vector< pair< string, string > >* tags,
@@ -1185,6 +1273,231 @@ void Print_Target_Csv::print_item_count(const Output_Item_Count& item_count)
 
   process_csv_line(std::cout, item_count);
 }
+
+//-----------------------------------------------------------------------------
+
+void Print_Target_Pbf::print_item(uint32 ll_upper, const Node_Skeleton& skel,
+                const vector< pair< string, string > >* tags,
+                const OSM_Element_Metadata_Skeleton< Node::Id_Type >* meta,
+                const map< uint32, string >* users, const Action& action,
+                const OSM_Element_Metadata_Skeleton< Node::Id_Type >* new_meta,
+                Show_New_Elem show_new_elem)
+{
+
+  osmium::builder::NodeBuilder builder{buffer};
+  osmium::Node& node = builder.object();
+
+  node.set_id(skel.id.val());
+
+  if (meta)
+  {
+    node.set_version(meta->version);
+    node.set_changeset(meta->changeset);
+    node.set_deleted(false);
+    node.set_uid(meta->user_id);
+    node.set_timestamp(get_timestamp_iso(*meta).c_str());
+
+    map< uint32, string >::const_iterator it = users->find(meta->user_id);
+    if (it != users->end())
+      builder.add_user(it->second);
+  }
+  osmium::Location location;
+
+  if (mode & PRINT_IDS)
+;
+  if (mode & (PRINT_COORDS | PRINT_GEOMETRY | PRINT_BOUNDS | PRINT_CENTER))
+  {
+    location.set_lat(::lat(ll_upper, skel.ll_lower));
+    location.set_lon(::lon(ll_upper, skel.ll_lower));
+    node.set_location(location);
+  }
+
+  if ((tags != 0) && (!tags->empty()))
+  {
+    osmium::builder::TagListBuilder builder3{buffer, &builder};
+
+    for (vector< pair< string, string > >::const_iterator it(tags->begin());
+        it != tags->end(); ++it)
+      builder3.add_tag(it->first, it->second);
+  }
+
+  buffer.commit();
+
+  maybe_flush();
+}
+
+
+void Print_Target_Pbf::print_item(uint32 ll_upper, const Way_Skeleton& skel,
+                const vector< pair< string, string > >* tags,
+                const std::pair< Quad_Coord, Quad_Coord* >* bounds,
+                const std::vector< Quad_Coord >* geometry,
+                const OSM_Element_Metadata_Skeleton< Way::Id_Type >* meta,
+                const map< uint32, string >* users, const Action& action,
+                const OSM_Element_Metadata_Skeleton< Way::Id_Type >* new_meta,
+                Show_New_Elem show_new_elem)
+{
+
+  osmium::builder::WayBuilder builder{buffer};
+  osmium::Way& way = builder.object();
+
+  way.set_id(skel.id.val());
+
+  if (meta)
+  {
+    way.set_version(meta->version);
+    way.set_changeset(meta->changeset);
+    way.set_deleted(false);
+    way.set_uid(meta->user_id);
+    way.set_timestamp(get_timestamp_iso(*meta).c_str());
+
+    map< uint32, string >::const_iterator it = users->find(meta->user_id);
+    if (it != users->end())
+      builder.add_user(it->second);
+  }
+
+  if (((tags == 0) || (tags->empty())) &&
+      ((mode & (PRINT_NDS | PRINT_GEOMETRY | PRINT_BOUNDS | PRINT_CENTER)) == 0))
+    ;
+  else
+  {
+
+    if (mode & PRINT_NDS)
+    {
+
+      osmium::builder::WayNodeListBuilder builder2{buffer, &builder};
+
+      for (uint i = 0; i < skel.nds.size(); ++i)
+      {
+        osmium::Location location;
+
+        osmium::object_id_type ref = skel.nds[i].val();
+
+        if (geometry && !((*geometry)[i] == Quad_Coord(0u, 0u)))
+        {
+          location.set_lat(::lat((*geometry)[i].ll_upper, (*geometry)[i].ll_lower));
+          location.set_lon(::lon((*geometry)[i].ll_upper, (*geometry)[i].ll_lower));
+        }
+
+        builder2.add_node_ref(ref, location);
+      }
+    }
+    if ((tags != 0) && (!tags->empty()))
+    {
+      osmium::builder::TagListBuilder builder3{buffer, &builder};
+
+      for (vector< pair< string, string > >::const_iterator it(tags->begin());
+          it != tags->end(); ++it)
+        builder3.add_tag(it->first, it->second);
+    }
+  }
+
+  buffer.commit();
+
+  maybe_flush();
+}
+
+
+void Print_Target_Pbf::print_item(uint32 ll_upper, const Relation_Skeleton& skel,
+                const vector< pair< string, string > >* tags,
+                const std::pair< Quad_Coord, Quad_Coord* >* bounds,
+                const std::vector< std::vector< Quad_Coord > >* geometry,
+                const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* meta,
+                const map< uint32, string >* users, const Action& action,
+                const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* new_meta,
+                Show_New_Elem show_new_elem)
+{
+  osmium::builder::RelationBuilder builder{buffer};
+  osmium::Relation& relation = builder.object();
+
+  relation.set_id(skel.id.val());
+
+  if (meta)
+  {
+    relation.set_version(meta->version);
+    relation.set_changeset(meta->changeset);
+    relation.set_deleted(false);
+    relation.set_uid(meta->user_id);
+    relation.set_timestamp(get_timestamp_iso(*meta).c_str());
+
+    map< uint32, string >::const_iterator it = users->find(meta->user_id);
+    if (it != users->end())
+      builder.add_user(it->second);
+  }
+
+  if (((tags == 0) || (tags->empty())) &&
+      ((mode & (PRINT_NDS | PRINT_GEOMETRY | PRINT_BOUNDS | PRINT_CENTER)) == 0))
+    ;
+
+  else
+  {
+    if (mode & PRINT_MEMBERS)
+    {
+
+      osmium::builder::RelationMemberListBuilder builder2{buffer, &builder};
+
+      for (uint i = 0; i < skel.members.size(); ++i)
+      {
+        map< uint32, string >::const_iterator it = roles.find(skel.members[i].role);
+
+        osmium::item_type type;
+
+        switch(skel.members[i].type) {
+
+        case 1:
+          type = osmium::item_type::node;
+          break;
+        case 2:
+          type = osmium::item_type::way;
+          break;
+        case 3:
+          type = osmium::item_type::relation;
+          break;
+        }
+
+        builder2.add_member(type, skel.members[i].ref.val(), it != roles.end() ? it->second : "???");
+
+      }
+    }
+    if ((tags != 0) && (!tags->empty()))
+    {
+      osmium::builder::TagListBuilder builder3{buffer, &builder};
+
+      for (vector< pair< string, string > >::const_iterator it(tags->begin());
+          it != tags->end(); ++it)
+        builder3.add_tag(it->first, it->second);
+    }
+  }
+
+  buffer.commit();
+
+  maybe_flush();
+}
+
+
+void Print_Target_Pbf::print_item(uint32 ll_upper, const Area_Skeleton& skel,
+                const vector< pair< string, string > >* tags,
+                const OSM_Element_Metadata_Skeleton< Area::Id_Type >* meta,
+                const map< uint32, string >* users, const Action& action)
+{
+
+
+}
+
+void Print_Target_Pbf::print_item_count(const Output_Item_Count& item_count)
+{
+
+}
+
+void Print_Target_Pbf::maybe_flush()
+{
+  if (buffer.committed() > 800*1024) {
+    osmium::memory::Buffer _buffer{1024*1024};
+    using std::swap;
+    swap(_buffer, buffer);
+    writer->operator ()(std::move(_buffer));
+  }
+}
+
 
 //-----------------------------------------------------------------------------
 
@@ -2052,7 +2365,8 @@ Print_Target& Output_Handle::get_print_target(uint32 current_mode, Transaction& 
       }
       else if (dynamic_cast< Print_Target_Custom* >(print_target)
 	  || dynamic_cast< Print_Target_Xml* >(print_target)
-          || dynamic_cast< Print_Target_Csv* >(print_target))
+          || dynamic_cast< Print_Target_Csv* >(print_target)
+          || dynamic_cast< Print_Target_Pbf* >(print_target))
       {
         delete print_target;
         print_target = 0;
@@ -2075,6 +2389,16 @@ Print_Target& Output_Handle::get_print_target(uint32 current_mode, Transaction& 
       print_target = new Print_Target_Json(mode, transaction, first_target);
     else if (type == "csv")
       print_target = new Print_Target_Csv(mode, transaction, first_target, csv_settings);
+    else if (type == "pbf") {
+
+      output_file = new osmium::io::File("", "pbf");
+      header = new osmium::io::Header();
+      header->set("generator","Overpass API prototype");
+      header->set("osmosis_replication_timestamp", "2016-05-01T00:00:00Z");
+      writer = new osmium::io::Writer(*output_file, *header);
+
+      print_target = new Print_Target_Pbf(mode, transaction, *writer);
+    }
     else if (type == "custom")
       print_target = new Print_Target_Custom(mode, transaction, first_target,
 					     node_template, way_template, relation_template);
@@ -2143,4 +2467,13 @@ Output_Handle::~Output_Handle()
 {
   if (print_target)
     delete print_target;
+  if (writer) {
+    writer->close();
+    delete writer;
+  }
+//  if (header)
+//    delete header;
+//  if (output_file)
+//    delete output_file;
+
 }

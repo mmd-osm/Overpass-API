@@ -73,14 +73,18 @@ Osm_Script_Statement::Osm_Script_Statement
   }
   max_allowed_space = max_space;
 
-  if (attributes["output"] == "xml" || attributes["output"] == "json" || attributes["output"] == "csv" 
-      || attributes["output"] == "custom" || attributes["output"] == "popup")
+  if (attributes["output"] == "xml"  ||
+      attributes["output"] == "json" ||
+      attributes["output"] == "csv"  ||
+      attributes["output"] == "pbf"  ||
+      attributes["output"] == "custom" ||
+      attributes["output"] == "popup")
     type = attributes["output"];
   else
   {
     ostringstream temp;
     temp<<"For the attribute \"output\" of the element \"osm-script\""
-        <<" the only allowed values are \"xml\", \"json\", \"csv\", \"custom\", or \"popup\".";
+        <<" the only allowed values are \"xml\", \"json\", \"csv\", \"pbf\", \"custom\", or \"popup\".";
     add_static_error(temp.str());
   }
   

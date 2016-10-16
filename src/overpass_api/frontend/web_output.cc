@@ -291,6 +291,28 @@ void Web_Output::write_csv_header
   }
 }
 
+void Web_Output::write_pbf_header
+    (const string& timestamp, const string& area_timestamp, bool write_mime)
+{
+  if (header_written != not_yet)
+    return;
+  header_written = pbf;
+
+  if (write_mime)
+  {
+    if (allow_headers != "")
+      cout<<"Access-Control-Allow-Headers: "<<allow_headers<<'\n';
+    if (has_origin)
+      cout<<"Access-Control-Allow-Origin: *\n";
+    if (http_method == http_options)
+      cout<<"Access-Control-Allow-Methods: GET, POST, OPTIONS\n"
+            "Content-Length: 0\n";
+    cout<<"Content-type: application/vnd.openstreetmap.data.pbf\n\n";
+    if (http_method == http_options || http_method == http_head)
+      return;
+  }
+}
+
 
 void Web_Output::write_footer()
 {
