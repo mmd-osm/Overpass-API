@@ -77,6 +77,7 @@ Osm_Script_Statement::Osm_Script_Statement
       attributes["output"] == "json" ||
       attributes["output"] == "csv"  ||
       attributes["output"] == "pbf"  ||
+      attributes["output"] == "opl"  ||
       attributes["output"] == "custom" ||
       attributes["output"] == "popup")
     type = attributes["output"];

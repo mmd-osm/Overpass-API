@@ -291,12 +291,12 @@ void Web_Output::write_csv_header
   }
 }
 
-void Web_Output::write_pbf_header
-    (const string& timestamp, const string& area_timestamp, bool write_mime)
+void Web_Output::write_osmium_header
+    (const string& timestamp, const string& area_timestamp, const string& outputformat, bool write_mime)
 {
   if (header_written != not_yet)
     return;
-  header_written = pbf;
+  header_written = osmium;
 
   if (write_mime)
   {
@@ -307,7 +307,12 @@ void Web_Output::write_pbf_header
     if (http_method == http_options)
       cout<<"Access-Control-Allow-Methods: GET, POST, OPTIONS\n"
             "Content-Length: 0\n";
-    cout<<"Content-type: application/vnd.openstreetmap.data.pbf\n\n";
+
+    if (outputformat == "pbf")
+        cout<<"Content-type: application/vnd.openstreetmap.data.pbf\n\n" << std::flush;
+    else if (outputformat == "opl")
+        cout<<"Content-type: application/vnd.openstreetmap.data.opl\n\n" << std::flush;;
+
     if (http_method == http_options || http_method == http_head)
       return;
   }
