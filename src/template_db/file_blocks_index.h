@@ -29,6 +29,8 @@
 #include <list>
 #include <string>
 #include <vector>
+#include <iostream>
+
 
 /** Declarations: -----------------------------------------------------------*/
 
@@ -230,6 +232,7 @@ void File_Blocks_Index< TIndex >::init_blocks()
 	pos += 12;
         pos += TIndex::size_of(index_buf.ptr + pos);
       }
+
     }
     
     index_buf.resize(0);

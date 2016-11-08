@@ -30,6 +30,7 @@
 #include <limits>
 #include <map>
 #include <vector>
+#include <iostream>
 
 
 struct Random_File_Index_Entry
@@ -165,6 +166,9 @@ inline Random_File_Index::Random_File_Index
       {
         block_count = file_size / (1ull<<block_exp);
         
+
+        blocks.reserve(index_size);
+
         uint32 pos = 8;
         while (pos < index_size)
         {

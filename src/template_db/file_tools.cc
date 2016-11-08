@@ -167,6 +167,7 @@ void Blocking_Client_Socket::send_result(uint32 result)
 
 Blocking_Client_Socket::~Blocking_Client_Socket()
 {
+  printf ("DEBUG: CLOSING SOCKET %d\n", socket_descriptor);                 // TODO: REMOVE DEBUG CODE!!
   close(socket_descriptor);
 }
 

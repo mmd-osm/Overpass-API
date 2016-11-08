@@ -24,8 +24,12 @@
 
 #include <map>
 #include <set>
+#include <unordered_set>
 #include <vector>
 
+#include <event2/event.h>
+#include <event2/buffer.h>
+#include <event2/bufferevent.h>
 
 class Idx_Footprints
 {
@@ -153,8 +157,12 @@ public:
 		    uint max_num_reading_processes_);
   ~Dispatcher_Socket();
   
+  void set_socket_non_blocking();
+  void set_socket_reuse_addr();
   void look_for_a_new_connection(Connection_Per_Pid_Map& connection_per_pid);
+  int accept_new_connection();
   std::vector< int >::size_type num_started_connections() { return started_connections.size(); }
+  void event_add_new(struct event_base *, short, event_callback_fn, void *);
     
 private:
   Unix_Socket socket;
@@ -251,6 +259,10 @@ class Dispatcher
         it remains in standby forever. */
     void standby_loop(uint64 milliseconds);
 
+    void run_server();
+
+    void handle_command(evbuffer * output, evutil_socket_t socket_fd, std::vector< uint32 > command_arguments, uint32 client_pid);
+
     /** Outputs the status of the processes registered with the dispatcher
         into shadow_name.status. */
     void output_status();
@@ -258,9 +270,16 @@ class Dispatcher
     /** Set the limit of simultaneous queries from a single IP address. */
     void set_rate_limit(uint rate_limit) { global_resource_planner.set_rate_limit(rate_limit); }
     
+    void on_accept(int fd, short ev);
+    void on_read(struct bufferevent *bev);
+    void on_write(struct bufferevent *bev);
+    void on_error(struct bufferevent *bev, short error);
+
   private:
     Dispatcher_Socket socket;
     Connection_Per_Pid_Map connection_per_pid;
+    std::unordered_set<evutil_socket_t> sockets_to_close;
+    std::map<int, ucred> fd_process;
     std::vector< File_Properties* > controlled_files;
     std::vector< Idx_Footprints > data_footprints;
     std::vector< Idx_Footprints > map_footprints;
@@ -284,6 +303,7 @@ class Dispatcher
     void check_and_purge();
     uint64 total_claimed_space() const;
     uint64 total_claimed_time_units() const;
+    event_base *base;
 };
 
 
