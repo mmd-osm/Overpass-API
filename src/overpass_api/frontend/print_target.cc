@@ -20,7 +20,9 @@
 #include "output.h"
 #include "print_target.h"
 
+
 #include <algorithm>
+#include <future>
 #include <iomanip>
 #include <iostream>
 #include <map>
@@ -29,6 +31,9 @@
 #include <string>
 #include <utility>
 #include <vector>
+
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include <osmium/builder/osm_object_builder.hpp>
 #include <osmium/io/any_output.hpp>
@@ -2396,11 +2401,49 @@ Print_Target& Output_Handle::get_print_target(uint32 current_mode, Transaction& 
       print_target = new Print_Target_Csv(mode, transaction, first_target, csv_settings);
     else if (type == "pbf" || type == "opl") {
 
-      output_file = new osmium::io::File("", type);
+      std::ostringstream buffer;
+      buffer << "/tmp/osm3s.fifo." << getpid();
+      repeater_file = buffer.str();
+
+      int ret = remove(repeater_file.c_str());
+
+      ret = mkfifo(repeater_file.c_str(), 0600);
+      if (ret < 0)
+        throw File_Error(errno, repeater_file, "print_target::osmium::mkfifo");
+
+      repeater = std::async(std::launch::async, [](std::string repeater_file)
+          {
+
+        ssize_t len = 0;
+        char buffer[PIPE_BUF];
+
+        int readFd = open(repeater_file.c_str(), O_RDONLY);
+        if (readFd < 0)
+            throw File_Error(errno, repeater_file, "print_target::osmium::open:readFd");
+
+        while(true) {
+            len = read(readFd, &buffer, sizeof(buffer));
+            if (len < 0)
+              throw File_Error(errno, repeater_file, "print_target::osmium::open:read");
+
+            if (len == 0)
+              break;
+
+            if (len > 0) {
+              std::cout.write(&buffer[0], len);
+            }
+        }
+        close(readFd);
+
+        std::cout << std::flush;
+
+      }, repeater_file);
+
+      output_file = new osmium::io::File( repeater_file, type);
       header = new osmium::io::Header();
       header->set("generator","Overpass API prototype");
       header->set("osmosis_replication_timestamp", "2016-05-01T00:00:00Z");   // TODO: use actual date from dispatcher
-      writer = new osmium::io::Writer(*output_file, *header);
+      writer = new osmium::io::Writer(*output_file, *header, osmium::io::overwrite::allow);
 
       print_target = new Print_Target_Osmium(mode, transaction, *writer);
     }
@@ -2470,12 +2513,24 @@ void Output_Handle::print_elements_header()
 
 Output_Handle::~Output_Handle()
 {
+
   if (print_target)
     delete print_target;
-  if (writer) {
+
+  if (writer)
+  {
+    writer->flush();
     writer->close();
     delete writer;
   }
+
+  if (repeater_file != "")
+    repeater.get();
+
+  if (repeater_file != "")
+    remove(repeater_file.c_str());
+
+
 //  if (header)
 //    delete header;
 //  if (output_file)

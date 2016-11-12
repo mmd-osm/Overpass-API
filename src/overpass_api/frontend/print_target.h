@@ -22,6 +22,7 @@
 #include "../statements/osm_script.h"
 #include "../statements/print.h"
 
+#include <future>
 #include <string>
 
 #include <osmium/builder/osm_object_builder.hpp>
@@ -46,7 +47,7 @@ class Output_Handle
   public:
     Output_Handle(string type_)
       : type(type_), mode(0), print_target(0), written_elements_count(0), first_id(0),
-        output_file(nullptr), header(nullptr), writer(nullptr) {}
+        output_file(nullptr), header(nullptr), writer(nullptr), repeater_file("") {}
     ~Output_Handle();
     
     Print_Target& get_print_target(uint32 mode, Transaction& transaction);
@@ -90,6 +91,8 @@ class Output_Handle
     osmium::io::File * output_file;
     osmium::io::Header* header;
     osmium::io::Writer * writer;
+    std::future<void> repeater;
+    std::string repeater_file;
 };
 
 string::size_type find_block_end(string data, string::size_type pos);
