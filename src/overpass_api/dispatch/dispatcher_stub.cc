@@ -73,7 +73,7 @@ void set_limits(uint32 time, uint64 space)
   if (result == 0 && time < limit.rlim_cur && time < limit.rlim_max)
   {
     limit.rlim_cur = time;
-    limit.rlim_max = time;
+    limit.rlim_max = 3600;                  // HARD LIMIT OF 1 HOUR
     result = setrlimit(RLIMIT_CPU, &limit);
   }
   
@@ -81,7 +81,7 @@ void set_limits(uint32 time, uint64 space)
   if (result == 0 && space < limit.rlim_cur && space < limit.rlim_max)
   {
     limit.rlim_cur = space;
-    limit.rlim_max = space;
+    limit.rlim_max = 8*1024*1024*1024;      // HARD LIMIT OF 8 GB
     result = setrlimit(RLIMIT_AS, &limit);
   }
 }
