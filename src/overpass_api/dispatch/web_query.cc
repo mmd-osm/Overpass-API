@@ -46,7 +46,7 @@
 #include "fcgio.h"
 
 
-int handle_request(const std::string & content, bool is_cgi)
+int handle_request(const std::string & content, bool is_cgi, Index_Cache* ic)
 {
   Web_Output error_output(Error_Output::ASSISTING);
   Statement::set_error_output(&error_output);
@@ -104,7 +104,7 @@ int handle_request(const std::string & content, bool is_cgi)
       // open read transaction and log this.
       int area_level = determine_area_level(&error_output, 0);
       Dispatcher_Stub dispatcher("", &error_output, xml_raw,
-			         get_uses_meta_data(), area_level, max_allowed_time, max_allowed_space);
+			         get_uses_meta_data(), area_level, max_allowed_time, max_allowed_space, ic);
       if (osm_script && osm_script->get_desired_timestamp())
         dispatcher.resource_manager().set_desired_timestamp(osm_script->get_desired_timestamp());
     
@@ -276,9 +276,11 @@ string get_request_content(const FCGX_Request & request) {
 
 int main(int argc, char *argv[])
 {
+  Index_Cache ic;
+
   if (FCGX_IsCGI())
   {
-    handle_request("", FCGX_IsCGI());
+    handle_request("", FCGX_IsCGI(), &ic);
   }
   else
   {
@@ -316,7 +318,7 @@ int main(int argc, char *argv[])
       setenv("QUERY_STRING", query_string != NULL ? query_string : "", true);
 
       initialize();
-      int ret = handle_request(content, FCGX_IsCGI());
+      int ret = handle_request(content, FCGX_IsCGI(), &ic);
 
     }
 

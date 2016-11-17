@@ -52,6 +52,11 @@ class Dispatcher_Stub : public Watchdog_Callback
 		    meta_modes meta_, int area_level,
 		    uint32 max_allowed_time, uint64 max_allowed_space);
     
+    Dispatcher_Stub(string db_dir_, Error_Output* error_output_, string xml_raw,
+                    meta_modes meta_, int area_level,
+                    uint32 max_allowed_time, uint64 max_allowed_space,
+                    Index_Cache* ic);
+
     // Called once per minute from the resource manager
     virtual void ping() const;
 

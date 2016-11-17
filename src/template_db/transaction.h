@@ -26,6 +26,20 @@
 #include <vector>
 
 
+class Index_Cache
+{
+
+
+private:
+  std::map< const File_Properties*, File_Blocks_Index_Base* >
+    data_files;
+  std::map< const File_Properties*, Random_File_Index* >
+    random_files;
+
+  friend class Nonsynced_Transaction;
+
+};
+
 
 class Transaction
 {
@@ -40,9 +54,14 @@ class Transaction
 class Nonsynced_Transaction : public Transaction
 {
   public:
-    Nonsynced_Transaction
+  Nonsynced_Transaction
+      (bool writeable, bool use_shadow,
+       const std::string& db_dir, const std::string& file_name_extension);
+
+  Nonsynced_Transaction
         (bool writeable, bool use_shadow,
-	 const std::string& db_dir, const std::string& file_name_extension);
+	 const std::string& db_dir, const std::string& file_name_extension,
+	 Index_Cache* ic);
     virtual ~Nonsynced_Transaction();
     
     File_Blocks_Index_Base* data_index(const File_Properties*);
@@ -59,6 +78,7 @@ class Nonsynced_Transaction : public Transaction
     bool writeable, use_shadow;
     std::string file_name_extension, db_dir;
     std::mutex transaction_mutex;
+    Index_Cache* ic;
 };
 
 
@@ -66,7 +86,15 @@ inline Nonsynced_Transaction::Nonsynced_Transaction
     (bool writeable_, bool use_shadow_,
      const std::string& db_dir_, const std::string& file_name_extension_)
   : writeable(writeable_), use_shadow(use_shadow_),
-    file_name_extension(file_name_extension_), db_dir(db_dir_) {}
+    file_name_extension(file_name_extension_), db_dir(db_dir_), ic(nullptr) {}
+
+
+inline Nonsynced_Transaction::Nonsynced_Transaction
+    (bool writeable_, bool use_shadow_,
+     const std::string& db_dir_, const std::string& file_name_extension_,
+     Index_Cache* ic_)
+  : writeable(writeable_), use_shadow(use_shadow_),
+    file_name_extension(file_name_extension_), db_dir(db_dir_), ic(ic_) {}
 
     
 inline Nonsynced_Transaction::~Nonsynced_Transaction()
@@ -80,14 +108,17 @@ inline void Nonsynced_Transaction::flush()
 
   std::lock_guard<std::mutex> guard(transaction_mutex);
 
-  for (std::map< const File_Properties*, File_Blocks_Index_Base* >::iterator
-      it = data_files.begin(); it != data_files.end(); ++it)
-    delete it->second;
-  data_files.clear();
-  for (std::map< const File_Properties*, Random_File_Index* >::iterator
-      it = random_files.begin(); it != random_files.end(); ++it)
-    delete it->second;
-  random_files.clear();
+  if (ic != nullptr)
+  {
+    for (std::map< const File_Properties*, File_Blocks_Index_Base* >::iterator
+        it = data_files.begin(); it != data_files.end(); ++it)
+      delete it->second;
+    data_files.clear();
+    for (std::map< const File_Properties*, Random_File_Index* >::iterator
+        it = random_files.begin(); it != random_files.end(); ++it)
+      delete it->second;
+    random_files.clear();
+  }
 }
 
 
@@ -96,15 +127,22 @@ inline File_Blocks_Index_Base* Nonsynced_Transaction::data_index
 { 
   std::lock_guard<std::mutex> guard(transaction_mutex);
 
+  std::map< const File_Properties*, File_Blocks_Index_Base* > * df;
+
+  if (ic != nullptr)
+    df = &ic->data_files;
+  else
+    df = &data_files;
+
   std::map< const File_Properties*, File_Blocks_Index_Base* >::iterator
-      it = data_files.find(fp);
-  if (it != data_files.end())
+      it = df->find(fp);
+  if (it != df->end())
     return it->second;
 
   File_Blocks_Index_Base* data_index = fp->new_data_index
       (writeable, use_shadow, db_dir, file_name_extension);
   if (data_index != 0)
-    data_files[fp] = data_index;
+    df->operator [](fp) = data_index;
   return data_index;
 }
 
@@ -113,13 +151,21 @@ inline Random_File_Index* Nonsynced_Transaction::random_index(const File_Propert
 { 
   std::lock_guard<std::mutex> guard(transaction_mutex);
 
+  std::map< const File_Properties*, Random_File_Index* > * rf;
+
+  if (ic != nullptr)
+    rf = &ic->random_files;
+  else
+    rf = &random_files;
+
+
   std::map< const File_Properties*, Random_File_Index* >::iterator
-      it = random_files.find(fp);
-  if (it != random_files.end())
+      it = rf->find(fp);
+  if (it != rf->end())
     return it->second;
   
-  random_files[fp] = new Random_File_Index(*fp, writeable, use_shadow, db_dir, file_name_extension);
-  return random_files[fp];
+  rf->operator [](fp) = new Random_File_Index(*fp, writeable, use_shadow, db_dir, file_name_extension);
+  return rf->operator [](fp);
 }
 
 
