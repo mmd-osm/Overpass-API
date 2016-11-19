@@ -132,7 +132,13 @@ Dispatcher_Stub::Dispatcher_Stub
       transaction = new Nonsynced_Transaction
           (false, false, dispatcher_client->get_db_dir(), "");
 
+    {
+      ifstream version((dispatcher_client->get_db_dir() + "osm_base_version").c_str());
+      getline(version, timestamp);
+      timestamp = de_escape(timestamp);
+    }
 
+    transaction->flush_outdated_index_cache(timestamp);
 
     transaction->data_index(osm_base_settings().NODES);
     transaction->random_index(osm_base_settings().NODES);
@@ -185,11 +191,6 @@ Dispatcher_Stub::Dispatcher_Stub
       transaction->data_index(attic_settings().RELATION_CHANGELOG);
     }
     
-    {
-      ifstream version((dispatcher_client->get_db_dir() + "osm_base_version").c_str());
-      getline(version, timestamp);
-      timestamp = de_escape(timestamp);
-    }
     try
     {
       logger.annotated_log("read_idx_finished() start");

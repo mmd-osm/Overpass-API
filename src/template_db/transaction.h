@@ -36,6 +36,8 @@ private:
   std::map< const File_Properties*, Random_File_Index* >
     random_files;
 
+  std::string timestamp;
+
   friend class Nonsynced_Transaction;
 
 };
@@ -68,6 +70,7 @@ class Nonsynced_Transaction : public Transaction
     Random_File_Index* random_index(const File_Properties*);
     
     void flush();
+    void flush_outdated_index_cache(std::string current_timestamp);
     std::string get_db_dir() const { return db_dir; }
     
   private:
@@ -108,7 +111,7 @@ inline void Nonsynced_Transaction::flush()
 
   std::lock_guard<std::mutex> guard(transaction_mutex);
 
-  if (ic != nullptr)
+  if (ic == nullptr)
   {
     for (std::map< const File_Properties*, File_Blocks_Index_Base* >::iterator
         it = data_files.begin(); it != data_files.end(); ++it)
@@ -118,6 +121,24 @@ inline void Nonsynced_Transaction::flush()
         it = random_files.begin(); it != random_files.end(); ++it)
       delete it->second;
     random_files.clear();
+  }
+}
+
+inline void Nonsynced_Transaction::flush_outdated_index_cache(std::string current_timestamp)
+{
+  std::lock_guard<std::mutex> guard(transaction_mutex);
+
+  if (ic != nullptr && ic->timestamp != current_timestamp)
+  {
+    for (std::map< const File_Properties*, File_Blocks_Index_Base* >::iterator
+        it = ic->data_files.begin(); it != ic->data_files.end(); ++it)
+      delete it->second;
+    ic->data_files.clear();
+    for (std::map< const File_Properties*, Random_File_Index* >::iterator
+        it = ic->random_files.begin(); it != ic->random_files.end(); ++it)
+      delete it->second;
+    ic->random_files.clear();
+    ic->timestamp = current_timestamp;
   }
 }
 
