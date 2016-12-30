@@ -29,6 +29,8 @@
 class Index_Cache
 {
 
+public:
+  Index_Cache() : replicate_id("") {};
 
 private:
   std::map< const File_Properties*, File_Blocks_Index_Base* >
@@ -36,10 +38,9 @@ private:
   std::map< const File_Properties*, Random_File_Index* >
     random_files;
 
-  std::string timestamp;
+  std::string replicate_id;
 
   friend class Nonsynced_Transaction;
-
 };
 
 
@@ -50,6 +51,8 @@ class Transaction
     virtual File_Blocks_Index_Base* data_index(const File_Properties*) = 0;
     virtual Random_File_Index* random_index(const File_Properties*) = 0;
     virtual std::string get_db_dir() const = 0;
+    virtual std::string get_replicate_id() const = 0;
+    virtual void set_replicate_id(std::string replicate_id) = 0;
 };
 
 
@@ -70,8 +73,10 @@ class Nonsynced_Transaction : public Transaction
     Random_File_Index* random_index(const File_Properties*);
     
     void flush();
-    void flush_outdated_index_cache(std::string current_timestamp);
+    void flush_outdated_index_cache();
     std::string get_db_dir() const { return db_dir; }
+    std::string get_replicate_id() const { return replicate_id; }
+    void set_replicate_id(std::string replicate_id_) { replicate_id = replicate_id_; };
     
   private:
     std::map< const File_Properties*, File_Blocks_Index_Base* >
@@ -82,6 +87,7 @@ class Nonsynced_Transaction : public Transaction
     std::string file_name_extension, db_dir;
     std::mutex transaction_mutex;
     Index_Cache* ic;
+    std::string replicate_id;
 };
 
 
@@ -89,7 +95,7 @@ inline Nonsynced_Transaction::Nonsynced_Transaction
     (bool writeable_, bool use_shadow_,
      const std::string& db_dir_, const std::string& file_name_extension_)
   : writeable(writeable_), use_shadow(use_shadow_),
-    file_name_extension(file_name_extension_), db_dir(db_dir_), ic(nullptr) {}
+    file_name_extension(file_name_extension_), db_dir(db_dir_), ic(nullptr), replicate_id("") {}
 
 
 inline Nonsynced_Transaction::Nonsynced_Transaction
@@ -97,7 +103,7 @@ inline Nonsynced_Transaction::Nonsynced_Transaction
      const std::string& db_dir_, const std::string& file_name_extension_,
      Index_Cache* ic_)
   : writeable(writeable_), use_shadow(use_shadow_),
-    file_name_extension(file_name_extension_), db_dir(db_dir_), ic(ic_) {}
+    file_name_extension(file_name_extension_), db_dir(db_dir_), ic(ic_), replicate_id("") {}
 
     
 inline Nonsynced_Transaction::~Nonsynced_Transaction()
@@ -108,7 +114,6 @@ inline Nonsynced_Transaction::~Nonsynced_Transaction()
 
 inline void Nonsynced_Transaction::flush()
 {
-
   std::lock_guard<std::mutex> guard(transaction_mutex);
 
   if (ic == nullptr)
@@ -124,11 +129,11 @@ inline void Nonsynced_Transaction::flush()
   }
 }
 
-inline void Nonsynced_Transaction::flush_outdated_index_cache(std::string current_timestamp)
+inline void Nonsynced_Transaction::flush_outdated_index_cache()
 {
   std::lock_guard<std::mutex> guard(transaction_mutex);
 
-  if (ic != nullptr && ic->timestamp != current_timestamp)
+  if (ic != nullptr && ic->replicate_id != get_replicate_id())
   {
     for (std::map< const File_Properties*, File_Blocks_Index_Base* >::iterator
         it = ic->data_files.begin(); it != ic->data_files.end(); ++it)
@@ -138,7 +143,7 @@ inline void Nonsynced_Transaction::flush_outdated_index_cache(std::string curren
         it = ic->random_files.begin(); it != ic->random_files.end(); ++it)
       delete it->second;
     ic->random_files.clear();
-    ic->timestamp = current_timestamp;
+    ic->replicate_id = get_replicate_id();
   }
 }
 
@@ -150,10 +155,7 @@ inline File_Blocks_Index_Base* Nonsynced_Transaction::data_index
 
   std::map< const File_Properties*, File_Blocks_Index_Base* > * df;
 
-  if (ic != nullptr)
-    df = &ic->data_files;
-  else
-    df = &data_files;
+  df = (ic != nullptr) ? &ic->data_files : &data_files;
 
   std::map< const File_Properties*, File_Blocks_Index_Base* >::iterator
       it = df->find(fp);
@@ -163,7 +165,7 @@ inline File_Blocks_Index_Base* Nonsynced_Transaction::data_index
   File_Blocks_Index_Base* data_index = fp->new_data_index
       (writeable, use_shadow, db_dir, file_name_extension);
   if (data_index != 0)
-    df->operator [](fp) = data_index;
+    (*df)[fp] = data_index;
   return data_index;
 }
 
@@ -174,19 +176,15 @@ inline Random_File_Index* Nonsynced_Transaction::random_index(const File_Propert
 
   std::map< const File_Properties*, Random_File_Index* > * rf;
 
-  if (ic != nullptr)
-    rf = &ic->random_files;
-  else
-    rf = &random_files;
-
+  rf = (ic != nullptr) ? &ic->random_files : &random_files;
 
   std::map< const File_Properties*, Random_File_Index* >::iterator
       it = rf->find(fp);
   if (it != rf->end())
     return it->second;
   
-  rf->operator [](fp) = new Random_File_Index(*fp, writeable, use_shadow, db_dir, file_name_extension);
-  return rf->operator [](fp);
+  (*rf)[fp] = new Random_File_Index(*fp, writeable, use_shadow, db_dir, file_name_extension);
+  return (*rf)[fp];
 }
 
 

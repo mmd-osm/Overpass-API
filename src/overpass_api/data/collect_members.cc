@@ -1186,6 +1186,14 @@ std::pair< std::map< Uint32_Index, std::vector< Node_Skeleton > >,
 const std::map< uint32, string >& relation_member_roles(Transaction& transaction)
 {
   static std::map< uint32, string > roles;
+  static std::string replicate_id;
+
+  // reset method level cache if replicate_id has changed
+  if (replicate_id != transaction.get_replicate_id())
+  {
+    roles.clear();
+    replicate_id = transaction.get_replicate_id();
+  }
   
   if (roles.empty())
   {

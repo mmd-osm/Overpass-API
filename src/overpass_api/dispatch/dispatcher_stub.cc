@@ -138,7 +138,14 @@ Dispatcher_Stub::Dispatcher_Stub
       timestamp = de_escape(timestamp);
     }
 
-    transaction->flush_outdated_index_cache(timestamp);
+    {
+      ifstream replicate_id_stream((dispatcher_client->get_db_dir() + "replicate_id").c_str());
+      std::string replicate_id;
+      getline(replicate_id_stream, replicate_id);
+      transaction->set_replicate_id(replicate_id);
+    }
+
+    transaction->flush_outdated_index_cache();
 
     transaction->data_index(osm_base_settings().NODES);
     transaction->random_index(osm_base_settings().NODES);
