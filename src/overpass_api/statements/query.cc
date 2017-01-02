@@ -1695,7 +1695,7 @@ Has_Kv_Statement::Has_Kv_Statement
 
     try
     {
-      key_regex = new Regular_Expression(attributes["regk"], case_sensitive);
+      key_regex = Regular_Expression_Factory::get_regexp_engine(global_settings.get_regexp_engine(), attributes["regk"], case_sensitive);
       key = attributes["regk"];
     }
     catch (Regular_Expression_Error e)
@@ -1716,7 +1716,7 @@ Has_Kv_Statement::Has_Kv_Statement
 
     try
     {
-      regex = new Regular_Expression(attributes["regv"], case_sensitive);
+      regex = Regular_Expression_Factory::get_regexp_engine(global_settings.get_regexp_engine(), attributes["regv"], case_sensitive);
       value = attributes["regv"];
     }
     catch (Regular_Expression_Error e)
@@ -1748,4 +1748,5 @@ Has_Kv_Statement::Has_Kv_Statement
 Has_Kv_Statement::~Has_Kv_Statement()
 {
   delete regex;
+  delete key_regex;
 }
