@@ -50,6 +50,7 @@ Osm_Script_Statement::Osm_Script_Statement
   attributes["date"] = "";
   attributes["from"] = "";
   attributes["augmented"] = "";
+  attributes["regexp"] = "POSIX";
   
   eval_attributes_array(get_name(), attributes, input_attributes);
   
@@ -89,6 +90,17 @@ Osm_Script_Statement::Osm_Script_Statement
     add_static_error(temp.str());
   }
   
+  if (attributes["regexp"] == "POSIX" ||
+      attributes["regexp"] == "ICU")
+    regexp_engine = attributes["regexp"];
+  else
+  {
+    ostringstream temp;
+    temp<<"For the attribute \"regexp\" of the element \"osm-script\""
+        <<" the only allowed values are \"POSIX\" and \"ICU\".";
+    add_static_error(temp.str());
+  }
+
   if (attributes["bbox"] != "")
   {
     map< string, string > bbox_attributes;

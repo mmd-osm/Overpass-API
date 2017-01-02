@@ -1643,9 +1643,10 @@ Has_Kv_Statement::Has_Kv_Statement
   attributes["regv"] = "";
   attributes["modv"] = "";
   attributes["case"] = "sensitive";
+  attributes["engine"] = "POSIX";
   
   eval_attributes_array(get_name(), attributes, input_attributes);
-  
+
   key = attributes["k"];
   value = attributes["v"];
   
@@ -1681,10 +1682,14 @@ Has_Kv_Statement::Has_Kv_Statement
       temp<<"In the element \"has-kv\" the attribute \"regk\" must be combined with \"regv\".";
       add_static_error(temp.str());
     }
-    
+
     try
     {
-      key_regex = new Regular_Expression(attributes["regk"], case_sensitive);
+      if (attributes["engine"] == "POSIX")
+        key_regex = new Regular_Expression_POSIX(attributes["regk"], case_sensitive);
+      else if (attributes["engine"] == "ICU")
+        key_regex = new Regular_Expression_ICU(attributes["regk"], case_sensitive);
+
     }
     catch (Regular_Expression_Error e)
     {
@@ -1704,7 +1709,10 @@ Has_Kv_Statement::Has_Kv_Statement
     
     try
     {
-      regex = new Regular_Expression(attributes["regv"], case_sensitive);
+      if (attributes["engine"] == "POSIX")
+        regex = new Regular_Expression_POSIX(attributes["regv"], case_sensitive);
+      else if (attributes["engine"] == "ICU")
+        regex = new Regular_Expression_ICU(attributes["regv"], case_sensitive);
     }
     catch (Regular_Expression_Error e)
     {

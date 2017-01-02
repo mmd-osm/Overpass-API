@@ -86,6 +86,7 @@ class Osm_Script_Statement : public Statement
     uint64 get_max_allowed_space() const { return max_allowed_space; }
     Query_Constraint* get_bbox_limitation() { return bbox_limitation; }
     uint64 get_desired_timestamp() const { return desired_timestamp; }
+    std::string get_regexp_engine() const { return regexp_engine; }
     
   private:
     vector< Statement* > substatements;
@@ -97,6 +98,7 @@ class Osm_Script_Statement : public Statement
     uint32 max_allowed_time;
     uint64 max_allowed_space;
     string type;
+    std::string regexp_engine;
     Output_Handle* output_handle;
     Statement::Factory* factory;
     string template_name;

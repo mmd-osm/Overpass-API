@@ -432,6 +432,9 @@ TStatement* create_has_kv_statement(typename TStatement::Factory& stmt_factory,
   }
   
   attr["modv"] = (straight ? "" : "not");
+
+  attr["engine"] = stmt_factory.regexp_engine;
+
   return stmt_factory.create_statement("has-kv", line_nr, attr);
 }
 
@@ -1666,6 +1669,7 @@ void process_osm_script_statement(Statement::Factory& stmt_factory, Statement* b
   if (osm_script_statement)
   {
     stmt_factory.bbox_limitation = osm_script_statement->get_bbox_limitation();
+    stmt_factory.regexp_engine = osm_script_statement->get_regexp_engine();
     
     if (!categories.empty())
       osm_script_statement->set_categories(categories);

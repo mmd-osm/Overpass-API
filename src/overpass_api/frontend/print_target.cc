@@ -345,7 +345,7 @@ class Element_Collector
       : key(key_), value(value_, true), straight(straight_) {}
       
       string key;
-      Regular_Expression value;
+      Regular_Expression_POSIX value;
       bool straight;
     };
     
@@ -1504,7 +1504,7 @@ void Print_Target_Osmium::maybe_flush()
     osmium::memory::Buffer _buffer{1024*1024};
     using std::swap;
     swap(_buffer, buffer);
-    writer->operator ()(std::move(_buffer));
+    (*writer)(std::move(_buffer));
   }
 }
 

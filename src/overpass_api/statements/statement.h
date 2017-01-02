@@ -87,7 +87,7 @@ class Statement
   public:
     struct Factory
     {
-      Factory() : error_output_(error_output), bbox_limitation(0) {}
+      Factory() : error_output_(error_output), bbox_limitation(0), regexp_engine("POSIX") {}
       ~Factory();
       
       Statement* create_statement(string element, int line_number,
@@ -96,6 +96,7 @@ class Statement
       vector< Statement* > created_statements;
       Error_Output* error_output_;
       Query_Constraint* bbox_limitation;
+      std::string regexp_engine;
     };
     
     class Statement_Maker

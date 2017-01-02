@@ -38,6 +38,7 @@ class Statement_Dump
 				       const map< string, string >& attributes);
       
       int bbox_limitation;
+      std::string regexp_engine;
     };
     
     Statement_Dump(string name, const map< string, string >& attributes_)
