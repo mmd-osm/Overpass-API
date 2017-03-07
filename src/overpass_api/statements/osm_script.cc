@@ -47,7 +47,8 @@ Osm_Script_Statement::Osm_Script_Statement
   attributes["date"] = "";
   attributes["from"] = "";
   attributes["augmented"] = "";
-
+  attributes["regexp"] = "POSIX";
+  
   eval_attributes_array(get_name(), attributes, input_attributes);
 
   int32 timeout(atoi(attributes["timeout"].c_str()));
@@ -88,7 +89,17 @@ Osm_Script_Statement::Osm_Script_Statement
       }
     }
   }
-
+  
+  if (attributes["regexp"] == "POSIX" ||
+      attributes["regexp"] == "ICU")
+    global_settings.set_regexp_engine(attributes["regexp"]);
+  else
+  {
+    std::ostringstream temp;
+    temp<<"For the attribute \"regexp\" of the element \"osm-script\""
+        <<" the only allowed values are \"POSIX\" and \"ICU\".";
+    add_static_error(temp.str());
+  }
 
   if (attributes["bbox"] != "")
   {

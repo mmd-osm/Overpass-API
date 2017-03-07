@@ -91,6 +91,7 @@ class Statement
     struct Factory
     {
       Factory(Parsed_Query& global_settings_) : error_output_(error_output), global_settings(global_settings_) {}
+
       ~Factory();
 
       Statement* create_statement(std::string element, int line_number,
