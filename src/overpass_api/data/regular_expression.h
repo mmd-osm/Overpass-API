@@ -114,6 +114,9 @@ class Regular_Expression_POSIX : public Regular_Expression
     }
     
   private:
+    Regular_Expression(const Regular_Expression&);
+    const Regular_Expression& operator=(const Regular_Expression&);
+    
     regex_t preg;
 };
 
