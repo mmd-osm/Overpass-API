@@ -62,6 +62,10 @@ class Regular_Expression
 
     virtual bool matches(const std::string& line) const = 0;
 
+  private:
+    Regular_Expression(const Regular_Expression&);
+    const Regular_Expression& operator=(const Regular_Expression&);
+
   protected:
     mutable bool is_cache_available;
     mutable std::string prev_line;
@@ -114,9 +118,6 @@ class Regular_Expression_POSIX : public Regular_Expression
     }
     
   private:
-    Regular_Expression(const Regular_Expression&);
-    const Regular_Expression& operator=(const Regular_Expression&);
-    
     regex_t preg;
 };
 

@@ -15,14 +15,22 @@ class Tag_Filter
 {
 public:
   Tag_Filter(const std::string& key_, const std::string& value_, bool straight_)
-      : key(key_), straight(straight_), condition(value_, true) {}
+      : key(key_), straight(straight_) {
+
+    condition = Regular_Expression_Factory::get_regexp_engine("POSIX", value_, true);
+  }
+
+  ~Tag_Filter()
+  {
+    delete condition;
+  }
   
   bool matches(const std::vector< std::pair< std::string, std::string > >* tags) const;
   
 private:
   std::string key;
   bool straight;
-  Regular_Expression condition;
+  Regular_Expression* condition;
 };
 
 

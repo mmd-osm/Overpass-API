@@ -13,7 +13,7 @@ bool Tag_Filter::matches(const std::vector< std::pair< std::string, std::string 
     return false;
   for (std::vector< std::pair< std::string, std::string > >::const_iterator it = tags->begin(); it != tags->end(); ++it)
   {
-    if (it->first == key && condition.matches(it->second))
+    if (it->first == key && condition->matches(it->second))
       return straight;
   }
   return !straight;
