@@ -3,6 +3,10 @@
 #include "../frontend/basic_formats.h"
 #include "output_osmium.h"
 
+#include <future>
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #include <osmium/builder/osm_object_builder.hpp>
 #include <osmium/io/opl_output.hpp>
 #include <osmium/io/pbf_output.hpp>
@@ -29,6 +33,56 @@ Output_Osmium::~Output_Osmium()
   delete header;
 }
 
+/*
+ * Libosmium/FastCGI repeater Libosmium writes directly to stdout fd rather
+ * than using streambuf. This doesn't work out of the box with FastCGI.
+ * A dedicated thread is being used to redirect libosmium results to cout
+ * via named pipe. Additional overhead due to additional copying, etc.
+ * has only insignificant implications in real life.
+ *
+ * Workaround for https://github.com/osmcode/libosmium/issues/174
+ *
+ */
+
+void Output_Osmium::prepare_fifo()
+{
+  std::ostringstream buffer;
+  buffer << "/tmp/osm3s.fifo." << getpid();
+  repeater_file = buffer.str();
+
+  int ret = remove(repeater_file.c_str());
+
+  ret = mkfifo(repeater_file.c_str(), 0600);
+  if (ret < 0)
+    throw File_Error(errno, repeater_file, "print_target::osmium::mkfifo");
+
+  repeater = std::async(std::launch::async, [](std::string repeater_file)
+  {
+    ssize_t len = 0;
+    char buffer[PIPE_BUF];
+
+    int readFd = open(repeater_file.c_str(), O_RDONLY);
+    if (readFd < 0)
+    throw File_Error(errno, repeater_file, "print_target::osmium::open:readFd");
+
+    while(true)
+    {
+      len = read(readFd, &buffer, sizeof(buffer));
+      if (len < 0)
+        throw File_Error(errno, repeater_file, "print_target::osmium::open:read");
+
+      if (len == 0)
+        break;
+
+      if (len > 0)
+        std::cout.write(&buffer[0], len);
+    }
+    close(readFd);
+
+    std::cout << std::flush;
+
+  }, repeater_file);
+}
 
 bool Output_Osmium::write_http_headers()
 {
@@ -42,11 +96,12 @@ bool Output_Osmium::write_http_headers()
 void Output_Osmium::write_payload_header
     (const std::string& db_dir, const std::string& timestamp, const std::string& area_timestamp)
 {
-  output_file = new osmium::io::File("", output_format);
+  prepare_fifo();
+  output_file = new osmium::io::File(repeater_file, output_format);
   header = new osmium::io::Header();
   header->set("generator","Overpass API");
   header->set("osmosis_replication_timestamp", timestamp);
-  writer = new osmium::io::Writer(*output_file, *header);
+  writer = new osmium::io::Writer(*output_file, *header, osmium::io::overwrite::allow);
 }
 
 void Output_Osmium::write_footer()
@@ -62,6 +117,12 @@ void Output_Osmium::write_footer()
   writer = nullptr;
   output_file = nullptr;
   header = nullptr;
+
+  if (repeater_file != "")
+    repeater.get();
+
+  if (repeater_file != "")
+    remove(repeater_file.c_str());
 }
 
 void Output_Osmium::display_remark(const std::string& text)
