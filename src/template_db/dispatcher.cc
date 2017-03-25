@@ -29,6 +29,9 @@
 #include <sys/types.h>
 #include <sys/un.h>
 #include <unistd.h>
+#include <event2/event.h>
+#include <event2/buffer.h>
+#include <event2/bufferevent.h>
 
 #include <cstdlib>
 #include <cstring>
@@ -64,7 +67,7 @@ Dispatcher_Socket::~Dispatcher_Socket()
 
 
 void Dispatcher_Socket::look_for_a_new_connection(Connection_Per_Pid_Map& connection_per_pid)
-{    
+{
   struct sockaddr_un sockaddr_un_dummy;
   uint sockaddr_un_dummy_size = sizeof(sockaddr_un_dummy);
   int socket_fd = accept(socket.descriptor(), (sockaddr*)&sockaddr_un_dummy,
@@ -79,7 +82,7 @@ void Dispatcher_Socket::look_for_a_new_connection(Connection_Per_Pid_Map& connec
   {
     if (fcntl(socket_fd, F_SETFL, O_RDWR|O_NONBLOCK) == -1)
       throw File_Error
-	    (errno, "(socket)", "Dispatcher_Server::7");  
+	    (errno, "(socket)", "Dispatcher_Server::7");
     started_connections.push_back(socket_fd);
   }
 
@@ -97,13 +100,73 @@ void Dispatcher_Socket::look_for_a_new_connection(Connection_Per_Pid_Map& connec
 	connection_per_pid.set(pid, new Blocking_Client_Socket(*it));
       else
 	close(*it);
-	
+
       *it = started_connections.back();
       started_connections.pop_back();
       break;
     }
   }
 }
+
+int Dispatcher_Socket::accept_new_connection()
+{
+
+  struct ucred ucred;
+  socklen_t len = sizeof(struct ucred);
+
+  struct sockaddr_un sockaddr_un_dummy;
+  uint sockaddr_un_dummy_size = sizeof(sockaddr_un_dummy);
+  int socket_fd = accept(socket.descriptor(), (sockaddr*)&sockaddr_un_dummy,
+                         (socklen_t*)&sockaddr_un_dummy_size);
+  if (socket_fd == -1)
+  {
+    if (errno != EAGAIN && errno != EWOULDBLOCK)
+      throw File_Error
+            (errno, "(socket)", "Dispatcher_Server::6");
+  }
+  else
+  {
+    if (fcntl(socket_fd, F_SETFL, O_RDWR|O_NONBLOCK) == -1)
+      throw File_Error
+            (errno, "(socket)", "Dispatcher_Server::7");
+
+  }
+
+  return socket_fd;
+}
+
+
+void Dispatcher_Socket::set_socket_non_blocking()
+{
+  int flags;
+
+  flags = fcntl(socket.descriptor(), F_GETFL);
+  if (flags < 0)
+    return;
+
+  flags |= O_RDWR|O_NONBLOCK;
+  if (fcntl(socket.descriptor(), F_SETFL, flags) < 0)
+    throw File_Error
+          (errno, "(socket)", "Dispatcher_Server::9");
+}
+
+void Dispatcher_Socket::set_socket_reuse_addr()
+{
+  int reuseaddr_on;
+  reuseaddr_on = 1;
+  setsockopt(socket.descriptor(), SOL_SOCKET, SO_REUSEADDR, &reuseaddr_on, sizeof(reuseaddr_on));
+}
+
+void Dispatcher_Socket::event_add_new(struct event_base * base, short flags, event_callback_fn cb, void * ctx) {
+
+  evutil_socket_t listener = socket.descriptor();
+  struct event *listener_event;
+
+  listener_event = event_new(base, listener, flags, cb, ctx);
+  event_add(listener_event, NULL);
+}
+
+
 
 
 int Global_Resource_Planner::probe(pid_t pid, uint32 client_token, uint32 time_units, uint64 max_space)
@@ -375,7 +438,8 @@ Dispatcher::Dispatcher
       pending_commit(false),
       requests_started_counter(0),
       requests_finished_counter(0),
-      global_resource_planner(total_available_time_units_, total_available_space_, 0)
+      global_resource_planner(total_available_time_units_, total_available_space_, 0),
+      base(0)
 {
   signal(SIGPIPE, SIG_IGN);  
   
@@ -548,6 +612,135 @@ void Dispatcher::read_finished(pid_t pid)
 }
 
 
+void evbuffer_add_uint32 (struct evbuffer * outbuf, uint32_t value)
+{
+    evbuffer_add (outbuf, &value, sizeof (value));
+}
+
+void readcb(struct bufferevent *bev, void *ctx)
+{
+    Dispatcher* dispatcher = static_cast<Dispatcher *>(ctx);
+    dispatcher->on_read(bev);
+}
+
+void errorcb(struct bufferevent *bev, short error, void *ctx)
+{
+   Dispatcher* dispatcher = static_cast<Dispatcher *>(ctx);
+   dispatcher->on_error(bev, error);
+}
+
+void writecb(struct bufferevent *bev, void *ctx)
+{
+  Dispatcher* dispatcher = static_cast<Dispatcher *>(ctx);
+  dispatcher->on_write(bev);
+}
+
+void on_accept(int fd, short ev, void *ctx)
+{
+  Dispatcher* dispatcher = static_cast<Dispatcher *>(ctx);
+  dispatcher->on_accept(fd, ev);
+}
+
+void Dispatcher::on_accept(int fd, short ev)
+{
+  int client_fd;
+  struct bufferevent *bev;
+
+  client_fd = socket.accept_new_connection();
+
+  struct ucred ucred;
+  socklen_t len = sizeof(struct ucred);
+
+  getsockopt(client_fd, SOL_SOCKET, SO_PEERCRED, &ucred, &len);
+
+  fd_process[client_fd] = ucred;
+
+  evutil_make_socket_nonblocking(client_fd);
+  bev = bufferevent_socket_new(base, client_fd, BEV_OPT_CLOSE_ON_FREE);
+  bufferevent_setcb(bev, ::readcb, ::writecb, ::errorcb, (void*)this);
+  bufferevent_setwatermark(bev, EV_READ, 0, 1024);
+//  bufferevent_setwatermark(bev, EV_WRITE, 1, 1);
+  bufferevent_enable(bev, EV_READ|EV_WRITE);
+}
+
+void Dispatcher::on_read(struct bufferevent *bev)
+{
+  struct evbuffer *input, *output;
+
+  input = bufferevent_get_input(bev);
+  output = bufferevent_get_output(bev);
+
+  evutil_socket_t socket_fd = bufferevent_getfd(bev);
+
+  uint32 token;
+  std::vector< uint32 > command;
+
+  while (evbuffer_remove(input, &token, sizeof(token)) > 0)
+     command.push_back(token);
+  handle_command(output, socket_fd, command, fd_process[socket_fd].pid);
+}
+
+void Dispatcher::on_write(struct bufferevent *bev)
+{
+  evutil_socket_t socket_fd = bufferevent_getfd(bev);
+
+  if (sockets_to_close.find(socket_fd) != sockets_to_close.end())
+  {
+     bufferevent_free(bev);
+     sockets_to_close.erase(socket_fd);
+     fd_process.erase(socket_fd);
+  }
+}
+
+void Dispatcher::on_error(struct bufferevent *bev, short error)
+{
+
+  evutil_socket_t socket_fd = bufferevent_getfd(bev);
+
+  read_aborted(fd_process[socket_fd].pid);
+  fd_process.erase(socket_fd);
+
+  if (error & BEV_EVENT_EOF) {
+      /* connection has been closed, do any clean up here */
+      /* ... */
+  } else if (error & BEV_EVENT_ERROR) {
+      /* check errno to see what error occurred */
+      /* ... */
+  } else if (error & BEV_EVENT_TIMEOUT) {
+      /* must be a timeout event handle, handle it */
+      /* ... */
+  }
+  bufferevent_free(bev);
+}
+
+
+
+
+void Dispatcher::run_server()
+{
+
+  base = event_base_new();
+
+  socket.set_socket_reuse_addr();
+  socket.set_socket_non_blocking();
+
+  socket.event_add_new(base, EV_READ|EV_PERSIST, ::on_accept, (void*)this);
+
+  printf("Dispatcher running.\n");
+
+  /* Start the event loop. */
+  event_base_dispatch(base);
+
+  event_base_free(base);
+  base = NULL;
+
+  printf("Dispatcher shutdown.\n");
+
+}
+
+
+
+
 void Dispatcher::read_aborted(pid_t pid)
 {
   if (logger)
@@ -561,214 +754,187 @@ void Dispatcher::read_aborted(pid_t pid)
 }
 
 
-void Dispatcher::standby_loop(uint64 milliseconds)
+void Dispatcher::handle_command(evbuffer * output, evutil_socket_t socket_fd, std::vector< uint32 > command_arguments, uint32 client_pid)
 {
-  uint32 counter = 0;
-  uint32 idle_counter = 0;
-  while ((milliseconds == 0) || (counter < milliseconds/100))
+  uint32 command = command_arguments[0];
+  command_arguments.erase(command_arguments.begin());
+  std::vector< uint32 > arguments = command_arguments;
+
+  if (command == HANGUP)
+    command = READ_ABORTED;
+
+  try
   {
-    socket.look_for_a_new_connection(connection_per_pid);
-    
-    uint32 command = 0;
-    uint32 client_pid = 0;    
-    connection_per_pid.poll_command_round_robin(command, client_pid);
-    
-    if (command == HANGUP)
-      command = READ_ABORTED;
-    
-    if (command == 0)
+    if (command == TERMINATE || command == OUTPUT_STATUS)
     {
-      ++counter;
-      ++idle_counter;
-      millisleep(idle_counter < 10 ? idle_counter*10 : 100);
-      continue;
-    }
-    
-    if (idle_counter > 0)
-    {
-      if (logger)
-	logger->idle_counter(idle_counter);
-      idle_counter = 0;
-    }
+      if (command == OUTPUT_STATUS)
+        output_status();
 
-    try
-    {
-      if (command == TERMINATE || command == OUTPUT_STATUS)
-      {
-	if (command == OUTPUT_STATUS)
-	  output_status();
-	  
-	connection_per_pid.get(client_pid)->send_result(command);
-	connection_per_pid.set(client_pid, 0);
+      evbuffer_add_uint32(output, command);
 
-	if (command == TERMINATE)
-	  break;
-      }
-      else if (command == WRITE_START || command == WRITE_ROLLBACK || command == WRITE_COMMIT)
-      {
-	if (command == WRITE_START)
-	{
-	  global_resource_planner.purge(connection_per_pid);
-	  write_start(client_pid);
-	}
-	else if (command == WRITE_COMMIT)
-	{
-	  global_resource_planner.purge(connection_per_pid);
-	  write_commit(client_pid);
-	}
-	else if (command == WRITE_ROLLBACK)
-	  write_rollback(client_pid);
-	
-	connection_per_pid.get(client_pid)->send_result(command);
-      }
-      else if (command == HANGUP || command == READ_ABORTED || command == READ_FINISHED)
-      {
-	if (command == READ_ABORTED)
-	  read_aborted(client_pid);
-	else if (command == READ_FINISHED)
-	{
-	  read_finished(client_pid);	
-	  connection_per_pid.get(client_pid)->send_result(command);
-	}
-	connection_per_pid.set(client_pid, 0);
-      }
-      else if (command == READ_IDX_FINISHED)
-      {
-	read_idx_finished(client_pid);
-        if (connection_per_pid.get(client_pid) != 0)
-	  connection_per_pid.get(client_pid)->send_result(command);
-      }
-      else if (command == REQUEST_READ_AND_IDX)
-      {
-	std::vector< uint32 > arguments = connection_per_pid.get(client_pid)->get_arguments(4);
-	if (arguments.size() < 4)
-	{
-	  connection_per_pid.get(client_pid)->send_result(0);
-	  continue;
-	}	
-	uint32 max_allowed_time = arguments[0];
-	uint64 max_allowed_space = (((uint64)arguments[2])<<32 | arguments[1]);
-	uint32 client_token = arguments[3];
-	
-	if (pending_commit)
-	{
-	  connection_per_pid.get(client_pid)->send_result(0);
-	  continue;
-	}
-	
-	command = global_resource_planner.probe(client_pid, client_token, max_allowed_time, max_allowed_space);
-	if (command == REQUEST_READ_AND_IDX)
-	  request_read_and_idx(client_pid, max_allowed_time, max_allowed_space, client_token);
-	
-	connection_per_pid.get(client_pid)->send_result(command);
-      }
-      else if (command == PURGE)
-      {
-	std::vector< uint32 > arguments = connection_per_pid.get(client_pid)->get_arguments(1);
-	if (arguments.size() < 1)
-	  continue;
-	uint32 target_pid = arguments[0];
+      sockets_to_close.insert(socket_fd);
 
-	read_aborted(target_pid);
-        if (connection_per_pid.get(target_pid) != 0)
-        {
-	  connection_per_pid.get(target_pid)->send_result(READ_FINISHED);
-	  connection_per_pid.set(target_pid, 0);
-        }
-        
-	connection_per_pid.get(client_pid)->send_result(command);
-      }
-      else if (command == QUERY_BY_TOKEN)
+      if (command == TERMINATE)
       {
-	std::vector< uint32 > arguments = connection_per_pid.get(client_pid)->get_arguments(1);
-	if (arguments.size() < 1)
-	  continue;
-	uint32 target_token = arguments[0];
-
-	pid_t target_pid = 0;
-        for (std::vector< Reader_Entry >::const_iterator it = global_resource_planner.get_active().begin();
-	    it != global_resource_planner.get_active().end(); ++it)
-	{
-	  if (it->client_token == target_token)
-	    target_pid = it->client_pid;
-	}
-	
-	connection_per_pid.get(client_pid)->send_result(target_pid);
-      }
-      else if (command == QUERY_MY_STATUS)
-      {
-        Blocking_Client_Socket* connection = connection_per_pid.get(client_pid);
-        if (!connection)
-          continue;
-        
-        std::vector< uint32 > arguments = connection->get_arguments(1);
-        if (arguments.size() < 1)
-          continue;
-        uint32 client_token = arguments[0];
-        
-        connection->send_data(global_resource_planner.get_rate_limit());
-    
-        for (std::vector< Reader_Entry >::const_iterator it = global_resource_planner.get_active().begin();
-           it != global_resource_planner.get_active().end(); ++it)
-        {
-          if (it->client_token != client_token)
-            continue;
-          
-          if (processes_reading_idx.find(it->client_pid) != processes_reading_idx.end())
-            connection->send_data(REQUEST_READ_AND_IDX);
-          else
-            connection->send_data(READ_IDX_FINISHED);
-          
-          connection->send_data(it->client_pid);
-          connection->send_data(it->max_time);
-          connection->send_data(it->max_space >>32);
-          connection->send_data(it->max_space & 0xffffffff);
-          connection->send_data(it->start_time);
-        }
-        
-        connection->send_data(0);
-    
-        for (std::vector< Quota_Entry >::const_iterator it = global_resource_planner.get_afterwards().begin();
-            it != global_resource_planner.get_afterwards().end(); ++it)
-        {
-          if (it->client_token == client_token)
-            connection->send_data(it->expiration_time);
-        }
-        
-        connection->send_result(0);
-      }
-      else if (command == SET_GLOBAL_LIMITS)
-      {
-	std::vector< uint32 > arguments = connection_per_pid.get(client_pid)->get_arguments(5);
-	if (arguments.size() < 5)
-	  continue;
-	
-	uint64 new_total_available_space = (((uint64)arguments[1])<<32 | arguments[0]);
-	uint64 new_total_available_time_units = (((uint64)arguments[3])<<32 | arguments[2]);
-        int rate_limit_ = arguments[4];
-	
-	if (new_total_available_space > 0)
-	  global_resource_planner.set_total_available_space(new_total_available_space);
-	if (new_total_available_time_units > 0)
-	  global_resource_planner.set_total_available_time(new_total_available_time_units);
-        if (rate_limit_ > -1)
-          global_resource_planner.set_rate_limit(rate_limit_);
-	
-	connection_per_pid.get(client_pid)->send_result(command);
+        event_base_loopexit(base, NULL);
+        return;
       }
     }
-    catch (File_Error e)
+    else if (command == WRITE_START || command == WRITE_ROLLBACK || command == WRITE_COMMIT)
     {
-      std::cerr<<"File_Error "<<e.error_number<<' '<<strerror(e.error_number)<<' '<<e.filename<<' '<<e.origin<<'\n';
-      
-      counter += 30;
-      millisleep(3000);
-  
-      // Set command state to zero.
-      *(uint32*)dispatcher_shm_ptr = 0;
+      if (command == WRITE_START)
+      {
+        global_resource_planner.purge(connection_per_pid);
+        write_start(client_pid);
+      }
+      else if (command == WRITE_COMMIT)
+      {
+        global_resource_planner.purge(connection_per_pid);
+        write_commit(client_pid);
+      }
+      else if (command == WRITE_ROLLBACK)
+        write_rollback(client_pid);
+
+      evbuffer_add_uint32(output, command);
+    }
+    else if (command == HANGUP || command == READ_ABORTED || command == READ_FINISHED)
+    {
+      if (command == READ_ABORTED)
+        read_aborted(client_pid);
+      else if (command == READ_FINISHED)
+      {
+        read_finished(client_pid);
+        evbuffer_add_uint32(output, command);
+      }
+      sockets_to_close.insert(socket_fd);
+
+    }
+    else if (command == READ_IDX_FINISHED)
+    {
+      read_idx_finished(client_pid);
+      evbuffer_add_uint32(output, command);
+    }
+    else if (command == REQUEST_READ_AND_IDX)
+    {
+      if (arguments.size() < 4)
+      {
+        evbuffer_add_uint32(output, 0);
+        return;
+      }
+      uint32 max_allowed_time = arguments[0];
+      uint64 max_allowed_space = (((uint64)arguments[2])<<32 | arguments[1]);
+      uint32 client_token = arguments[3];
+
+      if (pending_commit)
+      {
+        evbuffer_add_uint32(output, 0);
+        return;
+      }
+
+      command = global_resource_planner.probe(client_pid, client_token, max_allowed_time, max_allowed_space);
+      if (command == REQUEST_READ_AND_IDX)
+        request_read_and_idx(client_pid, max_allowed_time, max_allowed_space, client_token);
+
+      evbuffer_add_uint32(output, command);
+    }
+    else if (command == PURGE)
+    {
+      if (arguments.size() < 1)
+        return;
+      uint32 target_pid = arguments[0];
+
+      read_aborted(target_pid);
+
+      evbuffer_add_uint32(output, READ_FINISHED);
+
+      sockets_to_close.insert(socket_fd);
+
+      evbuffer_add_uint32(output, command);
+    }
+    else if (command == QUERY_BY_TOKEN)
+    {
+      if (arguments.size() < 1)
+        return;
+      uint32 target_token = arguments[0];
+
+      pid_t target_pid = 0;
+      for (std::vector< Reader_Entry >::const_iterator it = global_resource_planner.get_active().begin();
+          it != global_resource_planner.get_active().end(); ++it)
+      {
+        if (it->client_token == target_token)
+          target_pid = it->client_pid;
+      }
+      evbuffer_add_uint32(output, target_pid);
+    }
+    else if (command == QUERY_MY_STATUS)
+    {
+      if (arguments.size() < 1)
+        return;
+      uint32 client_token = arguments[0];
+
+      evbuffer_add_uint32(output, global_resource_planner.get_rate_limit());
+
+      for (std::vector< Reader_Entry >::const_iterator it = global_resource_planner.get_active().begin();
+          it != global_resource_planner.get_active().end(); ++it)
+      {
+        if (it->client_token != client_token)
+          return;
+
+        if (processes_reading_idx.find(it->client_pid) != processes_reading_idx.end())
+          evbuffer_add_uint32(output, REQUEST_READ_AND_IDX);
+        else
+          evbuffer_add_uint32(output, READ_IDX_FINISHED);
+
+        evbuffer_add_uint32(output, it->client_pid);
+        evbuffer_add_uint32(output, it->max_time);
+        evbuffer_add_uint32(output, it->max_space >>32);
+        evbuffer_add_uint32(output, it->max_space & 0xffffffff);
+        evbuffer_add_uint32(output, it->start_time);
+      }
+
+      evbuffer_add_uint32(output, 0);
+
+      for (std::vector< Quota_Entry >::const_iterator it = global_resource_planner.get_afterwards().begin();
+          it != global_resource_planner.get_afterwards().end(); ++it)
+      {
+        if (it->client_token == client_token)
+          evbuffer_add_uint32(output, it->expiration_time);
+      }
+
+      evbuffer_add_uint32(output, 0);
+    }
+    else if (command == SET_GLOBAL_LIMITS)
+    {
+      if (arguments.size() < 5)
+        return;
+
+      uint64 new_total_available_space = (((uint64)arguments[1])<<32 | arguments[0]);
+      uint64 new_total_available_time_units = (((uint64)arguments[3])<<32 | arguments[2]);
+      int rate_limit_ = arguments[4];
+
+      if (new_total_available_space > 0)
+        global_resource_planner.set_total_available_space(new_total_available_space);
+      if (new_total_available_time_units > 0)
+        global_resource_planner.set_total_available_time(new_total_available_time_units);
+      if (rate_limit_ > -1)
+        global_resource_planner.set_rate_limit(rate_limit_);
+
+      evbuffer_add_uint32(output, command);
     }
   }
+  catch (File_Error e)
+  {
+    std::cerr<<"File_Error "<<e.error_number<<' '<<strerror(e.error_number)<<' '<<e.filename<<' '<<e.origin<<'\n';
+
+//    counter += 30;
+    millisleep(3000);
+
+    // Set command state to zero.
+    *(uint32*)dispatcher_shm_ptr = 0;
+  }
+
 }
+
 
 
 void Dispatcher::output_status()
