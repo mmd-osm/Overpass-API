@@ -5,6 +5,9 @@
 #include "../core/datatypes.h"
 #include "../core/geometry.h"
 #include "../frontend/output_handler.h"
+#include "../../template_db/types.h"
+
+#include <future>
 
 #include <osmium/builder/osm_object_builder.hpp>
 #include <osmium/io/opl_output.hpp>
@@ -30,7 +33,8 @@ class Output_Osmium : public Output_Handler
 {
 public:
   Output_Osmium(std::string output_format_) : output_format(output_format_), writer(nullptr),
-                                            output_file(nullptr), header(nullptr) {}
+                                            output_file(nullptr), header(nullptr),
+                                            repeater_file("") {}
 
   ~Output_Osmium();
 
@@ -87,12 +91,15 @@ public:
 
 private:
   void maybe_flush();
+  void prepare_fifo();
 
   std::string output_format;
   osmium::memory::Buffer buffer{1024*1024};
   osmium::io::Writer* writer;
   osmium::io::File * output_file;
   osmium::io::Header* header;
+  std::future<void> repeater;
+  std::string repeater_file;
 };
 
 
