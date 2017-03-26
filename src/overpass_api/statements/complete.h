@@ -33,7 +33,6 @@ class Complete_Statement : public Statement
                      Parsed_Query& global_settings);
     virtual void add_statement(Statement* statement, std::string text);
     virtual std::string get_name() const { return "complete"; }
-    virtual std::string get_result_name() const { return ""; }
     virtual void execute(Resource_Manager& rman);
     virtual ~Complete_Statement() {}
     
