@@ -55,10 +55,12 @@ void Complete_Statement::add_statement(Statement* statement, std::string text)
   
   if (statement)
   {
-    if (statement->get_name() != "newer")
-      substatements.push_back(statement);
-    else
+    if (statement->get_name() == "newer")
       add_static_error("\"newer\" can appear only inside \"query\" statements.");
+    else if (statement->get_result_name() == "")
+      substatement_error(get_name(), statement);
+    else
+      substatements.push_back(statement);
   }
 }
 
