@@ -35,7 +35,7 @@ Generic_Statement_Maker< Complete_Statement > Complete_Statement::statement_make
 
 Complete_Statement::Complete_Statement
     (int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
-    : Statement(line_number_)
+    : Output_Statement(line_number_)
 {
   std::map< std::string, std::string > attributes;
   

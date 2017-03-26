@@ -26,7 +26,7 @@
 #include "statement.h"
 
 
-class Complete_Statement : public Statement
+class Complete_Statement : public Output_Statement
 {
   public:
   Complete_Statement(int line_number_, const std::map< std::string, std::string >& attributes,
