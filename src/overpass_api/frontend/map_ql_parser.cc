@@ -410,6 +410,16 @@ TStatement* create_newer_statement(typename TStatement::Factory& stmt_factory,
 }
 
 template< class TStatement >
+TStatement* create_changeset_statement(typename TStatement::Factory& stmt_factory,
+                                   std::string changeset, uint line_nr)
+{
+  std::map< std::string, std::string > attr;
+  attr["changeset"] = changeset;
+  return stmt_factory.create_statement("changeset", line_nr, attr);
+}
+
+
+template< class TStatement >
 TStatement* create_area_statement(typename TStatement::Factory& stmt_factory,
 				   std::string ref, std::string from, std::string into, uint line_nr)
 {
@@ -864,6 +874,9 @@ TStatement* create_query_substatement
   else if (clause.statement == "newer")
     return create_newer_statement< TStatement >
         (stmt_factory, clause.attributes[0], clause.line_col.first);
+  else if (clause.statement == "changeset")
+    return create_changeset_statement< TStatement >
+        (stmt_factory, clause.attributes[0], clause.line_col.first);
   else if (clause.statement == "recurse")
   {
     if (clause.attributes.size() == 2)
@@ -1189,6 +1202,15 @@ TStatement* parse_query(typename TStatement::Factory& stmt_factory, Parsed_Query
 	clear_until_after(token, error_output, ")");
 	clauses.push_back(clause);
       }
+      else if (*token == "changeset")
+      {
+        Statement_Text clause("changeset", token.line_col());
+        ++token;
+        clear_until_after(token, error_output, ":");
+        clause.attributes.push_back(get_text_token(token, error_output, "Positive integer"));
+        clear_until_after(token, error_output, ")");
+        clauses.push_back(clause);
+      }
       else if (*token == "changed")
       {
 	Statement_Text clause("changed", token.line_col());
@@ -1356,6 +1378,7 @@ TStatement* parse_query(typename TStatement::Factory& stmt_factory, Parsed_Query
        || (clauses.front().statement == "bbox-query" && type != "node")
        || clauses.front().statement == "changed"
        || (clauses.front().statement == "newer" && type != "all")
+       || (clauses.front().statement == "changeset" && type != "all")
        || (clauses.front().statement == "recurse" &&
            (clauses.front().attributes[0] == "<" || clauses.front().attributes[0] == "<<"
 	   || clauses.front().attributes[0] == ">" || clauses.front().attributes[0] == ">>")))

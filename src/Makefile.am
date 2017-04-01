@@ -98,6 +98,7 @@ statements_cc = \
   overpass_api/statements/bbox_query.cc \
   overpass_api/statements/binary_operators.cc \
   overpass_api/statements/changed.cc \
+  overpass_api/statements/changeset.cc \
   overpass_api/statements/complete.cc \
   overpass_api/statements/convert.cc \
   overpass_api/statements/coord_query.cc \
@@ -261,6 +262,7 @@ nobase_dist_HEADERS = \
   overpass_api/statements/bbox_query.h\
   overpass_api/statements/binary_operators.h\
   overpass_api/statements/changed.h\
+  overpass_api/statements/changeset.h\
   overpass_api/statements/complete.h\
   overpass_api/statements/convert.h\
   overpass_api/statements/coord_query.h\
