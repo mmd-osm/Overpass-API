@@ -11,14 +11,14 @@ bool Output_CSV::write_http_headers()
 
 
 // Escape CSV output according to RFC 4180
-std::string escape_csv(const std::string& input)
+std::string escape_csv(const std::string& input, const std::string& separator)
 {
   std::string result;
   bool quotes_needed = false;
   
   for (int i = input.size() - 1; i >= 0; --i)
   {
-    if (input[i] == '\n' || input[i] == ',')
+    if (input[i] == '\n' || (separator.length() == 1 && input[i] == separator[0]))
       quotes_needed = true;
     else if (input[i] == '\"')
     {
@@ -47,7 +47,7 @@ void Output_CSV::write_payload_header
     for (std::vector< std::pair< std::string, bool > >::const_iterator it = csv_settings.keyfields.begin();
         it != csv_settings.keyfields.end(); ++it)
     {
-      std::cout<<(it->second ? "@" : "")<<escape_csv(it->first);
+      std::cout<<(it->second ? "@" : "")<<escape_csv(it->first, csv_settings.separator);
       if (it + 1 != csv_settings.keyfields.end())
         std::cout<<csv_settings.separator;
     }
@@ -156,7 +156,7 @@ void process_csv_line(int otype, const std::string& type, Id_Type id, const Opaq
 	{
 	  if (it_tags->first == it->first)
 	  {
-	    std::cout<<escape_csv(it_tags->second);
+	    std::cout<<escape_csv(it_tags->second, csv_settings.separator);
 	    break;
 	  }
 	}
