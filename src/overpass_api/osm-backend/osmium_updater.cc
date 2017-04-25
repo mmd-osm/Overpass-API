@@ -132,7 +132,7 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
     else
       way_updater->set_way(way, &meta);
 
-    if (osm_element_count >= flush_limit)
+    if (osm_element_count * 5 >= flush_limit)
     {
       callback->way_elapsed(w.id());
       way_updater->update(callback, true, node_updater->get_new_skeletons(),

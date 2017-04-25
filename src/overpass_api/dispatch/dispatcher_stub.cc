@@ -70,7 +70,7 @@ void set_limits(uint32 time, uint64 space)
   rlimit limit;
 
   //TODO: Set soft limits for FastCGI instead of hard limits!
-
+/*
   int result = getrlimit(RLIMIT_CPU, &limit);
   if (result == 0 && time < limit.rlim_cur && time < limit.rlim_max)
   {
@@ -86,6 +86,7 @@ void set_limits(uint32 time, uint64 space)
     limit.rlim_max = space;
     result = setrlimit(RLIMIT_AS, &limit);
   }
+*/
 }
 
 

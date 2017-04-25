@@ -562,6 +562,64 @@ void lookup_missing_nodes
   std::sort(missing_ids.begin(), missing_ids.end());
   missing_ids.erase(std::unique(missing_ids.begin(), missing_ids.end()), missing_ids.end());
 
+  {
+
+    PROFILE_BLOCK("get_existing_skeletons");
+
+#define PARALLEL_TEST
+
+#ifdef PARALLEL_TEST
+
+  std::vector<std::future<std::vector< std::pair < Node_Skeleton::Id_Type, Quad_Coord > > > > futures;
+
+  const unsigned int PACKAGE_SIZE = 5000000;
+
+  for (int i = 0; i <= missing_ids.size() / PACKAGE_SIZE; i++)
+  {
+    futures.push_back(
+        std::async(std::launch::async, [&missing_ids, &transaction]
+                                        (int current_package)
+        {
+           auto begin = missing_ids.begin() + current_package * PACKAGE_SIZE;
+           auto end   = (current_package == (missing_ids.size() / PACKAGE_SIZE) ?
+                         missing_ids.end() :
+                         missing_ids.begin() + (current_package + 1) * PACKAGE_SIZE);
+
+           // Collect all data of existing id indexes
+           std::vector< std::pair< Node_Skeleton::Id_Type, Uint31_Index > > existing_map_positions
+                 = get_existing_map_positions< Node_Skeleton::Id_Type >
+                    ( begin, end, transaction, *osm_base_settings().NODES);
+
+            std::vector< std::pair < Node_Skeleton::Id_Type, Quad_Coord > > local_new_node_idx_by_id;
+            local_new_node_idx_by_id.reserve(existing_map_positions.size());
+
+            // Collect all data of existing skeletons
+            std::map< Uint31_Index, std::set< Node_Skeleton > > existing_skeletons
+            = get_existing_skeletons< Node_Skeleton > ( existing_map_positions, transaction, *osm_base_settings().NODES);
+
+            for (std::map< Uint31_Index, std::set< Node_Skeleton > >::const_iterator it = existing_skeletons.begin();
+                it != existing_skeletons.end(); ++it)
+            {
+              for (std::set< Node_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+                local_new_node_idx_by_id.push_back(std::make_pair(it2->id, Quad_Coord(it->first.val(), it2->ll_lower)));
+            }
+
+            return local_new_node_idx_by_id;
+        }, i
+    ));
+  }
+
+  for (auto &e : futures) {
+    auto local_new_node_idx_by_id_ = e.get();
+    std::copy(local_new_node_idx_by_id_.begin(), local_new_node_idx_by_id_.end(),
+              std::inserter(new_node_idx_by_id, new_node_idx_by_id.begin()));
+    local_new_node_idx_by_id_.clear();
+  }
+
+  futures.clear();
+
+#else
+
   // Collect all data of existing id indexes
   std::vector< std::pair< Node_Skeleton::Id_Type, Uint31_Index > > existing_map_positions
       = get_existing_map_positions(missing_ids, transaction, *osm_base_settings().NODES);
@@ -577,6 +635,10 @@ void lookup_missing_nodes
     for (std::set< Node_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
       new_node_idx_by_id.insert(std::make_pair(it2->id, Quad_Coord(it->first.val(), it2->ll_lower)));
   }
+
+#endif
+  }
+
 }
 
 
@@ -851,12 +913,20 @@ void Way_Updater::update(Osm_Backend_Callback* callback, bool partial,
   // Then add all nodes known from implicitly_moved_skeletons geometry.
   add_implicitly_known_nodes(new_node_idx_by_id, implicitly_moved_skeletons);
   // Then lookup the missing nodes.
+  {
+
+    PROFILE_BLOCK("lookup_missing_nodes");
   lookup_missing_nodes(new_node_idx_by_id, existing_skeletons, implicitly_moved_skeletons, new_data,
                        *transaction);
+  }
+  std::cout << "new_node_idx_by_id: " << new_node_idx_by_id.size() << std::endl;
 
+  {
+
+    PROFILE_BLOCK("compute_geometry");
   // Compute the indices of the new ways
   compute_geometry(new_node_idx_by_id, new_data);
-
+  }
   // Compute which objects really have changed
   attic_skeletons.clear();
   new_skeletons.clear();

@@ -118,6 +118,24 @@ std::vector< std::pair< Id_Type, Uint31_Index > > get_existing_map_positions
   return result;
 }
 
+template< typename Id_Type, typename Iterator>
+std::vector< std::pair< Id_Type, Uint31_Index > > get_existing_map_positions
+    (Iterator begin, Iterator end,
+     Transaction& transaction, const File_Properties& file_properties)
+{
+  Random_File< Id_Type, Uint31_Index > random(transaction.random_index(&file_properties));
+
+  std::vector< std::pair< Id_Type, Uint31_Index > > result;
+  for (typename std::vector< Id_Type >::const_iterator it = begin; it != end; ++it)
+  {
+    Uint31_Index idx = random.get(it->val());
+    if (idx.val() > 0)
+      result.push_back(std::make_pair(*it, idx));
+  }
+  return result;
+}
+
+
 
 template< typename Id_Type >
 struct Idx_Agnostic_Compare
@@ -147,7 +165,7 @@ std::map< Uint31_Index, std::set< Element_Skeleton > > get_existing_skeletons
       it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
   {
     if (binary_search(ids_with_position.begin(), ids_with_position.end(),
-        std::make_pair(it.object().id, 0), comp))
+        std::make_pair(it.handle().id(), 0), comp))
       result[it.index()].insert(it.object());
   }
 
