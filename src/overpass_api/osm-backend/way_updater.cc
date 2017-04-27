@@ -17,6 +17,7 @@
  */
 
 #include <algorithm>
+#include <atomic>
 #include <future>
 #include <map>
 #include <set>
@@ -570,51 +571,69 @@ void lookup_missing_nodes
 
 #ifdef PARALLEL_TEST
 
-  std::vector<std::future<std::vector< std::pair < Node_Skeleton::Id_Type, Quad_Coord > > > > futures;
+  const unsigned int PARALLEL_PROCS = 6;
 
-  const unsigned int PACKAGE_SIZE = 5000000;
+  std::vector<std::future< void > > futures;
+  std::mutex map_mutex;
+  std::atomic<unsigned int> package;
 
-  for (int i = 0; i <= missing_ids.size() / PACKAGE_SIZE; i++)
+  package = 0;
+
+  unsigned int package_size = 5000000;
+
+  for (int i = 0; i < PARALLEL_PROCS; i++)
   {
     futures.push_back(
-        std::async(std::launch::async, [&missing_ids, &transaction]
-                                        (int current_package)
+        std::async(std::launch::async, [&missing_ids, &transaction, &new_node_idx_by_id, &map_mutex, &package, package_size]
+      {
+      while (true) {
+        int current_package = package++;
+
+        if (current_package > missing_ids.size() / package_size)
+          return;
+
         {
-           auto begin = missing_ids.begin() + current_package * PACKAGE_SIZE;
-           auto end   = (current_package == (missing_ids.size() / PACKAGE_SIZE) ?
-                         missing_ids.end() :
-                         missing_ids.begin() + (current_package + 1) * PACKAGE_SIZE);
+          PROFILE_BLOCK("par");
 
-           // Collect all data of existing id indexes
-           std::vector< std::pair< Node_Skeleton::Id_Type, Uint31_Index > > existing_map_positions
-                 = get_existing_map_positions< Node_Skeleton::Id_Type >
-                    ( begin, end, transaction, *osm_base_settings().NODES);
+          auto begin = missing_ids.begin() + current_package * package_size;
+          auto end   = (current_package == (missing_ids.size() / package_size) ?
+              missing_ids.end() :
+              missing_ids.begin() + (current_package + 1) * package_size);
 
-            std::vector< std::pair < Node_Skeleton::Id_Type, Quad_Coord > > local_new_node_idx_by_id;
-            local_new_node_idx_by_id.reserve(existing_map_positions.size());
+          // Collect all data of existing id indexes
+          std::vector< std::pair< Node_Skeleton::Id_Type, Uint31_Index > > existing_map_positions
+          = get_existing_map_positions< Node_Skeleton::Id_Type >
+          ( begin, end, transaction, *osm_base_settings().NODES);
 
-            // Collect all data of existing skeletons
-            std::map< Uint31_Index, std::set< Node_Skeleton > > existing_skeletons
-            = get_existing_skeletons< Node_Skeleton > ( existing_map_positions, transaction, *osm_base_settings().NODES);
+          std::vector< std::pair < Node_Skeleton::Id_Type, Quad_Coord > > local_new_node_idx_by_id;
+          local_new_node_idx_by_id.reserve(existing_map_positions.size());
 
-            for (std::map< Uint31_Index, std::set< Node_Skeleton > >::const_iterator it = existing_skeletons.begin();
-                it != existing_skeletons.end(); ++it)
-            {
-              for (std::set< Node_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
-                local_new_node_idx_by_id.push_back(std::make_pair(it2->id, Quad_Coord(it->first.val(), it2->ll_lower)));
-            }
+          // Collect all data of existing skeletons
+          std::map< Uint31_Index, std::set< Node_Skeleton > > existing_skeletons
+          = get_existing_skeletons< Node_Skeleton > ( existing_map_positions, transaction, *osm_base_settings().NODES);
 
-            return local_new_node_idx_by_id;
-        }, i
-    ));
+          for (std::map< Uint31_Index, std::set< Node_Skeleton > >::const_iterator it = existing_skeletons.begin();
+              it != existing_skeletons.end(); ++it)
+          {
+            for (std::set< Node_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+              local_new_node_idx_by_id.push_back(std::make_pair(it2->id, Quad_Coord(it->first.val(), it2->ll_lower)));
+          }
+          {
+            std::lock_guard<std::mutex> guard(map_mutex);
+
+            std::copy(local_new_node_idx_by_id.begin(), local_new_node_idx_by_id.end(),
+                std::inserter(new_node_idx_by_id, new_node_idx_by_id.begin()));
+            local_new_node_idx_by_id.clear();
+          }
+
+        }
+      }
+     }
+        ));
   }
 
-  for (auto &e : futures) {
-    auto local_new_node_idx_by_id_ = e.get();
-    std::copy(local_new_node_idx_by_id_.begin(), local_new_node_idx_by_id_.end(),
-              std::inserter(new_node_idx_by_id, new_node_idx_by_id.begin()));
-    local_new_node_idx_by_id_.clear();
-  }
+  for (auto &e : futures)
+    e.get();
 
   futures.clear();
 
