@@ -308,8 +308,9 @@ void Osmium_Updater::parse_file_completely(FILE* in) {
 }
 
 Osmium_Updater::Osmium_Updater(Osm_Backend_Callback* callback_,
-    const string& data_version_, meta_modes meta_, unsigned int flush_limit_) :
-    dispatcher_client(0), meta(meta_) {
+    const string& data_version_, meta_modes meta_, unsigned int flush_limit_,
+    unsigned int parallel_processes_) :
+    dispatcher_client(0), meta(meta_), parallel_processes(parallel_processes_) {
   dispatcher_client = new Dispatcher_Client(osm_base_settings().shared_name);
   Logger logger(dispatcher_client->get_db_dir());
   logger.annotated_log("write_start() start version='" + data_version_ + '\'');
@@ -323,35 +324,37 @@ Osmium_Updater::Osmium_Updater(Osm_Backend_Callback* callback_,
     version << data_version_ << '\n';
   }
 
-  this->node_updater_ = new Node_Updater(*transaction, meta);
-  this->way_updater_ = new Way_Updater(*transaction, meta);
-  this->relation_updater_ = new Relation_Updater(*transaction, meta);
+  this->node_updater_ = new Node_Updater(*transaction, meta, parallel_processes);
+  this->way_updater_ = new Way_Updater(*transaction, meta, parallel_processes);
+  this->relation_updater_ = new Relation_Updater(*transaction, meta, parallel_processes);
   this->callback_ = callback_;
   this->flush_limit = flush_limit_;
 }
 
 Osmium_Updater::Osmium_Updater(Osm_Backend_Callback* callback_, string db_dir,
-    const string& data_version_, meta_modes meta_, unsigned int flush_limit_) :
-    transaction(0), dispatcher_client(0), db_dir_(db_dir), meta(meta_) {
+    const string& data_version_, meta_modes meta_, unsigned int flush_limit_,
+    unsigned int parallel_processes_) :
+    transaction(0), dispatcher_client(0), db_dir_(db_dir), meta(meta_),
+    parallel_processes(parallel_processes_){
   {
     ofstream version((db_dir + "osm_base_version").c_str());
     version << data_version_ << '\n';
   }
 
-  this->node_updater_ = new Node_Updater(db_dir, meta);
-  this->way_updater_ = new Way_Updater(db_dir, meta);
-  this->relation_updater_ = new Relation_Updater(db_dir, meta);
+  this->node_updater_ = new Node_Updater(db_dir, meta, parallel_processes);
+  this->way_updater_ = new Way_Updater(db_dir, meta, parallel_processes);
+  this->relation_updater_ = new Relation_Updater(db_dir, meta, parallel_processes);
   this->flush_limit = flush_limit_;
   this->callback_ = callback_;
 }
 
 void Osmium_Updater::flush() {
   delete node_updater_;
-  node_updater_ = new Node_Updater(db_dir_, meta ? keep_meta : only_data);
+  node_updater_ = new Node_Updater(db_dir_, meta ? keep_meta : only_data, parallel_processes);
   delete way_updater_;
-  way_updater_ = new Way_Updater(db_dir_, meta);
+  way_updater_ = new Way_Updater(db_dir_, meta, parallel_processes);
   delete relation_updater_;
-  relation_updater_ = new Relation_Updater(db_dir_, meta);
+  relation_updater_ = new Relation_Updater(db_dir_, meta, parallel_processes);
 
   if (dispatcher_client)
   {

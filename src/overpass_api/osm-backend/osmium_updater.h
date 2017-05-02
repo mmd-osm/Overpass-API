@@ -36,9 +36,9 @@ class Osmium_Updater
 {
   public:
     Osmium_Updater(Osm_Backend_Callback* callback_, const string& data_version,
-		meta_modes meta, unsigned int flush_limit);
+		meta_modes meta, unsigned int flush_limit, unsigned int parallel_processes);
     Osmium_Updater(Osm_Backend_Callback* callback_, string db_dir, const string& data_version,
-		meta_modes meta, unsigned int flush_limit);
+		meta_modes meta, unsigned int flush_limit, unsigned int parallel_processes);
     ~Osmium_Updater();
 
     void finish_updater();
@@ -54,6 +54,7 @@ class Osmium_Updater
     uint flush_limit = 4*1024*1024;
     string db_dir_;
     meta_modes meta;
+    unsigned int parallel_processes;
 
     void flush();
 };
