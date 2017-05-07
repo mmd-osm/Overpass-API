@@ -102,6 +102,7 @@ void Output_Osmium::write_payload_header
   header->set("generator","Overpass API");
   header->set("osmosis_replication_timestamp", timestamp);
   writer = new osmium::io::Writer(*output_file, *header, osmium::io::overwrite::allow);
+  unlink(repeater_file.c_str());
 }
 
 void Output_Osmium::write_footer()
