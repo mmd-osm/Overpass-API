@@ -56,14 +56,14 @@ void Output_Osmium::prepare_fifo()
   if (ret < 0)
     throw File_Error(errno, repeater_file, "print_target::osmium::mkfifo");
 
-  int readFd = open(repeater_file.c_str(), O_RDONLY);
-  if (readFd < 0)
-    throw File_Error(errno, repeater_file, "print_target::osmium::open:readFd");
-
-  repeater = std::async(std::launch::async, [](int readFd, std::string repeater_file)
+  repeater = std::async(std::launch::async, [](std::string repeater_file)
   {
     ssize_t len = 0;
     char buffer[PIPE_BUF];
+
+    int readFd = open(repeater_file.c_str(), O_RDONLY);
+    if (readFd < 0)
+    throw File_Error(errno, repeater_file, "print_target::osmium::open:readFd");
 
     while(true)
     {
@@ -81,7 +81,7 @@ void Output_Osmium::prepare_fifo()
 
     std::cout << std::flush;
 
-  }, readFd, repeater_file);
+  }, repeater_file);
 }
 
 bool Output_Osmium::write_http_headers()
