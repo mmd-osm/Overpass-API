@@ -63,13 +63,17 @@ void Output_Osmium::prepare_fifo()
 
     int readFd = open(repeater_file.c_str(), O_RDONLY);
     if (readFd < 0)
-    throw File_Error(errno, repeater_file, "print_target::osmium::open:readFd");
+      throw File_Error(errno, repeater_file, "print_target::osmium::open");
+
+    int foo = unlink(repeater_file.c_str());
+    if (foo < 0)
+      throw File_Error(errno, repeater_file, "print_target::osmium::unlink");
 
     while(true)
     {
       len = read(readFd, &buffer, sizeof(buffer));
       if (len < 0)
-        throw File_Error(errno, repeater_file, "print_target::osmium::open:read");
+        throw File_Error(errno, repeater_file, "print_target::osmium::read");
 
       if (len == 0)
         break;
@@ -102,7 +106,6 @@ void Output_Osmium::write_payload_header
   header->set("generator","Overpass API");
   header->set("osmosis_replication_timestamp", timestamp);
   writer = new osmium::io::Writer(*output_file, *header, osmium::io::overwrite::allow);
-  unlink(repeater_file.c_str());
 }
 
 void Output_Osmium::write_footer()
