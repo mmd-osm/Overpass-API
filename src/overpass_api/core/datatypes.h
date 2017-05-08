@@ -596,5 +596,28 @@ template< > inline std::string name_of_type< Way_Skeleton >() { return "Way"; }
 template< > inline std::string name_of_type< Relation_Skeleton >() { return "Relation"; }
 template< > inline std::string name_of_type< Area_Skeleton >() { return "Area"; }
 
+namespace std
+{
+    template<> struct hash<Uint64>
+    {
+        typedef Uint64 argument_type;
+        typedef std::size_t result_type;
+        result_type operator()(argument_type const& s) const
+        {
+          return ( std::hash<uint64>{}(s.val()) );
+        }
+    };
+
+    template<> struct hash<Uint32_Index>
+    {
+        typedef Uint32_Index argument_type;
+        typedef std::size_t result_type;
+        result_type operator()(argument_type const& s) const
+        {
+          return ( std::hash<uint32>{}(s.val()) );
+        }
+    };
+}
+
 
 #endif

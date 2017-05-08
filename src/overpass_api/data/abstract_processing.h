@@ -19,6 +19,9 @@
 #ifndef DE__OSM3S___OVERPASS_API__DATA__ABSTRACT_PROCESSING_H
 #define DE__OSM3S___OVERPASS_API__DATA__ABSTRACT_PROCESSING_H
 
+#include <functional>
+#include <unordered_set>
+
 #include "../core/datatypes.h"
 #include "../statements/statement.h"
 #include "collect_items.h"
@@ -96,6 +99,37 @@ class Id_Predicate
   private:
     const std::vector< typename Object::Id_Type >& ids;
 };
+
+//-----------------------------------------------------------------------------
+
+template < class Object >
+class Id_Hash_Predicate
+{
+  public:
+  Id_Hash_Predicate(const std::vector< typename Object::Id_Type >& ids_)
+    {
+      std::copy(ids_.begin(),ids_.end(),std::inserter(id_set,id_set.end()));
+    }
+    bool match(const Object& obj) const {
+         auto got = id_set.find(obj.id);
+         return (!(got == id_set.end()));
+    }
+
+    bool match(const Handle< Object >& h) const {
+         auto got = id_set.find (h.id());
+         return (!(got == id_set.end()));
+    }
+
+    bool match(const Handle< Attic< Object > >& h) const {
+         auto got = id_set.find (h.id());
+         return (!(got == id_set.end()));
+    }
+
+  private:
+     std::unordered_set< typename Object::Id_Type > id_set;
+};
+
+
 
 //-----------------------------------------------------------------------------
 
