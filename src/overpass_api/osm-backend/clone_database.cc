@@ -149,6 +149,11 @@ void clone_database(Transaction& transaction, std::string dest_db_dir, Clone_Set
   });
 
   cl.push_back( [&] {
+    clone_bin_file< Tag_Index_Local >(*osm_base_settings().NODES_TAGGED, *osm_base_settings().NODES_TAGGED,
+                                      transaction, dest_db_dir, clone_settings);
+  });
+
+  cl.push_back( [&] {
     clone_bin_file< Uint31_Index >(*osm_base_settings().WAYS, *osm_base_settings().WAYS,
                                    transaction, dest_db_dir, clone_settings);
   });

@@ -49,6 +49,7 @@ struct Osm_Base_Settings
   File_Properties* NODE_TAGS_LOCAL;
   File_Properties* NODE_TAGS_GLOBAL;
   File_Properties* NODE_KEYS;
+  File_Properties* NODES_TAGGED;
   File_Properties* WAYS;
   File_Properties* WAY_TAGS_LOCAL;
   File_Properties* WAY_TAGS_GLOBAL;

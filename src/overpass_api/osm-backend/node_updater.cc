@@ -455,6 +455,11 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
       = get_existing_skeletons< Node_Skeleton >
       (existing_map_positions, *transaction, *osm_base_settings().NODES);
 
+  // Collect all data of existing tagged skeletons
+  std::map< Uint31_Index, std::set< Node_Skeleton > > existing_tagged_skeletons
+      = get_existing_skeletons< Node_Skeleton >
+      (existing_map_positions, *transaction, *osm_base_settings().NODES_TAGGED);
+
   // Collect all data of existing meta elements
   std::map< Uint31_Index, std::set< OSM_Element_Metadata_Skeleton< Node::Id_Type > > > existing_meta
       = (meta ? get_existing_meta< OSM_Element_Metadata_Skeleton< Node::Id_Type > >
@@ -472,6 +477,11 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
   new_skeletons.clear();
   new_current_skeletons(new_data, existing_map_positions, existing_skeletons,
       0, attic_skeletons, new_skeletons, moved_nodes);
+
+  attic_tagged_skeletons.clear();
+  new_tagged_skeletons.clear();
+  new_current_tagged_skeletons(new_data, existing_map_positions, existing_tagged_skeletons,
+      0, attic_tagged_skeletons, new_tagged_skeletons, moved_tagged_nodes);
 
   // Compute which meta data really has changed
   std::map< Uint31_Index, std::set< OSM_Element_Metadata_Skeleton< Node_Skeleton::Id_Type > > > attic_meta;
@@ -541,6 +551,13 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
     // Update global tags
     update_elements(attic_global_tags, new_global_tags, *transaction, *osm_base_settings().NODE_TAGS_GLOBAL);
     callback->tags_global_finished();
+  });
+
+  f.push_back( [&]
+  {
+   // Update skeletons
+    update_elements(attic_tagged_skeletons, new_tagged_skeletons, *transaction, *osm_base_settings().NODES_TAGGED);
+    callback->update_coords_finished();
   });
 
   process_package(f, parallel_processes);
@@ -720,6 +737,7 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
     rename_referred_file(db_dir, "", to, *osm_base_settings().NODES);
     rename_referred_file(db_dir, "", to, *osm_base_settings().NODE_TAGS_LOCAL);
     rename_referred_file(db_dir, "", to, *osm_base_settings().NODE_TAGS_GLOBAL);
+    rename_referred_file(db_dir, "", to, *osm_base_settings().NODES_TAGGED);
     if (meta)
       rename_referred_file(db_dir, "", to, *meta_settings().NODES_META);
 
@@ -811,6 +829,12 @@ void Node_Updater::merge_files(const std::vector< std::string >& froms, std::str
   {
     ::merge_files< Tag_Index_Global, Tag_Object_Global< Node::Id_Type > >
        (from_transactions, into_transaction, *osm_base_settings().NODE_TAGS_GLOBAL);
+  });
+
+  f.push_back( [&]
+  {
+    ::merge_files< Uint32_Index, Node_Skeleton >
+    (from_transactions, into_transaction, *osm_base_settings().NODES_TAGGED);
   });
 
   if (meta)

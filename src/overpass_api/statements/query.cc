@@ -1519,10 +1519,20 @@ void Query_Statement::execute(Resource_Manager& rman)
           for (std::vector< Uint32_Index >::const_iterator it = req.begin(); it != req.end(); ++it)
             range_req_32.insert(std::make_pair(*it, ++Uint32_Index(*it)));
 	}
-        ::get_elements_by_id_from_db< Uint32_Index, Node_Skeleton >
-            (into.nodes, into.attic_nodes,
-             node_ids, invert_ids, timestamp, range_req_32, *this, rman,
-             *osm_base_settings().NODES, *attic_settings().NODES);
+        // TODO: <<<<<<<<<<<<<<<<< PROTOTYPE <<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+        if (key_values.empty() && keys.empty() && key_regexes.empty() && regkey_regexes.empty())
+          ::get_elements_by_id_from_db< Uint32_Index, Node_Skeleton >
+              (into.nodes, into.attic_nodes,
+               node_ids, invert_ids, timestamp, range_req_32, *this, rman,
+               *osm_base_settings().NODES, *attic_settings().NODES);
+        else
+          ::get_elements_by_id_from_db< Uint32_Index, Node_Skeleton >
+              (into.nodes, into.attic_nodes,
+               node_ids, invert_ids, timestamp, range_req_32, *this, rman,
+               *osm_base_settings().NODES_TAGGED, *attic_settings().NODES);
+
+        // TODO: <<<<<<<<<<<<<<<<< PROTOTYPE <<<<<<<<<<<<<<<<<<<<<<<<<<<
       }
     }
     else if (type == QUERY_WAY)

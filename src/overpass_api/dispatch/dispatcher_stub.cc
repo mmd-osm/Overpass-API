@@ -155,6 +155,7 @@ Dispatcher_Stub::Dispatcher_Stub
     transaction->data_index(osm_base_settings().NODE_TAGS_LOCAL);
     transaction->data_index(osm_base_settings().NODE_TAGS_GLOBAL);
     transaction->data_index(osm_base_settings().NODE_KEYS);
+    transaction->data_index(osm_base_settings().NODES_TAGGED);
     transaction->data_index(osm_base_settings().WAYS);
     transaction->random_index(osm_base_settings().WAYS);
     transaction->data_index(osm_base_settings().WAY_TAGS_LOCAL);

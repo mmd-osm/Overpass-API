@@ -376,6 +376,7 @@ int main(int argc, char* argv[])
     files_to_manage.push_back(osm_base_settings().NODE_TAGS_LOCAL);
     files_to_manage.push_back(osm_base_settings().NODE_TAGS_GLOBAL);
     files_to_manage.push_back(osm_base_settings().NODE_KEYS);
+    files_to_manage.push_back(osm_base_settings().NODES_TAGGED);
     files_to_manage.push_back(osm_base_settings().WAYS);
     files_to_manage.push_back(osm_base_settings().WAY_TAGS_LOCAL);
     files_to_manage.push_back(osm_base_settings().WAY_TAGS_GLOBAL);
