@@ -102,12 +102,15 @@ private:
   std::vector< std::pair< Node::Id_Type, bool > > ids_to_modify;
   std::vector< Node > nodes_to_insert;
   std::vector< std::pair< Node::Id_Type, Uint32_Index > > moved_nodes;
+  std::vector< std::pair< Node::Id_Type, Uint32_Index > > moved_tagged_nodes;
 
   meta_modes meta;
   std::map< uint32, std::string > user_by_id;
 
   std::map< Uint31_Index, std::set< Node_Skeleton > > new_skeletons;
   std::map< Uint31_Index, std::set< Node_Skeleton > > attic_skeletons;
+  std::map< Uint31_Index, std::set< Node_Skeleton > > new_tagged_skeletons;
+  std::map< Uint31_Index, std::set< Node_Skeleton > > attic_tagged_skeletons;
   std::map< Uint31_Index, std::set< Attic< Node_Skeleton > > > new_attic_skeletons;
 
   Key_Storage keys;

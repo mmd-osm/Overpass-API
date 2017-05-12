@@ -341,6 +341,86 @@ void new_current_skeletons
 }
 
 
+template< typename Element_Skeleton, typename Index_Type >
+void new_current_tagged_skeletons
+    (const Data_By_Id< Element_Skeleton >& new_data,
+     const std::vector< std::pair< typename Element_Skeleton::Id_Type, Uint31_Index > >& existing_map_positions,
+     const std::map< Uint31_Index, std::set< Element_Skeleton > >& existing_skeletons,
+     bool record_minuscule_moves,
+     std::map< Uint31_Index, std::set< Element_Skeleton > >& attic_skeletons,
+     std::map< Uint31_Index, std::set< Element_Skeleton > >& new_skeletons,
+     std::vector< std::pair< typename Element_Skeleton::Id_Type, Index_Type > >& moved_objects)
+{
+  attic_skeletons = existing_skeletons;
+
+  typename std::vector< typename Data_By_Id< Element_Skeleton >::Entry >::const_iterator next_it
+      = new_data.data.begin();
+  for (typename std::vector< typename Data_By_Id< Element_Skeleton >::Entry >::const_iterator
+      it = new_data.data.begin(); it != new_data.data.end(); ++it)
+  {
+    ++next_it;
+    if (next_it != new_data.data.end() && it->elem.id == next_it->elem.id)
+      // A later version exist also in new_data. So there is nothing to do.
+      continue;
+
+    if (it->idx == Uint31_Index(0u))
+      // There is nothing to do for elements to delete. If they exist, they are contained in the
+      // attic_skeletons.
+      continue;
+
+    // ignore entries without tags
+    if (it->tags.size() == 0)
+      continue;
+
+    const Uint31_Index* idx = binary_pair_search(existing_map_positions, it->elem.id);
+    if (!idx)
+    {
+      // No old data exists. So we can add the new data and are done.
+      new_skeletons[it->idx].insert(it->elem);
+      continue;
+    }
+    else if (!(*idx == it->idx))
+    {
+      // The old and new version have different indexes. So they are surely different.
+      moved_objects.push_back(std::make_pair(it->elem.id, Index_Type(idx->val())));
+      new_skeletons[it->idx].insert(it->elem);
+      continue;
+    }
+
+    typename std::map< Uint31_Index, std::set< Element_Skeleton > >::iterator it_attic_idx
+        = attic_skeletons.find(*idx);
+    if (it_attic_idx == attic_skeletons.end())
+    {
+      // Something has gone wrong. Save at least the new object.
+      new_skeletons[it->idx].insert(it->elem);
+      continue;
+    }
+
+    typename std::set< Element_Skeleton >::iterator it_attic
+        = it_attic_idx->second.find(it->elem);
+    if (it_attic == it_attic_idx->second.end())
+    {
+      // Something has gone wrong. Save at least the new object.
+      new_skeletons[it->idx].insert(it->elem);
+      continue;
+    }
+
+    // We have found an element at the same index with the same id, so this is a candidate for
+    // not being moved.
+    if (false/*geometrically_equal(it->elem, *it_attic)*/) // TODO: temporary change to keep update_logger working
+      // The element stays unchanged.
+      it_attic_idx->second.erase(it_attic);
+    else
+    {
+      new_skeletons[it->idx].insert(it->elem);
+      if (record_minuscule_moves)
+        moved_objects.push_back(std::make_pair(it->elem.id, Index_Type(idx->val())));
+    }
+  }
+}
+
+
+
 /* Compares the new data and the already existing skeletons to determine those that have
  * moved. This information is used to prepare the deletion and insertion lists for the
  * database operation.  Also, the list of moved nodes is filled. */

@@ -122,6 +122,7 @@ Osm_Base_Settings::Osm_Base_Settings()
       ("node_tags_global", 512*1024, 0)),
   NODE_KEYS(new OSM_File_Properties< Uint32_Index >
       ("node_keys", 512*1024, 0)),
+  NODES_TAGGED(new OSM_File_Properties< Uint32_Index >("nodes_tagged", 512*1024, 0)),
 
   WAYS(new OSM_File_Properties< Uint31_Index >("ways", 512*1024, 256*1024)),
   WAY_TAGS_LOCAL(new OSM_File_Properties< Tag_Index_Local >
