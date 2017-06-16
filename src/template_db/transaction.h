@@ -26,7 +26,6 @@
 #include <vector>
 
 
-<<<<<<< HEAD
 class Index_Cache
 {
 
@@ -45,8 +44,6 @@ private:
 };
 
 
-=======
->>>>>>> feature/parallel_database_update
 
 class Transaction
 {
@@ -91,11 +88,8 @@ class Nonsynced_Transaction : public Transaction
     bool writeable, use_shadow;
     std::string file_name_extension, db_dir;
     std::mutex transaction_mutex;
-<<<<<<< HEAD
     Index_Cache* ic;
     std::string replicate_id;
-=======
->>>>>>> feature/parallel_database_update
 };
 
 
@@ -125,10 +119,6 @@ inline Nonsynced_Transaction::~Nonsynced_Transaction()
 
 inline void Nonsynced_Transaction::flush()
 {
-<<<<<<< HEAD
-=======
-
->>>>>>> feature/parallel_database_update
   std::lock_guard<std::mutex> guard(transaction_mutex);
 
   for (std::map< const File_Properties*, File_Blocks_Index_Base* >::iterator
@@ -167,13 +157,10 @@ inline File_Blocks_Index_Base* Nonsynced_Transaction::data_index
 { 
   std::lock_guard<std::mutex> guard(transaction_mutex);
 
-<<<<<<< HEAD
   std::map< const File_Properties*, File_Blocks_Index_Base* > * df;
 
   df = (ic != nullptr) ? &ic->data_files : &data_files;
 
-=======
->>>>>>> feature/parallel_database_update
   std::map< const File_Properties*, File_Blocks_Index_Base* >::iterator
       it = df->find(fp);
   if (it != df->end())
@@ -191,13 +178,10 @@ inline Random_File_Index* Nonsynced_Transaction::random_index(const File_Propert
 { 
   std::lock_guard<std::mutex> guard(transaction_mutex);
 
-<<<<<<< HEAD
   std::map< const File_Properties*, Random_File_Index* > * rf;
 
   rf = (ic != nullptr) ? &ic->random_files : &random_files;
 
-=======
->>>>>>> feature/parallel_database_update
   std::map< const File_Properties*, Random_File_Index* >::iterator
       it = rf->find(fp);
   if (it != rf->end())
