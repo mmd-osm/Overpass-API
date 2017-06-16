@@ -22,7 +22,7 @@ public:
 private:
   std::string key;
   bool straight;
-  Regular_Expression condition;
+  Regular_Expression_POSIX condition;
 };
 
 
