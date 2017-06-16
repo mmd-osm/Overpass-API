@@ -70,16 +70,19 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
   Way_Updater* way_updater;
   Relation_Updater* relation_updater;
   Osm_Backend_Callback* callback;
+  Cpu_Stopwatch* cpu_stopwatch;
 
   const int IN_NODES = 1;
   const int IN_WAYS = 2;
   const int IN_RELATIONS = 3;
 
   Osmium_Updater_Handler(Node_Updater* node_upd_, Way_Updater* way_upd_,
-      Relation_Updater* rel_upd_, Osm_Backend_Callback* cb_, uint flush_limit_) :
+      Relation_Updater* rel_upd_, Osm_Backend_Callback* cb_, uint flush_limit_,
+      Cpu_Stopwatch* cpu_stopwatch_) :
       osm_element_count(0), flush_limit(flush_limit_), state(0),
       node_updater(node_upd_), way_updater(way_upd_),
-      relation_updater(rel_upd_), callback(cb_) {};
+      relation_updater(rel_upd_), callback(cb_),
+      cpu_stopwatch(cpu_stopwatch_){};
 
   void node(const osmium::Node& n) {
 
@@ -105,7 +108,7 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
     if (osm_element_count >= flush_limit)
     {
       callback->node_elapsed(n.id());
-      node_updater->update(callback, true);
+      node_updater->update(callback, cpu_stopwatch, true);
       callback->parser_started();
       osm_element_count = 0;
     }
@@ -135,7 +138,7 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
     if (osm_element_count >= flush_limit)
     {
       callback->way_elapsed(w.id());
-      way_updater->update(callback, true, node_updater->get_new_skeletons(),
+      way_updater->update(callback, cpu_stopwatch, true, node_updater->get_new_skeletons(),
           node_updater->get_attic_skeletons(),
           node_updater->get_new_attic_skeletons());
       callback->parser_started();
@@ -179,7 +182,7 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
     if (osm_element_count >= flush_limit)
     {
       callback->relation_elapsed(r.id());
-      relation_updater->update(callback, node_updater->get_new_skeletons(),
+      relation_updater->update(callback, cpu_stopwatch, node_updater->get_new_skeletons(),
           node_updater->get_attic_skeletons(),
           node_updater->get_new_attic_skeletons(),
           way_updater->get_new_skeletons(), way_updater->get_attic_skeletons(),
@@ -218,18 +221,18 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
 
     if (state == IN_NODES)
     {
-      node_updater->update(callback, false);
+      node_updater->update(callback, cpu_stopwatch, false);
       state = IN_WAYS;
     }
     if (state == IN_WAYS)
     {
-      way_updater->update(callback, false, node_updater->get_new_skeletons(),
+      way_updater->update(callback, cpu_stopwatch, false, node_updater->get_new_skeletons(),
           node_updater->get_attic_skeletons(),
           node_updater->get_new_attic_skeletons());
       state = IN_RELATIONS;
     }
     if (state == IN_RELATIONS)
-      relation_updater->update(callback, node_updater->get_new_skeletons(),
+      relation_updater->update(callback, cpu_stopwatch, node_updater->get_new_skeletons(),
           node_updater->get_attic_skeletons(),
           node_updater->get_new_attic_skeletons(),
           way_updater->get_new_skeletons(), way_updater->get_attic_skeletons(),
@@ -244,7 +247,7 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
     if (state == IN_NODES)
     {
       callback->nodes_finished();
-      node_updater->update(callback, false);
+      node_updater->update(callback, cpu_stopwatch, false);
       callback->parser_started();
       osm_element_count = 0;
       state = IN_WAYS;
@@ -258,7 +261,7 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
     if (state == IN_NODES)
     {
       callback->nodes_finished();
-      node_updater->update(callback, false);
+      node_updater->update(callback, cpu_stopwatch, false);
       callback->parser_started();
       osm_element_count = 0;
       state = IN_RELATIONS;
@@ -266,7 +269,7 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
     else if (state == IN_WAYS)
     {
       callback->ways_finished();
-      way_updater->update(callback, false, node_updater->get_new_skeletons(),
+      way_updater->update(callback, cpu_stopwatch, false, node_updater->get_new_skeletons(),
           node_updater->get_attic_skeletons(),
           node_updater->get_new_attic_skeletons());
       callback->parser_started();
@@ -291,7 +294,7 @@ void Osmium_Updater::parse_file_completely(FILE* in) {
     osmium::io::Reader reader(infile);
 
     Osmium_Updater_Handler osm_updater(node_updater_, way_updater_,
-        relation_updater_, callback_, flush_limit);
+        relation_updater_, callback_, flush_limit, cpu_stopwatch);
 
     while (osmium::memory::Buffer buffer = reader.read())
     {
@@ -308,8 +311,9 @@ void Osmium_Updater::parse_file_completely(FILE* in) {
 }
 
 Osmium_Updater::Osmium_Updater(Osm_Backend_Callback* callback_,
-    const string& data_version_, meta_modes meta_, unsigned int flush_limit_) :
-    dispatcher_client(0), meta(meta_) {
+    const string& data_version_, meta_modes meta_, unsigned int flush_limit_,
+    unsigned int parallel_processes_) :
+    dispatcher_client(0), meta(meta_), parallel_processes(parallel_processes_) {
   dispatcher_client = new Dispatcher_Client(osm_base_settings().shared_name);
   Logger logger(dispatcher_client->get_db_dir());
   logger.annotated_log("write_start() start version='" + data_version_ + '\'');
@@ -323,42 +327,60 @@ Osmium_Updater::Osmium_Updater(Osm_Backend_Callback* callback_,
     version << data_version_ << '\n';
   }
 
-  this->node_updater_ = new Node_Updater(*transaction, meta);
-  this->way_updater_ = new Way_Updater(*transaction, meta);
-  this->relation_updater_ = new Relation_Updater(*transaction, meta);
+  this->node_updater_ = new Node_Updater(*transaction, meta, parallel_processes);
+  this->way_updater_ = new Way_Updater(*transaction, meta, parallel_processes);
+  this->relation_updater_ = new Relation_Updater(*transaction, meta, parallel_processes);
   this->callback_ = callback_;
   this->flush_limit = flush_limit_;
+
+  cpu_stopwatch = new Cpu_Stopwatch();
+  cpu_stopwatch->start_cpu_timer(0);
 }
 
 Osmium_Updater::Osmium_Updater(Osm_Backend_Callback* callback_, string db_dir,
-    const string& data_version_, meta_modes meta_, unsigned int flush_limit_) :
-    transaction(0), dispatcher_client(0), db_dir_(db_dir), meta(meta_) {
+    const string& data_version_, meta_modes meta_, unsigned int flush_limit_,
+    unsigned int parallel_processes_
+    ) :
+    transaction(0), dispatcher_client(0), db_dir_(db_dir), meta(meta_),
+    parallel_processes(parallel_processes_){
   {
     ofstream version((db_dir + "osm_base_version").c_str());
     version << data_version_ << '\n';
   }
 
-  this->node_updater_ = new Node_Updater(db_dir, meta);
-  this->way_updater_ = new Way_Updater(db_dir, meta);
-  this->relation_updater_ = new Relation_Updater(db_dir, meta);
+  this->node_updater_ = new Node_Updater(db_dir, meta, parallel_processes);
+  this->way_updater_ = new Way_Updater(db_dir, meta, parallel_processes);
+  this->relation_updater_ = new Relation_Updater(db_dir, meta, parallel_processes);
   this->flush_limit = flush_limit_;
   this->callback_ = callback_;
+
+  cpu_stopwatch = new Cpu_Stopwatch();
+  cpu_stopwatch->start_cpu_timer(0);
 }
 
 void Osmium_Updater::flush() {
   delete node_updater_;
-  node_updater_ = new Node_Updater(db_dir_, meta ? keep_meta : only_data);
+  node_updater_ = new Node_Updater(db_dir_, meta ? keep_meta : only_data, parallel_processes);
   delete way_updater_;
-  way_updater_ = new Way_Updater(db_dir_, meta);
+  way_updater_ = new Way_Updater(db_dir_, meta, parallel_processes);
   delete relation_updater_;
-  relation_updater_ = new Relation_Updater(db_dir_, meta);
+  relation_updater_ = new Relation_Updater(db_dir_, meta, parallel_processes);
+
+  if (cpu_stopwatch)
+    cpu_stopwatch->stop_cpu_timer(0);
+  std::vector< uint64 > cpu_runtime = cpu_stopwatch ? cpu_stopwatch->cpu_time() : std::vector< uint64 >();
 
   if (dispatcher_client)
   {
     delete transaction;
     transaction = 0;
     Logger logger(dispatcher_client->get_db_dir());
+    std::ostringstream out;
     logger.annotated_log("write_commit() start");
+    for (std::vector< uint64 >::const_iterator it = cpu_runtime.begin(); it != cpu_runtime.end(); ++it)
+      out<<' '<<*it;
+    logger.annotated_log(out.str());
+
     dispatcher_client->write_commit();
     rename(
         (dispatcher_client->get_db_dir() + "osm_base_version.shadow").c_str(),

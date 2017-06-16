@@ -55,6 +55,7 @@ class Osmium_Updater
     string db_dir_;
     meta_modes meta;
     unsigned int parallel_processes;
+    Cpu_Stopwatch* cpu_stopwatch;
 
     void flush();
 };
