@@ -29,6 +29,7 @@
 #include "../core/settings.h"
 #include "../frontend/output.h"
 #include "osm_updater.h"
+#include "osmium_updater.h"
 
 
 int main(int argc, char* argv[])
@@ -40,6 +41,7 @@ int main(int argc, char* argv[])
   bool abort = false;
   unsigned int flush_limit = 16*1024*1024;
   unsigned int parallel_processes = 1;
+  bool use_osmium = false;
 
   int argpos(1);
   while (argpos < argc)
@@ -107,9 +109,11 @@ int main(int argc, char* argv[])
         abort = true;
       }
     }
+    else if (!(strncmp(argv[argpos], "--use-osmium", 12)))
+      use_osmium = true;
     else
     {
-      std::cerr<<"Unkown argument: "<<argv[argpos]<<'\n';
+      std::cerr<<"Unknown argument: "<<argv[argpos]<<'\n';
       abort = true;
     }
     ++argpos;
@@ -130,15 +134,34 @@ int main(int argc, char* argv[])
   {
     if (transactional)
     {
-      Osm_Updater osm_updater(get_verbatim_callback(), data_version, meta, flush_limit, parallel_processes);
-      //reading the main document
-      osm_updater.parse_file_completely(stdin);
+      if (!use_osmium)
+      {
+        Osm_Updater osm_updater(get_verbatim_callback(), data_version, meta, flush_limit, parallel_processes);
+        //reading the main document
+        osm_updater.parse_file_completely(stdin);
+      }
+      else
+      {
+        Osmium_Updater osm_updater(get_verbatim_callback(), data_version, meta, flush_limit, parallel_processes);
+        //reading the main document
+        osm_updater.parse_file_completely(stdin);
+      }
+
     }
     else
     {
-      Osm_Updater osm_updater(get_verbatim_callback(), db_dir, data_version, meta, flush_limit, parallel_processes);
-      //reading the main document
-      osm_updater.parse_file_completely(stdin);
+      if (!use_osmium)
+      {
+        Osm_Updater osm_updater(get_verbatim_callback(), db_dir, data_version, meta, flush_limit, parallel_processes);
+        //reading the main document
+        osm_updater.parse_file_completely(stdin);
+      }
+      else
+      {
+        Osmium_Updater osm_updater(get_verbatim_callback(), db_dir, data_version, meta, flush_limit, parallel_processes);
+        //reading the main document
+        osm_updater.parse_file_completely(stdin);
+      }
     }
   }
   catch(Context_Error e)
