@@ -94,7 +94,7 @@ Statement* Set_Prop_Statement::Statement_Maker::create_statement(
     if (rhs)
       result->add_statement(rhs, "");
     else if (error_output)
-      error_output->add_parse_error("Property assignement needs a right-hand-side value", tree_it->line_col.first);
+      error_output->add_parse_error("Property assignment needs a right-hand-side value", tree_it->line_col.first);
   }
   return result;
 }
@@ -167,21 +167,22 @@ std::string Set_Prop_Statement::dump_compact_ql(const std::string&) const
 
 
 
-std::pair< std::vector< Set_Usage >, uint > Set_Prop_Statement::used_sets() const
+Requested_Context Set_Prop_Statement::request_context() const
 {
   if (tag_value)
   {
-    std::pair< std::vector< Set_Usage >, uint > result = tag_value->used_sets();
-    result.second |= Set_Usage::TAGS;
+    Requested_Context result = tag_value->request_context();
+    result.object_usage |= Set_Usage::TAGS;
     return result;
   }
 
-  std::vector< Set_Usage > result;
-  return std::make_pair(result, Set_Usage::TAGS);
+  Requested_Context result;
+  result.add_usage(Set_Usage::TAGS);
+  return result;
 }
 
 
-Set_Prop_Task* Set_Prop_Statement::get_task(const Prepare_Task_Context& context)
+Set_Prop_Task* Set_Prop_Statement::get_task(Prepare_Task_Context& context)
 {
   Eval_Task* rhs_task = tag_value ? tag_value->get_task(context) : 0;
   return new Set_Prop_Task(rhs_task, keys.empty() ? "" : keys.front(),
@@ -207,22 +208,22 @@ void Set_Prop_Task::process(Derived_Structure& result, bool& id_set) const
 
 
 template< typename Object >
-void process(const std::string& key, Set_Prop_Task::Mode mode, Eval_Task* rhs, const Object* elem,
-    const std::vector< std::pair< std::string, std::string > >* tags, const std::vector< std::string >& declared_keys,
+void process(const std::string& key, Set_Prop_Task::Mode mode, Eval_Task* rhs,
+    const Element_With_Context< Object >& data, const std::vector< std::string >& declared_keys,
     Derived_Structure& result, bool& id_set)
 {
   if (!rhs)
     return;
 
   if (mode == Set_Prop_Task::single_key)
-    result.tags.push_back(std::make_pair(key, rhs->eval(elem, tags, 0)));
+    result.tags.push_back(std::make_pair(key, rhs->eval(data, 0)));
   else if (mode == Set_Prop_Task::generic)
   {
-    if (tags)
+    if (data.tags)
     {
       std::vector< std::string > found_keys;
-      for (std::vector< std::pair< std::string, std::string > >::const_iterator it_keys = tags->begin();
-          it_keys != tags->end(); ++it_keys)
+      for (std::vector< std::pair< std::string, std::string > >::const_iterator it_keys = data.tags->begin();
+          it_keys != data.tags->end(); ++it_keys)
         found_keys.push_back(it_keys->first);
       std::sort(found_keys.begin(), found_keys.end());
       found_keys.erase(std::unique(found_keys.begin(), found_keys.end()), found_keys.end());
@@ -231,78 +232,70 @@ void process(const std::string& key, Set_Prop_Task::Mode mode, Eval_Task* rhs, c
 
       for (std::vector< std::string >::const_iterator it_keys = found_keys.begin();
           it_keys != found_keys.end(); ++it_keys)
-        result.tags.push_back(std::make_pair(*it_keys, rhs->eval(elem, tags, &*it_keys)));
+        result.tags.push_back(std::make_pair(*it_keys, rhs->eval(data, &*it_keys)));
     }
   }
   else if (!id_set)
   {
     int64 id = 0;
-    id_set |= try_int64(rhs->eval(elem, tags, 0), id);
+    id_set |= try_int64(rhs->eval(data, 0), id);
     if (id_set)
       result.id = Uint64(id);
   }
 }
 
 
-void Set_Prop_Task::process(const Node_Skeleton* elem,
-    const std::vector< std::pair< std::string, std::string > >* tags, const std::vector< std::string >& declared_keys,
-    Derived_Structure& result, bool& id_set) const
+void Set_Prop_Task::process(const Element_With_Context< Node_Skeleton>& data,
+    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const
 {
-  ::process(key, mode, rhs, elem, tags, declared_keys, result, id_set);
+  ::process(key, mode, rhs, data, declared_keys, result, id_set);
 }
 
 
-void Set_Prop_Task::process(const Attic< Node_Skeleton >* elem,
-    const std::vector< std::pair< std::string, std::string > >* tags, const std::vector< std::string >& declared_keys,
-    Derived_Structure& result, bool& id_set) const
+void Set_Prop_Task::process(const Element_With_Context< Attic< Node_Skeleton > >& data,
+    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const
 {
-  ::process(key, mode, rhs, elem, tags, declared_keys, result, id_set);
+  ::process(key, mode, rhs, data, declared_keys, result, id_set);
 }
 
 
-void Set_Prop_Task::process(const Way_Skeleton* elem,
-    const std::vector< std::pair< std::string, std::string > >* tags, const std::vector< std::string >& declared_keys,
-    Derived_Structure& result, bool& id_set) const
+void Set_Prop_Task::process(const Element_With_Context< Way_Skeleton >& data,
+    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const
 {
-  ::process(key, mode, rhs, elem, tags, declared_keys, result, id_set);
+  ::process(key, mode, rhs, data, declared_keys, result, id_set);
 }
 
 
-void Set_Prop_Task::process(const Attic< Way_Skeleton >* elem,
-    const std::vector< std::pair< std::string, std::string > >* tags, const std::vector< std::string >& declared_keys,
-    Derived_Structure& result, bool& id_set) const
+void Set_Prop_Task::process(const Element_With_Context< Attic< Way_Skeleton > >& data,
+    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const
 {
-  ::process(key, mode, rhs, elem, tags, declared_keys, result, id_set);
+  ::process(key, mode, rhs, data, declared_keys, result, id_set);
 }
 
 
-void Set_Prop_Task::process(const Relation_Skeleton* elem,
-    const std::vector< std::pair< std::string, std::string > >* tags, const std::vector< std::string >& declared_keys,
-    Derived_Structure& result, bool& id_set) const
+void Set_Prop_Task::process(const Element_With_Context< Relation_Skeleton >& data,
+    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const
 {
-  ::process(key, mode, rhs, elem, tags, declared_keys, result, id_set);
+  ::process(key, mode, rhs, data, declared_keys, result, id_set);
 }
 
 
-void Set_Prop_Task::process(const Attic< Relation_Skeleton >* elem,
-    const std::vector< std::pair< std::string, std::string > >* tags, const std::vector< std::string >& declared_keys,
-    Derived_Structure& result, bool& id_set) const
+void Set_Prop_Task::process(const Element_With_Context< Attic< Relation_Skeleton > >& data,
+    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const
 {
-  ::process(key, mode, rhs, elem, tags, declared_keys, result, id_set);
+  ::process(key, mode, rhs, data, declared_keys, result, id_set);
 }
 
 
-void Set_Prop_Task::process(const Area_Skeleton* elem,
-    const std::vector< std::pair< std::string, std::string > >* tags, const std::vector< std::string >& declared_keys,
-    Derived_Structure& result, bool& id_set) const
+void Set_Prop_Task::process(const Element_With_Context< Area_Skeleton >& data,
+    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const
 {
-  ::process(key, mode, rhs, elem, tags, declared_keys, result, id_set);
+  ::process(key, mode, rhs, data, declared_keys, result, id_set);
 }
 
 
-void Set_Prop_Task::process(const Derived_Skeleton* elem,
-    const std::vector< std::pair< std::string, std::string > >* tags, const std::vector< std::string >& declared_keys,
-    Derived_Structure& result, bool& id_set) const
+void Set_Prop_Task::process(const Element_With_Context< Derived_Skeleton >& data,
+    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const
 {
-  ::process(key, mode, rhs, elem, tags, declared_keys, result, id_set);
+  ::process(key, mode, rhs, data, declared_keys, result, id_set);
 }

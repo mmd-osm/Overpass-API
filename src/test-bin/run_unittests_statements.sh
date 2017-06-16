@@ -199,19 +199,29 @@ prepare_test_loop difference 5 $DATA_SIZE
 date +%T
 perform_test_loop difference 5 "../../input/update_database/ $NODE_OFFSET"
 
+# Test the difference statement
+prepare_test_loop complete 7 $DATA_SIZE
+date +%T
+perform_test_loop complete 7 "$DATA_SIZE ../../input/update_database/ $NODE_OFFSET"
+
 # Test the polygon statement
 prepare_test_loop polygon_query 5 $DATA_SIZE
 date +%T
 perform_test_loop polygon_query 5 "$DATA_SIZE ../../input/update_database/"
 
 # Test the make statement
-prepare_test_loop make 80 $DATA_SIZE
+prepare_test_loop make 81 $DATA_SIZE
 date +%T
-perform_test_loop make 80 "$DATA_SIZE ../../input/update_database/ $NODE_OFFSET"
+perform_test_loop make 81 "$DATA_SIZE ../../input/update_database/ $NODE_OFFSET"
 
 # Test the make statement
-prepare_test_loop convert 8 $DATA_SIZE
+prepare_test_loop convert 10 $DATA_SIZE
 date +%T
-perform_test_loop convert 8 "$DATA_SIZE ../../input/update_database/ $NODE_OFFSET"
+perform_test_loop convert 10 "$DATA_SIZE ../../input/update_database/ $NODE_OFFSET"
+
+# Test the make statement
+prepare_test_loop if 4 $DATA_SIZE
+date +%T
+perform_test_loop if 4 "../../input/update_database/ $NODE_OFFSET"
 
 rm -f input/update_database/*

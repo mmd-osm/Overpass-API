@@ -57,10 +57,9 @@ struct Evaluator_Aggregator : public Evaluator
   virtual void add_statement(Statement* statement, std::string text);
   virtual void execute(Resource_Manager& rman) {}
 
-  virtual std::pair< std::vector< Set_Usage >, uint > used_sets() const;
-  virtual std::vector< std::string > used_tags() const { return std::vector< std::string >(); }
+  virtual Requested_Context request_context() const;
 
-  virtual Eval_Task* get_task(const Prepare_Task_Context& context);
+  virtual Eval_Task* get_task(Prepare_Task_Context& context);
 
   virtual Value_Aggregator* get_aggregator() = 0;
 
@@ -368,10 +367,9 @@ public:
   virtual void execute(Resource_Manager& rman) {}
   virtual ~Evaluator_Set_Count() {}
 
-  virtual std::pair< std::vector< Set_Usage >, uint > used_sets() const;
-  virtual std::vector< std::string > used_tags() const { return std::vector< std::string >(); }
+  virtual Requested_Context request_context() const;
 
-  virtual Eval_Task* get_task(const Prepare_Task_Context& context);
+  virtual Eval_Task* get_task(Prepare_Task_Context& context);
 
 private:
   std::string input;

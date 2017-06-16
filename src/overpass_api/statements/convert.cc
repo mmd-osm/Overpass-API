@@ -84,9 +84,9 @@ void Convert_Statement::add_statement(Statement* statement, std::string text)
 }
 
 
-template< typename Index, typename Maybe_Attic, typename Object >
+template< typename Index, typename Maybe_Attic >
 void generate_elems(const std::string& set_name,
-    const std::map< Index, std::vector< Maybe_Attic > >& items, Tag_Store< Index, Object >* tag_store,
+    const std::map< Index, std::vector< Maybe_Attic > >& items, Set_With_Context& context_from,
     Owning_Array< Set_Prop_Task* >& tasks, const std::vector< std::string >& declared_keys,
     Set& into, Resource_Manager& rman, const std::string& type)
 {
@@ -96,16 +96,13 @@ void generate_elems(const std::string& set_name,
     for (typename std::vector< Maybe_Attic >::const_iterator it_elem = it_idx->second.begin();
         it_elem != it_idx->second.end(); ++it_elem)
     {
-      const std::vector< std::pair< std::string, std::string > >* tags =
-          tag_store ? tag_store->get(it_idx->first, *it_elem) : 0;
-          
       Derived_Structure result(type, 0ull);
       bool id_fixed = false;
   
       for (uint i = 0; i < tasks.size(); ++i)
       {
         if (tasks[i])
-          tasks[i]->process(&*it_elem, tags, declared_keys, result, id_fixed);
+          tasks[i]->process(context_from.get_context(it_idx->first, *it_elem), declared_keys, result, id_fixed);
       }
       
       if (!id_fixed)
@@ -119,18 +116,10 @@ void generate_elems(const std::string& set_name,
 
 void Convert_Statement::execute(Resource_Manager& rman)
 {
-  std::pair< std::vector< Set_Usage >, uint > set_usage;
+  Requested_Context requested_context;
   for (std::vector< Set_Prop_Statement* >::const_iterator it = evaluators.begin(); it != evaluators.end(); ++it)
-    set_usage = union_usage(set_usage, (*it)->used_sets());
-  
-  std::vector< Set_Usage >::size_type input_pos = 0;
-  while (input_pos < set_usage.first.size() && set_usage.first[input_pos].set_name != input)
-    ++input_pos;
-  
-  if (input_pos == set_usage.first.size())
-    set_usage.first.push_back(Set_Usage(input, set_usage.second));
-  else
-    set_usage.first[input_pos].usage |= set_usage.second;
+    requested_context.add((*it)->request_context());
+  requested_context.bind(input);
   
   std::vector< std::string > declared_keys;
   for (std::vector< Set_Prop_Statement* >::const_iterator it = evaluators.begin(); it != evaluators.end(); ++it)
@@ -141,44 +130,44 @@ void Convert_Statement::execute(Resource_Manager& rman)
   std::sort(declared_keys.begin(), declared_keys.end());
   declared_keys.erase(std::unique(declared_keys.begin(), declared_keys.end()), declared_keys.end());
   
-  Prepare_Task_Context context(set_usage, rman);
+  Prepare_Task_Context context(requested_context, *this, rman);
   
   Owning_Array< Set_Prop_Task* > tasks;
   for (std::vector< Set_Prop_Statement* >::const_iterator it = evaluators.begin(); it != evaluators.end(); ++it)
     tasks.push_back((*it)->get_task(context));
 
   Set into;
-  const Set_With_Context* context_from = context.get_set(input);
+  Set_With_Context* context_from = context.get_set(input);
   
   if (context_from && context_from->base)
   {
     generate_elems< Uint32_Index, Node_Skeleton >(
-        context_from->name, context_from->base->nodes, context_from->tag_store_nodes, tasks,
+        context_from->name, context_from->base->nodes, *context_from, tasks,
         declared_keys, into, rman, type);
     if (rman.get_desired_timestamp() != NOW)
       generate_elems< Uint32_Index, Attic< Node_Skeleton > >(
-          context_from->name, context_from->base->attic_nodes, context_from->tag_store_attic_nodes, tasks,
+          context_from->name, context_from->base->attic_nodes, *context_from, tasks,
           declared_keys, into, rman, type);
     generate_elems< Uint31_Index, Way_Skeleton >(
-        context_from->name, context_from->base->ways, context_from->tag_store_ways, tasks,
+        context_from->name, context_from->base->ways, *context_from, tasks,
         declared_keys, into, rman, type);
     if (rman.get_desired_timestamp() != NOW)
       generate_elems< Uint31_Index, Attic< Way_Skeleton > >(
-          context_from->name, context_from->base->attic_ways, context_from->tag_store_attic_ways, tasks,
+          context_from->name, context_from->base->attic_ways, *context_from, tasks,
           declared_keys, into, rman, type);
     generate_elems< Uint31_Index, Relation_Skeleton >(
-        context_from->name, context_from->base->relations, context_from->tag_store_relations, tasks,
+        context_from->name, context_from->base->relations, *context_from, tasks,
         declared_keys, into, rman, type);
     if (rman.get_desired_timestamp() != NOW)
       generate_elems< Uint31_Index, Attic< Relation_Skeleton > >(
-          context_from->name, context_from->base->attic_relations, context_from->tag_store_attic_relations, tasks,
+          context_from->name, context_from->base->attic_relations, *context_from, tasks,
           declared_keys, into, rman, type);
     if (!context_from->base->areas.empty())
       generate_elems< Uint31_Index, Area_Skeleton >(
-          context_from->name, context_from->base->areas, context_from->tag_store_areas, tasks,
+          context_from->name, context_from->base->areas, *context_from, tasks,
           declared_keys, into, rman, type);
     generate_elems< Uint31_Index, Derived_Structure >(
-        context_from->name, context_from->base->deriveds, context_from->tag_store_deriveds, tasks,
+        context_from->name, context_from->base->deriveds, *context_from, tasks,
         declared_keys, into, rman, type);
   }
     

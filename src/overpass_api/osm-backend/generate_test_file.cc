@@ -40,6 +40,8 @@ struct V : public std::vector< T >
 
 struct Data_Modifier
 {
+  virtual ~Data_Modifier() {}
+  
   virtual bool admit_node(uint id) const = 0;
   virtual bool admit_node_skeleton(uint id) const = 0;
   virtual bool admit_node_tags(uint id) const = 0;
@@ -2625,6 +2627,80 @@ struct Accept_Difference_5 : public Accept_All_Tags
     uint pattern_size;
 };
 
+struct Accept_Complete_1 : public Accept_All_Tags
+{
+  Accept_Complete_1(uint pattern_size_) : pattern_size(pattern_size_) {}
+
+  virtual bool admit_node(uint id) const { return id == 1; }
+  virtual bool admit_way(uint id) const { return id == 2; }
+  virtual bool admit_relation(uint id) const { return id == 3; }
+
+  private:
+    uint pattern_size;
+};
+
+struct Accept_Complete_6 : public Accept_All_Tags
+{
+  Accept_Complete_6(uint pattern_size_, bool admit_node_4_) : pattern_size(pattern_size_), admit_node_4(admit_node_4_) {}
+
+  virtual bool admit_node(uint id) const { return id == 1 || (id == 4 && admit_node_4); }
+  virtual bool admit_way(uint id) const { return id == 2; }
+  virtual bool admit_relation(uint id) const { return id == 3; }
+
+  private:
+    uint pattern_size;
+    bool admit_node_4;
+};
+
+struct Accept_Complete_7 : public Accept_All_Tags
+{
+  Accept_Complete_7(uint pattern_size_, uint iteration_) : pattern_size(pattern_size_), iteration(iteration_) {}
+
+  virtual bool admit_node(uint id) const { return id == 1; }
+  virtual bool admit_way(uint id) const
+  {
+    if (iteration == 0)
+      return id == 2;
+    
+    if (id <= pattern_size/2*9)
+      return (id % (pattern_size/2) != 0
+          && id % (pattern_size/2) <= 10
+          && id % (pattern_size/2) + (id/(pattern_size/2)) < iteration + 3
+          && id / (pattern_size/2) < iteration);
+      
+    if (id <= (pattern_size/2)*(pattern_size/2 - 1))
+      return false;
+    
+    uint delta = id - (pattern_size/2)*(pattern_size/2 - 1);
+    
+    if (delta >= (pattern_size/2 - 1)*10)
+      return false;
+    
+    return (delta % (pattern_size/2 - 1) != 0
+        && delta % (pattern_size/2 - 1) <= 9
+        && delta % (pattern_size/2 - 1) < iteration + 2
+        && delta % (pattern_size/2 - 1) + (delta / (pattern_size/2 - 1)) < iteration + 3
+        && delta / (pattern_size/2 - 1) < iteration + 1);
+  }
+  virtual bool admit_relation(uint id) const { return id == 3; }
+
+  private:
+    uint pattern_size;
+    uint iteration;
+};
+
+struct Accept_If : public Accept_All_Tags
+{
+  Accept_If(uint target_way_id_) : target_way_id(target_way_id_) {}
+
+  virtual bool admit_node(uint id) const { return false; }
+  virtual bool admit_way(uint id) const { return id == target_way_id; }
+  virtual bool admit_relation(uint id) const { return false; }
+
+  private:
+    uint target_way_id;
+};
+
 struct Accept_Polygon_1 : public Accept_All_Tags
 {
   Accept_Polygon_1(uint pattern_size_) : pattern_size(pattern_size_) {}
@@ -3506,10 +3582,6 @@ int main(int argc, char* args[])
       modifier = new Accept_Query_158(pattern_size);
     else if (std::string(args[2]) == "query_159")
       modifier = new Accept_Query_159(pattern_size);
-    else if (std::string(args[2]) == "union_1")
-      modifier = new Accept_Union_1(pattern_size);
-    else if (std::string(args[2]) == "union_2")
-      modifier = new Accept_Union_2(pattern_size);
     else if (std::string(args[2]) == "foreach_1")
       modifier = new Accept_Foreach_1(pattern_size);
     else if (std::string(args[2]) == "foreach_2")
@@ -3521,6 +3593,10 @@ int main(int argc, char* args[])
     else if (std::string(args[2]) == "foreach_4")
       // query 1 and 3 shall both return an empty std::set.
       modifier = new Accept_Foreach_1(pattern_size);
+    else if (std::string(args[2]) == "union_1")
+      modifier = new Accept_Union_1(pattern_size);
+    else if (std::string(args[2]) == "union_2")
+      modifier = new Accept_Union_2(pattern_size);
     else if (std::string(args[2]) == "union_3")
       // query 1 and 3 shall return the same result
       modifier = new Accept_Union_1(pattern_size);
@@ -3540,6 +3616,28 @@ int main(int argc, char* args[])
       modifier = new Accept_Difference_4(pattern_size);
     else if (std::string(args[2]) == "difference_5")
       modifier = new Accept_Difference_5(pattern_size);
+    else if (std::string(args[2]) == "complete_1")
+      modifier = new Accept_Complete_1(pattern_size);
+    else if (std::string(args[2]) == "complete_2")
+      modifier = new Accept_Complete_1(pattern_size);
+    else if (std::string(args[2]) == "complete_3")
+      modifier = new Accept_Complete_1(pattern_size);
+    else if (std::string(args[2]) == "complete_4")
+      modifier = new Accept_Complete_1(pattern_size);
+    else if (std::string(args[2]) == "complete_5")
+      modifier = new Accept_Complete_1(pattern_size);
+    else if (std::string(args[2]) == "complete_6")
+      modifier = new Accept_Complete_6(pattern_size, false);
+    else if (std::string(args[2]) == "complete_7")
+      modifier = new Accept_Complete_7(pattern_size, 0);
+    else if (std::string(args[2]) == "if_1")
+      modifier = new Accept_If(2);
+    else if (std::string(args[2]) == "if_2")
+      modifier = new Accept_If(1);
+    else if (std::string(args[2]) == "if_3")
+      modifier = new Accept_If(2);
+    else if (std::string(args[2]) == "if_4")
+      modifier = new Accept_If(3);
     else if (std::string(args[2]) == "around_1")
       modifier = new Accept_Around_1(pattern_size, 20.01);
     else if (std::string(args[2]) == "around_2")
@@ -4078,7 +4176,20 @@ int main(int argc, char* args[])
       "    <tag k=\"is_nonsense\" v=\"0\"/>\n"
       "    <tag k=\"empty_isnt_date\" v=\"0\"/>\n"
       "  </test-date>\n";
-
+    if (std::string(args[2]) == "make_81")
+      std::cout<<
+      "  <test-suffix id=\"1\">\n"
+      "    <tag k=\"empty\" v=\"\"/>\n"
+      "    <tag k=\"pure\" v=\"\"/>\n"
+      "    <tag k=\"unit\" v=\"m\"/>\n"
+      "    <tag k=\"whitespace\" v=\"\"/>\n"
+      "    <tag k=\"whitespace_and_unit\" v=\"m/s\"/>\n"
+      "    <tag k=\"second_number\" v=\"2\"/>\n"
+      "    <tag k=\"comma_sep_number\" v=\",14\"/>\n"
+      "    <tag k=\"possible_exp\" v=\"e\"/>\n"
+      "    <tag k=\"misc\" v=\"3/4\"/>\n"
+      "  </test-suffix>\n";
+      
     std::cout<<"</osm>\n";
   }
   else if ((argc > 2) && (std::string(args[2]).substr(0, 8) == "convert_"))
@@ -4160,6 +4271,13 @@ int main(int argc, char* args[])
       "    <tag k=\"relations\" v=\"1\"/>\n"
       "    <tag k=\"tags\" v=\"1\"/>\n"
       "    <tag k=\"members\" v=\"0\"/>\n"
+      "    <tag k=\"distinct_members\" v=\"0\"/>\n"
+      "    <tag k=\"by_role\" v=\"0\"/>\n"
+      "    <tag k=\"distinct_by_role\" v=\"0\"/>\n"
+      "    <tag k=\"members_with_type\" v=\"0\"/>\n"
+      "    <tag k=\"distinct_members_with_type\" v=\"0\"/>\n"
+      "    <tag k=\"by_role_with_type\" v=\"0\"/>\n"
+      "    <tag k=\"distinct_by_role_with_type\" v=\"0\"/>\n"
       "  </count-from-default>\n"
       "  <count-from-default id=\"2\">\n"
       "    <tag k=\"nodes\" v=\"1\"/>\n"
@@ -4167,6 +4285,13 @@ int main(int argc, char* args[])
       "    <tag k=\"relations\" v=\"1\"/>\n"
       "    <tag k=\"tags\" v=\"2\"/>\n"
       "    <tag k=\"members\" v=\"2\"/>\n"
+      "    <tag k=\"distinct_members\" v=\"2\"/>\n"
+      "    <tag k=\"by_role\" v=\"0\"/>\n"
+      "    <tag k=\"distinct_by_role\" v=\"0\"/>\n"
+      "    <tag k=\"members_with_type\" v=\"0\"/>\n"
+      "    <tag k=\"distinct_members_with_type\" v=\"0\"/>\n"
+      "    <tag k=\"by_role_with_type\" v=\"0\"/>\n"
+      "    <tag k=\"distinct_by_role_with_type\" v=\"0\"/>\n"
       "  </count-from-default>\n"
       "  <count-from-default id=\"3\">\n"
       "    <tag k=\"nodes\" v=\"1\"/>\n"
@@ -4174,6 +4299,13 @@ int main(int argc, char* args[])
       "    <tag k=\"relations\" v=\"1\"/>\n"
       "    <tag k=\"tags\" v=\"2\"/>\n"
       "    <tag k=\"members\" v=\"2\"/>\n"
+      "    <tag k=\"distinct_members\" v=\"2\"/>\n"
+      "    <tag k=\"by_role\" v=\"1\"/>\n"
+      "    <tag k=\"distinct_by_role\" v=\"1\"/>\n"
+      "    <tag k=\"members_with_type\" v=\"2\"/>\n"
+      "    <tag k=\"distinct_members_with_type\" v=\"2\"/>\n"
+      "    <tag k=\"by_role_with_type\" v=\"1\"/>\n"
+      "    <tag k=\"distinct_by_role_with_type\" v=\"1\"/>\n"
       "  </count-from-default>\n";
     if (std::string(args[2]) == "convert_8")
       std::cout<<
@@ -4207,6 +4339,138 @@ int main(int argc, char* args[])
       "    <tag k=\"relation_key\" v=\"0\"/>\n"
       "    <tag k=\"number\" v=\"1\"/>\n"
       "  </is-tag>\n";
+    if (std::string(args[2]) == "convert_9")
+      std::cout<<
+      "  <count-from-default id=\"1\">\n"
+      "    <tag k=\"nodes\" v=\"1\"/>\n"
+      "    <tag k=\"ways\" v=\"1\"/>\n"
+      "    <tag k=\"relations\" v=\"1\"/>\n"
+      "    <tag k=\"tags\" v=\"1\"/>\n"
+      "    <tag k=\"members\" v=\"0\"/>\n"
+      "    <tag k=\"distinct_members\" v=\"0\"/>\n"
+      "    <tag k=\"by_role\" v=\"0\"/>\n"
+      "    <tag k=\"distinct_by_role\" v=\"0\"/>\n"
+      "    <tag k=\"members_with_type\" v=\"0\"/>\n"
+      "    <tag k=\"distinct_members_with_type\" v=\"0\"/>\n"
+      "    <tag k=\"by_role_with_type\" v=\"0\"/>\n"
+      "    <tag k=\"distinct_by_role_with_type\" v=\"0\"/>\n"
+      "  </count-from-default>\n"
+      "  <count-from-default id=\"2\">\n"
+      "    <tag k=\"nodes\" v=\"1\"/>\n"
+      "    <tag k=\"ways\" v=\"1\"/>\n"
+      "    <tag k=\"relations\" v=\"1\"/>\n"
+      "    <tag k=\"tags\" v=\"2\"/>\n"
+      "    <tag k=\"members\" v=\"2\"/>\n"
+      "    <tag k=\"distinct_members\" v=\"2\"/>\n"
+      "    <tag k=\"by_role\" v=\"0\"/>\n"
+      "    <tag k=\"distinct_by_role\" v=\"0\"/>\n"
+      "    <tag k=\"members_with_type\" v=\"0\"/>\n"
+      "    <tag k=\"distinct_members_with_type\" v=\"0\"/>\n"
+      "    <tag k=\"by_role_with_type\" v=\"0\"/>\n"
+      "    <tag k=\"distinct_by_role_with_type\" v=\"0\"/>\n"
+      "  </count-from-default>\n"
+      "  <count-from-default id=\"3\">\n"
+      "    <tag k=\"nodes\" v=\"1\"/>\n"
+      "    <tag k=\"ways\" v=\"1\"/>\n"
+      "    <tag k=\"relations\" v=\"1\"/>\n"
+      "    <tag k=\"tags\" v=\"2\"/>\n"
+      "    <tag k=\"members\" v=\"5\"/>\n"
+      "    <tag k=\"distinct_members\" v=\"4\"/>\n"
+      "    <tag k=\"by_role\" v=\"3\"/>\n"
+      "    <tag k=\"distinct_by_role\" v=\"2\"/>\n"
+      "    <tag k=\"members_with_type\" v=\"5\"/>\n"
+      "    <tag k=\"distinct_members_with_type\" v=\"4\"/>\n"
+      "    <tag k=\"by_role_with_type\" v=\"3\"/>\n"
+      "    <tag k=\"distinct_by_role_with_type\" v=\"2\"/>\n"
+      "  </count-from-default>\n";
+    if (std::string(args[2]) == "convert_10")
+      std::cout<<
+      "  <count-from-default id=\"1\">\n"
+      "    <tag k=\"nodes\" v=\"1\"/>\n"
+      "    <tag k=\"ways\" v=\"1\"/>\n"
+      "    <tag k=\"relations\" v=\"1\"/>\n"
+      "    <tag k=\"tags\" v=\"2\"/>\n"
+      "    <tag k=\"members\" v=\"0\"/>\n"
+      "    <tag k=\"distinct_members\" v=\"0\"/>\n"
+      "    <tag k=\"by_role\" v=\"0\"/>\n"
+      "    <tag k=\"distinct_by_role\" v=\"0\"/>\n"
+      "    <tag k=\"members_with_type\" v=\"0\"/>\n"
+      "    <tag k=\"distinct_members_with_type\" v=\"0\"/>\n"
+      "    <tag k=\"by_role_with_type\" v=\"0\"/>\n"
+      "    <tag k=\"distinct_by_role_with_type\" v=\"0\"/>\n"
+      "  </count-from-default>\n"
+      "  <count-from-default id=\"2\">\n"
+      "    <tag k=\"nodes\" v=\"1\"/>\n"
+      "    <tag k=\"ways\" v=\"1\"/>\n"
+      "    <tag k=\"relations\" v=\"1\"/>\n"
+      "    <tag k=\"tags\" v=\"3\"/>\n"
+      "    <tag k=\"members\" v=\"2\"/>\n"
+      "    <tag k=\"distinct_members\" v=\"2\"/>\n"
+      "    <tag k=\"by_role\" v=\"0\"/>\n"
+      "    <tag k=\"distinct_by_role\" v=\"0\"/>\n"
+      "    <tag k=\"members_with_type\" v=\"0\"/>\n"
+      "    <tag k=\"distinct_members_with_type\" v=\"0\"/>\n"
+      "    <tag k=\"by_role_with_type\" v=\"0\"/>\n"
+      "    <tag k=\"distinct_by_role_with_type\" v=\"0\"/>\n"
+      "  </count-from-default>\n"
+      "  <count-from-default id=\"3\">\n"
+      "    <tag k=\"nodes\" v=\"1\"/>\n"
+      "    <tag k=\"ways\" v=\"1\"/>\n"
+      "    <tag k=\"relations\" v=\"1\"/>\n"
+      "    <tag k=\"tags\" v=\"3\"/>\n"
+      "    <tag k=\"members\" v=\"11\"/>\n"
+      "    <tag k=\"distinct_members\" v=\"10\"/>\n"
+      "    <tag k=\"by_role\" v=\"3\"/>\n"
+      "    <tag k=\"distinct_by_role\" v=\"2\"/>\n"
+      "    <tag k=\"members_with_type\" v=\"5\"/>\n"
+      "    <tag k=\"distinct_members_with_type\" v=\"4\"/>\n"
+      "    <tag k=\"by_role_with_type\" v=\"3\"/>\n"
+      "    <tag k=\"distinct_by_role_with_type\" v=\"2\"/>\n"
+      "  </count-from-default>\n";
+
+    std::cout<<"</osm>\n";
+  }
+  else if ((argc > 2) && (std::string(args[2]) == "complete_6"))
+  {
+    std::cout<<
+    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+    "<osm>\n";
+
+    create_node_test_pattern(51.0, 52.0, 7.0, 8.0, 0, pattern_size, global_node_offset, modifier);
+    create_way_test_pattern(0, pattern_size, global_node_offset, modifier);
+    create_relation_test_pattern(0, pattern_size, global_node_offset, modifier);
+    
+    delete modifier;
+    modifier = new Accept_Complete_6(pattern_size, true);
+
+    create_node_test_pattern(51.0, 52.0, 7.0, 8.0, 0, pattern_size, global_node_offset, modifier);
+    create_way_test_pattern(0, pattern_size, global_node_offset, modifier);
+    create_relation_test_pattern(0, pattern_size, global_node_offset, modifier);
+    
+    delete modifier;
+    modifier = new Accept_Complete_6(pattern_size, true);
+
+    create_node_test_pattern(51.0, 52.0, 7.0, 8.0, 0, pattern_size, global_node_offset, modifier);
+    create_way_test_pattern(0, pattern_size, global_node_offset, modifier);
+    create_relation_test_pattern(0, pattern_size, global_node_offset, modifier);
+
+    std::cout<<"</osm>\n";
+  }
+  else if ((argc > 2) && (std::string(args[2]) == "complete_7"))
+  {
+    std::cout<<
+    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+    "<osm>\n";
+
+    for (uint i = 1; i <= 18; ++i)
+    {
+      create_node_test_pattern(51.0, 52.0, 7.0, 8.0, 0, pattern_size, global_node_offset, modifier);
+      create_way_test_pattern(0, pattern_size, global_node_offset, modifier);
+      create_relation_test_pattern(0, pattern_size, global_node_offset, modifier);
+    
+      delete modifier;
+      modifier = new Accept_Complete_7(pattern_size, i);
+    }
 
     std::cout<<"</osm>\n";
   }

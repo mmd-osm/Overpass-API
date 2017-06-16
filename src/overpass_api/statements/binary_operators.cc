@@ -62,7 +62,7 @@ void Evaluator_Pair_Operator::add_substatements(Statement* result, const std::st
 }
 
 
-Eval_Task* Evaluator_Pair_Operator::get_task(const Prepare_Task_Context& context)
+Eval_Task* Evaluator_Pair_Operator::get_task(Prepare_Task_Context& context)
 {
   Eval_Task* lhs_task = lhs ? lhs->get_task(context) : 0;
   Eval_Task* rhs_task = rhs ? rhs->get_task(context) : 0;
@@ -76,87 +76,68 @@ std::string Binary_Eval_Task::eval(const std::string* key) const
 }
 
 
-std::string Binary_Eval_Task::eval(const Node_Skeleton* elem,
-    const std::vector< std::pair< std::string, std::string > >* tags, const std::string* key) const
+std::string Binary_Eval_Task::eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process(lhs ? lhs->eval(elem, tags, key) : "", rhs ? rhs->eval(elem, tags, key) : "");
+  return evaluator->process(lhs ? lhs->eval(data, key) : "", rhs ? rhs->eval(data, key) : "");
 }
 
 
-std::string Binary_Eval_Task::eval(const Attic< Node_Skeleton >* elem,
-    const std::vector< std::pair< std::string, std::string > >* tags, const std::string* key) const
+std::string Binary_Eval_Task::eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
 {
-  return evaluator->process(lhs ? lhs->eval(elem, tags, key) : "", rhs ? rhs->eval(elem, tags, key) : "");
+  return evaluator->process(lhs ? lhs->eval(data, key) : "", rhs ? rhs->eval(data, key) : "");
 }
 
 
-std::string Binary_Eval_Task::eval(const Way_Skeleton* elem,
-    const std::vector< std::pair< std::string, std::string > >* tags, const std::string* key) const
+std::string Binary_Eval_Task::eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process(lhs ? lhs->eval(elem, tags, key) : "", rhs ? rhs->eval(elem, tags, key) : "");
+  return evaluator->process(lhs ? lhs->eval(data, key) : "", rhs ? rhs->eval(data, key) : "");
 }
 
 
-std::string Binary_Eval_Task::eval(const Attic< Way_Skeleton >* elem,
-    const std::vector< std::pair< std::string, std::string > >* tags, const std::string* key) const
+std::string Binary_Eval_Task::eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
 {
-  return evaluator->process(lhs ? lhs->eval(elem, tags, key) : "", rhs ? rhs->eval(elem, tags, key) : "");
+  return evaluator->process(lhs ? lhs->eval(data, key) : "", rhs ? rhs->eval(data, key) : "");
 }
 
 
-std::string Binary_Eval_Task::eval(const Relation_Skeleton* elem,
-    const std::vector< std::pair< std::string, std::string > >* tags, const std::string* key) const
+std::string Binary_Eval_Task::eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process(lhs ? lhs->eval(elem, tags, key) : "", rhs ? rhs->eval(elem, tags, key) : "");
+  return evaluator->process(lhs ? lhs->eval(data, key) : "", rhs ? rhs->eval(data, key) : "");
 }
 
 
-std::string Binary_Eval_Task::eval(const Attic< Relation_Skeleton >* elem,
-    const std::vector< std::pair< std::string, std::string > >* tags, const std::string* key) const
+std::string Binary_Eval_Task::eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
 {
-  return evaluator->process(lhs ? lhs->eval(elem, tags, key) : "", rhs ? rhs->eval(elem, tags, key) : "");
+  return evaluator->process(lhs ? lhs->eval(data, key) : "", rhs ? rhs->eval(data, key) : "");
 }
 
 
-std::string Binary_Eval_Task::eval(const Area_Skeleton* elem,
-    const std::vector< std::pair< std::string, std::string > >* tags, const std::string* key) const
+std::string Binary_Eval_Task::eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process(lhs ? lhs->eval(elem, tags, key) : "", rhs ? rhs->eval(elem, tags, key) : "");
+  return evaluator->process(lhs ? lhs->eval(data, key) : "", rhs ? rhs->eval(data, key) : "");
 }
 
 
-std::string Binary_Eval_Task::eval(const Derived_Skeleton* elem,
-    const std::vector< std::pair< std::string, std::string > >* tags, const std::string* key) const
+std::string Binary_Eval_Task::eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process(lhs ? lhs->eval(elem, tags, key) : "", rhs ? rhs->eval(elem, tags, key) : "");
+  return evaluator->process(lhs ? lhs->eval(data, key) : "", rhs ? rhs->eval(data, key) : "");
 }
 
     
-std::pair< std::vector< Set_Usage >, uint > Evaluator_Pair_Operator::used_sets() const
+Requested_Context Evaluator_Pair_Operator::request_context() const
 {
   if (lhs && rhs)
-    return union_usage(lhs->used_sets(), rhs->used_sets());
+  {
+    Requested_Context result = lhs->request_context();
+    result.add(rhs->request_context());
+    return result;
+  }
   else if (lhs)
-    return lhs->used_sets();
+    return lhs->request_context();
   else if (rhs)
-    return rhs->used_sets();
-  return std::make_pair(std::vector< Set_Usage >(), 0u);
-}
-
-
-std::vector< std::string > Evaluator_Pair_Operator::used_tags() const
-{
-  std::vector< std::string > lhs_result;
-  if (lhs)
-    lhs->used_tags().swap(lhs_result);
-  std::vector< std::string > rhs_result;
-  if (rhs)
-    rhs->used_tags().swap(rhs_result);
+    return rhs->request_context();
   
-  std::vector< std::string > result(lhs_result.size() + rhs_result.size());
-  result.erase(std::set_union(lhs_result.begin(), lhs_result.end(), rhs_result.begin(), rhs_result.end(),
-      result.begin()), result.end());
-  return result;
+  return Requested_Context();
 }
 
 

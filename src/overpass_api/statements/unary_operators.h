@@ -68,10 +68,9 @@ public:
 
   virtual std::string get_result_name() const { return ""; }
 
-  virtual std::pair< std::vector< Set_Usage >, uint > used_sets() const;
-  virtual std::vector< std::string > used_tags() const;
+  virtual Requested_Context request_context() const;
 
-  virtual Eval_Task* get_task(const Prepare_Task_Context& context);
+  virtual Eval_Task* get_task(Prepare_Task_Context& context);
 
   virtual std::string process(const std::string& rhs_result) const = 0;
 
@@ -92,22 +91,14 @@ struct Unary_Eval_Task : public Eval_Task
 
   virtual std::string eval(const std::string* key) const;
 
-  virtual std::string eval(const Node_Skeleton* elem,
-      const std::vector< std::pair< std::string, std::string > >* tags, const std::string* key) const;
-  virtual std::string eval(const Attic< Node_Skeleton >* elem,
-      const std::vector< std::pair< std::string, std::string > >* tags, const std::string* key) const;
-  virtual std::string eval(const Way_Skeleton* elem,
-      const std::vector< std::pair< std::string, std::string > >* tags, const std::string* key) const;
-  virtual std::string eval(const Attic< Way_Skeleton >* elem,
-      const std::vector< std::pair< std::string, std::string > >* tags, const std::string* key) const;
-  virtual std::string eval(const Relation_Skeleton* elem,
-      const std::vector< std::pair< std::string, std::string > >* tags, const std::string* key) const;
-  virtual std::string eval(const Attic< Relation_Skeleton >* elem,
-      const std::vector< std::pair< std::string, std::string > >* tags, const std::string* key) const;
-  virtual std::string eval(const Area_Skeleton* elem,
-      const std::vector< std::pair< std::string, std::string > >* tags, const std::string* key) const;
-  virtual std::string eval(const Derived_Skeleton* elem,
-      const std::vector< std::pair< std::string, std::string > >* tags, const std::string* key) const;
+  virtual std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const;
+  virtual std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const;
+  virtual std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const;
+  virtual std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const;
+  virtual std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const;
+  virtual std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const;
+  virtual std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const;
+  virtual std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const;
 
 private:
   Eval_Task* rhs;
@@ -217,20 +208,10 @@ struct String_Endom_Statement_Maker : public Generic_Statement_Maker< Evaluator_
   virtual Statement* create_statement(const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
       Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output)
   {
-    if (tree_it->token != "(")
-    {
-      if (error_output)
-        error_output->add_parse_error(Evaluator_::stmt_func_name() + "(...) cannot have an input set",
-            tree_it->line_col.first);
+    if (!tree_it.assert_is_function(error_output) || !tree_it.assert_has_input_set(error_output, false)
+        || !tree_it.assert_has_arguments(error_output, true))
       return 0;
-    }
-    if (!tree_it->rhs)
-    {
-      if (error_output)
-        error_output->add_parse_error(Evaluator_::stmt_func_name() + "(...) needs an argument",
-            tree_it->line_col.first);
-      return 0;
-    }
+  
     std::map< std::string, std::string > attributes;
     Statement* result = new Evaluator_(tree_it->line_col.first, attributes, global_settings);
     if (result)
@@ -278,13 +259,15 @@ struct Evaluator_String_Endom_Syntax : public Evaluator_Prefix_Operator
 };
 
 
-/* === Number Check and Normalizer ===
+/* === Number Check, Normalizer and Suffix ===
 
 The function <em>number</em> turns its argument into a number.
-If its argument is a number then <em>number</em> returns its argument in a normalized format.
+If its argument starts with a number then <em>number</em> returns that number in a normalized format.
 Otherwise it returns "NaN".
-The function <em>is_number</em> checks whether its argument is a number.
+The function <em>is_number</em> checks whether its argument starts with a number.
 It returns "1" if its argument can be parsed as a number and "0" otherwise.
+The function <em>suffix</em> returns the suffix if any after the number in its argument.
+If the argument does not start with a number then it returns the empty string.
 
 Their syntaxes are
 
@@ -293,6 +276,11 @@ Their syntaxes are
 resp.
 
   is_number(<Evaluator>)
+  
+resp.
+
+  suffix(<Evaluator>)
+
 */
 
 class Evaluator_Number : public Evaluator_String_Endom_Syntax< Evaluator_Number >
@@ -318,6 +306,20 @@ public:
 
   Evaluator_Is_Num(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_String_Endom_Syntax< Evaluator_Is_Num >(line_number_, input_attributes) {}
+
+  virtual std::string process(const std::string& rhs_result) const;
+};
+
+
+class Evaluator_Suffix : public Evaluator_String_Endom_Syntax< Evaluator_Suffix >
+{
+public:
+  static String_Endom_Statement_Maker< Evaluator_Suffix > statement_maker;
+  static std::string stmt_func_name() { return "suffix"; }
+  static std::string stmt_name() { return "eval-suffix"; }
+
+  Evaluator_Suffix(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
+      : Evaluator_String_Endom_Syntax< Evaluator_Suffix >(line_number_, input_attributes) {}
 
   virtual std::string process(const std::string& rhs_result) const;
 };

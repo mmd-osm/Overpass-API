@@ -77,10 +77,9 @@ public:
   virtual void execute(Resource_Manager& rman) {}
   virtual std::string get_result_name() const { return ""; }
 
-  virtual std::pair< std::vector< Set_Usage >, uint > used_sets() const;
-  virtual std::vector< std::string > used_tags() const;
+  virtual Requested_Context request_context() const;
 
-  virtual Eval_Task* get_task(const Prepare_Task_Context& context);
+  virtual Eval_Task* get_task(Prepare_Task_Context& context);
 
   virtual std::string process(const std::string& lhs_result, const std::string& rhs_result) const = 0;
 
@@ -107,22 +106,14 @@ struct Binary_Eval_Task : public Eval_Task
 
   virtual std::string eval(const std::string* key) const;
 
-  virtual std::string eval(const Node_Skeleton* elem,
-      const std::vector< std::pair< std::string, std::string > >* tags, const std::string* key) const;
-  virtual std::string eval(const Attic< Node_Skeleton >* elem,
-      const std::vector< std::pair< std::string, std::string > >* tags, const std::string* key) const;
-  virtual std::string eval(const Way_Skeleton* elem,
-      const std::vector< std::pair< std::string, std::string > >* tags, const std::string* key) const;
-  virtual std::string eval(const Attic< Way_Skeleton >* elem,
-      const std::vector< std::pair< std::string, std::string > >* tags, const std::string* key) const;
-  virtual std::string eval(const Relation_Skeleton* elem,
-      const std::vector< std::pair< std::string, std::string > >* tags, const std::string* key) const;
-  virtual std::string eval(const Attic< Relation_Skeleton >* elem,
-      const std::vector< std::pair< std::string, std::string > >* tags, const std::string* key) const;
-  virtual std::string eval(const Area_Skeleton* elem,
-      const std::vector< std::pair< std::string, std::string > >* tags, const std::string* key) const;
-  virtual std::string eval(const Derived_Skeleton* elem,
-      const std::vector< std::pair< std::string, std::string > >* tags, const std::string* key) const;
+  virtual std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const;
+  virtual std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const;
+  virtual std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const;
+  virtual std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const;
+  virtual std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const;
+  virtual std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const;
+  virtual std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const;
+  virtual std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const;
 
 private:
   Eval_Task* lhs;

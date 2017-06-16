@@ -53,7 +53,7 @@ void Evaluator_Prefix_Operator::add_substatements(Statement* result, const std::
 }
 
 
-Eval_Task* Evaluator_Prefix_Operator::get_task(const Prepare_Task_Context& context)
+Eval_Task* Evaluator_Prefix_Operator::get_task(Prepare_Task_Context& context)
 {
   Eval_Task* rhs_task = rhs ? rhs->get_task(context) : 0;
   return new Unary_Eval_Task(rhs_task, this);
@@ -66,76 +66,59 @@ std::string Unary_Eval_Task::eval(const std::string* key) const
 }
 
 
-std::string Unary_Eval_Task::eval(const Node_Skeleton* elem,
-    const std::vector< std::pair< std::string, std::string > >* tags, const std::string* key) const
+std::string Unary_Eval_Task::eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process(rhs ? rhs->eval(elem, tags, key) : "");
+  return evaluator->process(rhs ? rhs->eval(data, key) : "");
 }
 
 
-std::string Unary_Eval_Task::eval(const Attic< Node_Skeleton >* elem,
-    const std::vector< std::pair< std::string, std::string > >* tags, const std::string* key) const
+std::string Unary_Eval_Task::eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
 {
-  return evaluator->process(rhs ? rhs->eval(elem, tags, key) : "");
+  return evaluator->process(rhs ? rhs->eval(data, key) : "");
 }
 
 
-std::string Unary_Eval_Task::eval(const Way_Skeleton* elem,
-    const std::vector< std::pair< std::string, std::string > >* tags, const std::string* key) const
+std::string Unary_Eval_Task::eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process(rhs ? rhs->eval(elem, tags, key) : "");
+  return evaluator->process(rhs ? rhs->eval(data, key) : "");
 }
 
 
-std::string Unary_Eval_Task::eval(const Attic< Way_Skeleton >* elem,
-    const std::vector< std::pair< std::string, std::string > >* tags, const std::string* key) const
+std::string Unary_Eval_Task::eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
 {
-  return evaluator->process(rhs ? rhs->eval(elem, tags, key) : "");
+  return evaluator->process(rhs ? rhs->eval(data, key) : "");
 }
 
 
-std::string Unary_Eval_Task::eval(const Relation_Skeleton* elem,
-    const std::vector< std::pair< std::string, std::string > >* tags, const std::string* key) const
+std::string Unary_Eval_Task::eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process(rhs ? rhs->eval(elem, tags, key) : "");
+  return evaluator->process(rhs ? rhs->eval(data, key) : "");
 }
 
 
-std::string Unary_Eval_Task::eval(const Attic< Relation_Skeleton >* elem,
-    const std::vector< std::pair< std::string, std::string > >* tags, const std::string* key) const
+std::string Unary_Eval_Task::eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
 {
-  return evaluator->process(rhs ? rhs->eval(elem, tags, key) : "");
+  return evaluator->process(rhs ? rhs->eval(data, key) : "");
 }
 
 
-std::string Unary_Eval_Task::eval(const Area_Skeleton* elem,
-    const std::vector< std::pair< std::string, std::string > >* tags, const std::string* key) const
+std::string Unary_Eval_Task::eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process(rhs ? rhs->eval(elem, tags, key) : "");
+  return evaluator->process(rhs ? rhs->eval(data, key) : "");
 }
 
 
-std::string Unary_Eval_Task::eval(const Derived_Skeleton* elem,
-    const std::vector< std::pair< std::string, std::string > >* tags, const std::string* key) const
+std::string Unary_Eval_Task::eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process(rhs ? rhs->eval(elem, tags, key) : "");
+  return evaluator->process(rhs ? rhs->eval(data, key) : "");
 }
   
 
-std::pair< std::vector< Set_Usage >, uint > Evaluator_Prefix_Operator::used_sets() const
+Requested_Context Evaluator_Prefix_Operator::request_context() const
 {
   if (rhs)
-    return rhs->used_sets();
-  return std::make_pair(std::vector< Set_Usage >(), 0u);
-}
-
-
-std::vector< std::string > Evaluator_Prefix_Operator::used_tags() const
-{
-  if (rhs)
-    return rhs->used_tags();
-  
-  return std::vector< std::string >();
+    return rhs->request_context();
+  return Requested_Context();
 }
 
 
@@ -188,7 +171,7 @@ std::string Evaluator_Number::process(const std::string& rhs_s) const
     return to_string(rhs_l);
   
   double rhs_d = 0;  
-  if (try_double(rhs_s, rhs_d))
+  if (try_starts_with_double(rhs_s, rhs_d))
     return to_string(rhs_d);
   
   return "NaN";
@@ -208,10 +191,22 @@ std::string Evaluator_Is_Num::process(const std::string& rhs_s) const
     return "1";
   
   double rhs_d = 0;  
-  if (try_double(rhs_s, rhs_d))
+  if (try_starts_with_double(rhs_s, rhs_d))
     return "1";
   
   return "0";
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+String_Endom_Statement_Maker< Evaluator_Suffix > Evaluator_Suffix::statement_maker;
+
+
+std::string Evaluator_Suffix::process(const std::string& rhs_s) const
+{
+  return double_suffix(rhs_s);
 }
 
 

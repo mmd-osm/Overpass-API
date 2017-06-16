@@ -46,21 +46,21 @@ void Evaluator_Aggregator::add_statement(Statement* statement, std::string text)
 }
 
 
-template< typename Index, typename Maybe_Attic, typename Object >
+template< typename Index, typename Maybe_Attic >
 void eval_elems(Value_Aggregator& aggregator, Eval_Task& task,
-    const std::map< Index, std::vector< Maybe_Attic > >& elems, Tag_Store< Index, Object >* tag_store)
+    const std::map< Index, std::vector< Maybe_Attic > >& elems, Set_With_Context& input_set)
 {
   for (typename std::map< Index, std::vector< Maybe_Attic > >::const_iterator idx_it = elems.begin();
       idx_it != elems.end(); ++idx_it)
   {
     for (typename std::vector< Maybe_Attic >::const_iterator elem_it = idx_it->second.begin();
         elem_it != idx_it->second.end(); ++elem_it)
-      aggregator.update_value(task.eval(&*elem_it, tag_store ? tag_store->get(idx_it->first, *elem_it) : 0, 0));
+      aggregator.update_value(task.eval(input_set.get_context(idx_it->first, *elem_it), 0));
   }
 }
 
 
-Eval_Task* Evaluator_Aggregator::get_task(const Prepare_Task_Context& context)
+Eval_Task* Evaluator_Aggregator::get_task(Prepare_Task_Context& context)
 {
   if (!rhs)
     return 0;
@@ -69,7 +69,7 @@ Eval_Task* Evaluator_Aggregator::get_task(const Prepare_Task_Context& context)
   if (!rhs_task)
     return 0;
 
-  const Set_With_Context* input_set = context.get_set(input);
+  Set_With_Context* input_set = context.get_set(input);
   if (!input_set || !input_set->base)
     return 0;
 
@@ -77,36 +77,29 @@ Eval_Task* Evaluator_Aggregator::get_task(const Prepare_Task_Context& context)
   if (!value_agg)
     return 0;
 
-  eval_elems(*value_agg, *rhs_task, input_set->base->nodes, input_set->tag_store_nodes);
-  eval_elems(*value_agg, *rhs_task, input_set->base->attic_nodes, input_set->tag_store_attic_nodes);
-  eval_elems(*value_agg, *rhs_task, input_set->base->ways, input_set->tag_store_ways);
-  eval_elems(*value_agg, *rhs_task, input_set->base->attic_ways, input_set->tag_store_attic_ways);
-  eval_elems(*value_agg, *rhs_task, input_set->base->relations, input_set->tag_store_relations);
-  eval_elems(*value_agg, *rhs_task, input_set->base->attic_relations, input_set->tag_store_attic_relations);
-  eval_elems(*value_agg, *rhs_task, input_set->base->areas, input_set->tag_store_areas);
-  eval_elems(*value_agg, *rhs_task, input_set->base->deriveds, input_set->tag_store_deriveds);
+  eval_elems(*value_agg, *rhs_task, input_set->base->nodes, *input_set);
+  eval_elems(*value_agg, *rhs_task, input_set->base->attic_nodes, *input_set);
+  eval_elems(*value_agg, *rhs_task, input_set->base->ways, *input_set);
+  eval_elems(*value_agg, *rhs_task, input_set->base->attic_ways, *input_set);
+  eval_elems(*value_agg, *rhs_task, input_set->base->relations, *input_set);
+  eval_elems(*value_agg, *rhs_task, input_set->base->attic_relations, *input_set);
+  eval_elems(*value_agg, *rhs_task, input_set->base->areas, *input_set);
+  eval_elems(*value_agg, *rhs_task, input_set->base->deriveds, *input_set);
 
   return new Const_Eval_Task((*value_agg).get_value());
 }
 
 
-std::pair< std::vector< Set_Usage >, uint > Evaluator_Aggregator::used_sets() const
+Requested_Context Evaluator_Aggregator::request_context() const
 {
   if (rhs)
   {
-    std::pair< std::vector< Set_Usage >, uint > result = rhs->used_sets();
-    std::vector< Set_Usage >::iterator it =
-        std::lower_bound(result.first.begin(), result.first.end(), Set_Usage(input, 0u));
-    if (it == result.first.end() || it->set_name != input)
-      result.first.insert(it, Set_Usage(input, result.second));
-    else
-      it->usage |= result.second;
+    Requested_Context result = rhs->request_context();
+    result.bind(input);
     return result;
   }
-
-  std::vector< Set_Usage > result;
-  result.push_back(Set_Usage(input, 0u));
-  return std::make_pair(result, 0u);
+  
+  return Requested_Context();
 }
 
 
@@ -335,39 +328,19 @@ Statement* Evaluator_Set_Count::Statement_Maker::create_statement(
     const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
     Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output)
 {
+  if (!tree_it.assert_is_function(error_output)
+      || !tree_it.assert_has_arguments(error_output, true))
+    return 0;
+  
   std::map< std::string, std::string > attributes;
 
   if (tree_it->token == "(")
   {
-    if (!tree_it->lhs)
-      return 0;
-    if (!tree_it->rhs)
-    {
-      if (error_output)
-        error_output->add_parse_error("count(object_type) needs an argument", tree_it->line_col.first);
-      return 0;
-    }
-
     attributes["from"] = "_";
     attributes["type"] = tree_it.rhs()->token;
   }
   else
   {
-    if (!tree_it->lhs)
-      return 0;
-    if (!tree_it->rhs || !tree_it.rhs()->rhs)
-    {
-      if (error_output)
-        error_output->add_parse_error("count(object_type) needs an argument", tree_it->line_col.first);
-      return 0;
-    }
-    if (!tree_it.rhs()->lhs)
-    {
-      if (error_output)
-        error_output->add_parse_error("Input set required if dot is present", tree_it->line_col.first);
-      return 0;
-    }
-
     attributes["from"] = tree_it.lhs()->token;
     attributes["type"] = tree_it.rhs().rhs()->token;
   }
@@ -421,17 +394,17 @@ Evaluator_Set_Count::Evaluator_Set_Count
 }
 
 
-std::pair< std::vector< Set_Usage >, uint > Evaluator_Set_Count::used_sets() const
+Requested_Context Evaluator_Set_Count::request_context() const
 {
-  std::vector< Set_Usage > result;
+  Requested_Context result;
   if (to_count == Evaluator_Set_Count::nodes || to_count == Evaluator_Set_Count::ways
         || to_count == Evaluator_Set_Count::relations || to_count == Evaluator_Set_Count::deriveds)
-    result.push_back(Set_Usage(input, 1u));
-  return std::make_pair(result, 0u);
+    result.add_usage(input, 1u);
+  return result;
 }
 
 
-Eval_Task* Evaluator_Set_Count::get_task(const Prepare_Task_Context& context)
+Eval_Task* Evaluator_Set_Count::get_task(Prepare_Task_Context& context)
 {
   const Set_With_Context* set = context.get_set(input);
 

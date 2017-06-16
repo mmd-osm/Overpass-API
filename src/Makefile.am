@@ -98,6 +98,7 @@ statements_cc = \
   overpass_api/statements/bbox_query.cc \
   overpass_api/statements/binary_operators.cc \
   overpass_api/statements/changed.cc \
+  overpass_api/statements/complete.cc \
   overpass_api/statements/convert.cc \
   overpass_api/statements/coord_query.cc \
   overpass_api/statements/difference.cc \
@@ -105,6 +106,7 @@ statements_cc = \
   overpass_api/statements/filter.cc \
   overpass_api/statements/foreach.cc \
   overpass_api/statements/id_query.cc \
+  overpass_api/statements/if.cc \
   overpass_api/statements/item.cc \
   overpass_api/statements/make_area.cc \
   overpass_api/statements/make.cc \
@@ -257,6 +259,7 @@ nobase_dist_HEADERS = \
   overpass_api/statements/bbox_query.h\
   overpass_api/statements/binary_operators.h\
   overpass_api/statements/changed.h\
+  overpass_api/statements/complete.h\
   overpass_api/statements/convert.h\
   overpass_api/statements/coord_query.h\
   overpass_api/statements/difference.h\
@@ -264,6 +267,7 @@ nobase_dist_HEADERS = \
   overpass_api/statements/filter.h\
   overpass_api/statements/foreach.h\
   overpass_api/statements/id_query.h\
+  overpass_api/statements/if.h\
   overpass_api/statements/item.h\
   overpass_api/statements/make_area.h\
   overpass_api/statements/make.h\
