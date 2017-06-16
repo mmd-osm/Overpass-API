@@ -61,10 +61,11 @@ Dispatcher_Client::Dispatcher_Client
   // initialize the socket for the client
   socket.open(db_dir + dispatcher_share_name_);  
   std::string socket_name = db_dir + dispatcher_share_name_;
-  
-  pid_t pid = getpid();
-  if (send(socket.descriptor(), &pid, sizeof(pid_t), 0) == -1)
-    throw File_Error(errno, dispatcher_share_name, "Dispatcher_Client::4");
+
+// TODO: No need to send PID anymore
+//  pid_t pid = getpid();
+//  if (send(socket.descriptor(), &pid, sizeof(pid_t), 0) == -1)
+//    throw File_Error(errno, dispatcher_share_name, "Dispatcher_Client::4");
 }
 
 
@@ -200,17 +201,19 @@ void Dispatcher_Client::write_commit()
 void Dispatcher_Client::request_read_and_idx(uint32 max_allowed_time, uint64 max_allowed_space,
 					     uint32 client_token)
 {
-//   *(uint32*)(dispatcher_shm_ptr + 2*sizeof(uint32)) = 0;
-  
   uint counter = 0;
   uint32 ack = 0;
   while (ack == 0 && ++counter <= 100)
   {
-    send_message(Dispatcher::REQUEST_READ_AND_IDX,
-		 "Dispatcher_Client::request_read_and_idx::socket::1");
-    send_message(max_allowed_time, "Dispatcher_Client::request_read_and_idx::socket::2");
-    send_message(max_allowed_space, "Dispatcher_Client::request_read_and_idx::socket::3");
-    send_message(client_token, "Dispatcher_Client::request_read_and_idx::socket::4");
+    uint32 msg[5];
+    msg[0] = Dispatcher::REQUEST_READ_AND_IDX;
+    msg[1] = max_allowed_time;
+    msg[2] = (uint32) max_allowed_space;
+    msg[3] = max_allowed_space >> 32;
+    msg[4] = client_token;
+
+    if (send(socket.descriptor(), &msg, sizeof(uint32) * 5, 0) == -1)
+      throw File_Error(errno, dispatcher_share_name, "Dispatcher_Client::request_read_and_idx::socket::1");
     
     ack = ack_arrived();
     if (ack == Dispatcher::REQUEST_READ_AND_IDX)
@@ -227,8 +230,6 @@ void Dispatcher_Client::request_read_and_idx(uint32 max_allowed_time, uint64 max
 
 void Dispatcher_Client::read_idx_finished()
 {
-//   *(uint32*)(dispatcher_shm_ptr + 2*sizeof(uint32)) = 0;
-		     
   uint counter = 0;
   while (++counter <= 300)
   {
@@ -243,8 +244,6 @@ void Dispatcher_Client::read_idx_finished()
 
 void Dispatcher_Client::read_finished()
 {
-//   *(uint32*)(dispatcher_shm_ptr + 2*sizeof(uint32)) = 0;
-  
   uint counter = 0;
   while (++counter <= 300)
   {
@@ -259,13 +258,15 @@ void Dispatcher_Client::read_finished()
 
 void Dispatcher_Client::purge(uint32 pid)
 {
-//   *(uint32*)(dispatcher_shm_ptr + 2*sizeof(uint32)) = 0;
-		     
+
   while (true)
   {
-    send_message(Dispatcher::PURGE, "Dispatcher_Client::purge::socket::1");
-    send_message(pid, "Dispatcher_Client::purge::socket::2");
+    uint32 msg[2];
+    msg[0] = Dispatcher::PURGE;
+    msg[1] = pid;
     
+    if (send(socket.descriptor(), &msg, sizeof(uint32) * 2, 0) == -1)
+      throw File_Error(errno, dispatcher_share_name, "Dispatcher_Client::purge::socket::1");
     if (ack_arrived())
       return;
   }
@@ -274,10 +275,13 @@ void Dispatcher_Client::purge(uint32 pid)
 
 pid_t Dispatcher_Client::query_by_token(uint32 token)
 {
-//   *(uint32*)(dispatcher_shm_ptr + 2*sizeof(uint32)) = 0;
-		     
-  send_message(Dispatcher::QUERY_BY_TOKEN, "Dispatcher_Client::query_by_token::socket::1");
-  send_message(token, "Dispatcher_Client::query_by_token::socket::2");
+
+  uint32 msg[2];
+  msg[0] = Dispatcher::QUERY_BY_TOKEN;
+  msg[1] = token;
+
+  if (send(socket.descriptor(), &msg, sizeof(uint32) * 2, 0) == -1)
+    throw File_Error(errno, dispatcher_share_name, "Dispatcher_Client::query_by_token::socket::1");
     
   return ack_arrived();
 }
@@ -285,10 +289,14 @@ pid_t Dispatcher_Client::query_by_token(uint32 token)
 
 Client_Status Dispatcher_Client::query_my_status(uint32 token)
 {
-                     
-  send_message(Dispatcher::QUERY_MY_STATUS, "Dispatcher_Client::query_my_status::socket::1");
-  send_message(token, "Dispatcher_Client::query_my_status::socket::2");
   
+  uint32 msg[2];
+  msg[0] = Dispatcher::QUERY_MY_STATUS;
+  msg[1] = token;
+
+  if (send(socket.descriptor(), &msg, sizeof(uint32) * 2, 0) == -1)
+    throw File_Error(errno, dispatcher_share_name, "Dispatcher_Client::query_my_status::socket::1");
+
   Client_Status result;
   result.rate_limit = ack_arrived();
   
@@ -322,14 +330,23 @@ Client_Status Dispatcher_Client::query_my_status(uint32 token)
 void Dispatcher_Client::set_global_limits(uint64 max_allowed_space, uint64 max_allowed_time_units,
                                           int rate_limit)
 {
-//   *(uint32*)(dispatcher_shm_ptr + 2*sizeof(uint32)) = 0;
-		     
   while (true)
   {
-    send_message(Dispatcher::SET_GLOBAL_LIMITS, "Dispatcher_Client::set_global_limits::1");
-    send_message(max_allowed_space, "Dispatcher_Client::set_global_limits::2");
-    send_message(max_allowed_time_units, "Dispatcher_Client::set_global_limits::3");
-    send_message(rate_limit, "Dispatcher_Client::set_global_limits::4");
+    uint32 msg[6];
+    msg[0] = Dispatcher::SET_GLOBAL_LIMITS;
+    msg[1] = (uint32) max_allowed_space;
+    msg[2] = max_allowed_space >> 32;
+    msg[3] = (uint32) max_allowed_time_units;
+    msg[4] = max_allowed_time_units >> 32;
+    msg[5] = rate_limit;
+
+    if (send(socket.descriptor(), &msg, sizeof(uint32) * 6, 0) == -1)
+      throw File_Error(errno, dispatcher_share_name, "Dispatcher_Client::set_global_limits::1");
+
+//    send_message(Dispatcher::SET_GLOBAL_LIMITS, "Dispatcher_Client::set_global_limits::1");
+//    send_message(max_allowed_space, "Dispatcher_Client::set_global_limits::2");
+//    send_message(max_allowed_time_units, "Dispatcher_Client::set_global_limits::3");
+//    send_message(rate_limit, "Dispatcher_Client::set_global_limits::4");
     
     if (ack_arrived())
       return;
@@ -347,8 +364,6 @@ void Dispatcher_Client::ping()
 
 void Dispatcher_Client::terminate()
 {
-//   *(uint32*)(dispatcher_shm_ptr + 2*sizeof(uint32)) = 0;
-		     
   while (true)
   {
     send_message(Dispatcher::TERMINATE, "Dispatcher_Client::terminate::socket");
@@ -361,8 +376,6 @@ void Dispatcher_Client::terminate()
 
 void Dispatcher_Client::output_status()
 {
-//   *(uint32*)(dispatcher_shm_ptr + 2*sizeof(uint32)) = 0;
-		     
   while (true)
   {
     send_message(Dispatcher::OUTPUT_STATUS, "Dispatcher_Client::output_status::socket");

@@ -470,7 +470,7 @@ int main(int argc, char* argv[])
 	 files_to_manage, &disp_logger);
     if (rate_limit > -1)
       dispatcher.set_rate_limit(rate_limit);
-    dispatcher.standby_loop(0);
+    dispatcher.run_server();
   }
   catch (File_Error e)
   {

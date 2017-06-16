@@ -25,7 +25,12 @@
 
 #include <map>
 #include <set>
+#include <unordered_set>
 #include <vector>
+
+#include <event2/event.h>
+#include <event2/buffer.h>
+#include <event2/bufferevent.h>
 
 
 /** Is called to log all operations of the dispatcher */
@@ -149,7 +154,12 @@ public:
   
   void look_for_a_new_connection(Connection_Per_Pid_Map& connection_per_pid);
   std::vector< int >::size_type num_started_connections() { return started_connections.size(); }
-    
+
+  void set_socket_non_blocking();
+  void set_socket_reuse_addr();
+  int accept_new_connection();
+  void event_add_new(struct event_base *, short, event_callback_fn, void *);
+
 private:
   Unix_Socket socket;
   std::string socket_name;
@@ -241,9 +251,9 @@ class Dispatcher
     
     /** Other operations: -------------------------------------------------- */
     
-    /** Waits for input for the given amount of time. If milliseconds if zero,
-        it remains in standby forever. */
-    void standby_loop(uint64 milliseconds);
+    void run_server();
+
+    void handle_command(evbuffer * output, evutil_socket_t socket_fd, std::vector< uint32 > command_arguments, uint32 client_pid);
 
     /** Outputs the status of the processes registered with the dispatcher
         into shadow_name.status. */
@@ -252,6 +262,11 @@ class Dispatcher
     /** Set the limit of simultaneous queries from a single IP address. */
     void set_rate_limit(uint rate_limit) { global_resource_planner.set_rate_limit(rate_limit); }
     
+    void on_accept(int fd, short ev);
+    void on_read(struct bufferevent *bev);
+    void on_write(struct bufferevent *bev);
+    void on_error(struct bufferevent *bev, short error);
+
   private:
     Dispatcher_Socket socket;
     Connection_Per_Pid_Map connection_per_pid;
@@ -267,6 +282,10 @@ class Dispatcher
     uint32 requests_started_counter;
     uint32 requests_finished_counter;
     Global_Resource_Planner global_resource_planner;
+
+    std::unordered_set<evutil_socket_t> sockets_to_close;
+    std::map<int, ucred> fd_process;
+    event_base *base;
     
     uint64 total_claimed_space() const;
     uint64 total_claimed_time_units() const;
