@@ -27,13 +27,14 @@
 #include "statement.h"
 
 
-class Item_Statement : public Output_Statement
+class Item_Statement : public Statement
 {
   public:
     Item_Statement(int line_number_, const std::map< std::string, std::string >& attributes,
                    Parsed_Query& global_settings);
     virtual std::string get_name() const { return "item"; }
-    virtual void execute(Resource_Manager& rman);
+    virtual std::string get_result_name() const { return output; }
+    virtual void execute(Resource_Manager& rman) {}
     virtual ~Item_Statement();
 
     static Generic_Statement_Maker< Item_Statement > statement_maker;
@@ -42,15 +43,15 @@ class Item_Statement : public Output_Statement
 
     virtual std::string dump_xml(const std::string& indent) const
     {
-      return indent + "<item from=\"" + input + "\"" + dump_xml_result_name() + "/>\n";
+      return indent + "<item set=\"" + output + "\"/>\n";
     }
 
-    virtual std::string dump_compact_ql(const std::string&) const { return "." + input + dump_ql_result_name(); }
-    virtual std::string dump_ql_in_query(const std::string&) const { return "." + input; }
+    virtual std::string dump_compact_ql(const std::string&) const { return "." + output; }
+    virtual std::string dump_ql_in_query(const std::string&) const { return "." + output; }
     virtual std::string dump_pretty_ql(const std::string& indent) const { return indent + dump_compact_ql(indent); }
 
   private:
-    std::string input;
+    std::string output;
     std::vector< Query_Constraint* > constraints;
 };
 
