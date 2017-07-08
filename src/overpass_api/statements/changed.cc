@@ -96,7 +96,7 @@ class Changed_Constraint : public Query_Constraint
     bool get_relation_ids
         (Resource_Manager& rman, std::vector< Relation_Skeleton::Id_Type >& ids);
 	
-    void filter(Resource_Manager& rman, Set& into, uint64 timestamp);
+    void filter(Resource_Manager& rman, Set& into);
     virtual ~Changed_Constraint() {}
 
   private:
@@ -164,7 +164,7 @@ bool Changed_Constraint::get_relation_ids(Resource_Manager& rman, std::vector< R
 // }
 
 
-void Changed_Constraint::filter(Resource_Manager& rman, Set& into, uint64 timestamp)
+void Changed_Constraint::filter(Resource_Manager& rman, Set& into)
 {
   if (!stmt->trivial())
   {
@@ -225,41 +225,13 @@ Changed_Statement::Changed_Statement
     add_static_error(temp.str());
   }
 
-  std::string timestamp = attributes["since"];
-  if (timestamp.size() >= 19)
-    since = Timestamp(
-        atol(timestamp.c_str()), //year
-        atoi(timestamp.c_str()+5), //month
-        atoi(timestamp.c_str()+8), //day
-        atoi(timestamp.c_str()+11), //hour
-        atoi(timestamp.c_str()+14), //minute
-        atoi(timestamp.c_str()+17) //second
-        ).timestamp;
-	
-  if (!behave_trivial && timestamp != "auto" && (since == 0 || since == NOW))
-  {
-    std::ostringstream temp;
-    temp<<"The attribute \"since\" must contain a timestamp exactly in the form \"yyyy-mm-ddThh:mm:ssZ\".";
-    add_static_error(temp.str());
-  }
+  since = Timestamp(attributes["since"]).timestamp;
+  if (!behave_trivial && attributes["since"] != "auto" && (since == 0 || since == NOW))
+    add_static_error("The attribute \"since\" must contain a timestamp exactly in the form \"yyyy-mm-ddThh:mm:ssZ\".");
 
-  timestamp = attributes["until"];
-  if (timestamp.size() >= 19)
-    until = Timestamp(
-        atol(timestamp.c_str()), //year
-        atoi(timestamp.c_str()+5), //month
-        atoi(timestamp.c_str()+8), //day
-        atoi(timestamp.c_str()+11), //hour
-        atoi(timestamp.c_str()+14), //minute
-        atoi(timestamp.c_str()+17) //second
-        ).timestamp;
-	
-  if (!behave_trivial && timestamp != "auto" && (until == 0 || until == NOW))
-  {
-    std::ostringstream temp;
-    temp<<"The attribute \"until\" must contain a timestamp exactly in the form \"yyyy-mm-ddThh:mm:ssZ\".";
-    add_static_error(temp.str());
-  }
+  until = Timestamp(attributes["until"]).timestamp;
+  if (!behave_trivial && attributes["until"] != "auto" && (until == 0 || until == NOW))
+    add_static_error("The attribute \"until\" must contain a timestamp exactly in the form \"yyyy-mm-ddThh:mm:ssZ\".");
 }
 
 

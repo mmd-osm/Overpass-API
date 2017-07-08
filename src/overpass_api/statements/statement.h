@@ -61,21 +61,21 @@ class Query_Constraint
     virtual bool get_data(const Statement& query, Resource_Manager& rman, Set& into,
 			  const std::set< std::pair< Uint32_Index, Uint32_Index > >& ranges,
 			  const std::vector< Node::Id_Type >& ids,
-                          bool invert_ids, uint64 timestamp)
+                          bool invert_ids)
       { return false; }
     virtual bool get_data(const Statement& query, Resource_Manager& rman, Set& into,
 			  const std::set< std::pair< Uint31_Index, Uint31_Index > >& ranges,
 			  int type,
                           const std::vector< Uint32_Index >& ids,
-                          bool invert_ids, uint64 timestamp)
+                          bool invert_ids)
       { return false; }
 
     // Cheap filter. No health_check in between needed and should be called first.
-    virtual void filter(Resource_Manager& rman, Set& into, uint64 timestamp) {}
+    virtual void filter(Resource_Manager& rman, Set& into) {}
 
     // Expensive filter. Health_check may be needed in between. These are called last
     // to minimize the number of elements that need to be processed.
-    virtual void filter(const Statement& query, Resource_Manager& rman, Set& into, uint64 timestamp) {}
+    virtual void filter(const Statement& query, Resource_Manager& rman, Set& into) {}
 
     virtual ~Query_Constraint() {}
 };

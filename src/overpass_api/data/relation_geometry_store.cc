@@ -81,7 +81,7 @@ Relation_Geometry_Store::Relation_Geometry_Store
 
 
 Relation_Geometry_Store::Relation_Geometry_Store
-    (const std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > >& relations, uint64 timestamp,
+    (const std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > >& relations,
      const Statement& query, Resource_Manager& rman,
      double south_, double north_, double west_, double east_)
     : way_geometry_store(0), south(ilat_(south_)), north(ilat_(north_)), west(ilon_(west_)), east(ilon_(east_))
@@ -101,7 +101,7 @@ Relation_Geometry_Store::Relation_Geometry_Store
   std::pair< std::map< Uint32_Index, std::vector< Node_Skeleton > >,
       std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > > > nodes_by_idx
       = relation_node_members(&query, rman,
-          std::map< Uint31_Index, std::vector< Relation_Skeleton > >(), relations, timestamp,
+          std::map< Uint31_Index, std::vector< Relation_Skeleton > >(), relations,
           north < south ? 0 : &node_ranges);
   
   // Order node ids by id.
@@ -129,7 +129,7 @@ Relation_Geometry_Store::Relation_Geometry_Store
   std::pair< std::map< Uint31_Index, std::vector< Way_Skeleton > >,
       std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > > > ways_by_idx
       = relation_way_members(&query, rman,
-          std::map< Uint31_Index, std::vector< Relation_Skeleton > >(), relations, timestamp,
+          std::map< Uint31_Index, std::vector< Relation_Skeleton > >(), relations,
           north < south ? 0 : &way_ranges);
   
   for (std::map< Uint31_Index, std::vector< Way_Skeleton > >::iterator it = ways_by_idx.first.begin();
@@ -141,7 +141,7 @@ Relation_Geometry_Store::Relation_Geometry_Store
       target.push_back(Attic< Way_Skeleton >(*iit, NOW));
   }
   
-  way_geometry_store = new Way_Geometry_Store(ways_by_idx.second, timestamp, query, rman);
+  way_geometry_store = new Way_Geometry_Store(ways_by_idx.second, query, rman);
   
   for (std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >::iterator it = ways_by_idx.second.begin();
       it != ways_by_idx.second.end(); ++it)

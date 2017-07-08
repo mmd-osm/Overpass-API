@@ -61,7 +61,7 @@ void filter_by_bbox(const Bbox_Double& bbox, std::map< Index, std::vector< Coord
 }
 
 
-void Bbox_Filter::filter(Set& into, uint64 timestamp) const
+void Bbox_Filter::filter(Set& into) const
 {
   if (!bbox.valid())
     return;
@@ -179,7 +179,7 @@ void filter_relations_expensive(const Bbox_Filter& filter,
 }
 
 
-void Bbox_Filter::filter(const Statement& query, Resource_Manager& rman, Set& into, uint64 timestamp) const
+void Bbox_Filter::filter(const Statement& query, Resource_Manager& rman, Set& into, bool with_attic) const
 {
   if (!bbox.valid())
     return;
@@ -206,27 +206,27 @@ void Bbox_Filter::filter(const Statement& query, Resource_Manager& rman, Set& in
         Way_Geometry_Store(way_members_, query, rman), into.relations);
   }
 
-  if (timestamp != NOW)
+  if (with_attic)
   {
     //Process attic ways
-    filter_ways_expensive(*this, Way_Geometry_Store(into.attic_ways, timestamp, query, rman), into.attic_ways);
+    filter_ways_expensive(*this, Way_Geometry_Store(into.attic_ways, query, rman), into.attic_ways);
 
     //Process attic relations
 
     // Retrieve all nodes referred by the relations.
     std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > > node_members
-        = relation_node_members(&query, rman, into.attic_relations, timestamp, &get_ranges_32());
+        = relation_node_members(&query, rman, into.attic_relations, &get_ranges_32());
     std::vector< std::pair< Uint32_Index, const Node_Skeleton* > > node_members_by_id
         = order_attic_by_id(node_members, Order_By_Node_Id());
 
     // Retrieve all ways referred by the relations.
     std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > > way_members_
-        = relation_way_members(&query, rman, into.attic_relations, timestamp, &get_ranges_31());
+        = relation_way_members(&query, rman, into.attic_relations, &get_ranges_31());
     std::vector< std::pair< Uint31_Index, const Way_Skeleton* > > way_members_by_id
         = order_attic_by_id(way_members_, Order_By_Way_Id());
 
     filter_relations_expensive(*this, node_members_by_id, way_members_by_id,
-        Way_Geometry_Store(way_members_, timestamp, query, rman), into.attic_relations);
+        Way_Geometry_Store(way_members_, query, rman), into.attic_relations);
   }
 
   //TODO: filter areas

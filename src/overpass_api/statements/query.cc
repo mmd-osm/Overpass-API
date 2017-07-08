@@ -1479,7 +1479,7 @@ void Query_Statement::execute(Resource_Manager& rman)
       for (std::vector< Query_Constraint* >::iterator it = constraints.begin();
           it != constraints.end() && answer_state < data_collected; ++it)
       {
-	if ((*it)->get_data(*this, rman, into, range_req_32, node_ids, invert_ids, timestamp))
+	if ((*it)->get_data(*this, rman, into, range_req_32, node_ids, invert_ids))
 	  answer_state = data_collected;
       }
     }
@@ -1488,7 +1488,7 @@ void Query_Statement::execute(Resource_Manager& rman)
       for (std::vector< Query_Constraint* >::iterator it = constraints.begin();
           it != constraints.end() && answer_state < data_collected; ++it)
       {
-	if ((*it)->get_data(*this, rman, into, range_req_31, type, ids, invert_ids, timestamp))
+	if ((*it)->get_data(*this, rman, into, range_req_31, type, ids, invert_ids))
 	  answer_state = data_collected;
       }
     }
@@ -1524,12 +1524,12 @@ void Query_Statement::execute(Resource_Manager& rman)
         if (key_values.empty() && keys.empty() && key_regexes.empty() && regkey_regexes.empty())
           ::get_elements_by_id_from_db< Uint32_Index, Node_Skeleton >
               (into.nodes, into.attic_nodes,
-               node_ids, invert_ids, timestamp, range_req_32, *this, rman,
+               node_ids, invert_ids, range_req_32, *this, rman,
                *osm_base_settings().NODES, *attic_settings().NODES);
         else
           ::get_elements_by_id_from_db< Uint32_Index, Node_Skeleton >
               (into.nodes, into.attic_nodes,
-               node_ids, invert_ids, timestamp, range_req_32, *this, rman,
+               node_ids, invert_ids, range_req_32, *this, rman,
                *osm_base_settings().NODES_TAGGED, *attic_settings().NODES);
 
         // TODO: <<<<<<<<<<<<<<<<< PROTOTYPE <<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -1547,7 +1547,7 @@ void Query_Statement::execute(Resource_Manager& rman)
 	}
 	::get_elements_by_id_from_db< Uint31_Index, Way_Skeleton >
 	    (into.ways, into.attic_ways,
-             ids, invert_ids, timestamp, range_req_31, *this, rman,
+             ids, invert_ids, range_req_31, *this, rman,
              *osm_base_settings().WAYS, *attic_settings().WAYS);
       }
     }
@@ -1563,7 +1563,7 @@ void Query_Statement::execute(Resource_Manager& rman)
 	}
 	::get_elements_by_id_from_db< Uint31_Index, Relation_Skeleton >
 	    (into.relations, into.attic_relations,
-             ids, invert_ids, timestamp, range_req_31, *this, rman,
+             ids, invert_ids, range_req_31, *this, rman,
              *osm_base_settings().RELATIONS, *attic_settings().RELATIONS);
       }
     }
@@ -1610,7 +1610,7 @@ void Query_Statement::execute(Resource_Manager& rman)
 
   for (std::vector< Query_Constraint* >::iterator it = constraints.begin();
       it != constraints.end(); ++it)
-    (*it)->filter(rman, into, timestamp);
+    (*it)->filter(rman, into);
 
   rman.health_check(*this);
   set_progress(6);
@@ -1644,7 +1644,7 @@ void Query_Statement::execute(Resource_Manager& rman)
 
   for (std::vector< Query_Constraint* >::iterator it = constraints.begin();
       it != constraints.end(); ++it)
-    (*it)->filter(*this, rman, into, timestamp);
+    (*it)->filter(*this, rman, into);
 
   rman.health_check(*this);
   set_progress(9);
