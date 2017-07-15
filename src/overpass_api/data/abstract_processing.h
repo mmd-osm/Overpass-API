@@ -316,11 +316,11 @@ std::vector< typename TObject::Id_Type > filter_for_ids(const std::map< TIndex, 
 
 template< class TIndex, class TObject >
 bool indexed_set_union(std::map< TIndex, std::vector< TObject > >& result,
-		       std::map< TIndex, std::vector< TObject > >& summand)
+		       const std::map< TIndex, std::vector< TObject > >& summand)
 {
   bool result_has_grown = false;
   
-  for (typename std::map< TIndex, std::vector< TObject > >::iterator
+  for (typename std::map< TIndex, std::vector< TObject > >::const_iterator
       it = summand.begin(); it != summand.end(); ++it)
   {
     std::vector< TObject >& target = result[it->first];
@@ -346,12 +346,11 @@ bool indexed_set_union(std::map< TIndex, std::vector< TObject > >& result,
 
 template< class TIndex, class TObject >
 void indexed_set_difference(std::map< TIndex, std::vector< TObject > >& result,
-                            std::map< TIndex, std::vector< TObject > >& to_substract)
+                            const std::map< TIndex, std::vector< TObject > >& to_substract)
 {
-  for (typename std::map< TIndex, std::vector< TObject > >::iterator
+  for (typename std::map< TIndex, std::vector< TObject > >::const_iterator
       it = to_substract.begin(); it != to_substract.end(); ++it)
   {
-    std::sort(it->second.begin(), it->second.end());
     std::vector< TObject > other;
     other.swap(result[it->first]);
     std::sort(other.begin(), other.end());

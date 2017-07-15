@@ -16,67 +16,71 @@
  * along with Overpass_API.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <algorithm>
-#include <list>
-#include <map>
-#include <set>
-#include <sstream>
-#include <string>
-#include <vector>
 
-#include "../data/abstract_processing.h"
-#include "../data/utils.h"
-#include "union.h"
+#include "evaluator.h"
+#include "retro.h"
 
 
-Generic_Statement_Maker< Union_Statement > Union_Statement::statement_maker("union");
+Generic_Statement_Maker< Retro_Statement > Retro_Statement::statement_maker("retro");
 
 
-Union_Statement::Union_Statement
+Retro_Statement::Retro_Statement
     (int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
-    : Output_Statement(line_number_)
+    : Statement(line_number_), timestamp(0)
 {
   std::map< std::string, std::string > attributes;
-
-  attributes["into"] = "_";
-
+  
   eval_attributes_array(get_name(), attributes, input_attributes);
-
-  set_output(attributes["into"]);
 }
 
 
-void Union_Statement::add_statement(Statement* statement, std::string text)
+void Retro_Statement::add_statement(Statement* statement, std::string text)
 {
   assure_no_text(text, this->get_name());
-
-
-  if (statement)
+  
+  if (!timestamp)
+  {
+    Evaluator* tag_value = dynamic_cast< Evaluator* >(statement);
+    if (tag_value)
+      timestamp = tag_value;
+    else
+      add_static_error("A Retro statement must have an Evaluator as first sub-statement.");
+  }
+  else if (statement)
   {
     if (statement->get_name() == "newer")
       add_static_error("\"newer\" can appear only inside \"query\" statements.");
-    else if (statement->get_result_name() == "")
-      substatement_error(get_name(), statement);
-    else
-      substatements.push_back(statement);
+    
+    substatements.push_back(statement);
   }
 }
 
 
-void Union_Statement::execute(Resource_Manager& rman)
+uint64 eval_timestamp(Evaluator& criterion, const Statement& stmt, Resource_Manager& rman)
 {
+  Prepare_Task_Context context(criterion.request_context(), stmt, rman);
+  Owner< Eval_Task > task(criterion.get_task(context));  
+  std::string valuation = (*task).eval(0);
+  
+  return Timestamp(valuation).timestamp;
+}
+
+
+void Retro_Statement::execute(Resource_Manager& rman)
+{
+  if (!timestamp)
+    return;
+  
+  uint64 retro_timestamp = eval_timestamp(*timestamp, *this, rman);
+  if (!retro_timestamp)
+    return;
+  
   rman.push_stack_frame();
-  rman.move_outward(get_result_name(), get_result_name());
+  rman.set_desired_timestamp(retro_timestamp);
   
-  for (std::vector< Statement* >::iterator it(substatements.begin());
-       it != substatements.end(); ++it)
-  {
+  for (std::vector< Statement* >::iterator it = substatements.begin(); it != substatements.end(); ++it)
     (*it)->execute(rman);
-    rman.union_inward((*it)->get_result_name(), get_result_name());
-  }
-  
-  rman.move_all_inward_except(get_result_name());
+
   rman.pop_stack_frame();
-  
   rman.health_check(*this);
 }

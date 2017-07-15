@@ -39,8 +39,13 @@ void draw_item(std::vector< std::string >& visual, uint32 index, const Node_Skel
     visual[i][j] = c;
 }
 
-void comp_sets(Set& s1, Set& s2)
+void comp_sets(Resource_Manager& rman, const std::string& set_1, const std::string& set_2)
 {
+  Set s1;
+  rman.swap_set(set_1, s1);
+  Set s2;
+  rman.swap_set(set_2, s2);
+  
   std::map< Uint32_Index, std::vector< Node_Skeleton > >::iterator it1(s1.nodes.begin());
   std::map< Uint32_Index, std::vector< Node_Skeleton > >::iterator it2(s2.nodes.begin());
   std::vector< std::string > visual(600, std::string(1000, '.'));
@@ -49,8 +54,8 @@ void comp_sets(Set& s1, Set& s2)
   {
     if (it1->first == it2->first)
     {
-      sort(it1->second.begin(), it1->second.end());
-      sort(it2->second.begin(), it2->second.end());
+      std::sort(it1->second.begin(), it1->second.end());
+      std::sort(it2->second.begin(), it2->second.end());
 
       std::vector< Node_Skeleton >::const_iterator itn1(it1->second.begin());
       std::vector< Node_Skeleton >::const_iterator itn2(it2->second.begin());
@@ -152,6 +157,9 @@ void comp_sets(Set& s1, Set& s2)
 
   for (std::vector< std::string >::const_iterator it(visual.begin()); it != visual.end(); ++it)
     std::cout<<*it<<'\n';
+  
+  rman.swap_set(set_1, s1);
+  rman.swap_set(set_2, s2);
 }
 
 int main(int argc, char* args[])
@@ -402,7 +410,7 @@ int main(int argc, char* args[])
     stmt1->set_attributes(attributes);
     stmt1->execute(rman);
   }*/
-  comp_sets(rman.sets()["comp"], rman.sets()["_"]);
+  comp_sets(rman, "comp", "_");
 
   {
     const char* attributes[] = { "type", "node", "into", "comp", 0 };
@@ -419,7 +427,7 @@ int main(int argc, char* args[])
     }
     stmt1->execute(rman);
   }
-  comp_sets(rman.sets()["comp"], rman.sets()["_"]);
+  comp_sets(rman, "comp", "_");
 
   {
     const char* attributes[] = { "type", "node", 0 };
@@ -436,7 +444,7 @@ int main(int argc, char* args[])
     }
     stmt1->execute(rman);
   }
-  comp_sets(rman.sets()["comp"], rman.sets()["_"]);
+  comp_sets(rman, "comp", "_");
 
   return 0;
 }

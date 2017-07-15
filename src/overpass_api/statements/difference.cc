@@ -67,41 +67,26 @@ void Difference_Statement::add_statement(Statement* statement, std::string text)
 
 void Difference_Statement::execute(Resource_Manager& rman)
 {
-  Set base_set;
-
   if (substatements.empty())
-  {
-    transfer_output(rman, base_set);
     return;
-  }
+  
+  rman.push_stack_frame();
+
   std::vector< Statement* >::iterator it = substatements.begin();
-
-  rman.push_reference(base_set);
   (*it)->execute(rman);
-  rman.pop_reference();
-
-  base_set = rman.sets()[(*it)->get_result_name()];
+  
+  rman.clear_inside(get_result_name());
+  rman.union_inward((*it)->get_result_name(), get_result_name());
 
   ++it;
   if (it != substatements.end())
   {
-    rman.push_reference(base_set);
     (*it)->execute(rman);
-    rman.pop_reference();
-
-    Set& summand = rman.sets()[(*it)->get_result_name()];
-
-    indexed_set_difference(base_set.nodes, summand.nodes);
-    indexed_set_difference(base_set.ways, summand.ways);
-    indexed_set_difference(base_set.relations, summand.relations);
-
-    indexed_set_difference(base_set.attic_nodes, summand.attic_nodes);
-    indexed_set_difference(base_set.attic_ways, summand.attic_ways);
-    indexed_set_difference(base_set.attic_relations, summand.attic_relations);
-
-    indexed_set_difference(base_set.areas, summand.areas);
+    rman.substract_from_inward((*it)->get_result_name(), get_result_name());
   }
+  
+  rman.move_all_inward_except(get_result_name());
+  rman.pop_stack_frame();
 
-  transfer_output(rman, base_set);
   rman.health_check(*this);
 }

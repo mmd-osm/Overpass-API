@@ -55,21 +55,25 @@ void evaluate_grid(double south, double north, double west, double east,
 	std::string s_lat = v_lat.str();
 	std::string s_lon = v_lon.str();
 	const char* attributes[] = { "lat", s_lat.c_str(), "lon", s_lon.c_str(), 0 };
-	Coord_Query_Statement* stmt1 = new Coord_Query_Statement(0, convert_c_pairs(attributes), global_settings);
-        stmt1->execute(rman);
+	Coord_Query_Statement stmt1(0, convert_c_pairs(attributes), global_settings);
+        stmt1.execute(rman);
       }
       uint area_count = 0;
-      for (std::map< Uint31_Index, std::vector< Area_Skeleton > >::const_iterator
-	  it = rman.sets()["_"].areas.begin(); it != rman.sets()["_"].areas.end(); ++it)
-	area_count += it->second.size();
+      const Set* default_ = rman.get_set("_");
+      if (default_)
+      {
+        for (std::map< Uint31_Index, std::vector< Area_Skeleton > >::const_iterator
+            it = default_->areas.begin(); it != default_->areas.end(); ++it)
+          area_count += it->second.size();
+      }
       area_counter.back().push_back(area_count);
-      if (!areas_printed && !rman.sets()["_"].areas.empty())
+      if (!areas_printed && default_ && !default_->areas.empty())
       {
 	areas_printed = true;
 	
 	const char* attributes[] = { 0 };
-	Print_Statement* stmt1 = new Print_Statement(0, convert_c_pairs(attributes), global_settings);
-	stmt1->execute(rman);
+	Print_Statement stmt1(0, convert_c_pairs(attributes), global_settings);
+	stmt1.execute(rman);
       }
     }
   }

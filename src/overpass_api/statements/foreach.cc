@@ -61,9 +61,11 @@ void Foreach_Statement::add_statement(Statement* statement, std::string text)
 
 void Foreach_Statement::execute(Resource_Manager& rman)
 {
-  Set base_set(rman.sets()[input]);
-  rman.push_reference(base_set);
-
+  rman.push_stack_frame();
+  
+  const Set* base_set_ref = rman.get_set(input);
+  Set base_set = base_set_ref ? *base_set_ref : Set();
+  
   for (std::map< Uint32_Index, std::vector< Node_Skeleton > >::const_iterator
       it(base_set.nodes.begin()); it != base_set.nodes.end(); ++it)
   {
@@ -71,12 +73,15 @@ void Foreach_Statement::execute(Resource_Manager& rman)
         it2 != it->second.end(); ++it2)
     {
       rman.count_loop();
-      rman.sets()[output].clear();
+      Set empty;
+      empty.nodes[it->first].push_back(*it2);
+      rman.swap_set(get_result_name(), empty);
 
-      rman.sets()[output].nodes[it->first].push_back(*it2);
       for (std::vector< Statement* >::iterator it(substatements.begin());
           it != substatements.end(); ++it)
 	(*it)->execute(rman);
+    
+      rman.union_inward(input, get_result_name());
     }
   }
 
@@ -87,12 +92,15 @@ void Foreach_Statement::execute(Resource_Manager& rman)
         it2 != it->second.end(); ++it2)
     {
       rman.count_loop();
-      rman.sets()[output].clear();
+      Set empty;
+      empty.attic_nodes[it->first].push_back(*it2);
+      rman.swap_set(get_result_name(), empty);
 
-      rman.sets()[output].attic_nodes[it->first].push_back(*it2);
       for (std::vector< Statement* >::iterator it(substatements.begin());
           it != substatements.end(); ++it)
 	(*it)->execute(rman);
+    
+      rman.union_inward(input, get_result_name());
     }
   }
 
@@ -103,12 +111,15 @@ void Foreach_Statement::execute(Resource_Manager& rman)
         it2 != it->second.end(); ++it2)
     {
       rman.count_loop();
-      rman.sets()[output].clear();
+      Set empty;
+      empty.ways[it->first].push_back(*it2);
+      rman.swap_set(get_result_name(), empty);
 
-      rman.sets()[output].ways[it->first].push_back(*it2);
       for (std::vector< Statement* >::iterator it(substatements.begin());
           it != substatements.end(); ++it)
 	(*it)->execute(rman);
+    
+      rman.union_inward(input, get_result_name());
     }
   }
 
@@ -119,12 +130,15 @@ void Foreach_Statement::execute(Resource_Manager& rman)
         it2 != it->second.end(); ++it2)
     {
       rman.count_loop();
-      rman.sets()[output].clear();
+      Set empty;
+      empty.attic_ways[it->first].push_back(*it2);
+      rman.swap_set(get_result_name(), empty);
 
-      rman.sets()[output].attic_ways[it->first].push_back(*it2);
       for (std::vector< Statement* >::iterator it(substatements.begin());
           it != substatements.end(); ++it)
 	(*it)->execute(rman);
+    
+      rman.union_inward(input, get_result_name());
     }
   }
 
@@ -135,12 +149,15 @@ void Foreach_Statement::execute(Resource_Manager& rman)
         it2 != it->second.end(); ++it2)
     {
       rman.count_loop();
-      rman.sets()[output].clear();
+      Set empty;
+      empty.relations[it->first].push_back(*it2);
+      rman.swap_set(get_result_name(), empty);
 
-      rman.sets()[output].relations[it->first].push_back(*it2);
       for (std::vector< Statement* >::iterator it(substatements.begin());
           it != substatements.end(); ++it)
 	(*it)->execute(rman);
+    
+      rman.union_inward(input, get_result_name());
     }
   }
 
@@ -151,12 +168,15 @@ void Foreach_Statement::execute(Resource_Manager& rman)
         it2 != it->second.end(); ++it2)
     {
       rman.count_loop();
-      rman.sets()[output].clear();
+      Set empty;
+      empty.attic_relations[it->first].push_back(*it2);
+      rman.swap_set(get_result_name(), empty);
 
-      rman.sets()[output].attic_relations[it->first].push_back(*it2);
       for (std::vector< Statement* >::iterator it(substatements.begin());
           it != substatements.end(); ++it)
 	(*it)->execute(rman);
+    
+      rman.union_inward(input, get_result_name());
     }
   }
 
@@ -164,21 +184,42 @@ void Foreach_Statement::execute(Resource_Manager& rman)
     it(base_set.areas.begin()); it != base_set.areas.end(); ++it)
   {
     for (std::vector< Area_Skeleton >::const_iterator it2(it->second.begin());
-    it2 != it->second.end(); ++it2)
+        it2 != it->second.end(); ++it2)
     {
       rman.count_loop();
-      rman.sets()[output].clear();
+      Set empty;
+      empty.areas[it->first].push_back(*it2);
+      rman.swap_set(get_result_name(), empty);
 
-      rman.sets()[output].areas[it->first].push_back(*it2);
       for (std::vector< Statement* >::iterator it(substatements.begin());
           it != substatements.end(); ++it)
 	(*it)->execute(rman);
+    
+      rman.union_inward(input, get_result_name());
     }
   }
 
-  if (input == output)
-    rman.sets()[output] = base_set;
+  for (std::map< Uint31_Index, std::vector< Derived_Structure > >::const_iterator
+    it(base_set.deriveds.begin()); it != base_set.deriveds.end(); ++it)
+  {
+    for (std::vector< Derived_Structure >::const_iterator it2(it->second.begin());
+        it2 != it->second.end(); ++it2)
+    {
+      rman.count_loop();
+      Set empty;
+      empty.deriveds[it->first].push_back(*it2);
+      rman.swap_set(get_result_name(), empty);
 
-  rman.pop_reference();
+      for (std::vector< Statement* >::iterator it(substatements.begin());
+          it != substatements.end(); ++it)
+	(*it)->execute(rman);
+    
+      rman.union_inward(input, get_result_name());
+    }
+  }
+  
+  rman.move_all_inward_except(get_result_name());
+  rman.pop_stack_frame();
+
   rman.health_check(*this);
 }
