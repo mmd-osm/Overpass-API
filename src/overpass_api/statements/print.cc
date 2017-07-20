@@ -1095,7 +1095,7 @@ const Opaque_Geometry& Geometry_Broker::make_way_geom(
   delete geom;
   geom = 0;
 
-  if (geometry)
+  if (geometry && !geometry->empty())
   {
     bool is_complete = true;
     for (std::vector< Quad_Coord >::const_iterator it = geometry->begin(); it != geometry->end(); ++it)
@@ -1121,7 +1121,7 @@ const Opaque_Geometry& Geometry_Broker::make_way_geom(
       }
     }
   }
-  else if (bounds)
+  else if (bounds && (bounds->first.ll_upper | bounds->first.ll_lower))
   {
     if (bounds->second)
       geom = new Bbox_Geometry(::lat(bounds->first.ll_upper, bounds->first.ll_lower),
@@ -1650,20 +1650,20 @@ void tags_quadtile_attic
 
 template< typename Index, typename Skeleton >
 std::vector< typename Skeleton::Id_Type > find_still_existing_skeletons
-    (Resource_Manager& rman, const std::vector< Index >& req,
+    (Resource_Manager& rman, uint64 timestamp, const std::vector< Index >& req,
      const std::vector< typename Skeleton::Id_Type >& searched_ids)
 {
   std::vector< typename Skeleton::Id_Type > found_ids;
   std::map< Index, std::vector< Skeleton > > current_result;
   std::map< Index, std::vector< Attic< Skeleton > > > attic_result;
-  if (rman.get_desired_timestamp() == NOW)
+  if (timestamp == NOW)
     collect_items_discrete(0, rman, *current_skeleton_file_properties< Skeleton >(), req,
         Id_Predicate< Skeleton >(searched_ids), current_result);
   else
   {
     collect_items_discrete_by_timestamp(0, rman, req,
-        Id_Predicate< Skeleton >(searched_ids), current_result, attic_result);
-    filter_attic_elements(rman, rman.get_desired_timestamp(), current_result, attic_result);
+        Id_Predicate< Skeleton >(searched_ids), timestamp, current_result, attic_result);
+    filter_attic_elements(rman, timestamp, current_result, attic_result);
   }
   for (typename std::map< Index, std::vector< Skeleton > >::const_iterator it = current_result.begin();
        it != current_result.end(); ++it)
@@ -1688,11 +1688,10 @@ std::vector< typename Skeleton::Id_Type > find_still_existing_skeletons
 template< typename Index, typename Skeleton >
 std::map< typename Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type > >
     find_meta_elements
-    (Resource_Manager& rman, const std::vector< Index >& idx_set,
+    (Resource_Manager& rman, uint64 timestamp, const std::vector< Index >& idx_set,
      const std::vector< typename Skeleton::Id_Type >& searched_ids)
 {
   std::map< typename Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type > > result;
-  uint64 timestamp = rman.get_desired_timestamp();
 
   Block_Backend< Index, OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >,
         typename std::vector< Index >::const_iterator >
@@ -1790,9 +1789,10 @@ void Collection_Print_Target::clear_nodes(Resource_Manager& rman, bool add_delet
 
     std::vector< Uint32_Index > req = get_indexes_< Uint32_Index, Node_Skeleton >(searched_ids, rman, true);
     std::vector< Node_Skeleton::Id_Type > found_ids
-        = find_still_existing_skeletons< Uint32_Index, Node_Skeleton >(rman, req, searched_ids);
+        = find_still_existing_skeletons< Uint32_Index, Node_Skeleton >(
+            rman, rman.get_desired_timestamp(), req, searched_ids);
     std::map< Node_Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< Node::Id_Type > > found_meta
-        = find_meta_elements< Uint32_Index, Node_Skeleton >(rman, req, searched_ids);
+        = find_meta_elements< Uint32_Index, Node_Skeleton >(rman, rman.get_diff_to_timestamp(), req, searched_ids);
 
     for (std::vector< Node_Entry >::const_iterator it = nodes.begin(); it != nodes.end(); ++it)
     {
@@ -1801,11 +1801,40 @@ void Collection_Print_Target::clear_nodes(Resource_Manager& rman, bool add_delet
 	std::map< Node_Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< Node::Id_Type > >::const_iterator
 	    meta_it = found_meta.find(it->elem.id);
 	different_nodes.push_back(std::make_pair(*it,
-	    Node_Entry(std::binary_search(found_ids.begin(), found_ids.end(), it->elem.id) ? 0xfeu : 0xffu,
+	    Node_Entry(std::binary_search(found_ids.begin(), found_ids.end(), it->elem.id) ? 0xfdu : 0xffu,
 		Node_Skeleton(it->elem.id),
 	        meta_it != found_meta.end() ? meta_it->second
 		    : OSM_Element_Metadata_Skeleton< Node_Skeleton::Id_Type >(),
 		std::vector< std::pair< std::string, std::string > >())));
+      }
+    }
+    
+    searched_ids.clear();
+    for (std::vector< std::pair< Node_Entry, Node_Entry > >::const_iterator
+        it = different_nodes.begin(); it != different_nodes.end(); ++it)
+    {
+      if (it->first.idx.val() == 0xffu)
+        searched_ids.push_back(it->second.elem.id);
+    }
+
+    get_indexes_< Uint32_Index, Node_Skeleton >(searched_ids, rman, true).swap(req);
+    find_still_existing_skeletons< Uint32_Index, Node_Skeleton >(
+        rman, rman.get_diff_from_timestamp(), req, searched_ids).swap(found_ids);
+    find_meta_elements< Uint32_Index, Node_Skeleton >(
+        rman, rman.get_diff_from_timestamp(), req, searched_ids).swap(found_meta);
+
+    for (std::vector< std::pair< Node_Entry, Node_Entry > >::iterator
+        it = different_nodes.begin(); it != different_nodes.end(); ++it)
+    {
+      if (it->first.idx.val() == 0xffu)
+      {
+        it->first.idx = std::binary_search(found_ids.begin(), found_ids.end(), it->second.elem.id) ? 0xfdu : 0xffu;
+        it->first.elem = Node_Skeleton(it->second.elem.id);
+        
+	std::map< Node_Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< Node::Id_Type > >::const_iterator
+	    meta_it = found_meta.find(it->second.elem.id);
+        if (meta_it != found_meta.end())
+          it->first.meta = meta_it->second;
       }
     }
   }
@@ -1825,7 +1854,7 @@ void Collection_Print_Target::clear_nodes(Resource_Manager& rman, bool add_delet
   for (std::vector< std::pair< Node_Entry, Node_Entry > >::const_iterator it = different_nodes.begin();
       it != different_nodes.end(); ++it)
   {
-    if ((it->second.idx.val() | 1) == 0xffu)
+    if ((it->second.idx.val() | 2) == 0xffu)
     {
       if (add_deletion_information)
       {
@@ -1836,7 +1865,7 @@ void Collection_Print_Target::clear_nodes(Resource_Manager& rman, bool add_delet
             (output_mode & Output_Mode::TAGS) ? &it->first.tags : 0,
             (output_mode & Output_Mode::META) ? &it->first.meta : 0,
             extra_data->get_users(), output_mode,
-            it->second.idx.val() == 0xfeu ? Output_Handler::push_away : Output_Handler::erase,
+            it->second.idx.val() == 0xfdu ? Output_Handler::push_away : Output_Handler::erase,
             &new_skel, 0, 0, &it->second.meta);
       }
       else
@@ -1850,11 +1879,15 @@ void Collection_Print_Target::clear_nodes(Resource_Manager& rman, bool add_delet
     else if (it->first.idx.val() != 0xffu)
     {
       // The elements differ
+      Null_Geometry null_geom;
+      Point_Geometry old_geom(::lat(it->first.idx.val(), it->first.elem.ll_lower),
+          ::lon(it->first.idx.val(), it->first.elem.ll_lower));
       Point_Geometry new_geom(::lat(it->second.idx.val(), it->second.elem.ll_lower),
-              ::lon(it->second.idx.val(), it->second.elem.ll_lower));
-      output->print_item(it->first.elem,
-          Point_Geometry(::lat(it->first.idx.val(), it->first.elem.ll_lower),
-              ::lon(it->first.idx.val(), it->first.elem.ll_lower)),
+          ::lon(it->second.idx.val(), it->second.elem.ll_lower));
+      Opaque_Geometry* old_opaque = &null_geom;
+      if (it->first.idx.val() != 0xfdu)
+        old_opaque = &old_geom;
+      output->print_item(it->first.elem, *old_opaque,
           (output_mode & Output_Mode::TAGS) ? &it->first.tags : 0,
           (output_mode & Output_Mode::META) ? &it->first.meta : 0,
           extra_data->get_users(), output_mode, Output_Handler::modify,
@@ -1931,9 +1964,10 @@ void Collection_Print_Target::clear_ways(Resource_Manager& rman, bool add_deleti
 
     std::vector< Uint31_Index > req = get_indexes_< Uint31_Index, Way_Skeleton >(searched_ids, rman, true);
     std::vector< Way_Skeleton::Id_Type > found_ids
-        = find_still_existing_skeletons< Uint31_Index, Way_Skeleton >(rman, req, searched_ids);
+        = find_still_existing_skeletons< Uint31_Index, Way_Skeleton >(
+            rman, rman.get_desired_timestamp(), req, searched_ids);
     std::map< Way_Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< Way::Id_Type > > found_meta
-        = find_meta_elements< Uint31_Index, Way_Skeleton >(rman, req, searched_ids);
+        = find_meta_elements< Uint31_Index, Way_Skeleton >(rman, rman.get_diff_to_timestamp(), req, searched_ids);
 
     for (std::vector< Way_Entry >::const_iterator it = ways.begin(); it != ways.end(); ++it)
     {
@@ -1942,12 +1976,41 @@ void Collection_Print_Target::clear_ways(Resource_Manager& rman, bool add_deleti
 	std::map< Way_Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< Way::Id_Type > >::const_iterator
 	    meta_it = found_meta.find(it->elem.id);
 	different_ways.push_back(std::make_pair(*it,
-	    Way_Entry(std::binary_search(found_ids.begin(), found_ids.end(), it->elem.id) ? 0xfeu : 0xffu,
+	    Way_Entry(std::binary_search(found_ids.begin(), found_ids.end(), it->elem.id) ? 0xfdu : 0xffu,
 		Way_Skeleton(it->elem.id),
 		std::vector< Quad_Coord >(),
 	        meta_it != found_meta.end() ? meta_it->second
 		    : OSM_Element_Metadata_Skeleton< Way_Skeleton::Id_Type >(),
 		std::vector< std::pair< std::string, std::string > >())));
+      }
+    }
+    
+    searched_ids.clear();
+    for (std::vector< std::pair< Way_Entry, Way_Entry > >::const_iterator
+        it = different_ways.begin(); it != different_ways.end(); ++it)
+    {
+      if (it->first.idx.val() == 0xffu)
+        searched_ids.push_back(it->second.elem.id);
+    }
+
+    get_indexes_< Uint31_Index, Way_Skeleton >(searched_ids, rman, true).swap(req);
+    find_still_existing_skeletons< Uint31_Index, Way_Skeleton >(
+        rman, rman.get_diff_from_timestamp(), req, searched_ids).swap(found_ids);
+    find_meta_elements< Uint31_Index, Way_Skeleton >(
+        rman, rman.get_diff_from_timestamp(), req, searched_ids).swap(found_meta);
+
+    for (std::vector< std::pair< Way_Entry, Way_Entry > >::iterator
+        it = different_ways.begin(); it != different_ways.end(); ++it)
+    {
+      if (it->first.idx.val() == 0xffu)
+      {
+        it->first.idx = std::binary_search(found_ids.begin(), found_ids.end(), it->second.elem.id) ? 0xfdu : 0xffu;
+        it->first.elem = Way_Skeleton(it->second.elem.id);
+        
+	std::map< Way_Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< Way::Id_Type > >::const_iterator
+	    meta_it = found_meta.find(it->second.elem.id);
+        if (meta_it != found_meta.end())
+          it->first.meta = meta_it->second;
       }
     }
   }
@@ -1968,7 +2031,7 @@ void Collection_Print_Target::clear_ways(Resource_Manager& rman, bool add_deleti
   for (std::vector< std::pair< Way_Entry, Way_Entry > >::const_iterator it = different_ways.begin();
       it != different_ways.end(); ++it)
   {
-    if ((it->second.idx.val() | 1) == 0xffu)
+    if ((it->second.idx.val() | 2) == 0xffu)
     {
       Double_Coords double_coords(it->first.geometry);
       Geometry_Broker broker;
@@ -1981,7 +2044,7 @@ void Collection_Print_Target::clear_ways(Resource_Manager& rman, bool add_deleti
             (output_mode & Output_Mode::TAGS) ? &it->first.tags : 0,
             (output_mode & Output_Mode::META) ? &it->first.meta : 0,
             extra_data->get_users(), output_mode,
-            it->second.idx.val() == 0xfeu ? Output_Handler::push_away : Output_Handler::erase,
+            it->second.idx.val() == 0xfdu ? Output_Handler::push_away : Output_Handler::erase,
             &new_skel, 0, 0, &it->second.meta);
       }
       else
@@ -2085,9 +2148,11 @@ void Collection_Print_Target::clear_relations(Resource_Manager& rman, bool add_d
 
     std::vector< Uint31_Index > req = get_indexes_< Uint31_Index, Relation_Skeleton >(searched_ids, rman, true);
     std::vector< Relation_Skeleton::Id_Type > found_ids
-        = find_still_existing_skeletons< Uint31_Index, Relation_Skeleton >(rman, req, searched_ids);
+        = find_still_existing_skeletons< Uint31_Index, Relation_Skeleton >(
+            rman, rman.get_diff_to_timestamp(), req, searched_ids);
     std::map< Relation_Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< Relation::Id_Type > > found_meta
-        = find_meta_elements< Uint31_Index, Relation_Skeleton >(rman, req, searched_ids);
+        = find_meta_elements< Uint31_Index, Relation_Skeleton >(
+            rman, rman.get_diff_to_timestamp(), req, searched_ids);
 
     for (std::vector< Relation_Entry >::const_iterator it = relations.begin(); it != relations.end(); ++it)
     {
@@ -2096,12 +2161,43 @@ void Collection_Print_Target::clear_relations(Resource_Manager& rman, bool add_d
 	std::map< Relation_Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< Relation::Id_Type > >::const_iterator
 	    meta_it = found_meta.find(it->elem.id);
 	different_relations.push_back(std::make_pair(*it,
-	    Relation_Entry(std::binary_search(found_ids.begin(), found_ids.end(), it->elem.id) ? 0xfeu : 0xffu,
+	    Relation_Entry(std::binary_search(found_ids.begin(), found_ids.end(), it->elem.id) ? 0xfdu : 0xffu,
 		Relation_Skeleton(it->elem.id),
 		std::vector< std::vector< Quad_Coord > >(),
 	        meta_it != found_meta.end() ? meta_it->second
 		    : OSM_Element_Metadata_Skeleton< Relation_Skeleton::Id_Type >(),
 		std::vector< std::pair< std::string, std::string > >())));
+      }
+
+      req = get_indexes_< Uint31_Index, Relation_Skeleton >(searched_ids, rman, true);
+    }
+    
+    searched_ids.clear();
+    for (std::vector< std::pair< Relation_Entry, Relation_Entry > >::const_iterator
+        it = different_relations.begin(); it != different_relations.end(); ++it)
+    {
+      if (it->first.idx.val() == 0xffu)
+        searched_ids.push_back(it->second.elem.id);
+    }
+
+    get_indexes_< Uint31_Index, Relation_Skeleton >(searched_ids, rman, true).swap(req);
+    find_still_existing_skeletons< Uint31_Index, Relation_Skeleton >(
+        rman, rman.get_diff_from_timestamp(), req, searched_ids).swap(found_ids);
+    find_meta_elements< Uint31_Index, Relation_Skeleton >(
+        rman, rman.get_diff_from_timestamp(), req, searched_ids).swap(found_meta);
+
+    for (std::vector< std::pair< Relation_Entry, Relation_Entry > >::iterator
+        it = different_relations.begin(); it != different_relations.end(); ++it)
+    {
+      if (it->first.idx.val() == 0xffu)
+      {
+        it->first.idx = std::binary_search(found_ids.begin(), found_ids.end(), it->second.elem.id) ? 0xfdu : 0xffu;
+        it->first.elem = Relation_Skeleton(it->second.elem.id);
+        
+	std::map< Relation_Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< Relation::Id_Type > >::const_iterator
+	    meta_it = found_meta.find(it->second.elem.id);
+        if (meta_it != found_meta.end())
+          it->first.meta = meta_it->second;
       }
     }
   }
@@ -2122,7 +2218,7 @@ void Collection_Print_Target::clear_relations(Resource_Manager& rman, bool add_d
   for (std::vector< std::pair< Relation_Entry, Relation_Entry > >::const_iterator it = different_relations.begin();
       it != different_relations.end(); ++it)
   {
-    if ((it->second.idx.val() | 1) == 0xffu)
+    if ((it->second.idx.val() | 2) == 0xffu)
     {
       Double_Coords double_coords(it->first.geometry);
       Geometry_Broker broker;
@@ -2135,7 +2231,7 @@ void Collection_Print_Target::clear_relations(Resource_Manager& rman, bool add_d
             (output_mode & Output_Mode::TAGS) ? &it->first.tags : 0,
             (output_mode & Output_Mode::META) ? &it->first.meta : 0,
             extra_data->roles, extra_data->get_users(), output_mode,
-            it->second.idx.val() == 0xfeu ? Output_Handler::push_away : Output_Handler::erase,
+            it->second.idx.val() == 0xfdu ? Output_Handler::push_away : Output_Handler::erase,
             &new_skel, 0, 0, &it->second.meta);
       }
       else
