@@ -225,13 +225,11 @@ Changed_Statement::Changed_Statement
     add_static_error(temp.str());
   }
 
-  if (attributes["since"] != "auto" && attributes["since"] != "init")
-    since = Timestamp(attributes["since"]).timestamp;
+  since = Timestamp(attributes["since"]).timestamp;
   if (!behave_trivial && attributes["since"] != "auto" && (since == 0 || since == NOW))
     add_static_error("The attribute \"since\" must contain a timestamp exactly in the form \"yyyy-mm-ddThh:mm:ssZ\".");
 
-  if (attributes["until"] != "auto")
-    until = Timestamp(attributes["until"]).timestamp;
+  until = Timestamp(attributes["until"]).timestamp;
   if (!behave_trivial && attributes["until"] != "auto" && (until == 0 || until == NOW))
     add_static_error("The attribute \"until\" must contain a timestamp exactly in the form \"yyyy-mm-ddThh:mm:ssZ\".");
 }
