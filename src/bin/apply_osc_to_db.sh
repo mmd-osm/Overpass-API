@@ -52,8 +52,6 @@ else
   exit 0
 }; fi
 
-PRODUCE_DIFF=
-
 get_replicate_filename()
 {
   printf -v TDIGIT3 %03u $(($1 % 1000))
@@ -83,31 +81,6 @@ collect_minute_diffs()
   };
   done
   TARGET=$(($TARGET - 1))
-};
-
-
-apply_minute_diffs_augmented()
-{
-  get_replicate_filename $DIFF_COUNT
-  mkdir -p $DB_DIR/augmented_diffs/$REPLICATE_TRUNK_DIR
-  mkdir -p $DB_DIR/augmented_diffs/id_sorted/$REPLICATE_TRUNK_DIR
-  ./update_from_dir --osc-dir=$1 --version=$DATA_VERSION $META --produce-diff --flush-size=0 >$DB_DIR/augmented_diffs/id_sorted/$REPLICATE_FILENAME.osc
-  EXITCODE=$?
-  while [[ $EXITCODE -ne 0 ]];
-  do
-  {
-    sleep 60
-    ./update_from_dir --osc-dir=$1 --version=$DATA_VERSION $META --produce-diff --flush-size=0 >$DB_DIR/augmented_diffs/id_sorted/$REPLICATE_FILENAME.osc
-    EXITCODE=$?
-  };
-  done
-  ./process_augmented_diffs <$DB_DIR/augmented_diffs/id_sorted/$REPLICATE_FILENAME.osc | gzip >$DB_DIR/augmented_diffs/$REPLICATE_FILENAME.osc.gz
-  gzip <$DB_DIR/augmented_diffs/id_sorted/$REPLICATE_FILENAME.osc >$DB_DIR/augmented_diffs/id_sorted/$REPLICATE_FILENAME.osc.gz
-  rm $DB_DIR/augmented_diffs/id_sorted/$REPLICATE_FILENAME.osc
-  
-  echo "osm_base=$DATA_VERSION" >$DB_DIR/augmented_diffs/$REPLICATE_FILENAME.state.txt
-  echo $DIFF_COUNT >$DB_DIR/augmented_diffs/state.txt
-  DIFF_COUNT=$(($DIFF_COUNT + 1))
 };
 
 
@@ -167,14 +140,8 @@ while [[ true ]]; do
 
     update_state
 
-    if [[ $PRODUCE_DIFF == "yes" ]]; then
-    {
-      apply_minute_diffs_augmented $TEMP_DIR
-    };
-    else
-    {
-      apply_minute_diffs $TEMP_DIR
-    }; fi
+    apply_minute_diffs $TEMP_DIR
+
     echo "$TARGET" >$DB_DIR/replicate_id
 
     echo "`date '+%F %T'`: update complete" $TARGET >>$DB_DIR/apply_osc_to_db.log
