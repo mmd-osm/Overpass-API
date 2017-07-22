@@ -31,6 +31,11 @@ if [[ ! ${EXEC_DIR:0:1} == "/" ]]; then
 
 DB_DIR=`$EXEC_DIR/dispatcher --show-dir`
 
+if [[ ! -d $DB_DIR ]] ; then
+    echo "Can't find DB_DIR. Returned value: $DB_DIR"
+    exit 1;
+fi
+
 REPLICATE_DIR="$1"
 if [[ ! ${REPLICATE_DIR:0:1} == "/" ]]; then
 {
@@ -63,6 +68,19 @@ get_replicate_filename()
   REPLICATE_FILENAME=$TDIGIT1/$TDIGIT2/$TDIGIT3
 };
 
+get_osm_completed_version()
+{
+   DATA_COMPLETED=`cat $DB_DIR/osm_base_completed_version`
+   
+   TXN_ACTIVE_LIST_LINE=`grep "^txnActiveList" <$REPLICATE_DIR/$REPLICATE_FILENAME.state.txt`
+   TXN_ACTIVE_LIST=${TXN_ACTIVE_LIST_LINE:14}
+  
+   if [ -z "$TXN_ACTIVE_LIST" ]; then
+     TIMESTAMP_LINE=`grep "^timestamp" < $REPLICATE_DIR/$REPLICATE_FILENAME.state.txt`
+     DATA_COMPLETED=${TIMESTAMP_LINE:10}
+   fi
+}
+
 
 collect_minute_diffs()
 {
@@ -74,6 +92,7 @@ collect_minute_diffs()
   while [[ ( -s $REPLICATE_DIR/$REPLICATE_FILENAME.state.txt ) && ( $(($START + 1440)) -ge $(($TARGET)) ) && ( `du -m $TEMP_DIR | awk '{ print $1; }'` -le 512 ) ]];
   do
   {
+    get_osm_completed_version
     printf -v TARGET_FILE %09u $TARGET
     gunzip <$REPLICATE_DIR/$REPLICATE_FILENAME.osc.gz >$TEMP_DIR/$TARGET_FILE.osc
     TARGET=$(($TARGET + 1))
@@ -143,6 +162,8 @@ while [[ true ]]; do
     apply_minute_diffs $TEMP_DIR
 
     echo "$TARGET" >$DB_DIR/replicate_id
+    
+    echo "$DATA_COMPLETED" > $DB_DIR/osm_base_completed_version
 
     echo "`date '+%F %T'`: update complete" $TARGET >>$DB_DIR/apply_osc_to_db.log
   };
