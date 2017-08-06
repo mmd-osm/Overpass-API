@@ -40,18 +40,18 @@ class Regular_Expression
 {
   public:
 
-  enum Strategy { call_library, match_anything, match_nonempty };
+  enum class Strategy { call_library, match_anything, match_nonempty };
 
-    Regular_Expression() {}
+    Regular_Expression() = delete;
 
     Regular_Expression(const std::string& regex, bool case_sensitive) {
 
       if (regex == ".*")
-        strategy = match_anything;
+        strategy = Strategy::match_anything;
       else if (regex == ".")
-        strategy = match_nonempty;
+        strategy = Strategy::match_nonempty;
       else
-        strategy = call_library;
+        strategy = Strategy::call_library;
 
       is_cache_available = false;
       prev_line = "";
@@ -82,7 +82,7 @@ class Regular_Expression_POSIX : public Regular_Expression
     Regular_Expression_POSIX(const std::string& regex, bool case_sensitive) :
         Regular_Expression(regex, case_sensitive)
     {
-      if (strategy == call_library)
+      if (strategy == Strategy::call_library)
       {
         setlocale(LC_ALL, "C.UTF-8");
         int case_flag = case_sensitive ? 0 : REG_ICASE;
@@ -94,15 +94,15 @@ class Regular_Expression_POSIX : public Regular_Expression
     
     ~Regular_Expression_POSIX()
     {
-      if (strategy == call_library)
+      if (strategy == Strategy::call_library)
         regfree(&preg);
     }
     
     inline bool matches(const std::string& line) const
     {
-      if (strategy == match_anything)
+      if (strategy == Strategy::match_anything)
         return true;
-      else if (strategy == match_nonempty)
+      else if (strategy == Strategy::match_nonempty)
         return !line.empty();
 
       if (is_cache_available && line == prev_line)
@@ -132,7 +132,7 @@ class Regular_Expression_ICU : public Regular_Expression
     Regular_Expression_ICU(const std::string& regex, bool case_sensitive) :
         Regular_Expression(regex, case_sensitive), matcher(0)
     {
-      if (strategy == call_library)
+      if (strategy == Strategy::call_library)
       {
         setlocale(LC_ALL, "C.UTF-8");
 
@@ -158,15 +158,15 @@ class Regular_Expression_ICU : public Regular_Expression
 
     ~Regular_Expression_ICU()
     {
-      if (strategy == call_library)
+      if (strategy == Strategy::call_library)
         delete matcher;
     }
 
     inline bool matches(const std::string& line) const
     {
-      if (strategy == match_anything)
+      if (strategy == Strategy::match_anything)
         return true;
-      else if (strategy == match_nonempty)
+      else if (strategy == Strategy::match_nonempty)
         return !line.empty();
 
       if (is_cache_available && line == prev_line)

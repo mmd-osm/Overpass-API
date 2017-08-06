@@ -251,6 +251,8 @@ double Partial_Way_Geometry::east() const
 void Partial_Way_Geometry::add_point(const Point_Double& point)
 {
   delete bounds;
+  bounds = 0;
+
   has_coords |= (point.lat < 100.);
   points.push_back(point);
 }

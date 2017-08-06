@@ -315,6 +315,8 @@ void Output_Osmium::print_item(const Relation_Skeleton& skel,
         case 3:
           type = osmium::item_type::relation;
           break;
+        default:
+          continue;
         }
 
         members.push_back(member_type{type,

@@ -406,5 +406,8 @@ Osmium_Updater::~Osmium_Updater() {
     logger.annotated_log("write_rollback() end");
     delete dispatcher_client;
   }
+
+  cpu_stopwatch->stop_cpu_timer(0);
+  delete cpu_stopwatch;
 }
 
