@@ -120,12 +120,20 @@ class Around_Statement : public Output_Statement
 
     virtual std::string dump_xml(const std::string& indent) const
     {
-      return indent + "<around"
+      std::string result = indent + "<around"
           + (input != "_" ? std::string(" from=\"") + input + "\"" : "")
-          + std::string(" radius=\"") + to_string(radius) + "\""
-          + (point.lat != 100. ? std::string(" lat=\"") + to_string(point.lat) + "\"" : "")
-          + (point.lon != 200. ? std::string(" lon=\"") + to_string(point.lon) + "\"" : "")
-          + dump_xml_result_name() + "/>\n";
+          + std::string(" radius=\"") + to_string(radius) + "\"";
+      if (points.size() == 1)
+        result += std::string(" lat=\"") + to_string(points.front().lat) + "\""
+            + std::string(" lon=\"") + to_string(points.front().lon) + "\"";
+      else if (!points.empty())
+      {
+        result += " polyline=\"";
+        for (std::vector< Point_Double >::const_iterator it = points.begin(); it != points.end(); ++it)
+          result += to_string(it->lat) + "," + to_string(it->lon) + ",";
+        result[result.size()-1] = '\"';
+      }
+      return result + dump_xml_result_name() + "/>\n";
     }
 
     virtual std::string dump_compact_ql(const std::string&) const
@@ -134,24 +142,24 @@ class Around_Statement : public Output_Statement
     }
     virtual std::string dump_ql_in_query(const std::string&) const
     {
-      return std::string("(around")
+      std::string result = std::string("(around")
           + (input != "_" ? std::string(".") + input : "")
-          + std::string(":") + to_string(radius)
-          + (point.lat != 100. ? std::string(",") + to_string(point.lat) : "")
-          + (point.lon != 200. ? std::string(",") + to_string(point.lon) : "")
-          + ")";
+          + std::string(":") + to_string(radius);
+      for (std::vector< Point_Double >::const_iterator it = points.begin(); it != points.end(); ++it)
+        result += "," + to_string(it->lat) + "," + to_string(it->lon);
+      return result + ")";
     }
     virtual std::string dump_pretty_ql(const std::string& indent) const { return indent + dump_compact_ql(indent); }
 
   private:
     std::string input;
     double radius;
-    Point_Double point;
     std::vector< Point_Double > points;
 
     std::map< Uint32_Index, std::vector< Point_Double > > radius_lat_lons;
     std::vector< std::pair< Prepared_BBox, Prepared_Point> > simple_lat_lons;
     std::vector< std::pair< Prepared_BBox, Prepared_Segment> > simple_segments;
+
     std::vector< Query_Constraint* > constraints;
     std::vector< Prepared_BBox > node_bboxes;
     std::vector< Prepared_BBox > way_bboxes;

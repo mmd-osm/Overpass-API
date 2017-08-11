@@ -603,7 +603,7 @@ void Around_Constraint::filter(const Statement& query, Resource_Manager& rman, S
   const Set* input = rman.get_set(around->get_source_name());
   around->calc_lat_lons(input ? *input : Set(), *around, rman);
 
-  filter_nodes_expensive(*around, into.nodes);  
+  filter_nodes_expensive(*around, into.nodes);
   filter_ways_expensive(*around, Way_Geometry_Store(into.ways, query, rman), into.ways);
 
   {
@@ -677,22 +677,22 @@ Statement* Around_Statement::Criterion_Maker::create_criterion(const Token_Node_
 {
   Token_Node_Ptr tree_it = input_tree;
   uint line_nr = tree_it->line_col.first;
-  std::string lat;
-  std::string lon;
-  
-  if (tree_it->token == "," && tree_it->rhs && tree_it->lhs)
+
+  std::vector< std::pair< std::string, std::string > > coords;
+
+  while (tree_it->token == "," && tree_it->rhs && tree_it->lhs)
   {
-    lon = tree_it.rhs()->token;
+    std::string lon = tree_it.rhs()->token;
     tree_it = tree_it.lhs();
 
     if (tree_it->token != "," || !tree_it->rhs || !tree_it->lhs)
     {
       if (error_output)
-        error_output->add_parse_error("around requires one or three arguments", line_nr);
+        error_output->add_parse_error("around requires an odd number of arguments", line_nr);
       return 0;
     }
 
-    lat = tree_it.rhs()->token;
+    coords.push_back(std::make_pair(tree_it.rhs()->token, lon));
     tree_it = tree_it.lhs();
   }
 
@@ -709,8 +709,19 @@ Statement* Around_Statement::Criterion_Maker::create_criterion(const Token_Node_
     attributes["from"] = from;
     attributes["into"] = into;
     attributes["radius"] = radius;
-    attributes["lat"] = lat;
-    attributes["lon"] = lon;
+    if (coords.size() == 1)
+    {
+      attributes["lat"] = coords.front().first;
+      attributes["lon"] = coords.front().second;
+    }
+    else if (!coords.empty())
+    {
+      std::reverse(coords.begin(),coords.end());
+      for (std::vector< std::pair< std::string, std::string > >::const_iterator it = coords.begin();
+          it != coords.end(); ++it)
+        attributes["polyline"] += it->first + "," + it->second + ",";
+      attributes["polyline"].resize(attributes["polyline"].size()-1);
+    }
     return new Around_Statement(line_nr, attributes, global_settings);
   }
   else if (error_output)
@@ -722,7 +733,7 @@ Statement* Around_Statement::Criterion_Maker::create_criterion(const Token_Node_
 
 Around_Statement::Around_Statement
     (int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
-    : Output_Statement(line_number_), point(100.0, 200.0)
+    : Output_Statement(line_number_)
 {
   std::map< std::string, std::string > attributes;
 
@@ -731,14 +742,7 @@ Around_Statement::Around_Statement
   attributes["radius"] = "";
   attributes["lat"] = "";
   attributes["lon"] = "";
-
-  for (std::map<std::string, std::string>::const_iterator it = input_attributes.begin();
-      it != input_attributes.end(); ++it)
-  {
-    if (it->first.find("lat_") == 0 ||
-        it->first.find("lon_") == 0)
-      attributes[it->first] = "";
-  }
+  attributes["polyline"] = "";
 
   eval_attributes_array(get_name(), attributes, input_attributes);
 
@@ -754,67 +758,56 @@ Around_Statement::Around_Statement
     add_static_error(temp.str());
   }
 
-  std::map< int, Point_Double > pointmap;
-
-  unsigned int index = 0;
-
-  for (std::map< std::string, std::string >::iterator it = attributes.begin();
-      it != attributes.end(); ++it)
+  double lat = 100.;
+  double lon = 0;
+  if (attributes["lat"] != "")
   {
-    if (attributes[it->first] == "")
-      continue;
-
-    if (it->first.find("lat") == 0)
-    {
-      point.lat = atof(attributes[it->first].c_str());
-
-      if ((point.lat < -90.0) || (point.lat > 90.0))
-      {
-        std::ostringstream temp;
-        temp<<"For the attribute \"lat\" of the element \"around\""
-            <<" the only allowed values are floats between -90.0 and 90.0.";
-        add_static_error(temp.str());
-      }
-
-      index = 0;
-      if (it->first.find("lat_") == 0)
-        index = std::atoi(it->first.c_str() + 4);
-
-      std::map<int, Point_Double>::iterator it = pointmap.find(index);
-      if (it != pointmap.end())
-        it->second.lat = point.lat;
-      else
-        pointmap.insert(std::pair< int, Point_Double > (index, Point_Double(point.lat, 200.0)));
-    }
-    else if (it->first.find("lon") == 0)
-    {
-      point.lon = atof(attributes[it->first].c_str());
-      if ((point.lon < -180.0) || (point.lon > 180.0))
-      {
-        std::ostringstream temp;
-        temp<<"For the attribute \"lon\" of the element \"around\""
-            <<" the only allowed values are floats between -180.0 and 180.0.";
-        add_static_error(temp.str());
-      }
-
-      index = 0;
-      if (it->first.find("lon_") == 0)
-        index = std::atoi(it->first.c_str() + 4);
-
-      std::map<int, Point_Double>::iterator it = pointmap.find(index);
-      if (it != pointmap.end())
-        it->second.lon = point.lon;
-      else
-        pointmap.insert(std::pair< int, Point_Double > (index, Point_Double(100.0, point.lon)));
-    }
+    lat = atof(attributes["lat"].c_str());
+    if ((lat < -90.0) || (lat > 90.0))
+      add_static_error("For the attribute \"lat\" of the element \"around\""
+          " the only allowed values are floats between -90.0 and 90.0 or an empty value.");
   }
 
-  for (std::map<int, Point_Double >::const_iterator it = pointmap.begin(); it != pointmap.end(); ++it)
+  if (attributes["lon"] != "")
   {
-    if (it->second.lat != 100.0 && it->second.lon != 200.0)
-      points.push_back(it->second);
+    lon = atof(attributes["lon"].c_str());
+    if ((lon < -180.0) || (lon > 180.0))
+      add_static_error("For the attribute \"lon\" of the element \"around\""
+          " the only allowed values are floats between -1800.0 and 180.0 or an empty value.");
   }
 
+  if (attributes["polyline"] != "")
+  {
+    if (attributes["lat"] != "" || attributes["lon"] != "")
+      add_static_error("In \"around\", the attribute \"polyline\" cannot be used if \"lat\" or \"lon\" are used.");
+    
+    std::string& polystring = attributes["polyline"];
+    std::string::size_type from = 0;
+    std::string::size_type to = polystring.find(",");
+    while (to != std::string::npos)
+    {
+      double lat = atof(polystring.substr(from, to).c_str());
+      from = to+1;
+      to = polystring.find(",", from);
+      if (to != std::string::npos)
+      {
+        points.push_back(Point_Double(lat, atof(polystring.substr(from, to).c_str())));
+        from = to+1;
+        to = polystring.find(",", from);
+      }
+      else
+        points.push_back(Point_Double(lat, atof(polystring.substr(from).c_str())));
+    }
+
+    if ((points.back().lat < -90.0) || (points.back().lat > 90.0))
+      add_static_error("For a latitude entry in the attribute \"polyline\" of the element \"around\""
+          " the only allowed values are floats between -90.0 and 90.0 or an empty value.");
+    if ((points.back().lon < -180.0) || (points.back().lon > 180.0))
+      add_static_error("For a latitude entry in the attribute \"polyline\" of the element \"around\""
+          " the only allowed values are floats between -1800.0 and 180.0 or an empty value.");
+  }
+  else if (lat < 100.)
+    points.push_back(Point_Double(lat, lon));
 }
 
 Around_Statement::~Around_Statement()
@@ -1104,6 +1097,7 @@ void add_way(const std::vector< Point_Double >& points, double radius,
     first_lon = second_lon;
   }
 }
+
 
 
 struct Relation_Member_Collection
