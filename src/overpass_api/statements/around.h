@@ -107,8 +107,8 @@ class Around_Statement : public Output_Statement
       return indent + "<around"
           + (input != "_" ? std::string(" from=\"") + input + "\"" : "")
           + std::string(" radius=\"") + to_string(radius) + "\""
-          + (lat != 100. ? std::string(" lat=\"") + to_string(lat) + "\"" : "")
-          + (lon != 200. ? std::string(" lon=\"") + to_string(lon) + "\"" : "")
+          + (point.lat != 100. ? std::string(" lat=\"") + to_string(point.lat) + "\"" : "")
+          + (point.lon != 200. ? std::string(" lon=\"") + to_string(point.lon) + "\"" : "")
           + dump_xml_result_name() + "/>\n";
     }
 
@@ -121,8 +121,8 @@ class Around_Statement : public Output_Statement
       return std::string("(around")
           + (input != "_" ? std::string(".") + input : "")
           + std::string(":") + to_string(radius)
-          + (lat != 100. ? std::string(",") + to_string(lat) : "")
-          + (lon != 200. ? std::string(",") + to_string(lon) : "")
+          + (point.lat != 100. ? std::string(",") + to_string(point.lat) : "")
+          + (point.lon != 200. ? std::string(",") + to_string(point.lon) : "")
           + ")";
     }
     virtual std::string dump_pretty_ql(const std::string& indent) const { return indent + dump_compact_ql(indent); }
@@ -130,10 +130,10 @@ class Around_Statement : public Output_Statement
   private:
     std::string input;
     double radius;
-    double lat;
-    double lon;
+    Point_Double point;
+    std::vector< Point_Double > points;
 
-    std::map< Uint32_Index, std::vector< std::pair< double, double > > > radius_lat_lons;
+    std::map< Uint32_Index, std::vector< Point_Double > > radius_lat_lons;
     std::vector< std::pair< Prepared_BBox, Prepared_Point> > simple_lat_lons;
     std::vector< std::pair< Prepared_BBox, Prepared_Segment> > simple_segments;
     std::vector< Query_Constraint* > constraints;

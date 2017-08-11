@@ -668,7 +668,7 @@ Generic_Statement_Maker< Around_Statement > Around_Statement::statement_maker("a
 
 Around_Statement::Around_Statement
     (int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
-    : Output_Statement(line_number_), lat(100.0), lon(200.0)
+    : Output_Statement(line_number_), point(100.0, 200.0)
 {
   std::map< std::string, std::string > attributes;
 
@@ -677,6 +677,14 @@ Around_Statement::Around_Statement
   attributes["radius"] = "";
   attributes["lat"] = "";
   attributes["lon"] = "";
+
+  for (std::map<std::string, std::string>::const_iterator it = input_attributes.begin();
+      it != input_attributes.end(); ++it)
+  {
+    if (it->first.find("lat_") == 0 ||
+        it->first.find("lon_") == 0)
+      attributes[it->first] = "";
+  }
 
   eval_attributes_array(get_name(), attributes, input_attributes);
 
@@ -692,29 +700,67 @@ Around_Statement::Around_Statement
     add_static_error(temp.str());
   }
 
-  if (attributes["lat"] != "")
+  std::map< int, Point_Double > pointmap;
+
+  unsigned int index = 0;
+
+  for (std::map< std::string, std::string >::iterator it = attributes.begin();
+      it != attributes.end(); ++it)
   {
-    lat = atof(attributes["lat"].c_str());
-    if ((lat < -90.0) || (lat > 90.0))
+    if (attributes[it->first] == "")
+      continue;
+
+    if (it->first.find("lat") == 0)
     {
-      std::ostringstream temp;
-      temp<<"For the attribute \"lat\" of the element \"around\""
-          <<" the only allowed values are floats between -90.0 and 90.0 or an empty value.";
-      add_static_error(temp.str());
+      point.lat = atof(attributes[it->first].c_str());
+
+      if ((point.lat < -90.0) || (point.lat > 90.0))
+      {
+        std::ostringstream temp;
+        temp<<"For the attribute \"lat\" of the element \"around\""
+            <<" the only allowed values are floats between -90.0 and 90.0.";
+        add_static_error(temp.str());
+      }
+
+      index = 0;
+      if (it->first.find("lat_") == 0)
+        index = std::atoi(it->first.c_str() + 4);
+
+      std::map<int, Point_Double>::iterator it = pointmap.find(index);
+      if (it != pointmap.end())
+        it->second.lat = point.lat;
+      else
+        pointmap.insert(std::pair< int, Point_Double > (index, Point_Double(point.lat, 200.0)));
+    }
+    else if (it->first.find("lon") == 0)
+    {
+      point.lon = atof(attributes[it->first].c_str());
+      if ((point.lon < -180.0) || (point.lon > 180.0))
+      {
+        std::ostringstream temp;
+        temp<<"For the attribute \"lon\" of the element \"around\""
+            <<" the only allowed values are floats between -180.0 and 180.0.";
+        add_static_error(temp.str());
+      }
+
+      index = 0;
+      if (it->first.find("lon_") == 0)
+        index = std::atoi(it->first.c_str() + 4);
+
+      std::map<int, Point_Double>::iterator it = pointmap.find(index);
+      if (it != pointmap.end())
+        it->second.lon = point.lon;
+      else
+        pointmap.insert(std::pair< int, Point_Double > (index, Point_Double(100.0, point.lon)));
     }
   }
 
-  if (attributes["lon"] != "")
+  for (std::map<int, Point_Double >::const_iterator it = pointmap.begin(); it != pointmap.end(); ++it)
   {
-    lon = atof(attributes["lon"].c_str());
-    if ((lon < -180.0) || (lon > 180.0))
-    {
-      std::ostringstream temp;
-      temp<<"For the attribute \"lon\" of the element \"around\""
-          <<" the only allowed values are floats between -180.0 and 180.0 or an empty value.";
-      add_static_error(temp.str());
-    }
+    if (it->second.lat != 100.0 && it->second.lon != 200.0)
+      points.push_back(it->second);
   }
+
 }
 
 Around_Statement::~Around_Statement()
@@ -859,8 +905,23 @@ bool intersect(double alat1, double alon1, double alat2, double alon2,
 std::set< std::pair< Uint32_Index, Uint32_Index > > Around_Statement::calc_ranges
     (const Set& input, Resource_Manager& rman) const
 {
-  if (lat < 100.0)
-    return expand(ranges(lat, lon), radius);
+  if (points.size() == 1)
+    return expand(ranges(points[0].lat, points[0].lon), radius);
+
+  else if (points.size() > 1)
+  {
+    std::vector< uint32 > nd_idxs;
+    std::map< Uint31_Index, std::vector< Way_Skeleton > > ways;
+    std::pair< Uint31_Index, std::vector< Way_Skeleton > > way;
+
+    for (std::vector< Point_Double >::const_iterator it = points.begin(); it != points.end(); ++it)
+        nd_idxs.push_back(::ll_upper_(it->lat, it->lon));
+
+    Uint31_Index idx = Way::calc_index(nd_idxs);
+    way = std::make_pair(idx, std::vector< Way_Skeleton >());
+    ways.insert(way);
+    return expand(children(ranges(ways)), radius);
+  }
   else
     return expand(set_union_
         (set_union_(ranges(input.nodes), ranges(input.attic_nodes)),
@@ -872,7 +933,7 @@ std::set< std::pair< Uint32_Index, Uint32_Index > > Around_Statement::calc_range
 
 
 void add_coord(double lat, double lon, double radius,
-               std::map< Uint32_Index, std::vector< std::pair< double, double > > >& radius_lat_lons,
+               std::map< Uint32_Index, std::vector< Point_Double > >& radius_lat_lons,
                std::vector< std::pair< Prepared_BBox, Prepared_Point> >& simple_lat_lons)
 {
   double south = lat - radius*(360.0/(40000.0*1000.0));
@@ -895,13 +956,13 @@ void add_coord(double lat, double lon, double radius,
   {
     for (uint32 idx = Uint32_Index(it->first).val();
         idx < Uint32_Index(it->second).val(); ++idx)
-      radius_lat_lons[idx].push_back(std::make_pair(lat, lon));
+      radius_lat_lons[idx].push_back(Point_Double(lat, lon));
   }
 }
 
 
 void add_node(Uint32_Index idx, const Node_Skeleton& node, double radius,
-              std::map< Uint32_Index, std::vector< std::pair< double, double > > >& radius_lat_lons,
+              std::map< Uint32_Index, std::vector< Point_Double > >& radius_lat_lons,
               std::vector< std::pair< Prepared_BBox, Prepared_Point> >& simple_lat_lons,
               std::vector< Prepared_BBox >& node_bboxes)
 
@@ -914,7 +975,7 @@ void add_node(Uint32_Index idx, const Node_Skeleton& node, double radius,
 
 
 void add_way(const std::vector< Quad_Coord >& way_geometry, double radius,
-             std::map< Uint32_Index, std::vector< std::pair< double, double > > >& radius_lat_lons,
+             std::map< Uint32_Index, std::vector< Point_Double > >& radius_lat_lons,
              std::vector< std::pair< Prepared_BBox, Prepared_Point> >& simple_lat_lons,
              std::vector< std::pair< Prepared_BBox, Prepared_Segment> >& simple_segments,
              std::vector< Prepared_BBox >& way_bboxes)
@@ -946,6 +1007,46 @@ void add_way(const std::vector< Quad_Coord >& way_geometry, double radius,
     double second_lat(::lat(nit->ll_upper, nit->ll_lower));
     double second_lon(::lon(nit->ll_upper, nit->ll_lower));
     
+    simple_segments.push_back(std::make_pair(way_bbox, Prepared_Segment(first_lat, first_lon, second_lat, second_lon)));
+
+    first_lat = second_lat;
+    first_lon = second_lon;
+  }
+}
+
+void add_way(const std::vector< Point_Double >& points, double radius,
+             std::map< Uint32_Index, std::vector< Point_Double > >& radius_lat_lons,
+             std::vector< std::pair< Prepared_BBox, Prepared_Point> >& simple_lat_lons,
+             std::vector< std::pair< Prepared_BBox, Prepared_Segment> >& simple_segments,
+             std::vector< Prepared_BBox >& way_bboxes)
+{
+  // add nodes
+  Prepared_BBox way_bbox;
+
+  for (std::vector< Point_Double >::const_iterator nit = points.begin(); nit != points.end(); ++nit)
+  {
+    double lat = nit->lat;
+    double lon = nit->lon;
+    add_coord(lat, lon, radius, radius_lat_lons, simple_lat_lons);
+    Prepared_BBox node_bbox = ::calc_distance_bbox(lat, lon, radius);
+    way_bbox.merge(node_bbox);
+  }
+  way_bboxes.push_back(way_bbox);
+
+  // add segments
+
+  std::vector< Point_Double >::const_iterator nit = points.begin();
+  if (nit == points.end())
+    return;
+
+  double first_lat(nit->lat);
+  double first_lon(nit->lon);
+
+  for (++nit; nit != points.end(); ++nit)
+  {
+    double second_lat(nit->lat);
+    double second_lon(nit->lon);
+
     simple_segments.push_back(std::make_pair(way_bbox, Prepared_Segment(first_lat, first_lon, second_lat, second_lon)));
 
     first_lat = second_lat;
@@ -1054,10 +1155,15 @@ void Around_Statement::calc_lat_lons(const Set& input, Statement& query, Resourc
   way_bboxes.clear();
 
 
-  if (lat < 100.0)
+  if (points.size() == 1)
   {
-    add_coord(lat, lon, radius, radius_lat_lons, simple_lat_lons);
-    node_bboxes.push_back(::calc_distance_bbox(lat, lon, radius));
+    add_coord(points[0].lat, points[0].lon, radius, radius_lat_lons, simple_lat_lons);
+    node_bboxes.push_back(::calc_distance_bbox(points[0].lat, points[0].lon, radius));
+    return;
+  }
+  else if (points.size() > 1)
+  {
+    add_way(points, radius, radius_lat_lons, simple_lat_lons, simple_segments, way_bboxes);
     return;
   }
 
@@ -1104,15 +1210,15 @@ bool Around_Statement::matches_bboxes(const Prepared_BBox & bbox) const
 
 bool Around_Statement::is_inside(double lat, double lon) const
 {
-  std::map< Uint32_Index, std::vector< std::pair< double, double > > >::const_iterator mit
+  std::map< Uint32_Index, std::vector< Point_Double > >::const_iterator mit
       = radius_lat_lons.find(::ll_upper_(lat, lon));
   if (mit != radius_lat_lons.end())
   {
-    for (std::vector< std::pair< double, double > >::const_iterator cit = mit->second.begin();
+    for (std::vector< Point_Double >::const_iterator cit = mit->second.begin();
         cit != mit->second.end(); ++cit)
     {
-      if ((radius > 0 && great_circle_dist(cit->first, cit->second, lat, lon) <= radius)
-          || (cit->first == lat && cit->second == lon))
+      if ((radius > 0 && great_circle_dist(cit->lat, cit->lon, lat, lon) <= radius)
+          || (cit->lat == lat && cit->lon == lon))
         return true;
     }
   }
