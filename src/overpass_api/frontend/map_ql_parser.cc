@@ -1491,7 +1491,8 @@ TStatement* parse_query(typename TStatement::Factory& stmt_factory, Parsed_Query
        || (clauses.front().statement == "newer" && type != "all")
        || (clauses.front().statement == "recurse" &&
            (clauses.front().attributes[0] == "<" || clauses.front().attributes[0] == "<<"
-	   || clauses.front().attributes[0] == ">" || clauses.front().attributes[0] == ">>")))
+	   || clauses.front().attributes[0] == ">" || clauses.front().attributes[0] == ">>"
+	   || parsed_query.get_global_bbox_limitation().valid() )))
     {
       statement = create_query_statement< TStatement >
           (stmt_factory, type, into, query_line_col.first);
