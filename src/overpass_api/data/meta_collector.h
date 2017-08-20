@@ -55,6 +55,9 @@ public:
       delete db_it;
       delete meta_db;
     }
+
+    if (current_index)
+      delete current_index;
   }
   
 private:
@@ -157,7 +160,11 @@ void Meta_Collector< Index, Id_Type >::reset()
         ::Discrete_Iterator(meta_db->discrete_begin(used_indices.begin(), used_indices.end()));
 	
     if (!(*db_it == meta_db->discrete_end()))
+    {
+      if (current_index)
+        delete current_index;
       current_index = new Index(db_it->index());
+    }
     while (!(*db_it == meta_db->discrete_end()) && (*current_index == db_it->index()))
     {
       current_objects.insert(db_it->object());
@@ -172,7 +179,11 @@ void Meta_Collector< Index, Id_Type >::reset()
 	    Default_Range_Iterator< Index >(used_ranges.end())));
 	
     if (!(*range_it == meta_db->range_end()))
+    {
+      if (current_index)
+        delete current_index;
       current_index = new Index(range_it->index());
+    }
     while (!(*range_it == meta_db->range_end()) && (*current_index == range_it->index()))
     {
       current_objects.insert(range_it->object());
