@@ -32,21 +32,28 @@ int LZ4_Deflate::compress(const void* in, int in_size, void* out, int out_buffer
 {
 #ifdef HAVE_LZ4
 
-   int ret = LZ4_compress_limitedOutput((const char*) in, (char *) out + 4, in_size, out_buffer_size - 4);
+   XXH32_hash_t content_hash = XXH32(in, in_size, 0);
+
+   int ret = LZ4_compress_limitedOutput((const char*) in, (char *) out + 4, in_size, out_buffer_size - 8);
 
    if (ret == 0)
    { // compression failed
-     if (in_size > out_buffer_size - 4)
+     if (in_size > out_buffer_size - 8)
        throw std::runtime_error("LZ4: output buffer too small during compression");
 
      *(int*)out = in_size * -1;
      std::memcpy ((char *) out + 4, (const char*)in, in_size);
+     *(XXH32_hash_t*)((char*) out + 4 + in_size) = content_hash;
+
      ret = in_size;
    }
    else
+   {
      *(int*)out = ret;
+     *(XXH32_hash_t*)((char*) out + 4 + ret) = content_hash;
+   }
 
-   return ret + 4;
+   return ret + 8;
 
 #else
 
@@ -72,6 +79,12 @@ int LZ4_Inflate::decompress(const void* in, int in_size, void* out, int out_buff
     ret = LZ4_decompress_safe((const char*) in + 4, (char*) out, in_buffer_size, out_buffer_size);
     if (ret < 0)
       throw std::runtime_error("LZ4_decompress_safe failed");
+
+    XXH32_hash_t content_hash = XXH32(out, ret, 0);
+    XXH32_hash_t hash = *(XXH32_hash_t*)((char*) in + 4 + in_buffer_size);
+
+    if (content_hash != hash)
+      throw std::runtime_error("LZ4 decompression: checksum failure");
   }
   else
   {
@@ -81,6 +94,12 @@ int LZ4_Inflate::decompress(const void* in, int in_size, void* out, int out_buff
 
     std::memcpy ((char*) out, (const char*) in + 4, in_buffer_size);
     ret = in_buffer_size;
+
+    XXH32_hash_t content_hash = XXH32(out, ret, 0);
+    XXH32_hash_t hash = *(XXH32_hash_t*)((char*) in + 4 + in_buffer_size);
+
+    if (content_hash != hash)
+      throw std::runtime_error("LZ4 decompression: checksum failure");
   }
   return ret;
 

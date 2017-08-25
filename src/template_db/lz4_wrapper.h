@@ -29,6 +29,8 @@
 
 #ifdef HAVE_LZ4
 #include <lz4.h>
+#define XXH_PRIVATE_API
+#include "lib/xxhash/xxhash.h"
 #endif
 
 class LZ4_Deflate
