@@ -174,7 +174,7 @@ inline Random_File_Index::Random_File_Index
 
           blocks.push_back(entry);
           
-          if (entry.size > guessed_compression_factor)
+          if (entry.size > (guessed_compression_factor * (guessed_compression_method == Random_File_Index::LZ4_COMPRESSION ? 2 : 1)))
           {
             read_old_format = true;
             break;
