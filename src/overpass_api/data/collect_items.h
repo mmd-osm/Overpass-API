@@ -23,7 +23,7 @@
 #include "filenames.h"
 
 #include <exception>
-
+#include <functional>
 
 inline uint64 timestamp_of(const Attic< Node_Skeleton >& skel) { return skel.timestamp; }
 inline uint64 timestamp_of(const Attic< Way_Skeleton >& skel) { return skel.timestamp; }
@@ -418,6 +418,31 @@ void collect_items_range(const Statement* stmt, Resource_Manager& rman,
       rman.health_check(*stmt, 0, eval_map(result));
     }
     if (predicate.match(it.handle()))
+      result[it.index()].push_back(it.object());
+  }
+}
+
+template < class Index, class Object, class Container >
+void collect_items_range(const Statement* stmt, Resource_Manager& rman,
+                   File_Properties& file_properties,
+                   const Container& req,
+                   std::map< Index, std::vector< Object > >& result,
+                   std::function< bool(Index, typename Object::Id_Type) > pred)
+{
+  uint32 count = 0;
+  Block_Backend< Index, Object, typename Container::const_iterator > db
+      (rman.get_transaction()->data_index(&file_properties));
+  for (typename Block_Backend< Index, Object, typename Container
+      ::const_iterator >::Range_Iterator
+      it(db.range_begin(req.begin(), req.end()));
+           !(it == db.range_end()); ++it)
+  {
+    if (++count >= 256*1024 && stmt)
+    {
+      count = 0;
+      rman.health_check(*stmt, 0, eval_map(result));
+    }
+    if (pred(it.index(), it.handle().id()))
       result[it.index()].push_back(it.object());
   }
 }

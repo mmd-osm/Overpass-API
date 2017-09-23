@@ -160,8 +160,8 @@ void filter_id_list(
   {
     if (key_regex.matches(it.index().key) && it.index().value != void_tag_value()
         && val_regex.matches(it.index().value) && (!filtered ||
-	binary_search(old_ids.begin(), old_ids.end(), std::make_pair(it.object().id, Uint31_Index(0u)))))
-      new_ids.push_back(std::make_pair(it.object().id, it.object().idx));
+	binary_search(old_ids.begin(), old_ids.end(), std::make_pair(it.handle().id(), Uint31_Index(0u)))))
+      new_ids.push_back(std::make_pair(it.handle().id(), it.object().idx));
 
     if (!filtered && check_keys_late && new_ids.size() > 1024*1024)
     {
@@ -1157,11 +1157,19 @@ void Query_Statement::progress_1(std::vector< Id_Type >& ids, std::vector< Index
     }
     else
     {
+      Uint31_Index prev_second(0u);
+
+      ids.reserve(id_idxs.size());
+
       for (typename std::vector< std::pair< Id_Type, Uint31_Index > >::const_iterator it = id_idxs.begin();
           it != id_idxs.end(); ++it)
       {
         ids.push_back(it->first);
-        range_vec.push_back(it->second);
+
+        if (!(it->second == prev_second))
+          range_vec.push_back(it->second);
+
+        prev_second = it->second;
       }
     }
 

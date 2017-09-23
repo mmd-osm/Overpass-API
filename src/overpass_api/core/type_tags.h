@@ -313,6 +313,11 @@ struct Tag_Object_Global
     id.to_data((void*)((uint8*)data + 3));
   }
   
+  static Id_Type get_id(void* data)
+  {
+    return Id_Type((void*)((uint8*)data + 3));
+  }
+
   bool operator<(const Tag_Object_Global& a) const
   {
     if (id < a.id)

@@ -474,6 +474,11 @@ struct Change_Entry
     return Id_Type::size_of((uint8*)data + 8) + 8;
   }
 
+  static Id_Type get_id(void* data)
+  {
+    return *(Id_Type*)((uint8*)data + 8);
+  }
+
   void to_data(void* data) const
   {
     old_idx.to_data((uint8*)data);

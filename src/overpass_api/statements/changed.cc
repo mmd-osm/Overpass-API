@@ -16,6 +16,7 @@
  * along with Overpass_API.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <functional>
 #include <sstream>
 
 #include "../../template_db/block_backend.h"
@@ -50,6 +51,22 @@ void filter_elems(const std::vector< typename TObject::Id_Type >& ids, std::map<
 }
 
 
+template< class TIndex, class TObject >
+void get_elem_ids(std::vector< typename TObject::Id_Type >& ids, const std::map< TIndex, std::vector< TObject > >& elems)
+{
+  for (typename std::map< TIndex, std::vector< TObject > >::const_iterator it = elems.begin();
+      it != elems.end(); ++it)
+  {
+    std::vector< TObject > local_into;
+    for (typename std::vector< TObject >::const_iterator iit = it->second.begin();
+        iit != it->second.end(); ++iit)
+    {
+        ids.push_back(iit->id);
+    }
+  }
+}
+
+
 template< typename Index, typename Skeleton >
 std::vector< typename Skeleton::Id_Type > collect_changed_elements
     (uint64 since,
@@ -73,6 +90,36 @@ std::vector< typename Skeleton::Id_Type > collect_changed_elements
   ids.erase(std::unique(ids.begin(), ids.end()), ids.end());
   return ids;
 }
+
+
+
+template< typename Index, typename Skeleton >
+std::vector< typename Skeleton::Id_Type > collect_changed_elements
+    (uint64 since,
+     uint64 until,
+     Resource_Manager& rman,
+     std::function<bool(typename Skeleton::Id_Type)> pred)
+{
+  std::set< std::pair< Timestamp, Timestamp > > range;
+  range.insert(std::make_pair(Timestamp(since), Timestamp(until)));
+
+  std::vector< typename Skeleton::Id_Type > ids;
+
+  Block_Backend< Timestamp, Change_Entry< typename Skeleton::Id_Type > > changelog_db
+      (rman.get_transaction()->data_index(changelog_file_properties< Skeleton >()));
+  for (typename Block_Backend< Timestamp, Change_Entry< typename Skeleton::Id_Type > >::Range_Iterator
+      it = changelog_db.range_begin(Default_Range_Iterator< Timestamp >(range.begin()),
+            Default_Range_Iterator< Timestamp >(range.end()));
+      !(it == changelog_db.range_end()); ++it)
+    if (pred(it.handle().id()))
+      ids.push_back(it.handle().id());
+
+  std::sort(ids.begin(), ids.end());
+  ids.erase(std::unique(ids.begin(), ids.end()), ids.end());
+  return ids;
+}
+
+
 
 
 //-----------------------------------------------------------------------------
@@ -168,19 +215,55 @@ void Changed_Constraint::filter(Resource_Manager& rman, Set& into)
 {
   if (!stmt->trivial())
   {
-    std::vector< Node_Skeleton::Id_Type > ids =
-        collect_changed_elements< Uint32_Index, Node_Skeleton >
-        (stmt->get_since(rman), stmt->get_until(rman), rman);
+
+    std::vector< Node_Skeleton::Id_Type > existing_ids;
+    std::vector< Node_Skeleton::Id_Type > ids;
+
+    get_elem_ids(existing_ids, into.nodes);
+    get_elem_ids(existing_ids, into.attic_nodes);
+
+    std::sort(existing_ids.begin(), existing_ids.end());
+    existing_ids.erase(std::unique(existing_ids.begin(), existing_ids.end()), existing_ids.end());
+
+    if (!existing_ids.empty())
+    {
+      ids =
+          collect_changed_elements< Uint32_Index, Node_Skeleton >
+          (stmt->get_since(rman), stmt->get_until(rman), rman,
+              [&] (Node_Skeleton::Id_Type id)
+                {
+                  return (!(id < existing_ids.front() || existing_ids.back() < id) &&
+                           (std::binary_search(existing_ids.begin(), existing_ids.end(), id)));
+                });
+    }
 
     filter_elems(ids, into.nodes);
     filter_elems(ids, into.attic_nodes);
+
   }
 
   if (!stmt->trivial())
   {
-    std::vector< Way_Skeleton::Id_Type > ids =
-        collect_changed_elements< Uint31_Index, Way_Skeleton >
-        (stmt->get_since(rman), stmt->get_until(rman), rman);
+    std::vector< Way_Skeleton::Id_Type > existing_ids;
+    std::vector< Way_Skeleton::Id_Type > ids;
+
+    get_elem_ids(existing_ids, into.ways);
+    get_elem_ids(existing_ids, into.attic_ways);
+
+    std::sort(existing_ids.begin(), existing_ids.end());
+    existing_ids.erase(std::unique(existing_ids.begin(), existing_ids.end()), existing_ids.end());
+
+    if (!existing_ids.empty())
+    {
+      ids =
+          collect_changed_elements< Uint31_Index, Way_Skeleton >
+          (stmt->get_since(rman), stmt->get_until(rman), rman,
+              [&] (Way_Skeleton::Id_Type id)
+              {
+                return (!(id < existing_ids.front() || existing_ids.back() < id) &&
+                         (std::binary_search(existing_ids.begin(), existing_ids.end(), id)));
+              });
+    }
 
     filter_elems(ids, into.ways);
     filter_elems(ids, into.attic_ways);
@@ -188,9 +271,26 @@ void Changed_Constraint::filter(Resource_Manager& rman, Set& into)
 
   if (!stmt->trivial())
   {
-    std::vector< Relation_Skeleton::Id_Type > ids =
-        collect_changed_elements< Uint31_Index, Relation_Skeleton >
-        (stmt->get_since(rman), stmt->get_until(rman), rman);
+    std::vector< Relation_Skeleton::Id_Type > existing_ids;
+    std::vector< Relation_Skeleton::Id_Type > ids;
+
+    get_elem_ids(existing_ids, into.relations);
+    get_elem_ids(existing_ids, into.attic_relations);
+
+    std::sort(existing_ids.begin(), existing_ids.end());
+    existing_ids.erase(std::unique(existing_ids.begin(), existing_ids.end()), existing_ids.end());
+
+    if (!existing_ids.empty())
+    {
+      ids =
+          collect_changed_elements< Uint31_Index, Relation_Skeleton >
+          (stmt->get_since(rman), stmt->get_until(rman), rman,
+              [&] (Relation_Skeleton::Id_Type id)
+              {
+                return (!(id < existing_ids.front() || existing_ids.back() < id) &&
+                         (std::binary_search(existing_ids.begin(), existing_ids.end(), id)));
+              });
+    }
 
     filter_elems(ids, into.relations);
     filter_elems(ids, into.attic_relations);
