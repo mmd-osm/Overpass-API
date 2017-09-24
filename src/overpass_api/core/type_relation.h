@@ -146,7 +146,7 @@ struct Relation_Skeleton
     return 16 + 12*members.size() + 4*node_idxs.size() + 4*way_idxs.size();
   }
   
-  static uint32 size_of(void* data)
+  static uint32 size_of(const void* data)
   {
     return 16 + 12 * *((uint32*)data + 1) + 4* *((uint32*)data + 2) + 4* *((uint32*)data + 3);
   }
@@ -365,7 +365,7 @@ struct Relation_Delta
           + 4*way_idxs_removed.size() + 8*way_idxs_added.size();
   }
   
-  static uint32 size_of(void* data)
+  static uint32 size_of(const void* data)
   {
     if (*((uint32*)data + 1) == 0xffffffff)
       return 20 + 12 * *((uint32*)data + 2) + 4 * *((uint32*)data + 3) + 4 * *((uint32*)data + 4);

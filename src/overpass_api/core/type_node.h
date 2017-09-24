@@ -110,7 +110,7 @@ struct Node_Skeleton
     return 12;
   }
   
-  static uint32 size_of(void* data)
+  static uint32 size_of(const void* data)
   {
     return 12;
   }

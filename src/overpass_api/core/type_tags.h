@@ -72,7 +72,7 @@ struct Tag_Index_Local
     return 7 + key.length() + value.length();
   }
   
-  static uint32 size_of(void* data)
+  static uint32 size_of(const void* data)
   {
     return (*((uint16*)data) + *((uint16*)data + 1) + 7);
   }
@@ -243,7 +243,7 @@ struct Tag_Index_Global
     return 4 + key.length() + value.length();
   }
   
-  static uint32 size_of(void* data)
+  static uint32 size_of(const void* data)
   {
     return (*((uint16*)data) + *((uint16*)data + 1) + 4);
   }
@@ -302,7 +302,7 @@ struct Tag_Object_Global
     return 3 + id.size_of();
   }
   
-  static uint32 size_of(void* data)
+  static uint32 size_of(const void* data)
   {
     return 3 + Id_Type::size_of((void*)((uint8*)data + 3));
   }

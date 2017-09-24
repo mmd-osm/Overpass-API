@@ -118,7 +118,7 @@ struct Way_Skeleton
     return 8 + 8*nds.size() + 8*geometry.size();
   }
   
-  static uint32 size_of(void* data)
+  static uint32 size_of(const void* data)
   {
     return (8 + 8 * *((uint16*)data + 2) + 8 * *((uint16*)data + 3));
   }
@@ -298,7 +298,7 @@ struct Way_Delta
           + 4*geometry_removed.size() + 12*geometry_added.size();
   }
   
-  static uint32 size_of(void* data)
+  static uint32 size_of(const void* data)
   {
     if (*((uint32*)data + 1) == 0xffffffff)
       return 16 + 8 * *((uint32*)data + 2) + 8 * *((uint32*)data + 3);

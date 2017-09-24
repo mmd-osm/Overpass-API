@@ -53,7 +53,7 @@ struct Uint32_Index
     return 4;
   }
   
-  static uint32 size_of(void* data)
+  static uint32 size_of(const void* data)
   {
     return 4;
   }
@@ -161,7 +161,7 @@ struct Uint64
   
   uint32 size_of() const { return 8; }
   static uint32 max_size_of() { return 8; }
-  static uint32 size_of(void* data) { return 8; }
+  static uint32 size_of(const void* data) { return 8; }
   
   void to_data(void* data) const
   {
@@ -234,11 +234,17 @@ struct Attic : public Element_Skeleton
     return Element_Skeleton::size_of() + 5;
   }
   
-  static uint32 size_of(void* data)
+  static uint32 size_of(const void* data)
   {
     return Element_Skeleton::size_of(data) + 5;
   }
   
+  static uint64 get_timestamp(const void* data)
+  {
+    uint64 _timestamp(*(uint64*)((uint8*)data + Element_Skeleton::size_of(data)) & 0xffffffffffull);
+    return _timestamp;
+  }
+
   void to_data(void* data) const
   {
     Element_Skeleton::to_data(data);
