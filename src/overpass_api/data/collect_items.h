@@ -25,6 +25,7 @@
 #include <exception>
 #include <functional>
 
+
 inline uint64 timestamp_of(const Attic< Node_Skeleton >& skel) { return skel.timestamp; }
 inline uint64 timestamp_of(const Attic< Way_Skeleton >& skel) { return skel.timestamp; }
 inline uint64 timestamp_of(const Attic< Relation_Skeleton >& skel) { return skel.timestamp; }
@@ -44,6 +45,9 @@ void reconstruct_items(const Statement* stmt, Resource_Manager& rman,
     uint64 timestamp)
 {
   uint32 count = 0;
+
+  bool time_dependent = predicate.is_time_dependent();
+
   for (Iterator it = begin; !(it == end); ++it)
   {
     if (++count >= 64*1024)
@@ -54,11 +58,17 @@ void reconstruct_items(const Statement* stmt, Resource_Manager& rman,
     }
     if (timestamp < timestamp_of(it.object()))
     {
-      if (timestamp_of(it.object()) == NOW)
-        timestamp_by_id_current.push_back(it.object().id);
-      else
-        timestamp_by_id_attic.push_back(std::make_pair(it.object().id, timestamp_of(it.object())));
-      if (predicate.match(it.object()))
+      bool match = predicate.match(it.object());
+
+      if ( time_dependent || (!time_dependent && match))
+      {
+        if (timestamp_of(it.object()) == NOW)
+          timestamp_by_id_current.push_back(it.object().id);
+        else
+          timestamp_by_id_attic.push_back(std::make_pair(it.object().id, timestamp_of(it.object())));
+      }
+
+      if (match)
         result[it.index()].push_back(it.object());
     }
   }

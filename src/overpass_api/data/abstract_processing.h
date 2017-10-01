@@ -36,6 +36,7 @@ class And_Predicate
     bool match(const Object& obj) const { return (predicate_a.match(obj) && predicate_b.match(obj)); }
     bool match(const Handle< Object >& h) const { return (predicate_a.match(h) && predicate_b.match(h)); }
     bool match(const Handle< Attic< Object > >& h) const { return (predicate_a.match(h) && predicate_b.match(h)); }
+    bool is_time_dependent() const { return (predicate_a.is_time_dependent() || predicate_b.is_time_dependent()); };
 
   private:
     TPredicateA predicate_a;
@@ -51,6 +52,7 @@ class Or_Predicate
     bool match(const Object& obj) const { return (predicate_a.match(obj) || predicate_b.match(obj)); }
     bool match(const Handle< Object >& h) const { return (predicate_a.match(h) || predicate_b.match(h)); }
     bool match(const Handle< Attic< Object > >& h) const { return (predicate_a.match(h) || predicate_b.match(h)); }
+    bool is_time_dependent() const { return (predicate_a.is_time_dependent() || predicate_b.is_time_dependent()); };
 
   private:
     TPredicateA predicate_a;
@@ -66,6 +68,7 @@ class Not_Predicate
     bool match(const Object& obj) const { return (!predicate_a.match(obj)); }
     bool match(const Handle< Object >& h) const { return (!predicate_a.match(h)); }
     bool match(const Handle< Attic< Object > >& h) const { return (!predicate_a.match(h)); }
+    bool is_time_dependent() const { return predicate_a.is_time_dependent(); };
 
   private:
     TPredicateA predicate_a;
@@ -79,6 +82,7 @@ class Trivial_Predicate
     bool match(const Object& obj) const { return true; }
     bool match(const Handle< Object >& h) const { return true; }
     bool match(const Handle< Attic< Object > >& h) const { return true; }
+    bool is_time_dependent() const { return false; };
 };
 
 //-----------------------------------------------------------------------------
@@ -92,6 +96,7 @@ class Id_Predicate
     bool match(const Object& obj) const { return binary_search(ids.begin(), ids.end(), obj.id); }
     bool match(const Handle< Object >& h) const { return binary_search(ids.begin(), ids.end(), h.id()); }
     bool match(const Handle< Attic< Object > >& h) const { return binary_search(ids.begin(), ids.end(), h.id()); }
+    bool is_time_dependent() const { return false; };
 
   private:
     const std::vector< typename Object::Id_Type >& ids;
@@ -151,6 +156,7 @@ public:
   { return has_a_child_with_id(h.object(), ids, child_type); }
   bool match(const Handle< Attic< Relation_Skeleton > >& h) const
   { return has_a_child_with_id(h.object(), ids, child_type); }
+  bool is_time_dependent() const { return true; };
 
 private:
   const std::vector< Uint64 >& ids;
@@ -169,6 +175,7 @@ public:
   { return has_a_child_with_id_and_role(h.object(), ids, child_type, role_id); }
   bool match(const Handle< Attic< Relation_Skeleton > >& h) const
   { return has_a_child_with_id_and_role(h.object(), ids, child_type, role_id); }
+  bool is_time_dependent() const { return true; };
 
 private:
   const std::vector< Uint64 >& ids;
@@ -185,6 +192,7 @@ public:
   bool match(const Way_Skeleton& obj) const { return has_a_child_with_id(obj, ids); }
   bool match(const Handle< Way_Skeleton >& h) const { return has_a_child_with_id(h.object(), ids); }
   bool match(const Handle< Attic< Way_Skeleton > >& h) const { return has_a_child_with_id(h.object(), ids); }
+  bool is_time_dependent() const { return true; };
 
 private:
   const std::vector< Node::Id_Type >& ids;
