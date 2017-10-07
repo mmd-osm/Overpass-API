@@ -23,6 +23,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <tuple>
 #include <vector>
 #include "../data/collect_members.h"
 #include "../data/utils.h"
@@ -49,9 +50,9 @@ struct Prepared_Segment
   double first_lon;
   double second_lat;
   double second_lon;
-  std::vector< double > first_cartesian;
-  std::vector< double > second_cartesian;
-  std::vector< double > norm;
+  std::tuple< double, double, double > first_cartesian;
+  std::tuple< double, double, double > second_cartesian;
+  std::tuple< double, double, double > norm;
 
   Prepared_Segment(double first_lat, double first_lon, double second_lat, double second_lon);
 };
@@ -61,7 +62,7 @@ struct Prepared_Point
 {
   double lat;
   double lon;
-  std::vector< double > cartesian;
+  std::tuple< double, double, double > cartesian;
 
   Prepared_Point(double lat, double lon);
 };

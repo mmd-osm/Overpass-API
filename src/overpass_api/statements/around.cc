@@ -23,10 +23,12 @@
 #include "around.h"
 #include "recurse.h"
 
+
 #include <algorithm>
 #include <cmath>
 #include <fstream>
 #include <sstream>
+#include <tuple>
 #include <vector>
 
 
@@ -771,53 +773,50 @@ Around_Statement::~Around_Statement()
 }
 
 
-std::vector< double > cartesian(double lat, double lon)
+std::tuple< double, double, double > cartesian(double lat, double lon)
 {
-  std::vector< double > result(3);
 
-  result[0] = sin(lat/90.0*acos(0));
-  result[1] = cos(lat/90.0*acos(0))*sin(lon/90.0*acos(0));
-  result[2] = cos(lat/90.0*acos(0))*cos(lon/90.0*acos(0));
-
-  return result;
+  return std::make_tuple( sin(lat/90.0*acos(0)),
+                          cos(lat/90.0*acos(0))*sin(lon/90.0*acos(0)),
+                          cos(lat/90.0*acos(0))*cos(lon/90.0*acos(0)));
 }
 
 
-void rescale(double a, std::vector< double >& v)
+void rescale(double a, std::tuple< double, double, double >& v)
 {
-  v[0] *= a;
-  v[1] *= a;
-  v[2] *= a;
+
+  std::get<0>(v) *= a;
+  std::get<1>(v) *= a;
+  std::get<2>(v) *= a;
+
 }
 
 
-std::vector< double > sum(const std::vector< double >& v, const std::vector< double >& w)
+std::tuple< double, double, double > sum(const std::tuple< double, double, double >& v,
+                                         const std::tuple< double, double, double >& w)
 {
-  std::vector< double > result(3);
-
-  result[0] = v[0] + w[0];
-  result[1] = v[1] + w[1];
-  result[2] = v[2] + w[2];
-
-  return result;
+  return std::make_tuple( std::get<0>(v) + std::get<0>(w),
+                          std::get<1>(v) + std::get<1>(w),
+                          std::get<2>(v) + std::get<2>(w));
 }
 
 
-double scalar_prod(const std::vector< double >& v, const std::vector< double >& w)
+double scalar_prod(const std::tuple< double, double, double >& v,
+                   const std::tuple< double, double, double >& w)
 {
-  return v[0]*w[0] + v[1]*w[1] + v[2]*w[2];
+  return (std::get<0>(v) * std::get<0>(w) +
+          std::get<1>(v) * std::get<1>(w) +
+          std::get<2>(v) * std::get<2>(w));
 }
 
 
-std::vector< double > cross_prod(const std::vector< double >& v, const std::vector< double >& w)
+std::tuple< double, double, double >cross_prod(const std::tuple< double, double, double >& v,
+                                               const std::tuple< double, double, double >& w)
 {
-  std::vector< double > result(3);
 
-  result[0] = v[1]*w[2] - v[2]*w[1];
-  result[1] = v[2]*w[0] - v[0]*w[2];
-  result[2] = v[0]*w[1] - v[1]*w[0];
-
-  return result;
+  return std::make_tuple(std::get<1>(v) * std::get<2>(w) - std::get<2>(v) * std::get<1>(w),
+                         std::get<2>(v) * std::get<0>(w) - std::get<0>(v) * std::get<2>(w),
+                         std::get<0>(v) * std::get<1>(w) - std::get<1>(v) * std::get<0>(w));
 }
 
 
@@ -840,7 +839,7 @@ Prepared_Point::Prepared_Point
 }
 
 
-double great_circle_line_dist(const Prepared_Segment& segment, const std::vector< double >& cartesian)
+double great_circle_line_dist(const Prepared_Segment& segment, const std::tuple< double, double, double >& cartesian)
 {
   double scalar_prod_ = std::abs(scalar_prod(cartesian, segment.norm))
       /sqrt(scalar_prod(segment.norm, segment.norm));
@@ -855,7 +854,7 @@ double great_circle_line_dist(const Prepared_Segment& segment, const std::vector
 double great_circle_line_dist(double llat1, double llon1, double llat2, double llon2,
                               double plat, double plon)
 {
-  std::vector< double > norm = cross_prod(cartesian(llat1, llon1), cartesian(llat2, llon2));
+  std::tuple< double, double, double > norm = cross_prod(cartesian(llat1, llon1), cartesian(llat2, llon2));
 
   double scalar_prod_ = std::abs(scalar_prod(cartesian(plat, plon), norm))
       /sqrt(scalar_prod(norm, norm));
@@ -870,11 +869,11 @@ double great_circle_line_dist(double llat1, double llon1, double llat2, double l
 bool intersect(const Prepared_Segment& segment_a,
                const Prepared_Segment& segment_b)
 {
-  std::vector< double > intersection_pt = cross_prod(segment_a.norm, segment_b.norm);
+  std::tuple< double, double, double >intersection_pt = cross_prod(segment_a.norm, segment_b.norm);
   rescale(1.0/sqrt(scalar_prod(intersection_pt, intersection_pt)), intersection_pt);
 
-  std::vector< double > asum = sum(segment_a.first_cartesian, segment_a.second_cartesian);
-  std::vector< double > bsum = sum(segment_b.first_cartesian, segment_b.second_cartesian);
+  std::tuple< double, double, double > asum = sum(segment_a.first_cartesian, segment_a.second_cartesian);
+  std::tuple< double, double, double > bsum = sum(segment_b.first_cartesian, segment_b.second_cartesian);
 
   return (std::abs(scalar_prod(asum, intersection_pt)) >= scalar_prod(asum, segment_a.first_cartesian)
       && std::abs(scalar_prod(bsum, intersection_pt)) >= scalar_prod(bsum, segment_b.first_cartesian));
@@ -884,18 +883,18 @@ bool intersect(const Prepared_Segment& segment_a,
 bool intersect(double alat1, double alon1, double alat2, double alon2,
 	       double blat1, double blon1, double blat2, double blon2)
 {
-  std::vector< double > a1 = cartesian(alat1, alon1);
-  std::vector< double > a2 = cartesian(alat2, alon2);
-  std::vector< double > norm_a = cross_prod(a1, a2);
-  std::vector< double > b1 = cartesian(blat1, blon1);
-  std::vector< double > b2 = cartesian(blat2, blon2);
-  std::vector< double > norm_b = cross_prod(b1, b2);
+  std::tuple< double, double, double > a1 = cartesian(alat1, alon1);
+  std::tuple< double, double, double > a2 = cartesian(alat2, alon2);
+  std::tuple< double, double, double > norm_a = cross_prod(a1, a2);
+  std::tuple< double, double, double > b1 = cartesian(blat1, blon1);
+  std::tuple< double, double, double > b2 = cartesian(blat2, blon2);
+  std::tuple< double, double, double > norm_b = cross_prod(b1, b2);
 
-  std::vector< double > intersection_pt = cross_prod(norm_a, norm_b);
+  std::tuple< double, double, double > intersection_pt = cross_prod(norm_a, norm_b);
   rescale(1.0/sqrt(scalar_prod(intersection_pt, intersection_pt)), intersection_pt);
 
-  std::vector< double > asum = sum(a1, a2);
-  std::vector< double > bsum = sum(b1, b2);
+  std::tuple< double, double, double > asum = sum(a1, a2);
+  std::tuple< double, double, double > bsum = sum(b1, b2);
 
   return (std::abs(scalar_prod(asum, intersection_pt)) >= scalar_prod(asum, a1)
       && std::abs(scalar_prod(bsum, intersection_pt)) >= scalar_prod(bsum, b1));
@@ -1223,7 +1222,7 @@ bool Around_Statement::is_inside(double lat, double lon) const
     }
   }
   
-  std::vector< double > coord_cartesian = cartesian(lat, lon);
+  std::tuple< double, double, double > coord_cartesian = cartesian(lat, lon);
   Prepared_BBox bbox_lat_lon = ::lat_lon_bbox(lat, lon);
 
   for (std::vector< std::pair< Prepared_BBox, Prepared_Segment> >::const_iterator
