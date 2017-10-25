@@ -281,6 +281,9 @@ int main(int argc, char *argv[])
 
       int ret = handle_request(content, FCGX_IsCGI(), &ic);
 
+      std::cout << std::flush;
+      std::cerr << std::flush;
+
       // Restart process after error or a certain number of time / requests
       time_t elapsed_time = time(NULL) - start_time;
       if (ret < 0 || ++request_counter > 1000 || elapsed_time > 900)       //TODO: add configuration option
