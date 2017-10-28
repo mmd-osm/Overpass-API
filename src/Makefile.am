@@ -104,6 +104,7 @@ statements_cc = \
   overpass_api/statements/difference.cc \
   overpass_api/statements/evaluator.cc \
   overpass_api/statements/filter.cc \
+  overpass_api/statements/for.cc \
   overpass_api/statements/foreach.cc \
   overpass_api/statements/id_query.cc \
   overpass_api/statements/if.cc \
@@ -124,6 +125,7 @@ statements_cc = \
   overpass_api/statements/statement.cc \
   overpass_api/statements/string_endomorphisms.cc \
   overpass_api/statements/tag_value.cc \
+  overpass_api/statements/ternary_operator.cc \
   overpass_api/statements/timeline.cc \
   overpass_api/statements/unary_functions.cc \
   overpass_api/statements/unary_operators.cc \
@@ -277,6 +279,7 @@ nobase_dist_HEADERS = \
   overpass_api/statements/difference.h\
   overpass_api/statements/evaluator.h\
   overpass_api/statements/filter.h\
+  overpass_api/statements/for.h\
   overpass_api/statements/foreach.h\
   overpass_api/statements/id_query.h\
   overpass_api/statements/if.h\
@@ -298,6 +301,7 @@ nobase_dist_HEADERS = \
   overpass_api/statements/statement.h\
   overpass_api/statements/string_endomorphisms.h\
   overpass_api/statements/tag_value.h\
+  overpass_api/statements/ternary_operator.h\
   overpass_api/statements/timeline.h\
   overpass_api/statements/unary_functions.h\
   overpass_api/statements/unary_operators.h\

@@ -47,11 +47,17 @@ class Evaluator_Fixed : public Evaluator
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Fixed >
   {
-    virtual Statement* create_statement(const Token_Node_Ptr& tree_it, QL_Context tree_context,
-        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
-    Statement_Maker() : Generic_Statement_Maker< Evaluator_Fixed >("eval-fixed") { Statement::maker_by_token()[""].push_back(this); }
+    Statement_Maker() : Generic_Statement_Maker< Evaluator_Fixed >("eval-fixed") {}
   };
   static Statement_Maker statement_maker;
+
+  struct Evaluator_Maker : public Statement::Evaluator_Maker
+  {
+    virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
+        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
+    Evaluator_Maker() { Statement::maker_by_token()[""].push_back(this); }
+  };
+  static Evaluator_Maker evaluator_maker;
 
   virtual std::string dump_xml(const std::string& indent) const
   { return indent + "<eval-fixed v=\"" + escape_xml(value) + "\"/>\n"; }
@@ -127,11 +133,17 @@ class Evaluator_Id : public Evaluator
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Id >
   {
-    virtual Statement* create_statement(const Token_Node_Ptr& tree_it, QL_Context tree_context,
-        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
-    Statement_Maker() : Generic_Statement_Maker< Evaluator_Id >("eval-id") { Statement::maker_by_func_name()["id"].push_back(this); }
+    Statement_Maker() : Generic_Statement_Maker< Evaluator_Id >("eval-id") {}
   };
   static Statement_Maker statement_maker;
+
+  struct Evaluator_Maker : public Statement::Evaluator_Maker
+  {
+    virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
+        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
+    Evaluator_Maker() { Statement::maker_by_func_name()["id"].push_back(this); }
+  };
+  static Evaluator_Maker evaluator_maker;
 
   virtual std::string dump_xml(const std::string& indent) const
   { return indent + "<eval-id/>\n"; }
@@ -178,11 +190,17 @@ class Evaluator_Type : public Evaluator
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Type >
   {
-    virtual Statement* create_statement(const Token_Node_Ptr& tree_it, QL_Context tree_context,
-        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
-    Statement_Maker() : Generic_Statement_Maker< Evaluator_Type >("eval-type") { Statement::maker_by_func_name()["type"].push_back(this); }
+    Statement_Maker() : Generic_Statement_Maker< Evaluator_Type >("eval-type") {}
   };
   static Statement_Maker statement_maker;
+
+  struct Evaluator_Maker : public Statement::Evaluator_Maker
+  {
+    virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
+        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
+    Evaluator_Maker() { Statement::maker_by_func_name()["type"].push_back(this); }
+  };
+  static Evaluator_Maker evaluator_maker;
 
   virtual std::string dump_xml(const std::string& indent) const { return indent + "<eval-type/>\n"; }
   virtual std::string dump_compact_ql(const std::string&) const { return "type()"; }
@@ -197,6 +215,75 @@ public:
   virtual Requested_Context request_context() const { return Requested_Context().add_usage(Set_Usage::SKELETON); }
 
   virtual Eval_Task* get_task(Prepare_Task_Context& context) { return new Type_Eval_Task(); }
+};
+
+
+/* === Closedness ===
+
+The operator <em>is_closed</em> returns whether the element is a closed way.
+The operator is undefined for any other type of element.
+For ways, it returns "1" if the first member of the way is equal to the last member of the way
+and "0" otherwise.
+The operators takes no parameters.
+
+The syntax is
+
+  is_closed()
+*/
+
+struct Is_Closed_Eval_Task : public Eval_Task
+{
+  virtual std::string eval(const std::string* key) const { return ""; }
+
+  virtual std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
+      { return "NaW"; }
+  virtual std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
+      { return "NaW"; }
+  virtual std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
+      { return !data.object->nds.empty() && data.object->nds.front() == data.object->nds.back() ? "1" : "0"; }
+  virtual std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
+      { return !data.object->nds.empty() && data.object->nds.front() == data.object->nds.back() ? "1" : "0"; }
+  virtual std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
+      { return "NaW"; }
+  virtual std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
+      { return "NaW"; }
+  virtual std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
+      { return "NaW"; }
+  virtual std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
+      { return "NaW"; }
+};
+
+
+class Evaluator_Is_Closed : public Evaluator
+{
+public:
+  struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Is_Closed >
+  {
+    Statement_Maker() : Generic_Statement_Maker< Evaluator_Is_Closed >("eval-is-closed") {}
+  };
+  static Statement_Maker statement_maker;
+
+  struct Evaluator_Maker : public Statement::Evaluator_Maker
+  {
+    virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
+        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
+    Evaluator_Maker() { Statement::maker_by_func_name()["is_closed"].push_back(this); }
+  };
+  static Evaluator_Maker evaluator_maker;
+
+  virtual std::string dump_xml(const std::string& indent) const { return indent + "<eval-is-closed/>\n"; }
+  virtual std::string dump_compact_ql(const std::string&) const { return "is_closed()"; }
+
+  Evaluator_Is_Closed(int line_number_, const std::map< std::string, std::string >& input_attributes,
+                   Parsed_Query& global_settings);
+  virtual std::string get_name() const { return "eval-is-closed"; }
+  virtual std::string get_result_name() const { return ""; }
+  virtual void execute(Resource_Manager& rman) {}
+  virtual ~Evaluator_Is_Closed() {}
+
+  virtual Requested_Context request_context() const { return Requested_Context().add_usage(Set_Usage::SKELETON); }
+
+  virtual Eval_Task* get_task(Prepare_Task_Context& context) { return new Is_Closed_Eval_Task(); }
 };
 
 
@@ -261,11 +348,17 @@ class Evaluator_Value : public Evaluator
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Value >
   {
-    virtual Statement* create_statement(const Token_Node_Ptr& tree_it, QL_Context tree_context,
-        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
-    Statement_Maker() : Generic_Statement_Maker< Evaluator_Value >("eval-value") { Statement::maker_by_token()["["].push_back(this); }
+    Statement_Maker() : Generic_Statement_Maker< Evaluator_Value >("eval-value") {}
   };
   static Statement_Maker statement_maker;
+
+  struct Evaluator_Maker : public Statement::Evaluator_Maker
+  {
+    virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
+        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
+    Evaluator_Maker() { Statement::maker_by_token()["["].push_back(this); }
+  };
+  static Evaluator_Maker evaluator_maker;
 
   virtual std::string dump_xml(const std::string& indent) const
   { return indent + "<eval-value k=\"" + escape_xml(key) + "\"/>\n"; }
@@ -323,12 +416,17 @@ class Evaluator_Is_Tag : public Evaluator
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Is_Tag >
   {
-    virtual Statement* create_statement(const Token_Node_Ptr& tree_it, QL_Context tree_context,
-        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
-    Statement_Maker() : Generic_Statement_Maker< Evaluator_Is_Tag >("eval-is-tag")
-    { Statement::maker_by_func_name()["is_tag"].push_back(this); }
+    Statement_Maker() : Generic_Statement_Maker< Evaluator_Is_Tag >("eval-is-tag") {}
   };
   static Statement_Maker statement_maker;
+
+  struct Evaluator_Maker : public Statement::Evaluator_Maker
+  {
+    virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
+        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
+    Evaluator_Maker() { Statement::maker_by_func_name()["is_tag"].push_back(this); }
+  };
+  static Evaluator_Maker evaluator_maker;
 
   virtual std::string dump_xml(const std::string& indent) const
   { return indent + "<eval-is-tag k=\"" + escape_xml(key) + "\"/>\n"; }
@@ -379,11 +477,17 @@ class Evaluator_Generic : public Evaluator
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Generic >
   {
-    virtual Statement* create_statement(const Token_Node_Ptr& tree_it, QL_Context tree_context,
-        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
-    Statement_Maker() : Generic_Statement_Maker< Evaluator_Generic >("eval-generic") { Statement::maker_by_token()["::"].push_back(this); }
+    Statement_Maker() : Generic_Statement_Maker< Evaluator_Generic >("eval-generic") {}
   };
   static Statement_Maker statement_maker;
+
+  struct Evaluator_Maker : public Statement::Evaluator_Maker
+  {
+    virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
+        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
+    Evaluator_Maker() { Statement::maker_by_token()["::"].push_back(this); }
+  };
+  static Evaluator_Maker evaluator_maker;
 
   virtual std::string dump_xml(const std::string& indent) const
   { return indent + "<eval-generic/>\n"; }
@@ -506,12 +610,17 @@ class Evaluator_Length : public Evaluator
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Length >
   {
-    virtual Statement* create_statement(const Token_Node_Ptr& tree_it, QL_Context tree_context,
-        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
-    Statement_Maker() : Generic_Statement_Maker< Evaluator_Length >("eval-length")
-    { Statement::maker_by_func_name()["length"].push_back(this); }
+    Statement_Maker() : Generic_Statement_Maker< Evaluator_Length >("eval-length") {}
   };
   static Statement_Maker statement_maker;
+
+  struct Evaluator_Maker : public Statement::Evaluator_Maker
+  {
+    virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
+        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
+    Evaluator_Maker() { Statement::maker_by_func_name()["length"].push_back(this); }
+  };
+  static Evaluator_Maker evaluator_maker;
 
   virtual std::string dump_xml(const std::string& indent) const
   { return indent + "<eval-length/>\n"; }
@@ -592,12 +701,17 @@ class Evaluator_Version : public Evaluator
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Version >
   {
-    virtual Statement* create_statement(const Token_Node_Ptr& tree_it, QL_Context tree_context,
-        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
-    Statement_Maker() : Generic_Statement_Maker< Evaluator_Version >("eval-version")
-    { Statement::maker_by_func_name()["version"].push_back(this); }
+    Statement_Maker() : Generic_Statement_Maker< Evaluator_Version >("eval-version") {}
   };
   static Statement_Maker statement_maker;
+
+  struct Evaluator_Maker : public Statement::Evaluator_Maker
+  {
+    virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
+        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
+    Evaluator_Maker() { Statement::maker_by_func_name()["version"].push_back(this); }
+  };
+  static Evaluator_Maker evaluator_maker;
 
   virtual std::string dump_xml(const std::string& indent) const
   { return indent + "<eval-version/>\n"; }
@@ -647,12 +761,17 @@ class Evaluator_Timestamp : public Evaluator
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Timestamp >
   {
-    virtual Statement* create_statement(const Token_Node_Ptr& tree_it, QL_Context tree_context,
-        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
-    Statement_Maker() : Generic_Statement_Maker< Evaluator_Timestamp >("eval-timestamp")
-    { Statement::maker_by_func_name()["timestamp"].push_back(this); }
+    Statement_Maker() : Generic_Statement_Maker< Evaluator_Timestamp >("eval-timestamp") {}
   };
   static Statement_Maker statement_maker;
+
+  struct Evaluator_Maker : public Statement::Evaluator_Maker
+  {
+    virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
+        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
+    Evaluator_Maker() { Statement::maker_by_func_name()["timestamp"].push_back(this); }
+  };
+  static Evaluator_Maker evaluator_maker;
 
   virtual std::string dump_xml(const std::string& indent) const
   { return indent + "<eval-timestamp/>\n"; }
@@ -702,12 +821,17 @@ class Evaluator_Changeset : public Evaluator
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Changeset >
   {
-    virtual Statement* create_statement(const Token_Node_Ptr& tree_it, QL_Context tree_context,
-        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
-    Statement_Maker() : Generic_Statement_Maker< Evaluator_Changeset >("eval-changeset")
-    { Statement::maker_by_func_name()["changeset"].push_back(this); }
+    Statement_Maker() : Generic_Statement_Maker< Evaluator_Changeset >("eval-changeset") {}
   };
   static Statement_Maker statement_maker;
+
+  struct Evaluator_Maker : public Statement::Evaluator_Maker
+  {
+    virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
+        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
+    Evaluator_Maker() { Statement::maker_by_func_name()["changeset"].push_back(this); }
+  };
+  static Evaluator_Maker evaluator_maker;
 
   virtual std::string dump_xml(const std::string& indent) const
   { return indent + "<eval-changeset/>\n"; }
@@ -757,12 +881,17 @@ class Evaluator_Uid : public Evaluator
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Uid >
   {
-    virtual Statement* create_statement(const Token_Node_Ptr& tree_it, QL_Context tree_context,
-        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
-    Statement_Maker() : Generic_Statement_Maker< Evaluator_Uid >("eval-uid")
-    { Statement::maker_by_func_name()["uid"].push_back(this); }
+    Statement_Maker() : Generic_Statement_Maker< Evaluator_Uid >("eval-uid") {}
   };
   static Statement_Maker statement_maker;
+
+  struct Evaluator_Maker : public Statement::Evaluator_Maker
+  {
+    virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
+        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
+    Evaluator_Maker() { Statement::maker_by_func_name()["uid"].push_back(this); }
+  };
+  static Evaluator_Maker evaluator_maker;
 
   virtual std::string dump_xml(const std::string& indent) const
   { return indent + "<eval-uid/>\n"; }
@@ -812,12 +941,17 @@ class Evaluator_User : public Evaluator
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_User >
   {
-    virtual Statement* create_statement(const Token_Node_Ptr& tree_it, QL_Context tree_context,
-        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
-    Statement_Maker() : Generic_Statement_Maker< Evaluator_User >("eval-user")
-    { Statement::maker_by_func_name()["user"].push_back(this); }
+    Statement_Maker() : Generic_Statement_Maker< Evaluator_User >("eval-user") {}
   };
   static Statement_Maker statement_maker;
+
+  struct Evaluator_Maker : public Statement::Evaluator_Maker
+  {
+    virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
+        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
+    Evaluator_Maker() { Statement::maker_by_func_name()["user"].push_back(this); }
+  };
+  static Evaluator_Maker evaluator_maker;
 
   virtual std::string dump_xml(const std::string& indent) const
   { return indent + "<eval-user/>\n"; }
@@ -876,9 +1010,15 @@ public:
 
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Properties_Count >
   {
-    virtual Statement* create_statement(const Token_Node_Ptr& tree_it, QL_Context tree_context,
+    Statement_Maker() : Generic_Statement_Maker< Evaluator_Properties_Count >("eval-prop-count") {}
+  };
+  static Statement_Maker statement_maker;
+
+  struct Evaluator_Maker : public Statement::Evaluator_Maker
+  {
+    virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
         Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
-    Statement_Maker() : Generic_Statement_Maker< Evaluator_Properties_Count >("eval-prop-count")
+    Evaluator_Maker()
     {
       Statement::maker_by_func_name()["count_tags"].push_back(this);
       Statement::maker_by_func_name()["count_members"].push_back(this);
@@ -887,7 +1027,7 @@ public:
       Statement::maker_by_func_name()["count_distinct_by_role"].push_back(this);
     }
   };
-  static Statement_Maker statement_maker;
+  static Evaluator_Maker evaluator_maker;
 
   virtual std::string dump_xml(const std::string& indent) const
   {

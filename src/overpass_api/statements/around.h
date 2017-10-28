@@ -76,7 +76,22 @@ class Around_Statement : public Output_Statement
     virtual std::string get_name() const { return "around"; }
     virtual void execute(Resource_Manager& rman);
     virtual ~Around_Statement();
-    static Generic_Statement_Maker< Around_Statement > statement_maker;
+    
+    struct Statement_Maker : public Generic_Statement_Maker< Around_Statement >
+    {
+      Statement_Maker() : Generic_Statement_Maker< Around_Statement >("around") {}
+    };
+    static Statement_Maker statement_maker;
+    
+    struct Criterion_Maker : public Statement::Criterion_Maker
+    {
+      virtual bool can_standalone(const std::string& type) { return type == "node"; }
+      virtual Statement* create_criterion(const Token_Node_Ptr& tree_it,
+          const std::string& type, const std::string& into,
+          Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
+      Criterion_Maker() { Statement::maker_by_ql_criterion()["around"] = this; }
+    };
+    static Criterion_Maker criterion_maker;
 
     virtual Query_Constraint* get_query_constraint();
 

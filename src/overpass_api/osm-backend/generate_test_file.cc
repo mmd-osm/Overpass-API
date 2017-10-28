@@ -4157,6 +4157,7 @@ int main(int argc, char* args[])
       "  <id-and-type id=\"1\">\n"
       "    <tag k=\"id\" v=\"1;"<<global_node_offset + 1<<";"<<global_node_offset + 2<<"\"/>\n"
       "    <tag k=\"type\" v=\"node;relation;way\"/>\n"
+      "    <tag k=\"is_closed\" v=\"0;NaW\"/>\n"
       "  </id-and-type>\n";
     if (std::string(args[2]) == "make_77")
       std::cout<<
@@ -4270,7 +4271,27 @@ int main(int argc, char* args[])
       "    <tag k=\"lrs_min_three_1\" v=\"a\"/>\n"
       "    <tag k=\"lrs_min_three_2\" v=\"10\"/>\n"
       "  </test-lrs>\n";
-      
+    if (std::string(args[2]) == "make_83")
+      std::cout<<
+      "  <test-ternary id=\"1\">\n"
+      "    <tag k=\"ternary\" v=\"A\"/>\n"
+      "  </test-ternary>\n";
+    if (std::string(args[2]) == "make_84")
+      std::cout<<
+      "  <test-ternary id=\"1\">\n"
+      "    <tag k=\"ternary\" v=\"A\"/>\n"
+      "  </test-ternary>\n";
+    if (std::string(args[2]) == "make_85")
+      std::cout<<
+      "  <test-ternary id=\"1\">\n"
+      "    <tag k=\"ternary\" v=\"B\"/>\n"
+      "  </test-ternary>\n";
+    if (std::string(args[2]) == "make_86")
+      std::cout<<
+      "  <test-ternary id=\"1\">\n"
+      "    <tag k=\"ternary\" v=\"B\"/>\n"
+      "  </test-ternary>\n";
+
     std::cout<<"</osm>\n";
   }
   else if ((argc > 2) && (std::string(args[2]).substr(0, 8) == "convert_"))

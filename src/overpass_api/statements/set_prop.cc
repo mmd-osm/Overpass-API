@@ -23,9 +23,10 @@
 
 
 Set_Prop_Statement::Statement_Maker Set_Prop_Statement::statement_maker;
+Set_Prop_Statement::Evaluator_Maker Set_Prop_Statement::evaluator_maker;
 
 
-Statement* Set_Prop_Statement::Statement_Maker::create_statement(
+Statement* Set_Prop_Statement::Evaluator_Maker::create_evaluator(
     const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
     Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output)
 {
@@ -89,7 +90,7 @@ Statement* Set_Prop_Statement::Statement_Maker::create_statement(
   Statement* result = new Set_Prop_Statement(tree_it->line_col.first, attributes, global_settings);
   if (result)
   {
-    Statement* rhs = stmt_factory.create_statement(tree_it.rhs(),
+    Statement* rhs = stmt_factory.create_evaluator(tree_it.rhs(),
         tree_context == Statement::in_convert ? Statement::elem_eval_possible : Statement::evaluator_expected);
     if (rhs)
       result->add_statement(rhs, "");

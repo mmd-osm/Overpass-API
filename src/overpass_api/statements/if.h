@@ -60,8 +60,12 @@ public:
   virtual void execute(Resource_Manager& rman);
   virtual ~If_Statement() {}
     
-  static Generic_Statement_Maker< If_Statement > statement_maker;
-    
+  struct Statement_Maker : public Generic_Statement_Maker< If_Statement >
+  {
+    Statement_Maker() : Generic_Statement_Maker< If_Statement >("if") {}
+  };
+  static Statement_Maker statement_maker;
+
   virtual std::string dump_xml(const std::string& indent) const
   {
     std::string result = indent + "<if>\n"

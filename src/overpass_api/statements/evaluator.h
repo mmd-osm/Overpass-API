@@ -262,7 +262,14 @@ struct Evaluator : public Statement
 template< typename Evaluator_ >
 struct Operator_Stmt_Maker : public Generic_Statement_Maker< Evaluator_ >
 {
-  virtual Statement* create_statement(const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
+  Operator_Stmt_Maker() : Generic_Statement_Maker< Evaluator_ >(Evaluator_::stmt_name()) {}
+};
+
+
+template< typename Evaluator_ >
+struct Operator_Eval_Maker : public Statement::Evaluator_Maker
+{
+  virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
       Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output)
   {
     if (tree_context != Statement::evaluator_expected && tree_context != Statement::elem_eval_possible)
@@ -277,7 +284,7 @@ struct Operator_Stmt_Maker : public Generic_Statement_Maker< Evaluator_ >
     return result;
   }
 
-  Operator_Stmt_Maker() : Generic_Statement_Maker< Evaluator_ >(Evaluator_::stmt_name())
+  Operator_Eval_Maker()
   {
     Statement::maker_by_token()[Evaluator_::stmt_operator()].push_back(this);
   }

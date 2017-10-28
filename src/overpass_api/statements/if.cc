@@ -21,7 +21,7 @@
 #include "if.h"
 
 
-Generic_Statement_Maker< If_Statement > If_Statement::statement_maker("if");
+If_Statement::Statement_Maker If_Statement::statement_maker;
 
 
 If_Statement::If_Statement

@@ -23,9 +23,10 @@
 
 
 Evaluator_Fixed::Statement_Maker Evaluator_Fixed::statement_maker;
+Evaluator_Fixed::Evaluator_Maker Evaluator_Fixed::evaluator_maker;
 
 
-Statement* Evaluator_Fixed::Statement_Maker::create_statement(
+Statement* Evaluator_Fixed::Evaluator_Maker::create_evaluator(
     const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
     Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output)
 {
@@ -82,9 +83,10 @@ std::string Evaluator_Fixed::dump_compact_ql(const std::string&) const
 
 
 Evaluator_Id::Statement_Maker Evaluator_Id::statement_maker;
+Evaluator_Id::Evaluator_Maker Evaluator_Id::evaluator_maker;
 
 
-Statement* Evaluator_Id::Statement_Maker::create_statement(
+Statement* Evaluator_Id::Evaluator_Maker::create_evaluator(
     const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
     Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output)
 {
@@ -142,9 +144,10 @@ Evaluator_Is_Closed::Evaluator_Is_Closed
 
 
 Evaluator_Type::Statement_Maker Evaluator_Type::statement_maker;
+Evaluator_Type::Evaluator_Maker Evaluator_Type::evaluator_maker;
 
 
-Statement* Evaluator_Type::Statement_Maker::create_statement(
+Statement* Evaluator_Type::Evaluator_Maker::create_evaluator(
     const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
     Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output)
 {
@@ -159,6 +162,37 @@ Statement* Evaluator_Type::Statement_Maker::create_statement(
 
 
 Evaluator_Type::Evaluator_Type
+    (int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
+    : Evaluator(line_number_)
+{
+  std::map< std::string, std::string > attributes;
+
+  eval_attributes_array(get_name(), attributes, input_attributes);
+}
+
+
+//-----------------------------------------------------------------------------
+
+
+Evaluator_Is_Closed::Statement_Maker Evaluator_Is_Closed::statement_maker;
+Evaluator_Is_Closed::Evaluator_Maker Evaluator_Is_Closed::evaluator_maker;
+
+
+Statement* Evaluator_Is_Closed::Evaluator_Maker::create_evaluator(
+    const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
+    Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output)
+{
+  if (!tree_it.assert_is_function(error_output) || !tree_it.assert_has_input_set(error_output, false)
+      || !tree_it.assert_has_arguments(error_output, false)
+      || !assert_element_in_context(error_output, tree_it, tree_context))
+    return 0;
+  
+  std::map< std::string, std::string > attributes;
+  return new Evaluator_Is_Closed(tree_it->line_col.first, attributes, global_settings);
+}
+
+
+Evaluator_Is_Closed::Evaluator_Is_Closed
     (int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
     : Evaluator(line_number_)
 {
@@ -188,9 +222,10 @@ std::string find_value(const std::vector< std::pair< std::string, std::string > 
 
 
 Evaluator_Value::Statement_Maker Evaluator_Value::statement_maker;
+Evaluator_Value::Evaluator_Maker Evaluator_Value::evaluator_maker;
 
 
-Statement* Evaluator_Value::Statement_Maker::create_statement(
+Statement* Evaluator_Value::Evaluator_Maker::create_evaluator(
     const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
     Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output)
 {
@@ -256,9 +291,10 @@ std::string exists_value(const std::vector< std::pair< std::string, std::string 
 
 
 Evaluator_Is_Tag::Statement_Maker Evaluator_Is_Tag::statement_maker;
+Evaluator_Is_Tag::Evaluator_Maker Evaluator_Is_Tag::evaluator_maker;
 
 
-Statement* Evaluator_Is_Tag::Statement_Maker::create_statement(
+Statement* Evaluator_Is_Tag::Evaluator_Maker::create_evaluator(
     const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
     Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output)
 {
@@ -297,9 +333,10 @@ Evaluator_Is_Tag::Evaluator_Is_Tag
 
 
 Evaluator_Length::Statement_Maker Evaluator_Length::statement_maker;
+Evaluator_Length::Evaluator_Maker Evaluator_Length::evaluator_maker;
 
 
-Statement* Evaluator_Length::Statement_Maker::create_statement(
+Statement* Evaluator_Length::Evaluator_Maker::create_evaluator(
     const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
     Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output)
 {
@@ -325,9 +362,10 @@ Evaluator_Length::Evaluator_Length
 
 
 Evaluator_Version::Statement_Maker Evaluator_Version::statement_maker;
+Evaluator_Version::Evaluator_Maker Evaluator_Version::evaluator_maker;
 
 
-Statement* Evaluator_Version::Statement_Maker::create_statement(
+Statement* Evaluator_Version::Evaluator_Maker::create_evaluator(
     const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
     Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output)
 {
@@ -350,9 +388,10 @@ Evaluator_Version::Evaluator_Version
 
 
 Evaluator_Timestamp::Statement_Maker Evaluator_Timestamp::statement_maker;
+Evaluator_Timestamp::Evaluator_Maker Evaluator_Timestamp::evaluator_maker;
 
 
-Statement* Evaluator_Timestamp::Statement_Maker::create_statement(
+Statement* Evaluator_Timestamp::Evaluator_Maker::create_evaluator(
     const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
     Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output)
 {
@@ -375,9 +414,10 @@ Evaluator_Timestamp::Evaluator_Timestamp
 
 
 Evaluator_Changeset::Statement_Maker Evaluator_Changeset::statement_maker;
+Evaluator_Changeset::Evaluator_Maker Evaluator_Changeset::evaluator_maker;
 
 
-Statement* Evaluator_Changeset::Statement_Maker::create_statement(
+Statement* Evaluator_Changeset::Evaluator_Maker::create_evaluator(
     const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
     Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output)
 {
@@ -400,9 +440,10 @@ Evaluator_Changeset::Evaluator_Changeset
 
 
 Evaluator_Uid::Statement_Maker Evaluator_Uid::statement_maker;
+Evaluator_Uid::Evaluator_Maker Evaluator_Uid::evaluator_maker;
 
 
-Statement* Evaluator_Uid::Statement_Maker::create_statement(
+Statement* Evaluator_Uid::Evaluator_Maker::create_evaluator(
     const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
     Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output)
 {
@@ -425,9 +466,10 @@ Evaluator_Uid::Evaluator_Uid
 
 
 Evaluator_User::Statement_Maker Evaluator_User::statement_maker;
+Evaluator_User::Evaluator_Maker Evaluator_User::evaluator_maker;
 
 
-Statement* Evaluator_User::Statement_Maker::create_statement(
+Statement* Evaluator_User::Evaluator_Maker::create_evaluator(
     const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
     Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output)
 {
@@ -453,9 +495,10 @@ Evaluator_User::Evaluator_User
 
 
 Evaluator_Generic::Statement_Maker Evaluator_Generic::statement_maker;
+Evaluator_Generic::Evaluator_Maker Evaluator_Generic::evaluator_maker;
 
 
-Statement* Evaluator_Generic::Statement_Maker::create_statement(
+Statement* Evaluator_Generic::Evaluator_Maker::create_evaluator(
     const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
     Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output)
 {
@@ -480,9 +523,10 @@ Evaluator_Generic::Evaluator_Generic
 
 
 Evaluator_Properties_Count::Statement_Maker Evaluator_Properties_Count::statement_maker;
+Evaluator_Properties_Count::Evaluator_Maker Evaluator_Properties_Count::evaluator_maker;
 
 
-Statement* Evaluator_Properties_Count::Statement_Maker::create_statement(
+Statement* Evaluator_Properties_Count::Evaluator_Maker::create_evaluator(
     const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
     Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output)
 {

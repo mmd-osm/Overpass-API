@@ -55,6 +55,7 @@ is evaluated to <em>2 + 12</em>, then finally <em>14</em>.
 is evaluated to <em>5 * 4</em>, then finally <em>20</em>.
 
 The order of precedence is as follows, ordered weak to strong binding:
+* the ternary operator
 * logical disjunction
 * logical conjunction
 * equality, inequality
@@ -84,7 +85,6 @@ public:
   virtual std::string process(const std::string& lhs_result, const std::string& rhs_result) const = 0;
 
   static bool applicable_by_subtree_structure(const Token_Node_Ptr& tree_it) { return tree_it->lhs && tree_it->rhs; }
-  static bool needs_an_element_to_eval() { return false; }
   static void add_substatements(Statement* result, const std::string& operator_name, const Token_Node_Ptr& tree_it,
       Statement::QL_Context tree_context, Statement::Factory& stmt_factory, Error_Output* error_output);
 
@@ -175,6 +175,7 @@ The whitespace is optional.
 struct Evaluator_Or : public Evaluator_Pair_Operator_Syntax< Evaluator_Or >
 {
   static Operator_Stmt_Maker< Evaluator_Or > statement_maker;
+  static Operator_Eval_Maker< Evaluator_Or > evaluator_maker;
   static std::string stmt_operator() { return "||"; }
   static std::string stmt_name() { return "eval-or"; }
 
@@ -204,6 +205,7 @@ The whitespace is optional.
 struct Evaluator_And : public Evaluator_Pair_Operator_Syntax< Evaluator_And >
 {
   static Operator_Stmt_Maker< Evaluator_And > statement_maker;
+  static Operator_Eval_Maker< Evaluator_And > evaluator_maker;
   static std::string stmt_operator() { return "&&"; }
   static std::string stmt_name() { return "eval-and"; }
 
@@ -238,6 +240,7 @@ The whitespace is optional.
 struct Evaluator_Equal : public Evaluator_Pair_Operator_Syntax< Evaluator_Equal >
 {
   static Operator_Stmt_Maker< Evaluator_Equal > statement_maker;
+  static Operator_Eval_Maker< Evaluator_Equal > evaluator_maker;
   static std::string stmt_operator() { return "=="; }
   static std::string stmt_name() { return "eval-equal"; }
 
@@ -251,6 +254,7 @@ struct Evaluator_Equal : public Evaluator_Pair_Operator_Syntax< Evaluator_Equal 
 struct Evaluator_Not_Equal : public Evaluator_Pair_Operator_Syntax< Evaluator_Not_Equal >
 {
   static Operator_Stmt_Maker< Evaluator_Not_Equal > statement_maker;
+  static Operator_Eval_Maker< Evaluator_Not_Equal > evaluator_maker;
   static std::string stmt_operator() { return "!="; }
   static std::string stmt_name() { return "eval-not-equal"; }
 
@@ -285,6 +289,7 @@ The whitespace is optional.
 struct Evaluator_Less : public Evaluator_Pair_Operator_Syntax< Evaluator_Less >
 {
   static Operator_Stmt_Maker< Evaluator_Less > statement_maker;
+  static Operator_Eval_Maker< Evaluator_Less > evaluator_maker;
   static std::string stmt_operator() { return "<"; }
   static std::string stmt_name() { return "eval-less"; }
 
@@ -298,6 +303,7 @@ struct Evaluator_Less : public Evaluator_Pair_Operator_Syntax< Evaluator_Less >
 struct Evaluator_Less_Equal : public Evaluator_Pair_Operator_Syntax< Evaluator_Less_Equal >
 {
   static Operator_Stmt_Maker< Evaluator_Less_Equal > statement_maker;
+  static Operator_Eval_Maker< Evaluator_Less_Equal > evaluator_maker;
   static std::string stmt_operator() { return "<="; }
   static std::string stmt_name() { return "eval-less-equal"; }
 
@@ -311,6 +317,7 @@ struct Evaluator_Less_Equal : public Evaluator_Pair_Operator_Syntax< Evaluator_L
 struct Evaluator_Greater : public Evaluator_Pair_Operator_Syntax< Evaluator_Greater >
 {
   static Operator_Stmt_Maker< Evaluator_Greater > statement_maker;
+  static Operator_Eval_Maker< Evaluator_Greater > evaluator_maker;
   static std::string stmt_operator() { return ">"; }
   static std::string stmt_name() { return "eval-greater"; }
 
@@ -324,6 +331,7 @@ struct Evaluator_Greater : public Evaluator_Pair_Operator_Syntax< Evaluator_Grea
 struct Evaluator_Greater_Equal : public Evaluator_Pair_Operator_Syntax< Evaluator_Greater_Equal >
 {
   static Operator_Stmt_Maker< Evaluator_Greater_Equal > statement_maker;
+  static Operator_Eval_Maker< Evaluator_Greater_Equal > evaluator_maker;
   static std::string stmt_operator() { return ">="; }
   static std::string stmt_name() { return "eval-greater-equal"; }
 
@@ -357,6 +365,7 @@ The whitespace is optional.
 struct Evaluator_Plus : public Evaluator_Pair_Operator_Syntax< Evaluator_Plus >
 {
   static Operator_Stmt_Maker< Evaluator_Plus > statement_maker;
+  static Operator_Eval_Maker< Evaluator_Plus > evaluator_maker;
   static std::string stmt_operator() { return "+"; }
   static std::string stmt_name() { return "eval-plus"; }
 
@@ -370,6 +379,7 @@ struct Evaluator_Plus : public Evaluator_Pair_Operator_Syntax< Evaluator_Plus >
 struct Evaluator_Minus : public Evaluator_Pair_Operator_Syntax< Evaluator_Minus >
 {
   static Operator_Stmt_Maker< Evaluator_Minus > statement_maker;
+  static Operator_Eval_Maker< Evaluator_Minus > evaluator_maker;
   static std::string stmt_operator() { return "-"; }
   static std::string stmt_name() { return "eval-minus"; }
 
@@ -400,6 +410,7 @@ The whitespace is optional.
 struct Evaluator_Times : public Evaluator_Pair_Operator_Syntax< Evaluator_Times >
 {
   static Operator_Stmt_Maker< Evaluator_Times > statement_maker;
+  static Operator_Eval_Maker< Evaluator_Times > evaluator_maker;
   static std::string stmt_operator() { return "*"; }
   static std::string stmt_name() { return "eval-times"; }
 
@@ -413,6 +424,7 @@ struct Evaluator_Times : public Evaluator_Pair_Operator_Syntax< Evaluator_Times 
 struct Evaluator_Divided : public Evaluator_Pair_Operator_Syntax< Evaluator_Divided >
 {
   static Operator_Stmt_Maker< Evaluator_Divided > statement_maker;
+  static Operator_Eval_Maker< Evaluator_Divided > evaluator_maker;
   static std::string stmt_operator() { return "/"; }
   static std::string stmt_name() { return "eval-divided-by"; }
 

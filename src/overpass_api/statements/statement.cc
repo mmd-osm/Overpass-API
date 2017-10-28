@@ -32,16 +32,23 @@ std::map< std::string, Statement::Statement_Maker* >& Statement::maker_by_name()
 }
 
 
-std::map< std::string, std::vector< Statement::Statement_Maker* > >& Statement::maker_by_token()
+std::map< std::string, Statement::Criterion_Maker* >& Statement::maker_by_ql_criterion()
 {
-  static std::map< std::string, std::vector< Statement::Statement_Maker* > > makers;
+  static std::map< std::string, Statement::Criterion_Maker* > makers;
   return makers;
 }
 
 
-std::map< std::string, std::vector< Statement::Statement_Maker* > >& Statement::maker_by_func_name()
+std::map< std::string, std::vector< Statement::Evaluator_Maker* > >& Statement::maker_by_token()
 {
-  static std::map< std::string, std::vector< Statement::Statement_Maker* > > makers;
+  static std::map< std::string, std::vector< Statement::Evaluator_Maker* > > makers;
+  return makers;
+}
+
+
+std::map< std::string, std::vector< Statement::Evaluator_Maker* > >& Statement::maker_by_func_name()
+{
+  static std::map< std::string, std::vector< Statement::Evaluator_Maker* > > makers;
   return makers;
 }
 
@@ -140,21 +147,21 @@ Statement* Statement::Factory::create_statement
 
 
 Statement* stmt_from_tree_node(const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
-    const std::vector< Statement::Statement_Maker* >& makers, Statement::Factory& stmt_factory,
+    const std::vector< Statement::Evaluator_Maker* >& makers, Statement::Factory& stmt_factory,
     Parsed_Query& global_settings, Error_Output* error_output)
 {
   Statement* statement = 0;
 
-  std::vector< Statement::Statement_Maker* >::const_iterator maker_it = makers.begin();
+  std::vector< Statement::Evaluator_Maker* >::const_iterator maker_it = makers.begin();
 
   while (!statement && maker_it != makers.end())
   {
-    statement = (*maker_it)->create_statement(tree_it, tree_context, stmt_factory, global_settings, error_output);
+    statement = (*maker_it)->create_evaluator(tree_it, tree_context, stmt_factory, global_settings, error_output);
     ++maker_it;
   }
   while (maker_it != makers.end())
   {
-    Statement* bis = (*maker_it)->create_statement(tree_it, tree_context, stmt_factory, global_settings, error_output);
+    Statement* bis = (*maker_it)->create_evaluator(tree_it, tree_context, stmt_factory, global_settings, error_output);
     if (bis)
     {
       if (error_output)
@@ -172,7 +179,7 @@ Statement* stmt_from_tree_node(const Token_Node_Ptr& tree_it, Statement::QL_Cont
 }
 
 
-Statement* Statement::Factory::create_statement(const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context)
+Statement* Statement::Factory::create_evaluator(const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context)
 {
   Statement* statement = 0;
 
@@ -180,7 +187,7 @@ Statement* Statement::Factory::create_statement(const Token_Node_Ptr& tree_it, S
   {
     if (tree_it->lhs)
     {
-      std::map< std::string, std::vector< Statement::Statement_Maker* > >::iterator all_it =
+      std::map< std::string, std::vector< Statement::Evaluator_Maker* > >::iterator all_it =
           Statement::maker_by_func_name().find(tree_it.lhs()->token);
       if (all_it != Statement::maker_by_func_name().end())
         statement = stmt_from_tree_node(tree_it, tree_context,
@@ -190,7 +197,7 @@ Statement* Statement::Factory::create_statement(const Token_Node_Ptr& tree_it, S
             tree_it->line_col.first);
     }
     else if (tree_it->rhs)
-      return create_statement(tree_it.rhs(), tree_context);
+      return create_evaluator(tree_it.rhs(), tree_context);
     else
     {
       Statement::error_output->add_static_error("Empty parentheses cannot be evaluated.", tree_it->line_col.first);
@@ -201,7 +208,7 @@ Statement* Statement::Factory::create_statement(const Token_Node_Ptr& tree_it, S
   {
     if (tree_it->lhs && tree_it->rhs && tree_it.rhs()->token == "(" && tree_it.rhs()->lhs)
     {
-      std::map< std::string, std::vector< Statement::Statement_Maker* > >::iterator all_it =
+      std::map< std::string, std::vector< Statement::Evaluator_Maker* > >::iterator all_it =
           Statement::maker_by_func_name().find(tree_it.rhs().lhs()->token);
       if (all_it != Statement::maker_by_func_name().end())
         statement = stmt_from_tree_node(tree_it, tree_context,
@@ -215,7 +222,7 @@ Statement* Statement::Factory::create_statement(const Token_Node_Ptr& tree_it, S
     error_output->add_parse_error("Evaluator expected, but empty token found.", tree_it->line_col.first);
   else
   {
-    std::map< std::string, std::vector< Statement::Statement_Maker* > >::iterator all_it =
+    std::map< std::string, std::vector< Statement::Evaluator_Maker* > >::iterator all_it =
         Statement::maker_by_token().find(tree_it->token);
     if (all_it != Statement::maker_by_token().end())
       statement = stmt_from_tree_node(tree_it, tree_context,
@@ -243,7 +250,7 @@ Statement* Statement::Factory::create_statement(const Token_Node_Ptr& tree_it, S
       {
         error_output->add_parse_error(
             std::string("\"") + tree_it->token + "\" cannot be used as unary operator", tree_it->line_col.first);
-        return create_statement(tree_it.rhs(), tree_context);
+        return create_evaluator(tree_it.rhs(), tree_context);
       }
       else
         error_output->add_parse_error(std::string("Token \"") + tree_it->token
@@ -255,6 +262,40 @@ Statement* Statement::Factory::create_statement(const Token_Node_Ptr& tree_it, S
     created_statements.push_back(statement);
 
   return statement;
+}
+
+
+Token_Node_Ptr find_leftmost_token(Token_Node_Ptr tree_it)
+{
+  while (tree_it->lhs)
+    tree_it = tree_it.lhs();
+  
+  return tree_it;
+}
+
+
+Statement* Statement::Factory::create_criterion(const Token_Node_Ptr& tree_it,
+    const std::string& type, bool& can_standalone, const std::string& into)
+{
+  Token_Node_Ptr criterion = find_leftmost_token(tree_it);
+  uint line_nr = criterion->line_col.first;
+  std::string criterion_s = criterion->token;
+  
+  if (!criterion_s.empty()
+      && (isdigit(criterion_s[0])
+          || (criterion_s[0] == '-' && criterion_s.size() > 1 && isdigit(criterion_s[1]))))
+    criterion_s = (tree_it->token == "," ? "bbox" : "id");
+  
+  std::map< std::string, Criterion_Maker* >::iterator it = Statement::maker_by_ql_criterion().find(criterion_s);
+  if (it != Statement::maker_by_ql_criterion().end() && it->second)
+  {
+    can_standalone = it->second->can_standalone(type);
+    return it->second->create_criterion(tree_it, type, into, *this, global_settings, error_output);
+  }
+
+  if (error_output)
+    error_output->add_parse_error("Unknown query clause", line_nr);
+  return 0;
 }
 
 
