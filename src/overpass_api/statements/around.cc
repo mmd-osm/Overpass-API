@@ -676,10 +676,12 @@ Statement* Around_Statement::Criterion_Maker::create_criterion(const Token_Node_
 {
   Token_Node_Ptr tree_it = input_tree;
   uint line_nr = tree_it->line_col.first;
+
+  std::vector< std::pair< std::string, std::string > > lat_lon_pairs;
   std::string lat;
   std::string lon;
   
-  if (tree_it->token == "," && tree_it->rhs && tree_it->lhs)
+  while (tree_it->token == "," && tree_it->rhs && tree_it->lhs)
   {
     lon = tree_it.rhs()->token;
     tree_it = tree_it.lhs();
@@ -687,47 +689,16 @@ Statement* Around_Statement::Criterion_Maker::create_criterion(const Token_Node_
     if (tree_it->token != "," || !tree_it->rhs || !tree_it->lhs)
     {
       if (error_output)
-        error_output->add_parse_error("around requires one or three arguments", line_nr);
+        error_output->add_parse_error("around requires radius, and zero or multiple lat/lon pairs", line_nr);
       return 0;
     }
     
     lat = tree_it.rhs()->token;
     tree_it = tree_it.lhs();
+
+    lat_lon_pairs.push_back(std::make_pair(lat, lon));
   }
   
-  /*
-
-
-
-  std::map< std::string, std::string > attr;
-  attr["from"] = from;
-  attr["into"] = into;
-  attr["radius"] = radius;
-
-  for (uint i = 0; i < latlons.size() / 2; ++i)
-  {
-      std::stringstream id_lat;
-      if (i == 0)
-        id_lat << "lat";
-      else
-        id_lat << "lat_" << i;
-      attr[id_lat.str()] = latlons[2*i];
-
-      std::stringstream id_lon;
-      if (i == 0)
-        id_lon << "lon";
-      else
-        id_lon << "lon_" << i;
-      attr[id_lon.str()] = latlons[2*i+1];
-  }
-
-  return stmt_factory.create_statement("around", line_nr, attr);
-
-
-   */
-
-
-
   if (tree_it->token == ":" && tree_it->rhs)
   {
     std::string radius = decode_json(tree_it.rhs()->token, error_output);
@@ -741,8 +712,25 @@ Statement* Around_Statement::Criterion_Maker::create_criterion(const Token_Node_
     attributes["from"] = from;
     attributes["into"] = into;
     attributes["radius"] = radius;
-    attributes["lat"] = lat;
-    attributes["lon"] = lon;
+
+    for (uint i = 0; i < lat_lon_pairs.size(); ++i)
+    {
+      std::stringstream id_lat;
+      std::stringstream id_lon;
+
+      if (i == 0)
+        id_lat << "lat";
+      else
+        id_lat << "lat_" << i;
+      attributes[id_lat.str()] = lat_lon_pairs[i].first;
+
+      if (i == 0)
+        id_lon << "lon";
+      else
+        id_lon << "lon_" << i;
+      attributes[id_lon.str()] = lat_lon_pairs[i].second;
+    }
+
     return new Around_Statement(line_nr, attributes, global_settings);
   }
   else if (error_output)
