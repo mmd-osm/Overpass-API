@@ -35,9 +35,9 @@
 
 struct Way_Updater
 {
-  Way_Updater(Transaction& transaction, meta_modes meta, unsigned int parallel_processes);
+  Way_Updater(Transaction& transaction, meta_modes meta, unsigned int parallel_processes = 1);
 
-  Way_Updater(std::string db_dir, meta_modes meta, unsigned int parallel_processes);
+  Way_Updater(std::string db_dir, meta_modes meta, unsigned int parallel_processes = 1);
 
   void set_id_deleted(Way::Id_Type id, const OSM_Element_Metadata* meta = 0)
   {
