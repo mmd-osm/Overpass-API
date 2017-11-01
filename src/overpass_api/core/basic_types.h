@@ -96,6 +96,11 @@ struct Uint32_Index
     return value;
   }
   
+  static uint32 get_val(const void* data)
+  {
+    return *(uint32*)data;
+  }
+
   protected:
     uint32 value;
 };
