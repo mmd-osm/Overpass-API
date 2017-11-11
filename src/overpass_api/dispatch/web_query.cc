@@ -244,6 +244,15 @@ int main(int argc, char *argv[])
     int request_counter = 0;
     time_t start_time = time(0);
 
+    char const* max_requests_c = std::getenv("OVERPASS_FCGI_MAX_REQUESTS");
+    char const* max_elapsed_time_c = std::getenv("OVERPASS_FCGI_MAX_ELAPSED_TIME");
+
+    int max_requests = (max_requests_c == NULL) ? 0 : atoi(max_requests_c);
+    int max_elapsed_time = (max_elapsed_time_c == NULL) ? 0 : atoi(max_elapsed_time_c);
+
+    if (max_requests < 0) max_requests = 0;
+    if (max_elapsed_time < 0) max_elapsed_time = 0;
+
     // Backup the stdio streambuffers
     std::streambuf * cin_streambuf  = std::cin.rdbuf();
     std::streambuf * cout_streambuf = std::cout.rdbuf();
@@ -281,12 +290,11 @@ int main(int argc, char *argv[])
 
       int ret = handle_request(content, FCGX_IsCGI(), &ic);
 
-      std::cout << std::flush;
-      std::cerr << std::flush;
-
       // Restart process after error or a certain number of time / requests
       time_t elapsed_time = time(NULL) - start_time;
-      if (ret < 0 || ++request_counter > 1000 || elapsed_time > 900)       //TODO: add configuration option
+      if (ret < 0 ||
+          (max_requests > 0 && ++request_counter > max_requests) ||
+          (max_elapsed_time > 0 && elapsed_time > max_elapsed_time))
       {
         FCGX_Finish_r(&request);
         break;
