@@ -28,7 +28,7 @@
 #include "statement.h"
 
 
-class Collection_Print_Target;
+class Set_Comparison;
 
 
 class Print_Statement : public Statement
@@ -42,8 +42,8 @@ class Print_Statement : public Statement
 
     static Generic_Statement_Maker< Print_Statement > statement_maker;
 
-    void set_collect_lhs();
-    void set_collect_rhs(bool add_deletion_information);
+    virtual void set_collect_lhs();
+    virtual void set_collect_rhs(bool add_deletion_information);
 
     static std::string mode_string_xml(Output_Mode mode)
     {
@@ -141,7 +141,7 @@ class Print_Statement : public Statement
     Output_Mode mode;
     enum { order_by_id, order_by_quadtile } order;
     unsigned int limit;
-    Collection_Print_Target* collection_print_target;
+    Set_Comparison* collection_print_target;
     enum { dont_collect, collect_lhs, collect_rhs } collection_mode;
     bool add_deletion_information;
 

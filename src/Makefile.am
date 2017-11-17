@@ -98,6 +98,7 @@ statements_cc = \
   overpass_api/statements/bbox_query.cc \
   overpass_api/statements/binary_operators.cc \
   overpass_api/statements/changed.cc \
+  overpass_api/statements/compare.cc \
   overpass_api/statements/complete.cc \
   overpass_api/statements/convert.cc \
   overpass_api/statements/coord_query.cc \
@@ -150,7 +151,7 @@ output_formats_cc = \
 
 libcore_la_SOURCES = overpass_api/frontend/output_handler_parser.cc overpass_api/statements/statement_dump.cc expat/map_ql_input.cc
 libcore_la_LIBADD = libdispatcher.la libexpatwrapper.la libsettings.la libweboutput.la
-libdata_la_SOURCES = overpass_api/data/collect_members.cc overpass_api/data/geometry_from_quad_coords.cc overpass_api/data/relation_geometry_store.cc overpass_api/data/way_geometry_store.cc
+libdata_la_SOURCES = overpass_api/data/collect_members.cc overpass_api/data/diff_set.cc overpass_api/data/geometry_from_quad_coords.cc overpass_api/data/relation_geometry_store.cc overpass_api/data/set_comparison.cc overpass_api/data/way_geometry_store.cc
 libdata_la_LIBADD =
 libdispatcher_la_SOURCES = template_db/dispatcher_client.cc overpass_api/dispatch/resource_manager.cc overpass_api/osm-backend/area_updater.cc
 libdispatcher_la_LIBADD =
@@ -230,6 +231,7 @@ nobase_dist_HEADERS = \
   overpass_api/data/bbox_filter.h\
   overpass_api/data/collect_items.h\
   overpass_api/data/collect_members.h\
+  overpass_api/data/diff_set.h\
   overpass_api/data/filenames.h\
   overpass_api/data/filter_by_tags.h\
   overpass_api/data/filter_ids_by_tags.h\
@@ -237,6 +239,7 @@ nobase_dist_HEADERS = \
   overpass_api/data/meta_collector.h\
   overpass_api/data/regular_expression.h\
   overpass_api/data/relation_geometry_store.h\
+  overpass_api/data/set_comparison.h\
   overpass_api/data/tag_store.h\
   overpass_api/data/user_data_cache.h\
   overpass_api/data/utils.h\
@@ -275,6 +278,7 @@ nobase_dist_HEADERS = \
   overpass_api/statements/bbox_query.h\
   overpass_api/statements/binary_operators.h\
   overpass_api/statements/changed.h\
+  overpass_api/statements/compare.h\
   overpass_api/statements/complete.h\
   overpass_api/statements/convert.h\
   overpass_api/statements/coord_query.h\
