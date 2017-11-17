@@ -17,38 +17,13 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Overpass_API.  If not, see <http://www.gnu.org/licenses/>.
 
-if [[ -z $1  ]]; then
-{
-  echo Usage: $0 database_dir
+if [[ "`whoami`" != "root" ]]; then
+  echo "Usage: sudo $0"
   exit 0
-};
 fi
 
-DB_DIR=$1
-
-EXEC_DIR="`dirname $0`/"
-if [[ ! ${EXEC_DIR:0:1} == "/" ]]; then
-{
-  EXEC_DIR="`pwd`/$EXEC_DIR"
-};
+if [[ -s /etc/systemd/logind.conf ]]; then
+  cat /etc/systemd/logind.conf | grep -vE 'RemoveIPC' >_
+  echo "RemoveIPC=no" >>_
+  mv _ /etc/systemd/logind.conf
 fi
-
-pushd "$EXEC_DIR"
-
-
-if [[ ! -a $DB_DIR/area_version ]]; then
-  echo "init" >>$DB_DIR/area_version
-fi
-
-
-while [[ true ]]; do
-{
-  echo "`date '+%F %T'`: update started" >>$DB_DIR/rules_loop.log
-  if [[ -a $DB_DIR/area_version ]]; then
-    sed "s/{{area_version}}/$(cat $DB_DIR/area_version)/g" $DB_DIR/rules/areas_delta.osm3s | ./osm3s_query --progress --rules
-  else
-    cat $DB_DIR/rules/areas.osm3s | ./osm3s_query --progress --rules
-  fi
-  echo "`date '+%F %T'`: update finished" >>$DB_DIR/rules_loop.log
-  sleep 3600
-}; done

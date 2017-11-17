@@ -148,24 +148,22 @@ while [[ true ]]; do
     START=`cat $DB_DIR/replicate_id`
   }; fi
 
-  echo "`date '+%F %T'`: updating from $START" >>$DB_DIR/apply_osc_to_db.log
+  echo "`date -u '+%F %T'`: updating from $START" >>$DB_DIR/apply_osc_to_db.log
 
   TEMP_DIR=`mktemp -d /tmp/osm-3s_update_XXXXXX`
   collect_minute_diffs $TEMP_DIR
 
   if [[ $TARGET -gt $START ]]; then
   {
-    echo "`date '+%F %T'`: updating to $TARGET" >>$DB_DIR/apply_osc_to_db.log
+    echo "`date -u '+%F %T'`: updating to $TARGET" >>$DB_DIR/apply_osc_to_db.log
 
     update_state
-
     apply_minute_diffs $TEMP_DIR
-
     echo "$TARGET" >$DB_DIR/replicate_id
     
     echo "$DATA_COMPLETED" > $DB_DIR/osm_base_completed_version
 
-    echo "`date '+%F %T'`: update complete" $TARGET >>$DB_DIR/apply_osc_to_db.log
+    echo "`date -u '+%F %T'`: update complete" $TARGET >>$DB_DIR/apply_osc_to_db.log
   };
   else
   {

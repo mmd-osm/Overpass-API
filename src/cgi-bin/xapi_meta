@@ -38,6 +38,7 @@ if [[ "${BUF:0:5}" == "debug" ]]; then
 fi
 
 REQUEST_BUFFER=$($BIN_DIR/translate_xapi --force-meta "${BUF}")
+
 EXITCODE=$?
 
 if [[ $EXITCODE -ne 0 ]]; then
@@ -47,6 +48,7 @@ if [[ $EXITCODE -ne 0 ]]; then
   echo
   echo "Error in [$BUF]:"
   echo $REQUEST_BUFFER
+
 };
 else
 {
@@ -60,4 +62,5 @@ else
   echo $REQUEST_BUFFER | ./interpreter
 };
 fi
+
 
