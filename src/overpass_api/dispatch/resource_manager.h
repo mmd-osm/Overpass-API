@@ -25,7 +25,6 @@
 #include "../core/parsed_query.h"
 #include "../data/diff_set.h"
 #include "../data/user_data_cache.h"
-#include "../osm-backend/area_updater.h"
 
 
 class Statement;
@@ -37,12 +36,20 @@ struct Watchdog_Callback
 };
 
 
+
+namespace Diff_Action
+{
+  enum _ { positive, collect_lhs, collect_rhs_no_del, collect_rhs_with_del, show_old, show_new };
+};
+
+
 class Runtime_Stack_Frame
 {
 public:
   Runtime_Stack_Frame(Runtime_Stack_Frame* parent_ = 0)
     : parent(parent_), loop_count(0), loop_size(0),
     desired_timestamp(parent_ ? parent_->desired_timestamp : NOW),
+    desired_action(parent_ ? parent_->desired_action : Diff_Action::positive),
     diff_from_timestamp(parent_ ? parent_->diff_from_timestamp : NOW),
     diff_to_timestamp(parent_ ? parent_->diff_to_timestamp : NOW) {}
   
@@ -64,10 +71,12 @@ public:
   void move_all_inward_except(const std::string& set_name);
   
   uint64 get_desired_timestamp() const { return desired_timestamp; }
+  Diff_Action::_ get_desired_action() const { return desired_action; }
   uint64 get_diff_from_timestamp() const { return diff_from_timestamp; }
   uint64 get_diff_to_timestamp() const { return diff_to_timestamp; }
 
   void set_desired_timestamp(uint64 timestamp) { desired_timestamp = (timestamp == 0 ? NOW : timestamp); }
+  void set_desired_action(Diff_Action::_ action) { desired_action = action; }
   void set_diff_from_timestamp(uint64 timestamp) { diff_from_timestamp = timestamp; }
   void set_diff_to_timestamp(uint64 timestamp) { diff_to_timestamp = timestamp; }
 
@@ -85,6 +94,7 @@ private:
   uint loop_size;
   
   uint64 desired_timestamp;
+  Diff_Action::_ desired_action;
   uint64 diff_from_timestamp;
   uint64 diff_to_timestamp;
 };
@@ -150,12 +160,15 @@ public:
   Transaction* get_area_transaction() { return area_transaction; }
 
   uint64 get_desired_timestamp() const;
+  Diff_Action::_ get_desired_action() const;
   uint64 get_diff_from_timestamp() const;
   uint64 get_diff_to_timestamp() const;
 
   void set_desired_timestamp(uint64 timestamp);
-  void set_diff_from_timestamp(uint64 timestamp);
-  void set_diff_to_timestamp(uint64 timestamp);
+  void start_diff(uint64 comparison_timestamp, uint64 desired_timestamp);
+  void switch_diff_rhs(bool add_deletion_information);
+  void switch_diff_show_from(const std::string& diff_set_name);
+  void switch_diff_show_to(const std::string& diff_set_name);
 
   const std::map< uint32, std::string >& users() { return user_data_cache.users(*transaction); }
 

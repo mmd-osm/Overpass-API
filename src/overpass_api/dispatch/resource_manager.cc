@@ -108,6 +108,10 @@ Set* Runtime_Stack_Frame::get_set(const std::string& set_name)
   if (it != sets.end())
     return &it->second;
   
+  std::map< std::string, Diff_Set >::iterator it_diff = diff_sets.find(set_name);
+  if (it_diff != diff_sets.end())
+    return 0;
+  
   if (parent)
     return parent->get_set(set_name);
   
@@ -121,6 +125,10 @@ Diff_Set* Runtime_Stack_Frame::get_diff_set(const std::string& set_name)
   if (it != diff_sets.end())
     return &it->second;
   
+  std::map< std::string, Set >::iterator it_set = sets.find(set_name);
+  if (it_set != sets.end())
+    return 0;
+  
   if (parent)
     return parent->get_diff_set(set_name);
   
@@ -130,6 +138,7 @@ Diff_Set* Runtime_Stack_Frame::get_diff_set(const std::string& set_name)
 
 void Runtime_Stack_Frame::swap_set(const std::string& set_name, Set& set_)
 {
+  diff_sets.erase(set_name);
   Set& to_swap = sets[set_name];
   set_.swap(to_swap);
   size_per_set[set_name] = eval_set(to_swap);
@@ -138,6 +147,7 @@ void Runtime_Stack_Frame::swap_set(const std::string& set_name, Set& set_)
 
 void Runtime_Stack_Frame::swap_diff_set(const std::string& set_name, Diff_Set& set_)
 {
+  sets.erase(set_name);
   Diff_Set& to_swap = diff_sets[set_name];
   set_.swap(to_swap);
 }
@@ -596,6 +606,12 @@ uint64 Resource_Manager::get_desired_timestamp() const
 }
 
 
+Diff_Action::_ Resource_Manager::get_desired_action() const
+{
+  return runtime_stack.empty() ? Diff_Action::positive : runtime_stack.back()->get_desired_action();
+}
+
+
 uint64 Resource_Manager::get_diff_from_timestamp() const
 {
   return runtime_stack.empty() ? NOW : runtime_stack.back()->get_diff_from_timestamp();
@@ -608,24 +624,68 @@ uint64 Resource_Manager::get_diff_to_timestamp() const
 }
 
 
+void Resource_Manager::start_diff(uint64 comparison_timestamp, uint64 desired_timestamp)
+{
+  if (!runtime_stack.empty())
+  {
+    runtime_stack.back()->set_desired_action(Diff_Action::collect_lhs);
+    runtime_stack.back()->set_diff_from_timestamp(comparison_timestamp);
+    runtime_stack.back()->set_diff_to_timestamp(desired_timestamp);
+    runtime_stack.back()->set_desired_timestamp(comparison_timestamp);
+  }
+}
+
+
+void Resource_Manager::switch_diff_rhs(bool add_deletion_information)
+{
+  if (!runtime_stack.empty())
+  {
+    runtime_stack.back()->clear_sets();
+    runtime_stack.back()->set_desired_action(
+      add_deletion_information ? Diff_Action::collect_rhs_with_del : Diff_Action::collect_rhs_no_del);
+    runtime_stack.back()->set_desired_timestamp(runtime_stack.back()->get_diff_to_timestamp());
+  }
+}
+
+
+void Resource_Manager::switch_diff_show_from(const std::string& diff_set_name)
+{
+  if (!runtime_stack.empty())
+  {
+    runtime_stack.back()->set_desired_action(Diff_Action::show_old);
+    runtime_stack.back()->set_desired_timestamp(runtime_stack.back()->get_diff_from_timestamp());
+
+    Diff_Set* diff_set = runtime_stack.back()->get_diff_set(diff_set_name);
+    if (diff_set)
+    {
+      Set set = diff_set->make_from_set();
+      runtime_stack.back()->swap_set(diff_set_name, set);
+    }
+  }
+}
+
+
+void Resource_Manager::switch_diff_show_to(const std::string& diff_set_name)
+{
+  if (!runtime_stack.empty())
+  {
+    runtime_stack.back()->set_desired_action(Diff_Action::show_new);
+    runtime_stack.back()->set_desired_timestamp(runtime_stack.back()->get_diff_to_timestamp());
+
+    Diff_Set* diff_set = runtime_stack.back()->get_diff_set(diff_set_name);
+    if (diff_set)
+    {
+      Set set = diff_set->make_to_set();
+      runtime_stack.back()->swap_set(diff_set_name, set);
+    }
+  }
+}
+
+
 void Resource_Manager::set_desired_timestamp(uint64 timestamp)
 {
   if (!runtime_stack.empty())
     runtime_stack.back()->set_desired_timestamp(timestamp);
-}
-
-
-void Resource_Manager::set_diff_from_timestamp(uint64 timestamp)
-{
-  if (!runtime_stack.empty())
-    runtime_stack.back()->set_diff_from_timestamp(timestamp);
-}
-
-
-void Resource_Manager::set_diff_to_timestamp(uint64 timestamp)
-{
-  if (!runtime_stack.empty())
-    runtime_stack.back()->set_diff_to_timestamp(timestamp);
 }
 
 

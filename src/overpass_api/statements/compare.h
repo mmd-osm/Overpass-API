@@ -33,7 +33,12 @@ class Set_Comparison;
 The statement <em>compare</em> computes the diff of the data of two timestamps.
 That diff can consist of any elements as well as only those with specific properties.
 
-It can only be used in diff mode.
+The statement can have a block of substatements.
+The block of substatements is executed after computing the diff in the second run,
+once for the old timestamp and then again for the new timestamp.
+This allows to do extra computations based on the diff results.
+
+The statement can only be used in diff mode.
 In other modes its behaviour is undefined,
 and in future versions it might be a syntax error to have it elsewhere.
 
@@ -47,11 +52,11 @@ Currently, the only purpose of such a difference is to feed it into an output st
 
 The base syntax is
 
-  compare;
+  compare();
 
 In addition, an input and/or output set can be specified:
 
-  .<Set> compare->.<Set>;
+  .<Set> compare()->.<Set>;
 
 With the evaluator, the syntax becomes
 
@@ -60,6 +65,20 @@ With the evaluator, the syntax becomes
 resp.
 
   .<Set> compare->.<Set>(delta:<Evaluator>);
+
+In all syntax variants a block of substatements can be attached:
+
+  compare()
+  (
+    <List of Substatements>
+  );
+
+resp.
+
+  .<Set> compare(delta:<Evaluator>)->.<Set>;
+  (
+    <List of Substatements>
+  );
 
 */
 
@@ -73,9 +92,6 @@ public:
   virtual void add_statement(Statement* statement, std::string text);
   virtual void execute(Resource_Manager& rman);
 
-  virtual void set_collect_lhs();
-  virtual void set_collect_rhs(bool add_deletion_information);
-    
   static Generic_Statement_Maker< Compare_Statement > statement_maker;
 
   virtual std::string dump_xml(const std::string& indent) const
@@ -83,33 +99,59 @@ public:
     std::string result = indent + "<compare"
       + (input != "_" ? std::string(" from=\"") + input + "\"" : "")
       + dump_xml_result_name();
-      
-    if (criterion)
-      return result + ">\n" + criterion->dump_xml(indent + "  ") + indent + "</criterion>\n";
+    if (criterion || !substatements.empty())
+      result += ">\n";
     
+    if (criterion)
+      result += criterion->dump_xml(indent + "  ");
+
+    for (std::vector< Statement* >::const_iterator it = substatements.begin(); it != substatements.end(); ++it)
+      result += *it ? (*it)->dump_xml(indent + "  ") : "";
+      
+    if (criterion || !substatements.empty())
+      return result + indent + "</criterion>\n";
     return result + "/>\n";
   }
 
   virtual std::string dump_compact_ql(const std::string& indent) const
   {
-    return (input != "_" ? std::string(".") + input + " " : "")
+    std::string result = (input != "_" ? std::string(".") + input + " " : "")
         + "compare" + dump_ql_result_name()
         + (criterion ? "(delta:" + criterion->dump_compact_ql(indent) + ")" : "");
+    
+    if (!substatements.empty())
+    {
+      result += "(";
+      for (std::vector< Statement* >::const_iterator it = substatements.begin(); it != substatements.end(); ++it)
+        result += (*it)->dump_compact_ql(indent) + ";";
+      result += ")";
+    }
+    
+    return result;
   }
 
   virtual std::string dump_pretty_ql(const std::string& indent) const
   {
-    return indent + (input != "_" ? std::string(".") + input + " " : "")
+    std::string result = (input != "_" ? std::string(".") + input + " " : "")
         + "compare" + dump_ql_result_name()
         + (criterion ? "(delta:" + criterion->dump_compact_ql(indent) + ")" : "");
+    
+    if (!substatements.empty())
+    {
+      result += indent + "(";
+      for (std::vector< Statement* >::const_iterator it = substatements.begin(); it != substatements.end(); ++it)
+        result += "\n" + (*it)->dump_pretty_ql(indent + "  ") + ";";
+      result += "\n" + indent + ")";
+    }
+    
+    return result;
   }
 
 private:
   Evaluator* criterion;
+  std::vector< Statement* > substatements;
   std::string input;
   Set_Comparison* set_comparison;
-  enum { dont_collect, collect_lhs, collect_rhs } collection_mode;
-  bool add_deletion_information;
 };
 
 
