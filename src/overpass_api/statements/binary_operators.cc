@@ -58,14 +58,14 @@ void Evaluator_Pair_Operator::add_substatements(Statement* result, const std::st
     else if (error_output)
       error_output->add_parse_error(std::string("Operator \"") + operator_name
           + "\" needs a right-hand-side argument", tree_it->line_col.first);
-  }  
+  }
 }
 
 
-Eval_Task* Evaluator_Pair_Operator::get_task(Prepare_Task_Context& context, const std::string* key)
+Eval_Task* Evaluator_Pair_Operator::get_string_task(Prepare_Task_Context& context, const std::string* key)
 {
-  Eval_Task* lhs_task = lhs ? lhs->get_task(context, key) : 0;
-  Eval_Task* rhs_task = rhs ? rhs->get_task(context, key) : 0;
+  Eval_Task* lhs_task = lhs ? lhs->get_string_task(context, key) : 0;
+  Eval_Task* rhs_task = rhs ? rhs->get_string_task(context, key) : 0;
   return new Binary_Eval_Task(lhs_task, rhs_task, this);
 }
 

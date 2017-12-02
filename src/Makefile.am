@@ -106,6 +106,7 @@ statements_cc = \
   overpass_api/statements/coord_query.cc \
   overpass_api/statements/difference.cc \
   overpass_api/statements/evaluator.cc \
+  overpass_api/statements/explicit_geometry.cc \
   overpass_api/statements/filter.cc \
   overpass_api/statements/for.cc \
   overpass_api/statements/foreach.cc \
@@ -287,6 +288,7 @@ nobase_dist_HEADERS = \
   overpass_api/statements/coord_query.h\
   overpass_api/statements/difference.h\
   overpass_api/statements/evaluator.h\
+  overpass_api/statements/explicit_geometry.h\
   overpass_api/statements/filter.h\
   overpass_api/statements/for.h\
   overpass_api/statements/foreach.h\
