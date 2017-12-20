@@ -1,0 +1,12 @@
+[submodule "src/third_party/libosmium"]
+	path = src/third_party/libosmium
+	url = git@github.com:osmcode/libosmium.git
+[submodule "src/third_party/protozero"]
+	path = src/third_party/protozero
+	url = git@github.com:mapbox/protozero.git
+[submodule "src/third_party/xxHash"]
+	path = src/third_party/xxHash
+	url = git@github.com:Cyan4973/xxHash.git
+[submodule "src/third_party/xxhash"]
+	path = src/third_party/xxhash
+	url = git@github.com:Cyan4973/xxHash.git
