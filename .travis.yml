@@ -9,9 +9,6 @@ compiler:
 before_install:
   - sudo apt-get update -qq || true
   - sudo apt-get install -y expat libexpat1-dev liblz4-dev libfcgi-dev zlib1g-dev libevent-dev libbz2-dev libicu-dev
-  - curl -o libosmium-v2.12.2.zip https://codeload.github.com/osmcode/libosmium/zip/v2.12.2
-  - unzip -q libosmium-v2.12.2.zip
-  - mv libosmium-2.12.2 $HOME/libosmium
   
 before_script:  
   - mkdir -p $HOME/overpass
@@ -26,7 +23,7 @@ before_script:
   - popd
   - mkdir -p build
   - cd build
-  - ../src/configure CXXFLAGS="-std=c++11 -O2 -I$HOME/libosmium/include" LDFLAGS="-lpthread -lbz2 -levent -licuuc -licui18n" --prefix=$EXEC_DIR --enable-lz4 --enable-fastcgi --enable-tests
+  - ../src/configure CXXFLAGS="-std=c++11 -O2 -I../src/third_party/libosmium/include -I../src/third_party/protozero/include" LDFLAGS="-lpthread -lbz2 -levent -licuuc -licui18n" --prefix=$EXEC_DIR --enable-lz4 --enable-fastcgi --enable-tests
 
 script:  
   - make V=0 install -j3
