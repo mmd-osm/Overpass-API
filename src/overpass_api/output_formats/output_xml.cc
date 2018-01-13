@@ -206,6 +206,26 @@ void print_geometry(const Opaque_Geometry& geometry, Output_Mode mode, bool& inn
           " lon=\""<<std::fixed<<std::setprecision(7)<<it->lon<<"\""
           "/>\n";
   }
+  else if ((mode.mode & Output_Mode::GEOMETRY) && geometry.has_multiline_geometry())
+  {
+    if (!inner_tags_printed)
+    {
+      std::cout<<">\n";
+      inner_tags_printed = true;
+    }
+    const std::vector< std::vector< Point_Double > >* linestrings = geometry.get_multiline_geometry();
+    for (std::vector< std::vector< Point_Double > >::const_iterator iti = linestrings->begin();
+        iti != linestrings->end(); ++iti)
+    {
+      std::cout<<indent<<"<linestring>\n";
+      for (std::vector< Point_Double >::const_iterator it = iti->begin(); it != iti->end(); ++it)
+        std::cout<<indent<<"  <vertex"
+            " lat=\""<<std::fixed<<std::setprecision(7)<<it->lat<<"\""
+            " lon=\""<<std::fixed<<std::setprecision(7)<<it->lon<<"\""
+            "/>\n";
+      std::cout<<indent<<"</linestring>\n";
+    }
+  }
   else if ((mode.mode & Output_Mode::GEOMETRY) && geometry.has_center())
   {
     if (!inner_tags_printed)
@@ -216,6 +236,20 @@ void print_geometry(const Opaque_Geometry& geometry, Output_Mode mode, bool& inn
     std::cout<<indent<<"<point"
         " lat=\""<<std::fixed<<std::setprecision(7)<<geometry.center_lat()<<"\""
         " lon=\""<<std::fixed<<std::setprecision(7)<<geometry.center_lon()<<"\""
+        "/>\n";
+  }
+  else if ((mode.mode & Output_Mode::BOUNDS) && geometry.has_bbox())
+  {
+    if (!inner_tags_printed)
+    {
+      std::cout<<">\n";
+      inner_tags_printed = true;
+    }
+    std::cout<<"    <bounds"
+        " minlat=\""<<std::fixed<<std::setprecision(7)<<geometry.south()<<"\""
+        " minlon=\""<<std::fixed<<std::setprecision(7)<<geometry.west()<<"\""
+        " maxlat=\""<<std::fixed<<std::setprecision(7)<<geometry.north()<<"\""
+        " maxlon=\""<<std::fixed<<std::setprecision(7)<<geometry.east()<<"\""
         "/>\n";
   }
   else if ((mode.mode & Output_Mode::CENTER) && geometry.has_center())
