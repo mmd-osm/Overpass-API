@@ -110,6 +110,7 @@ statements_cc = \
   overpass_api/statements/filter.cc \
   overpass_api/statements/for.cc \
   overpass_api/statements/foreach.cc \
+  overpass_api/statements/geometry_endomorphisms.cc \
   overpass_api/statements/id_query.cc \
   overpass_api/statements/if.cc \
   overpass_api/statements/item.cc \
@@ -296,6 +297,7 @@ nobase_dist_HEADERS = \
   overpass_api/statements/filter.h\
   overpass_api/statements/for.h\
   overpass_api/statements/foreach.h\
+  overpass_api/statements/geometry_endomorphisms.h\
   overpass_api/statements/id_query.h\
   overpass_api/statements/if.h\
   overpass_api/statements/item.h\

@@ -34,7 +34,7 @@
 
 String endomorphisms are functions with one argument.
 Many of them help to normalize or check the value of its argument.
-The always first let their argument be evaluated.
+They always first let their argument be evaluated.
 Their syntax is always
 
   <Function Name>(<Evaluator>)
@@ -61,7 +61,7 @@ struct String_Endom_Evaluator_Maker : public Statement::Evaluator_Maker
     Statement* result = new Evaluator_(tree_it->line_col.first, attributes, global_settings);
     if (result)
     {
-      Statement* rhs = stmt_factory.create_evaluator(tree_it.rhs(), tree_context);
+      Statement* rhs = stmt_factory.create_evaluator(tree_it.rhs(), tree_context, Statement::string);
       if (rhs)
         result->add_statement(rhs, "");
       else if (error_output)

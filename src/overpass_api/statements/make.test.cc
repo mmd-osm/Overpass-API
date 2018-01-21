@@ -21,7 +21,9 @@
 #include "aggregators.h"
 #include "binary_operators.h"
 #include "explicit_geometry.h"
+#include "geometry_endomorphisms.h"
 #include "id_query.h"
+#include "item.h"
 #include "make.h"
 #include "print.h"
 #include "set_list_operators.h"
@@ -1260,6 +1262,63 @@ void make_polygon_intersection_test_2(Parsed_Query& global_settings, Transaction
 }
 
 
+void gcat_test(Parsed_Query& global_settings, Transaction& transaction,
+    std::string type, uint64 global_node_offset)
+{
+  Resource_Manager rman(transaction, &global_settings);
+  prepare_value_test(global_settings, rman, "_", 8, 14, global_node_offset);
+  
+  Statement_Container stmt_cont(global_settings);
+  Union_Statement union_(0, Attr().kvs(), global_settings);
+  stmt_cont.add_stmt(new Item_Statement(0, Attr().kvs(), global_settings), &union_);
+  Statement* geom_source = stmt_cont.add_stmt(
+      new Make_Statement(0, Attr()("type", "geom-source").kvs(), global_settings), &union_);
+  geom_source = stmt_cont.add_stmt(
+      new Set_Prop_Statement(0, Attr()("keytype", "geometry").kvs(), global_settings), geom_source);
+  Statement* lstr = stmt_cont.add_stmt(
+      new Evaluator_Linestring(0, Attr().kvs(), global_settings), geom_source);
+  add_point("51.004", "7.0025", lstr, stmt_cont);
+  add_point("51.005", "7.0025", lstr, stmt_cont);
+  add_point("51.005", "7.0015", lstr, stmt_cont);
+
+  union_.execute(rman);
+
+  Make_Statement stmt(0, Attr()("type", type).kvs(), global_settings);
+
+  Set_Prop_Statement stmt1(0, Attr()("keytype", "geometry").kvs(), global_settings);
+  stmt.add_statement(&stmt1, "");
+  Evaluator_Geom_Concat_Value stmt10(0, Attr().kvs(), global_settings);
+  stmt1.add_statement(&stmt10, "");
+  Evaluator_Geometry stmt100(0, Attr().kvs(), global_settings);
+  stmt10.add_statement(&stmt100, "");
+
+  stmt.execute(rman);
+
+  Print_Statement(0, Attr()("geometry", "full").kvs(), global_settings).execute(rman);
+}
+
+
+void center_test(Parsed_Query& global_settings, Transaction& transaction,
+    std::string type, double base_lat, double base_lon_1, double base_lon_2, uint64 global_node_offset)
+{
+  Resource_Manager rman(transaction, &global_settings);
+  Statement_Container stmt_cont(global_settings);
+
+  Make_Statement stmt(0, Attr()("type", type).kvs(), global_settings);
+
+  Statement* subs = stmt_cont.create_stmt< Set_Prop_Statement >(Attr()("keytype", "geometry").kvs(), &stmt);
+  Statement* center = stmt_cont.add_stmt(new Evaluator_Center(0, Attr().kvs(), global_settings), subs);
+  
+  subs = stmt_cont.add_stmt(new Evaluator_Linestring(0, Attr().kvs(), global_settings), center);
+  add_point(to_string(base_lat + 0.01), to_string(base_lon_1), subs, stmt_cont);
+  add_point(to_string(base_lat), to_string(base_lon_2), subs, stmt_cont);
+  add_point(to_string(base_lat - 0.01), to_string(base_lon_1), subs, stmt_cont);
+
+  stmt.execute(rman);
+  Print_Statement(0, Attr()("geometry", "full").kvs(), global_settings).execute(rman);
+}
+
+
 int main(int argc, char* args[])
 {
   if (argc < 5)
@@ -1501,6 +1560,12 @@ int main(int argc, char* args[])
       make_polygon_intersection_test_1(global_settings, transaction, "make-polygon", global_node_offset);
     if ((test_to_execute == "") || (test_to_execute == "109"))
       make_polygon_intersection_test_2(global_settings, transaction, "make-polygon", global_node_offset);
+    if ((test_to_execute == "") || (test_to_execute == "110"))
+      gcat_test(global_settings, transaction, "geometry", global_node_offset);
+    if ((test_to_execute == "") || (test_to_execute == "111"))
+      center_test(global_settings, transaction, "center", 48, 11.01, 10.99, global_node_offset);
+    if ((test_to_execute == "") || (test_to_execute == "112"))
+      center_test(global_settings, transaction, "center", 42, 179.99, -179.99, global_node_offset);
 
     std::cout<<"</osm>\n";
   }
