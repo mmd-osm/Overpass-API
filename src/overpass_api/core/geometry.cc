@@ -3,6 +3,7 @@
 #include "index_computations.h"
 
 #include <cmath>
+#include <limits>
 #include <map>
 
 
@@ -343,6 +344,17 @@ Bbox_Double* calc_bounds(const std::vector< std::vector< Point_Double > >& lines
   }
   else
     return new Bbox_Double(south, west, north, east);
+}
+
+
+Free_Polygon_Geometry::Free_Polygon_Geometry(const std::vector< std::vector< Point_Double > >& linestrings_) : linestrings(linestrings_), bounds(0)
+{
+  for (std::vector< std::vector< Point_Double > >::iterator it = linestrings.begin(); it != linestrings.end();
+      ++it)
+  {
+    if (it->front() != it->back())
+      it->push_back(it->front());
+  }
 }
 
 
@@ -841,24 +853,12 @@ struct Idx_Per_Point_Double
 
 struct Line_Divertion
 {
-  Line_Divertion(const Idx_Per_Point_Double& from_pt, const Idx_Per_Point_Double& to_pt)
-      : from_idx(from_pt.idx), from_remote_idx(from_pt.remote_idx),
-      to_idx(to_pt.idx), to_remote_idx(to_pt.remote_idx) {}
-  Line_Divertion(unsigned int from_idx_, unsigned int to_idx_)
-      : from_idx(from_idx_), from_remote_idx(from_idx_), to_idx(to_idx_), to_remote_idx(to_idx_) {}
+  Line_Divertion() : to_idx(std::numeric_limits< uint >::max()),
+      to_remote_idx(std::numeric_limits< uint >::max()) {}
+  Line_Divertion(const Idx_Per_Point_Double& rhs) : to_idx(rhs.idx), to_remote_idx(rhs.remote_idx) {}
   
-  unsigned int from_idx;
-  unsigned int from_remote_idx;
   unsigned int to_idx;
   unsigned int to_remote_idx;
-  
-  bool operator<(const Line_Divertion& rhs) const
-  {
-    if (from_idx != rhs.from_idx)
-      return from_idx < rhs.from_idx;
-    
-    return from_remote_idx < rhs.from_remote_idx;
-  }
 };
 
 
@@ -934,6 +934,12 @@ void split_segments(
 }
 
 
+unsigned int line_divertion_idx(const Idx_Per_Point_Double& rhs)
+{
+  return rhs.idx*2 + ((int)rhs.remote_idx - (int)rhs.idx - 1)/2;
+}
+
+
 void collect_divertions(const std::vector< Point_Double >& all_segments,
     uint32 idx, const std::vector< unsigned int >& segments,
     std::vector< Line_Divertion >& divertions)
@@ -967,8 +973,8 @@ void collect_divertions(const std::vector< Point_Double >& all_segments,
     {
       if (i - same_since == 2)
       {
-        divertions.push_back(Line_Divertion(pos_per_pt[same_since], pos_per_pt[same_since+1]));
-        divertions.push_back(Line_Divertion(pos_per_pt[same_since+1], pos_per_pt[same_since]));
+        divertions[line_divertion_idx(pos_per_pt[same_since])] = Line_Divertion(pos_per_pt[same_since+1]);
+        divertions[line_divertion_idx(pos_per_pt[same_since+1])] = Line_Divertion(pos_per_pt[same_since]);
       }
       else
       {
@@ -986,22 +992,22 @@ void collect_divertions(const std::vector< Point_Double >& all_segments,
           if (j+3 < line_per_gradient.size()
               && line_per_gradient[j+1].first == line_per_gradient[j+2].first)
           {
-            divertions.push_back(Line_Divertion(pos_per_pt[line_per_gradient[j].second],
-                pos_per_pt[line_per_gradient[j+3].second]));
-            divertions.push_back(Line_Divertion(pos_per_pt[line_per_gradient[j+1].second],
-                pos_per_pt[line_per_gradient[j+2].second]));
-            divertions.push_back(Line_Divertion(pos_per_pt[line_per_gradient[j+2].second],
-                pos_per_pt[line_per_gradient[j+1].second]));
-            divertions.push_back(Line_Divertion(pos_per_pt[line_per_gradient[j+3].second],
-                pos_per_pt[line_per_gradient[j].second]));
+            divertions[line_divertion_idx(pos_per_pt[line_per_gradient[j].second])]
+                = Line_Divertion(pos_per_pt[line_per_gradient[j+3].second]);
+            divertions[line_divertion_idx(pos_per_pt[line_per_gradient[j+1].second])]
+                = Line_Divertion(pos_per_pt[line_per_gradient[j+2].second]);
+            divertions[line_divertion_idx(pos_per_pt[line_per_gradient[j+2].second])]
+                = Line_Divertion(pos_per_pt[line_per_gradient[j+1].second]);
+            divertions[line_divertion_idx(pos_per_pt[line_per_gradient[j+3].second])]
+                = Line_Divertion(pos_per_pt[line_per_gradient[j].second]);
             j += 2;
           }
           else
           {
-            divertions.push_back(Line_Divertion(pos_per_pt[line_per_gradient[j].second],
-                pos_per_pt[line_per_gradient[j+1].second]));
-            divertions.push_back(Line_Divertion(pos_per_pt[line_per_gradient[j+1].second],
-                pos_per_pt[line_per_gradient[j].second]));
+            divertions[line_divertion_idx(pos_per_pt[line_per_gradient[j].second])]
+                = Line_Divertion(pos_per_pt[line_per_gradient[j+1].second]);
+            divertions[line_divertion_idx(pos_per_pt[line_per_gradient[j+1].second])]
+                = Line_Divertion(pos_per_pt[line_per_gradient[j].second]);
           }
         }
       }
@@ -1013,19 +1019,20 @@ void collect_divertions(const std::vector< Point_Double >& all_segments,
 }
 
 
-void assemble_linestrings(
-    const std::vector< Point_Double >& all_segments, unsigned int gap_positions_size,
-    std::vector< Line_Divertion >& divertions,
-    std::vector< std::vector< Point_Double > >& linestrings)
+void assemble_linestrings(const std::vector< Point_Double >& all_segments,
+    std::vector< Line_Divertion >& divertions, std::vector< std::vector< Point_Double > >& linestrings)
 {
-  std::sort(divertions.begin(), divertions.end());
+  // the function changes divertions because divertions is no longer needed after the function
   
   unsigned int pos = 0;
   unsigned int count = 0;
+  for (unsigned int i = 0; i < divertions.size(); i += 2)
+    count += (divertions[i+1].to_idx == std::numeric_limits< uint >::max());
   
-  while (count < all_segments.size()+1-gap_positions_size)
+  //Invariant: count is always equal to the number of i with divertions[2*i+1] == uint::max()
+  while (count < all_segments.size())
   {
-    while (divertions[2*pos + 1].from_remote_idx == pos)
+    while (divertions[2*pos].to_idx == std::numeric_limits< uint >::max())
     {
       ++pos;
       if (pos == all_segments.size()-1)
@@ -1036,7 +1043,7 @@ void assemble_linestrings(
     std::vector< Point_Double >& cur_target = linestrings.back();
     
     int dir = 1;
-    while (divertions[2*pos + dir].from_remote_idx != pos + (dir-1)/2)
+    while (divertions[2*pos + dir].to_idx != std::numeric_limits< uint >::max())
     {
       if (cur_target.size() >= 2 && all_segments[pos].epsilon_equal(cur_target[cur_target.size()-2]))
         // Remove pairs of equal segments
@@ -1044,14 +1051,13 @@ void assemble_linestrings(
       else if (cur_target.empty() || !all_segments[pos].epsilon_equal(cur_target.back()))
         cur_target.push_back(all_segments[pos]);
       
-      ++count;
-      divertions[2*pos + dir].from_remote_idx = pos + (dir-1)/2;
-      
-      pos = (int)pos + dir;
-      
-      Line_Divertion& divertion = divertions[2*pos + (1-dir)/2];
+      Line_Divertion& old_div = divertions[2*(int)pos + dir];
+      Line_Divertion& divertion = divertions[2*(int)pos + (3*dir-1)/2];
       dir = divertion.to_remote_idx - divertion.to_idx;
       pos = divertion.to_idx;
+      
+      ++count;
+      old_div.to_idx = std::numeric_limits< uint >::max();
     }
     
     ++pos;
@@ -1351,6 +1357,24 @@ Area_Oracle::point_status RHR_Polygon_Area_Oracle::get_point_status(int32 value,
 }
 
 
+bool strictly_west_of(double lhs, double rhs)
+{
+  if (lhs - rhs > 180.)
+    return lhs - 360. < rhs;
+  
+  return lhs < rhs;
+}
+
+
+bool weakly_west_of(double lhs, double rhs)
+{
+  if (lhs - rhs > 180.)
+    return lhs - 360. <= rhs;
+  
+  return lhs <= rhs;
+}
+
+
 RHR_Polygon_Geometry::RHR_Polygon_Geometry(const Free_Polygon_Geometry& rhs) : bounds(0)
 {
   std::vector< std::vector< Point_Double > > input(*rhs.get_multiline_geometry());
@@ -1378,17 +1402,23 @@ RHR_Polygon_Geometry::RHR_Polygon_Geometry(const Free_Polygon_Geometry& rhs) : b
   }
   split_segments(all_segments, gap_positions, segments_per_idx);
   
-  std::vector< Line_Divertion > divertions;
-  for (unsigned int i = 0; i < gap_positions.size()-1; ++i)
+  // divertions[2*i - 2] tells which segment follows the segment from all_segments[i+1] to all_segments[i]
+  // divertions[2*i - 1] tells which segment follows the segment from all_segments[i] to all_segments[i+1]
+  std::vector< Line_Divertion > divertions(2*all_segments.size());
+  
+  // fill the gaps with invalid following segments
+  for (unsigned int i = 1; i < gap_positions.size(); ++i)
   {
-    divertions.push_back(Line_Divertion(gap_positions[i], gap_positions[i]-1));
-    divertions.push_back(Line_Divertion(gap_positions[i]-1, gap_positions[i]));
+    divertions[gap_positions[i]*2 - 2] = Line_Divertion();
+    divertions[gap_positions[i]*2 - 1] = Line_Divertion();
   }
+  
+  // compute the real segment connections
   for (std::map< uint32, std::vector< unsigned int > >::const_iterator idx_it = segments_per_idx.begin();
       idx_it != segments_per_idx.end(); ++idx_it)
     collect_divertions(all_segments, idx_it->first, idx_it->second, divertions);
   
-  assemble_linestrings(all_segments, gap_positions.size(), divertions, linestrings);
+  assemble_linestrings(all_segments, divertions, linestrings);
   
   RHR_Polygon_Area_Oracle area_oracle(all_segments, segments_per_idx);
   Four_Field_Index four_field_idx(&area_oracle);
@@ -1404,9 +1434,9 @@ RHR_Polygon_Geometry::RHR_Polygon_Geometry(const Free_Polygon_Geometry& rhs) : b
   {
     if (lstr_it->size() > 2)
     {
-      if ((*lstr_it)[0].lon < (*lstr_it)[1].lon)
+      if (strictly_west_of((*lstr_it)[0].lon, (*lstr_it)[1].lon))
       {
-        if ((*lstr_it)[1].lon <= (*lstr_it)[2].lon)
+        if (weakly_west_of((*lstr_it)[1].lon, (*lstr_it)[2].lon))
         {
           if (four_field_idx.get_point_status((*lstr_it)[1].lat, (*lstr_it)[1].lon) & 0x3)
             std::reverse(lstr_it->begin(), lstr_it->end());
@@ -1419,7 +1449,7 @@ RHR_Polygon_Geometry::RHR_Polygon_Geometry(const Free_Polygon_Geometry& rhs) : b
             std::reverse(lstr_it->begin(), lstr_it->end());
         }
       }
-      else if ((*lstr_it)[2].lon < (*lstr_it)[1].lon)
+      else if (strictly_west_of((*lstr_it)[2].lon, (*lstr_it)[1].lon))
       {
         if (!(four_field_idx.get_point_status((*lstr_it)[1].lat, (*lstr_it)[1].lon) & 0x3))
           std::reverse(lstr_it->begin(), lstr_it->end());
@@ -1947,4 +1977,354 @@ double length(const Opaque_Geometry& geometry)
   }
   
   return result;
+}
+
+
+void collect_components(
+    std::vector< Point_Double >& nodes, std::vector< std::vector< Point_Double > >& linestrings,
+    const Opaque_Geometry& geometry)
+{
+  if (geometry.has_components())
+  {
+    const std::vector< Opaque_Geometry* >& components = *geometry.get_components();
+    for (std::vector< Opaque_Geometry* >::const_iterator it = components.begin(); it != components.end(); ++it)
+    {
+      if (*it)
+        collect_components(nodes, linestrings, **it);
+    }
+  }
+  else if (geometry.has_line_geometry())
+    linestrings.push_back(*geometry.get_line_geometry());
+  else if (geometry.has_multiline_geometry())
+  {
+    const std::vector< std::vector< Point_Double > >& lstrs = *geometry.get_multiline_geometry();
+    for (std::vector< std::vector< Point_Double > >::const_iterator it = lstrs.begin(); it != lstrs.end(); ++it)
+      linestrings.push_back(*it);
+  }
+  else if (geometry.has_center())
+    nodes.push_back(Point_Double(geometry.center_lat(), geometry.center_lon()));
+}
+
+
+struct Linestring_Geometry_Ptr
+{
+  Linestring_Geometry_Ptr(Linestring_Geometry* ptr_) : ptr(ptr_) {}
+  bool operator<(Linestring_Geometry_Ptr rhs) const;
+  
+private:
+  Linestring_Geometry* ptr;
+};
+
+
+bool Linestring_Geometry_Ptr::operator<(Linestring_Geometry_Ptr rhs_) const
+{
+  if (!rhs_.ptr)
+    return false;
+  if (!ptr)
+    return true;
+  
+  const std::vector< Point_Double >& lhs = *ptr->get_line_geometry();
+  const std::vector< Point_Double >& rhs = *rhs_.ptr->get_line_geometry();
+  
+  if (lhs.size() != rhs.size())
+    return lhs.size() < rhs.size();
+  
+  uint l_start = 0;
+  uint l_factor = 1;
+  if (lhs.back() < lhs.front())
+  {
+    l_start = lhs.size()-1;
+    l_factor = -1;
+  }
+  
+  uint r_start = 0;
+  uint r_factor = 1;
+  if (rhs.back() < rhs.front())
+  {
+    r_start = rhs.size()-1;
+    r_factor = -1;
+  }
+  
+  for (int i = 0; i < (int)lhs.size(); ++i)
+  {
+    if (lhs[l_start + l_factor*i] != rhs[r_start + r_factor*i])
+      return lhs[l_start + l_factor*i] < rhs[r_start + r_factor*i];
+  }
+  return false;
+}
+
+
+Opaque_Geometry* make_trace(const Opaque_Geometry& geometry)
+{
+  std::vector< Point_Double > nodes;
+  std::vector< std::vector< Point_Double > > linestrings;
+  collect_components(nodes, linestrings, geometry);
+  
+  std::sort(nodes.begin(), nodes.end());
+  nodes.erase(std::unique(nodes.begin(), nodes.end()), nodes.end());
+  
+  std::map< Point_Double, uint > coord_count;
+  for (std::vector< Point_Double >::const_iterator it = nodes.begin(); it != nodes.end(); ++it)
+    ++coord_count[*it];
+  
+  for (std::vector< std::vector< Point_Double > >::const_iterator lit = linestrings.begin();
+      lit != linestrings.end(); ++lit)
+  {
+    if (lit->empty())
+      continue;
+    coord_count[lit->front()] += 2;
+    coord_count[lit->back()] += 2;
+    for (uint i = 1; i < lit->size() - 1; ++i)
+      ++coord_count[(*lit)[i]];
+  }
+  
+  Compound_Geometry* result = new Compound_Geometry();
+  
+  for (std::vector< Point_Double >::const_iterator it = nodes.begin(); it != nodes.end(); ++it)
+    result->add_component(new Point_Geometry(it->lat, it->lon));
+  
+  std::set< Linestring_Geometry_Ptr > lstrs;
+  for (std::vector< std::vector< Point_Double > >::const_iterator lit = linestrings.begin();
+      lit != linestrings.end(); ++lit)
+  {
+    if (lit->empty())
+      continue;
+    
+    std::vector< Point_Double > points;
+    points.push_back(lit->front());
+    for (uint i = 1; i < lit->size() - 1; ++i)
+    {
+      if (coord_count[(*lit)[i]] > 1)
+      {
+        points.push_back((*lit)[i]);
+        
+        Linestring_Geometry* lstr = new Linestring_Geometry(points);
+        if (lstrs.insert(Linestring_Geometry_Ptr(lstr)).second)
+          result->add_component(lstr);
+        else
+          delete lstr;
+        
+        points.clear();
+      }
+      points.push_back((*lit)[i]);
+    }
+    points.push_back(lit->back());
+    Linestring_Geometry* lstr = new Linestring_Geometry(points);
+    if (lstrs.insert(Linestring_Geometry_Ptr(lstr)).second)
+      result->add_component(lstr);
+    else
+      delete lstr;
+  }
+  
+  return result;
+}
+
+
+void collect_components(std::vector< Point_Double >& nodes, const Opaque_Geometry& geometry)
+{
+  if (geometry.has_components())
+  {
+    const std::vector< Opaque_Geometry* >& components = *geometry.get_components();
+    for (std::vector< Opaque_Geometry* >::const_iterator it = components.begin(); it != components.end(); ++it)
+    {
+      if (*it)
+        collect_components(nodes, **it);
+    }
+  }
+  else if (geometry.has_line_geometry())
+  {
+    const std::vector< Point_Double >& lstrs = *geometry.get_line_geometry();
+    for (std::vector< Point_Double >::const_iterator it = lstrs.begin(); it != lstrs.end(); ++it)
+      nodes.push_back(*it);
+  }
+  else if (geometry.has_multiline_geometry())
+  {
+    const std::vector< std::vector< Point_Double > >& lstrs = *geometry.get_multiline_geometry();
+    for (std::vector< std::vector< Point_Double > >::const_iterator lit = lstrs.begin(); lit != lstrs.end(); ++lit)
+    {
+      for (std::vector< Point_Double >::const_iterator it = lit->begin(); it != lit->end(); ++it)
+        nodes.push_back(*it);
+    }
+  }
+  else if (geometry.has_center())
+    nodes.push_back(Point_Double(geometry.center_lat(), geometry.center_lon()));
+}
+
+
+struct Point_Double_By_Lon
+{
+  bool operator()(const Point_Double& lhs, const Point_Double& rhs)
+  {
+    if (lhs.lon != rhs.lon)
+      return lhs.lon < rhs.lon;
+    return lhs.lat < rhs.lat;
+  }
+};
+
+
+struct Spherical_Vector
+{
+  Spherical_Vector() : x(0), y(0), z(0) {}
+  
+  Spherical_Vector(const Point_Double& pt) : x(sin(pt.lat*deg_to_arc()))
+  {
+    double cos_lat = cos(pt.lat*deg_to_arc());
+    y = cos_lat*sin(pt.lon*deg_to_arc());
+    z = cos_lat*cos(pt.lon*deg_to_arc());
+  }
+  
+  Spherical_Vector(const Spherical_Vector& lhs, const Spherical_Vector& rhs)
+      : x(lhs.y*rhs.z - lhs.z*rhs.y), y(lhs.z*rhs.x - lhs.x*rhs.z), z(lhs.x*rhs.y - lhs.y*rhs.x)
+  {
+    double length = sqrt(x*x + y*y + z*z);
+    x /= length;
+    y /= length;
+    z /= length;
+  }
+  
+  double x;
+  double y;
+  double z;
+  
+  double operator*(const Spherical_Vector& rhs) const { return x*rhs.x + y*rhs.y + z*rhs.z; }
+  
+  static double deg_to_arc()
+  {
+    static const double result = acos(0)/90.;
+    return result;
+  }
+};
+
+
+struct Proto_Hull
+{
+  struct Hull_Segment
+  {
+    Hull_Segment(const Point_Double& pt) : ll_pt(pt), s_pt(pt) {}
+    Hull_Segment(const Point_Double& pt, const Spherical_Vector& s) : ll_pt(pt), s_pt(s) {}
+    
+    Point_Double ll_pt;
+    Spherical_Vector s_pt;
+    Spherical_Vector edge;
+  };
+  
+  Proto_Hull(const Point_Double& s, const Point_Double& w, const Point_Double& n, const Point_Double& e);
+  void enhance(const Point_Double& rhs);
+  std::vector< Point_Double > get_line_geometry() const;
+  
+private:
+  std::vector< Hull_Segment > segments;
+};
+
+
+Proto_Hull::Proto_Hull(const Point_Double& s, const Point_Double& w, const Point_Double& n, const Point_Double& e)
+{
+  segments.push_back(Hull_Segment(w));
+  if (s != segments.back().ll_pt)
+    segments.push_back(Hull_Segment(s));
+  if (e != segments.back().ll_pt)
+    segments.push_back(Hull_Segment(e));
+  if (n != segments.back().ll_pt)
+    segments.push_back(Hull_Segment(n));
+  
+  for (unsigned int i = 1; i < segments.size(); ++i)
+    segments[i].edge = Spherical_Vector(segments[i-1].s_pt, segments[i].s_pt);
+  segments[0].edge = Spherical_Vector(segments.back().s_pt, segments.front().s_pt);
+}
+
+
+void Proto_Hull::enhance(const Point_Double& rhs)
+{
+  Spherical_Vector s_pt(rhs);
+  
+  std::vector< Hull_Segment >::iterator from_it = segments.begin();
+  while (from_it != segments.end() && from_it->edge*s_pt < 1e-8)
+    ++from_it;
+  
+  if (from_it != segments.end())
+  {
+    std::vector< Hull_Segment >::iterator to_it = from_it;
+    while (to_it != segments.end() && to_it->edge*s_pt >= 1e-8)
+      ++to_it;
+    --to_it;
+    
+    to_it->edge = Spherical_Vector(s_pt, to_it->s_pt);
+    if (from_it == to_it)
+      from_it = segments.insert(from_it, Hull_Segment(rhs, s_pt));
+    else
+    {
+      ++from_it;
+      from_it = segments.erase(from_it, to_it);
+      --from_it;
+      *from_it = Hull_Segment(rhs, s_pt);
+    }
+    if (from_it == segments.begin())
+      from_it->edge = Spherical_Vector(segments.back().s_pt, s_pt);
+    else
+      from_it->edge = Spherical_Vector((from_it-1)->s_pt, s_pt);
+  }
+}
+
+
+std::vector< Point_Double > Proto_Hull::get_line_geometry() const
+{
+  std::vector< Point_Double > result;
+  result.reserve(segments.size());
+  for (std::vector< Hull_Segment >::const_iterator it = segments.begin(); it != segments.end(); ++it)
+    result.push_back(it->ll_pt);
+  return result;
+}
+
+
+Opaque_Geometry* make_hull(const Opaque_Geometry& geometry)
+{
+  std::vector< Point_Double > nodes;
+  collect_components(nodes, geometry);
+  
+  std::sort(nodes.begin(), nodes.end(), Point_Double_By_Lon());
+  nodes.erase(std::unique(nodes.begin(), nodes.end()), nodes.end());
+  
+  if (nodes.empty())
+    return new Null_Geometry();
+  if (nodes.size() == 1)
+    return new Point_Geometry(nodes.front().lat, nodes.front().lon);
+  if (nodes.size() == 2)
+  {
+    nodes.push_back(nodes.front());
+    return new Linestring_Geometry(nodes);
+  }
+  
+  Point_Double min_lat(100., 0.);
+  Point_Double max_lat(-100., 0.);
+  for (std::vector< Point_Double >::const_iterator it = nodes.begin(); it != nodes.end(); ++it)
+  {
+    if (it->lat < min_lat.lat)
+      min_lat = *it;
+    if (it->lat > max_lat.lat)
+      max_lat = *it;
+  }
+  
+  double max_lon_delta = nodes.front().lon + 360. - nodes.back().lon;
+  Point_Double west_end = nodes.front();
+  Point_Double east_end = nodes.back();
+  for (uint i = 1; i < nodes.size(); ++i)
+  {
+    if (max_lon_delta < nodes[i].lon - nodes[i-1].lon)
+    {
+      max_lon_delta = nodes[i].lon - nodes[i-1].lon;
+      west_end = nodes[i];
+      east_end = nodes[i-1];
+    }
+  }
+  
+  Proto_Hull proto_hull(min_lat, west_end, max_lat, east_end);
+  for (std::vector< Point_Double >::const_iterator it = nodes.begin(); it != nodes.end(); ++it)
+    proto_hull.enhance(*it);
+  
+  std::vector< Point_Double > line_geom = proto_hull.get_line_geometry();
+  if (line_geom.size() < 3)
+    return new Linestring_Geometry(line_geom);
+  
+  return new RHR_Polygon_Geometry(Free_Polygon_Geometry(
+      std::vector< std::vector< Point_Double > >(1, line_geom)));
 }

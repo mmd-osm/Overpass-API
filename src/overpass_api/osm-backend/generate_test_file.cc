@@ -4462,18 +4462,18 @@ int main(int argc, char* args[])
       "  <make-polygon id=\"1\">\n"
       "    <linestring>\n"
       "      <vertex lat=\"45.0000000\" lon=\"179.9900000\"/>\n"
-      "      <vertex lat=\"44.9975003\" lon=\"179.9950007\"/>\n"
-      "      <vertex lat=\"44.9950004\" lon=\"-179.9999991\"/>\n"
-      "      <vertex lat=\"44.9925003\" lon=\"-179.9949993\"/>\n"
-      "      <vertex lat=\"44.9900000\" lon=\"-179.9900000\"/>\n"
-      "      <vertex lat=\"44.9875003\" lon=\"-179.9950007\"/>\n"
-      "      <vertex lat=\"44.9850004\" lon=\"179.9999991\"/>\n"
-      "      <vertex lat=\"44.9825003\" lon=\"179.9949993\"/>\n"
-      "      <vertex lat=\"44.9800000\" lon=\"179.9900000\"/>\n"
-      "      <vertex lat=\"44.9840000\" lon=\"179.9900000\"/>\n"
-      "      <vertex lat=\"44.9880000\" lon=\"179.9900000\"/>\n"
-      "      <vertex lat=\"44.9920000\" lon=\"179.9900000\"/>\n"
       "      <vertex lat=\"44.9960000\" lon=\"179.9900000\"/>\n"
+      "      <vertex lat=\"44.9920000\" lon=\"179.9900000\"/>\n"
+      "      <vertex lat=\"44.9880000\" lon=\"179.9900000\"/>\n"
+      "      <vertex lat=\"44.9840000\" lon=\"179.9900000\"/>\n"
+      "      <vertex lat=\"44.9800000\" lon=\"179.9900000\"/>\n"
+      "      <vertex lat=\"44.9825003\" lon=\"179.9949993\"/>\n"
+      "      <vertex lat=\"44.9850004\" lon=\"179.9999991\"/>\n"
+      "      <vertex lat=\"44.9875003\" lon=\"-179.9950007\"/>\n"
+      "      <vertex lat=\"44.9900000\" lon=\"-179.9900000\"/>\n"
+      "      <vertex lat=\"44.9925003\" lon=\"-179.9949993\"/>\n"
+      "      <vertex lat=\"44.9950004\" lon=\"-179.9999991\"/>\n"
+      "      <vertex lat=\"44.9975003\" lon=\"179.9950007\"/>\n"
       "      <vertex lat=\"45.0000000\" lon=\"179.9900000\"/>\n"
       "    </linestring>\n"
       "  </make-polygon>\n";
@@ -4988,6 +4988,145 @@ int main(int argc, char* args[])
       "  <center id=\"1\">\n"
       "    <point lat=\"42.0000000\" lon=\"180.0000000\"/>\n"
       "  </center>\n";
+    if (std::string(args[2]) == "make_113")
+      std::cout<<
+      "  <trace id=\"2\">\n"
+      "    <group>\n"
+      "      <point lat=\"51.5010000\" lon=\"7.0005000\"/>\n"
+      "    </group>\n"
+      "  </trace>\n";
+    if (std::string(args[2]) == "make_114")
+      std::cout<<
+      "  <trace id=\"3\">\n"
+      "    <group>\n"
+      "      <point lat=\"51.5010000\" lon=\"7.0005000\"/>\n"
+      "    </group>\n"
+      "    <group>\n"
+      "      <point lat=\"51.5010000\" lon=\"7.0035000\"/>\n"
+      "    </group>\n"
+      "  </trace>\n";
+    if (std::string(args[2]) == "make_115")
+      std::cout<<
+      "  <trace id=\"3\">\n"
+      "    <group>\n"
+      "      <point lat=\"51.5010000\" lon=\"7.0005000\"/>\n"
+      "    </group>\n"
+      "  </trace>\n";
+    if (std::string(args[2]) == "make_116")
+      std::cout<<
+      "  <trace id=\"3\">\n"
+      "    <group>\n"
+      "      <vertex lat=\"52.0040000\" lon=\"7.0025000\"/>\n"
+      "      <vertex lat=\"52.0050000\" lon=\"7.0025000\"/>\n"
+      "    </group>\n"
+      "  </trace>\n";
+    if (std::string(args[2]) == "make_117")
+      std::cout<<
+      "  <trace id=\"3\">\n"
+      "    <group>\n"
+      "      <vertex lat=\"52.0040000\" lon=\"7.0025000\"/>\n"
+      "      <vertex lat=\"52.0050000\" lon=\"7.0025000\"/>\n"
+      "    </group>\n"
+      "    <group>\n"
+      "      <vertex lat=\"52.0040000\" lon=\"7.0015000\"/>\n"
+      "      <vertex lat=\"52.0050000\" lon=\"7.0015000\"/>\n"
+      "    </group>\n"
+      "  </trace>\n";
+    if (std::string(args[2]) == "make_118")
+      std::cout<<
+      "  <trace id=\"3\">\n"
+      "    <group>\n"
+      "      <vertex lat=\"52.0040000\" lon=\"7.0025000\"/>\n"
+      "      <vertex lat=\"52.0050000\" lon=\"7.0025000\"/>\n"
+      "    </group>\n"
+      "  </trace>\n";
+    if (std::string(args[2]) == "make_119")
+      std::cout<<
+      "  <hull id=\"1\"/>\n";
+    if (std::string(args[2]) == "make_120")
+      std::cout<<
+      "  <hull id=\"2\">\n"
+      "    <point lat=\"51.0000000\" lon=\"6.9990000\"/>\n"
+      "  </hull>\n";
+    if (std::string(args[2]) == "make_121")
+      std::cout<<
+      "  <hull id=\"2\">\n"
+      "    <vertex lat=\"51.0000000\" lon=\"6.9990000\"/>\n"
+      "    <vertex lat=\"50.9990000\" lon=\"7.0000000\"/>\n"
+      "    <vertex lat=\"51.0000000\" lon=\"6.9990000\"/>\n"
+      "  </hull>\n";
+    if (std::string(args[2]) == "make_122")
+      std::cout<<
+      "  <hull id=\"2\">\n"
+      "    <linestring>\n"
+      "      <vertex lat=\"51.0000000\" lon=\"6.9990000\"/>\n"
+      "      <vertex lat=\"50.9990000\" lon=\"7.0000000\"/>\n"
+      "      <vertex lat=\"51.0000000\" lon=\"7.0010000\"/>\n"
+      "      <vertex lat=\"51.0010000\" lon=\"7.0000000\"/>\n"
+      "      <vertex lat=\"51.0000000\" lon=\"6.9990000\"/>\n"
+      "    </linestring>\n"
+      "  </hull>\n";
+    if (std::string(args[2]) == "make_123")
+      std::cout<<
+      "  <hull id=\"3\">\n"
+      "    <linestring>\n"
+      "      <vertex lat=\"51.0000000\" lon=\"6.9990000\"/>\n"
+      "      <vertex lat=\"50.9993000\" lon=\"6.9993000\"/>\n"
+      "      <vertex lat=\"50.9990000\" lon=\"7.0000000\"/>\n"
+      "      <vertex lat=\"51.0000000\" lon=\"7.0010000\"/>\n"
+      "      <vertex lat=\"51.0010000\" lon=\"7.0000000\"/>\n"
+      "      <vertex lat=\"51.0000000\" lon=\"6.9990000\"/>\n"
+      "    </linestring>\n"
+      "  </hull>\n";
+    if (std::string(args[2]) == "make_124")
+      std::cout<<
+      "  <hull id=\"5\">\n"
+      "    <linestring>\n"
+      "      <vertex lat=\"51.0000000\" lon=\"6.9990000\"/>\n"
+      "      <vertex lat=\"50.9993000\" lon=\"6.9993000\"/>\n"
+      "      <vertex lat=\"50.9990000\" lon=\"7.0000000\"/>\n"
+      "      <vertex lat=\"50.9994000\" lon=\"7.0005000\"/>\n"
+      "      <vertex lat=\"50.9995000\" lon=\"7.0006000\"/>\n"
+      "      <vertex lat=\"51.0000000\" lon=\"7.0010000\"/>\n"
+      "      <vertex lat=\"51.0010000\" lon=\"7.0000000\"/>\n"
+      "      <vertex lat=\"51.0000000\" lon=\"6.9990000\"/>\n"
+      "    </linestring>\n"
+      "  </hull>\n";
+    if (std::string(args[2]) == "make_125")
+      std::cout<<
+      "  <hull id=\"6\">\n"
+      "    <linestring>\n"
+      "      <vertex lat=\"51.0000000\" lon=\"6.9990000\"/>\n"
+      "      <vertex lat=\"50.9993000\" lon=\"6.9993000\"/>\n"
+      "      <vertex lat=\"50.9990000\" lon=\"7.0000000\"/>\n"
+      "      <vertex lat=\"50.9991000\" lon=\"7.0009000\"/>\n"
+      "      <vertex lat=\"51.0000000\" lon=\"7.0010000\"/>\n"
+      "      <vertex lat=\"51.0010000\" lon=\"7.0000000\"/>\n"
+      "      <vertex lat=\"51.0000000\" lon=\"6.9990000\"/>\n"
+      "    </linestring>\n"
+      "  </hull>\n";
+    if (std::string(args[2]) == "make_126")
+      std::cout<<
+      "  <hull id=\"2\">\n"
+      "    <linestring>\n"
+      "      <vertex lat=\"51.0000000\" lon=\"179.9980000\"/>\n"
+      "      <vertex lat=\"50.9980000\" lon=\"179.9990000\"/>\n"
+      "      <vertex lat=\"51.0000000\" lon=\"180.0000000\"/>\n"
+      "      <vertex lat=\"51.0020000\" lon=\"-179.9990000\"/>\n"
+      "      <vertex lat=\"51.0000000\" lon=\"179.9980000\"/>\n"
+      "    </linestring>\n"
+      "  </hull>\n";
+    if (std::string(args[2]) == "make_127")
+      std::cout<<
+      "  <hull id=\"2\">\n"
+      "    <linestring>\n"
+      "      <vertex lat=\"51.0000000\" lon=\"179.9980000\"/>\n"
+      "      <vertex lat=\"50.9980000\" lon=\"179.9990000\"/>\n"
+      "      <vertex lat=\"51.0000000\" lon=\"-179.9980000\"/>\n"
+      "      <vertex lat=\"51.0020000\" lon=\"-179.9990000\"/>\n"
+      "      <vertex lat=\"51.0000000\" lon=\"179.9980000\"/>\n"
+      "    </linestring>\n"
+      "  </hull>\n";
 
     std::cout<<"</osm>\n";
   }
@@ -5272,6 +5411,106 @@ int main(int argc, char* args[])
       "    </group>\n"
       "  </geometry>\n"
       "  <geometry id=\"6\"/>\n";
+    if (std::string(args[2]) == "convert_12")
+      std::cout<<
+      "  <trace id=\"2\">\n"
+      "    <group>\n"
+      "      <point "<<lat_lon_of_node(2, pattern_size)<<"/>\n"
+      "    </group>\n"
+      "  </trace>\n"
+      "  <trace id=\"3\">\n"
+      "    <group>\n"
+      "      <point "<<lat_lon_of_node(3, pattern_size)<<"/>\n"
+      "    </group>\n"
+      "  </trace>\n"
+      "  <trace id=\"4\">\n"
+      "    <group>\n"
+      "      <vertex "<<lat_lon_of_node(pattern_size + 2, pattern_size)<<"/>\n"
+      "      <vertex "<<lat_lon_of_node(pattern_size + 3, pattern_size)<<"/>\n"
+      "    </group>\n"
+      "  </trace>\n"
+      "  <trace id=\"5\">\n"
+      "    <group>\n"
+      "      <point "<<lat_lon_of_node(1, pattern_size)<<"/>\n"
+      "    </group>\n"
+      "    <group>\n"
+      "      <point "<<lat_lon_of_node(2, pattern_size)<<"/>\n"
+      "    </group>\n"
+      "    <group>\n"
+      "      <point "<<lat_lon_of_node(pattern_size + 1, pattern_size)<<"/>\n"
+      "    </group>\n"
+      "    <group>\n"
+      "      <point "<<lat_lon_of_node(pattern_size + 2, pattern_size)<<"/>\n"
+      "    </group>\n"
+      "  </trace>\n"
+      "  <trace id=\"6\">\n"
+      "  </trace>\n";
+    if (std::string(args[2]) == "convert_13")
+      std::cout<<
+      "  <trace id=\"1\">\n"
+      "  </trace>\n"
+      "  <trace id=\"2\">\n"
+      "    <group>\n"
+      "      <vertex "<<lat_lon_of_node(pattern_size + 1, pattern_size)<<"/>\n"
+      "      <vertex "<<lat_lon_of_node(pattern_size + 2, pattern_size)<<"/>\n"
+      "    </group>\n"
+      "    <group>\n"
+      "      <vertex "<<lat_lon_of_node(pattern_size + 2, pattern_size)<<"/>\n"
+      "      <vertex "<<lat_lon_of_node(pattern_size + 3, pattern_size)<<"/>\n"
+      "    </group>\n"
+      "    <group>\n"
+      "      <vertex "<<lat_lon_of_node(2, pattern_size)<<"/>\n"
+      "      <vertex "<<lat_lon_of_node(pattern_size + 2, pattern_size)<<"/>\n"
+      "    </group>\n"
+      "    <group>\n"
+      "      <vertex "<<lat_lon_of_node(2*pattern_size + 4, pattern_size)<<"/>\n"
+      "      <vertex "<<lat_lon_of_node(3*pattern_size + 4, pattern_size)<<"/>\n"
+      "    </group>\n"
+      "  </trace>\n"
+      "  <trace id=\"3\">\n"
+      "    <group>\n"
+      "      <point "<<lat_lon_of_node(1, pattern_size)<<"/>\n"
+      "    </group>\n"
+      "    <group>\n"
+      "      <point "<<lat_lon_of_node(2, pattern_size)<<"/>\n"
+      "    </group>\n"
+      "    <group>\n"
+      "      <point "<<lat_lon_of_node(pattern_size + 1, pattern_size)<<"/>\n"
+      "    </group>\n"
+      "    <group>\n"
+      "      <point "<<lat_lon_of_node(pattern_size + 2, pattern_size)<<"/>\n"
+      "    </group>\n"
+      "    <group>\n"
+      "      <vertex "<<lat_lon_of_node(pattern_size + 1, pattern_size)<<"/>\n"
+      "      <vertex "<<lat_lon_of_node(pattern_size + 2, pattern_size)<<"/>\n"
+      "    </group>\n"
+      "    <group>\n"
+      "      <vertex "<<lat_lon_of_node(pattern_size + 2, pattern_size)<<"/>\n"
+      "      <vertex "<<lat_lon_of_node(pattern_size + 3, pattern_size)<<"/>\n"
+      "    </group>\n"
+      "    <group>\n"
+      "      <vertex "<<lat_lon_of_node(2, pattern_size)<<"/>\n"
+      "      <vertex "<<lat_lon_of_node(pattern_size + 2, pattern_size)<<"/>\n"
+      "    </group>\n"
+      "    <group>\n"
+      "      <vertex "<<lat_lon_of_node(2*pattern_size + 4, pattern_size)<<"/>\n"
+      "      <vertex "<<lat_lon_of_node(3*pattern_size + 4, pattern_size)<<"/>\n"
+      "    </group>\n"
+      "  </trace>\n"
+      "  <trace id=\"4\">\n"
+      "    <group>\n"
+      "      <point "<<lat_lon_of_node(1, pattern_size)<<"/>\n"
+      "    </group>\n"
+      "    <group>\n"
+      "      <point "<<lat_lon_of_node(2, pattern_size)<<"/>\n"
+      "    </group>\n"
+      "    <group>\n"
+      "      <point "<<lat_lon_of_node(pattern_size + 1, pattern_size)<<"/>\n"
+      "    </group>\n"
+      "    <group>\n"
+      "      <point "<<lat_lon_of_node(pattern_size + 2, pattern_size)<<"/>\n"
+      "    </group>\n"
+      "  </trace>\n";
 
     std::cout<<"</osm>\n";
   }

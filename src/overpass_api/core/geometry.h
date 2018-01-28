@@ -16,6 +16,8 @@ public:
   
   bool operator==(const Point_Double& rhs) const { return lat == rhs.lat && lon == rhs.lon; }
   bool operator!=(const Point_Double& rhs) const { return !(*this == rhs); }
+  bool operator<(const Point_Double& rhs) const
+  { return lat != rhs.lat ? lat < rhs.lat : lon < rhs.lon; }
   
   bool epsilon_equal(const Point_Double& rhs) const
   { return fabs(lat - rhs.lat) < 1e-7 && fabs(lon - rhs.lon) < 1e-7; }
@@ -314,7 +316,7 @@ class Free_Polygon_Geometry : public Opaque_Geometry
 {
 public:
   Free_Polygon_Geometry() : bounds(0) {}
-  Free_Polygon_Geometry(const std::vector< std::vector< Point_Double > >& linestrings_) : linestrings(linestrings_), bounds(0) {}
+  Free_Polygon_Geometry(const std::vector< std::vector< Point_Double > >& linestrings_);
   virtual ~Free_Polygon_Geometry() { delete bounds; }
   virtual Opaque_Geometry* clone() const { return new Free_Polygon_Geometry(linestrings); }
   
@@ -530,6 +532,10 @@ private:
 
 
 double length(const Opaque_Geometry& geometry);
+
+Opaque_Geometry* make_trace(const Opaque_Geometry& geometry);
+
+Opaque_Geometry* make_hull(const Opaque_Geometry& geometry);
 
 double great_circle_dist(double lat1, double lon1, double lat2, double lon2);
 
