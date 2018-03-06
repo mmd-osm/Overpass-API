@@ -2186,6 +2186,7 @@ struct Spherical_Vector
   double y;
   double z;
   
+  double operator==(const Spherical_Vector& rhs) const { return x == rhs.x && y == rhs.y && z == rhs.z; }
   double operator*(const Spherical_Vector& rhs) const { return x*rhs.x + y*rhs.y + z*rhs.z; }
   
   static double deg_to_arc()
@@ -2226,10 +2227,15 @@ Proto_Hull::Proto_Hull(const Point_Double& s, const Point_Double& w, const Point
     segments.push_back(Hull_Segment(e));
   if (n != segments.back().ll_pt)
     segments.push_back(Hull_Segment(n));
+  if (segments.back().s_pt == segments.front().s_pt)
+    segments.pop_back();
   
   for (unsigned int i = 1; i < segments.size(); ++i)
     segments[i].edge = Spherical_Vector(segments[i-1].s_pt, segments[i].s_pt);
-  segments[0].edge = Spherical_Vector(segments.back().s_pt, segments.front().s_pt);
+  if (segments.size() > 1)
+    segments[0].edge = Spherical_Vector(segments.back().s_pt, segments.front().s_pt);
+  else
+    segments.clear();
 }
 
 
@@ -2241,7 +2247,7 @@ void Proto_Hull::enhance(const Point_Double& rhs)
   while (from_it != segments.end() && from_it->edge*s_pt < 1e-8)
     ++from_it;
   
-  if (from_it != segments.end())
+  if (from_it != segments.end() && from_it->edge*s_pt >= 1e-8)
   {
     std::vector< Hull_Segment >::iterator to_it = from_it;
     while (to_it != segments.end() && to_it->edge*s_pt >= 1e-8)
