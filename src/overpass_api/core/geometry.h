@@ -94,6 +94,8 @@ public:
   virtual bool relation_pos_is_valid(unsigned int member_pos, unsigned int nd_pos) const = 0;
   virtual double relation_pos_lat(unsigned int member_pos, unsigned int nd_pos) const = 0;
   virtual double relation_pos_lon(unsigned int member_pos, unsigned int nd_pos) const = 0;
+  
+  virtual bool relevant_to_bbox(const Bbox_Double& bbox) const = 0;
 };
 
 
@@ -131,6 +133,8 @@ public:
   virtual bool relation_pos_is_valid(unsigned int member_pos, unsigned int nd_pos) const { return false; }
   virtual double relation_pos_lat(unsigned int member_pos, unsigned int nd_pos) const { return 0; }
   virtual double relation_pos_lon(unsigned int member_pos, unsigned int nd_pos) const { return 0; }
+  
+  virtual bool relevant_to_bbox(const Bbox_Double& bbox) const { return false; }
 };
 
 
@@ -168,6 +172,8 @@ public:
   virtual bool relation_pos_is_valid(unsigned int member_pos, unsigned int nd_pos) const { return false; }
   virtual double relation_pos_lat(unsigned int member_pos, unsigned int nd_pos) const { return 0; }
   virtual double relation_pos_lon(unsigned int member_pos, unsigned int nd_pos) const { return 0; }
+  
+  virtual bool relevant_to_bbox(const Bbox_Double& bbox) const;
   
 private:
   Point_Double pt;
@@ -210,6 +216,8 @@ public:
   virtual double relation_pos_lat(unsigned int member_pos, unsigned int nd_pos) const { return 0; }
   virtual double relation_pos_lon(unsigned int member_pos, unsigned int nd_pos) const { return 0; }
   
+  virtual bool relevant_to_bbox(const Bbox_Double& bbox) const { return false; }
+
 private:
   Bbox_Double bbox;
 };
@@ -253,6 +261,8 @@ public:
   virtual double relation_pos_lat(unsigned int member_pos, unsigned int nd_pos) const { return 0; }
   virtual double relation_pos_lon(unsigned int member_pos, unsigned int nd_pos) const { return 0; }
   
+  virtual bool relevant_to_bbox(const Bbox_Double& bbox) const;
+
 private:
   std::vector< Point_Double > points;
   mutable Bbox_Double* bounds;
@@ -304,6 +314,8 @@ public:
   virtual double relation_pos_lat(unsigned int member_pos, unsigned int nd_pos) const { return 0; }
   virtual double relation_pos_lon(unsigned int member_pos, unsigned int nd_pos) const { return 0; }
   
+  virtual bool relevant_to_bbox(const Bbox_Double& bbox) const;
+  
 private:
   std::vector< Point_Double > points;
   std::vector< std::vector< Point_Double > > valid_segments;
@@ -349,6 +361,8 @@ public:
   virtual bool relation_pos_is_valid(unsigned int member_pos, unsigned int nd_pos) const { return false; }
   virtual double relation_pos_lat(unsigned int member_pos, unsigned int nd_pos) const { return 0; }
   virtual double relation_pos_lon(unsigned int member_pos, unsigned int nd_pos) const { return 0; }
+
+  virtual bool relevant_to_bbox(const Bbox_Double& bbox) const;
   
   void add_linestring(const std::vector< Point_Double >& linestring);
   
@@ -394,6 +408,8 @@ public:
   virtual bool relation_pos_is_valid(unsigned int member_pos, unsigned int nd_pos) const { return false; }
   virtual double relation_pos_lat(unsigned int member_pos, unsigned int nd_pos) const { return 0; }
   virtual double relation_pos_lon(unsigned int member_pos, unsigned int nd_pos) const { return 0; }
+
+  virtual bool relevant_to_bbox(const Bbox_Double& bbox) const;
   
   void add_linestring(const std::vector< Point_Double >& linestring);
   
@@ -453,6 +469,9 @@ public:
   virtual bool relation_pos_is_valid(unsigned int member_pos, unsigned int nd_pos) const;
   virtual double relation_pos_lat(unsigned int member_pos, unsigned int nd_pos) const;
   virtual double relation_pos_lon(unsigned int member_pos, unsigned int nd_pos) const;
+  
+
+  virtual bool relevant_to_bbox(const Bbox_Double& bbox) const;
   
 private:
   std::vector< Opaque_Geometry* > components;
@@ -523,6 +542,9 @@ public:
   virtual bool relation_pos_is_valid(unsigned int member_pos, unsigned int nd_pos) const;
   virtual double relation_pos_lat(unsigned int member_pos, unsigned int nd_pos) const;
   virtual double relation_pos_lon(unsigned int member_pos, unsigned int nd_pos) const;
+  
+
+  virtual bool relevant_to_bbox(const Bbox_Double& bbox) const;
   
 private:
   std::vector< Opaque_Geometry* > components;
