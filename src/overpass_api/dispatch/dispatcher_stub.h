@@ -61,7 +61,7 @@ class Dispatcher_Stub : public Watchdog_Callback
     virtual void ping() const;
 
     ~Dispatcher_Stub();
-    
+
     std::string get_db_dir() { return (db_dir == "" ? dispatcher_client->get_db_dir() : db_dir); }
     std::string get_timestamp() { return timestamp; }
     std::string get_area_timestamp() { return area_timestamp; }
@@ -69,7 +69,7 @@ class Dispatcher_Stub : public Watchdog_Callback
 
   private:
     std::string db_dir, timestamp, area_timestamp;
-    
+
     Error_Output* error_output;
     Dispatcher_Client* dispatcher_client;
     Dispatcher_Client* area_dispatcher_client;

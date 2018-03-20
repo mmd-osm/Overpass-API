@@ -37,13 +37,13 @@ class Recurse_Statement : public Output_Statement
     virtual std::string get_name() const { return "recurse"; }
     virtual void execute(Resource_Manager& rman);
     virtual ~Recurse_Statement();
-    
+
     struct Statement_Maker : public Generic_Statement_Maker< Recurse_Statement >
     {
       Statement_Maker() : Generic_Statement_Maker< Recurse_Statement >("recurse") {}
     };
     static Statement_Maker statement_maker;
-    
+
     struct Criterion_Maker_1 : public Statement::Criterion_Maker
     {
       virtual bool can_standalone(const std::string& type) { return true; }
@@ -60,7 +60,7 @@ class Recurse_Statement : public Output_Statement
       }
     };
     static Criterion_Maker_1 criterion_maker_1;
-    
+
     struct Criterion_Maker_2 : public Statement::Criterion_Maker
     {
       virtual bool can_standalone(const std::string& type) { return false; }
@@ -112,10 +112,10 @@ class Recurse_Statement : public Output_Statement
         return target_type + "(" + to_ql_representation(type)
             + (input != "_" ? std::string(".") + input : "")
             + (restrict_to_role ? std::string(":\"") + escape_cstr(role) + "\"" : "")
-            + ")" + dump_ql_result_name();
+            + ")" + dump_ql_result_name() + ";";
       else
         return (input != "_" ? std::string(".") + input + " " : "")
-            + to_ql_representation(type) + dump_ql_result_name();
+            + to_ql_representation(type) + dump_ql_result_name() + ";";
     }
     virtual std::string dump_pretty_ql(const std::string& indent) const { return indent + dump_compact_ql(indent); }
 

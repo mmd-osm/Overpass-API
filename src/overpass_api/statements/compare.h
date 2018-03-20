@@ -69,16 +69,16 @@ resp.
 In all syntax variants a block of substatements can be attached:
 
   compare()
-  (
+  {
     <List of Substatements>
-  );
+  };
 
 resp.
 
   .<Set> compare(delta:<Evaluator>)->.<Set>;
-  (
+  {
     <List of Substatements>
-  );
+  };
 
 */
 
@@ -101,13 +101,13 @@ public:
       + dump_xml_result_name();
     if (criterion || !substatements.empty())
       result += ">\n";
-    
+
     if (criterion)
       result += criterion->dump_xml(indent + "  ");
 
     for (std::vector< Statement* >::const_iterator it = substatements.begin(); it != substatements.end(); ++it)
       result += *it ? (*it)->dump_xml(indent + "  ") : "";
-      
+
     if (criterion || !substatements.empty())
       return result + indent + "</criterion>\n";
     return result + "/>\n";
@@ -117,16 +117,18 @@ public:
   {
     std::string result = (input != "_" ? std::string(".") + input + " " : "")
         + "compare" + dump_ql_result_name()
-        + (criterion ? "(delta:" + criterion->dump_compact_ql(indent) + ")" : "");
-    
+        + (criterion ? "(delta:" + criterion->dump_compact_ql(indent) + ")" : "()");
+
     if (!substatements.empty())
     {
-      result += "(";
+      result += "{";
       for (std::vector< Statement* >::const_iterator it = substatements.begin(); it != substatements.end(); ++it)
         result += (*it)->dump_compact_ql(indent) + ";";
-      result += ")";
+      result += "}";
     }
-    
+    else
+      result += ";";
+
     return result;
   }
 
@@ -134,16 +136,18 @@ public:
   {
     std::string result = (input != "_" ? std::string(".") + input + " " : "")
         + "compare" + dump_ql_result_name()
-        + (criterion ? "(delta:" + criterion->dump_compact_ql(indent) + ")" : "");
-    
+        + (criterion ? "(delta:" + criterion->dump_compact_ql(indent) + ")" : "()");
+
     if (!substatements.empty())
     {
-      result += indent + "(";
+      result += indent + "{";
       for (std::vector< Statement* >::const_iterator it = substatements.begin(); it != substatements.end(); ++it)
         result += "\n" + (*it)->dump_pretty_ql(indent + "  ") + ";";
-      result += "\n" + indent + ")";
+      result += "\n" + indent + "}";
     }
-    
+    else
+      result += ";";
+
     return result;
   }
 

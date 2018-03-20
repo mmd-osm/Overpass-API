@@ -43,7 +43,7 @@ public:
     Statement_Maker() : Generic_Statement_Maker< Newer_Statement >("newer") {}
   };
   static Statement_Maker statement_maker;
-    
+
   struct Criterion_Maker : public Statement::Criterion_Maker
   {
     virtual bool can_standalone(const std::string& type) { return false; }
@@ -67,7 +67,7 @@ public:
 
   virtual std::string dump_compact_ql(const std::string&) const
   {
-    return "all" + dump_ql_in_query("");
+    return "all" + dump_ql_in_query("") + ";";
   }
   virtual std::string dump_ql_in_query(const std::string&) const
   {

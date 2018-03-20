@@ -61,7 +61,7 @@ class Make_Area_Statement : public Output_Statement
     static int32 lon_(uint32 ll_index, uint64 coord);
     static void add_segment_blocks
         (std::map< Uint31_Index, std::vector< Area_Block > >& areas, uint32 id);
-	
+
     static int make_area_stmt_ref_counter_;
 };
 

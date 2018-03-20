@@ -187,7 +187,7 @@ std::set< std::pair< Uint32_Index, Uint32_Index > > children
 	uint32 lat = 0;
 	uint32 lon = 0;
 	uint32 offset = 0;
-	
+
 	if (idx.val() & 0x00000001)
 	{
 	  lat = upper_ilat(idx.val() & 0x2aaaaaa8);
@@ -236,7 +236,7 @@ std::set< std::pair< Uint32_Index, Uint32_Index > > children
 	  lon = 0;
 	  offset = 0x8000;
 	}
-	
+
 	ranges.push_back(std::make_pair(ll_upper(lat<<16, lon<<16),
 				   ll_upper((lat+offset-1)<<16, (lon+offset-1)<<16)+1));
 	ranges.push_back(std::make_pair(ll_upper(lat<<16, (lon+offset)<<16),
@@ -568,7 +568,8 @@ void filter_relations_expensive(const Around_Statement& around,
 	    continue;
 	  double lat(::lat(second_nd->first.val(), second_nd->second->ll_lower));
 	  double lon(::lon(second_nd->first.val(), second_nd->second->ll_lower));
-	  
+
+
 	  if (around.matches_bboxes(lat, lon) &&
 	      around.is_inside(lat, lon))
 	  {
@@ -616,7 +617,7 @@ void Around_Constraint::filter(const Statement& query, Resource_Manager& rman, S
         = relation_node_members(&query, rman, into.relations, &node_ranges);
     std::vector< std::pair< Uint32_Index, const Node_Skeleton* > > node_members_by_id
         = order_by_id(node_members, Order_By_Node_Id());
-	
+
     // Retrieve all ways referred by the relations.
     std::set< std::pair< Uint31_Index, Uint31_Index > > way_ranges;
     get_ranges(rman, way_ranges);
@@ -633,7 +634,7 @@ void Around_Constraint::filter(const Statement& query, Resource_Manager& rman, S
 
   if (!into.attic_nodes.empty())
     filter_nodes_expensive(*around, into.attic_nodes);
-  
+
   if (!into.attic_ways.empty())
     filter_ways_expensive(*around, Way_Geometry_Store(into.attic_ways, query, rman), into.attic_ways);
 
@@ -660,7 +661,7 @@ void Around_Constraint::filter(const Statement& query, Resource_Manager& rman, S
     filter_relations_expensive(*around, node_members_by_id, way_members_by_id,
         Way_Geometry_Store(way_members_, query, rman), into.attic_relations);
   }
-  
+
   //TODO: areas
 }
 
@@ -685,29 +686,29 @@ Statement* Around_Statement::Criterion_Maker::create_criterion(const Token_Node_
   {
     lon = tree_it.rhs()->token;
     tree_it = tree_it.lhs();
-    
+
     if (tree_it->token != "," || !tree_it->rhs || !tree_it->lhs)
     {
       if (error_output)
         error_output->add_parse_error("around requires radius, and zero or multiple lat/lon pairs", line_nr);
       return 0;
     }
-    
+
     lat = tree_it.rhs()->token;
     tree_it = tree_it.lhs();
 
     lat_lon_pairs.push_back(std::make_pair(lat, lon));
   }
-  
+
   if (tree_it->token == ":" && tree_it->rhs)
   {
     std::string radius = decode_json(tree_it.rhs()->token, error_output);
-    
+
     tree_it = tree_it.lhs();
     std::string from = "_";
     if (tree_it->token == "." && tree_it->rhs)
       from = tree_it.rhs()->token;
-    
+
     std::map< std::string, std::string > attributes;
     attributes["from"] = from;
     attributes["into"] = into;

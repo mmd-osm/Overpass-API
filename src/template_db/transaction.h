@@ -82,13 +82,14 @@ class Nonsynced_Transaction : public Transaction
            Index_Cache* ic);
 
     virtual ~Nonsynced_Transaction();
-    
+
     File_Blocks_Index_Base* data_index(const File_Properties*);
     Random_File_Index* random_index(const File_Properties*);
-    
+
     void flush();
     void flush_outdated_index_cache();
     std::string get_db_dir() const { return db_dir; }
+
     std::string get_replicate_id() const { return replicate_id; }
     void set_replicate_id(std::string replicate_id_) { replicate_id = replicate_id_; };
     
@@ -122,7 +123,7 @@ inline Nonsynced_Transaction::Nonsynced_Transaction
     db_dir += "/";
 }
 
-    
+
 inline Nonsynced_Transaction::~Nonsynced_Transaction()
 {
   flush();
@@ -201,6 +202,7 @@ inline Random_File_Index* Nonsynced_Transaction::random_index(const File_Propert
   
   (*rf)[fp] = new Random_File_Index(*fp, writeable, use_shadow, db_dir, file_name_extension);
   return (*rf)[fp];
+
 }
 
 #endif

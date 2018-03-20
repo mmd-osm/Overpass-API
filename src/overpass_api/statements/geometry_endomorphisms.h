@@ -56,7 +56,7 @@ struct Geometry_Endom_Evaluator_Maker : public Statement::Evaluator_Maker
     if (!tree_it.assert_is_function(error_output) || !tree_it.assert_has_input_set(error_output, false)
         || !tree_it.assert_has_arguments(error_output, true))
       return 0;
-  
+
     std::map< std::string, std::string > attributes;
     Statement* result = new Evaluator_(tree_it->line_col.first, attributes, global_settings);
     if (result)
@@ -137,8 +137,9 @@ public:
 The function <em>trace</em> returns the trace of its argument.
 It expects a function that evaluates to a geometry.
 It then delivers a collection of all segments and nodes that appear in its input.
-Ways are split at points that are explicitly in the set.
-Every node and segments is contained at most once.
+Ways are split at points that are explicitly in the set
+and at points that belong to more than one way in the set.
+Every node and segment is contained at most once.
 
 Its syntax is
 

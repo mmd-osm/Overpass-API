@@ -116,7 +116,7 @@ class Query_Statement : public Output_Statement
         result += "(bbox)";
 
       return result + (pretty && proper_substatement_count > 1 && dump_ql_result_name() != "" ? "\n  " + indent : "")
-          + dump_ql_result_name();
+          + dump_ql_result_name() + ";";
     }
 
   private:
@@ -143,7 +143,7 @@ class Query_Statement : public Output_Statement
     std::vector< Id_Type > collect_ids
         (const File_Properties& file_prop,
          Resource_Manager& rman, bool check_keys_late);
-        	
+
     template< class Id_Type >
     std::vector< std::pair< Id_Type, Uint31_Index > > collect_non_ids
         (const File_Properties& file_prop, const File_Properties& attic_file_prop,
@@ -196,7 +196,7 @@ class Query_Statement : public Output_Statement
     void collect_elems(std::vector< Id_Type >& ids,
 				 bool& invert_ids, Answer_State& answer_state, Set& into,
 				 Resource_Manager& rman);
-    
+
     void collect_elems(Answer_State& answer_state, Set& into, Resource_Manager& rman);
 };
 

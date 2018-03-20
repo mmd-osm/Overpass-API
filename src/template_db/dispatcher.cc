@@ -49,12 +49,12 @@ Dispatcher_Socket::Dispatcher_Socket
   : socket("", max_num_reading_processes)
 {
   signal(SIGPIPE, SIG_IGN);
-  
+
   std::string db_dir = db_dir_;
   // get the absolute pathname of the current directory
   if (db_dir.substr(0, 1) != "/")
     db_dir = getcwd() + db_dir_;
-  
+
   // initialize the socket for the server
   socket_name = db_dir + dispatcher_share_name;
   socket.open(socket_name);
@@ -68,7 +68,7 @@ Dispatcher_Socket::~Dispatcher_Socket()
 
 
 void Dispatcher_Socket::look_for_a_new_connection(Connection_Per_Pid_Map& connection_per_pid)
-{    
+{
   struct sockaddr_un sockaddr_un_dummy;
   uint sockaddr_un_dummy_size = sizeof(sockaddr_un_dummy);
   int socket_fd = accept(socket.descriptor(), (sockaddr*)&sockaddr_un_dummy,
@@ -83,7 +83,7 @@ void Dispatcher_Socket::look_for_a_new_connection(Connection_Per_Pid_Map& connec
   {
     if (fcntl(socket_fd, F_SETFL, O_RDWR|O_NONBLOCK) == -1)
       throw File_Error
-	    (errno, "(socket)", "Dispatcher_Server::7");  
+	    (errno, "(socket)", "Dispatcher_Server::7");
     started_connections.push_back(socket_fd);
   }
 
@@ -101,7 +101,7 @@ void Dispatcher_Socket::look_for_a_new_connection(Connection_Per_Pid_Map& connec
 	connection_per_pid.set(pid, new Blocking_Client_Socket(*it));
       else
 	close(*it);
-	
+
       *it = started_connections.back();
       started_connections.pop_back();
       break;
@@ -164,12 +164,12 @@ int Global_Resource_Planner::probe(pid_t pid, uint32 client_token, uint32 time_u
   std::map< uint32, std::vector< Pending_Client > >::iterator pending_it = pending.find(client_token);
   Pending_Client* handle = 0;
   uint32 cur_time = time(0);
-  
+
   if (rate_limit > 0 && client_token > 0)
   {
     if (pending_it == pending.end())
       pending_it = pending.insert(std::make_pair(client_token, std::vector< Pending_Client >())).first;
-    
+
     for (std::vector< Pending_Client >::iterator handle_it = pending_it->second.begin();
         handle_it != pending_it->second.end(); ++handle_it)
     {
@@ -180,11 +180,11 @@ int Global_Resource_Planner::probe(pid_t pid, uint32 client_token, uint32 time_u
     {
       if (pending_it->second.size() > 2*rate_limit)
         return Dispatcher::RATE_LIMITED;
-      
+
       pending_it->second.push_back(Pending_Client(pid, cur_time));
       handle = &pending_it->second.back();
     }
-    
+
     uint32 token_count = 0;
     for (std::vector< Reader_Entry >::const_iterator it = active.begin(); it != active.end(); ++it)
     {
@@ -204,8 +204,8 @@ int Global_Resource_Planner::probe(pid_t pid, uint32 client_token, uint32 time_u
         return Dispatcher::RATE_LIMITED;
       }
     }
-    
-    uint32 current_time = time(0);    
+
+    uint32 current_time = time(0);
     for (std::vector< Quota_Entry >::iterator it = afterwards.begin(); it != afterwards.end(); )
     {
       if (it->expiration_time < current_time)
@@ -213,7 +213,7 @@ int Global_Resource_Planner::probe(pid_t pid, uint32 client_token, uint32 time_u
 	*it = afterwards.back();
 	afterwards.pop_back();
       }
-      else 
+      else
       {
 	if (it->client_token == client_token)
 	  ++token_count;
@@ -234,7 +234,7 @@ int Global_Resource_Planner::probe(pid_t pid, uint32 client_token, uint32 time_u
       }
     }
   }
-  
+
   // Simple checks: is the query acceptable from a global point of view?
   if (global_available_time < global_used_time ||
       time_units > (global_available_time - global_used_time)/2 ||
@@ -246,7 +246,7 @@ int Global_Resource_Planner::probe(pid_t pid, uint32 client_token, uint32 time_u
     else
       return Dispatcher::QUERY_REJECTED;
   }
-  
+
   if (handle)
   {
     *handle = pending_it->second.back();
@@ -254,9 +254,9 @@ int Global_Resource_Planner::probe(pid_t pid, uint32 client_token, uint32 time_u
     if (pending_it->second.empty())
       pending.erase(pending_it);
   }
-  
+
   active.push_back(Reader_Entry(pid, max_space, time_units, client_token, time(0)));
-  
+
   global_used_space += max_space;
   global_used_time += time_units;
   return Dispatcher::REQUEST_READ_AND_IDX;
@@ -284,7 +284,7 @@ void Global_Resource_Planner::remove_entry(std::vector< Reader_Entry >::iterator
 	recent_average_used_time[i] = last_used_time / last_counted;
       }
     }
-    
+
     average_used_space = 0;
     average_used_time = 0;
     for (uint32 i = 0; i < 15; ++i)
@@ -294,7 +294,7 @@ void Global_Resource_Planner::remove_entry(std::vector< Reader_Entry >::iterator
     }
     average_used_space = average_used_space / 15;
     average_used_time = average_used_time / 15;
-    
+
     last_used_space = 0;
     last_used_time = 0;
     last_counted = 0;
@@ -303,23 +303,23 @@ void Global_Resource_Planner::remove_entry(std::vector< Reader_Entry >::iterator
   last_used_space += global_used_space;
   last_used_time += global_used_time;
   ++last_counted;
-  
+
   // Adjust global counters
   global_used_space -= it->max_space;
   global_used_time -= it->max_time;
-  
+
   if (rate_limit > 0 && it->client_token > 0)
   {
     // Calculate afterwards blocking time
     uint32 penalty_time =
       std::max(global_available_space * (end_time - it->start_time + 1)
           / (global_available_space - average_used_space),
-	  uint64(global_available_time) * (end_time - it->start_time + 1) 
+	  uint64(global_available_time) * (end_time - it->start_time + 1)
 	  / (global_available_time - average_used_time))
       - (end_time - it->start_time + 1);
     afterwards.push_back(Quota_Entry(it->client_token, penalty_time + end_time));
   }
-  
+
   // Really remove the element
   *it = active.back();
   active.pop_back();
@@ -329,7 +329,7 @@ void Global_Resource_Planner::remove_entry(std::vector< Reader_Entry >::iterator
 void Global_Resource_Planner::remove(pid_t pid)
 {
   bool was_active = false;
-  
+
   for (std::vector< Reader_Entry >::iterator it = active.begin(); it != active.end(); ++it)
   {
     if (it->client_pid == pid)
@@ -339,7 +339,7 @@ void Global_Resource_Planner::remove(pid_t pid)
       break;
     }
   }
-  
+
   if (!was_active)
   {
     for (std::map< uint32, std::vector< Pending_Client > >::iterator pending_it = pending.begin();
@@ -359,7 +359,7 @@ void Global_Resource_Planner::remove(pid_t pid)
         else
           ++handle_it;
       }
-    
+
       if (found && pending_it->second.empty())
       {
         uint32 client = pending_it->first;
@@ -382,7 +382,7 @@ void Global_Resource_Planner::purge(Connection_Per_Pid_Map& connection_per_pid)
     else
       ++it;
   }
-  
+
   for (std::map< uint32, std::vector< Pending_Client > >::iterator pending_it = pending.begin();
       pending_it != pending.end(); )
   {
@@ -397,7 +397,7 @@ void Global_Resource_Planner::purge(Connection_Per_Pid_Map& connection_per_pid)
       else
         ++handle_it;
     }
-    
+
     if (pending_it->second.empty())
     {
       uint32 client = pending_it->first;
@@ -431,11 +431,11 @@ Dispatcher::Dispatcher
       global_resource_planner(total_available_time_units_, total_available_space_, 0),
       base(0)
 {
-  signal(SIGPIPE, SIG_IGN);  
-  
+  signal(SIGPIPE, SIG_IGN);
+
   if (shadow_name.substr(0, 1) != "/")
     shadow_name = getcwd() + shadow_name_;
-  
+
   // open dispatcher_share
 #ifdef __APPLE__
   dispatcher_shm_fd = shm_open
@@ -451,14 +451,14 @@ Dispatcher::Dispatcher
         (errno, dispatcher_share_name, "Dispatcher_Server::1");
   fchmod(dispatcher_shm_fd, S_666);
 #endif
-  
+
   std::string db_dir = transaction_insulator.db_dir();
   int foo = ftruncate(dispatcher_shm_fd,
 		      SHM_SIZE + db_dir.size() + shadow_name.size()); foo = foo;
   dispatcher_shm_ptr = (uint8*)mmap
         (0, SHM_SIZE + db_dir.size() + shadow_name.size(),
          PROT_READ|PROT_WRITE, MAP_SHARED, dispatcher_shm_fd, 0);
-  
+
   // copy db_dir and shadow_name
   *(uint32*)(dispatcher_shm_ptr + 3*sizeof(uint32)) = db_dir.size();
   memcpy((uint8*)dispatcher_shm_ptr + 4*sizeof(uint32), db_dir.data(), db_dir.size());
@@ -466,15 +466,15 @@ Dispatcher::Dispatcher
       = shadow_name.size();
   memcpy((uint8*)dispatcher_shm_ptr + 5*sizeof(uint32) + db_dir.size(),
       shadow_name.data(), shadow_name.size());
-  
+
   // Set command state to zero.
   *(uint32*)dispatcher_shm_ptr = 0;
-  
+
   if (file_exists(shadow_name))
   {
     transaction_insulator.copy_shadows_to_mains();
     remove(shadow_name.c_str());
-  }    
+  }
   transaction_insulator.remove_shadows();
   remove((shadow_name + ".lock").c_str());
   transaction_insulator.set_current_footprints();
@@ -494,7 +494,7 @@ void Dispatcher::write_start(pid_t pid)
   try
   {
     Raw_File shadow_file(shadow_name + ".lock", O_RDWR|O_CREAT|O_EXCL, S_666, "write_start:1");
- 
+
     transaction_insulator.copy_mains_to_shadows();
     transaction_insulator.write_index_of_empty_blocks();
     if (logger)
@@ -551,7 +551,7 @@ void Dispatcher::write_commit(pid_t pid)
   try
   {
     Raw_File shadow_file(shadow_name, O_RDWR|O_CREAT|O_EXCL, S_666, "write_commit:1");
-    
+
     transaction_insulator.copy_shadows_to_mains();
   }
   catch (File_Error e)
@@ -559,7 +559,7 @@ void Dispatcher::write_commit(pid_t pid)
     std::cerr<<"File_Error "<<e.error_number<<' '<<strerror(e.error_number)<<' '<<e.filename<<' '<<e.origin<<'\n';
     return;
   }
-  
+
   remove(shadow_name.c_str());
   transaction_insulator.remove_shadows();
   remove((shadow_name + ".lock").c_str());
@@ -569,13 +569,13 @@ void Dispatcher::write_commit(pid_t pid)
 
 void Dispatcher::request_read_and_idx(pid_t pid, uint32 max_allowed_time, uint64 max_allowed_space,
 				      uint32 client_token)
-{ 
+{
   if (logger)
     logger->request_read_and_idx(pid, max_allowed_time, max_allowed_space);
   ++requests_started_counter;
-  
+
   transaction_insulator.request_read_and_idx(pid);
-  
+
   processes_reading_idx.insert(pid);
 }
 
@@ -593,9 +593,9 @@ void Dispatcher::read_finished(pid_t pid)
   if (logger)
     logger->read_finished(pid);
   ++requests_finished_counter;
-  
+
   transaction_insulator.read_finished(pid);
-  
+
   processes_reading_idx.erase(pid);
   disconnected.erase(pid);
   global_resource_planner.remove(pid);
@@ -606,9 +606,9 @@ void Dispatcher::read_aborted(pid_t pid)
 {
   if (logger)
     logger->read_aborted(pid);
-  
+
   transaction_insulator.read_finished(pid);
-  
+
   processes_reading_idx.erase(pid);
   disconnected.erase(pid);
   global_resource_planner.remove(pid);
@@ -720,6 +720,7 @@ void Dispatcher::handle_command(evbuffer * output, evutil_socket_t socket_fd, st
 
   try
   {
+
     if (command == TERMINATE || command == OUTPUT_STATUS)
     {
       if (command == OUTPUT_STATUS)
@@ -730,6 +731,7 @@ void Dispatcher::handle_command(evbuffer * output, evutil_socket_t socket_fd, st
 
       if (command == TERMINATE)
       {
+
         event_base_loopexit(base, NULL);
         return;
       }
@@ -856,6 +858,7 @@ void Dispatcher::handle_command(evbuffer * output, evutil_socket_t socket_fd, st
       {
         if (it->client_token == client_token)
           evbuffer_add_uint32(output, it->expiration_time);
+
       }
 
       evbuffer_add_uint32(output, 0);
@@ -897,7 +900,7 @@ void Dispatcher::output_status()
   try
   {
     std::ofstream status((shadow_name + ".status").c_str());
-    
+
     status<<"Number of not yet opened connections: "<<socket.num_started_connections()<<'\n'
         <<"Number of connected clients: "<<connection_per_pid.base_map().size()<<'\n'
         <<"Rate limit: "<<global_resource_planner.get_rate_limit()<<'\n'
@@ -911,7 +914,7 @@ void Dispatcher::output_status()
         <<"Counter of finished requests: "<<requests_finished_counter<<'\n';
 
     std::set< ::pid_t > collected_pids = transaction_insulator.registered_pids();
-    
+
     for (std::vector< Reader_Entry >::const_iterator it = global_resource_planner.get_active().begin();
 	 it != global_resource_planner.get_active().end(); ++it)
     {
@@ -921,7 +924,7 @@ void Dispatcher::output_status()
 	status<<READ_IDX_FINISHED;
       status<<' '<<it->client_pid<<' '<<it->client_token<<' '
           <<it->max_space<<' '<<it->max_time<<' '<<it->start_time<<'\n';
-        
+
       collected_pids.insert(it->client_pid);
     }
 
@@ -932,7 +935,7 @@ void Dispatcher::output_status()
 	  && collected_pids.find(it->first) == collected_pids.end())
 	status<<"pending\t"<<it->first<<'\n';
     }
-    
+
     for (std::vector< Quota_Entry >::const_iterator it = global_resource_planner.get_afterwards().begin();
 	 it != global_resource_planner.get_afterwards().end(); ++it)
     {

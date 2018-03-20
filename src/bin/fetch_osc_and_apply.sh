@@ -57,6 +57,7 @@ get_replicate_filename()
   printf -v TDIGIT2 %03u $(($ARG % 1000))
   ARG=$(($ARG / 1000))
   printf -v TDIGIT1 %03u $ARG
+<<<<<<< HEAD
   REPLICATE_TRUNK_DIR=$TDIGIT1/$TDIGIT2/
   REPLICATE_FILENAME=$TDIGIT1/$TDIGIT2/$TDIGIT3
 };
@@ -92,6 +93,45 @@ collect_minute_diffs()
     fetch_file "$SOURCE_DIR/$REPLICATE_FILENAME.state.txt" "$TEMP_SOURCE_DIR/$TARGET_FILE.state.txt"
     fetch_file "$SOURCE_DIR/$REPLICATE_FILENAME.osc.gz" "$TEMP_SOURCE_DIR/$TARGET_FILE.osc.gz"
   };
+=======
+
+  REMOTE_PATH="$DIFF_URL/$TDIGIT1/$TDIGIT2/$TDIGIT3"
+  REMOTE_DIFF="$REMOTE_PATH.osc.gz"
+  REMOTE_STATE="$REMOTE_PATH.state.txt"
+
+  wget -q -O - "$REMOTE_DIFF" > $TMP_DIFF
+  if [[ ! $? == 0 ]] ; then # Diff failed to download (404, no answers, etc.)
+    rm $TMP_DIFF
+    return 1
+  fi
+  gunzip -c $TMP_DIFF > $TMP_DIFF_UNCOMPRESS
+  if [[ ! $? == 0 ]] ; then # For unknown reasons, the diff get sometimes corrupted or empty, don't try to apply
+  {
+    rm $TMP_DIFF 2>/dev/null
+    rm $TMP_DIFF_UNCOMPRESS 2>/dev/null
+    return 2
+  } ; fi
+  cat $TMP_DIFF_UNCOMPRESS | $EXEC_DIR/update_database $2 >> /dev/null 2>&1
+  ret=$?
+  rm $TMP_DIFF 2>/dev/null
+  rm $TMP_DIFF_UNCOMPRESS 2>/dev/null
+
+  #Update the timestamp
+  while [[ true ]];
+  do
+  	wget -q -O - "$REMOTE_STATE" > $TMP_STATE
+  	if [[ ! $? == 0 ]] ; then # In case the state file wasn't there in time but the diff was, let's wait until it become available
+  	{
+  	  rm $TMP_SATE
+  	  sleep 1
+  	} else
+  	{
+  	  grep timestamp $TMP_STATE | cut -f2 -d\= > $DB_DIR/osm_base_version
+  	  cp $DB_DIR/osm_base_version $DB_DIR/osm_base_version_munin
+  	  rm $TMP_STATE
+  	  return $ret
+  	}; fi
+>>>>>>> upstream/new_features
   done
   TARGET=$(($TARGET - 1))
 };

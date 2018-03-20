@@ -46,6 +46,7 @@ class Regular_Expression
 
     Regular_Expression(const std::string& regex, bool case_sensitive) {
 
+
       if (regex == ".*")
         strategy = Strategy::match_anything;
       else if (regex == ".")
@@ -97,7 +98,7 @@ class Regular_Expression_POSIX : public Regular_Expression
       if (strategy == Strategy::call_library)
         regfree(&preg);
     }
-    
+
     inline bool matches(const std::string& line) const
     {
       if (strategy == Strategy::match_anything)
@@ -116,7 +117,7 @@ class Regular_Expression_POSIX : public Regular_Expression
 
       return (result);
     }
-    
+
   private:
     regex_t preg;
 };

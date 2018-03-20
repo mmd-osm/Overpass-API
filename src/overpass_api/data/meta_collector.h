@@ -38,16 +38,16 @@ public:
   template< typename Object >
   Meta_Collector(const std::map< Index, std::vector< Object > >& items,
       Transaction& transaction, const File_Properties* meta_file_prop = 0);
-    
+
   Meta_Collector(const std::set< std::pair< Index, Index > >& used_ranges,
       Transaction& transaction, const File_Properties* meta_file_prop = 0);
-    
+
   void reset();
   const OSM_Element_Metadata_Skeleton< Id_Type >* get
-      (const Index& index, Id_Type ref);    
+      (const Index& index, Id_Type ref);
   const OSM_Element_Metadata_Skeleton< Id_Type >* get
-      (const Index& index, Id_Type ref, uint64 timestamp);    
-    
+      (const Index& index, Id_Type ref, uint64 timestamp);
+
   ~Meta_Collector()
   {
     if (meta_db)
@@ -59,7 +59,7 @@ public:
     if (current_index)
       delete current_index;
   }
-  
+
 private:
   std::set< Index > used_indices;
   std::set< std::pair< Index, Index > > used_ranges;
@@ -70,7 +70,7 @@ private:
       ::Range_Iterator* range_it;
   Index* current_index;
   std::set< OSM_Element_Metadata_Skeleton< Id_Type > > current_objects;
-    
+
   void update_current_objects(const Index&);
 };
 
@@ -81,10 +81,10 @@ struct Attic_Meta_Collector
 public:
   Attic_Meta_Collector(const std::map< Index, std::vector< Attic< Object > > >& items,
                        Transaction& transaction, bool turn_on);
-    
+
   const OSM_Element_Metadata_Skeleton< typename Object::Id_Type >* get
-      (const Index& index, typename Object::Id_Type ref, uint64 timestamp = NOW);    
-  
+      (const Index& index, typename Object::Id_Type ref, uint64 timestamp = NOW);
+
 private:
   Meta_Collector< Index, typename Object::Id_Type > current;
   Meta_Collector< Index, typename Object::Id_Type > attic;
@@ -113,11 +113,11 @@ Meta_Collector< Index, Id_Type >::Meta_Collector
 {
   if (!meta_file_prop)
     return;
-  
+
   generate_index_query(used_indices, items);
   meta_db = new Block_Backend< Index, OSM_Element_Metadata_Skeleton< Id_Type > >
       (transaction.data_index(meta_file_prop));
-	  
+
   reset();
 }
 
@@ -130,10 +130,10 @@ Meta_Collector< Index, Id_Type >::Meta_Collector
 {
   if (!meta_file_prop)
     return;
-  
+
   meta_db = new Block_Backend< Index, OSM_Element_Metadata_Skeleton< Id_Type > >
       (transaction.data_index(meta_file_prop));
-      
+
   reset();
 }
 
@@ -143,7 +143,7 @@ void Meta_Collector< Index, Id_Type >::reset()
 {
   if (!meta_db)
     return;
-      
+
   if (db_it)
     delete db_it;
   if (range_it)
@@ -153,12 +153,12 @@ void Meta_Collector< Index, Id_Type >::reset()
     delete current_index;
     current_index = 0;
   }
-  
+
   if (used_ranges.empty())
   {
     db_it = new typename Block_Backend< Index, OSM_Element_Metadata_Skeleton< Id_Type > >
         ::Discrete_Iterator(meta_db->discrete_begin(used_indices.begin(), used_indices.end()));
-	
+
     if (!(*db_it == meta_db->discrete_end()))
     {
       if (current_index)
@@ -177,7 +177,7 @@ void Meta_Collector< Index, Id_Type >::reset()
         ::Range_Iterator(meta_db->range_begin(
 	    Default_Range_Iterator< Index >(used_ranges.begin()),
 	    Default_Range_Iterator< Index >(used_ranges.end())));
-	
+
     if (!(*range_it == meta_db->range_end()))
     {
       if (current_index)
@@ -197,7 +197,7 @@ template< typename Index, typename Id_Type >
 void Meta_Collector< Index, Id_Type >::update_current_objects(const Index& index)
 {
   current_objects.clear();
-    
+
   if (db_it)
   {
     while (!(*db_it == meta_db->discrete_end()) && (db_it->index() < index))
@@ -234,7 +234,7 @@ const OSM_Element_Metadata_Skeleton< Id_Type >* Meta_Collector< Index, Id_Type >
 
   if ((current_index) && (*current_index < index))
     update_current_objects(index);
-  
+
   typename std::set< OSM_Element_Metadata_Skeleton< Id_Type > >::iterator it
       = current_objects.lower_bound(OSM_Element_Metadata_Skeleton< Id_Type >(ref));
   if (it != current_objects.end() && it->ref == ref)
@@ -253,7 +253,7 @@ const OSM_Element_Metadata_Skeleton< Id_Type >* Meta_Collector< Index, Id_Type >
 
   if ((current_index) && (*current_index < index))
     update_current_objects(index);
-  
+
   typename std::set< OSM_Element_Metadata_Skeleton< Id_Type > >::iterator it
       = current_objects.lower_bound(OSM_Element_Metadata_Skeleton< Id_Type >(ref, timestamp));
   if (it == current_objects.begin())

@@ -38,7 +38,7 @@ Dispatcher_Client::Dispatcher_Client
     : dispatcher_share_name(dispatcher_share_name_), socket("")
 {
   signal(SIGPIPE, SIG_IGN);
-  
+
   // open dispatcher_share
   dispatcher_shm_fd = shm_open
       (dispatcher_share_name.c_str(), O_RDWR, S_666);
@@ -59,7 +59,7 @@ Dispatcher_Client::Dispatcher_Client
 		       4*sizeof(uint32)));
 
   // initialize the socket for the client
-  socket.open(db_dir + dispatcher_share_name_);  
+  socket.open(db_dir + dispatcher_share_name_);
   std::string socket_name = db_dir + dispatcher_share_name_;
 
 // TODO: No need to send PID anymore
@@ -105,14 +105,14 @@ uint32 Dispatcher_Client::ack_arrived()
   if (bytes_read == sizeof(uint32))
     return answer;
 
-  return 0;  
+  return 0;
 }
 
 
 void Dispatcher_Client::write_start()
 {
   pid_t pid = getpid();
-  
+
   send_message(Dispatcher::WRITE_START, "Dispatcher_Client::write_start::socket");
 
   while (true)
@@ -137,7 +137,7 @@ void Dispatcher_Client::write_start()
 void Dispatcher_Client::write_rollback()
 {
   pid_t pid = getpid();
-  
+
   send_message(Dispatcher::WRITE_ROLLBACK, "Dispatcher_Client::write_rollback::socket");
 
   while (true)
@@ -159,7 +159,7 @@ void Dispatcher_Client::write_rollback()
       else
         return;
     }
-    
+
     millisleep(500);
   }
 }
@@ -168,8 +168,8 @@ void Dispatcher_Client::write_rollback()
 void Dispatcher_Client::write_commit()
 {
   pid_t pid = getpid();
-  
-  send_message(Dispatcher::WRITE_COMMIT, "Dispatcher_Client::write_commit::socket");  
+
+  send_message(Dispatcher::WRITE_COMMIT, "Dispatcher_Client::write_commit::socket");
   millisleep(200);
 
   while (true)
@@ -191,7 +191,7 @@ void Dispatcher_Client::write_commit()
       else
         return;
     }
-    
+
     send_message(Dispatcher::WRITE_COMMIT, "Dispatcher_Client::write_commit::socket");
     millisleep(200);
   }
@@ -218,7 +218,7 @@ void Dispatcher_Client::request_read_and_idx(uint32 max_allowed_time, uint64 max
     ack = ack_arrived();
     if (ack == Dispatcher::REQUEST_READ_AND_IDX)
       return;
-    
+
     millisleep(300);
   }
   if (ack == Dispatcher::RATE_LIMITED)
@@ -234,7 +234,7 @@ void Dispatcher_Client::read_idx_finished()
   while (++counter <= 300)
   {
     send_message(Dispatcher::READ_IDX_FINISHED, "Dispatcher_Client::read_idx_finished::socket");
-    
+
     if (ack_arrived())
       return;
   }
@@ -248,7 +248,7 @@ void Dispatcher_Client::read_finished()
   while (++counter <= 300)
   {
     send_message(Dispatcher::READ_FINISHED, "Dispatcher_Client::read_finished::socket");
-    
+
     if (ack_arrived())
       return;
   }
@@ -258,7 +258,6 @@ void Dispatcher_Client::read_finished()
 
 void Dispatcher_Client::purge(uint32 pid)
 {
-
   while (true)
   {
     uint32 msg[2];
@@ -267,6 +266,7 @@ void Dispatcher_Client::purge(uint32 pid)
     
     if (send(socket.descriptor(), &msg, sizeof(uint32) * 2, 0) == -1)
       throw File_Error(errno, dispatcher_share_name, "Dispatcher_Client::purge::socket::1");
+
     if (ack_arrived())
       return;
   }
@@ -275,7 +275,6 @@ void Dispatcher_Client::purge(uint32 pid)
 
 pid_t Dispatcher_Client::query_by_token(uint32 token)
 {
-
   uint32 msg[2];
   msg[0] = Dispatcher::QUERY_BY_TOKEN;
   msg[1] = token;
@@ -289,7 +288,7 @@ pid_t Dispatcher_Client::query_by_token(uint32 token)
 
 Client_Status Dispatcher_Client::query_my_status(uint32 token)
 {
-  
+
   uint32 msg[2];
   msg[0] = Dispatcher::QUERY_MY_STATUS;
   msg[1] = token;
@@ -299,7 +298,7 @@ Client_Status Dispatcher_Client::query_my_status(uint32 token)
 
   Client_Status result;
   result.rate_limit = ack_arrived();
-  
+
   while (true)
   {
     Running_Query query;
@@ -312,7 +311,7 @@ Client_Status Dispatcher_Client::query_my_status(uint32 token)
     query.start_time = ack_arrived();
     result.queries.push_back(query);
   }
-  
+
   while (true)
   {
     uint32 slot_start = ack_arrived();
@@ -320,9 +319,9 @@ Client_Status Dispatcher_Client::query_my_status(uint32 token)
       break;
     result.slot_starts.push_back(slot_start);
   }
-  
+
   std::sort(result.slot_starts.begin(), result.slot_starts.end());
-  
+
   return result;
 }
 
@@ -367,7 +366,7 @@ void Dispatcher_Client::terminate()
   while (true)
   {
     send_message(Dispatcher::TERMINATE, "Dispatcher_Client::terminate::socket");
-    
+
     if (ack_arrived())
       return;
   }
@@ -379,7 +378,7 @@ void Dispatcher_Client::output_status()
   while (true)
   {
     send_message(Dispatcher::OUTPUT_STATUS, "Dispatcher_Client::output_status::socket");
-    
+
     if (ack_arrived())
       break;
   }

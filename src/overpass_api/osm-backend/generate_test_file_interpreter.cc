@@ -212,7 +212,7 @@ unsigned int relation_meta_zoom(unsigned int pattern_size)
 void print_applicable_tags(unsigned int id)
 {
   bool frame_printed = false;
-  
+
   if (id % 11 == 0)
   {
     if (!frame_printed)
@@ -220,7 +220,7 @@ void print_applicable_tags(unsigned int id)
     else
       std::cout<<",\n";
     frame_printed = true;
-    
+
     std::cout<<"    \"way_key_11\": \"way_value_"<<(id / 11 + 1)<<"\"";
   }
   if (id % 15 == 0)
@@ -230,7 +230,7 @@ void print_applicable_tags(unsigned int id)
     else
       std::cout<<",\n";
     frame_printed = true;
-    
+
     std::cout<<"    \"way_key_15\": \"way_value_15\"";
   }
   if (id % 2 == 0)
@@ -240,7 +240,7 @@ void print_applicable_tags(unsigned int id)
     else
       std::cout<<",\n";
     frame_printed = true;
-    
+
     std::cout<<"    \"way_key_2/4\": \"way_value_0\"";
   }
   if (id % 4 == 1)
@@ -250,7 +250,7 @@ void print_applicable_tags(unsigned int id)
     else
       std::cout<<",\n";
     frame_printed = true;
-    
+
     std::cout<<"    \"way_key_2/4\": \"way_value_1\"";
   }
   if (id % 5 == 0)
@@ -260,7 +260,7 @@ void print_applicable_tags(unsigned int id)
     else
       std::cout<<",\n";
     frame_printed = true;
-    
+
     std::cout<<"    \"way_key_5\": \"way_value_5\"";
   }
   if (id % 7 == 0)
@@ -270,10 +270,10 @@ void print_applicable_tags(unsigned int id)
     else
       std::cout<<",\n";
     frame_printed = true;
-    
+
     std::cout<<"    \"way_key_7\": \"way_value_"<<(id % 21 / 7)<<"\"";
   }
-    
+
   if (frame_printed)
     std::cout<<"\n  }";
 }
@@ -503,7 +503,7 @@ int main(int argc, char* args[])
       print_applicable_tags(pattern_size*pattern_size/2 - pattern_size/2);
       std::cout<<
       "\n},\n"
-      "{\n" 
+      "{\n"
       "  \"type\": \"way\",\n"
       "  \"id\": "<<(pattern_size*pattern_size/2 - 1)<<",\n"
       "  \"nodes\": [\n"

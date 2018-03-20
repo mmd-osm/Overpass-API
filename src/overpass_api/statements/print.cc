@@ -779,14 +779,14 @@ void Print_Statement::execute(Resource_Manager& rman)
   Cpu_Timer cpu_timer(rman, 2);
 
   Diff_Action::_ action = rman.get_desired_action();
-  
+
   if (action == Diff_Action::collect_lhs
       || action == Diff_Action::collect_rhs_no_del || action == Diff_Action::collect_rhs_with_del)
   {
     execute_comparison(rman);
     return;
   }
-  
+
   if (action == Diff_Action::positive && rman.area_updater())
     rman.area_updater()->flush();
 
@@ -912,7 +912,7 @@ void Print_Statement::execute(Resource_Manager& rman)
 void Print_Statement::execute_comparison(Resource_Manager& rman)
 {
   Diff_Action::_ action = rman.get_desired_action();
-  
+
   const Diff_Set* input_diff_set = rman.get_diff_set(input);
   if (input_diff_set)
   {
@@ -920,7 +920,7 @@ void Print_Statement::execute_comparison(Resource_Manager& rman)
         rman.users(), relation_member_roles(*rman.get_transaction()), action == Diff_Action::collect_rhs_with_del);
     return;
   }
-  
+
   const Set* input_set = rman.get_set(input);
   if (!input_set)
     return;
@@ -935,7 +935,7 @@ void Print_Statement::execute_comparison(Resource_Manager& rman)
   {
     Diff_Set result = collection_print_target->compare_to_lhs(rman, *this, *input_set,
         south, north, west, east, action == Diff_Action::collect_rhs_with_del);
-    
+
     print_diff_set(result, mode, rman.get_global_settings().get_output_handler(),
         rman.users(), relation_member_roles(*rman.get_transaction()), action == Diff_Action::collect_rhs_with_del);
   }
