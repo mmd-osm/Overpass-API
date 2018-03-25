@@ -115,6 +115,8 @@ class Around_Statement : public Output_Statement
     void add_ways(const std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
 		  const Way_Geometry_Store& way_geometries);
 
+    void add_deriveds(const std::map< Uint31_Index, std::vector< Derived_Structure > >& deriveds);
+
     bool matches_bboxes(double lat, double lon) const;
     bool matches_bboxes(const Prepared_BBox&) const;
 
