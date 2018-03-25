@@ -436,4 +436,21 @@ struct Evaluator_Divided : public Evaluator_Pair_Operator_Syntax< Evaluator_Divi
 };
 
 
+// Test: Modulo operator
+
+
+struct Evaluator_Modulo : public Evaluator_Pair_Operator_Syntax< Evaluator_Modulo >
+{
+  static Operator_Stmt_Maker< Evaluator_Modulo > statement_maker;
+  static Operator_Eval_Maker< Evaluator_Modulo > evaluator_maker;
+  static std::string stmt_operator() { return "%"; }
+  static std::string stmt_name() { return "eval-modulo"; }
+
+  Evaluator_Modulo(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
+      : Evaluator_Pair_Operator_Syntax< Evaluator_Modulo >(line_number_, input_attributes) {}
+
+  virtual std::string process(const std::string& lhs_result, const std::string& rhs_result) const;
+};
+
+
 #endif
