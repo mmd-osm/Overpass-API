@@ -1363,13 +1363,8 @@ bool Around_Statement::is_inside(double lat, double lon) const
     for (std::vector< Point_Double >::const_iterator cit = mit->second.begin();
         cit != mit->second.end(); ++cit)
     {
-<<<<<<< HEAD
       if ((radius > 0 && great_circle_dist(cit->lat, cit->lon, lat, lon) <= radius)
-          || (cit->lat == lat && cit->lon == lon))
-=======
-      if ((radius > 0 && great_circle_dist(cit->first, cit->second, lat, lon) <= radius)
-          || (std::abs(cit->first - lat) < 1e-7 && std::abs(cit->second - lon) < 1e-7))
->>>>>>> upstream/minor_issues
+          || (std::abs(cit->lat - lat) < 1e-7 && std::abs(cit->lon - lon) < 1e-7))
         return true;
     }
   }

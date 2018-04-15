@@ -117,13 +117,9 @@ class Area_Query_Statement : public Output_Statement
     std::string input;
     long long submitted_id;
     std::vector< Area_Skeleton::Id_Type > area_id;
-<<<<<<< HEAD
     static int area_stmt_ref_counter_;
-=======
     std::set< Uint31_Index > area_blocks_req;
     bool area_blocks_req_filled;
-    static bool is_used_;
->>>>>>> upstream/minor_issues
     std::vector< Query_Constraint* > constraints;
     
     void fill_ranges(Resource_Manager& rman);

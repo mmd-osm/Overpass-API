@@ -339,21 +339,7 @@ bool Area_Constraint::delivers_data(Resource_Manager& rman)
 
   // Count the indicies of the input areas
   if (!area->areas_from_input())
-<<<<<<< HEAD
-  {
-    Block_Backend< Uint31_Index, Area_Skeleton > area_locations_db
-        (rman.get_area_transaction()->data_index(area_settings().AREAS));
-    for (Block_Backend< Uint31_Index, Area_Skeleton >::Flat_Iterator
-        it(area_locations_db.flat_begin());
-        !(it == area_locations_db.flat_end()); ++it)
-    {
-      if (area->get_submitted_id() == it.handle().id().val())
-        counter += it.object().used_indices.size();
-    }
-  }
-=======
     return (area->count_ranges(rman) < 12);
->>>>>>> upstream/minor_issues
   else
   {
     const Set* input = rman.get_set(area->get_input());
