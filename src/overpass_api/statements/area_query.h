@@ -57,14 +57,13 @@ class Area_Query_Statement : public Output_Statement
     virtual Query_Constraint* get_query_constraint();
 
     void get_ranges
-      (std::set< std::pair< Uint32_Index, Uint32_Index > >& nodes_req,
-       std::set< Uint31_Index >& area_block_req,
+      (std::set< Uint31_Index >& area_blocks_req,
        Resource_Manager& rman);
+    unsigned int count_ranges(Resource_Manager& rman);
 
     void get_ranges
       (const std::map< Uint31_Index, std::vector< Area_Skeleton > >& input_areas,
-       std::set< std::pair< Uint32_Index, Uint32_Index > >& nodes_req,
-       std::set< Uint31_Index >& area_block_req,
+       std::set< Uint31_Index >& area_blocks_req,
        Resource_Manager& rman);
 
     void collect_nodes
@@ -118,8 +117,16 @@ class Area_Query_Statement : public Output_Statement
     std::string input;
     long long submitted_id;
     std::vector< Area_Skeleton::Id_Type > area_id;
+<<<<<<< HEAD
     static int area_stmt_ref_counter_;
+=======
+    std::set< Uint31_Index > area_blocks_req;
+    bool area_blocks_req_filled;
+    static bool is_used_;
+>>>>>>> upstream/minor_issues
     std::vector< Query_Constraint* > constraints;
+    
+    void fill_ranges(Resource_Manager& rman);
 };
 
 

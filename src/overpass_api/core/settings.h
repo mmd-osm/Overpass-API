@@ -35,7 +35,7 @@ struct Basic_Settings
   std::string base_directory;
   std::string logfile_name;
   std::string shared_name_base;
-  
+
   std::string version;
   std::string source_hash;
 

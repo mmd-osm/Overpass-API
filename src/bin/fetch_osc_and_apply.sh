@@ -57,7 +57,10 @@ get_replicate_filename()
   printf -v TDIGIT2 %03u $(($ARG % 1000))
   ARG=$(($ARG / 1000))
   printf -v TDIGIT1 %03u $ARG
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/minor_issues
   REPLICATE_TRUNK_DIR=$TDIGIT1/$TDIGIT2/
   REPLICATE_FILENAME=$TDIGIT1/$TDIGIT2/$TDIGIT3
 };
@@ -77,7 +80,7 @@ collect_minute_diffs()
 
   get_replicate_filename $TARGET
   printf -v TARGET_FILE %09u $TARGET
-  
+
   fetch_file "$SOURCE_DIR/$REPLICATE_FILENAME.state.txt" "$TEMP_SOURCE_DIR/$TARGET_FILE.state.txt"
   fetch_file "$SOURCE_DIR/$REPLICATE_FILENAME.osc.gz" "$TEMP_SOURCE_DIR/$TARGET_FILE.osc.gz"
 
@@ -85,15 +88,18 @@ collect_minute_diffs()
   do
   {
     gunzip <"$TEMP_SOURCE_DIR/$TARGET_FILE.osc.gz" >"$TEMP_TARGET_DIR/$TARGET_FILE.osc"
-    
+
     TARGET=$(($TARGET + 1))
     get_replicate_filename $TARGET
     printf -v TARGET_FILE %09u $TARGET
-    
+
     fetch_file "$SOURCE_DIR/$REPLICATE_FILENAME.state.txt" "$TEMP_SOURCE_DIR/$TARGET_FILE.state.txt"
     fetch_file "$SOURCE_DIR/$REPLICATE_FILENAME.osc.gz" "$TEMP_SOURCE_DIR/$TARGET_FILE.osc.gz"
   };
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/minor_issues
   done
   TARGET=$(($TARGET - 1))
 };

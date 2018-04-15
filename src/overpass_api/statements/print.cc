@@ -51,7 +51,7 @@ Print_Statement::Print_Statement
     (int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
     : Statement(line_number_),
       mode(0), order(order_by_id), limit(std::numeric_limits< unsigned int >::max()),
-      collection_print_target(0),
+      collection_print_target(0), diff_valid(true),
       south(1.0), north(0.0), west(0.0), east(0.0)
 {
   std::map< std::string, std::string > attributes;
@@ -776,10 +776,9 @@ std::vector< std::pair< std::string, std::string > > make_count_tags(const Set& 
 
 void Print_Statement::execute(Resource_Manager& rman)
 {
-  Cpu_Timer cpu_timer(rman, 2);
+  Cpu_Timer cpu(rman, 2);
 
   Diff_Action::_ action = rman.get_desired_action();
-
   if (action == Diff_Action::collect_lhs
       || action == Diff_Action::collect_rhs_no_del || action == Diff_Action::collect_rhs_with_del)
   {
@@ -927,12 +926,23 @@ void Print_Statement::execute_comparison(Resource_Manager& rman)
 
   if (action == Diff_Action::collect_lhs)
   {
+    if (collection_print_target && diff_valid)
+    {
+      runtime_error("A print statement cannot be executed in a loop in a diff setting.");
+      diff_valid = false;
+      delete collection_print_target;
+      collection_print_target = 0;
+      return;
+    }
     delete collection_print_target;
     collection_print_target = new Set_Comparison(
         *rman.get_transaction(), *input_set, rman.get_desired_timestamp());
   }
   else
   {
+    if (!diff_valid || !collection_print_target)
+      return;
+
     Diff_Set result = collection_print_target->compare_to_lhs(rman, *this, *input_set,
         south, north, west, east, action == Diff_Action::collect_rhs_with_del);
 

@@ -59,7 +59,11 @@ else
   };
   fi
   REQUEST_METHOD=
+<<<<<<< HEAD
   echo $REQUEST_BUFFER | ./interpreter
+=======
+  echo "$XML_REQUEST" | ./interpreter
+>>>>>>> upstream/minor_issues
 };
 fi
 

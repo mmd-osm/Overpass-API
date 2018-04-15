@@ -92,10 +92,10 @@ class Print_Statement : public Statement
     static std::string geometry_string_ql(Output_Mode mode)
     {
       if ((mode & (Output_Mode::GEOMETRY | Output_Mode::BOUNDS | Output_Mode::CENTER))
-          == (Output_Mode::GEOMETRY | Output_Mode::BOUNDS | Output_Mode::CENTER))
+          == (Output_Mode::GEOMETRY | Output_Mode::BOUNDS))
         return " geom";
       else if ((mode & (Output_Mode::GEOMETRY | Output_Mode::BOUNDS | Output_Mode::CENTER))
-          == (Output_Mode::BOUNDS | Output_Mode::CENTER))
+          == (Output_Mode::BOUNDS))
         return " bb";
       else if ((mode & (Output_Mode::GEOMETRY | Output_Mode::BOUNDS | Output_Mode::CENTER))
           == Output_Mode::CENTER)
@@ -151,6 +151,7 @@ class Print_Statement : public Statement
     enum { order_by_id, order_by_quadtile } order;
     unsigned int limit;
     Set_Comparison* collection_print_target;
+    bool diff_valid;
 
     double south;
     double north;

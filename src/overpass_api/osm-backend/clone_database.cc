@@ -272,6 +272,7 @@ void clone_database(Transaction& transaction, const std::string& dest_db_dir, co
   });
 
   cl.push_back( [&] {
+
     clone_bin_file< Uint31_Index >(*attic_settings().WAYS, *attic_settings().WAYS,
                                    transaction, dest_db_dir, clone_settings);
   });
@@ -311,6 +312,7 @@ void clone_database(Transaction& transaction, const std::string& dest_db_dir, co
   });
 
   cl.push_back( [&] {
+
     clone_bin_file< Uint31_Index >(*attic_settings().RELATIONS, *attic_settings().RELATIONS,
                                    transaction, dest_db_dir, clone_settings);
   });

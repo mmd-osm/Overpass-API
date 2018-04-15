@@ -99,27 +99,11 @@ void filter_elems(const std::vector< typename TObject::Id_Type >& ids, std::map<
 }
 
 
-template< class TIndex, class TObject >
-void get_elem_ids(std::vector< typename TObject::Id_Type >& ids, const std::map< TIndex, std::vector< TObject > >& elems)
-{
-  for (typename std::map< TIndex, std::vector< TObject > >::const_iterator it = elems.begin();
-      it != elems.end(); ++it)
-  {
-    std::vector< TObject > local_into;
-    for (typename std::vector< TObject >::const_iterator iit = it->second.begin();
-        iit != it->second.end(); ++iit)
-    {
-        ids.push_back(iit->id);
-    }
-  }
-}
 
-
-template< typename Index, typename Skeleton >
+template< typename Index, typename Skeleton, typename Id_Predicate >
 std::vector< typename Skeleton::Id_Type > collect_changed_elements
-    (uint64 since,
-     uint64 until,
-     Resource_Manager& rman)
+    (uint64 since, uint64 until,
+     const Id_Predicate& relevant, Resource_Manager& rman)
 {
   std::set< std::pair< Timestamp, Timestamp > > range;
   range.insert(std::make_pair(Timestamp(since), Timestamp(until)));
@@ -132,7 +116,10 @@ std::vector< typename Skeleton::Id_Type > collect_changed_elements
       it = changelog_db.range_begin(Default_Range_Iterator< Timestamp >(range.begin()),
             Default_Range_Iterator< Timestamp >(range.end()));
       !(it == changelog_db.range_end()); ++it)
-    ids.push_back(it.object().elem_id);
+  {
+    if (relevant(it.object().elem_id))
+      ids.push_back(it.object().elem_id);
+  }
 
   std::sort(ids.begin(), ids.end());
   ids.erase(std::unique(ids.begin(), ids.end()), ids.end());
@@ -172,6 +159,54 @@ std::vector< typename Skeleton::Id_Type > collect_changed_elements
 
 //-----------------------------------------------------------------------------
 
+template< typename Id_Type >
+struct Trivial_Id_Predicate
+{
+  bool operator()(Id_Type id) const { return true; }
+};
+
+
+template< typename Index, typename Skeleton >
+struct Ids_In_Set_Predicate
+{
+  Ids_In_Set_Predicate(
+      const std::map< Index, std::vector< Skeleton > >& current,
+      const std::map< Index, std::vector< Attic< Skeleton > > >& attic);
+
+  bool operator()(typename Skeleton::Id_Type id) const
+  { return std::binary_search(set_ids.begin(), set_ids.end(), id); }
+
+private:
+  std::vector< typename Skeleton::Id_Type > set_ids;
+};
+
+
+template< typename Index, typename Skeleton >
+Ids_In_Set_Predicate< Index, Skeleton >::Ids_In_Set_Predicate(
+    const std::map< Index, std::vector< Skeleton > >& current,
+    const std::map< Index, std::vector< Attic< Skeleton > > >& attic)
+{
+  for (typename std::map< Index, std::vector< Skeleton > >::const_iterator it_idx = current.begin();
+      it_idx != current.end(); ++it_idx)
+  {
+    for (typename std::vector< Skeleton >::const_iterator it_elem = it_idx->second.begin();
+        it_elem != it_idx->second.end(); ++it_elem)
+      set_ids.push_back(it_elem->id);
+  }
+  
+  for (typename std::map< Index, std::vector< Attic< Skeleton > > >::const_iterator it_idx = attic.begin();
+      it_idx != attic.end(); ++it_idx)
+  {
+    for (typename std::vector< Attic< Skeleton > >::const_iterator it_elem = it_idx->second.begin();
+        it_elem != it_idx->second.end(); ++it_elem)
+      set_ids.push_back(it_elem->id);
+  }
+  
+  std::sort(set_ids.begin(), set_ids.end());
+  set_ids.erase(std::unique(set_ids.begin(), set_ids.end()), set_ids.end());
+}
+
+
 class Changed_Constraint : public Query_Constraint
 {
   public:
@@ -202,7 +237,7 @@ class Changed_Constraint : public Query_Constraint
 bool Changed_Constraint::get_node_ids(Resource_Manager& rman, std::vector< Node_Skeleton::Id_Type >& ids)
 {
   ids = collect_changed_elements< Uint32_Index, Node_Skeleton >(
-      stmt->get_since(rman), stmt->get_until(rman), rman);
+      stmt->get_since(rman), stmt->get_until(rman), Trivial_Id_Predicate< Node_Skeleton::Id_Type >(), rman);
   return true;
 }
 
@@ -210,7 +245,7 @@ bool Changed_Constraint::get_node_ids(Resource_Manager& rman, std::vector< Node_
 bool Changed_Constraint::get_way_ids(Resource_Manager& rman, std::vector< Way_Skeleton::Id_Type >& ids)
 {
   ids = collect_changed_elements< Uint31_Index, Way_Skeleton >(
-      stmt->get_since(rman), stmt->get_until(rman), rman);
+      stmt->get_since(rman), stmt->get_until(rman), Trivial_Id_Predicate< Way_Skeleton::Id_Type >(), rman);
   return true;
 }
 
@@ -218,7 +253,7 @@ bool Changed_Constraint::get_way_ids(Resource_Manager& rman, std::vector< Way_Sk
 bool Changed_Constraint::get_relation_ids(Resource_Manager& rman, std::vector< Relation_Skeleton::Id_Type >& ids)
 {
   ids = collect_changed_elements< Uint31_Index, Relation_Skeleton >(
-      stmt->get_since(rman), stmt->get_until(rman), rman);
+      stmt->get_since(rman), stmt->get_until(rman), Trivial_Id_Predicate< Relation_Skeleton::Id_Type >(), rman);
   return true;
 }
 
@@ -263,27 +298,10 @@ void Changed_Constraint::filter(Resource_Manager& rman, Set& into)
 {
   if (!stmt->trivial())
   {
-
-    std::vector< Node_Skeleton::Id_Type > existing_ids;
-    std::vector< Node_Skeleton::Id_Type > ids;
-
-    get_elem_ids(existing_ids, into.nodes);
-    get_elem_ids(existing_ids, into.attic_nodes);
-
-    std::sort(existing_ids.begin(), existing_ids.end());
-    existing_ids.erase(std::unique(existing_ids.begin(), existing_ids.end()), existing_ids.end());
-
-    if (!existing_ids.empty())
-    {
-      ids =
-          collect_changed_elements< Uint32_Index, Node_Skeleton >
-          (stmt->get_since(rman), stmt->get_until(rman), rman,
-              [&] (Node_Skeleton::Id_Type id)
-                {
-                  return (!(id < existing_ids.front() || existing_ids.back() < id) &&
-                           (std::binary_search(existing_ids.begin(), existing_ids.end(), id)));
-                });
-    }
+    std::vector< Node_Skeleton::Id_Type > ids =
+        collect_changed_elements< Uint32_Index, Node_Skeleton >
+        (stmt->get_since(rman), stmt->get_until(rman),
+            Ids_In_Set_Predicate< Uint32_Index, Node_Skeleton >(into.nodes, into.attic_nodes), rman);
 
     filter_elems(ids, into.nodes);
     filter_elems(ids, into.attic_nodes);
@@ -292,26 +310,10 @@ void Changed_Constraint::filter(Resource_Manager& rman, Set& into)
 
   if (!stmt->trivial())
   {
-    std::vector< Way_Skeleton::Id_Type > existing_ids;
-    std::vector< Way_Skeleton::Id_Type > ids;
-
-    get_elem_ids(existing_ids, into.ways);
-    get_elem_ids(existing_ids, into.attic_ways);
-
-    std::sort(existing_ids.begin(), existing_ids.end());
-    existing_ids.erase(std::unique(existing_ids.begin(), existing_ids.end()), existing_ids.end());
-
-    if (!existing_ids.empty())
-    {
-      ids =
-          collect_changed_elements< Uint31_Index, Way_Skeleton >
-          (stmt->get_since(rman), stmt->get_until(rman), rman,
-              [&] (Way_Skeleton::Id_Type id)
-              {
-                return (!(id < existing_ids.front() || existing_ids.back() < id) &&
-                         (std::binary_search(existing_ids.begin(), existing_ids.end(), id)));
-              });
-    }
+    std::vector< Way_Skeleton::Id_Type > ids =
+        collect_changed_elements< Uint31_Index, Way_Skeleton >
+        (stmt->get_since(rman), stmt->get_until(rman),
+            Ids_In_Set_Predicate< Uint31_Index, Way_Skeleton >(into.ways, into.attic_ways), rman);
 
     filter_elems(ids, into.ways);
     filter_elems(ids, into.attic_ways);
@@ -319,26 +321,10 @@ void Changed_Constraint::filter(Resource_Manager& rman, Set& into)
 
   if (!stmt->trivial())
   {
-    std::vector< Relation_Skeleton::Id_Type > existing_ids;
-    std::vector< Relation_Skeleton::Id_Type > ids;
-
-    get_elem_ids(existing_ids, into.relations);
-    get_elem_ids(existing_ids, into.attic_relations);
-
-    std::sort(existing_ids.begin(), existing_ids.end());
-    existing_ids.erase(std::unique(existing_ids.begin(), existing_ids.end()), existing_ids.end());
-
-    if (!existing_ids.empty())
-    {
-      ids =
-          collect_changed_elements< Uint31_Index, Relation_Skeleton >
-          (stmt->get_since(rman), stmt->get_until(rman), rman,
-              [&] (Relation_Skeleton::Id_Type id)
-              {
-                return (!(id < existing_ids.front() || existing_ids.back() < id) &&
-                         (std::binary_search(existing_ids.begin(), existing_ids.end(), id)));
-              });
-    }
+    std::vector< Relation_Skeleton::Id_Type > ids =
+        collect_changed_elements< Uint31_Index, Relation_Skeleton >
+        (stmt->get_since(rman), stmt->get_until(rman),
+            Ids_In_Set_Predicate< Uint31_Index, Relation_Skeleton >(into.relations, into.attic_relations), rman);
 
     filter_elems(ids, into.relations);
     filter_elems(ids, into.attic_relations);
@@ -479,7 +465,8 @@ void get_elements(Changed_Statement& stmt, Resource_Manager& rman,
     std::map< Index, std::vector< Attic< Skeleton > > >& attic_result)
 {
   std::vector< typename Skeleton::Id_Type > ids =
-      collect_changed_elements< Index, Skeleton >(stmt.get_since(rman), stmt.get_until(rman), rman);
+      collect_changed_elements< Index, Skeleton >(stmt.get_since(rman), stmt.get_until(rman),
+          Trivial_Id_Predicate< typename Skeleton::Id_Type >(), rman);
   std::vector< Index > req = get_indexes_< Index, Skeleton >(ids, rman);
 
   if (rman.get_desired_timestamp() == NOW)

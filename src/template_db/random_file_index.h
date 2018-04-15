@@ -171,7 +171,7 @@ inline Random_File_Index::Random_File_Index
               *(uint32*)(index_buf.ptr + pos + 4));
 
           blocks.push_back(entry);
-          
+
           if (entry.size > guessed_compression_factor * 2) // increased buffer size for lz4
           {
             read_old_format = true;
