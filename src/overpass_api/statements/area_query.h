@@ -121,7 +121,7 @@ class Area_Query_Statement : public Output_Statement
     std::set< Uint31_Index > area_blocks_req;
     bool area_blocks_req_filled;
     std::vector< Query_Constraint* > constraints;
-    
+
     void fill_ranges(Resource_Manager& rman);
 };
 
