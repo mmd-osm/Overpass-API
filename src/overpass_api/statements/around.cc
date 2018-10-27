@@ -994,50 +994,6 @@ std::set< std::pair< Uint32_Index, Uint32_Index > > Around_Statement::calc_range
     ways.insert(way);
     return expand(children(ranges(ways)), radius);
   }
-  else if (!input.deriveds.empty())
-  {
-    std::set< std::pair< Uint32_Index, Uint32_Index > > current_ranges;
-
-    for (typename std::map< Uint31_Index, std::vector< Derived_Structure > >::const_iterator it = input.deriveds.begin();
-        it != input.deriveds.end(); ++it)
-    {
-      for (typename std::vector< Derived_Structure >::const_iterator iit = it->second.begin();
-          iit != it->second.end(); ++iit)
-      {
-        const Opaque_Geometry* geom = iit->get_geometry();
-
-        if (!geom)
-          continue;
-
-        if (!geom->has_components())
-        {
-          if (geom->has_line_geometry())
-          {
-            auto derived_points = geom->get_line_geometry();
-
-            std::vector< uint32 > nd_idxs;
-            std::map< Uint31_Index, std::vector< Way_Skeleton > > ways;
-            std::pair< Uint31_Index, std::vector< Way_Skeleton > > way;
-
-            for (std::vector< Point_Double >::const_iterator it = derived_points->begin(); it != derived_points->end(); ++it)
-                nd_idxs.push_back(::ll_upper_(it->lat, it->lon));
-
-            Uint31_Index idx = Way::calc_index(nd_idxs);
-            way = std::make_pair(idx, std::vector< Way_Skeleton >());
-            ways.insert(way);
-            current_ranges = set_union_(current_ranges, expand(children(ranges(ways)), radius));
-
-          }
-          else if (geom->has_center())
-          {
-            current_ranges = set_union_(current_ranges, expand(ranges(geom->center_lat(), geom->center_lon()), radius));
-          }
-        }
-      }
-    }
-
-    return current_ranges;
-  }
   else
     return expand(set_union_
         (set_union_(ranges(input.nodes), ranges(input.attic_nodes)),
@@ -1259,34 +1215,6 @@ void Around_Statement::add_ways(const std::map< Uint31_Index, std::vector< Way_S
   }
 }
 
-void Around_Statement::add_deriveds(const std::map< Uint31_Index, std::vector< Derived_Structure > >& deriveds)
-{
-
-  for (typename std::map< Uint31_Index, std::vector< Derived_Structure > >::const_iterator it = deriveds.begin();
-      it != deriveds.end(); ++it)
-  {
-    for (typename std::vector< Derived_Structure >::const_iterator iit = it->second.begin();
-        iit != it->second.end(); ++iit)
-    {
-      const Opaque_Geometry* geom = iit->get_geometry();
-
-      if (!geom)
-        continue;
-
-      if (!geom->has_components())
-      {
-        if (geom->has_line_geometry())
-          add_way(*(geom->get_line_geometry()), radius, radius_lat_lons, simple_lat_lons, simple_segments, way_bboxes);
-        else if (geom->has_center())
-        {
-          add_coord(geom->center_lat(), geom->center_lon(), radius, radius_lat_lons, simple_lat_lons);
-          node_bboxes.push_back(::calc_distance_bbox(geom->center_lat(), geom->center_lon(), radius));
-        }
-      }
-    }
-  }
-}
-
 
 void Around_Statement::calc_lat_lons(const Set& input, Statement& query, Resource_Manager& rman)
 {
@@ -1321,8 +1249,6 @@ void Around_Statement::calc_lat_lons(const Set& input, Statement& query, Resourc
   std::map< Uint31_Index, std::vector< Way_Skeleton > > way_members
       = relation_way_members(&query, rman, input.relations);
   add_ways(way_members, Way_Geometry_Store(way_members, query, rman));
-
-  add_deriveds(input.deriveds);
 
   if (rman.get_desired_timestamp() != NOW)
   {
