@@ -232,8 +232,9 @@ void collect_tags
   while ((!(tag_it == items_db.range_end())) &&
       (((tag_it.index().index) & 0x7fffff00) == coarse_index))
   {
-    if ((binary_search(ids.begin(), ids.end(), tag_it.object())))
-      tags_by_id[tag_it.object()].push_back
+    Id_Type current(tag_it.handle().id());     // avoid creating a new object instance via object()
+    if ((binary_search(ids.begin(), ids.end(), current)))
+      tags_by_id[current].push_back
           (std::make_pair(tag_it.index().key, tag_it.index().value));
     ++tag_it;
   }
@@ -255,11 +256,12 @@ void collect_tags_framed
   while ((!(tag_it == items_db.range_end())) &&
       (((tag_it.index().index) & 0x7fffff00) == coarse_index))
   {
-    if (!(tag_it.object() < lower_id_bound) &&
-      (tag_it.object() < upper_id_bound) &&
+    Id_Type current(tag_it.handle().id());     // avoid creating a new object instance via object()
+    if (!(current < lower_id_bound) &&
+      (current < upper_id_bound) &&
       (binary_search(ids_by_coarse[coarse_index].begin(),
-	ids_by_coarse[coarse_index].end(), tag_it.object())))
-      tags_by_id[tag_it.object()].push_back
+	ids_by_coarse[coarse_index].end(), current)))
+      tags_by_id[current].push_back
           (std::make_pair(tag_it.index().key, tag_it.index().value));
     ++tag_it;
   }

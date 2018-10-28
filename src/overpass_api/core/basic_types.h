@@ -63,6 +63,11 @@ struct Uint32_Index
     *(uint32*)data = value;
   }
 
+  static Id_Type get_id(void* data)
+  {
+    return *(Id_Type*)data;
+  }
+
   bool operator<(const Uint32_Index& index) const
   {
     return this->value < index.value;
@@ -172,6 +177,11 @@ struct Uint64
   void to_data(void* data) const
   {
     *(uint64*)data = value;
+  }
+
+  static Id_Type get_id(void* data)
+  {
+    return *(Id_Type*)data;
   }
 
   bool operator<(const Uint64& index) const
