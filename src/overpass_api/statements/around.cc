@@ -404,8 +404,7 @@ class Around_Constraint : public Query_Constraint
   public:
     Around_Constraint(Around_Statement& around_) : around(&around_), ranges_used(false) {}
 
-    Query_Filter_Strategy delivers_data(Resource_Manager& rman)
-    { return (around->get_radius() < 2000) ? prefer_ranges : ids_useful; }
+    bool delivers_data(Resource_Manager& rman) { return (around->get_radius() < 2000); }
 
     bool get_ranges
         (Resource_Manager& rman, std::set< std::pair< Uint32_Index, Uint32_Index > >& ranges);

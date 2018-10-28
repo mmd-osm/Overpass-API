@@ -40,7 +40,7 @@ class Area_Constraint : public Query_Constraint
   public:
     Area_Constraint(Area_Query_Statement& area_) : area(&area_) {}
 
-    Query_Filter_Strategy delivers_data(Resource_Manager& rman);
+    bool delivers_data(Resource_Manager& rman);
 
     bool get_ranges
         (Resource_Manager& rman, std::set< std::pair< Uint32_Index, Uint32_Index > >& ranges);
@@ -333,18 +333,18 @@ void Area_Query_Statement::get_ranges
 }
 
 
-Query_Filter_Strategy Area_Constraint::delivers_data(Resource_Manager& rman)
+bool Area_Constraint::delivers_data(Resource_Manager& rman)
 {
+  int counter = 0;
+
+  // Count the indicies of the input areas
   if (!area->areas_from_input())
-    return (area->count_ranges(rman) < 12) ? prefer_ranges : ids_useful;
+    return (area->count_ranges(rman) < 12);
   else
   {
     const Set* input = rman.get_set(area->get_input());
     if (!input)
-      return prefer_ranges;
-
-    // Count the indicies of the input areas
-    int counter = 0;
+      return true;
 
     for (std::map< Uint31_Index, std::vector< Area_Skeleton > >::const_iterator it = input->areas.begin();
          it != input->areas.end(); ++it)
@@ -352,9 +352,9 @@ Query_Filter_Strategy Area_Constraint::delivers_data(Resource_Manager& rman)
       for (std::vector< Area_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
         counter += it2->used_indices.size();
     }
-
-    return (counter <= 12) ? prefer_ranges : ids_useful;
   }
+  
+  return (counter <= 12);
 }
 
 

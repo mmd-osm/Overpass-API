@@ -370,5 +370,3 @@ endif
 
 SUBDIRS = $(MAYBE_TESTS)
 
-
-
