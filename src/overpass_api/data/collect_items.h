@@ -433,7 +433,7 @@ void collect_items_range(const Statement* stmt, Resource_Manager& rman,
       rman.health_check(*stmt, 0, eval_map(result));
     }
     if (predicate.match(it.handle()))
-      result[it.index()].push_back(it.object());
+      result[it.index()].push_back(std::move(it.new_object()));
   }
 }
 
@@ -458,7 +458,7 @@ void collect_items_range(const Statement* stmt, Resource_Manager& rman,
       rman.health_check(*stmt, 0, eval_map(result));
     }
     if (pred(it.index(), it.handle().id()))
-      result[it.index()].push_back(it.object());
+      result[it.index()].push_back(std::move(it.new_object()));
   }
 }
 

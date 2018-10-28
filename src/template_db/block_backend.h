@@ -64,6 +64,7 @@ public:
   ~Handle() { delete obj; }
   Handle& operator=(const Handle& rhs);
   const Object& object() const;
+  Object new_object();
   typename Object::Id_Type id() const;
 
 private:
@@ -97,6 +98,12 @@ const Object& Handle< Object >::object() const
   return *obj;
 }
 
+template< typename Object >
+Object Handle< Object >::new_object()
+{
+  update_ptr();
+  return Object{ptr};
+}
 
 template< typename Object >
 typename Object::Id_Type Handle< Object >::id() const
@@ -159,6 +166,7 @@ struct Block_Backend_Basic_Iterator : public Block_Backend_Basic_Ref
   bool advance();
   const TIndex& index();
   const TObject& object();
+  TObject new_object();
   const Handle< TObject >& handle() { return object_handle; }
 
   template< typename T >
@@ -421,6 +429,12 @@ template< class TIndex, class TObject >
 const TObject& Block_Backend_Basic_Iterator< TIndex, TObject >::object()
 {
   return object_handle.object();
+}
+
+template < class TIndex, class TObject >
+TObject Block_Backend_Basic_Iterator< TIndex, TObject >::new_object()
+{
+  return std::move(object_handle.new_object());
 }
 
 template< class TIndex, class TObject >
