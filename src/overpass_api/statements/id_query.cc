@@ -82,7 +82,7 @@ void collect_elems_flat(Resource_Manager& rman,
   for (Block_Backend< Uint31_Index, Area_Skeleton >::Flat_Iterator
       it = elems_db.flat_begin(); !(it == elems_db.flat_end()); ++it)
   {
-    if (std::binary_search(ids.begin(), ids.end(), it.object().id.val()))
+    if (std::binary_search(ids.begin(), ids.end(), it.handle().id().val()))
       elems[it.index()].push_back(it.object());
   }
 }

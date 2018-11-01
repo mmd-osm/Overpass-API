@@ -299,7 +299,7 @@ void Area_Query_Statement::fill_ranges(Resource_Manager& rman)
       it(area_locations_db.flat_begin());
       !(it == area_locations_db.flat_end()); ++it)
   {
-    if (binary_search(area_id.begin(), area_id.end(), it.object().id))
+    if (binary_search(area_id.begin(), area_id.end(), it.handle().id()))
     {
       for (std::vector< uint32 >::const_iterator it2(it.object().used_indices.begin());
           it2 != it.object().used_indices.end(); ++it2)

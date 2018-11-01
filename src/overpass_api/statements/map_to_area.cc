@@ -121,8 +121,8 @@ void collect_elems_flat(Resource_Manager& rman,
   for (Block_Backend< Uint31_Index, Area_Skeleton >::Flat_Iterator
       it = elems_db.flat_begin(); !(it == elems_db.flat_end()); ++it)
   {
-    if (!(it.object().id < (*lower).val()) && it.object().id < ((*upper).val() + 1) &&
-        binary_search(ids.begin(), ids.end(), it.object().id))
+    if (!(it.handle().id() < (*lower).val()) && it.handle().id() < ((*upper).val() + 1) &&
+        binary_search(ids.begin(), ids.end(), it.handle().id()))
     {
       elems[it.index()].push_back(it.object());
     }

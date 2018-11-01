@@ -117,8 +117,8 @@ std::vector< typename Skeleton::Id_Type > collect_changed_elements
             Default_Range_Iterator< Timestamp >(range.end()));
       !(it == changelog_db.range_end()); ++it)
   {
-    if (relevant(it.object().elem_id))
-      ids.push_back(it.object().elem_id);
+    if (relevant(it.handle().id()))
+      ids.push_back(it.handle().id());
   }
 
   std::sort(ids.begin(), ids.end());
