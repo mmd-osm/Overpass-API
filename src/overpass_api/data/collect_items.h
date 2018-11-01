@@ -33,6 +33,32 @@ inline uint64 timestamp_of(const Node_Skeleton& skel) { return NOW; }
 inline uint64 timestamp_of(const Way_Skeleton& skel) { return NOW; }
 inline uint64 timestamp_of(const Relation_Skeleton& skel) { return NOW; }
 
+template< typename TObject, class TIterator>
+inline typename std::enable_if< std::is_same< TObject, Attic < Node_Skeleton > >::value, uint64 >::type
+  timestamp_of_it(TIterator& it) { return it.apply_func(&Attic<Node_Skeleton>::get_timestamp); };
+
+template< typename TObject, class TIterator>
+inline typename std::enable_if< std::is_same< TObject, Attic < Way_Skeleton > >::value, uint64 >::type
+  timestamp_of_it(TIterator& it) { return it.apply_func(&Attic<Way_Skeleton>::get_timestamp); };
+
+template< typename TObject, class TIterator>
+inline typename std::enable_if< std::is_same< TObject, Attic < Relation_Skeleton > >::value, uint64 >::type
+  timestamp_of_it(TIterator& it) { return it.apply_func(&Attic<Relation_Skeleton>::get_timestamp); };
+
+template< typename TObject, class TIterator>
+inline typename std::enable_if< std::is_same< TObject, Node_Skeleton >::value, uint64 >::type
+  timestamp_of_it(TIterator& it) { return NOW; };
+
+template< typename TObject, class TIterator>
+inline typename std::enable_if< std::is_same< TObject, Way_Skeleton >::value, uint64 >::type
+  timestamp_of_it(TIterator& it) { return NOW; };
+
+template< typename TObject, class TIterator>
+inline typename std::enable_if< std::is_same< TObject, Relation_Skeleton >::value, uint64 >::type
+  timestamp_of_it(TIterator& it) { return NOW; };
+
+
+
 
 template < class Index, class Object, class Iterator, class Predicate >
 void reconstruct_items(const Statement* stmt, Resource_Manager& rman,
@@ -55,16 +81,16 @@ void reconstruct_items(const Statement* stmt, Resource_Manager& rman,
       if (stmt)
         rman.health_check(*stmt, 0, eval_map(result));
     }
-    if (timestamp < timestamp_of(it.object()))
+    if (timestamp < timestamp_of_it<Object>(it))
     {
-      bool match = predicate.match(it.object());
+      bool match = predicate.match(it.handle());
 
       if ( time_dependent || (!time_dependent && match))
       {
-        if (timestamp_of(it.object()) == NOW)
-          timestamp_by_id_current.push_back(it.object().id);
+        if (timestamp_of_it<Object>(it) == NOW)
+          timestamp_by_id_current.push_back(it.handle().id());
         else
-          timestamp_by_id_attic.push_back(std::make_pair(it.object().id, timestamp_of(it.object())));
+          timestamp_by_id_attic.push_back(std::make_pair(it.handle().id(), timestamp_of_it<Object>(it)));
       }
 
       if (match)
