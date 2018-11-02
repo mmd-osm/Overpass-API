@@ -24,6 +24,8 @@
 #include "collect_items.h"
 #include "filenames.h"
 
+#include <osmium/index/id_set.hpp>
+
 
 //-----------------------------------------------------------------------------
 
@@ -33,10 +35,12 @@ class And_Predicate
   public:
     And_Predicate(const TPredicateA& predicate_a_, const TPredicateB& predicate_b_)
         : predicate_a(predicate_a_), predicate_b(predicate_b_) {}
+    And_Predicate(TPredicateA&& predicate_a_, TPredicateB&& predicate_b_)
+        : predicate_a(std::move(predicate_a_)), predicate_b(std::move(predicate_b_)) {}
     bool match(const Object& obj) const { return (predicate_a.match(obj) && predicate_b.match(obj)); }
     bool match(const Handle< Object >& h) const { return (predicate_a.match(h) && predicate_b.match(h)); }
     bool match(const Handle< Attic< Object > >& h) const { return (predicate_a.match(h) && predicate_b.match(h)); }
-    bool is_time_dependent() const { return (predicate_a.is_time_dependent() || predicate_b.is_time_dependent()); };
+    bool is_time_dependent() const { return (predicate_a.is_time_dependent() || predicate_b.is_time_dependent()); }
 
   private:
     TPredicateA predicate_a;
@@ -49,10 +53,12 @@ class Or_Predicate
   public:
     Or_Predicate(const TPredicateA& predicate_a_, const TPredicateB& predicate_b_)
         : predicate_a(predicate_a_), predicate_b(predicate_b_) {}
+    Or_Predicate(TPredicateA&& predicate_a_, TPredicateB&& predicate_b_)
+        : predicate_a(std::move(predicate_a_)), predicate_b(std::move(predicate_b_)) {}
     bool match(const Object& obj) const { return (predicate_a.match(obj) || predicate_b.match(obj)); }
     bool match(const Handle< Object >& h) const { return (predicate_a.match(h) || predicate_b.match(h)); }
     bool match(const Handle< Attic< Object > >& h) const { return (predicate_a.match(h) || predicate_b.match(h)); }
-    bool is_time_dependent() const { return (predicate_a.is_time_dependent() || predicate_b.is_time_dependent()); };
+    bool is_time_dependent() const { return (predicate_a.is_time_dependent() || predicate_b.is_time_dependent()); }
 
   private:
     TPredicateA predicate_a;
@@ -65,10 +71,12 @@ class Not_Predicate
   public:
     Not_Predicate(const TPredicateA& predicate_a_)
         : predicate_a(predicate_a_) {}
+    Not_Predicate(TPredicateA&& predicate_a_)
+        : predicate_a(std::move(predicate_a_)) {}
     bool match(const Object& obj) const { return (!predicate_a.match(obj)); }
     bool match(const Handle< Object >& h) const { return (!predicate_a.match(h)); }
     bool match(const Handle< Attic< Object > >& h) const { return (!predicate_a.match(h)); }
-    bool is_time_dependent() const { return predicate_a.is_time_dependent(); };
+    bool is_time_dependent() const { return predicate_a.is_time_dependent(); }
 
   private:
     TPredicateA predicate_a;
@@ -82,7 +90,7 @@ class Trivial_Predicate
     bool match(const Object& obj) const { return true; }
     bool match(const Handle< Object >& h) const { return true; }
     bool match(const Handle< Attic< Object > >& h) const { return true; }
-    bool is_time_dependent() const { return false; };
+    bool is_time_dependent() const { return false; }
 };
 
 //-----------------------------------------------------------------------------
@@ -90,17 +98,42 @@ class Trivial_Predicate
 template < class Object >
 class Id_Predicate
 {
-  public:
-    Id_Predicate(const std::vector< typename Object::Id_Type >& ids_)
-      : ids(ids_) {}
-    bool match(const Object& obj) const { return binary_search(ids.begin(), ids.end(), obj.id); }
-    bool match(const Handle< Object >& h) const { return binary_search(ids.begin(), ids.end(), h.id()); }
-    bool match(const Handle< Attic< Object > >& h) const { return binary_search(ids.begin(), ids.end(), h.id()); }
-    bool is_time_dependent() const { return false; };
+public:
+  Id_Predicate(const std::vector< typename Object::Id_Type >& ids_) :
+      use_dense(false), ids(ids_), ids_dense { }
+  {
+    populate_ids_dense(ids_);
+  }
+  void populate_ids_dense(const std::vector< typename Object::Id_Type >& ids_) {
+    if (ids_.size() > 1000) {
+      for (auto & id : ids_)
+        ids_dense.set(id.val());
+      use_dense = true;
+    }
+  }
+  bool match(const Object& obj) const
+  {
+    return (use_dense ? ids_dense.get(obj.id.val()) : binary_search(ids.begin(), ids.end(), obj.id));
+  }
+  bool match(const Handle< Object >& h) const
+  {
+    return (use_dense ? ids_dense.get(h.id().val()) : binary_search(ids.begin(), ids.end(), h.id()));
+  }
+  bool match(const Handle< Attic< Object > >& h) const
+  {
+    return (use_dense ? ids_dense.get(h.id().val()) : binary_search(ids.begin(), ids.end(), h.id()));
+  }
+  bool is_time_dependent() const
+  {
+    return false;
+  }
 
-  private:
-    const std::vector< typename Object::Id_Type >& ids;
+private:
+  bool use_dense;
+  const std::vector< typename Object::Id_Type >& ids;
+  osmium::index::IdSetDense< typename Object::Id_Type::Id_Type > ids_dense;
 };
+
 
 //-----------------------------------------------------------------------------
 

@@ -206,8 +206,8 @@ void get_elements_by_id_from_db
   else if (!invert_ids)
   {
     if (timestamp == NOW)
-      collect_items_range(&query, rman, file_prop, range_req,
-          Id_Predicate< TObject >(ids), elements);
+        collect_items_range(&query, rman, file_prop, range_req,
+            Id_Predicate< TObject >(ids), elements);
     else
       collect_items_range_by_timestamp(&query, rman, range_req,
           Id_Predicate< TObject >(ids), elements, attic_elements);
