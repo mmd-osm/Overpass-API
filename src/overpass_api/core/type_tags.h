@@ -114,13 +114,25 @@ struct Tag_Index_Local
   }
 };
 
+namespace {
+  class void_tag {
+  public:
+     const static std::string void_tag_value;
+     const static std::string void_tag_value_space;
+  };
+
+  const std::string void_tag::void_tag_value =  { (char) 0xff };
+  const std::string void_tag::void_tag_value_space = { (char) 0xff, (char) 0x20 };
+}
 
 inline const std::string& void_tag_value()
 {
-  static std::string void_value = " ";
-  if (void_value == " ")
-    void_value[0] = 0xff;
-  return void_value;
+  return void_tag::void_tag_value;
+}
+
+inline const std::string& void_tag_value_space()
+{
+  return void_tag::void_tag_value_space;
 }
 
 

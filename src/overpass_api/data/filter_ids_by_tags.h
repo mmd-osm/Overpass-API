@@ -45,7 +45,7 @@ void filter_ids_by_tags
   {
     if (tag_it.index().key != last_key)
     {
-      last_value = void_tag_value() + " ";
+      last_value = void_tag_value_space();
 
       if (key_relevant)
         ++key_it;
@@ -365,7 +365,7 @@ void filter_ids_by_tags
     {
       current_key = tag_it.index().key;
       update_listeners_keys(tag_listeners, relevant_listeners, current_key);
-      current_value = void_tag_value() + " ";
+      current_value = void_tag_value_space();
     }
 
     if (current_value != tag_it.index().value)
@@ -392,7 +392,7 @@ void filter_ids_by_tags
     {
       current_key = attic_tag_it.index().key;
       update_listeners_keys(tag_listeners, relevant_listeners, current_key);
-      current_value = void_tag_value() + " ";
+      current_value = void_tag_value_space();
     }
 
     if (current_value != attic_tag_it.index().value)
