@@ -230,6 +230,11 @@ Statement* Area_Query_Statement::Criterion_Maker::create_criterion(const Token_N
   attributes["from"] = from;
   attributes["into"] = into;
   attributes["ref"] = ref;
+
+  if (type == "derived" || type == "area") {
+    error_output->add_parse_error("Area filter only permitted for nodes, ways, or relations.", line_nr);
+  }
+
   return new Area_Query_Statement(line_nr, attributes, global_settings);
 }
 
