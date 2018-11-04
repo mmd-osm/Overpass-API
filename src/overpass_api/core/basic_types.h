@@ -352,6 +352,12 @@ void expand_diff(const std::vector< Object >& reference,
     const std::vector< uint >& removed, const std::vector< std::pair< uint, Object > >& added,
     std::vector< Object >& target)
 {
+  if (removed.empty() && added.empty())
+  {
+    target = reference;
+    return;
+  }
+
   target.reserve(reference.size() - removed.size() + added.size());
   std::vector< uint >::const_iterator it_removed = removed.begin();
   typename std::vector< std::pair< uint, Object > >::const_iterator it_added = added.begin();
