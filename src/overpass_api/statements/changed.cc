@@ -19,6 +19,8 @@
 #include <functional>
 #include <sstream>
 
+#include <osmium/index/id_set.hpp>
+
 #include "../../template_db/block_backend.h"
 #include "../../template_db/random_file.h"
 #include "../core/settings.h"
@@ -98,6 +100,25 @@ void filter_elems(const std::vector< typename TObject::Id_Type >& ids, std::map<
   }
 }
 
+template< class TIndex, class TObject >
+void filter_elems_fast(const osmium::index::IdSetDense<typename TObject::Id_Type::Id_Type>& ids,
+                       std::map< TIndex, std::vector< TObject > >& elems)
+{
+  for (typename std::map< TIndex, std::vector< TObject > >::iterator it = elems.begin();
+      it != elems.end(); ++it)
+  {
+    std::vector< TObject > local_into;
+    for (typename std::vector< TObject >::const_iterator iit = it->second.begin();
+        iit != it->second.end(); ++iit)
+    {
+      if (ids.get(iit->id.val()))
+        local_into.push_back(*iit);
+    }
+    it->second.swap(local_into);
+  }
+}
+
+
 
 
 template< typename Index, typename Skeleton, typename Id_Predicate >
@@ -126,6 +147,29 @@ std::vector< typename Skeleton::Id_Type > collect_changed_elements
   return ids;
 }
 
+template< typename Index, typename Skeleton, typename Id_Predicate >
+osmium::index::IdSetDense<typename Skeleton::Id_Type::Id_Type> collect_changed_elements_fast
+    (uint64 since, uint64 until,
+     const Id_Predicate& relevant, Resource_Manager& rman)
+{
+  std::set< std::pair< Timestamp, Timestamp > > range;
+  range.insert(std::make_pair(Timestamp(since), Timestamp(until)));
+
+  osmium::index::IdSetDense<typename Skeleton::Id_Type::Id_Type> ids;
+
+  Block_Backend< Timestamp, Change_Entry< typename Skeleton::Id_Type > > changelog_db
+      (rman.get_transaction()->data_index(changelog_file_properties< Skeleton >()));
+  for (typename Block_Backend< Timestamp, Change_Entry< typename Skeleton::Id_Type > >::Range_Iterator
+      it = changelog_db.range_begin(Default_Range_Iterator< Timestamp >(range.begin()),
+            Default_Range_Iterator< Timestamp >(range.end()));
+      !(it == changelog_db.range_end()); ++it)
+  {
+    if (relevant(it.handle().id()))
+      ids.set(it.handle().id().val());
+  }
+
+  return ids;
+}
 
 
 template< typename Index, typename Skeleton >
@@ -154,6 +198,30 @@ std::vector< typename Skeleton::Id_Type > collect_changed_elements
   return ids;
 }
 
+
+template< typename Index, typename Skeleton >
+osmium::index::IdSetDense<typename Skeleton::Id_Type::Id_Type> collect_changed_elements_fast
+    (uint64 since,
+     uint64 until,
+     Resource_Manager& rman,
+     std::function<bool(typename Skeleton::Id_Type)> pred)
+{
+  std::set< std::pair< Timestamp, Timestamp > > range;
+  range.insert(std::make_pair(Timestamp(since), Timestamp(until)));
+
+  osmium::index::IdSetDense<typename Skeleton::Id_Type::Id_Type> ids;
+
+  Block_Backend< Timestamp, Change_Entry< typename Skeleton::Id_Type > > changelog_db
+      (rman.get_transaction()->data_index(changelog_file_properties< Skeleton >()));
+  for (typename Block_Backend< Timestamp, Change_Entry< typename Skeleton::Id_Type > >::Range_Iterator
+      it = changelog_db.range_begin(Default_Range_Iterator< Timestamp >(range.begin()),
+            Default_Range_Iterator< Timestamp >(range.end()));
+      !(it == changelog_db.range_end()); ++it)
+    if (pred(it.handle().id()))
+      ids.set(it.handle().id().val());
+
+  return ids;
+}
 
 
 
@@ -205,6 +273,44 @@ Ids_In_Set_Predicate< Index, Skeleton >::Ids_In_Set_Predicate(
   std::sort(set_ids.begin(), set_ids.end());
   set_ids.erase(std::unique(set_ids.begin(), set_ids.end()), set_ids.end());
 }
+
+template< typename Index, typename Skeleton >
+struct Ids_Dense_Predicate
+{
+  Ids_Dense_Predicate(
+      const std::map< Index, std::vector< Skeleton > >& current,
+      const std::map< Index, std::vector< Attic< Skeleton > > >& attic);
+
+  bool operator()(typename Skeleton::Id_Type id) const
+  { return ids.get(id.val()); }
+
+private:
+  osmium::index::IdSetDense<typename Skeleton::Id_Type::Id_Type> ids;
+};
+
+
+template< typename Index, typename Skeleton >
+Ids_Dense_Predicate< Index, Skeleton >::Ids_Dense_Predicate(
+    const std::map< Index, std::vector< Skeleton > >& current,
+    const std::map< Index, std::vector< Attic< Skeleton > > >& attic)
+{
+  for (typename std::map< Index, std::vector< Skeleton > >::const_iterator it_idx = current.begin();
+      it_idx != current.end(); ++it_idx)
+  {
+    for (typename std::vector< Skeleton >::const_iterator it_elem = it_idx->second.begin();
+        it_elem != it_idx->second.end(); ++it_elem)
+      ids.set(it_elem->id.val());
+  }
+
+  for (typename std::map< Index, std::vector< Attic< Skeleton > > >::const_iterator it_idx = attic.begin();
+      it_idx != attic.end(); ++it_idx)
+  {
+    for (typename std::vector< Attic< Skeleton > >::const_iterator it_elem = it_idx->second.begin();
+        it_elem != it_idx->second.end(); ++it_elem)
+      ids.set(it_elem->id.val());
+  }
+}
+
 
 
 class Changed_Constraint : public Query_Constraint
@@ -296,6 +402,7 @@ bool Changed_Constraint::get_relation_ids(Resource_Manager& rman, std::vector< R
 
 void Changed_Constraint::filter(Resource_Manager& rman, Set& into)
 {
+/*
   if (!stmt->trivial())
   {
     std::vector< Node_Skeleton::Id_Type > ids =
@@ -328,6 +435,41 @@ void Changed_Constraint::filter(Resource_Manager& rman, Set& into)
 
     filter_elems(ids, into.relations);
     filter_elems(ids, into.attic_relations);
+  }
+*/
+
+  if (!stmt->trivial())
+  {
+    auto ids =
+        collect_changed_elements_fast< Uint32_Index, Node_Skeleton >
+        (stmt->get_since(rman), stmt->get_until(rman),
+            Ids_Dense_Predicate< Uint32_Index, Node_Skeleton >(into.nodes, into.attic_nodes), rman);
+
+    filter_elems_fast(ids, into.nodes);
+    filter_elems_fast(ids, into.attic_nodes);
+
+  }
+
+  if (!stmt->trivial())
+  {
+    auto ids =
+        collect_changed_elements_fast< Uint31_Index, Way_Skeleton >
+        (stmt->get_since(rman), stmt->get_until(rman),
+            Ids_Dense_Predicate< Uint31_Index, Way_Skeleton >(into.ways, into.attic_ways), rman);
+
+    filter_elems_fast(ids, into.ways);
+    filter_elems_fast(ids, into.attic_ways);
+  }
+
+  if (!stmt->trivial())
+  {
+    auto ids =
+        collect_changed_elements_fast< Uint31_Index, Relation_Skeleton >
+        (stmt->get_since(rman), stmt->get_until(rman),
+            Ids_Dense_Predicate< Uint31_Index, Relation_Skeleton >(into.relations, into.attic_relations), rman);
+
+    filter_elems_fast(ids, into.relations);
+    filter_elems_fast(ids, into.attic_relations);
   }
 
   into.areas.clear();
