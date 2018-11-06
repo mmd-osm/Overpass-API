@@ -33,7 +33,6 @@
 #include <algorithm>
 #include <sstream>
 
-#include <osmium/index/id_set.hpp>
 
 
 //-----------------------------------------------------------------------------
@@ -183,15 +182,15 @@ void filter_id_list(
 }
 
 
-template< typename Id_Type, typename Iterator, typename Key_Regex, typename Val_Regex >
+template< typename Id_Type, typename Iterator, typename Key_Regex, typename Val_Regex, unsigned int L >
 std::vector< std::pair< Id_Type, Uint31_Index > > filter_id_list_fast(
-    osmium::index::IdSetDense<typename Id_Type::Id_Type>& new_ids, bool& filtered,
+    experimental::IdSetDense<typename Id_Type::Id_Type, L>& new_ids, bool& filtered,
     Iterator begin, Iterator end, const Key_Regex& key_regex, const Val_Regex& val_regex,
     bool check_keys_late, bool final)
 {
   std::vector< std::pair< Id_Type, Uint31_Index > > new_ids_idx;
 
-  osmium::index::IdSetDense<typename Id_Type::Id_Type> old_ids(std::move(new_ids));
+  experimental::IdSetDense<typename Id_Type::Id_Type, L> old_ids(std::move(new_ids));
   new_ids.clear();
 
   for (Iterator it = begin; !(it == end); ++it)
@@ -307,7 +306,7 @@ std::vector< std::pair< Id_Type, Uint31_Index > > Query_Statement::collect_ids
         (rman.get_transaction()->data_index(&attic_file_prop)));
 
 
-  osmium::index::IdSetDense<typename Id_Type::Id_Type> tmp_ids;
+  experimental::IdSetDense<typename Id_Type::Id_Type, 16> tmp_ids;
 
   // Handle simple Key-Value pairs
   std::vector< std::pair< Id_Type, Uint31_Index > > new_ids;

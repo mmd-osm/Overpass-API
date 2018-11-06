@@ -19,7 +19,7 @@
 #include <functional>
 #include <sstream>
 
-#include <osmium/index/id_set.hpp>
+
 
 #include "../../template_db/block_backend.h"
 #include "../../template_db/random_file.h"
@@ -101,7 +101,7 @@ void filter_elems(const std::vector< typename TObject::Id_Type >& ids, std::map<
 }
 
 template< class TIndex, class TObject >
-void filter_elems_fast(const osmium::index::IdSetDense<typename TObject::Id_Type::Id_Type>& ids,
+void filter_elems_fast(const experimental::IdSetDense<typename TObject::Id_Type::Id_Type>& ids,
                        std::map< TIndex, std::vector< TObject > >& elems)
 {
   for (typename std::map< TIndex, std::vector< TObject > >::iterator it = elems.begin();
@@ -148,14 +148,14 @@ std::vector< typename Skeleton::Id_Type > collect_changed_elements
 }
 
 template< typename Index, typename Skeleton, typename Id_Predicate >
-osmium::index::IdSetDense<typename Skeleton::Id_Type::Id_Type> collect_changed_elements_fast
+experimental::IdSetDense<typename Skeleton::Id_Type::Id_Type> collect_changed_elements_fast
     (uint64 since, uint64 until,
      const Id_Predicate& relevant, Resource_Manager& rman)
 {
   std::set< std::pair< Timestamp, Timestamp > > range;
   range.insert(std::make_pair(Timestamp(since), Timestamp(until)));
 
-  osmium::index::IdSetDense<typename Skeleton::Id_Type::Id_Type> ids;
+  experimental::IdSetDense<typename Skeleton::Id_Type::Id_Type> ids;
 
   Block_Backend< Timestamp, Change_Entry< typename Skeleton::Id_Type > > changelog_db
       (rman.get_transaction()->data_index(changelog_file_properties< Skeleton >()));
@@ -200,7 +200,7 @@ std::vector< typename Skeleton::Id_Type > collect_changed_elements
 
 
 template< typename Index, typename Skeleton >
-osmium::index::IdSetDense<typename Skeleton::Id_Type::Id_Type> collect_changed_elements_fast
+experimental::IdSetDense<typename Skeleton::Id_Type::Id_Type> collect_changed_elements_fast
     (uint64 since,
      uint64 until,
      Resource_Manager& rman,
@@ -209,7 +209,7 @@ osmium::index::IdSetDense<typename Skeleton::Id_Type::Id_Type> collect_changed_e
   std::set< std::pair< Timestamp, Timestamp > > range;
   range.insert(std::make_pair(Timestamp(since), Timestamp(until)));
 
-  osmium::index::IdSetDense<typename Skeleton::Id_Type::Id_Type> ids;
+  experimental::IdSetDense<typename Skeleton::Id_Type::Id_Type> ids;
 
   Block_Backend< Timestamp, Change_Entry< typename Skeleton::Id_Type > > changelog_db
       (rman.get_transaction()->data_index(changelog_file_properties< Skeleton >()));
@@ -285,7 +285,7 @@ struct Ids_Dense_Predicate
   { return ids.get(id.val()); }
 
 private:
-  osmium::index::IdSetDense<typename Skeleton::Id_Type::Id_Type> ids;
+  experimental::IdSetDense<typename Skeleton::Id_Type::Id_Type> ids;
 };
 
 
