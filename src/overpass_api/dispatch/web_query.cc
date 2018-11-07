@@ -160,6 +160,7 @@ int handle_request(const std::string & content, bool is_cgi, Index_Cache* ic)
     else
       temp<<"open64: "<<e.error_number<<' '<<strerror(e.error_number)<<' '<<e.filename<<' '<<e.origin;
     error_output.runtime_error(temp.str());
+    return 1;
   }
   catch(Resource_Error e)
   {
@@ -171,6 +172,7 @@ int handle_request(const std::string & content, bool is_cgi, Index_Cache* ic)
       temp<<"Query ran out of memory in \""<<e.stmt_name<<"\" at line "
           <<e.line_number<<". It would need at least "<<e.size/(1024*1024)<<" MB of RAM to continue.";
     error_output.runtime_error(temp.str());
+    return 2;
   }
   catch(std::bad_alloc& e)
   {
@@ -179,10 +181,12 @@ int handle_request(const std::string & content, bool is_cgi, Index_Cache* ic)
     std::ostringstream temp;
     temp<<"Query run out of memory using about "<<limit.rlim_cur/(1024*1024)<<" MB of RAM.";
     error_output.runtime_error(temp.str());
+    return 4;
   }
   catch(std::exception& e)
   {
     error_output.runtime_error(std::string("Query failed with the exception: ") + e.what());
+    return 4;
   }
   catch(Exit_Error e) {}
 
