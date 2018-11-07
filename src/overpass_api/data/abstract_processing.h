@@ -424,28 +424,28 @@ class Id_Predicate
 {
 public:
   Id_Predicate(const std::vector< typename Object::Id_Type >& ids_) :
-      use_dense(false), ids(ids_), ids_dense { }
+      dense_ids_enabled(false), ids(ids_), ids_dense { }
   {
     populate_ids_dense(ids_);
   }
   void populate_ids_dense(const std::vector< typename Object::Id_Type >& ids_) {
-    if (ids_.size() > 1000) {
+    if (ids_.size() >= 500000) {
       for (auto & id : ids_)
         ids_dense.set(id.val());
-      use_dense = true;
+      dense_ids_enabled = true;
     }
   }
   bool match(const Object& obj) const
   {
-    return (use_dense ? ids_dense.get(obj.id.val()) : binary_search(ids.begin(), ids.end(), obj.id));
+    return (dense_ids_enabled ? ids_dense.get(obj.id.val()) : binary_search(ids.begin(), ids.end(), obj.id));
   }
   bool match(const Handle< Object >& h) const
   {
-    return (use_dense ? ids_dense.get(h.id().val()) : binary_search(ids.begin(), ids.end(), h.id()));
+    return (dense_ids_enabled ? ids_dense.get(h.id().val()) : binary_search(ids.begin(), ids.end(), h.id()));
   }
   bool match(const Handle< Attic< Object > >& h) const
   {
-    return (use_dense ? ids_dense.get(h.id().val()) : binary_search(ids.begin(), ids.end(), h.id()));
+    return (dense_ids_enabled ? ids_dense.get(h.id().val()) : binary_search(ids.begin(), ids.end(), h.id()));
   }
   bool is_time_dependent() const
   {
@@ -453,7 +453,7 @@ public:
   }
 
 private:
-  bool use_dense;
+  bool dense_ids_enabled;
   const std::vector< typename Object::Id_Type >& ids;
   experimental::IdSetDense< typename Object::Id_Type::Id_Type, L > ids_dense;
 };
