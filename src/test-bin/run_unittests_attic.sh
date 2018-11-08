@@ -26,7 +26,7 @@ if [[ -z $1  ]]; then
 };
 fi
 
-BASEDIR="`pwd`/../"
+BASEDIR="$(cd `dirname $0` && pwd)/.."
 INPUTDIR="../../input/attic_updater/"
 
 mkdir -p run/attic_updater
