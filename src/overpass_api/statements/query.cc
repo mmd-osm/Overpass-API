@@ -196,7 +196,7 @@ template< typename Id_Type, typename Iterator, typename Key_Regex, typename Val_
 std::vector< std::pair< Id_Type, Uint31_Index > > filter_id_list_fast(
     experimental::IdSetDense<typename Id_Type::Id_Type, L>& new_ids, bool& filtered,
     Iterator begin, Iterator end, const Key_Regex& key_regex, const Val_Regex& val_regex,
-    bool check_keys_late, bool final)
+    Query_Filter_Strategy& check_keys_late, bool final)
 {
   std::vector< std::pair< Id_Type, Uint31_Index > > new_ids_idx;
 
@@ -218,7 +218,7 @@ std::vector< std::pair< Id_Type, Uint31_Index > > filter_id_list_fast(
          new_ids.set(current_id);
     }
 
-    if (!filtered && new_ids.size() == 1024*1024)
+    if (!filtered && new_ids_idx.size() == 1024*1024)
     {
       if (check_keys_late == prefer_ranges)
       {
