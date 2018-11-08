@@ -336,7 +336,7 @@ std::vector< std::pair< Id_Type, Uint31_Index > > Query_Statement::collect_ids
 
   FinalProcessing fp = FinalProcessing::key_values;
 
-  if (!check_keys_late) {
+  if (check_keys_late != prefer_ranges) {
     if (!regkey_regexes.empty())
       fp = FinalProcessing::regkey_regexes;
     else if(!key_regexes.empty())
