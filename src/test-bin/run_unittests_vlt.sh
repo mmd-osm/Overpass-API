@@ -26,7 +26,7 @@ if [[ -z $1  ]]; then
 };
 fi
 
-BASEDIR="`pwd`/../"
+BASEDIR="$(cd `dirname $0` && pwd)/.."
 INPUTDIR="../../input/vlt_model/"
 
 mkdir -p run/vlt_model
