@@ -446,6 +446,9 @@ void collect_items_range(const Statement* stmt, Resource_Manager& rman,
 		   std::map< Index, std::vector< Object > >& result)
 {
   uint32 count = 0;
+  uint32 count_match = 0;
+  uint64 current_result_size = 0;
+
   Block_Backend< Index, Object, typename Container::const_iterator > db
       (rman.get_transaction()->data_index(&file_properties));
   for (typename Block_Backend< Index, Object, typename Container
@@ -453,13 +456,23 @@ void collect_items_range(const Statement* stmt, Resource_Manager& rman,
       it(db.range_begin(req.begin(), req.end()));
 	   !(it == db.range_end()); ++it)
   {
+    if (count_match >= 256*1024 && stmt)
+    {
+      current_result_size = eval_map(result);
+      count_match = 0;
+    }
+
     if (++count >= 256*1024 && stmt)
     {
       count = 0;
-      rman.health_check(*stmt, 0, eval_map(result));
+      rman.health_check(*stmt, 0, current_result_size);
     }
+
     if (predicate.match(it.handle()))
+    {
+      ++count_match;
       result[it.index()].push_back(std::move(it.new_object()));
+    }
   }
 }
 
@@ -471,6 +484,9 @@ void collect_items_range(const Statement* stmt, Resource_Manager& rman,
                    std::function< bool(Index, typename Object::Id_Type) > pred)
 {
   uint32 count = 0;
+  uint32 count_match = 0;
+  uint64 current_result_size = 0;
+
   Block_Backend< Index, Object, typename Container::const_iterator > db
       (rman.get_transaction()->data_index(&file_properties));
   for (typename Block_Backend< Index, Object, typename Container
@@ -478,13 +494,23 @@ void collect_items_range(const Statement* stmt, Resource_Manager& rman,
       it(db.range_begin(req.begin(), req.end()));
            !(it == db.range_end()); ++it)
   {
+    if (count_match >= 256*1024 && stmt)
+    {
+      current_result_size = eval_map(result);
+      count_match = 0;
+    }
+
     if (++count >= 256*1024 && stmt)
     {
       count = 0;
-      rman.health_check(*stmt, 0, eval_map(result));
+      rman.health_check(*stmt, 0, current_result_size);
     }
+
     if (pred(it.index(), it.handle().id()))
+    {
+      ++count_match;
       result[it.index()].push_back(std::move(it.new_object()));
+    }
   }
 }
 
