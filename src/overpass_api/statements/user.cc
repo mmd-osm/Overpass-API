@@ -345,7 +345,7 @@ void User_Statement::execute(Resource_Manager& rman)
   if (rman.get_desired_timestamp() == NOW)
   {
 
-    if ((result_type == "") || (result_type == "node"))
+    if ((result_type == "") || (result_type == "node") || (result_type == "nwr"))
     {
       std::set< std::pair< Uint32_Index, Uint32_Index > > ranges;
       constraint.get_ranges(rman, ranges);
@@ -363,7 +363,7 @@ void User_Statement::execute(Resource_Manager& rman)
           });
     }
 
-    if ((result_type == "") || (result_type == "way"))
+    if ((result_type == "") || (result_type == "way") || (result_type == "nwr"))
     {
       std::set< std::pair< Uint31_Index, Uint31_Index > > ranges;
       constraint.get_ranges(rman, ranges);
@@ -382,7 +382,7 @@ void User_Statement::execute(Resource_Manager& rman)
 
     }
 
-    if ((result_type == "") || (result_type == "relation"))
+    if ((result_type == "") || (result_type == "relation") || (result_type == "nwr"))
     {
       std::set< std::pair< Uint31_Index, Uint31_Index > > ranges;
       constraint.get_ranges(rman, ranges);
@@ -403,7 +403,7 @@ void User_Statement::execute(Resource_Manager& rman)
   else
   {
 
-    if ((result_type == "") || (result_type == "node"))
+    if ((result_type == "") || (result_type == "node") || (result_type == "nwr"))
     {
       std::set< std::pair< Uint32_Index, Uint32_Index > > ranges;
       constraint.get_ranges(rman, ranges);
@@ -414,7 +414,7 @@ void User_Statement::execute(Resource_Manager& rman)
       filter_attic_elements(rman, rman.get_desired_timestamp(), into.nodes, into.attic_nodes);
     }
 
-    if ((result_type == "") || (result_type == "way"))
+    if ((result_type == "") || (result_type == "way") || (result_type == "nwr"))
     {
       std::set< std::pair< Uint31_Index, Uint31_Index > > ranges;
       constraint.get_ranges(rman, ranges);
@@ -425,7 +425,7 @@ void User_Statement::execute(Resource_Manager& rman)
       filter_attic_elements(rman, rman.get_desired_timestamp(), into.ways, into.attic_ways);
     }
 
-    if ((result_type == "") || (result_type == "relation"))
+    if ((result_type == "") || (result_type == "relation") || (result_type == "nwr"))
     {
       std::set< std::pair< Uint31_Index, Uint31_Index > > ranges;
       constraint.get_ranges(rman, ranges);
