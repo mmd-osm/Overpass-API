@@ -48,6 +48,8 @@ public:
   const OSM_Element_Metadata_Skeleton< Id_Type >* get
       (const Index& index, Id_Type ref, uint64 timestamp);
 
+  void set_user_id_filter(std::set< Uint32_Index > user_id_filter);
+
   ~Meta_Collector()
   {
     if (meta_db)
@@ -70,6 +72,8 @@ private:
       ::Range_Iterator* range_it;
   Index* current_index;
   std::set< OSM_Element_Metadata_Skeleton< Id_Type > > current_objects;
+
+  std::set< Uint32_Index > user_id_filter;
 
   void update_current_objects(const Index&);
 };
@@ -109,7 +113,7 @@ template< typename Object >
 Meta_Collector< Index, Id_Type >::Meta_Collector
     (const std::map< Index, std::vector< Object > >& items,
      Transaction& transaction, const File_Properties* meta_file_prop)
-  : meta_db(0), db_it(0), range_it(0), current_index(0)
+  : meta_db(0), db_it(0), range_it(0), current_index(0), user_id_filter{}
 {
   if (!meta_file_prop)
     return;
@@ -126,7 +130,8 @@ template< typename Index, typename Id_Type >
 Meta_Collector< Index, Id_Type >::Meta_Collector
     (const std::set< std::pair< Index, Index > >& used_ranges_,
      Transaction& transaction, const File_Properties* meta_file_prop)
-  : used_ranges(used_ranges_), meta_db(0), db_it(0), range_it(0), current_index(0)
+  : used_ranges(used_ranges_), meta_db(0), db_it(0), range_it(0), current_index(0),
+    user_id_filter{}
 {
   if (!meta_file_prop)
     return;
@@ -135,6 +140,12 @@ Meta_Collector< Index, Id_Type >::Meta_Collector
       (transaction.data_index(meta_file_prop));
 
   reset();
+}
+
+template< typename Index, typename Id_Type >
+void Meta_Collector< Index, Id_Type >::set_user_id_filter(std::set< Uint32_Index > user_id_filter_)
+{
+  user_id_filter = user_id_filter_;
 }
 
 
@@ -206,7 +217,9 @@ void Meta_Collector< Index, Id_Type >::update_current_objects(const Index& index
       *current_index = db_it->index();
     while (!(*db_it == meta_db->discrete_end()) && (*current_index == db_it->index()))
     {
-      current_objects.insert(db_it->object());
+      auto obj = db_it->new_object();
+      if (user_id_filter.empty() || user_id_filter.find(obj.user_id) != user_id_filter.end())
+        current_objects.insert(std::move(obj));
       ++(*db_it);
     }
   }
@@ -218,11 +231,14 @@ void Meta_Collector< Index, Id_Type >::update_current_objects(const Index& index
       *current_index = range_it->index();
     while (!(*range_it == meta_db->range_end()) && (*current_index == range_it->index()))
     {
-      current_objects.insert(range_it->object());
+      auto obj = range_it->new_object();
+      if (user_id_filter.empty() || user_id_filter.find(obj.user_id) != user_id_filter.end())
+        current_objects.insert(std::move(obj));
       ++(*range_it);
     }
   }
 }
+
 
 
 template< typename Index, typename Id_Type >

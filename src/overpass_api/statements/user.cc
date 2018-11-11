@@ -59,6 +59,7 @@ void user_filter_map
 
   Meta_Collector< TIndex, typename TObject::Id_Type > meta_collector
       (modify, *rman.get_transaction(), file_properties);
+  meta_collector.set_user_id_filter(user_ids);
 
   for (typename std::map< TIndex, std::vector< TObject > >::iterator it = modify.begin();
       it != modify.end(); ++it)
@@ -352,6 +353,7 @@ void User_Statement::execute(Resource_Manager& rman)
 
       Meta_Collector< Uint32_Index, Node_Skeleton::Id_Type > meta_collector
       (ranges, *rman.get_transaction(), meta_settings().NODES_META);
+      meta_collector.set_user_id_filter(user_ids);
 
       collect_items_range< Uint32_Index, Node_Skeleton >
          (this, rman, *osm_base_settings().NODES, ranges, into.nodes,
@@ -370,6 +372,7 @@ void User_Statement::execute(Resource_Manager& rman)
 
       Meta_Collector< Uint31_Index, Way_Skeleton::Id_Type > meta_collector
       (ranges, *rman.get_transaction(), meta_settings().WAYS_META);
+      meta_collector.set_user_id_filter(user_ids);
 
       collect_items_range< Uint31_Index, Way_Skeleton >
         (this, rman, *osm_base_settings().WAYS, ranges, into.ways,
@@ -389,6 +392,7 @@ void User_Statement::execute(Resource_Manager& rman)
 
       Meta_Collector< Uint31_Index, Relation_Skeleton::Id_Type > meta_collector
       (ranges, *rman.get_transaction(), meta_settings().RELATIONS_META);
+      meta_collector.set_user_id_filter(user_ids);
 
       collect_items_range< Uint31_Index, Relation_Skeleton >
          (this, rman, *osm_base_settings().RELATIONS, ranges, into.relations,

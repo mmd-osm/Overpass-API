@@ -476,12 +476,12 @@ void collect_items_range(const Statement* stmt, Resource_Manager& rman,
   }
 }
 
-template < class Index, class Object, class Container >
+template < class Index, class Object, class Container, class Functor >
 void collect_items_range(const Statement* stmt, Resource_Manager& rman,
                    File_Properties& file_properties,
                    const Container& req,
                    std::map< Index, std::vector< Object > >& result,
-                   std::function< bool(Index, typename Object::Id_Type) > pred)
+                   Functor pred)
 {
   uint32 count = 0;
   uint32 count_match = 0;
