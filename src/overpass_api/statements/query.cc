@@ -1050,7 +1050,6 @@ void Query_Statement::filter_by_tags
       std::vector< typename TObject::Id_Type >& ids_by_coarse_ = it->second;
 
       sort(ids_by_coarse_.begin(), ids_by_coarse_.end());
-      ids_by_coarse_.erase(unique(ids_by_coarse_.begin(), ids_by_coarse_.end()), ids_by_coarse_.end());
 
       filter_ids_by_ntags(nkey_union, items_db, ntag_it, it->first, ids_by_coarse_);
 
@@ -1090,7 +1089,6 @@ void Query_Statement::filter_by_tags
       std::vector< typename TObject::Id_Type >& ids_by_coarse_ = it->second;
 
       sort(ids_by_coarse_.begin(), ids_by_coarse_.end());
-      ids_by_coarse_.erase(unique(ids_by_coarse_.begin(), ids_by_coarse_.end()), ids_by_coarse_.end());
 
       filter_ids_by_ntags(nkey_union, timestamp, items_db, ntag_it, attic_items_db, attic_ntag_it,
                           it->first, ids_by_coarse_);
@@ -1236,7 +1234,6 @@ void Query_Statement::filter_by_tags
       std::vector< typename TObject::Id_Type >& ids_by_coarse_ = it->second;
 
       sort(ids_by_coarse_.begin(), ids_by_coarse_.end());
-      ids_by_coarse_.erase(unique(ids_by_coarse_.begin(), ids_by_coarse_.end()), ids_by_coarse_.end());
 
       filter_ids_by_ntags(nkey_union, items_db, ntag_it, it->first, ids_by_coarse_);
 
