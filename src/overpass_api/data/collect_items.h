@@ -492,7 +492,7 @@ void collect_items_range(const Statement* stmt, Resource_Manager& rman,
     if (predicate.match(it.handle()))
     {
       ++count_match;
-      result[it.index()].push_back(std::move(it.new_object()));
+      result[it.index()].push_back(it.object());
     }
   }
 }
@@ -530,7 +530,7 @@ void collect_items_range(const Statement* stmt, Resource_Manager& rman,
     if (pred(it.index(), it.handle().id()))
     {
       ++count_match;
-      result[it.index()].push_back(std::move(it.new_object()));
+      result[it.index()].push_back(it.object());
     }
   }
 }

@@ -217,9 +217,9 @@ void Meta_Collector< Index, Id_Type >::update_current_objects(const Index& index
       *current_index = db_it->index();
     while (!(*db_it == meta_db->discrete_end()) && (*current_index == db_it->index()))
     {
-      auto obj = db_it->new_object();
+      auto obj = db_it->object();
       if (user_id_filter.empty() || user_id_filter.find(obj.user_id) != user_id_filter.end())
-        current_objects.insert(std::move(obj));
+        current_objects.insert(obj);
       ++(*db_it);
     }
   }
@@ -231,9 +231,9 @@ void Meta_Collector< Index, Id_Type >::update_current_objects(const Index& index
       *current_index = range_it->index();
     while (!(*range_it == meta_db->range_end()) && (*current_index == range_it->index()))
     {
-      auto obj = range_it->new_object();
+      auto obj = range_it->object();
       if (user_id_filter.empty() || user_id_filter.find(obj.user_id) != user_id_filter.end())
-        current_objects.insert(std::move(obj));
+        current_objects.insert(obj);
       ++(*range_it);
     }
   }
