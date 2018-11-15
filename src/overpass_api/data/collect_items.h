@@ -143,7 +143,7 @@ void reconstruct_items(const Statement* stmt, Resource_Manager& rman,
 
     while (!(attic_it == attic_end) && attic_it.index() == idx)
     {
-      if (timestamp < attic_it.object().timestamp)
+      if (timestamp < timestamp_of_it< Attic< Object > >(attic_it))
       {
         timestamp_by_id_attic.push_back(std::make_pair(attic_it.object().id, attic_it.object().timestamp));
         local_timestamp_by_id.push_back(std::make_pair(attic_it.object().id, attic_it.object().timestamp));
