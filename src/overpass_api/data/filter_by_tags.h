@@ -106,11 +106,13 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kv(
       it2(attic_tags_db.discrete_begin(tag_req.begin(), tag_req.end()));
       !(it2 == attic_tags_db.discrete_end()); ++it2)
   {
-    if (it2.object().timestamp > timestamp)
+    auto current_timestamp = it2.apply_func(&Attic< Tag_Object_Global< Id_Type > >::get_timestamp);
+
+    if (current_timestamp > timestamp)
     {
       std::pair< uint64, Uint31_Index >& ref = timestamp_per_id[it2.object().id];
-      if (ref.first == 0 || it2.object().timestamp < ref.first)
-        ref = std::make_pair(it2.object().timestamp, it2.object().idx);
+      if (ref.first == 0 || current_timestamp < ref.first)
+        ref = std::make_pair(current_timestamp, it2.object().idx);
     }
   }
 
@@ -121,13 +123,15 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kv(
           Default_Range_Iterator< Tag_Index_Global >(range_req.end())));
       !(it2 == attic_tags_db.range_end()); ++it2)
   {
-    if (it2.object().timestamp > timestamp)
+    auto current_timestamp = it2.apply_func(&Attic< Tag_Object_Global< Id_Type > >::get_timestamp);
+
+    if (current_timestamp > timestamp)
     {
       typename std::map< Id_Type, std::pair< uint64, Uint31_Index > >::iterator
           it = timestamp_per_id.find(it2.object().id);
       if (it != timestamp_per_id.end())
       {
-        if (it2.object().timestamp < it->second.first)
+        if (current_timestamp < it->second.first)
           timestamp_per_id.erase(it);
       }
     }
@@ -159,11 +163,13 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_k(
       Default_Range_Iterator< Tag_Index_Global >(range_req.end())));
       !(it2 == attic_tags_db.range_end()); ++it2)
   {
-    if (it2.object().timestamp > timestamp && it2.index().value != void_tag_value())
+    auto current_timestamp = it2.apply_func(&Attic< Tag_Object_Global< Id_Type > >::get_timestamp);
+
+    if (current_timestamp > timestamp && it2.index().value != void_tag_value())
     {
       std::pair< uint64, Uint31_Index >& ref = timestamp_per_id[it2.object().id];
-      if (ref.first == 0 || it2.object().timestamp < ref.first)
-        ref = std::make_pair(it2.object().timestamp, it2.object().idx);
+      if (ref.first == 0 || current_timestamp < ref.first)
+        ref = std::make_pair(current_timestamp, it2.object().idx);
     }
   }
 
@@ -172,13 +178,15 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_k(
           Default_Range_Iterator< Tag_Index_Global >(range_req.end())));
       !(it2 == attic_tags_db.range_end()); ++it2)
   {
-    if (it2.object().timestamp > timestamp && it2.index().value == void_tag_value())
+    auto current_timestamp = it2.apply_func(&Attic< Tag_Object_Global< Id_Type > >::get_timestamp);
+
+    if (current_timestamp > timestamp && it2.index().value == void_tag_value())
     {
       typename std::map< Id_Type, std::pair< uint64, Uint31_Index > >::iterator
           it = timestamp_per_id.find(it2.object().id);
       if (it != timestamp_per_id.end())
       {
-        if (it2.object().timestamp < it->second.first)
+        if (current_timestamp < it->second.first)
           timestamp_per_id.erase(it);
       }
     }
@@ -213,12 +221,14 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kregv(
       Default_Range_Iterator< Tag_Index_Global >(range_req.end())));
       !(it2 == attic_tags_db.range_end()); ++it2)
   {
-    if (it2.object().timestamp > timestamp && it2.index().value != void_tag_value()
+    auto current_timestamp = it2.apply_func(&Attic< Tag_Object_Global< Id_Type > >::get_timestamp);
+
+    if (current_timestamp > timestamp && it2.index().value != void_tag_value()
         && krit->second->matches(it2.index().value))
     {
       std::pair< uint64, Uint31_Index >& ref = timestamp_per_id[it2.object().id];
-      if (ref.first == 0 || it2.object().timestamp < ref.first)
-        ref = std::make_pair(it2.object().timestamp, it2.object().idx);
+      if (ref.first == 0 || current_timestamp < ref.first)
+        ref = std::make_pair(current_timestamp, it2.object().idx);
     }
   }
 
@@ -227,13 +237,16 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kregv(
           Default_Range_Iterator< Tag_Index_Global >(range_req.end())));
       !(it2 == attic_tags_db.range_end()); ++it2)
   {
-    if (it2.object().timestamp > timestamp)
+
+    auto current_timestamp = it2.apply_func(&Attic< Tag_Object_Global< Id_Type > >::get_timestamp);
+
+    if (current_timestamp > timestamp)
     {
       typename std::map< Id_Type, std::pair< uint64, Uint31_Index > >::iterator
           it = timestamp_per_id.find(it2.object().id);
       if (it != timestamp_per_id.end())
       {
-        if (it2.object().timestamp < it->second.first)
+        if (current_timestamp < it->second.first)
           timestamp_per_id.erase(it);
       }
     }
@@ -282,14 +295,16 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_regkregv(
       matches = krit->first->matches(it2.index().key);
     }
 
-    if (it2.apply_func(&Attic< Tag_Object_Global< Id_Type > >::get_timestamp) > timestamp &&
+    auto current_timestamp = it2.apply_func(&Attic< Tag_Object_Global< Id_Type > >::get_timestamp);
+
+    if (current_timestamp > timestamp &&
       //  it2.object().timestamp > timestamp &&
         matches && it2.index().value != void_tag_value()
         && krit->second->matches(it2.index().value))
     {
       std::pair< uint64, Uint31_Index >& ref = timestamp_per_id[it2.object().id][last_key];
-      if (ref.first == 0 || it2.object().timestamp < ref.first)
-        ref = std::make_pair(it2.object().timestamp, it2.object().idx);
+      if (ref.first == 0 || current_timestamp < ref.first)
+        ref = std::make_pair(current_timestamp, it2.object().idx);
     }
   }
 
@@ -303,7 +318,10 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_regkregv(
       last_key = it2.index().key;
       matches = krit->first->matches(it2.index().key);
     }
-    if (matches && it2.object().timestamp > timestamp)
+
+    auto current_timestamp = it2.apply_func(&Attic< Tag_Object_Global< Id_Type > >::get_timestamp);
+
+    if (matches && current_timestamp > timestamp)
     {
       typename std::map< Id_Type, std::map< std::string, std::pair< uint64, Uint31_Index > > >::iterator
           it = timestamp_per_id.find(it2.object().id);
@@ -313,7 +331,7 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_regkregv(
 	    it3 = it->second.find(last_key);
 	if (it3 != it->second.end())
 	{
-	  if (it2.object().timestamp < it3->second.first)
+	  if (current_timestamp < it3->second.first)
 	    it->second.erase(it3);
 	}
       }
