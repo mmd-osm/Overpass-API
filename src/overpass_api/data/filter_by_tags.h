@@ -110,7 +110,7 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kv(
 
     if (current_timestamp > timestamp)
     {
-      std::pair< uint64, Uint31_Index >& ref = timestamp_per_id[it2.object().id];
+      std::pair< uint64, Uint31_Index >& ref = timestamp_per_id[it2.handle().id()];
       if (ref.first == 0 || current_timestamp < ref.first)
         ref = std::make_pair(current_timestamp, it2.object().idx);
     }
@@ -128,7 +128,7 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kv(
     if (current_timestamp > timestamp)
     {
       typename std::map< Id_Type, std::pair< uint64, Uint31_Index > >::iterator
-          it = timestamp_per_id.find(it2.object().id);
+          it = timestamp_per_id.find(it2.handle().id());
       if (it != timestamp_per_id.end())
       {
         if (current_timestamp < it->second.first)
@@ -167,7 +167,7 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_k(
 
     if (current_timestamp > timestamp && it2.index().value != void_tag_value())
     {
-      std::pair< uint64, Uint31_Index >& ref = timestamp_per_id[it2.object().id];
+      std::pair< uint64, Uint31_Index >& ref = timestamp_per_id[it2.handle().id()];
       if (ref.first == 0 || current_timestamp < ref.first)
         ref = std::make_pair(current_timestamp, it2.object().idx);
     }
@@ -183,7 +183,7 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_k(
     if (current_timestamp > timestamp && it2.index().value == void_tag_value())
     {
       typename std::map< Id_Type, std::pair< uint64, Uint31_Index > >::iterator
-          it = timestamp_per_id.find(it2.object().id);
+          it = timestamp_per_id.find(it2.handle().id());
       if (it != timestamp_per_id.end())
       {
         if (current_timestamp < it->second.first)
@@ -226,7 +226,7 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kregv(
     if (current_timestamp > timestamp && it2.index().value != void_tag_value()
         && krit->second->matches(it2.index().value))
     {
-      std::pair< uint64, Uint31_Index >& ref = timestamp_per_id[it2.object().id];
+      std::pair< uint64, Uint31_Index >& ref = timestamp_per_id[it2.handle().id()];
       if (ref.first == 0 || current_timestamp < ref.first)
         ref = std::make_pair(current_timestamp, it2.object().idx);
     }
@@ -243,7 +243,7 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kregv(
     if (current_timestamp > timestamp)
     {
       typename std::map< Id_Type, std::pair< uint64, Uint31_Index > >::iterator
-          it = timestamp_per_id.find(it2.object().id);
+          it = timestamp_per_id.find(it2.handle().id());
       if (it != timestamp_per_id.end())
       {
         if (current_timestamp < it->second.first)
@@ -302,7 +302,7 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_regkregv(
         matches && it2.index().value != void_tag_value()
         && krit->second->matches(it2.index().value))
     {
-      std::pair< uint64, Uint31_Index >& ref = timestamp_per_id[it2.object().id][last_key];
+      std::pair< uint64, Uint31_Index >& ref = timestamp_per_id[it2.handle().id()][last_key];
       if (ref.first == 0 || current_timestamp < ref.first)
         ref = std::make_pair(current_timestamp, it2.object().idx);
     }
