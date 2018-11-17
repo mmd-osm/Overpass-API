@@ -168,6 +168,10 @@ struct Block_Backend_Basic_Iterator : public Block_Backend_Basic_Ref
   uint32* current_idx_pos;
   TIndex* current_index;
   Handle< TObject > object_handle;
+
+  typedef TIndex index_type;
+  typedef TObject object_type;
+
 };
 
 template< class TIndex, class TObject, class TIterator >
@@ -191,6 +195,9 @@ struct Block_Backend_Flat_Iterator : Block_Backend_Basic_Iterator< TIndex, TObje
   const File_Blocks< TIndex, TIterator, Default_Range_Iterator< TIndex > >& file_blocks;
   typename File_Blocks_::Flat_Iterator file_it;
   typename File_Blocks_::Flat_Iterator file_end;
+
+  typedef TIndex index_type;
+  typedef TObject object_type;
 
 private:
   // returns true if we have found something
@@ -235,6 +242,9 @@ struct Block_Backend_Discrete_Iterator : Block_Backend_Basic_Iterator< TIndex, T
   TIterator index_it;
   TIterator index_end;
 
+  typedef TIndex index_type;
+  typedef TObject object_type;
+
 private:
   bool search_next_index();
   bool read_block();
@@ -270,6 +280,9 @@ struct Block_Backend_Range_Iterator : Block_Backend_Basic_Iterator< TIndex, TObj
   typename File_Blocks_::Range_Iterator file_end;
   Default_Range_Iterator< TIndex > index_it;
   Default_Range_Iterator< TIndex > index_end;
+
+  typedef TIndex index_type;
+  typedef TObject object_type;
 
 private:
   // returns true if we have found something

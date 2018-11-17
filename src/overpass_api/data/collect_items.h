@@ -46,6 +46,14 @@ inline typename std::enable_if< std::is_same< TObject, Attic < Relation_Skeleton
   timestamp_of_it(TIterator& it) { return it.apply_func(&Attic<Relation_Skeleton>::get_timestamp); };
 
 template< typename TObject, class TIterator>
+inline typename std::enable_if< std::is_same< TObject, Attic < Way_Delta > >::value, uint64 >::type
+  timestamp_of_it(TIterator& it) { return it.apply_func(&Attic<Way_Delta>::get_timestamp); };
+
+template< typename TObject, class TIterator>
+inline typename std::enable_if< std::is_same< TObject, Attic < Relation_Delta > >::value, uint64 >::type
+  timestamp_of_it(TIterator& it) { return it.apply_func(&Attic<Relation_Delta>::get_timestamp); };
+
+template< typename TObject, class TIterator>
 inline typename std::enable_if< std::is_same< TObject, Node_Skeleton >::value, uint64 >::type
   timestamp_of_it(TIterator& it) { return NOW; };
 
@@ -88,16 +96,16 @@ void reconstruct_items(const Statement* stmt, Resource_Manager& rman,
       if (stmt)
         rman.health_check(*stmt, 0, current_result_size);
     }
-    if (timestamp < timestamp_of_it<Object>(it))
+    if (timestamp < timestamp_of_it< typename Iterator::object_type >(it))
     {
       bool match = predicate.match(it.handle());
 
       if ( time_dependent || (!time_dependent && match))
       {
-        if (timestamp_of_it<Object>(it) == NOW)
+        if (timestamp_of_it< typename Iterator::object_type >(it) == NOW)
           timestamp_by_id_current.push_back(it.handle().id());
         else
-          timestamp_by_id_attic.push_back(std::make_pair(it.handle().id(), timestamp_of_it<Object>(it)));
+          timestamp_by_id_attic.push_back(std::make_pair(it.handle().id(), timestamp_of_it< typename Iterator::object_type >(it)));
       }
 
       if (match)
@@ -143,7 +151,7 @@ void reconstruct_items(const Statement* stmt, Resource_Manager& rman,
 
     while (!(attic_it == attic_end) && attic_it.index() == idx)
     {
-      if (timestamp < timestamp_of_it< Attic< Object > >(attic_it))
+      if (timestamp < timestamp_of_it< typename Attic_Iterator::object_type >(attic_it))
       {
         timestamp_by_id_attic.push_back(std::make_pair(attic_it.object().id, attic_it.object().timestamp));
         local_timestamp_by_id.push_back(std::make_pair(attic_it.object().id, attic_it.object().timestamp));
