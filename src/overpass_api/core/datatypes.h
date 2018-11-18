@@ -512,6 +512,17 @@ struct OSM_Element_Metadata_Skeleton
     *(uint32*)((int8*)data + sizeof(Id_Type) + 13) = user_id;
   }
 
+  static uint64 get_timestamp(const void* data)
+  {
+    uint64 _timestamp((*(uint64*)((int8*)data + sizeof(Id_Type) + 4) & 0xffffffffffull));
+    return _timestamp;
+  }
+
+  static Id_Type get_ref(const void* data)
+  {
+    return *(Id_Type*)data;
+  }
+
   bool operator<(const OSM_Element_Metadata_Skeleton& a) const
   {
     if (ref < a.ref)

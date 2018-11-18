@@ -24,6 +24,7 @@
 #include "abstract_processing.h"
 #include "filenames.h"
 
+#include <cassert>
 #include <map>
 #include <set>
 #include <vector>
@@ -266,7 +267,10 @@ void filter_attic_elements
         it = undeleted_db.discrete_begin(idx_set.begin(), idx_set.end());
         !(it == undeleted_db.discrete_end()); ++it)
     {
-      if (it.object().timestamp <= timestamp)
+
+      auto current_timestamp = it.apply_func(&Attic< typename Skeleton::Id_Type >::get_timestamp);
+
+      if (current_timestamp <= timestamp)
         continue;
 
       typename std::map< Index, std::vector< Skeleton > >::iterator cit = current.find(it.index());
@@ -274,7 +278,7 @@ void filter_attic_elements
       {
         for (typename std::vector< Skeleton >::iterator it2 = cit->second.begin(); it2 != cit->second.end(); )
         {
-          if (it2->id == it.object())
+          if (it2->id == it.handle().id())
           {
             *it2 = cit->second.back();
             cit->second.pop_back();
@@ -290,7 +294,7 @@ void filter_attic_elements
         for (typename std::vector< Attic< Skeleton > >::iterator it2 = ait->second.begin();
              it2 != ait->second.end(); )
         {
-          if (it2->id == it.object() && it.object().timestamp < it2->timestamp)
+          if (it2->id == it.handle().id() && current_timestamp < it2->timestamp)
           {
             *it2 = ait->second.back();
             ait->second.pop_back();
@@ -326,6 +330,8 @@ void filter_attic_elements
         entry[it2->id] = std::make_pair(0, it2->timestamp);
     }
 
+    auto it_ts = timestamp_by_id_by_idx.begin();
+
     Block_Backend< Index, OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >,
             typename std::vector< Index >::const_iterator >
         attic_meta_db(rman.get_transaction()->data_index
@@ -336,16 +342,30 @@ void filter_attic_elements
         it = attic_meta_db.discrete_begin(idx_set.begin(), idx_set.end());
         !(it == attic_meta_db.discrete_end()); ++it)
     {
+      auto current_ref = it.apply_func(&OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >::get_ref);
+
+      while (it_ts != timestamp_by_id_by_idx.end() && it_ts->first < it.index())
+        ++it_ts;
+
+      if (it_ts == timestamp_by_id_by_idx.end())
+        break;
+
+      assert(it_ts->first == it.index());
+
       typename std::map< typename Skeleton::Id_Type, std::pair< uint64, uint64 > >::iterator
-          tit = timestamp_by_id_by_idx[it.index()].find(it.object().ref);
-      if (tit != timestamp_by_id_by_idx[it.index()].end())
+          tit = (it_ts->second).find(current_ref);
+      if (tit != it_ts->second.end())
       {
-        if (timestamp < it.object().timestamp)
-          tit->second.second = std::min(tit->second.second, it.object().timestamp);
+        auto current_timestamp = it.apply_func(&OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >::get_timestamp);
+
+        if (timestamp < current_timestamp)
+          tit->second.second = std::min(tit->second.second, current_timestamp);
         else
-          tit->second.first = std::max(tit->second.first, it.object().timestamp);
+          tit->second.first = std::max(tit->second.first, current_timestamp);
       }
     }
+
+    it_ts = timestamp_by_id_by_idx.begin();
 
     // Same thing with current meta data
     Block_Backend< Index, OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >,
@@ -359,14 +379,26 @@ void filter_attic_elements
         it = meta_db.discrete_begin(idx_set.begin(), idx_set.end());
         !(it == meta_db.discrete_end()); ++it)
     {
+      auto current_ref = it.apply_func(&OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >::get_ref);
+
+      while (it_ts != timestamp_by_id_by_idx.end() && it_ts->first < it.index())
+        ++it_ts;
+
+      if (it_ts == timestamp_by_id_by_idx.end())
+        break;
+
+      assert(it_ts->first == it.index());
+
       typename std::map< typename Skeleton::Id_Type, std::pair< uint64, uint64 > >::iterator
-          tit = timestamp_by_id_by_idx[it.index()].find(it.object().ref);
-      if (tit != timestamp_by_id_by_idx[it.index()].end())
+          tit = (it_ts->second).find(current_ref);
+      if (tit != it_ts->second.end())
       {
-        if (timestamp < it.object().timestamp)
-          tit->second.second = std::min(tit->second.second, it.object().timestamp);
+        auto current_timestamp = it.apply_func(&OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >::get_timestamp);
+
+        if (timestamp < current_timestamp)
+          tit->second.second = std::min(tit->second.second, current_timestamp);
         else
-          tit->second.first = std::max(tit->second.first, it.object().timestamp);
+          tit->second.first = std::max(tit->second.first, current_timestamp);
       }
     }
 
