@@ -71,7 +71,7 @@ private:
   typename Block_Backend< Index, OSM_Element_Metadata_Skeleton< Id_Type > >
       ::Range_Iterator* range_it;
   Index* current_index;
-  std::set< OSM_Element_Metadata_Skeleton< Id_Type > > current_objects;
+  std::vector< OSM_Element_Metadata_Skeleton< Id_Type > > current_objects;
 
   std::set< Uint32_Index > user_id_filter;
 
@@ -178,7 +178,7 @@ void Meta_Collector< Index, Id_Type >::reset()
     }
     while (!(*db_it == meta_db->discrete_end()) && (*current_index == db_it->index()))
     {
-      current_objects.insert(db_it->object());
+      current_objects.push_back(db_it->object());
       ++(*db_it);
     }
   }
@@ -197,10 +197,11 @@ void Meta_Collector< Index, Id_Type >::reset()
     }
     while (!(*range_it == meta_db->range_end()) && (*current_index == range_it->index()))
     {
-      current_objects.insert(range_it->object());
+      current_objects.push_back(range_it->object());
       ++(*range_it);
     }
   }
+  std::sort(current_objects.begin(), current_objects.end());
 }
 
 template<typename Id_Type>
@@ -212,7 +213,10 @@ OSM_Element_Metadata_Skeleton< Id_Type > get_elem(const void * a) {
 template< typename Index, typename Id_Type >
 void Meta_Collector< Index, Id_Type >::update_current_objects(const Index& index)
 {
-  current_objects.clear();
+  {
+    std::vector< OSM_Element_Metadata_Skeleton< Id_Type > > new_objects{};
+    current_objects.swap(new_objects);
+  }
 
   if (db_it)
   {
@@ -224,9 +228,8 @@ void Meta_Collector< Index, Id_Type >::update_current_objects(const Index& index
     {
       OSM_Element_Metadata_Skeleton< Id_Type > (*f)(const void *) = &get_elem< Id_Type >;
       OSM_Element_Metadata_Skeleton< Id_Type > obj = db_it->apply_func( f );
-      // auto obj = db_it->object();
       if (user_id_filter.empty() || user_id_filter.find(obj.user_id) != user_id_filter.end())
-        current_objects.insert(obj);
+        current_objects.push_back(std::move(obj));
       ++(*db_it);
     }
   }
@@ -240,12 +243,13 @@ void Meta_Collector< Index, Id_Type >::update_current_objects(const Index& index
     {
       OSM_Element_Metadata_Skeleton< Id_Type > (*f)(const void *) = &get_elem< Id_Type >;
       auto obj = range_it->apply_func( f );
-      // auto obj = range_it->object();
       if (user_id_filter.empty() || user_id_filter.find(obj.user_id) != user_id_filter.end())
-        current_objects.insert(obj);
+        current_objects.push_back(std::move(obj));
       ++(*range_it);
     }
   }
+
+  std::sort(current_objects.begin(), current_objects.end());
 }
 
 
@@ -260,8 +264,9 @@ const OSM_Element_Metadata_Skeleton< Id_Type >* Meta_Collector< Index, Id_Type >
   if ((current_index) && (*current_index < index))
     update_current_objects(index);
 
-  typename std::set< OSM_Element_Metadata_Skeleton< Id_Type > >::iterator it
-      = current_objects.lower_bound(OSM_Element_Metadata_Skeleton< Id_Type >(ref));
+  typename std::vector< OSM_Element_Metadata_Skeleton< Id_Type > >::iterator it
+      = std::lower_bound(current_objects.begin(), current_objects.end(),
+             OSM_Element_Metadata_Skeleton< Id_Type >(ref));
   if (it != current_objects.end() && it->ref == ref)
     return &*it;
   else
@@ -279,8 +284,9 @@ const OSM_Element_Metadata_Skeleton< Id_Type >* Meta_Collector< Index, Id_Type >
   if ((current_index) && (*current_index < index))
     update_current_objects(index);
 
-  typename std::set< OSM_Element_Metadata_Skeleton< Id_Type > >::iterator it
-      = current_objects.lower_bound(OSM_Element_Metadata_Skeleton< Id_Type >(ref, timestamp));
+  typename std::vector< OSM_Element_Metadata_Skeleton< Id_Type > >::iterator it
+      = std::lower_bound(current_objects.begin(), current_objects.end(),
+                         OSM_Element_Metadata_Skeleton< Id_Type >(ref, timestamp));
   if (it == current_objects.begin())
     return 0;
   --it;
