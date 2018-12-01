@@ -59,12 +59,15 @@ template< typename Object >
 class Handle
 {
 public:
-  Handle(Block_Backend_Basic_Ref& source_) : source(&source_), count(0), ptr(0), obj(0) {}
-  Handle(const Handle& rhs) : source(rhs.source), count(rhs.count), ptr(0), obj(0) {}
+  Handle(Block_Backend_Basic_Ref& source_) : source(&source_), count(0), ptr(nullptr), obj(nullptr) {}
+  Handle(const Handle& rhs) : source(rhs.source), count(rhs.count), ptr(nullptr), obj(nullptr) {}
   ~Handle() { delete obj; }
   Handle& operator=(const Handle& rhs);
   const Object& object() const;
   typename Object::Id_Type id() const;
+
+  template< typename T >
+  inline T apply_func(T(*f)(const void *));
 
 private:
   void update_ptr() const;
@@ -81,8 +84,8 @@ Handle< Object >& Handle< Object >::operator=(const Handle& rhs)
 {
   if (&rhs == this) return this;
   delete obj;
-  obj = 0;
-  ptr = 0;
+  obj = nullptr;
+  ptr = nullptr;
   source = rhs.source;
   count = rhs.count;
 }
@@ -92,7 +95,7 @@ template< typename Object >
 const Object& Handle< Object >::object() const
 {
   update_ptr();
-  if (obj == 0)
+  if (obj == nullptr)
     obj = new Object(ptr);
   return *obj;
 }
@@ -105,6 +108,13 @@ typename Object::Id_Type Handle< Object >::id() const
   return Object::get_id(ptr);
 }
 
+template< typename Object >
+template< typename T >
+inline T Handle< Object >::apply_func(T(*f)(const void *))
+{
+  update_ptr();
+  return f((void*)(ptr));
+}
 
 template< typename Object >
 void Handle< Object >::update_ptr() const
@@ -113,8 +123,11 @@ void Handle< Object >::update_ptr() const
   uint32 new_count = source->get_count();
   if (new_ptr != ptr || new_count != count)
   {
-    delete obj;
-    obj = 0;
+    if (obj != nullptr)
+    {
+      delete obj;
+      obj = nullptr;
+    }
     ptr = new_ptr;
     count = new_count;
   }
@@ -381,14 +394,14 @@ template< class TIndex, class TObject >
 Block_Backend_Basic_Iterator< TIndex, TObject >::
     Block_Backend_Basic_Iterator(uint32 block_size_, bool is_end)
     : Block_Backend_Basic_Ref(block_size_, 0), block_size(block_size_),
-      current_idx_pos(0), current_index(0), object_handle(*this) {}
+      current_idx_pos(0), current_index(nullptr), object_handle(*this) {}
 
 
 template< class TIndex, class TObject >
 Block_Backend_Basic_Iterator< TIndex, TObject >::
     Block_Backend_Basic_Iterator(const Block_Backend_Basic_Iterator& it)
     : Block_Backend_Basic_Ref(it.block_size, it.get_pos()), block_size(it.block_size),
-      current_idx_pos(0), current_index(0), object_handle(*this)
+      current_idx_pos(0), current_index(nullptr), object_handle(*this)
 {
   memcpy(get_buffer().ptr, it.get_buffer().ptr, block_size);
   current_idx_pos = (uint32*)(get_buffer().ptr + ((uint8*)it.current_idx_pos - it.get_buffer().ptr));
@@ -399,7 +412,7 @@ template< class TIndex, class TObject >
 Block_Backend_Basic_Iterator< TIndex, TObject >::~Block_Backend_Basic_Iterator()
 {
   delete current_index;
-  current_index = 0;
+  current_index = nullptr;
 }
 
 
@@ -413,10 +426,10 @@ bool Block_Backend_Basic_Iterator< TIndex, TObject >::advance()
     return true;
 
   // invalidate cached index
-  if (current_index != 0)
+  if (current_index != nullptr)
   {
     delete current_index;
-    current_index = 0;
+    current_index = nullptr;
   }
 
   return false;
@@ -425,7 +438,7 @@ bool Block_Backend_Basic_Iterator< TIndex, TObject >::advance()
 template< class TIndex, class TObject >
 const TIndex& Block_Backend_Basic_Iterator< TIndex, TObject >::index()
 {
-  if (current_index == 0)
+  if (current_index == nullptr)
     current_index = new TIndex((void*)(current_idx_pos + 1));
   return *current_index;
 }
@@ -440,7 +453,7 @@ template< class TIndex, class TObject >
 template< typename T >
 inline T Block_Backend_Basic_Iterator< TIndex, TObject >::apply_func(T(*f)(const void *))
 {
-  return f((void*)(get_ptr()));
+  return object_handle.apply_func(f);
 }
 
 
@@ -645,7 +658,7 @@ bool Block_Backend_Discrete_Iterator< TIndex, TObject, TIterator >::search_next_
       return true;
     }
     delete this->current_index;
-    this->current_index = 0;
+    this->current_index = nullptr;
 
     this->set_pos(*(this->current_idx_pos));
     this->current_idx_pos = (uint32*)(this->get_ptr());
@@ -768,7 +781,7 @@ bool Block_Backend_Range_Iterator< TIndex, TObject, TIterator >::search_next_ind
       return true;
     }
     delete this->current_index;
-    this->current_index = 0;
+    this->current_index = nullptr;
 
     this->set_pos(*(this->current_idx_pos));
     this->current_idx_pos = (uint32*)(this->get_ptr());

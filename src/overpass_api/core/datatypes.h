@@ -484,7 +484,7 @@ struct OSM_Element_Metadata_Skeleton
     : ref(ref_), version(0), timestamp(timestamp_),
       changeset(0), user_id(0) {}
 
-  OSM_Element_Metadata_Skeleton(void* data)
+  OSM_Element_Metadata_Skeleton(const void* data)
     : ref(*(Id_Type*)data)
   {
     version = *(uint32*)((int8*)data + sizeof(Id_Type));

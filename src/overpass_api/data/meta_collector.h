@@ -203,6 +203,11 @@ void Meta_Collector< Index, Id_Type >::reset()
   }
 }
 
+template<typename Id_Type>
+OSM_Element_Metadata_Skeleton< Id_Type > get_elem(const void * a) {
+  return OSM_Element_Metadata_Skeleton< Id_Type >(a);
+}
+
 
 template< typename Index, typename Id_Type >
 void Meta_Collector< Index, Id_Type >::update_current_objects(const Index& index)
@@ -217,7 +222,9 @@ void Meta_Collector< Index, Id_Type >::update_current_objects(const Index& index
       *current_index = db_it->index();
     while (!(*db_it == meta_db->discrete_end()) && (*current_index == db_it->index()))
     {
-      auto obj = db_it->object();
+      OSM_Element_Metadata_Skeleton< Id_Type > (*f)(const void *) = &get_elem< Id_Type >;
+      OSM_Element_Metadata_Skeleton< Id_Type > obj = db_it->apply_func( f );
+      // auto obj = db_it->object();
       if (user_id_filter.empty() || user_id_filter.find(obj.user_id) != user_id_filter.end())
         current_objects.insert(obj);
       ++(*db_it);
@@ -231,7 +238,9 @@ void Meta_Collector< Index, Id_Type >::update_current_objects(const Index& index
       *current_index = range_it->index();
     while (!(*range_it == meta_db->range_end()) && (*current_index == range_it->index()))
     {
-      auto obj = range_it->object();
+      OSM_Element_Metadata_Skeleton< Id_Type > (*f)(const void *) = &get_elem< Id_Type >;
+      auto obj = range_it->apply_func( f );
+      // auto obj = range_it->object();
       if (user_id_filter.empty() || user_id_filter.find(obj.user_id) != user_id_filter.end())
         current_objects.insert(obj);
       ++(*range_it);
