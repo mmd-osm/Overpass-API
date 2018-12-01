@@ -290,6 +290,38 @@ void filter_id_list(
   filtered = true;
 }
 
+template< typename Id_Type, typename Container, unsigned int L >
+std::vector< std::pair< Id_Type, Uint31_Index > > filter_id_list_fast(
+    experimental::IdSetDense<typename Id_Type::Id_Type, L>& new_ids, bool& filtered,
+    const Container& container, bool final)
+{
+  std::vector< std::pair< Id_Type, Uint31_Index > > new_ids_result;
+
+  experimental::IdSetDense<typename Id_Type::Id_Type, L> old_ids(std::move(new_ids));
+  new_ids.clear();
+
+  for (typename Container::const_iterator it = container.begin(); it != container.end(); ++it)
+  {
+    if (!filtered || old_ids.get(it->first.val()))
+    {
+     if (final)
+       new_ids_result.push_back(std::make_pair(it->first, it->second.second));
+     else
+       new_ids.set(it->first.val());
+    }
+  }
+
+  if (final)
+  {
+    sort(new_ids_result.begin(), new_ids_result.end());
+    new_ids_result.erase(unique(new_ids_result.begin(), new_ids_result.end()), new_ids_result.end());
+  }
+
+  filtered = true;
+
+  return new_ids_result;
+}
+
 template <typename Iter>
 Iter next_element(Iter iter)
 {
@@ -364,7 +396,10 @@ std::vector< std::pair< Id_Type, Uint31_Index > > Query_Statement::collect_ids
       }
     }
     else
-      filter_id_list(new_ids, filtered, collect_attic_kv(kvit, timestamp, tags_db, *attic_tags_db.obj));
+    {
+      auto attic_kv = collect_attic_kv(kvit, timestamp, tags_db, *attic_tags_db.obj);
+      new_ids = filter_id_list_fast<Id_Type>(tmp_ids, filtered, attic_kv, last);
+    }
 
     rman.health_check(*this);
   }
@@ -389,7 +424,10 @@ std::vector< std::pair< Id_Type, Uint31_Index > > Query_Statement::collect_ids
         }
       }
       else
-	filter_id_list(new_ids, filtered, collect_attic_k(kit, timestamp, tags_db, *attic_tags_db.obj));
+      {
+        auto attic_k = collect_attic_k(kit, timestamp, tags_db, *attic_tags_db.obj);
+	new_ids = filter_id_list_fast<Id_Type>(tmp_ids, filtered, attic_k, last);
+      }
 
       rman.health_check(*this);
     }
@@ -416,7 +454,10 @@ std::vector< std::pair< Id_Type, Uint31_Index > > Query_Statement::collect_ids
         }
       }
       else
-	filter_id_list(new_ids, filtered, collect_attic_kregv(krit, timestamp, tags_db, *attic_tags_db.obj));
+      {
+        auto attic_kregv = collect_attic_kregv(krit, timestamp, tags_db, *attic_tags_db.obj);
+	new_ids = filter_id_list_fast<Id_Type>(tmp_ids, filtered, attic_kregv, last);
+      }
 
       rman.health_check(*this);
     }
@@ -444,8 +485,11 @@ std::vector< std::pair< Id_Type, Uint31_Index > > Query_Statement::collect_ids
         }
       }
       else
-	filter_id_list(new_ids, filtered, collect_attic_regkregv< Skeleton, Id_Type >(
-	    it, timestamp, tags_db, *attic_tags_db.obj, rman, *this));
+      {
+        auto attic_regkregv = collect_attic_regkregv< Skeleton, Id_Type >(it, timestamp, tags_db,
+                                                                  *attic_tags_db.obj, rman, *this);
+	new_ids = filter_id_list_fast<Id_Type>(tmp_ids, filtered, attic_regkregv, last);
+      }
 
       rman.health_check(*this);
     }
