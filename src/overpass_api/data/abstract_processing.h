@@ -348,6 +348,199 @@ DEALINGS IN THE SOFTWARE.
       }
 
   }; // class IdSetDense
+
+
+  /**
+   * IdSet implementation for small Id sets. It writes the Ids
+   * into a vector and uses linear search.
+   */
+  template <typename T>
+  class IdSetSmall : public IdSet<T> {
+
+      std::vector<T> m_data;
+
+  public:
+
+      /**
+       * Add the given Id to the set.
+       */
+      void set(T id) final {
+          m_data.push_back(id);
+      }
+
+      /**
+       * Is the Id in the set? Uses linear search.
+       *
+       * @param id The Id to check.
+       */
+      bool get(T id) const noexcept final {
+          const auto it = std::find(m_data.cbegin(), m_data.cend(), id);
+          return it != m_data.cend();
+      }
+
+      /**
+       * Is the Id in the set? Uses a binary search. For larger sets
+       * this might be more efficient than calling get(), the set
+       * must be sorted.
+       *
+       * @param id The Id to check.
+       * @pre You must have called sort_unique() before calling this
+       *      or be sure there are no duplicates and the Ids have been
+       *      set in order.
+       */
+      bool get_binary_search(T id) const noexcept {
+          return std::binary_search(m_data.cbegin(), m_data.cend(), id);
+      }
+
+      /**
+       * Is the set empty?
+       */
+      bool empty() const noexcept final {
+          return m_data.empty();
+      }
+
+      /**
+       * Clear the set.
+       */
+      void clear() final {
+          m_data.clear();
+      }
+
+      /**
+       * Sort the internal vector and remove any duplicates. Call this
+       * before using size(), get_binary_search() or using an iterator.
+       */
+      void sort_unique() {
+          std::sort(m_data.begin(), m_data.end());
+          const auto last = std::unique(m_data.begin(), m_data.end());
+          m_data.erase(last, m_data.end());
+      }
+
+      /**
+       * The number of Ids stored in the set.
+       *
+       * @pre You must have called sort_unique() before calling this
+       *      or be sure there are no duplicates.
+       */
+      std::size_t size() const noexcept {
+          return m_data.size();
+      }
+
+      std::size_t used_memory() const noexcept final {
+          return m_data.capacity() * sizeof(T);
+      }
+
+      /// Iterator type. There is no non-const iterator.
+      using const_iterator = typename std::vector<T>::const_iterator;
+
+      const_iterator begin() const noexcept {
+          return m_data.cbegin();
+      }
+
+      const_iterator end() const noexcept {
+          return m_data.cend();
+      }
+
+      const_iterator cbegin() const noexcept {
+          return m_data.cbegin();
+      }
+
+      const_iterator cend() const noexcept {
+          return m_data.cend();
+      }
+
+  }; // class IdSetSmall
+
+
+  template <typename T, unsigned int L = 22>
+  class IdSetDynamic : public IdSet<T> {
+
+  public:
+
+    IdSetDynamic() : m_dense_enabled(false) {}
+
+    IdSetDynamic(const IdSetDynamic&) = default;
+    IdSetDynamic& operator=(const IdSetDynamic&) = default;
+
+    IdSetDynamic(IdSetDynamic&&) = default;
+    IdSetDynamic& operator=(IdSetDynamic&&) = default;
+
+    virtual ~IdSetDynamic() = default;
+
+    /**
+     * Add the given Id to the set.
+     */
+    void set(T id) {
+      if (m_dense_enabled)
+        m_id_set_dense.set(id);
+      else
+      {
+        m_id_set_small.set(id);
+        check_migrate_to_dense();
+      }
+    }
+
+    /**
+     * Is the Id in the set?
+     */
+    bool get(T id) const noexcept final {
+      if (m_dense_enabled)
+        return (m_id_set_dense.get(id));
+      else
+        return (m_id_set_small.get_binary_search(id));
+    }
+
+    /**
+     * Is the set empty?
+     */
+    bool empty() const noexcept final {
+      if (m_dense_enabled)
+        return (m_id_set_dense.empty());
+      else
+        return (m_id_set_small.empty());
+    }
+
+    /**
+     * Clear the set.
+     */
+    void clear() {
+      m_id_set_dense.clear();
+      m_id_set_small.clear();
+    }
+
+    /**
+     * Get an estimate of the amount of memory used for the set.
+     */
+    std::size_t used_memory() const noexcept final {
+      if (m_dense_enabled)
+        return (m_id_set_dense.used_memory());
+      else
+        return (m_id_set_small.used_memory());
+    }
+
+    /**
+     * Sorts elements in small set only
+     */
+    void sort_unique() {
+      if (!m_dense_enabled)
+        m_id_set_small.sort_unique();
+    }
+
+  private:
+
+    void check_migrate_to_dense() {
+      if (m_id_set_small.size() > 1000000) {
+        for (const auto & elem : m_id_set_small)
+          m_id_set_dense.set(elem);
+        m_dense_enabled = true;
+        m_id_set_small.clear();
+      }
+    }
+
+    IdSetSmall< T >     m_id_set_small;
+    IdSetDense< T, L >  m_id_set_dense;
+    bool                m_dense_enabled;
+  };
 }
 
 
