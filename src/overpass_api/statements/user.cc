@@ -32,6 +32,21 @@
 
 //-----------------------------------------------------------------------------
 
+
+template <typename Id_Type >
+class User_Id_Filter {
+public:
+   User_Id_Filter() = default;
+   User_Id_Filter(const std::set< Uint32_Index >& user_ids) : m_user_ids(user_ids) {}
+
+   bool operator()(const OSM_Element_Metadata_Skeleton< Id_Type > & obj) {
+     return (m_user_ids.empty() || m_user_ids.find(obj.user_id) != m_user_ids.end());
+   }
+
+private:
+   std::set< Uint32_Index > m_user_ids;
+};
+
 class User_Constraint : public Query_Constraint
 {
   public:
@@ -59,7 +74,6 @@ void user_filter_map
 
   Meta_Collector< TIndex, typename TObject::Id_Type > meta_collector
       (modify, *rman.get_transaction(), file_properties);
-  meta_collector.set_user_id_filter(user_ids);
 
   for (typename std::map< TIndex, std::vector< TObject > >::iterator it = modify.begin();
       it != modify.end(); ++it)
@@ -343,6 +357,8 @@ void User_Statement::execute(Resource_Manager& rman)
   Set into;
   User_Constraint constraint(*this);
 
+
+
   if (rman.get_desired_timestamp() == NOW)
   {
 
@@ -351,17 +367,16 @@ void User_Statement::execute(Resource_Manager& rman)
       std::set< std::pair< Uint32_Index, Uint32_Index > > ranges;
       constraint.get_ranges(rman, ranges);
 
-      Meta_Collector< Uint32_Index, Node_Skeleton::Id_Type > meta_collector
-      (ranges, *rman.get_transaction(), meta_settings().NODES_META);
-      meta_collector.set_user_id_filter(user_ids);
+      auto user_id_filter = User_Id_Filter< Node_Skeleton::Id_Type >(user_ids);
+
+      Meta_Collector< Uint32_Index, Node_Skeleton::Id_Type, User_Id_Filter< Node_Skeleton::Id_Type > > meta_collector
+      (ranges, *rman.get_transaction(), user_id_filter, meta_settings().NODES_META);
 
       collect_items_range< Uint32_Index, Node_Skeleton >
          (this, rman, *osm_base_settings().NODES, ranges, into.nodes,
           [&] (Uint32_Index first, Node_Skeleton::Id_Type second)
           {
-            const OSM_Element_Metadata_Skeleton< Node_Skeleton::Id_Type >* meta_skel
-              = meta_collector.get(first, second);
-            return ((meta_skel) && (user_ids.find(meta_skel->user_id) != user_ids.end()));
+            return (meta_collector.get(first, second));
           });
     }
 
@@ -370,19 +385,17 @@ void User_Statement::execute(Resource_Manager& rman)
       std::set< std::pair< Uint31_Index, Uint31_Index > > ranges;
       constraint.get_ranges(rman, ranges);
 
-      Meta_Collector< Uint31_Index, Way_Skeleton::Id_Type > meta_collector
-      (ranges, *rman.get_transaction(), meta_settings().WAYS_META);
-      meta_collector.set_user_id_filter(user_ids);
+      auto user_id_filter = User_Id_Filter< Way_Skeleton::Id_Type >(user_ids);
+
+      Meta_Collector< Uint31_Index, Way_Skeleton::Id_Type, User_Id_Filter< Way_Skeleton::Id_Type > > meta_collector
+      (ranges, *rman.get_transaction(), user_id_filter, meta_settings().WAYS_META);
 
       collect_items_range< Uint31_Index, Way_Skeleton >
         (this, rman, *osm_base_settings().WAYS, ranges, into.ways,
           [&] (Uint31_Index first, Way_Skeleton::Id_Type second)
           {
-            const OSM_Element_Metadata_Skeleton< Way_Skeleton::Id_Type >* meta_skel
-            = meta_collector.get(first, second);
-            return ((meta_skel) && (user_ids.find(meta_skel->user_id) != user_ids.end()));
+            return (meta_collector.get(first, second));
           });
-
     }
 
     if ((result_type == "") || (result_type == "relation") || (result_type == "nwr"))
@@ -390,17 +403,16 @@ void User_Statement::execute(Resource_Manager& rman)
       std::set< std::pair< Uint31_Index, Uint31_Index > > ranges;
       constraint.get_ranges(rman, ranges);
 
-      Meta_Collector< Uint31_Index, Relation_Skeleton::Id_Type > meta_collector
-      (ranges, *rman.get_transaction(), meta_settings().RELATIONS_META);
-      meta_collector.set_user_id_filter(user_ids);
+      auto user_id_filter = User_Id_Filter< Relation_Skeleton::Id_Type >(user_ids);
+
+      Meta_Collector< Uint31_Index, Relation_Skeleton::Id_Type, User_Id_Filter< Relation_Skeleton::Id_Type > > meta_collector
+      (ranges, *rman.get_transaction(), user_id_filter, meta_settings().RELATIONS_META);
 
       collect_items_range< Uint31_Index, Relation_Skeleton >
          (this, rman, *osm_base_settings().RELATIONS, ranges, into.relations,
           [&] (Uint31_Index first, Relation_Skeleton::Id_Type second)
           {
-            const OSM_Element_Metadata_Skeleton< Relation_Skeleton::Id_Type >* meta_skel
-            = meta_collector.get(first, second);
-            return ((meta_skel) && (user_ids.find(meta_skel->user_id) != user_ids.end()));
+            return (meta_collector.get(first, second));
           });
     }
   }

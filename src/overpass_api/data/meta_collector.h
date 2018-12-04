@@ -30,8 +30,17 @@
 #include "../core/settings.h"
 #include "filenames.h"
 
+template <typename Id_Type >
+class AlwaysTrueFunctor {
 
-template< typename Index, typename Id_Type >
+public:
+  constexpr bool operator()(const OSM_Element_Metadata_Skeleton< Id_Type > & obj) {
+    return true;
+  }
+};
+
+
+template< typename Index, typename Id_Type, class Functor = AlwaysTrueFunctor< Id_Type > >
 struct Meta_Collector
 {
 public:
@@ -42,13 +51,19 @@ public:
   Meta_Collector(const std::set< std::pair< Index, Index > >& used_ranges,
       Transaction& transaction, const File_Properties* meta_file_prop = 0);
 
+  template< typename Object >
+  Meta_Collector(const std::map< Index, std::vector< Object > >& items,
+      Transaction& transaction, Functor functor, const File_Properties* meta_file_prop = 0);
+
+  Meta_Collector(const std::set< std::pair< Index, Index > >& used_ranges,
+      Transaction& transaction, Functor functor,
+      const File_Properties* meta_file_prop = 0);
+
   void reset();
   const OSM_Element_Metadata_Skeleton< Id_Type >* get
       (const Index& index, Id_Type ref);
   const OSM_Element_Metadata_Skeleton< Id_Type >* get
       (const Index& index, Id_Type ref, uint64 timestamp);
-
-  void set_user_id_filter(std::set< Uint32_Index > user_id_filter);
 
   ~Meta_Collector()
   {
@@ -73,7 +88,7 @@ private:
   Index* current_index;
   std::vector< OSM_Element_Metadata_Skeleton< Id_Type > > current_objects;
 
-  std::set< Uint32_Index > user_id_filter;
+  Functor m_functor;
 
   void update_current_objects(const Index&);
 };
@@ -108,12 +123,12 @@ void generate_index_query
 }
 
 
-template< typename Index, typename Id_Type >
+template< typename Index, typename Id_Type, class Functor >
 template< typename Object >
-Meta_Collector< Index, Id_Type >::Meta_Collector
+Meta_Collector< Index, Id_Type, Functor >::Meta_Collector
     (const std::map< Index, std::vector< Object > >& items,
      Transaction& transaction, const File_Properties* meta_file_prop)
-  : meta_db(0), db_it(0), range_it(0), current_index(0), user_id_filter{}
+  : meta_db(0), db_it(0), range_it(0), current_index(0)
 {
   if (!meta_file_prop)
     return;
@@ -126,12 +141,11 @@ Meta_Collector< Index, Id_Type >::Meta_Collector
 }
 
 
-template< typename Index, typename Id_Type >
-Meta_Collector< Index, Id_Type >::Meta_Collector
+template< typename Index, typename Id_Type, class Functor >
+Meta_Collector< Index, Id_Type, Functor >::Meta_Collector
     (const std::set< std::pair< Index, Index > >& used_ranges_,
      Transaction& transaction, const File_Properties* meta_file_prop)
-  : used_ranges(used_ranges_), meta_db(0), db_it(0), range_it(0), current_index(0),
-    user_id_filter{}
+  : used_ranges(used_ranges_), meta_db(0), db_it(0), range_it(0), current_index(0)
 {
   if (!meta_file_prop)
     return;
@@ -142,15 +156,34 @@ Meta_Collector< Index, Id_Type >::Meta_Collector
   reset();
 }
 
-template< typename Index, typename Id_Type >
-void Meta_Collector< Index, Id_Type >::set_user_id_filter(std::set< Uint32_Index > user_id_filter_)
+
+template< typename Index, typename Id_Type, class Functor >
+template< typename Object >
+Meta_Collector< Index, Id_Type, Functor >::Meta_Collector
+    (const std::map< Index, std::vector< Object > >& items,
+     Transaction& transaction,  Functor functor,
+     const File_Properties* meta_file_prop) :
+    Meta_Collector< Index, Id_Type, Functor >::Meta_Collector(items,
+        transaction, meta_file_prop)
 {
-  user_id_filter = user_id_filter_;
+  m_functor = functor;
+}
+
+template< typename Index, typename Id_Type, class Functor >
+Meta_Collector< Index, Id_Type, Functor >::Meta_Collector
+    (const std::set< std::pair< Index, Index > >& used_ranges_,
+     Transaction& transaction, Functor functor,
+     const File_Properties* meta_file_prop) :
+    Meta_Collector< Index, Id_Type, Functor >::Meta_Collector
+        (used_ranges_, transaction,  meta_file_prop)
+{
+  m_functor = functor;
 }
 
 
-template< typename Index, typename Id_Type >
-void Meta_Collector< Index, Id_Type >::reset()
+
+template< typename Index, typename Id_Type, class Functor >
+void Meta_Collector< Index, Id_Type, Functor >::reset()
 {
   if (!meta_db)
     return;
@@ -210,8 +243,8 @@ OSM_Element_Metadata_Skeleton< Id_Type > get_elem(const void * a) {
 }
 
 
-template< typename Index, typename Id_Type >
-void Meta_Collector< Index, Id_Type >::update_current_objects(const Index& index)
+template< typename Index, typename Id_Type, class Functor >
+void Meta_Collector< Index, Id_Type, Functor >::update_current_objects(const Index& index)
 {
   {
     std::vector< OSM_Element_Metadata_Skeleton< Id_Type > > new_objects{};
@@ -228,7 +261,8 @@ void Meta_Collector< Index, Id_Type >::update_current_objects(const Index& index
     {
       OSM_Element_Metadata_Skeleton< Id_Type > (*f)(const void *) = &get_elem< Id_Type >;
       OSM_Element_Metadata_Skeleton< Id_Type > obj = db_it->apply_func( f );
-      if (user_id_filter.empty() || user_id_filter.find(obj.user_id) != user_id_filter.end())
+
+      if (m_functor(obj))
         current_objects.push_back(std::move(obj));
       ++(*db_it);
     }
@@ -243,7 +277,7 @@ void Meta_Collector< Index, Id_Type >::update_current_objects(const Index& index
     {
       OSM_Element_Metadata_Skeleton< Id_Type > (*f)(const void *) = &get_elem< Id_Type >;
       auto obj = range_it->apply_func( f );
-      if (user_id_filter.empty() || user_id_filter.find(obj.user_id) != user_id_filter.end())
+      if (m_functor(obj))
         current_objects.push_back(std::move(obj));
       ++(*range_it);
     }
@@ -254,8 +288,8 @@ void Meta_Collector< Index, Id_Type >::update_current_objects(const Index& index
 
 
 
-template< typename Index, typename Id_Type >
-const OSM_Element_Metadata_Skeleton< Id_Type >* Meta_Collector< Index, Id_Type >::get
+template< typename Index, typename Id_Type, class Functor >
+const OSM_Element_Metadata_Skeleton< Id_Type >* Meta_Collector< Index, Id_Type, Functor >::get
     (const Index& index, Id_Type ref)
 {
   if (!meta_db)
@@ -274,8 +308,8 @@ const OSM_Element_Metadata_Skeleton< Id_Type >* Meta_Collector< Index, Id_Type >
 }
 
 
-template< typename Index, typename Id_Type >
-const OSM_Element_Metadata_Skeleton< Id_Type >* Meta_Collector< Index, Id_Type >::get
+template< typename Index, typename Id_Type, class Functor >
+const OSM_Element_Metadata_Skeleton< Id_Type >* Meta_Collector< Index, Id_Type, Functor >::get
     (const Index& index, Id_Type ref, uint64 timestamp)
 {
   if (!meta_db)
