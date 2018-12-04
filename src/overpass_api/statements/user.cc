@@ -34,12 +34,12 @@
 
 
 template <typename Id_Type >
-class User_Id_Filter {
+class User_Ids_Functor {
 public:
-   User_Id_Filter() = default;
-   User_Id_Filter(const std::set< Uint32_Index >& user_ids) : m_user_ids(user_ids) {}
+   User_Ids_Functor() = default;
+   User_Ids_Functor(const std::set< Uint32_Index >& user_ids) : m_user_ids(user_ids) {}
 
-   bool operator()(const OSM_Element_Metadata_Skeleton< Id_Type > & obj) {
+   bool operator()(const OSM_Element_Metadata_Skeleton< Id_Type > & obj) const {
      return (m_user_ids.empty() || m_user_ids.find(obj.user_id) != m_user_ids.end());
    }
 
@@ -72,8 +72,10 @@ void user_filter_map
   if (modify.empty())
     return;
 
-  Meta_Collector< TIndex, typename TObject::Id_Type > meta_collector
-      (modify, *rman.get_transaction(), file_properties);
+  auto user_id_filter = User_Ids_Functor< typename TObject::Id_Type >(user_ids);
+
+  Meta_Collector< TIndex, typename TObject::Id_Type, User_Ids_Functor< typename TObject::Id_Type > > meta_collector
+      (modify, *rman.get_transaction(), user_id_filter, file_properties);
 
   for (typename std::map< TIndex, std::vector< TObject > >::iterator it = modify.begin();
       it != modify.end(); ++it)
@@ -84,7 +86,7 @@ void user_filter_map
     {
       const OSM_Element_Metadata_Skeleton< typename TObject::Id_Type >* meta_skel
 	  = meta_collector.get(it->first, iit->id);
-      if ((meta_skel) && (user_ids.find(meta_skel->user_id) != user_ids.end()))
+      if (meta_skel)
 	local_into.push_back(*iit);
     }
     it->second.swap(local_into);
@@ -367,9 +369,9 @@ void User_Statement::execute(Resource_Manager& rman)
       std::set< std::pair< Uint32_Index, Uint32_Index > > ranges;
       constraint.get_ranges(rman, ranges);
 
-      auto user_id_filter = User_Id_Filter< Node_Skeleton::Id_Type >(user_ids);
+      auto user_id_filter = User_Ids_Functor< Node_Skeleton::Id_Type >(user_ids);
 
-      Meta_Collector< Uint32_Index, Node_Skeleton::Id_Type, User_Id_Filter< Node_Skeleton::Id_Type > > meta_collector
+      Meta_Collector< Uint32_Index, Node_Skeleton::Id_Type, User_Ids_Functor< Node_Skeleton::Id_Type > > meta_collector
       (ranges, *rman.get_transaction(), user_id_filter, meta_settings().NODES_META);
 
       collect_items_range< Uint32_Index, Node_Skeleton >
@@ -385,9 +387,9 @@ void User_Statement::execute(Resource_Manager& rman)
       std::set< std::pair< Uint31_Index, Uint31_Index > > ranges;
       constraint.get_ranges(rman, ranges);
 
-      auto user_id_filter = User_Id_Filter< Way_Skeleton::Id_Type >(user_ids);
+      auto user_id_filter = User_Ids_Functor< Way_Skeleton::Id_Type >(user_ids);
 
-      Meta_Collector< Uint31_Index, Way_Skeleton::Id_Type, User_Id_Filter< Way_Skeleton::Id_Type > > meta_collector
+      Meta_Collector< Uint31_Index, Way_Skeleton::Id_Type, User_Ids_Functor< Way_Skeleton::Id_Type > > meta_collector
       (ranges, *rman.get_transaction(), user_id_filter, meta_settings().WAYS_META);
 
       collect_items_range< Uint31_Index, Way_Skeleton >
@@ -403,9 +405,9 @@ void User_Statement::execute(Resource_Manager& rman)
       std::set< std::pair< Uint31_Index, Uint31_Index > > ranges;
       constraint.get_ranges(rman, ranges);
 
-      auto user_id_filter = User_Id_Filter< Relation_Skeleton::Id_Type >(user_ids);
+      auto user_id_filter = User_Ids_Functor< Relation_Skeleton::Id_Type >(user_ids);
 
-      Meta_Collector< Uint31_Index, Relation_Skeleton::Id_Type, User_Id_Filter< Relation_Skeleton::Id_Type > > meta_collector
+      Meta_Collector< Uint31_Index, Relation_Skeleton::Id_Type, User_Ids_Functor< Relation_Skeleton::Id_Type > > meta_collector
       (ranges, *rman.get_transaction(), user_id_filter, meta_settings().RELATIONS_META);
 
       collect_items_range< Uint31_Index, Relation_Skeleton >

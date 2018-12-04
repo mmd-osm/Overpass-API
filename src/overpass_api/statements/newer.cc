@@ -30,6 +30,20 @@
 
 //-----------------------------------------------------------------------------
 
+template <typename Id_Type >
+class Newer_Functor {
+public:
+  Newer_Functor() = default;
+  Newer_Functor(uint64 timestamp) : m_timestamp(timestamp) {}
+
+   bool operator()(const OSM_Element_Metadata_Skeleton< Id_Type > & obj) const {
+     return (obj.timestamp >= m_timestamp);
+   }
+
+private:
+   uint64 m_timestamp = 0;
+};
+
 class Newer_Constraint : public Query_Constraint
 {
   public:
@@ -52,8 +66,11 @@ void newer_filter_map
 {
   if (modify.empty())
     return;
-  Meta_Collector< TIndex, typename TObject::Id_Type > meta_collector
-      (modify, *rman.get_transaction(), file_properties);
+
+  auto newer_filter = Newer_Functor< typename TObject::Id_Type >(timestamp);
+
+  Meta_Collector< TIndex, typename TObject::Id_Type, Newer_Functor< typename TObject::Id_Type > > meta_collector
+      (modify, *rman.get_transaction(), newer_filter, file_properties);
   for (typename std::map< TIndex, std::vector< TObject > >::iterator it = modify.begin();
       it != modify.end(); ++it)
   {
@@ -63,7 +80,7 @@ void newer_filter_map
     {
       const OSM_Element_Metadata_Skeleton< typename TObject::Id_Type >* meta_skel
 	  = meta_collector.get(it->first, iit->id);
-      if ((meta_skel) && (meta_skel->timestamp >= timestamp))
+      if (meta_skel)
 	local_into.push_back(*iit);
     }
     it->second.swap(local_into);
