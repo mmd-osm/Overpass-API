@@ -40,7 +40,7 @@ public:
    User_Ids_Functor(const std::set< Uint32_Index >& user_ids) : m_user_ids(user_ids) {}
 
    bool operator()(const OSM_Element_Metadata_Skeleton< Id_Type > & obj) const {
-     return (m_user_ids.empty() || m_user_ids.find(obj.user_id) != m_user_ids.end());
+     return (m_user_ids.find(obj.user_id) != m_user_ids.end());
    }
 
 private:
