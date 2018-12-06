@@ -33,7 +33,7 @@
 template <typename Id_Type >
 class Newer_Functor {
 public:
-  Newer_Functor() = default;
+  Newer_Functor() = delete;
   Newer_Functor(uint64 timestamp) : m_timestamp(timestamp) {}
 
    bool operator()(const OSM_Element_Metadata_Skeleton< Id_Type > & obj) const {

@@ -36,7 +36,7 @@
 template <typename Id_Type >
 class User_Ids_Functor {
 public:
-   User_Ids_Functor() = default;
+   User_Ids_Functor() = delete;
    User_Ids_Functor(const std::set< Uint32_Index >& user_ids) : m_user_ids(user_ids) {}
 
    bool operator()(const OSM_Element_Metadata_Skeleton< Id_Type > & obj) const {

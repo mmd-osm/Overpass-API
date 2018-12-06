@@ -170,10 +170,16 @@ Meta_Collector< Index, Id_Type, Functor >::Meta_Collector
     (const std::map< Index, std::vector< Object > >& items,
      Transaction& transaction,  Functor functor,
      const File_Properties* meta_file_prop) :
-    Meta_Collector< Index, Id_Type, Functor >::Meta_Collector(items,
-        transaction, meta_file_prop)
+     meta_db(0), db_it(0), range_it(0), current_index(0), m_functor(functor)
 {
-  m_functor = functor;
+  if (!meta_file_prop)
+    return;
+
+  generate_index_query(used_indices, items);
+  meta_db = new Block_Backend< Index, OSM_Element_Metadata_Skeleton< Id_Type > >
+      (transaction.data_index(meta_file_prop));
+
+  reset();
 }
 
 template< typename Index, typename Id_Type, class Functor >
@@ -181,12 +187,18 @@ Meta_Collector< Index, Id_Type, Functor >::Meta_Collector
     (const std::set< std::pair< Index, Index > >& used_ranges_,
      Transaction& transaction, Functor functor,
      const File_Properties* meta_file_prop) :
-    Meta_Collector< Index, Id_Type, Functor >::Meta_Collector
-        (used_ranges_, transaction,  meta_file_prop)
-{
-  m_functor = functor;
-}
+     used_ranges(used_ranges_), meta_db(0), db_it(0), range_it(0), current_index(0),
+     m_functor(functor)
 
+{
+  if (!meta_file_prop)
+    return;
+
+  meta_db = new Block_Backend< Index, OSM_Element_Metadata_Skeleton< Id_Type > >
+      (transaction.data_index(meta_file_prop));
+
+  reset();
+}
 
 
 template< typename Index, typename Id_Type, class Functor >
