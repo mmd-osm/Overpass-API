@@ -44,7 +44,19 @@ unsigned int count(const std::map< Index, std::vector< Skeleton > >& elems)
 
 
 template < typename T >
-std::string to_string(T t)
+inline std::string to_string(T t)
+{
+  return std::to_string(t);
+}
+
+template < >
+inline std::string to_string(std::string t)
+{
+  return t;
+}
+
+template < >
+inline std::string to_string(double t)
 {
   std::ostringstream out;
   out<<std::setprecision(14)<<t;
@@ -123,6 +135,11 @@ inline bool try_int64(const std::string& input, int64& result)
 
 inline bool string_represents_boolean_true(const std::string& val)
 {
+  if (val == "0")
+    return false;
+  if (val == "1")
+    return true;
+
   double val_d = 0;
   if (try_double(val, val_d))
     return val_d != 0;
