@@ -22,6 +22,7 @@
 #include "../data/bbox_filter.h"
 #include "../data/collect_members.h"
 #include "../data/meta_collector.h"
+#include "../data/user_data_cache.h"
 #include "user.h"
 
 #include <algorithm>
@@ -274,14 +275,12 @@ std::set< Uint32_Index > get_user_ids(const std::set< std::string >& user_names,
 {
   std::set< Uint32_Index > ids;
 
-  Block_Backend< Uint32_Index, User_Data > user_db
-      (transaction.data_index(meta_settings().USER_DATA));
-  for (Block_Backend< Uint32_Index, User_Data >::Flat_Iterator
-      user_it = user_db.flat_begin(); !(user_it == user_db.flat_end()); ++user_it)
-  {
-    if (user_names.find(user_it.object().name) != user_names.end())
-      ids.insert(user_it.object().id);
-  }
+  auto & users = User_Data_Cache().users(transaction);
+
+  for (const auto & user : users)
+    if (user_names.find(user.second) != user_names.end())
+      ids.insert(user.first);
+
   return ids;
 }
 
