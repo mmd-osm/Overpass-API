@@ -212,7 +212,7 @@ void print_out(const InputAnalyzer& analyzer)
     std::cout<<"out;";
 }
 
-void process_nodes(std::string input, bool is_star = false, bool force_meta = false)
+void process_nodes(std::string input, bool force_meta = false)
 {
   InputAnalyzer analyzer(input, force_meta);
   if (analyzer.timeout != 0)
@@ -225,18 +225,15 @@ void process_nodes(std::string input, bool is_star = false, bool force_meta = fa
   print_meta_filter(analyzer);
   std::cout<<";";
 
-  if (!is_star)
-    print_out(analyzer);
+  print_out(analyzer);
 }
 
-void process_ways(std::string input, bool is_star = false, bool force_meta = false)
+void process_ways(std::string input, bool force_meta = false)
 {
   InputAnalyzer analyzer(input, force_meta);
-  if (!is_star && analyzer.timeout != 0)
+  if (analyzer.timeout != 0)
     std::cout<<"[timeout:"<<analyzer.timeout<<"];";
   std::cout<<"(";
-  if (is_star)
-    std::cout<<"._;";
 
   std::cout<<"way";
   if (analyzer.bbox_found)
@@ -249,10 +246,10 @@ void process_ways(std::string input, bool is_star = false, bool force_meta = fal
   print_out(analyzer);
 }
 
-void process_relations(std::string input, bool is_star = false, bool force_meta = false)
+void process_relations(std::string input, bool force_meta = false)
 {
   InputAnalyzer analyzer(input, force_meta);
-  if (!is_star && analyzer.timeout != 0)
+  if (analyzer.timeout != 0)
     std::cout<<"[timeout:"<<analyzer.timeout<<"];";
 
   std::cout<<"rel";
@@ -264,6 +261,24 @@ void process_relations(std::string input, bool is_star = false, bool force_meta 
 
   print_out(analyzer);
 }
+
+void process_nwr(std::string input, bool force_meta = false)
+{
+  InputAnalyzer analyzer(input, force_meta);
+  if (analyzer.timeout != 0)
+    std::cout<<"[timeout:"<<analyzer.timeout<<"];";
+
+  std::cout<<"(nwr";
+  if (analyzer.bbox_found)
+    print_bbox(analyzer);
+  print_key_values(analyzer);
+  print_meta_filter(analyzer);
+  std::cout<<";";
+  std::cout<<"node(w););";
+
+  print_out(analyzer);
+}
+
 
 int main(int argc, char* argv[])
 {
@@ -284,7 +299,7 @@ int main(int argc, char* argv[])
   {
     try
     {
-      process_nodes(input.substr(4), false, force_meta);
+      process_nodes(input.substr(4), force_meta);
     }
     catch (std::string& s)
     {
@@ -295,7 +310,7 @@ int main(int argc, char* argv[])
   {
     try
     {
-      process_ways(input.substr(3), false, force_meta);
+      process_ways(input.substr(3), force_meta);
     }
     catch (std::string& s)
     {
@@ -306,7 +321,7 @@ int main(int argc, char* argv[])
   {
     try
     {
-      process_relations(input.substr(8), false, force_meta);
+      process_relations(input.substr(8), force_meta);
     }
     catch (std::string& s)
     {
@@ -317,9 +332,7 @@ int main(int argc, char* argv[])
   {
     try
     {
-      process_nodes(input.substr(1), true, force_meta);
-      process_ways(input.substr(1), true, force_meta);
-      process_relations(input.substr(1), true, force_meta);
+      process_nwr(input.substr(1), force_meta);
     }
     catch (std::string& s)
     {
