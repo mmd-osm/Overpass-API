@@ -1,5 +1,6 @@
 
 #include "../../expat/escape_xml.h"
+#include "../core/settings.h"
 #include "../frontend/basic_formats.h"
 #include "output_osmium.h"
 
@@ -103,7 +104,10 @@ void Output_Osmium::write_payload_header
   prepare_fifo();
   output_file = new osmium::io::File(repeater_file, output_format);
   header = new osmium::io::Header();
-  header->set("generator","Overpass API");
+
+  std::string generator = "Overpass API " + basic_settings().version + " " + basic_settings().source_hash.substr(0, 8);
+
+  header->set("generator", generator);
   header->set("osmosis_replication_timestamp", timestamp);
   writer = new osmium::io::Writer(*output_file, *header, osmium::io::overwrite::allow);
 }
