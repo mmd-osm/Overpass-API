@@ -302,7 +302,7 @@ int main(int argc, char *argv[])
 
       // Restart process after error or a certain number of time / requests
       time_t elapsed_time = time(NULL) - start_time;
-      if (ret < 0 ||
+      if (ret != 0 ||
           (max_requests > 0 && ++request_counter > max_requests) ||
           (max_elapsed_time > 0 && elapsed_time > max_elapsed_time))
       {
