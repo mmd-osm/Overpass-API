@@ -253,7 +253,7 @@ class Dispatcher
     
     void run_server();
 
-    void handle_command(evbuffer * output, evutil_socket_t socket_fd, std::vector< uint32 > command_arguments, uint32 client_pid);
+    void handle_command(evbuffer * output, evutil_socket_t socket_fd, std::vector< uint32 > command_arguments, uint32 client_pid, bool is_privileged_user);
 
     /** Outputs the status of the processes registered with the dispatcher
         into shadow_name.status. */

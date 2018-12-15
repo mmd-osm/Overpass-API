@@ -50,6 +50,9 @@ typedef unsigned long long uint64;
 
 
 const int S_666 = S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH;
+const int S_664 = S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH;
+const int S_644 = S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH;
+const int S_444 = S_IRUSR|S_IRGRP|S_IROTH;
 
 
 struct File_Error

@@ -445,16 +445,16 @@ Dispatcher::Dispatcher
         (errno, dispatcher_share_name, "Dispatcher_Server::APPLE::1");
 #else
   dispatcher_shm_fd = shm_open
-      (dispatcher_share_name.c_str(), O_RDWR|O_CREAT|O_TRUNC|O_EXCL, S_666);
+      (dispatcher_share_name.c_str(), O_RDWR|O_CREAT|O_TRUNC|O_EXCL, S_644);
   if (dispatcher_shm_fd < 0)
     throw File_Error
         (errno, dispatcher_share_name, "Dispatcher_Server::1");
-  fchmod(dispatcher_shm_fd, S_666);
+  fchmod(dispatcher_shm_fd, S_644);
 #endif
 
   std::string db_dir = transaction_insulator.db_dir();
   int foo = ftruncate(dispatcher_shm_fd,
-		      SHM_SIZE + db_dir.size() + shadow_name.size()); foo = foo;
+		      SHM_SIZE + db_dir.size() + shadow_name.size());
   dispatcher_shm_ptr = (uint8*)mmap
         (0, SHM_SIZE + db_dir.size() + shadow_name.size(),
          PROT_READ|PROT_WRITE, MAP_SHARED, dispatcher_shm_fd, 0);
@@ -665,7 +665,11 @@ void Dispatcher::on_read(struct bufferevent *bev)
   std::vector< uint32 > command;
   while (evbuffer_remove(input, &token, sizeof(token)) > 0)
      command.push_back(token);
-  handle_command(output, socket_fd, command, fd_process[socket_fd].pid);
+
+  // Dispatcher server process user is privileged
+  uid_t uid = getuid();
+  bool is_privileged_user = (uid == fd_process[socket_fd].uid);
+  handle_command(output, socket_fd, command, fd_process[socket_fd].pid, is_privileged_user);
 }
 void Dispatcher::on_write(struct bufferevent *bev)
 {
@@ -709,11 +713,23 @@ void Dispatcher::run_server()
 }
 
 
-void Dispatcher::handle_command(evbuffer * output, evutil_socket_t socket_fd, std::vector< uint32 > command_arguments, uint32 client_pid)
+void Dispatcher::handle_command(evbuffer * output, evutil_socket_t socket_fd, std::vector< uint32 > command_arguments, uint32 client_pid, bool is_privileged_user)
 {
   uint32 command = command_arguments[0];
   command_arguments.erase(command_arguments.begin());
   std::vector< uint32 > arguments = command_arguments;
+
+  // Check if client pid user is unauthorized to execute privileged operations
+  if (!is_privileged_user &&
+      (command == WRITE_START       ||
+       command == WRITE_ROLLBACK    ||
+       command == WRITE_COMMIT      ||
+       command == SET_GLOBAL_LIMITS ||
+       command == TERMINATE))
+  {
+    evbuffer_add_uint32(output, 0);
+    return;
+  }
 
   if (command == HANGUP)
     command = READ_ABORTED;
@@ -731,8 +747,15 @@ void Dispatcher::handle_command(evbuffer * output, evutil_socket_t socket_fd, st
 
       if (command == TERMINATE)
       {
+        evbuffer_add_uint32(output, command);
+        sockets_to_close.insert(socket_fd);
 
-        event_base_loopexit(base, NULL);
+        // add very small delay so that TERMINATE command confirmation is sent back to client
+        struct timeval shutdown_delay;
+        shutdown_delay.tv_sec = 0;
+        shutdown_delay.tv_usec = 1;
+
+        event_base_loopexit(base, &shutdown_delay);
         return;
       }
     }

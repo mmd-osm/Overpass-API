@@ -41,7 +41,7 @@ Dispatcher_Client::Dispatcher_Client
 
   // open dispatcher_share
   dispatcher_shm_fd = shm_open
-      (dispatcher_share_name.c_str(), O_RDWR, S_666);
+      (dispatcher_share_name.c_str(), O_RDONLY, S_444);
   if (dispatcher_shm_fd < 0)
     throw File_Error
         (errno, dispatcher_share_name, "Dispatcher_Client::1");
@@ -49,7 +49,7 @@ Dispatcher_Client::Dispatcher_Client
   fstat(dispatcher_shm_fd, &stat_buf);
   dispatcher_shm_ptr = (uint8*)mmap
       (0, stat_buf.st_size,
-       PROT_READ|PROT_WRITE, MAP_SHARED, dispatcher_shm_fd, 0);
+       PROT_READ, MAP_SHARED, dispatcher_shm_fd, 0);
 
   // get db_dir and shadow_name
   db_dir = std::string((const char *)(dispatcher_shm_ptr + 4*sizeof(uint32)),
