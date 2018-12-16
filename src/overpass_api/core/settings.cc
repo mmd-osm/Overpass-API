@@ -47,6 +47,7 @@ struct OSM_File_Properties : public File_Properties
   const std::string& get_data_suffix() const { return basic_settings().DATA_SUFFIX; }
   const std::string& get_id_suffix() const { return basic_settings().ID_SUFFIX; }
   const std::string& get_shadow_suffix() const { return basic_settings().SHADOW_SUFFIX; }
+  const std::string& get_old_suffix() const { return basic_settings().OLD_SUFFIX; }
 
   uint32 get_block_size() const { return block_size/8; }
   uint32 get_compression_factor() const { return 8; }
@@ -93,6 +94,7 @@ Basic_Settings::Basic_Settings()
   INDEX_SUFFIX(".idx"),
   ID_SUFFIX(".map"),
   SHADOW_SUFFIX(".shadow"),
+  OLD_SUFFIX(".old"),
 
   base_directory("./"),
   logfile_name("transactions.log"),

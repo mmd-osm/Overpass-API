@@ -472,10 +472,10 @@ Dispatcher::Dispatcher
 
   if (file_exists(shadow_name))
   {
-    transaction_insulator.copy_shadows_to_mains();
+    transaction_insulator.move_shadows_to_mains();
     remove(shadow_name.c_str());
   }
-  transaction_insulator.remove_shadows();
+  transaction_insulator.remove_olds_and_shadows();
   remove((shadow_name + ".lock").c_str());
   transaction_insulator.set_current_footprints();
 }
@@ -552,7 +552,7 @@ void Dispatcher::write_commit(pid_t pid)
   {
     Raw_File shadow_file(shadow_name, O_RDWR|O_CREAT|O_EXCL, S_666, "write_commit:1");
 
-    transaction_insulator.copy_shadows_to_mains();
+    transaction_insulator.move_shadows_to_mains();
   }
   catch (File_Error e)
   {
@@ -561,7 +561,7 @@ void Dispatcher::write_commit(pid_t pid)
   }
 
   remove(shadow_name.c_str());
-  transaction_insulator.remove_shadows();
+  transaction_insulator.remove_olds_and_shadows();
   remove((shadow_name + ".lock").c_str());
   transaction_insulator.set_current_footprints();
 }

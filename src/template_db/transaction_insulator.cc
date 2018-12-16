@@ -18,6 +18,7 @@
 
 #include "dispatcher.h"
 
+
 #include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -30,6 +31,7 @@
 #include <sys/un.h>
 #include <unistd.h>
 
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
@@ -111,20 +113,53 @@ void Transaction_Insulator::read_finished(pid_t pid)
     it->unregister_pid(pid);
 }
 
+void Transaction_Insulator::move_shadows_to_mains()
+{
+  // Rename mains to old
+  for (std::vector< File_Properties* >::const_iterator it(controlled_files.begin());
+      it != controlled_files.end(); ++it)
+  {
+
+    // Only rename mains to old, if the shadow file still exists. This is important, as a previous move_shadows_to_mains run
+    // might have been interrupted intermittently, and we don't want to process those files again, which have already been
+    // moved around in a previous run.
+    if (file_exists((db_dir() + (*it)->get_file_name_trunk() + (*it)->get_data_suffix() + (*it)->get_index_suffix() + (*it)->get_shadow_suffix()))) {
+
+      rename((db_dir() + (*it)->get_file_name_trunk() + (*it)->get_data_suffix()  + (*it)->get_index_suffix()).c_str(),
+          (db_dir() + (*it)->get_file_name_trunk() + (*it)->get_data_suffix()  + (*it)->get_index_suffix() + (*it)->get_old_suffix()).c_str());
+    }
+
+    if (file_exists(db_dir() + (*it)->get_file_name_trunk() + (*it)->get_id_suffix() + (*it)->get_index_suffix() + (*it)->get_shadow_suffix())) {
+
+      rename((db_dir() + (*it)->get_file_name_trunk() + (*it)->get_id_suffix() + (*it)->get_index_suffix()).c_str(),
+          (db_dir() + (*it)->get_file_name_trunk() + (*it)->get_id_suffix() + (*it)->get_index_suffix() + (*it)->get_old_suffix()).c_str());
+    }
+  }
+
+  // rename shadows to mains
+  for (std::vector< File_Properties* >::const_iterator it(controlled_files.begin());
+      it != controlled_files.end(); ++it)
+  {
+    rename((db_dir() + (*it)->get_file_name_trunk() + (*it)->get_data_suffix()    + (*it)->get_index_suffix() + (*it)->get_shadow_suffix()).c_str(),
+        (db_dir() + (*it)->get_file_name_trunk() + (*it)->get_data_suffix() + (*it)->get_index_suffix()).c_str());
+
+    rename((db_dir() + (*it)->get_file_name_trunk() + (*it)->get_id_suffix()      + (*it)->get_index_suffix() + (*it)->get_shadow_suffix()).c_str(),
+        (db_dir() + (*it)->get_file_name_trunk() + (*it)->get_id_suffix()   + (*it)->get_index_suffix()).c_str());
+  }
+}
+
+
 
 void Transaction_Insulator::copy_shadows_to_mains()
 {
   for (std::vector< File_Properties* >::const_iterator it(controlled_files.begin());
       it != controlled_files.end(); ++it)
   {
-      copy_file(db_dir() + (*it)->get_file_name_trunk() + (*it)->get_data_suffix()
-                + (*it)->get_index_suffix() + (*it)->get_shadow_suffix(),
-		db_dir() + (*it)->get_file_name_trunk() + (*it)->get_data_suffix()
-		+ (*it)->get_index_suffix());
-      copy_file(db_dir() + (*it)->get_file_name_trunk() + (*it)->get_id_suffix()
-                + (*it)->get_index_suffix() + (*it)->get_shadow_suffix(),
-		db_dir() + (*it)->get_file_name_trunk() + (*it)->get_id_suffix()
-		+ (*it)->get_index_suffix());
+      copy_file(db_dir() + (*it)->get_file_name_trunk() + (*it)->get_data_suffix() + (*it)->get_index_suffix() + (*it)->get_shadow_suffix(),
+		db_dir() + (*it)->get_file_name_trunk() + (*it)->get_data_suffix() + (*it)->get_index_suffix());
+
+      copy_file(db_dir() + (*it)->get_file_name_trunk() + (*it)->get_id_suffix()   + (*it)->get_index_suffix() + (*it)->get_shadow_suffix(),
+		db_dir() + (*it)->get_file_name_trunk() + (*it)->get_id_suffix()   + (*it)->get_index_suffix());
   }
 }
 
@@ -134,14 +169,11 @@ void Transaction_Insulator::copy_mains_to_shadows()
   for (std::vector< File_Properties* >::const_iterator it(controlled_files.begin());
       it != controlled_files.end(); ++it)
   {
-      copy_file(db_dir() + (*it)->get_file_name_trunk() + (*it)->get_data_suffix()
-                + (*it)->get_index_suffix(),
-		db_dir() + (*it)->get_file_name_trunk() + (*it)->get_data_suffix()
-		+ (*it)->get_index_suffix() + (*it)->get_shadow_suffix());
-      copy_file(db_dir() + (*it)->get_file_name_trunk() + (*it)->get_id_suffix()
-                + (*it)->get_index_suffix(),
-		db_dir() + (*it)->get_file_name_trunk() + (*it)->get_id_suffix()
-		+ (*it)->get_index_suffix() + (*it)->get_shadow_suffix());
+      copy_file(db_dir() + (*it)->get_file_name_trunk() + (*it)->get_data_suffix() + (*it)->get_index_suffix(),
+		db_dir() + (*it)->get_file_name_trunk() + (*it)->get_data_suffix() + (*it)->get_index_suffix() + (*it)->get_shadow_suffix());
+
+      copy_file(db_dir() + (*it)->get_file_name_trunk() + (*it)->get_id_suffix()   + (*it)->get_index_suffix(),
+		db_dir() + (*it)->get_file_name_trunk() + (*it)->get_id_suffix()   + (*it)->get_index_suffix() + (*it)->get_shadow_suffix());
   }
 }
 
@@ -151,14 +183,26 @@ void Transaction_Insulator::remove_shadows()
   for (std::vector< File_Properties* >::const_iterator it(controlled_files.begin());
       it != controlled_files.end(); ++it)
   {
-    remove((db_dir() + (*it)->get_file_name_trunk() + (*it)->get_data_suffix()
-            + (*it)->get_index_suffix() + (*it)->get_shadow_suffix()).c_str());
-    remove((db_dir() + (*it)->get_file_name_trunk() + (*it)->get_id_suffix()
-            + (*it)->get_index_suffix() + (*it)->get_shadow_suffix()).c_str());
-    remove((db_dir() + (*it)->get_file_name_trunk() + (*it)->get_data_suffix()
-            + (*it)->get_shadow_suffix()).c_str());
-    remove((db_dir() + (*it)->get_file_name_trunk() + (*it)->get_id_suffix()
-            + (*it)->get_shadow_suffix()).c_str());
+    remove((db_dir() + (*it)->get_file_name_trunk() + (*it)->get_data_suffix()   + (*it)->get_index_suffix() + (*it)->get_shadow_suffix()).c_str());
+    remove((db_dir() + (*it)->get_file_name_trunk() + (*it)->get_id_suffix()     + (*it)->get_index_suffix() + (*it)->get_shadow_suffix()).c_str());
+
+    remove((db_dir() + (*it)->get_file_name_trunk() + (*it)->get_data_suffix()   + (*it)->get_shadow_suffix()).c_str());
+    remove((db_dir() + (*it)->get_file_name_trunk() + (*it)->get_id_suffix()     + (*it)->get_shadow_suffix()).c_str());
+  }
+}
+
+void Transaction_Insulator::remove_olds_and_shadows()
+{
+  for (std::vector< File_Properties* >::const_iterator it(controlled_files.begin());
+      it != controlled_files.end(); ++it)
+  {
+    // only .idx files have been moved to the .old suffix
+    remove((db_dir() + (*it)->get_file_name_trunk() + (*it)->get_data_suffix()  + (*it)->get_index_suffix() + (*it)->get_old_suffix()).c_str());
+    remove((db_dir() + (*it)->get_file_name_trunk() + (*it)->get_id_suffix()    + (*it)->get_index_suffix() + (*it)->get_old_suffix()).c_str());
+
+    // other files still have their .shadow suffix
+    remove((db_dir() + (*it)->get_file_name_trunk() + (*it)->get_data_suffix()  + (*it)->get_shadow_suffix()).c_str());
+    remove((db_dir() + (*it)->get_file_name_trunk() + (*it)->get_id_suffix()    + (*it)->get_shadow_suffix()).c_str());
   }
 }
 
