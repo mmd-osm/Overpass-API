@@ -25,12 +25,7 @@
 
 #include <map>
 #include <set>
-#include <unordered_set>
 #include <vector>
-
-#include <event2/event.h>
-#include <event2/buffer.h>
-#include <event2/bufferevent.h>
 
 
 /** Is called to log all operations of the dispatcher */
@@ -147,18 +142,13 @@ class Dispatcher_Socket
 {
 public:
   Dispatcher_Socket(const std::string& dispatcher_share_name,
-		    const std::string& shadow_name_,
-		    const std::string& db_dir_,
-		    uint max_num_reading_processes_);
+                    const std::string& shadow_name_,
+                    const std::string& db_dir_,
+                    uint max_num_reading_processes_);
   ~Dispatcher_Socket();
 
   void look_for_a_new_connection(Connection_Per_Pid_Map& connection_per_pid);
   std::vector< int >::size_type num_started_connections() { return started_connections.size(); }
-
-  void set_socket_non_blocking();
-  void set_socket_reuse_addr();
-  int accept_new_connection();
-  void event_add_new(struct event_base *, short, event_callback_fn, void *);
 
 private:
   Unix_Socket socket;
@@ -205,14 +195,14 @@ class Dispatcher
       * detects whether idx or idy are valid, clears to idx if necessary,
       * and loads them into the shared memory idx_share_name. */
     Dispatcher(std::string dispatcher_share_name,
-	       std::string index_share_name,
-	       std::string shadow_name,
-	       std::string db_dir,
-	       uint max_num_reading_processes, uint purge_timeout,
-	       uint64 total_available_space,
-	       uint64 total_available_time_units,
-	       const std::vector< File_Properties* >& controlled_files,
-	       Dispatcher_Logger* logger = 0);
+               std::string index_share_name,
+               std::string shadow_name,
+               std::string db_dir,
+               uint max_num_reading_processes, uint purge_timeout,
+               uint64 total_available_space,
+               uint64 total_available_time_units,
+               const std::vector< File_Properties* >& controlled_files,
+               Dispatcher_Logger* logger = 0);
 
     ~Dispatcher();
 
@@ -228,16 +218,16 @@ class Dispatcher
 
     /** Copies the shadow files onto the main index files. A lock prevents
         that incomplete copies after a crash may leave the database in an
-	unstable state. Removes the mutex for the write process. */
+        unstable state. Removes the mutex for the write process. */
     void write_commit(pid_t pid);
 
     /** Read operations: --------------------------------------------------- */
 
     /** Request the index for a read operation and registers the reading process.
         Reading the index files should be taking a quick copy, because if any process
-	is in this state, write_commits are blocked. */
+        is in this state, write_commits are blocked. */
     void request_read_and_idx(pid_t pid, uint32 max_allowed_time, uint64 max_allowed_space,
-			      uint32 client_token);
+                              uint32 client_token);
 
     /** Changes the registered state from reading the index to reading the
         database. Can be safely called multiple times for the same process. */
@@ -250,10 +240,10 @@ class Dispatcher
     void read_aborted(pid_t pid);
 
     /** Other operations: -------------------------------------------------- */
-    
-    void run_server();
 
-    void handle_command(evbuffer * output, evutil_socket_t socket_fd, std::vector< uint32 > command_arguments, uint32 client_pid, bool is_privileged_user);
+    /** Waits for input for the given amount of time. If milliseconds if zero,
+        it remains in standby forever. */
+    void standby_loop(uint64 milliseconds);
 
     /** Outputs the status of the processes registered with the dispatcher
         into shadow_name.status. */
@@ -261,12 +251,6 @@ class Dispatcher
 
     /** Set the limit of simultaneous queries from a single IP address. */
     void set_rate_limit(uint rate_limit) { global_resource_planner.set_rate_limit(rate_limit); }
-    
-    void on_accept(int fd, short ev);
-    void on_read(struct bufferevent *bev);
-    void on_write(struct bufferevent *bev);
-    void on_error(struct bufferevent *bev, short error);
-
 
   private:
     Dispatcher_Socket socket;
@@ -283,10 +267,6 @@ class Dispatcher
     uint32 requests_started_counter;
     uint32 requests_finished_counter;
     Global_Resource_Planner global_resource_planner;
-
-    std::unordered_set<evutil_socket_t> sockets_to_close;
-    std::map<int, ucred> fd_process;
-    event_base *base;
 
     uint64 total_claimed_space() const;
     uint64 total_claimed_time_units() const;

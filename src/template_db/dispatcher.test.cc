@@ -1031,7 +1031,7 @@ int main(int argc, char* args[])
       uint32 execution_time = 3;
       std::istringstream sin(test_to_execute.substr(7));
       sin>>execution_time;
-      dispatcher.run_server();
+      dispatcher.standby_loop(execution_time*1000);
       std::cerr<<"[server] done.\n";
       return 0;
     }
