@@ -35,6 +35,7 @@ script:
 branches:
   only:
     - test758_lz4hash
+    - test759
 
 os:
   - linux

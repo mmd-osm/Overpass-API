@@ -30,6 +30,7 @@
 #include <sys/un.h>
 #include <unistd.h>
 
+
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
@@ -42,7 +43,8 @@ Dispatcher_Socket::Dispatcher_Socket
      const std::string& shadow_name_,
      const std::string& db_dir_,
      uint max_num_reading_processes)
-  : socket("", max_num_reading_processes)
+  : socket("", max_num_reading_processes),
+    efd(0)
 {
   signal(SIGPIPE, SIG_IGN);
 
@@ -60,6 +62,8 @@ Dispatcher_Socket::Dispatcher_Socket
 Dispatcher_Socket::~Dispatcher_Socket()
 {
   remove(socket_name.c_str());
+  if (efd != 0)
+    close (efd);
 }
 
 
@@ -104,6 +108,102 @@ void Dispatcher_Socket::look_for_a_new_connection(Connection_Per_Pid_Map& connec
     }
   }
 }
+
+
+int Dispatcher_Socket::accept_new_connection(Connection_Per_Pid_Map& connection_per_pid)
+{
+  struct sockaddr_un sockaddr_un_dummy;
+  uint sockaddr_un_dummy_size = sizeof(sockaddr_un_dummy);
+  int socket_fd = accept(socket.descriptor(), (sockaddr*)&sockaddr_un_dummy,
+                         (socklen_t*)&sockaddr_un_dummy_size);
+  if (socket_fd == -1)
+  {
+    if (errno != EAGAIN && errno != EWOULDBLOCK)
+      throw File_Error
+            (errno, "(socket)", "Dispatcher_Server::6");
+    return socket_fd;
+  }
+  else
+  {
+    if (fcntl(socket_fd, F_SETFL, O_RDWR|O_NONBLOCK) == -1)
+      throw File_Error
+            (errno, "(socket)", "Dispatcher_Server::7");
+  }
+
+  // Derive client PID via SO_PEERCRED, rather than trusting the client to provide it via a message
+  struct ucred ucred;
+  socklen_t len = sizeof(struct ucred);
+  getsockopt(socket_fd, SOL_SOCKET, SO_PEERCRED, &ucred, &len);
+
+  connection_per_pid.set(ucred.pid, new Blocking_Client_Socket(socket_fd, efd));
+
+  return socket_fd;
+}
+
+void Dispatcher_Socket::set_socket_reuse_addr()
+{
+  int reuseaddr_on;
+  reuseaddr_on = 1;
+  setsockopt(socket.descriptor(), SOL_SOCKET, SO_REUSEADDR, &reuseaddr_on, sizeof(reuseaddr_on));
+}
+
+void Dispatcher_Socket::init_epoll()
+{
+  struct epoll_event event;
+
+  efd = epoll_create1(0);
+
+  event.data.fd = socket.descriptor();
+  event.events = EPOLLIN | EPOLLET;
+  if (epoll_ctl (efd, EPOLL_CTL_ADD, socket.descriptor(), &event) == -1)
+    throw File_Error
+          (errno, "(socket)", "Dispatcher_Server::11");
+
+}
+
+std::vector<unsigned int> Dispatcher_Socket::wait_for_clients(Connection_Per_Pid_Map& connection_per_pid)
+{
+  int n, i;
+
+  std::vector<unsigned int> result_pids;
+
+  n = epoll_wait(efd, events.data(), MAX_EVENTS, -1);
+
+  for (i = 0; i < n; i++)
+  {
+    if ((events[i].events & EPOLLERR) || (events[i].events & EPOLLHUP)
+        || (!(events[i].events & EPOLLIN)))
+    {
+      /* An error has occurred on this fd */
+      int pid = events[i].data.fd;
+
+      struct ucred ucred;
+      socklen_t len = sizeof(struct ucred);
+      getsockopt(pid, SOL_SOCKET, SO_PEERCRED, &ucred, &len);
+
+      result_pids.push_back(ucred.pid);
+    }
+
+    else if (socket.descriptor() == events[i].data.fd)
+    {
+      /* New incoming connection */
+      while (accept_new_connection(connection_per_pid) != -1) {}
+    }
+    else
+    {
+      int pid = events[i].data.fd;
+
+      struct ucred ucred;
+      socklen_t len = sizeof(struct ucred);
+      getsockopt(pid, SOL_SOCKET, SO_PEERCRED, &ucred, &len);
+
+      result_pids.push_back(ucred.pid);
+    }
+  }
+
+  return result_pids;
+}
+
 
 
 int Global_Resource_Planner::probe(pid_t pid, uint32 client_token, uint32 time_units, uint64 max_space)
@@ -563,209 +663,220 @@ void Dispatcher::read_aborted(pid_t pid)
 
 void Dispatcher::standby_loop(uint64 milliseconds)
 {
+
+
+  socket.init_epoll();
+
   uint32 counter = 0;
   uint32 idle_counter = 0;
+
   while ((milliseconds == 0) || (counter < milliseconds/100))
   {
-    socket.look_for_a_new_connection(connection_per_pid);
+
+    std::vector<unsigned int> pids = socket.wait_for_clients(connection_per_pid);
 
     uint32 command = 0;
     uint32 client_pid = 0;
-    connection_per_pid.poll_command_round_robin(command, client_pid);
 
-    if (command == HANGUP)
-      command = READ_ABORTED;
+    for (const auto pid : pids) {
 
-    if (command == 0)
-    {
-      ++counter;
-      ++idle_counter;
-      millisleep(idle_counter < 10 ? idle_counter*10 : 100);
-      continue;
-    }
+      connection_per_pid.get_command_for_pid(pid, command, client_pid);
 
-    if (idle_counter > 0)
-    {
-      if (logger)
-        logger->idle_counter(idle_counter);
-      idle_counter = 0;
-    }
+      if (command == 0 || client_pid == 0)
+        continue;
 
-    try
-    {
-      if (command == TERMINATE || command == OUTPUT_STATUS)
+      if (command == HANGUP)
+        command = READ_ABORTED;
+
+      try
       {
-        if (command == OUTPUT_STATUS)
-          output_status();
+        //      // Check if client pid user is unauthorized to execute privileged operations
+        //      if (!is_privileged_user &&
+        //          (command == WRITE_START       ||
+        //           command == WRITE_ROLLBACK    ||
+        //           command == WRITE_COMMIT      ||
+        //           command == SET_GLOBAL_LIMITS ||
+        //           command == TERMINATE))
+        //      {
+        //        evbuffer_add_uint32(output, 0);
+        //        return;
+        //    }
 
-        connection_per_pid.get(client_pid)->send_result(command);
-        connection_per_pid.set(client_pid, 0);
 
-        if (command == TERMINATE)
-          break;
-      }
-      else if (command == WRITE_START || command == WRITE_ROLLBACK || command == WRITE_COMMIT)
-      {
-        if (command == WRITE_START)
+        if (command == TERMINATE || command == OUTPUT_STATUS)
         {
-          global_resource_planner.purge(connection_per_pid);
-          write_start(client_pid);
+          if (command == OUTPUT_STATUS)
+            output_status();
+
+          connection_per_pid.get(client_pid)->send_result(command);
+          connection_per_pid.set(client_pid, 0);
+
+          if (command == TERMINATE)
+            return;
         }
-        else if (command == WRITE_COMMIT)
+        else if (command == WRITE_START || command == WRITE_ROLLBACK || command == WRITE_COMMIT)
         {
-          global_resource_planner.purge(connection_per_pid);
-          write_commit(client_pid);
-        }
-        else if (command == WRITE_ROLLBACK)
-          write_rollback(client_pid);
+          if (command == WRITE_START)
+          {
+            global_resource_planner.purge(connection_per_pid);
+            write_start(client_pid);
+          }
+          else if (command == WRITE_COMMIT)
+          {
+            global_resource_planner.purge(connection_per_pid);
+            write_commit(client_pid);
+          }
+          else if (command == WRITE_ROLLBACK)
+            write_rollback(client_pid);
 
-        connection_per_pid.get(client_pid)->send_result(command);
-      }
-      else if (command == HANGUP || command == READ_ABORTED || command == READ_FINISHED)
-      {
-        if (command == READ_ABORTED)
-          read_aborted(client_pid);
-        else if (command == READ_FINISHED)
-        {
-          read_finished(client_pid);
           connection_per_pid.get(client_pid)->send_result(command);
         }
-        connection_per_pid.set(client_pid, 0);
-      }
-      else if (command == READ_IDX_FINISHED)
-      {
-        read_idx_finished(client_pid);
-        if (connection_per_pid.get(client_pid) != 0)
+        else if (command == HANGUP || command == READ_ABORTED || command == READ_FINISHED)
+        {
+          if (command == READ_ABORTED)
+            read_aborted(client_pid);
+          else if (command == READ_FINISHED)
+          {
+            read_finished(client_pid);
+            connection_per_pid.get(client_pid)->send_result(command);
+          }
+          connection_per_pid.set(client_pid, 0);
+        }
+        else if (command == READ_IDX_FINISHED)
+        {
+          read_idx_finished(client_pid);
+          if (connection_per_pid.get(client_pid) != 0)
+            connection_per_pid.get(client_pid)->send_result(command);
+        }
+        else if (command == REQUEST_READ_AND_IDX)
+        {
+          std::vector< uint32 > arguments = connection_per_pid.get(client_pid)->get_arguments(4);
+          if (arguments.size() < 4)
+          {
+            connection_per_pid.get(client_pid)->send_result(0);
+            continue;
+          }
+          uint32 max_allowed_time = arguments[0];
+          uint64 max_allowed_space = (((uint64)arguments[2])<<32 | arguments[1]);
+          uint32 client_token = arguments[3];
+
+          if (pending_commit)
+          {
+            connection_per_pid.get(client_pid)->send_result(0);
+            continue;
+          }
+
+          command = global_resource_planner.probe(client_pid, client_token, max_allowed_time, max_allowed_space);
+          if (command == REQUEST_READ_AND_IDX)
+            request_read_and_idx(client_pid, max_allowed_time, max_allowed_space, client_token);
+
           connection_per_pid.get(client_pid)->send_result(command);
-      }
-      else if (command == REQUEST_READ_AND_IDX)
-      {
-        std::vector< uint32 > arguments = connection_per_pid.get(client_pid)->get_arguments(4);
-        if (arguments.size() < 4)
-        {
-          connection_per_pid.get(client_pid)->send_result(0);
-          continue;
         }
-        uint32 max_allowed_time = arguments[0];
-        uint64 max_allowed_space = (((uint64)arguments[2])<<32 | arguments[1]);
-        uint32 client_token = arguments[3];
-
-        if (pending_commit)
+        else if (command == PURGE)
         {
-          connection_per_pid.get(client_pid)->send_result(0);
-          continue;
+          std::vector< uint32 > arguments = connection_per_pid.get(client_pid)->get_arguments(1);
+          if (arguments.size() < 1)
+            continue;
+          uint32 target_pid = arguments[0];
+
+          read_aborted(target_pid);
+          if (connection_per_pid.get(target_pid) != 0)
+          {
+            connection_per_pid.get(target_pid)->send_result(READ_FINISHED);
+            connection_per_pid.set(target_pid, 0);
+          }
+
+          connection_per_pid.get(client_pid)->send_result(command);
         }
-
-        command = global_resource_planner.probe(client_pid, client_token, max_allowed_time, max_allowed_space);
-        if (command == REQUEST_READ_AND_IDX)
-          request_read_and_idx(client_pid, max_allowed_time, max_allowed_space, client_token);
-
-        connection_per_pid.get(client_pid)->send_result(command);
-      }
-      else if (command == PURGE)
-      {
-        std::vector< uint32 > arguments = connection_per_pid.get(client_pid)->get_arguments(1);
-        if (arguments.size() < 1)
-          continue;
-        uint32 target_pid = arguments[0];
-
-        read_aborted(target_pid);
-        if (connection_per_pid.get(target_pid) != 0)
+        else if (command == QUERY_BY_TOKEN)
         {
-          connection_per_pid.get(target_pid)->send_result(READ_FINISHED);
-          connection_per_pid.set(target_pid, 0);
+          std::vector< uint32 > arguments = connection_per_pid.get(client_pid)->get_arguments(1);
+          if (arguments.size() < 1)
+            continue;
+          uint32 target_token = arguments[0];
+
+          pid_t target_pid = 0;
+          for (std::vector< Reader_Entry >::const_iterator it = global_resource_planner.get_active().begin();
+              it != global_resource_planner.get_active().end(); ++it)
+          {
+            if (it->client_token == target_token)
+              target_pid = it->client_pid;
+          }
+
+          connection_per_pid.get(client_pid)->send_result(target_pid);
         }
-
-        connection_per_pid.get(client_pid)->send_result(command);
-      }
-      else if (command == QUERY_BY_TOKEN)
-      {
-        std::vector< uint32 > arguments = connection_per_pid.get(client_pid)->get_arguments(1);
-        if (arguments.size() < 1)
-          continue;
-        uint32 target_token = arguments[0];
-
-        pid_t target_pid = 0;
-        for (std::vector< Reader_Entry >::const_iterator it = global_resource_planner.get_active().begin();
-            it != global_resource_planner.get_active().end(); ++it)
+        else if (command == QUERY_MY_STATUS)
         {
-          if (it->client_token == target_token)
-            target_pid = it->client_pid;
-        }
-
-        connection_per_pid.get(client_pid)->send_result(target_pid);
-      }
-      else if (command == QUERY_MY_STATUS)
-      {
-        Blocking_Client_Socket* connection = connection_per_pid.get(client_pid);
-        if (!connection)
-          continue;
-
-        std::vector< uint32 > arguments = connection->get_arguments(1);
-        if (arguments.size() < 1)
-          continue;
-        uint32 client_token = arguments[0];
-
-        connection->send_data(global_resource_planner.get_rate_limit());
-
-        for (std::vector< Reader_Entry >::const_iterator it = global_resource_planner.get_active().begin();
-           it != global_resource_planner.get_active().end(); ++it)
-        {
-          if (it->client_token != client_token)
+          Blocking_Client_Socket* connection = connection_per_pid.get(client_pid);
+          if (!connection)
             continue;
 
-          if (processes_reading_idx.find(it->client_pid) != processes_reading_idx.end())
-            connection->send_data(REQUEST_READ_AND_IDX);
-          else
-            connection->send_data(READ_IDX_FINISHED);
+          std::vector< uint32 > arguments = connection->get_arguments(1);
+          if (arguments.size() < 1)
+            continue;
+          uint32 client_token = arguments[0];
 
-          connection->send_data(it->client_pid);
-          connection->send_data(it->max_time);
-          connection->send_data(it->max_space >>32);
-          connection->send_data(it->max_space & 0xffffffff);
-          connection->send_data(it->start_time);
+          connection->send_data(global_resource_planner.get_rate_limit());
+
+          for (std::vector< Reader_Entry >::const_iterator it = global_resource_planner.get_active().begin();
+              it != global_resource_planner.get_active().end(); ++it)
+          {
+            if (it->client_token != client_token)
+              continue;
+
+            if (processes_reading_idx.find(it->client_pid) != processes_reading_idx.end())
+              connection->send_data(REQUEST_READ_AND_IDX);
+            else
+              connection->send_data(READ_IDX_FINISHED);
+
+            connection->send_data(it->client_pid);
+            connection->send_data(it->max_time);
+            connection->send_data(it->max_space >>32);
+            connection->send_data(it->max_space & 0xffffffff);
+            connection->send_data(it->start_time);
+          }
+
+          connection->send_data(0);
+
+          for (std::vector< Quota_Entry >::const_iterator it = global_resource_planner.get_afterwards().begin();
+              it != global_resource_planner.get_afterwards().end(); ++it)
+          {
+            if (it->client_token == client_token)
+              connection->send_data(it->expiration_time);
+          }
+
+          connection->send_result(0);
         }
-
-        connection->send_data(0);
-
-        for (std::vector< Quota_Entry >::const_iterator it = global_resource_planner.get_afterwards().begin();
-            it != global_resource_planner.get_afterwards().end(); ++it)
+        else if (command == SET_GLOBAL_LIMITS)
         {
-          if (it->client_token == client_token)
-            connection->send_data(it->expiration_time);
+          std::vector< uint32 > arguments = connection_per_pid.get(client_pid)->get_arguments(5);
+          if (arguments.size() < 5)
+            continue;
+
+          uint64 new_total_available_space = (((uint64)arguments[1])<<32 | arguments[0]);
+          uint64 new_total_available_time_units = (((uint64)arguments[3])<<32 | arguments[2]);
+          int rate_limit_ = arguments[4];
+
+          if (new_total_available_space > 0)
+            global_resource_planner.set_total_available_space(new_total_available_space);
+          if (new_total_available_time_units > 0)
+            global_resource_planner.set_total_available_time(new_total_available_time_units);
+          if (rate_limit_ > -1)
+            global_resource_planner.set_rate_limit(rate_limit_);
+
+          connection_per_pid.get(client_pid)->send_result(command);
         }
-
-        connection->send_result(0);
       }
-      else if (command == SET_GLOBAL_LIMITS)
+      catch (File_Error e)
       {
-        std::vector< uint32 > arguments = connection_per_pid.get(client_pid)->get_arguments(5);
-        if (arguments.size() < 5)
-          continue;
+        std::cerr<<"File_Error "<<e.error_number<<' '<<strerror(e.error_number)<<' '<<e.filename<<' '<<e.origin<<'\n';
 
-        uint64 new_total_available_space = (((uint64)arguments[1])<<32 | arguments[0]);
-        uint64 new_total_available_time_units = (((uint64)arguments[3])<<32 | arguments[2]);
-        int rate_limit_ = arguments[4];
+        counter += 30;
+        millisleep(3000);
 
-        if (new_total_available_space > 0)
-          global_resource_planner.set_total_available_space(new_total_available_space);
-        if (new_total_available_time_units > 0)
-          global_resource_planner.set_total_available_time(new_total_available_time_units);
-        if (rate_limit_ > -1)
-          global_resource_planner.set_rate_limit(rate_limit_);
-
-        connection_per_pid.get(client_pid)->send_result(command);
+        // Set command state to zero.
+        *(uint32*)dispatcher_shm_ptr = 0;
       }
-    }
-    catch (File_Error e)
-    {
-      std::cerr<<"File_Error "<<e.error_number<<' '<<strerror(e.error_number)<<' '<<e.filename<<' '<<e.origin<<'\n';
-
-      counter += 30;
-      millisleep(3000);
-
-      // Set command state to zero.
-      *(uint32*)dispatcher_shm_ptr = 0;
     }
   }
 }

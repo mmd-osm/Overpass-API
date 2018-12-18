@@ -23,6 +23,8 @@
 #include "types.h"
 #include "transaction_insulator.h"
 
+#include <sys/epoll.h>
+
 #include <map>
 #include <set>
 #include <vector>
@@ -150,10 +152,22 @@ public:
   void look_for_a_new_connection(Connection_Per_Pid_Map& connection_per_pid);
   std::vector< int >::size_type num_started_connections() { return started_connections.size(); }
 
+  void set_socket_reuse_addr();
+  int accept_new_connection(Connection_Per_Pid_Map& connection_per_pid);
+  void init_epoll();
+  std::vector<unsigned int> wait_for_clients(Connection_Per_Pid_Map& connection_per_pid);
+
+
 private:
+  const static int MAX_EVENTS = 64;
+
   Unix_Socket socket;
   std::string socket_name;
   std::vector< int > started_connections;
+
+  int efd;   // epoll file descriptor
+
+  std::array<struct epoll_event, MAX_EVENTS> events;
 };
 
 

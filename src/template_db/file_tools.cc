@@ -67,8 +67,25 @@ std::string getcwd()
 
 
 Blocking_Client_Socket::Blocking_Client_Socket
-  (int socket_descriptor_) : socket_descriptor(socket_descriptor_), state(waiting) {}
+  (int socket_descriptor_) : socket_descriptor(socket_descriptor_), epoll_socket_descriptor(0), state(waiting),
+  last_command(0) {}
 
+Blocking_Client_Socket::Blocking_Client_Socket
+  (int socket_descriptor_, int epoll_socket_descriptor_) :
+     socket_descriptor(socket_descriptor_), epoll_socket_descriptor(epoll_socket_descriptor_), state(waiting),
+     last_command(0)
+{
+  struct epoll_event event;
+  event.data.fd = socket_descriptor;
+  event.events = EPOLLIN | EPOLLET;
+  if (epoll_ctl(epoll_socket_descriptor, EPOLL_CTL_ADD, socket_descriptor, &event) == -1)
+    throw File_Error(errno, "(socket)", "Dispatcher_Server::13");
+
+}
+
+int Blocking_Client_Socket::get_socket_descriptor() {
+  return socket_descriptor;
+}
 
 uint32 Blocking_Client_Socket::get_command()
 {
@@ -101,14 +118,13 @@ std::vector< uint32 > Blocking_Client_Socket::get_arguments(int num_arguments)
 
   for (int i = 0; i < num_arguments; ++i)
   {
-    // Wait for each argument up to 0.1 seconds
     result.push_back(0);
     int bytes_read = recv(socket_descriptor, &result.back(), sizeof(uint32), 0);
     uint counter = 0;
     while (bytes_read == -1 && counter <= 100)
     {
       bytes_read = recv(socket_descriptor, &result.back(), sizeof(uint32), 0);
-      millisleep(1);
+//      millisleep(1);   // don't wait, as we're sending the whole command as one message!
       ++counter;
     }
     if (bytes_read == 0)
@@ -167,6 +183,12 @@ void Blocking_Client_Socket::send_result(uint32 result)
 
 Blocking_Client_Socket::~Blocking_Client_Socket()
 {
+  /* Closing the descriptor will make epoll remove it
+   from the set of descriptors which are monitored. */
+
+  if (epoll_socket_descriptor != 0)
+    epoll_ctl(epoll_socket_descriptor, EPOLL_CTL_DEL, socket_descriptor, NULL);
+
   close(socket_descriptor);
 }
 
@@ -181,6 +203,7 @@ Blocking_Client_Socket* Connection_Per_Pid_Map::get(pid_t pid)
 }
 
 
+
 void Connection_Per_Pid_Map::set(pid_t pid, Blocking_Client_Socket* socket)
 {
   std::map< pid_t, Blocking_Client_Socket* >::iterator it = connection_per_pid.find(pid);
@@ -193,33 +216,15 @@ void Connection_Per_Pid_Map::set(pid_t pid, Blocking_Client_Socket* socket)
 }
 
 
-void Connection_Per_Pid_Map::poll_command_round_robin(uint32& command, uint32& client_pid)
+void Connection_Per_Pid_Map::get_command_for_pid(pid_t pid, uint32& command, uint32& client_pid)
 {
-  // poll all open connections round robin
-  for (std::map< pid_t, Blocking_Client_Socket* >::const_iterator
-      it = connection_per_pid.upper_bound(last_pid);
-      it != connection_per_pid.end(); ++it)
-  {
-    command = it->second->get_command();
-    if (command != 0)
-    {
-      client_pid = it->first;
-      break;
-    }
-  }
-  if (command == 0)
-  {
-    for (std::map< pid_t, Blocking_Client_Socket* >::const_iterator it = connection_per_pid.begin();
-        it != connection_per_pid.upper_bound(last_pid); ++it)
-    {
-      command = it->second->get_command();
-      if (command != 0)
-      {
-	client_pid = it->first;
-	break;
-      }
-    }
-  }
+
+  auto it = connection_per_pid.find(pid);
+
+  command = it->second->get_command();
   if (command != 0)
-    last_pid = client_pid;
+  {
+    client_pid = it->first;
+  }
+
 }
