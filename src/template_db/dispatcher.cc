@@ -495,7 +495,7 @@ Dispatcher::Dispatcher
   if (dispatcher_shm_fd < 0)
     throw File_Error
         (errno, dispatcher_share_name, "Dispatcher_Server::1");
-  fchmod(dispatcher_shm_fd, S_666);
+  fchmod(dispatcher_shm_fd, S_644);
 #endif
 
   std::string db_dir = transaction_insulator.db_dir();
