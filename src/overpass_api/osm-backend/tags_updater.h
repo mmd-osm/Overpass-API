@@ -212,8 +212,8 @@ void get_existing_tags
     }
 
     std::set< Id_Type >& handle(to_delete_coarse[it.index().index]);
-    if (handle.find(it.object().val()) != handle.end())
-      tag_entry.ids.push_back(it.object().val());
+    if (handle.find(it.handle().id()) != handle.end())
+      tag_entry.ids.push_back(it.handle().id());
   }
   if ((current_index.index != 0xffffffff) && (!tag_entry.ids.empty()))
     tags_to_delete.push_back(tag_entry);
