@@ -8,7 +8,7 @@ compiler:
 
 before_install:
   - sudo apt-get update -qq || true
-  - sudo apt-get install -y expat libexpat1-dev liblz4-dev libfcgi-dev zlib1g-dev libevent-dev libbz2-dev libicu-dev
+  - sudo apt-get install -y expat libexpat1-dev liblz4-dev libfcgi-dev zlib1g-dev libbz2-dev libicu-dev
   
 before_script:  
   - mkdir -p $HOME/overpass
@@ -23,7 +23,7 @@ before_script:
   - popd
   - mkdir -p build
   - cd build
-  - ../src/configure CXXFLAGS="-std=c++11 -O2 -I/home/travis/build/mmd-osm/Overpass-API/src/third_party/libosmium/include -I/home/travis/build/mmd-osm/Overpass-API/src/third_party/protozero/include -I/home/travis/build/mmd-osm/Overpass-API/src/third_party/xxhash" LDFLAGS="-lpthread -lbz2 -levent -licuuc -licui18n" --prefix=$EXEC_DIR --enable-lz4 --enable-fastcgi --enable-tests
+  - ../src/configure CXXFLAGS="-std=c++11 -O2 -I/home/travis/build/mmd-osm/Overpass-API/src/third_party/libosmium/include -I/home/travis/build/mmd-osm/Overpass-API/src/third_party/protozero/include -I/home/travis/build/mmd-osm/Overpass-API/src/third_party/xxhash" LDFLAGS="-lpthread -lbz2 -licuuc -licui18n" --prefix=$EXEC_DIR --enable-lz4 --enable-fastcgi --enable-tests
 
 script:  
   - make V=0 install -j3
