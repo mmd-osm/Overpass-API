@@ -97,12 +97,12 @@ void collect_attic_tags
       (((current_tag_it.index().index) & 0x7fffff00) == coarse_index))
   {
     typename std::vector< Attic< Id_Type > >::const_iterator it_id
-        = std::lower_bound(id_vec.begin(), id_vec.end(), Attic< Id_Type >(current_tag_it.object(), 0ull));
+        = std::lower_bound(id_vec.begin(), id_vec.end(), Attic< Id_Type >(current_tag_it.handle().id(), 0ull));
     typename std::vector< Attic< Id_Type > >::const_iterator it_id_end
         = std::upper_bound(id_vec.begin(), id_vec.end(), Attic< Id_Type >
-            (current_tag_it.object(), 0xffffffffffffffffull));
+            (current_tag_it.handle().id(), 0xffffffffffffffffull));
     if (it_id != it_id_end)
-      found_tags[Attic< Id_Type >(current_tag_it.object(), 0xffffffffffffffffull)].push_back
+      found_tags[Attic< Id_Type >(current_tag_it.handle().id(), 0xffffffffffffffffull)].push_back
           (std::make_pair(current_tag_it.index().key, current_tag_it.index().value));
     ++current_tag_it;
   }
@@ -115,7 +115,7 @@ void collect_attic_tags
       (((attic_tag_it.index().index) & 0x7fffff00) == coarse_index))
   {
     typename std::vector< Attic< Id_Type > >::const_iterator it_id
-        = std::lower_bound(id_vec.begin(), id_vec.end(), Attic< Id_Type >(attic_tag_it.object(), 0ull));
+        = std::lower_bound(id_vec.begin(), id_vec.end(), Attic< Id_Type >(attic_tag_it.handle().id(), 0ull));
     typename std::vector< Attic< Id_Type > >::const_iterator it_id_end
         = std::upper_bound(id_vec.begin(), id_vec.end(), attic_tag_it.object());
     if (it_id != it_id_end)
