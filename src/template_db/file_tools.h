@@ -32,7 +32,7 @@
 struct Blocking_Client_Socket
 {
   Blocking_Client_Socket(int socket_descriptor_);
-  Blocking_Client_Socket(int socket_descriptor_, int epoll_socket_descriptor_);
+  Blocking_Client_Socket(int socket_descriptor_, int epoll_socket_descriptor_, uid_t uid_);
   uint32 get_command();
   std::vector< uint32 > get_arguments(int num_arguments);
   void clear_state();
@@ -40,11 +40,13 @@ struct Blocking_Client_Socket
   void send_result(uint32 result);
   ~Blocking_Client_Socket();
   int get_socket_descriptor();
+  bool is_privileged_user();
 private:
   int socket_descriptor;
   int epoll_socket_descriptor;
   enum { waiting, processing_command, disconnected } state;
   uint32 last_command;
+  bool privileged_user;
 };
 
 
@@ -59,7 +61,7 @@ public:
   void set(pid_t pid, Blocking_Client_Socket* socket);
   const std::map< pid_t, Blocking_Client_Socket* >& base_map() const { return connection_per_pid; }
 
-  void get_command_for_pid(pid_t pid, uint32& command, uint32& client_pid);
+  void get_command_for_pid(pid_t pid, uint32& command, bool& is_privileged_user, uint32& client_pid);
 
 private:
   std::map< pid_t, Blocking_Client_Socket* > connection_per_pid;

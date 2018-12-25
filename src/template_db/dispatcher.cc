@@ -135,7 +135,7 @@ int Dispatcher_Socket::accept_new_connection(Connection_Per_Pid_Map& connection_
   socklen_t len = sizeof(struct ucred);
   getsockopt(socket_fd, SOL_SOCKET, SO_PEERCRED, &ucred, &len);
 
-  connection_per_pid.set(ucred.pid, new Blocking_Client_Socket(socket_fd, efd));
+  connection_per_pid.set(ucred.pid, new Blocking_Client_Socket(socket_fd, efd, ucred.uid));
 
   return socket_fd;
 }
@@ -680,7 +680,9 @@ void Dispatcher::standby_loop(uint64 milliseconds)
 
     for (const auto pid : pids) {
 
-      connection_per_pid.get_command_for_pid(pid, command, client_pid);
+      bool is_privileged_user =false;
+
+      connection_per_pid.get_command_for_pid(pid, command, is_privileged_user, client_pid);
 
       if (command == 0 || client_pid == 0)
         continue;
@@ -690,17 +692,19 @@ void Dispatcher::standby_loop(uint64 milliseconds)
 
       try
       {
-        //      // Check if client pid user is unauthorized to execute privileged operations
-        //      if (!is_privileged_user &&
-        //          (command == WRITE_START       ||
-        //           command == WRITE_ROLLBACK    ||
-        //           command == WRITE_COMMIT      ||
-        //           command == SET_GLOBAL_LIMITS ||
-        //           command == TERMINATE))
-        //      {
-        //        evbuffer_add_uint32(output, 0);
-        //        return;
-        //    }
+
+        // Check if client pid user is unauthorized to execute privileged operations
+        if (!is_privileged_user &&
+            (command == WRITE_START       ||
+             command == WRITE_ROLLBACK    ||
+             command == WRITE_COMMIT      ||
+             command == SET_GLOBAL_LIMITS ||
+             command == TERMINATE))
+        {
+          connection_per_pid.get(client_pid)->send_result(0);
+          connection_per_pid.set(client_pid, 0);
+          continue;
+        }
 
 
         if (command == TERMINATE || command == OUTPUT_STATUS)

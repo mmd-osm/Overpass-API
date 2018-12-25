@@ -68,10 +68,10 @@ std::string getcwd()
 
 Blocking_Client_Socket::Blocking_Client_Socket
   (int socket_descriptor_) : socket_descriptor(socket_descriptor_), epoll_socket_descriptor(0), state(waiting),
-  last_command(0) {}
+  last_command(0), privileged_user(true) {}
 
 Blocking_Client_Socket::Blocking_Client_Socket
-  (int socket_descriptor_, int epoll_socket_descriptor_) :
+  (int socket_descriptor_, int epoll_socket_descriptor_, uid_t uid_) :
      socket_descriptor(socket_descriptor_), epoll_socket_descriptor(epoll_socket_descriptor_), state(waiting),
      last_command(0)
 {
@@ -80,6 +80,7 @@ Blocking_Client_Socket::Blocking_Client_Socket
   event.events = EPOLLIN | EPOLLET;
   if (epoll_ctl(epoll_socket_descriptor, EPOLL_CTL_ADD, socket_descriptor, &event) == -1)
     throw File_Error(errno, "(socket)", "Dispatcher_Server::13");
+  privileged_user = (getuid() == uid_);
 
 }
 
@@ -107,6 +108,11 @@ uint32 Blocking_Client_Socket::get_command()
     state = processing_command;
     return last_command;
   }
+}
+
+bool Blocking_Client_Socket::is_privileged_user()
+{
+  return privileged_user;
 }
 
 
@@ -216,8 +222,9 @@ void Connection_Per_Pid_Map::set(pid_t pid, Blocking_Client_Socket* socket)
 }
 
 
-void Connection_Per_Pid_Map::get_command_for_pid(pid_t pid, uint32& command, uint32& client_pid)
+void Connection_Per_Pid_Map::get_command_for_pid(pid_t pid, uint32& command, bool& is_privileged_user, uint32& client_pid)
 {
+  is_privileged_user = false;
 
   auto it = connection_per_pid.find(pid);
 
@@ -225,6 +232,7 @@ void Connection_Per_Pid_Map::get_command_for_pid(pid_t pid, uint32& command, uin
   if (command != 0)
   {
     client_pid = it->first;
+    is_privileged_user = it->second->is_privileged_user();
   }
 
 }
