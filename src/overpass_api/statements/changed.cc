@@ -171,60 +171,6 @@ experimental::IdSetDense<typename Skeleton::Id_Type::Id_Type> collect_changed_el
   return ids;
 }
 
-
-template< typename Index, typename Skeleton >
-std::vector< typename Skeleton::Id_Type > collect_changed_elements
-    (uint64 since,
-     uint64 until,
-     Resource_Manager& rman,
-     std::function<bool(typename Skeleton::Id_Type)> pred)
-{
-  std::set< std::pair< Timestamp, Timestamp > > range;
-  range.insert(std::make_pair(Timestamp(since), Timestamp(until)));
-
-  std::vector< typename Skeleton::Id_Type > ids;
-
-  Block_Backend< Timestamp, Change_Entry< typename Skeleton::Id_Type > > changelog_db
-      (rman.get_transaction()->data_index(changelog_file_properties< Skeleton >()));
-  for (typename Block_Backend< Timestamp, Change_Entry< typename Skeleton::Id_Type > >::Range_Iterator
-      it = changelog_db.range_begin(Default_Range_Iterator< Timestamp >(range.begin()),
-            Default_Range_Iterator< Timestamp >(range.end()));
-      !(it == changelog_db.range_end()); ++it)
-    if (pred(it.handle().id()))
-      ids.push_back(it.handle().id());
-
-  std::sort(ids.begin(), ids.end());
-  ids.erase(std::unique(ids.begin(), ids.end()), ids.end());
-  return ids;
-}
-
-
-template< typename Index, typename Skeleton >
-experimental::IdSetDense<typename Skeleton::Id_Type::Id_Type> collect_changed_elements_fast
-    (uint64 since,
-     uint64 until,
-     Resource_Manager& rman,
-     std::function<bool(typename Skeleton::Id_Type)> pred)
-{
-  std::set< std::pair< Timestamp, Timestamp > > range;
-  range.insert(std::make_pair(Timestamp(since), Timestamp(until)));
-
-  experimental::IdSetDense<typename Skeleton::Id_Type::Id_Type> ids;
-
-  Block_Backend< Timestamp, Change_Entry< typename Skeleton::Id_Type > > changelog_db
-      (rman.get_transaction()->data_index(changelog_file_properties< Skeleton >()));
-  for (typename Block_Backend< Timestamp, Change_Entry< typename Skeleton::Id_Type > >::Range_Iterator
-      it = changelog_db.range_begin(Default_Range_Iterator< Timestamp >(range.begin()),
-            Default_Range_Iterator< Timestamp >(range.end()));
-      !(it == changelog_db.range_end()); ++it)
-    if (pred(it.handle().id()))
-      ids.set(it.handle().id().val());
-
-  return ids;
-}
-
-
-
 //-----------------------------------------------------------------------------
 
 template< typename Id_Type >
