@@ -523,6 +523,11 @@ struct OSM_Element_Metadata_Skeleton
     return *(Id_Type*)data;
   }
 
+  static uint32 get_changeset(const void* data)
+  {
+    return *(uint32*)((int8*)data + sizeof(Id_Type) + 9);
+  }
+
   bool operator<(const OSM_Element_Metadata_Skeleton& a) const
   {
     if (ref < a.ref)

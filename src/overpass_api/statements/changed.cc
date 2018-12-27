@@ -43,9 +43,17 @@ Statement* Changed_Statement::Criterion_Maker::create_criterion(const Token_Node
 {
   std::string since;
   std::string until;
+  std::string changeset;
+
   uint line_nr = tree_it->line_col.first;
 
-  if (tree_it->token == ":" && tree_it->rhs)
+  if (tree_it->token == "!" && tree_it->rhs)
+  {
+    changeset = decode_json(tree_it.rhs()->token, error_output);
+    since = "auto";
+    until = "auto";
+  }
+  else if (tree_it->token == ":" && tree_it->rhs)
   {
     since = decode_json(tree_it.rhs()->token, error_output);
     until = since;
@@ -79,6 +87,7 @@ Statement* Changed_Statement::Criterion_Maker::create_criterion(const Token_Node
   std::map< std::string, std::string > attributes;
   attributes["since"] = since;
   attributes["until"] = until;
+  attributes["changeset"] = changeset;
   return new Changed_Statement(line_nr, attributes, global_settings);
 }
 
@@ -286,64 +295,117 @@ class Changed_Constraint : public Query_Constraint
 };
 
 
+template< typename Index, typename Skeleton >
+std::vector< typename Skeleton::Id_Type > filter_ids_by_changeset(
+    std::vector< typename Skeleton::Id_Type >& ids, uint32 changeset, Statement* stmt, Resource_Manager& rman)
+{
+  std::vector< typename Skeleton::Id_Type > result;
+
+  std::vector< Index > req = get_indexes_< Index, Skeleton >(ids, rman, true);
+
+  {
+    Block_Backend< Index, OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >,
+        typename std::vector< Index >::const_iterator > current_meta_db
+        (rman.get_transaction()->data_index(current_meta_file_properties< Skeleton >()));
+    for (typename Block_Backend< Index, OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >,
+        typename std::vector< Index >::const_iterator >::Discrete_Iterator
+        it = current_meta_db.discrete_begin(req.begin(), req.end());
+        !(it == current_meta_db.discrete_end()); ++it)
+    {
+      auto current_changeset = it.apply_func(&OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >::get_changeset);
+
+      if (current_changeset == changeset)
+      {
+        auto current_ref = it.apply_func(&OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >::get_ref);
+        result.push_back(current_ref);
+      }
+    }
+  }
+  {
+    Block_Backend< Index, OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >,
+        typename std::vector< Index >::const_iterator > attic_meta_db
+        (rman.get_transaction()->data_index(attic_meta_file_properties< Skeleton >()));
+    for (typename Block_Backend< Index, OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >,
+        typename std::vector< Index >::const_iterator >::Discrete_Iterator
+        it = attic_meta_db.discrete_begin(req.begin(), req.end());
+        !(it == attic_meta_db.discrete_end()); ++it)
+    {
+      auto current_changeset = it.apply_func(&OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >::get_changeset);
+
+      if (current_changeset == changeset)
+      {
+        auto current_ref = it.apply_func(&OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >::get_ref);
+        result.push_back(current_ref);
+      }
+    }
+  }
+
+  std::sort(result.begin(), result.end());
+  result.erase(std::unique(result.begin(), result.end()), result.end());
+  return result;
+
+}
+
+
 bool Changed_Constraint::get_node_ids(Resource_Manager& rman, std::vector< Node_Skeleton::Id_Type >& ids)
 {
+  uint32 changeset = stmt->changeset();
+
+  // TODO: CACHING IS FOR TESTING PURPOSES ONLY!
+  ids.assign(stmt->get_node_ids().begin(), stmt->get_node_ids().end());
+  if (!ids.empty())
+    return true;
+
   ids = collect_changed_elements< Uint32_Index, Node_Skeleton >(
       stmt->get_since(rman), stmt->get_until(rman), Trivial_Id_Predicate< Node_Skeleton::Id_Type >(), rman);
+  if (changeset != 0)
+    ids = filter_ids_by_changeset< Uint32_Index, Node_Skeleton >(ids, changeset, stmt, rman);
+
+  stmt->get_node_ids().assign(ids.begin(), ids.end());
+
   return true;
 }
 
 
 bool Changed_Constraint::get_way_ids(Resource_Manager& rman, std::vector< Way_Skeleton::Id_Type >& ids)
 {
+  uint32 changeset = stmt->changeset();
+
+  // TODO: CACHING IS FOR TESTING PURPOSES ONLY!
+  ids.assign(stmt->get_way_ids().begin(), stmt->get_way_ids().end());
+  if (!ids.empty())
+    return true;
+
   ids = collect_changed_elements< Uint31_Index, Way_Skeleton >(
       stmt->get_since(rman), stmt->get_until(rman), Trivial_Id_Predicate< Way_Skeleton::Id_Type >(), rman);
+  if (changeset != 0)
+    ids = filter_ids_by_changeset< Uint31_Index, Way_Skeleton >(ids, changeset, stmt, rman);
+
+  stmt->get_way_ids().assign(ids.begin(), ids.end());
+
   return true;
 }
 
 
 bool Changed_Constraint::get_relation_ids(Resource_Manager& rman, std::vector< Relation_Skeleton::Id_Type >& ids)
 {
+  uint32 changeset = stmt->changeset();
+
+  // TODO: CACHING IS FOR TESTING PURPOSES ONLY!
+  ids.assign(stmt->get_rel_ids().begin(), stmt->get_rel_ids().end());
+  if (!ids.empty())
+    return true;
+
   ids = collect_changed_elements< Uint31_Index, Relation_Skeleton >(
       stmt->get_since(rman), stmt->get_until(rman), Trivial_Id_Predicate< Relation_Skeleton::Id_Type >(), rman);
+  if (changeset != 0)
+    ids = filter_ids_by_changeset< Uint31_Index, Relation_Skeleton >(ids, changeset, stmt, rman);
+
+  stmt->get_rel_ids().assign(ids.begin(), ids.end());
+
   return true;
 }
 
-
-// bool Changed_Constraint::get_ranges(Resource_Manager& rman, std::set< std::pair< Uint32_Index, Uint32_Index > >& ranges)
-// {
-//   std::vector< Node_Skeleton::Id_Type > ids
-//       = collect_changed_elements< Uint32_Index, Node_Skeleton >(stmt->get_since(rman), stmt->get_until(rman), rman);
-//
-//   std::vector< Uint32_Index > req = get_indexes_< Uint32_Index, Node_Skeleton >(ids, rman);
-//
-//   ranges.clear();
-//   for (std::vector< Uint32_Index >::const_iterator it = req.begin(); it != req.end(); ++it)
-//     ranges.insert(std::make_pair(*it, ++Uint32_Index(*it)));
-//
-//   return true;
-// }
-
-
-// bool Changed_Constraint::get_ranges(Resource_Manager& rman, std::set< std::pair< Uint31_Index, Uint31_Index > >& ranges)
-// {
-//   std::vector< Way_Skeleton::Id_Type > way_ids = collect_changed_elements< Uint31_Index, Way_Skeleton >
-//       (stmt->get_since(rman), stmt->get_until(rman), rman);
-//   std::vector< Uint31_Index > req = get_indexes_< Uint31_Index, Way_Skeleton >(way_ids, rman);
-//
-//   ranges.clear();
-//   for (std::vector< Uint31_Index >::const_iterator it = req.begin(); it != req.end(); ++it)
-//     ranges.insert(std::make_pair(*it, inc(*it)));
-//
-//   std::vector< Relation_Skeleton::Id_Type > rel_ids = collect_changed_elements< Uint31_Index, Relation_Skeleton >
-//       (stmt->get_since(rman), stmt->get_until(rman), rman);
-//   get_indexes_< Uint31_Index, Relation_Skeleton >(rel_ids, rman).swap(req);
-//
-//   for (std::vector< Uint31_Index >::const_iterator it = req.begin(); it != req.end(); ++it)
-//     ranges.insert(std::make_pair(*it, inc(*it)));
-//
-//   return true;
-// }
 
 
 void Changed_Constraint::filter(Resource_Manager& rman, Set& into)
@@ -432,6 +494,7 @@ Changed_Statement::Changed_Statement
   attributes["into"] = "_";
   attributes["since"] = "auto";
   attributes["until"] = "auto";
+  attributes["changeset"] = "0";
 
   Statement::eval_attributes_array(get_name(), attributes, input_attributes);
 
@@ -460,6 +523,8 @@ Changed_Statement::Changed_Statement
 
   if (!behave_trivial && attributes["until"] != "auto" && (until == 0 || until == NOW))
     add_static_error("The attribute \"until\" must contain a timestamp exactly in the form \"yyyy-mm-ddThh:mm:ssZ\".");
+
+  filter_changeset = atol(attributes["changeset"].c_str());
 }
 
 

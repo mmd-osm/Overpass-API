@@ -58,6 +58,11 @@ class Changed_Statement : public Output_Statement
 
     static bool area_query_exists() { return area_query_exists_; }
     bool trivial() const { return behave_trivial; }
+    uint32 changeset() const { return filter_changeset; }
+
+    std::vector< Node_Skeleton::Id_Type > & get_node_ids() { return node_ids; }
+    std::vector< Way_Skeleton::Id_Type > & get_way_ids() { return way_ids; }
+    std::vector< Relation_Skeleton::Id_Type > & get_rel_ids() { return rel_ids; }
 
     virtual std::string dump_xml(const std::string& indent) const
     {
@@ -80,6 +85,10 @@ class Changed_Statement : public Output_Statement
     uint64 since, until;
     std::vector< Query_Constraint* > constraints;
     bool behave_trivial;
+    uint32 filter_changeset;
+    std::vector< Node_Skeleton::Id_Type > node_ids;
+    std::vector< Way_Skeleton::Id_Type > way_ids;
+    std::vector< Relation_Skeleton::Id_Type > rel_ids;
 
     static bool area_query_exists_;
 };
