@@ -360,6 +360,24 @@ struct Area_Block
   {
     return ((this->id == a.id) && (this->coors == a.coors));
   }
+
+  const std::vector< std::pair< uint32, int32 > > &  get_ilat_ilon_pairs() const
+  {
+    if (ilat_ilon_pairs.empty())
+    {
+      for (std::vector< uint64 >::const_iterator it = coors.begin(); it != coors.end(); ++it)
+      {
+        uint32 _lat = ::ilat((*it >> 32) & 0xff, *it & 0xffffffffull);
+        int32 _lon = ::ilon((*it >> 32) & 0xff, *it & 0xffffffffull);
+        ilat_ilon_pairs.push_back(std::make_pair(_lat, _lon));
+      }
+    }
+    return ilat_ilon_pairs;
+  }
+
+  private:
+    mutable std::vector< std::pair< uint32, int32 > > ilat_ilon_pairs;
+
 };
 
 #endif

@@ -103,15 +103,22 @@ int Coord_Query_Statement::check_area_block
   // only either the western or the eastern side. We are part of the area if in the
   // end the western or eastern side have an odd state.
   int state = 0;
-  std::vector< uint64 >::const_iterator it(area_block.coors.begin());
-  uint32 lat = ::ilat(ll_index | (((*it)>>32)&0xff), (*it & 0xffffffff));
-  int32 lon = ::ilon(ll_index | (((*it)>>32)&0xff), (*it & 0xffffffff));
-  while (++it != area_block.coors.end())
+
+  std::vector< std::pair< uint32, int32 > >::const_iterator it(area_block.get_ilat_ilon_pairs().begin());
+
+  uint32 ll_index_ilat = ::ilat(ll_index, 0);
+  int32 ll_index_ilon = ::ilon(ll_index, 0);
+
+  uint32 lat = ll_index_ilat | it->first;
+  int32 lon = ll_index_ilon | (it->second ^ 0x80000000);
+
+  while (++it != area_block.get_ilat_ilon_pairs().end())
   {
     uint32 last_lat = lat;
     int32 last_lon = lon;
-    lon = ::ilon(ll_index | (((*it)>>32)&0xff), (*it & 0xffffffff));
-    lat = ::ilat(ll_index | (((*it)>>32)&0xff), (*it & 0xffffffff));
+
+    lat = ll_index_ilat | it->first;
+    lon = ll_index_ilon | (it->second ^ 0x80000000);
 
     if (last_lon < lon)
     {

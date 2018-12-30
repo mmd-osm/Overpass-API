@@ -553,15 +553,22 @@ inline int longitude_a_intersects_inner
 
 int intersects_inner(const Area_Block& string_a, const Area_Block& string_b)
 {
-  std::vector< std::pair< uint32, uint32 > > coords_a;
-  for (std::vector< uint64 >::const_iterator it = string_a.coors.begin(); it != string_a.coors.end(); ++it)
-    coords_a.push_back(std::make_pair(::ilat(uint32((*it>>32)&0xff), uint32(*it & 0xffffffffull)),
-				 ::ilon(uint32((*it>>32)&0xff), uint32(*it & 0xffffffffull))));
+// TODO: why is this uint32, uint32, rather than uint32, int32???
 
-  std::vector< std::pair< uint32, uint32 > > coords_b;
-  for (std::vector< uint64 >::const_iterator it = string_b.coors.begin(); it != string_b.coors.end(); ++it)
-    coords_b.push_back(std::make_pair(::ilat(uint32((*it>>32)&0xff), uint32(*it & 0xffffffffull)),
-				 ::ilon(uint32((*it>>32)&0xff), uint32(*it & 0xffffffffull))));
+//  std::vector< std::pair< uint32, uint32 > > coords_a;
+//  for (std::vector< uint64 >::const_iterator it = string_a.coors.begin(); it != string_a.coors.end(); ++it)
+//    coords_a.push_back(std::make_pair(::ilat(uint32((*it>>32)&0xff), uint32(*it & 0xffffffffull)),
+//				 ::ilon(uint32((*it>>32)&0xff), uint32(*it & 0xffffffffull))));
+//
+//  std::vector< std::pair< uint32, uint32 > > coords_b;
+//  for (std::vector< uint64 >::const_iterator it = string_b.coors.begin(); it != string_b.coors.end(); ++it)
+//    coords_b.push_back(std::make_pair(::ilat(uint32((*it>>32)&0xff), uint32(*it & 0xffffffffull)),
+//				 ::ilon(uint32((*it>>32)&0xff), uint32(*it & 0xffffffffull))));
+
+  const std::vector< std::pair< uint32, int32 > > coords_a = string_a.get_ilat_ilon_pairs();
+  const std::vector< std::pair< uint32, int32 > > coords_b = string_b.get_ilat_ilon_pairs();
+
+  // TODO: why is this uint32, uint32, rather than uint32, int32???
 
   for (std::vector< std::pair< uint32, uint32 > >::size_type i = 0; i < coords_a.size()-1; ++i)
   {
@@ -604,10 +611,14 @@ int intersects_inner(const Area_Block& string_a, const Area_Block& string_b)
 
 void has_inner_points(const Area_Block& string_a, const Area_Block& string_b, int& inside)
 {
-  std::vector< std::pair< uint32, uint32 > > coords_a;
-  for (std::vector< uint64 >::const_iterator it = string_a.coors.begin(); it != string_a.coors.end(); ++it)
-    coords_a.push_back(std::make_pair(::ilat(uint32((*it>>32)&0xff), uint32(*it & 0xffffffffull)),
-                                 ::ilon(uint32((*it>>32)&0xff), uint32(*it & 0xffffffffull))));
+  // TODO: why is this uint32, uint32, rather than uint32, int32???
+
+//  std::vector< std::pair< uint32, uint32 > > coords_a;
+//  for (std::vector< uint64 >::const_iterator it = string_a.coors.begin(); it != string_a.coors.end(); ++it)
+//    coords_a.push_back(std::make_pair(::ilat(uint32((*it>>32)&0xff), uint32(*it & 0xffffffffull)),
+//                                 ::ilon(uint32((*it>>32)&0xff), uint32(*it & 0xffffffffull))));
+
+  const std::vector< std::pair< uint32, int32 > > coords_a = string_a.get_ilat_ilon_pairs();
 
   // Check additionally the middle of the segment to also get segments
   // that run through the area
