@@ -239,6 +239,8 @@ struct Attic : public Element_Skeleton
 {
   Attic(const Element_Skeleton& elem, uint64 timestamp_) : Element_Skeleton(elem), timestamp(timestamp_) {}
 
+  Attic(Element_Skeleton&& elem, uint64 timestamp_) : Element_Skeleton(std::move(elem)), timestamp(timestamp_) {}
+
   uint64 timestamp;
 
   Attic(void* data)
@@ -381,5 +383,38 @@ void expand_diff(const std::vector< Object >& reference,
   }
 }
 
+template< typename Object >
+void expand_diff_fast(std::vector< Object >& reference,
+    const std::vector< uint >& removed, const std::vector< std::pair< uint, Object > >& added,
+    std::vector< Object >& target)
+{
+  if (removed.empty() && added.empty())
+  {
+    target = std::move(reference);
+    return;
+  }
+
+  target.reserve(reference.size() - removed.size() + added.size());
+  std::vector< uint >::const_iterator it_removed = removed.begin();
+  typename std::vector< std::pair< uint, Object > >::const_iterator it_added = added.begin();
+  for (uint i = 0; i < reference.size(); ++i)
+  {
+    while (it_added != added.end() && target.size() == it_added->first)
+    {
+      target.push_back(it_added->second);
+      ++it_added;
+    }
+
+    if (it_removed == removed.end() || i < *it_removed)
+      target.push_back(std::move(reference[i]));
+    else
+      ++it_removed;
+  }
+  while (it_added != added.end() && target.size() == it_added->first)
+  {
+    target.push_back(it_added->second);
+    ++it_added;
+  }
+}
 
 #endif

@@ -187,15 +187,15 @@ void reconstruct_items(const Statement* stmt, Resource_Manager& rman,
       }
       try
       {
-	Attic< Object > attic_obj = Attic< Object >((*it)->expand(reference), (*it)->timestamp);
+	Attic< Object > attic_obj = Attic< Object >((*it)->expand_fast(reference), (*it)->timestamp);
         if (attic_obj.id.val() != 0)
 	{
-          reference = attic_obj;
           typename std::vector< std::pair< typename Object::Id_Type, uint64 > >::const_iterator
               tit = std::lower_bound(local_timestamp_by_id.begin(), local_timestamp_by_id.end(),
 				     std::make_pair((*it)->id, 0ull));
 	  if (tit != local_timestamp_by_id.end() && tit->first == (*it)->id && tit->second == (*it)->timestamp)
 	    attics.push_back(attic_obj);
+          reference = std::move(attic_obj);
 	}
         else
         {

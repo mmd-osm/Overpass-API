@@ -355,6 +355,36 @@ struct Relation_Delta
     return result;
   }
 
+  Relation_Skeleton expand_fast(Relation_Skeleton& reference) const
+  {
+    Relation_Skeleton result(id);
+
+    if (full)
+    {
+      result.members.reserve(members_added.size());
+      for (uint i = 0; i < members_added.size(); ++i)
+        result.members.push_back(members_added[i].second);
+
+      result.node_idxs.reserve(node_idxs_added.size());
+      for (uint i = 0; i < node_idxs_added.size(); ++i)
+        result.node_idxs.push_back(node_idxs_added[i].second);
+
+      result.way_idxs.reserve(way_idxs_added.size());
+      for (uint i = 0; i < way_idxs_added.size(); ++i)
+        result.way_idxs.push_back(way_idxs_added[i].second);
+    }
+    else if (reference.id == id)
+    {
+      expand_diff_fast(reference.members, members_removed, members_added, result.members);
+      expand_diff_fast(reference.node_idxs, node_idxs_removed, node_idxs_added, result.node_idxs);
+      expand_diff_fast(reference.way_idxs, way_idxs_removed, way_idxs_added, result.way_idxs);
+    }
+    else
+      result.id = 0u;
+
+    return result;
+  }
+
   uint32 size_of() const
   {
     if (full)

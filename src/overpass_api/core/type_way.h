@@ -289,6 +289,37 @@ struct Way_Delta
     return result;
   }
 
+  Way_Skeleton expand_fast(Way_Skeleton& reference) const
+  {
+    Way_Skeleton result(id);
+
+    if (full)
+    {
+      result.nds.reserve(nds_added.size());
+      for (uint i = 0; i < nds_added.size(); ++i)
+        result.nds.push_back(nds_added[i].second);
+
+      result.geometry.reserve(geometry_added.size());
+      for (uint i = 0; i < geometry_added.size(); ++i)
+        result.geometry.push_back(geometry_added[i].second);
+    }
+    else if (reference.id == id)
+    {
+      expand_diff_fast(reference.nds, nds_removed, nds_added, result.nds);
+      expand_diff_fast(reference.geometry, geometry_removed, geometry_added, result.geometry);
+      if (!result.geometry.empty() && result.nds.size() != result.geometry.size())
+      {
+        std::ostringstream out;
+        out<<"Bad geometry for way "<<id.val();
+        throw std::logic_error(out.str());
+      }
+    }
+    else
+      result.id = 0u;
+
+    return result;
+  }
+
   uint32 size_of() const
   {
     if (full)
