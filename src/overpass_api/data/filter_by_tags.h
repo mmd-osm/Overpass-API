@@ -324,7 +324,7 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_regkregv(
     if (matches && current_timestamp > timestamp)
     {
       typename std::map< Id_Type, std::map< std::string, std::pair< uint64, Uint31_Index > > >::iterator
-          it = timestamp_per_id.find(it2.object().id);
+          it = timestamp_per_id.find(it2.handle().id());
       if (it != timestamp_per_id.end())
       {
 	typename std::map< std::string, std::pair< uint64, Uint31_Index > >::iterator
