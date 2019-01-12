@@ -418,6 +418,13 @@ void Make_Area_Statement::execute(Resource_Manager& rman)
     area_updater->add_blocks(area_blocks);
     area_updater->commit();
   }
+  else
+  {
+    // Ad-hoc per user area blocks are stored in memory (Inputset)
+    for (std::map< Uint31_Index, std::vector< Area_Block > >::iterator
+      it(area_blocks.begin()); it != area_blocks.end(); ++it)
+      std::move(it->second.begin(), it->second.end(), std::back_inserter(into.area_blocks[it->first]));
+  }
 
   if (return_area)
     into.areas[new_index].push_back(Area_Skeleton(new_location));

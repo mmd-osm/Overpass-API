@@ -285,6 +285,8 @@ bool Runtime_Stack_Frame::union_inward(const std::string& top_set_name, const st
     new_elements_found |= indexed_set_union(target.areas, source->areas);
     new_elements_found |= indexed_set_union(target.deriveds, source->deriveds);
 
+    new_elements_found |= indexed_set_union(target.area_blocks, source->area_blocks);
+
     parent->size_per_set[inner_set_name] = eval_set(target);
   }
   parent->diff_sets.erase(inner_set_name);

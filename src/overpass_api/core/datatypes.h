@@ -310,6 +310,8 @@ struct Set
   std::map< Uint31_Index, std::vector< Area_Skeleton > > areas;
   std::map< Uint31_Index, std::vector< Derived_Structure > > deriveds;
 
+  std::map< Uint31_Index, std::vector< Area_Block > > area_blocks;
+
   void swap(Set& rhs)
   {
     nodes.swap(rhs.nodes);
@@ -320,6 +322,7 @@ struct Set
     attic_relations.swap(rhs.attic_relations);
     areas.swap(rhs.areas);
     deriveds.swap(rhs.deriveds);
+    area_blocks.swap(rhs.area_blocks);
   }
 
   void clear()
@@ -332,6 +335,7 @@ struct Set
     attic_relations.clear();
     areas.clear();
     deriveds.clear();
+    area_blocks.clear();
   }
 };
 

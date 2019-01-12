@@ -72,8 +72,21 @@ class Area_Query_Statement : public Output_Statement
        const std::set< Uint31_Index >& req, bool add_border,
        Resource_Manager& rman);
 
+    template< typename Node_Skeleton >
+    bool collect_nodes_dynamic
+      (std::map< Uint32_Index, std::vector< Node_Skeleton > >& nodes,
+       const std::set< Uint31_Index >& req, bool add_border,
+       Resource_Manager& rman);
+
     template< typename Way_Skeleton >
     void collect_ways
+      (const Way_Geometry_Store& way_geometries,
+       std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
+       const std::set< Uint31_Index >& req, bool add_border,
+       const Statement& query, Resource_Manager& rman);
+
+    template< typename Way_Skeleton >
+    bool collect_ways_dynamic
       (const Way_Geometry_Store& way_geometries,
        std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
        const std::set< Uint31_Index >& req, bool add_border,

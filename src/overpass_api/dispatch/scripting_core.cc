@@ -75,16 +75,18 @@ int determine_area_level(Error_Output* error_output, int area_level)
 {
   if ((area_level < 2) && (Make_Area_Statement::is_used()))
   {
-    if (error_output)
-    {
-      error_output->runtime_error
-          ("Specify --rules to execute a rule. make-area can only appear in rules.");
-      throw Exit_Error();
-    }
+// Removed in order to support ad-hoc per user area creation in main memory
+
+//    if (error_output)
+//    {
+//      error_output->runtime_error
+//          ("Specify --rules to execute a rule. make-area can only appear in rules.");
+//      throw Exit_Error();
+//    }
   }
   if ((area_level == 0) &&
       (Coord_Query_Statement::is_used() || Area_Query_Statement::is_used() ||
-       Map_To_Area_Statement::is_used() ||
+       Map_To_Area_Statement::is_used() || Make_Area_Statement::is_used() ||
        Query_Statement::area_query_exists() || Id_Query_Statement::area_query_exists()))
     area_level = 1;
 

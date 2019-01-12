@@ -369,6 +369,10 @@ void Area_Query_Statement::collect_nodes
      const std::set< Uint31_Index >& req, bool add_border,
      Resource_Manager& rman)
 {
+  // check for on-the-fly Area blocks first. Leave upon successful processing
+  if (collect_nodes_dynamic(nodes, req, add_border, rman))
+    return;  //
+
   Block_Backend< Uint31_Index, Area_Block > area_blocks_db
       (rman.get_area_transaction()->data_index(area_settings().AREA_BLOCKS));
   Block_Backend< Uint31_Index, Area_Block >::Discrete_Iterator
@@ -447,6 +451,100 @@ void Area_Query_Statement::collect_nodes
     ++nodes_it;
   }
 }
+
+
+template< typename Node_Skeleton >
+bool Area_Query_Statement::collect_nodes_dynamic
+    (std::map< Uint32_Index, std::vector< Node_Skeleton > >& nodes,
+     const std::set< Uint31_Index >& req, bool add_border,
+     Resource_Manager& rman)
+{
+  const Set * inputset = rman.get_set(get_input());
+
+  if (!inputset)
+    return false;
+
+  if (inputset->area_blocks.empty())
+    return false;
+
+  typename std::map< Uint32_Index, std::vector< Node_Skeleton > >::iterator nodes_it = nodes.begin();
+
+  uint32 loop_count = 0;
+  uint32 current_idx(0);
+
+  for (const auto & area_blocks_per_index : inputset->area_blocks)
+  {
+    current_idx = area_blocks_per_index.first.val();
+
+    if (loop_count > 1024*1024)
+    {
+      rman.health_check(*this);
+      loop_count = 0;
+    }
+
+    std::map< Area_Skeleton::Id_Type, std::vector< Area_Block > > areas;
+
+    for (const auto & block : area_blocks_per_index.second)
+    {
+      if (binary_search(area_id.begin(), area_id.end(), block.id))
+        areas[block.id].push_back(block);
+    }
+
+    while (nodes_it != nodes.end() && nodes_it->first.val() < current_idx)
+    {
+      nodes_it->second.clear();
+      ++nodes_it;
+    }
+    while (nodes_it != nodes.end() &&
+        (nodes_it->first.val() & 0xffffff00) == current_idx)
+    {
+      std::vector< Node_Skeleton > into;
+      for (typename std::vector< Node_Skeleton >::const_iterator iit = nodes_it->second.begin();
+          iit != nodes_it->second.end(); ++iit)
+      {
+        uint32 ilat((::lat(nodes_it->first.val(), iit->ll_lower)
+            + 91.0)*10000000+0.5);
+        int32 ilon(::lon(nodes_it->first.val(), iit->ll_lower)*10000000
+            + (::lon(nodes_it->first.val(), iit->ll_lower) > 0 ? 0.5 : -0.5));
+        for (std::map< Area_Skeleton::Id_Type, std::vector< Area_Block > >::const_iterator it = areas.begin();
+             it != areas.end(); ++it)
+        {
+          int inside = 0;
+          for (std::vector< Area_Block >::const_iterator it2 = it->second.begin(); it2 != it->second.end();
+               ++it2)
+          {
+            ++loop_count;
+
+            int check(Coord_Query_Statement::check_area_block(current_idx, *it2, ilat, ilon));
+            if (check == Coord_Query_Statement::HIT && add_border)
+            {
+              inside = 1;
+              break;
+            }
+            else if (check != 0)
+              inside ^= check;
+          }
+          if (inside)
+          {
+            into.push_back(*iit);
+            break;
+          }
+        }
+      }
+      nodes_it->second.swap(into);
+      ++nodes_it;
+    }
+  }
+  while (nodes_it != nodes.end())
+  {
+    nodes_it->second.clear();
+    ++nodes_it;
+  }
+
+  return true;
+}
+
+
 
 
 const int HIT = 1;
@@ -642,6 +740,9 @@ void Area_Query_Statement::collect_ways
        const std::set< Uint31_Index >& req, bool add_border,
        const Statement& query, Resource_Manager& rman)
 {
+  if (collect_ways_dynamic(way_geometries, ways, req, add_border, query, rman))
+    return;
+
   Block_Backend< Uint31_Index, Area_Block > area_blocks_db
       (rman.get_area_transaction()->data_index(area_settings().AREA_BLOCKS));
   Block_Backend< Uint31_Index, Area_Block >::Discrete_Iterator
@@ -791,6 +892,171 @@ void Area_Query_Statement::collect_ways
 
   result.swap(ways);
 }
+
+
+template< typename Way_Skeleton >
+bool Area_Query_Statement::collect_ways_dynamic
+      (const Way_Geometry_Store& way_geometries,
+       std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
+       const std::set< Uint31_Index >& req, bool add_border,
+       const Statement& query, Resource_Manager& rman)
+{
+  const Set * inputset = rman.get_set(get_input());
+
+  if (!inputset)
+    return false;
+
+  if (inputset->area_blocks.empty())
+    return false;
+
+  std::map< Way::Id_Type, bool > ways_inside;
+
+  std::map< Uint31_Index, std::vector< Area_Block > > way_segments;
+  for (typename std::map< Uint31_Index, std::vector< Way_Skeleton > >::iterator it = ways.begin(); it != ways.end(); ++it)
+  {
+    for (typename std::vector< Way_Skeleton >::iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+      add_way_to_area_blocks(way_geometries.get_geometry(*it2), it2->id.val(), way_segments);
+  }
+
+  std::map< uint32, std::vector< std::pair< uint32, Way::Id_Type > > > way_coords_to_id;
+  for (typename std::map< Uint31_Index, std::vector< Way_Skeleton > >::iterator it = ways.begin(); it != ways.end(); ++it)
+  {
+    for (typename std::vector< Way_Skeleton >::iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    {
+      std::vector< Quad_Coord > coords = way_geometries.get_geometry(*it2);
+      for (std::vector< Quad_Coord >::const_iterator it3 = coords.begin(); it3 != coords.end(); ++it3)
+        way_coords_to_id[it3->ll_upper].push_back(std::make_pair(it3->ll_lower, it2->id));
+    }
+  }
+
+  std::map< uint32, std::vector< std::pair< uint32, Way::Id_Type > > >::const_iterator nodes_it = way_coords_to_id.begin();
+
+  // Fill node_status with the area related status of each node and segment
+  uint32 loop_count = 0;
+  uint32 current_idx(0);
+
+  for (const auto & area_blocks_per_index : inputset->area_blocks)
+  {
+    current_idx = area_blocks_per_index.first.val();
+
+    if (loop_count > 1024*1024)
+    {
+      rman.health_check(*this);
+      loop_count = 0;
+    }
+
+    std::map< Area_Skeleton::Id_Type, std::vector< Area_Block > > areas;
+
+    for (const auto & block : area_blocks_per_index.second)
+    {
+      if (binary_search(area_id.begin(), area_id.end(), block.id))
+        areas[block.id].push_back(block);
+    }
+
+    // check nodes
+    while (nodes_it != way_coords_to_id.end() && nodes_it->first < current_idx)
+      ++nodes_it;
+    while (nodes_it != way_coords_to_id.end() &&
+        (nodes_it->first & 0xffffff00) == current_idx)
+    {
+      std::vector< std::pair< uint32, Way::Id_Type > > into;
+      for (std::vector< std::pair< uint32, Way::Id_Type > >::const_iterator iit = nodes_it->second.begin();
+          iit != nodes_it->second.end(); ++iit)
+      {
+        uint32 ilat = ::ilat(nodes_it->first, iit->first);
+        int32 ilon = ::ilon(nodes_it->first, iit->first);
+        for (std::map< Area_Skeleton::Id_Type, std::vector< Area_Block > >::const_iterator it = areas.begin();
+             it != areas.end(); ++it)
+        {
+          int inside = 0;
+          for (std::vector< Area_Block >::const_iterator it2 = it->second.begin(); it2 != it->second.end();
+               ++it2)
+          {
+            ++loop_count;
+
+            int check(Coord_Query_Statement::check_area_block(current_idx, *it2, ilat, ilon));
+            if (check == Coord_Query_Statement::HIT)
+            {
+              inside = Coord_Query_Statement::HIT;
+              break;
+            }
+            else
+              inside ^= check;
+          }
+          if (inside & (Coord_Query_Statement::TOGGLE_EAST | Coord_Query_Statement::TOGGLE_WEST))
+            ways_inside[iit->second] = true;
+        }
+      }
+      ++nodes_it;
+    }
+
+    // check segments
+    for (std::vector< Area_Block >::const_iterator sit = way_segments[Uint31_Index(current_idx)].begin();
+         sit != way_segments[Uint31_Index(current_idx)].end(); ++sit)
+    {
+      std::map< Area::Id_Type, int > area_status;
+      for (std::map< Area_Skeleton::Id_Type, std::vector< Area_Block > >::const_iterator it = areas.begin();
+           it != areas.end(); ++it)
+      {
+        if (ways_inside[Way::Id_Type(sit->id)])
+          break;
+        for (std::vector< Area_Block >::const_iterator it2 = it->second.begin(); it2 != it->second.end();
+             ++it2)
+        {
+          // If an area segment intersects this way segment in the inner of the way,
+          // the way is contained in the area.
+          // The endpoints are properly handled via the point-in-area test
+          // Check additionally the middle of the segment to also get segments
+          // that run through the area
+          int intersect = intersects_inner(*sit, *it2);
+          if (intersect == Coord_Query_Statement::INTERSECT)
+          {
+            ways_inside[Way::Id_Type(sit->id)] = true;
+            break;
+          }
+          else if (intersect == Coord_Query_Statement::HIT)
+          {
+            if (add_border)
+              ways_inside[Way::Id_Type(sit->id)] = true;
+            else
+              area_status[it2->id] = Coord_Query_Statement::HIT;
+            break;
+          }
+          has_inner_points(*sit, *it2, area_status[it2->id]);
+        }
+      }
+      for (std::map< Area::Id_Type, int >::const_iterator it = area_status.begin(); it != area_status.end(); ++it)
+      {
+        if ((it->second && (!(it->second & Coord_Query_Statement::HIT))) ||
+            (it->second && add_border))
+          ways_inside[Way::Id_Type(sit->id)] = true;
+      }
+    }
+  }
+
+  std::map< Uint31_Index, std::vector< Way_Skeleton > > result;
+
+  // Mark ways as found that intersect the area border
+  for (typename std::map< Uint31_Index, std::vector< Way_Skeleton > >::iterator it = ways.begin();
+       it != ways.end(); ++it)
+  {
+    std::vector< Way_Skeleton > cur_result;
+    for (typename std::vector< Way_Skeleton >::iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    {
+      if (ways_inside[it2->id])
+      {
+        cur_result.push_back(*it2);
+        it2->id = Way::Id_Type(0u);
+      }
+    }
+    result[it->first].swap(cur_result);
+  }
+
+  result.swap(ways);
+
+  return true;
+}
+
 
 
 void Area_Query_Statement::execute(Resource_Manager& rman)

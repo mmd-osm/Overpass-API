@@ -209,6 +209,17 @@ TStatement* create_complete_statement(typename TStatement::Factory& stmt_factory
   return stmt_factory.create_statement("complete", line_nr, attr);
 }
 
+template< class TStatement >
+TStatement* create_make_area_statement(typename TStatement::Factory& stmt_factory,
+    std::string from, std::string into, std::string pivot, uint line_nr)
+{
+  std::map< std::string, std::string > attr;
+  attr["from"] = from;
+  attr["into"] = into;
+  attr["pivot"] = pivot;
+  return stmt_factory.create_statement("make-area", line_nr, attr);
+}
+
 
 template< class TStatement >
 TStatement* create_if_statement(typename TStatement::Factory& stmt_factory, uint line_nr)
@@ -572,6 +583,34 @@ TStatement* parse_complete(typename TStatement::Factory& stmt_factory, Parsed_Qu
     statement->add_statement(*it, "");
   return statement;
 }
+
+template< class TStatement >
+TStatement* parse_make_area(typename TStatement::Factory& stmt_factory, Parsed_Query& parsed_query,
+              Tokenizer_Wrapper& token, Error_Output* error_output, int depth)
+{
+  std::pair< uint, uint > line_col = token.line_col();
+  ++token;
+
+  std::string from = probe_from(token, error_output);
+  std::string into = probe_into(token, error_output);
+
+  std::string pivot;
+  if (*token == "[")
+  {
+    ++token;
+    pivot = probe_from(token, error_output);
+    clear_until_after(token, error_output, "]");
+  }
+
+  if (*token == ";")
+    ++token;
+
+  TStatement* statement = create_make_area_statement< TStatement >
+      (stmt_factory, from, into, pivot, line_col.first);
+
+  return statement;
+}
+
 
 
 template< class TStatement >
@@ -1291,6 +1330,8 @@ TStatement* parse_statement(typename TStatement::Factory& stmt_factory, Parsed_Q
     return parse_retro< TStatement >(stmt_factory, parsed_query, token, error_output, depth);
   else if (*token == "timeline")
     return parse_timeline< TStatement >(stmt_factory, token, error_output);
+  else if (*token == "make_area")
+    return parse_make_area< TStatement >(stmt_factory, parsed_query, token, error_output, depth);
 
   std::string from = "";
   if (token.good() && *token == ".")

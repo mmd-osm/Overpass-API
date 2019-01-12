@@ -165,6 +165,7 @@ inline void sort(Set& set)
   sort_second(set.attic_relations);
   sort_second(set.areas);
   sort_second(set.deriveds);
+  sort_second(set.area_blocks);
 }
 
 
