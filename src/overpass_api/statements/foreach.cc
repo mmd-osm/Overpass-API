@@ -77,7 +77,8 @@ void add_to_set(Set& target, Uint31_Index idx, const Area_Skeleton& skel)
 { target.areas[idx].push_back(skel); }
 void add_to_set(Set& target, Uint31_Index idx, const Derived_Structure& skel)
 { target.deriveds[idx].push_back(skel); }
-
+void add_to_set(Set& target, Uint31_Index idx, const Area_Block& block)
+{ target.area_blocks[idx].push_back(block); }
 
 template< typename Index, typename Object >
 void loop_over_elements(const std::map< Index, std::vector< Object > >& source, Resource_Manager& rman,
@@ -101,6 +102,42 @@ void loop_over_elements(const std::map< Index, std::vector< Object > >& source, 
   }
 }
 
+// Special version to include Area_Block for an Area_Skeleton (for on the fly make_area)
+template< typename Index >
+void loop_over_area_elements(const std::map< Index, std::vector< Area_Skeleton > >& source,
+                             const std::map< Index, std::vector< Area_Block > >& area_blocks,
+    Resource_Manager& rman,  std::vector< Statement* >& substatements,
+    const std::string& input, const std::string& result_name)
+{
+  for (typename std::map< Index, std::vector< Area_Skeleton > >::const_iterator
+      it = source.begin(); it != source.end(); ++it)
+  {
+    for (typename std::vector< Area_Skeleton >::const_iterator it2 = it->second.begin();
+        it2 != it->second.end(); ++it2)
+    {
+      rman.count_loop();
+      Set empty;
+      add_to_set(empty, it->first, *it2);
+
+      const auto & blocks_per_index = area_blocks.find(it->first);
+      if (blocks_per_index != area_blocks.end())
+      {
+        for (const auto & block : blocks_per_index->second)
+        {
+          if (it2->id == block.id)
+            add_to_set(empty, it->first, block);
+        }
+      }
+
+      rman.swap_set(result_name, empty);
+
+      for (std::vector< Statement* >::iterator it = substatements.begin();
+          it != substatements.end(); ++it)
+        (*it)->execute(rman);
+    }
+  }
+}
+
 
 void Foreach_Statement::execute(Resource_Manager& rman)
 {
@@ -119,7 +156,7 @@ void Foreach_Statement::execute(Resource_Manager& rman)
   loop_over_elements(base_set->attic_ways, rman, substatements, input, get_result_name());
   loop_over_elements(base_set->relations, rman, substatements, input, get_result_name());
   loop_over_elements(base_set->attic_relations, rman, substatements, input, get_result_name());
-  loop_over_elements(base_set->areas, rman, substatements, input, get_result_name());
+  loop_over_area_elements(base_set->areas, base_set->area_blocks, rman, substatements, input, get_result_name());
   loop_over_elements(base_set->deriveds, rman, substatements, input, get_result_name());
 
   rman.move_all_inward_except(get_result_name());
