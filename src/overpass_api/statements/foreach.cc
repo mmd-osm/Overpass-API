@@ -119,13 +119,16 @@ void loop_over_area_elements(const std::map< Index, std::vector< Area_Skeleton >
       Set empty;
       add_to_set(empty, it->first, *it2);
 
-      const auto & blocks_per_index = area_blocks.find(it->first);
-      if (blocks_per_index != area_blocks.end())
-      {
-        for (const auto & block : blocks_per_index->second)
+      for(const auto & idx : it2->used_indices) {
+
+        const auto & blocks_per_index = area_blocks.find(idx);
+        if (blocks_per_index != area_blocks.end())
         {
-          if (it2->id == block.id)
-            add_to_set(empty, it->first, block);
+          for (const auto & block : blocks_per_index->second)
+          {
+            if (it2->id == block.id)
+              add_to_set(empty, idx, block);
+          }
         }
       }
 
