@@ -91,10 +91,8 @@ class Id_Query_Statement : public Output_Statement
     virtual std::string dump_ql_in_query(const std::string& indent) const
     {
       std::vector< uint64 >::const_iterator it = refs.begin();
-        
-      std::string result = "(";
-      if (refs.size() > 1)
-        result += "id:";
+
+      std::string result = std::string("(") + (refs.size() > 1 ? "id:" : "");
 
       if (it != refs.end())
         result += ::to_string(*it++);
