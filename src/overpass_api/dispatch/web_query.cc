@@ -37,6 +37,7 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <malloc.h>
 #include <sys/mman.h>
 #include <sys/resource.h>
 #include <sys/select.h>
@@ -309,6 +310,7 @@ int main(int argc, char *argv[])
         FCGX_Finish_r(&request);
         break;
       }
+      malloc_trim(0);   // test only
     }
 
     // restore stdio streambuffers
