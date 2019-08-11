@@ -17,6 +17,7 @@
  */
 
 #include <algorithm>
+#include <parallel/algorithm>
 #include <functional>
 #include <map>
 #include <set>
@@ -442,7 +443,8 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
     transaction = new Nonsynced_Transaction(true, false, db_dir, "");
 
   // Prepare collecting all data of existing skeletons
-  std::stable_sort(new_data.data.begin(), new_data.data.end());
+//  std::stable_sort(new_data.data.begin(), new_data.data.end());
+  __gnu_parallel::stable_sort(new_data.data.begin(), new_data.data.end());
   if (meta == keep_attic)
     remove_time_inconsistent_versions(new_data);
   else
@@ -791,7 +793,7 @@ void Node_Updater::update_node_ids
   static Pair_Equal_Id< Node::Id_Type, bool > pair_equal_id;
 
   // keep always the most recent (last) element of all equal elements
-  stable_sort
+  __gnu_parallel::stable_sort
       (ids_to_modify.begin(), ids_to_modify.end(), pair_comparator_by_id);
   std::vector< std::pair< Node::Id_Type, bool > >::iterator modi_begin
       (unique(ids_to_modify.rbegin(), ids_to_modify.rend(), pair_equal_id).base());

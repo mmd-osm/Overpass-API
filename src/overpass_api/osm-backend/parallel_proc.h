@@ -27,6 +27,9 @@
 
 inline void process_package(std::vector< std::function< void() > >& f, const int parallel_processes)
 {
+  if (f.empty())
+    return;
+
   // skip thread creation if no parallel processing requested
   if (parallel_processes <= 1)
   {
