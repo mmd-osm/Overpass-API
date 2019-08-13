@@ -24,6 +24,7 @@
 #include <cstring>
 #include <map>
 #include <set>
+#include <type_traits>
 
 
 struct Block_Backend_Basic_Ref
@@ -66,8 +67,8 @@ public:
   const Object& object() const;
   typename Object::Id_Type id() const;
 
-  template< typename T >
-  inline T apply_func(T(*f)(const void *));
+  template< typename Functor >
+  auto apply_func(Functor && f) -> decltype(f(static_cast<const void*>(nullptr)));
 
 private:
   void update_ptr() const;
@@ -108,12 +109,13 @@ typename Object::Id_Type Handle< Object >::id() const
   return Object::get_id(ptr);
 }
 
+
 template< typename Object >
-template< typename T >
-inline T Handle< Object >::apply_func(T(*f)(const void *))
+template< typename Functor >
+inline auto Handle< Object >::apply_func(Functor && f) -> decltype(f(static_cast<const void*>(nullptr)))
 {
   update_ptr();
-  return f((void*)(ptr));
+  return f(static_cast<const void*>(ptr));
 }
 
 template< typename Object >
@@ -174,8 +176,8 @@ struct Block_Backend_Basic_Iterator : public Block_Backend_Basic_Ref
   const TObject& object();
   const Handle< TObject >& handle() { return object_handle; }
 
-  template< typename T >
-  T apply_func(T(*)(const void *));
+  template< typename Functor >
+  auto apply_func(Functor && f) -> decltype(f(static_cast<const void*>(nullptr)));
 
   uint32 block_size;
   uint32* current_idx_pos;
@@ -450,8 +452,8 @@ const TObject& Block_Backend_Basic_Iterator< TIndex, TObject >::object()
 }
 
 template< class TIndex, class TObject >
-template< typename T >
-inline T Block_Backend_Basic_Iterator< TIndex, TObject >::apply_func(T(*f)(const void *))
+template< typename Functor >
+inline auto Block_Backend_Basic_Iterator< TIndex, TObject >::apply_func(Functor && f) -> decltype(f(static_cast<const void*>(nullptr)))
 {
   return object_handle.apply_func(f);
 }

@@ -312,11 +312,11 @@ std::vector< typename Skeleton::Id_Type > filter_ids_by_changeset(
         it = current_meta_db.discrete_begin(req.begin(), req.end());
         !(it == current_meta_db.discrete_end()); ++it)
     {
-      auto current_changeset = it.apply_func(&OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >::get_changeset);
+      auto current_changeset = it.apply_func(OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >::get_changeset);
 
       if (current_changeset == changeset)
       {
-        auto current_ref = it.apply_func(&OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >::get_ref);
+        auto current_ref = it.apply_func(OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >::get_ref);
         result.push_back(current_ref);
       }
     }
@@ -330,11 +330,11 @@ std::vector< typename Skeleton::Id_Type > filter_ids_by_changeset(
         it = attic_meta_db.discrete_begin(req.begin(), req.end());
         !(it == attic_meta_db.discrete_end()); ++it)
     {
-      auto current_changeset = it.apply_func(&OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >::get_changeset);
+      auto current_changeset = it.apply_func(OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >::get_changeset);
 
       if (current_changeset == changeset)
       {
-        auto current_ref = it.apply_func(&OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >::get_ref);
+        auto current_ref = it.apply_func(OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >::get_ref);
         result.push_back(current_ref);
       }
     }
