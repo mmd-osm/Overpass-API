@@ -24,7 +24,7 @@
 #include <cstring>
 #include <map>
 #include <set>
-#include <typeinfo>
+#include <type_traits>
 
 
 struct Block_Backend_Basic_Ref
@@ -68,7 +68,7 @@ public:
   typename Object::Id_Type id() const;
 
   template< typename Functor >
-  auto apply_func(Functor && f) -> decltype(f(static_cast<const void*>(nullptr)));
+  auto apply_func(Functor f) -> decltype(f(static_cast<const void*>(nullptr)));
 
 private:
   void update_ptr() const;
@@ -112,10 +112,12 @@ typename Object::Id_Type Handle< Object >::id() const
 
 template< typename Object >
 template< typename Functor >
-inline auto Handle< Object >::apply_func(Functor && f) -> decltype(f(static_cast<const void*>(nullptr)))
+inline auto Handle< Object >::apply_func(Functor f) -> decltype(f(static_cast<const void*>(nullptr)))
 {
-//  static_assert( typeid(f.reference_type) == typeid(Object),
-//                        "Functor reference type does not match the iterator object type");
+  // Static type check assumes a Functor class to have a "using reference_type" declaration,
+  // which has to match the data type that is required to handle the raw data in "const void* data".
+  static_assert( std::is_same<typename Functor::reference_type, Object>::value,
+                        "Functor reference type does not match the iterator object type");
   update_ptr();
   return f(static_cast<const void*>(ptr));
 }
@@ -179,7 +181,7 @@ struct Block_Backend_Basic_Iterator : public Block_Backend_Basic_Ref
   const Handle< TObject >& handle() { return object_handle; }
 
   template< typename Functor >
-  auto apply_func(Functor && f) -> decltype(f(static_cast<const void*>(nullptr)));
+  auto apply_func(Functor f) -> decltype(f(static_cast<const void*>(nullptr)));
 
   uint32 block_size;
   uint32* current_idx_pos;
@@ -455,7 +457,7 @@ const TObject& Block_Backend_Basic_Iterator< TIndex, TObject >::object()
 
 template< class TIndex, class TObject >
 template< typename Functor >
-inline auto Block_Backend_Basic_Iterator< TIndex, TObject >::apply_func(Functor && f) -> decltype(f(static_cast<const void*>(nullptr)))
+inline auto Block_Backend_Basic_Iterator< TIndex, TObject >::apply_func(Functor f) -> decltype(f(static_cast<const void*>(nullptr)))
 {
   return object_handle.apply_func(f);
 }
