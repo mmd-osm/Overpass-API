@@ -516,22 +516,6 @@ struct OSM_Element_Metadata_Skeleton
     *(uint32*)((int8*)data + sizeof(Id_Type) + 13) = user_id;
   }
 
-  static uint64 get_timestamp(const void* data)
-  {
-    uint64 _timestamp((*(uint64*)((int8*)data + sizeof(Id_Type) + 4) & 0xffffffffffull));
-    return _timestamp;
-  }
-
-  static Id_Type get_ref(const void* data)
-  {
-    return *(Id_Type*)data;
-  }
-
-  static uint32 get_changeset(const void* data)
-  {
-    return *(uint32*)((int8*)data + sizeof(Id_Type) + 9);
-  }
-
   bool operator<(const OSM_Element_Metadata_Skeleton& a) const
   {
     if (ref < a.ref)
@@ -545,6 +529,58 @@ struct OSM_Element_Metadata_Skeleton
   {
     return (ref == a.ref);
   }
+};
+
+template <typename Id_Type >
+struct Metadata_Timestamp_Functor {
+  Metadata_Timestamp_Functor() {};
+
+  using reference_type = OSM_Element_Metadata_Skeleton<Id_Type>;
+
+  uint64 operator()(const void* data)
+   {
+     uint64 _timestamp((*(uint64*)((int8*)data + sizeof(Id_Type) + 4) & 0xffffffffffull));
+     return _timestamp;
+   }
+};
+
+
+
+template <typename Id_Type >
+struct Metadata_Element_Functor {
+  Metadata_Element_Functor() {};
+
+  using reference_type = OSM_Element_Metadata_Skeleton<Id_Type>;
+
+  OSM_Element_Metadata_Skeleton< Id_Type > operator()(const void* data)
+  {
+    return OSM_Element_Metadata_Skeleton< Id_Type >(data);
+  }
+};
+
+
+template <typename Id_Type >
+struct Metadata_Reference_Functor {
+  Metadata_Reference_Functor() {};
+
+  using reference_type = OSM_Element_Metadata_Skeleton<Id_Type>;
+
+  Id_Type operator()(const void* data)
+   {
+     return *(Id_Type*)data;
+   }
+};
+
+template <typename Id_Type >
+struct Metadata_Changeset_Functor {
+  Metadata_Changeset_Functor() {};
+
+  using reference_type = OSM_Element_Metadata_Skeleton<Id_Type>;
+
+  uint32 operator()(const void* data)
+   {
+     return *(uint32*)((int8*)data + sizeof(Id_Type) + 9);
+   }
 };
 
 

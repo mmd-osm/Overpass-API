@@ -24,7 +24,7 @@
 #include <cstring>
 #include <map>
 #include <set>
-#include <type_traits>
+#include <typeinfo>
 
 
 struct Block_Backend_Basic_Ref
@@ -114,6 +114,8 @@ template< typename Object >
 template< typename Functor >
 inline auto Handle< Object >::apply_func(Functor && f) -> decltype(f(static_cast<const void*>(nullptr)))
 {
+//  static_assert( typeid(f.reference_type) == typeid(Object),
+//                        "Functor reference type does not match the iterator object type");
   update_ptr();
   return f(static_cast<const void*>(ptr));
 }

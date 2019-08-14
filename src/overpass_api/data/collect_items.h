@@ -35,23 +35,23 @@ inline uint64 timestamp_of(const Relation_Skeleton& skel) { return NOW; }
 
 template< typename TObject, class TIterator>
 inline typename std::enable_if< std::is_same< TObject, Attic < Node_Skeleton > >::value, uint64 >::type
-  timestamp_of_it(TIterator& it) { return it.apply_func(Attic<Node_Skeleton>::get_timestamp); };
+  timestamp_of_it(TIterator& it) { return it.apply_func(Attic_Timestamp_Functor<Node_Skeleton>()); };
 
 template< typename TObject, class TIterator>
 inline typename std::enable_if< std::is_same< TObject, Attic < Way_Skeleton > >::value, uint64 >::type
-  timestamp_of_it(TIterator& it) { return it.apply_func(Attic<Way_Skeleton>::get_timestamp); };
+  timestamp_of_it(TIterator& it) { return it.apply_func(Attic_Timestamp_Functor<Way_Skeleton>()); };
 
 template< typename TObject, class TIterator>
 inline typename std::enable_if< std::is_same< TObject, Attic < Relation_Skeleton > >::value, uint64 >::type
-  timestamp_of_it(TIterator& it) { return it.apply_func(Attic<Relation_Skeleton>::get_timestamp); };
+  timestamp_of_it(TIterator& it) { return it.apply_func(Attic_Timestamp_Functor<Relation_Skeleton>()); };
 
 template< typename TObject, class TIterator>
 inline typename std::enable_if< std::is_same< TObject, Attic < Way_Delta > >::value, uint64 >::type
-  timestamp_of_it(TIterator& it) { return it.apply_func(Attic<Way_Delta>::get_timestamp); };
+  timestamp_of_it(TIterator& it) { return it.apply_func(Attic_Timestamp_Functor<Way_Delta>()); };
 
 template< typename TObject, class TIterator>
 inline typename std::enable_if< std::is_same< TObject, Attic < Relation_Delta > >::value, uint64 >::type
-  timestamp_of_it(TIterator& it) { return it.apply_func(Attic<Relation_Delta>::get_timestamp); };
+  timestamp_of_it(TIterator& it) { return it.apply_func(Attic_Timestamp_Functor<Relation_Delta>()); };
 
 template< typename TObject, class TIterator>
 inline typename std::enable_if< std::is_same< TObject, Node_Skeleton >::value, uint64 >::type

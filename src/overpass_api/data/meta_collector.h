@@ -113,11 +113,6 @@ private:
 /** Implementation --------------------------------------------------------- */
 
 
-template<typename Id_Type>
-OSM_Element_Metadata_Skeleton< Id_Type > get_elem(const void * a) {
-  return OSM_Element_Metadata_Skeleton< Id_Type >(a);
-}
-
 
 template< typename Index, typename Object >
 void generate_index_query
@@ -230,7 +225,7 @@ void Meta_Collector< Index, Id_Type, Functor >::reset()
     }
     while (!(*db_it == meta_db->discrete_end()) && (*current_index == db_it->index()))
     {
-      auto obj = db_it->apply_func( get_elem< Id_Type > );
+      auto obj = db_it->apply_func( Metadata_Element_Functor< Id_Type >() );
 
       if (m_functor(obj))
         current_objects.push_back(std::move(obj));
@@ -252,7 +247,7 @@ void Meta_Collector< Index, Id_Type, Functor >::reset()
     }
     while (!(*range_it == meta_db->range_end()) && (*current_index == range_it->index()))
     {
-      auto obj = range_it->apply_func( get_elem< Id_Type > );
+      auto obj = range_it->apply_func( Metadata_Element_Functor< Id_Type >() );
       if (m_functor(obj))
         current_objects.push_back(std::move(obj));
       ++(*range_it);
@@ -278,7 +273,7 @@ void Meta_Collector< Index, Id_Type, Functor >::update_current_objects(const Ind
       *current_index = db_it->index();
     while (!(*db_it == meta_db->discrete_end()) && (*current_index == db_it->index()))
     {
-      auto obj = db_it->apply_func( get_elem< Id_Type > );
+      auto obj = db_it->apply_func( Metadata_Element_Functor< Id_Type >() );
 
       if (m_functor(obj))
         current_objects.push_back(std::move(obj));
@@ -293,7 +288,7 @@ void Meta_Collector< Index, Id_Type, Functor >::update_current_objects(const Ind
       *current_index = range_it->index();
     while (!(*range_it == meta_db->range_end()) && (*current_index == range_it->index()))
     {
-      auto obj = range_it->apply_func( get_elem< Id_Type > );
+      auto obj = range_it->apply_func( Metadata_Element_Functor< Id_Type >() );
       if (m_functor(obj))
         current_objects.push_back(std::move(obj));
       ++(*range_it);

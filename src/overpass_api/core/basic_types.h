@@ -101,13 +101,20 @@ struct Uint32_Index
     return value;
   }
 
-  static uint32 get_val(const void* data)
+  protected:
+    uint32 value;
+};
+
+
+struct Uint32_Index_Val_Functor {
+  Uint32_Index_Val_Functor() {};
+
+  using reference_type = Uint32_Index;
+
+  uint32 operator()(const void* data)
   {
     return *(uint32*)data;
   }
-
-  protected:
-    uint32 value;
 };
 
 
@@ -257,12 +264,6 @@ struct Attic : public Element_Skeleton
     return Element_Skeleton::size_of(data) + 5;
   }
   
-  static uint64 get_timestamp(const void* data)
-  {
-    uint64 _timestamp(*(uint64*)((uint8*)data + Element_Skeleton::size_of(data)) & 0xffffffffffull);
-    return _timestamp;
-  }
-
   void to_data(void* data) const
   {
     Element_Skeleton::to_data(data);
@@ -285,6 +286,20 @@ struct Attic : public Element_Skeleton
     return (*static_cast< const Element_Skeleton* >(this) == rhs && timestamp == rhs.timestamp);
   }
 };
+
+template< typename Element_Skeleton >
+struct Attic_Timestamp_Functor {
+  Attic_Timestamp_Functor() {};
+
+  using reference_type = Attic< Element_Skeleton >;
+
+  uint64 operator()(const void* data)
+   {
+    uint64 _timestamp(*(uint64*)((uint8*)data + Element_Skeleton::size_of(data)) & 0xffffffffffull);
+    return _timestamp;
+   }
+};
+
 
 
 template< typename Attic >
