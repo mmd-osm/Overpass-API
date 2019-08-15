@@ -256,6 +256,9 @@ struct Quad_Coord
 };
 
 
+template <class T, class Object, class Element_Skeleton>
+struct Attic_Handle_Methods;
+
 template< typename Element_Skeleton >
 struct Attic : public Element_Skeleton
 {
@@ -302,7 +305,7 @@ struct Attic : public Element_Skeleton
   }
 
   template <class T, class Object>
-  using Handle_Methods = Empty_Handle_Methods<T, Object>;
+  using Handle_Methods = Attic_Handle_Methods<T, Object, Element_Skeleton>;
 };
 
 template< typename Element_Skeleton >
@@ -311,11 +314,19 @@ struct Attic_Timestamp_Functor {
 
   using reference_type = Attic< Element_Skeleton >;
 
-  uint64 operator()(const void* data)
+  uint64 operator()(const void* data) const
    {
     uint64 _timestamp(*(uint64*)((uint8*)data + Element_Skeleton::size_of(data)) & 0xffffffffffull);
     return _timestamp;
    }
+};
+
+template <class T, class Object, class Element_Skeleton>
+struct Attic_Handle_Methods
+{
+  uint64 inline get_timestamp() const {
+     return (static_cast<const T*>(this)->apply_func(Attic_Timestamp_Functor< Element_Skeleton >()));
+  }
 };
 
 

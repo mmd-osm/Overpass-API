@@ -268,7 +268,7 @@ void filter_attic_elements
         !(it == undeleted_db.discrete_end()); ++it)
     {
 
-      auto current_timestamp = it.apply_func(Attic_Timestamp_Functor< typename Skeleton::Id_Type >());
+      auto current_timestamp = it.handle().get_timestamp();
 
       if (current_timestamp <= timestamp)
         continue;
@@ -342,7 +342,7 @@ void filter_attic_elements
         it = attic_meta_db.discrete_begin(idx_set.begin(), idx_set.end());
         !(it == attic_meta_db.discrete_end()); ++it)
     {
-      auto current_ref = it.apply_func(Metadata_Reference_Functor<typename Skeleton::Id_Type>());
+      auto current_ref = it.handle().get_timestamp();
 
       while (it_ts != timestamp_by_id_by_idx.end() && it_ts->first < it.index())
         ++it_ts;
@@ -356,7 +356,7 @@ void filter_attic_elements
           tit = (it_ts->second).find(current_ref);
       if (tit != it_ts->second.end())
       {
-        auto current_timestamp = it.apply_func(Metadata_Timestamp_Functor< typename Skeleton::Id_Type >());
+        auto current_timestamp = it.handle().get_timestamp();
 
         if (timestamp < current_timestamp)
           tit->second.second = std::min(tit->second.second, current_timestamp);
@@ -379,7 +379,7 @@ void filter_attic_elements
         it = meta_db.discrete_begin(idx_set.begin(), idx_set.end());
         !(it == meta_db.discrete_end()); ++it)
     {
-      auto current_ref = it.apply_func(Metadata_Reference_Functor<typename Skeleton::Id_Type>());
+      auto current_ref = it.handle().get_ref();
 
       while (it_ts != timestamp_by_id_by_idx.end() && it_ts->first < it.index())
         ++it_ts;
@@ -393,7 +393,7 @@ void filter_attic_elements
           tit = (it_ts->second).find(current_ref);
       if (tit != it_ts->second.end())
       {
-        auto current_timestamp = it.apply_func(Metadata_Timestamp_Functor< typename Skeleton::Id_Type >());
+        auto current_timestamp = it.handle().get_timestamp();
 
         if (timestamp < current_timestamp)
           tit->second.second = std::min(tit->second.second, current_timestamp);

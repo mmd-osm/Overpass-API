@@ -549,14 +549,12 @@ struct Metadata_Timestamp_Functor {
 
   using reference_type = OSM_Element_Metadata_Skeleton<Id_Type>;
 
-  uint64 operator()(const void* data)
+  uint64 operator()(const void* data) const
    {
      uint64 _timestamp((*(uint64*)((int8*)data + sizeof(Id_Type) + 4) & 0xffffffffffull));
      return _timestamp;
    }
 };
-
-
 
 template <typename Id_Type >
 struct Metadata_Element_Functor {
@@ -599,6 +597,9 @@ struct Metadata_Changeset_Functor {
 template <class T, class Object>
 struct Metadata_Handle_Methods
 {
+  uint64 inline get_timestamp() const {
+     return (static_cast<const T*>(this)->apply_func(Metadata_Timestamp_Functor<typename Object::Id_Type>()));
+  }
 
   OSM_Element_Metadata_Skeleton< typename Object::Id_Type > inline get_element() const {
      return (static_cast<const T*>(this)->apply_func(Metadata_Element_Functor<typename Object::Id_Type>()));
