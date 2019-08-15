@@ -35,6 +35,12 @@ typedef unsigned short int uint16;
 typedef unsigned int uint32;
 typedef unsigned long long uint64;
 
+template <class T, class Object>
+struct Empty_Handle_Methods
+{
+  // dummy implementation, for objects without handle() exported methods.
+};
+
 struct Uint32_Index
 {
   typedef uint32 Id_Type;
@@ -102,12 +108,7 @@ struct Uint32_Index
   }
 
   template <class T, class Object>
-  struct handle_methods {
-
-  };
-
-  template <class T, class Object>
-  using Handle_Methods = handle_methods<T, Object>;
+  using Handle_Methods = Empty_Handle_Methods<T, Object>;
 
   protected:
     uint32 value;
@@ -160,12 +161,7 @@ struct Uint31_Index : Uint32_Index
   }
 
   template <class T, class Object>
-  struct handle_methods {
-
-  };
-
-  template <class T, class Object>
-  using Handle_Methods = handle_methods<T, Object>;
+  using Handle_Methods = Empty_Handle_Methods<T, Object>;
 };
 
 
@@ -238,12 +234,7 @@ struct Uint64
   uint64 val() const { return value; }
 
   template <class T, class Object>
-  struct handle_methods {
-
-  };
-
-  template <class T, class Object>
-  using Handle_Methods = handle_methods<T, Object>;
+  using Handle_Methods = Empty_Handle_Methods<T, Object>;
 
   protected:
     uint64 value;
@@ -311,12 +302,7 @@ struct Attic : public Element_Skeleton
   }
 
   template <class T, class Object>
-  struct handle_methods {
-
-  };
-
-  template <class T, class Object>
-  using Handle_Methods = handle_methods<T, Object>;
+  using Handle_Methods = Empty_Handle_Methods<T, Object>;
 };
 
 template< typename Element_Skeleton >

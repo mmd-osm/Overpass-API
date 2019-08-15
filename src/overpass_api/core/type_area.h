@@ -306,12 +306,7 @@ struct Area_Skeleton
   }
 
   template <class T, class Object>
-  struct handle_methods {
-
-  };
-
-  template <class T, class Object>
-  using Handle_Methods = handle_methods<T, Object>;
+  using Handle_Methods = Empty_Handle_Methods<T, Object>;
 
 };
 
@@ -385,12 +380,7 @@ struct Area_Block
   }
 
   template <class T, class Object>
-  struct handle_methods {
-
-  };
-
-  template <class T, class Object>
-  using Handle_Methods = handle_methods<T, Object>;
+  using Handle_Methods = Empty_Handle_Methods<T, Object>;
 
   private:
     mutable std::vector< std::pair< uint32, int32 > > ilat_ilon_pairs;

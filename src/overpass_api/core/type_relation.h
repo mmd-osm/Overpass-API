@@ -187,13 +187,7 @@ struct Relation_Skeleton
   }
 
   template <class T, class Object>
-  struct handle_methods {
-
-  };
-
-  template <class T, class Object>
-  using Handle_Methods = handle_methods<T, Object>;
-
+  using Handle_Methods = Empty_Handle_Methods<T, Object>;
 };
 
 

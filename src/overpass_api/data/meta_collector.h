@@ -34,7 +34,7 @@ template <typename Id_Type >
 class AlwaysTrueFunctor {
 
 public:
-  constexpr bool operator()(const OSM_Element_Metadata_Skeleton< Id_Type > & obj) {
+  constexpr bool operator()(const OSM_Element_Metadata_Skeleton< Id_Type > & obj) const {
     return true;
   }
 };
