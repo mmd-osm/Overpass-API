@@ -152,6 +152,14 @@ struct Way_Skeleton
   {
     return this->id == a.id;
   }
+
+  template <class T, class Object>
+  struct handle_methods {
+
+  };
+
+  template <class T, class Object>
+  using Handle_Methods = handle_methods<T, Object>;
 };
 
 

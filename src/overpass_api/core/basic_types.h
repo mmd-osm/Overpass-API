@@ -101,6 +101,14 @@ struct Uint32_Index
     return value;
   }
 
+  template <class T, class Object>
+  struct handle_methods {
+
+  };
+
+  template <class T, class Object>
+  using Handle_Methods = handle_methods<T, Object>;
+
   protected:
     uint32 value;
 };
@@ -150,6 +158,14 @@ struct Uint31_Index : Uint32_Index
     }
     return (this->value < index.value);
   }
+
+  template <class T, class Object>
+  struct handle_methods {
+
+  };
+
+  template <class T, class Object>
+  using Handle_Methods = handle_methods<T, Object>;
 };
 
 
@@ -221,6 +237,14 @@ struct Uint64
 
   uint64 val() const { return value; }
 
+  template <class T, class Object>
+  struct handle_methods {
+
+  };
+
+  template <class T, class Object>
+  using Handle_Methods = handle_methods<T, Object>;
+
   protected:
     uint64 value;
 };
@@ -285,6 +309,14 @@ struct Attic : public Element_Skeleton
   {
     return (*static_cast< const Element_Skeleton* >(this) == rhs && timestamp == rhs.timestamp);
   }
+
+  template <class T, class Object>
+  struct handle_methods {
+
+  };
+
+  template <class T, class Object>
+  using Handle_Methods = handle_methods<T, Object>;
 };
 
 template< typename Element_Skeleton >

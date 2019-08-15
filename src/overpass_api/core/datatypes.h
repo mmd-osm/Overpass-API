@@ -79,6 +79,14 @@ struct String_Object
     return value;
   }
 
+  template <class T, class Object>
+  struct handle_methods {
+
+  };
+
+  template <class T, class Object>
+  using Handle_Methods = handle_methods<T, Object>;
+
   protected:
     std::string value;
 };
@@ -446,6 +454,15 @@ struct User_Data
   {
     return (id == a.id);
   }
+
+
+  template <class T, class Object>
+  struct handle_methods {
+
+  };
+
+  template <class T, class Object>
+  using Handle_Methods = handle_methods<T, Object>;
 };
 
 
@@ -462,6 +479,9 @@ struct OSM_Element_Metadata
   bool operator<(const OSM_Element_Metadata&) const { return false; }
 };
 
+
+template <class T, class Object>
+struct Metadata_Handle_Methods;
 
 template< typename Id_Type_ >
 struct OSM_Element_Metadata_Skeleton
@@ -529,6 +549,9 @@ struct OSM_Element_Metadata_Skeleton
   {
     return (ref == a.ref);
   }
+
+  template <class T, class Object>
+  using Handle_Methods = Metadata_Handle_Methods<T, Object>;
 };
 
 template <typename Id_Type >
@@ -565,7 +588,7 @@ struct Metadata_Reference_Functor {
 
   using reference_type = OSM_Element_Metadata_Skeleton<Id_Type>;
 
-  Id_Type operator()(const void* data)
+  Id_Type operator()(const void* data) const
    {
      return *(Id_Type*)data;
    }
@@ -577,10 +600,28 @@ struct Metadata_Changeset_Functor {
 
   using reference_type = OSM_Element_Metadata_Skeleton<Id_Type>;
 
-  uint32 operator()(const void* data)
+  uint32 operator()(const void* data) const
    {
      return *(uint32*)((int8*)data + sizeof(Id_Type) + 9);
    }
+};
+
+
+template <class T, class Object>
+struct Metadata_Handle_Methods
+{
+
+  OSM_Element_Metadata_Skeleton< typename Object::Id_Type > inline get_element() const {
+     return (static_cast<const T*>(this)->apply_func(Metadata_Element_Functor<typename Object::Id_Type>()));
+  }
+
+  typename Object::Id_Type inline get_ref() const {
+     return (static_cast<const T*>(this)->apply_func(Metadata_Reference_Functor<typename Object::Id_Type>()));
+  }
+
+  uint32 inline get_changeset() const {
+     return (static_cast<const T*>(this)->apply_func(Metadata_Changeset_Functor<typename Object::Id_Type>()));
+  }
 };
 
 
@@ -659,6 +700,14 @@ struct Change_Entry
   {
     return (old_idx == rhs.old_idx && new_idx == rhs.new_idx && elem_id == rhs.elem_id);
   }
+
+  template <class T, class Object>
+  struct handle_methods {
+
+  };
+
+  template <class T, class Object>
+  using Handle_Methods = handle_methods<T, Object>;
 };
 
 

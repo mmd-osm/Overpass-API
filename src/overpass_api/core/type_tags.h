@@ -349,6 +349,14 @@ struct Tag_Object_Global
   {
     return 3 + Id_Type::max_size_of();
   }
+
+  template <class T, class Object>
+  struct handle_methods {
+
+  };
+
+  template <class T, class Object>
+  using Handle_Methods = handle_methods<T, Object>;
 };
 
 
