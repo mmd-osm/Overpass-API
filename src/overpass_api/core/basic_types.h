@@ -41,6 +41,9 @@ struct Empty_Handle_Methods
   // dummy implementation, for objects without handle() exported methods.
 };
 
+template <class T, class Object>
+struct Uint32_Index_Handle_Methods;
+
 struct Uint32_Index
 {
   typedef uint32 Id_Type;
@@ -108,7 +111,7 @@ struct Uint32_Index
   }
 
   template <class T, class Object>
-  using Handle_Methods = Empty_Handle_Methods<T, Object>;
+  using Handle_Methods = Uint32_Index_Handle_Methods<T, Object>;
 
   protected:
     uint32 value;
@@ -125,6 +128,16 @@ struct Uint32_Index_Val_Functor {
     return *(uint32*)data;
   }
 };
+
+template <class T, class Object>
+struct Uint32_Index_Handle_Methods
+{
+  uint32 inline get_val() const {
+     return (static_cast<const T*>(this)->apply_func(Uint32_Index_Val_Functor()));
+  }
+};
+
+
 
 
 inline Uint32_Index inc(Uint32_Index idx)

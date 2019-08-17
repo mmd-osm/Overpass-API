@@ -182,9 +182,6 @@ struct Block_Backend_Basic_Iterator : public Block_Backend_Basic_Ref
   const TObject& object();
   const Handle< TObject >& handle() { return object_handle; }
 
-  template< typename Functor >
-  auto apply_func(Functor f) -> decltype(f(static_cast<const void*>(nullptr)));
-
   uint32 block_size;
   uint32* current_idx_pos;
   TIndex* current_index;
@@ -455,13 +452,6 @@ template< class TIndex, class TObject >
 const TObject& Block_Backend_Basic_Iterator< TIndex, TObject >::object()
 {
   return object_handle.object();
-}
-
-template< class TIndex, class TObject >
-template< typename Functor >
-inline auto Block_Backend_Basic_Iterator< TIndex, TObject >::apply_func(Functor f) -> decltype(f(static_cast<const void*>(nullptr)))
-{
-  return object_handle.apply_func(f);
 }
 
 
