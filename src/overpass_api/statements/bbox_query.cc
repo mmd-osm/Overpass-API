@@ -137,6 +137,11 @@ Statement* Bbox_Query_Statement::Criterion_Maker::create_criterion(const Token_N
   attributes["s"] = tree_it.lhs()->token;
 
   attributes["into"] = into;
+
+  if (result_type == "area") {
+    error_output->add_parse_error("Bbox filter not supported for areas.", line_nr);
+  }
+
   return new Bbox_Query_Statement(line_nr, attributes, global_settings);
 }
 

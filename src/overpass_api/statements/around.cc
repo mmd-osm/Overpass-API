@@ -697,6 +697,10 @@ Statement* Around_Statement::Criterion_Maker::create_criterion(const Token_Node_
     tree_it = tree_it.lhs();
   }
 
+  if (type == "area") {
+    error_output->add_parse_error("Around filter not supported for areas.", line_nr);
+  }
+
   if (tree_it->token == ":" && tree_it->rhs)
   {
     std::string radius = decode_json(tree_it.rhs()->token, error_output);
