@@ -79,9 +79,6 @@ struct String_Object
     return value;
   }
 
-  template <class T, class Object>
-  using Handle_Methods = Empty_Handle_Methods<T, Object>;
-
   protected:
     std::string value;
 };
@@ -449,9 +446,6 @@ struct User_Data
   {
     return (id == a.id);
   }
-
-  template <class T, class Object>
-  using Handle_Methods = Empty_Handle_Methods<T, Object>;
 };
 
 
@@ -690,9 +684,6 @@ struct Change_Entry
   {
     return (old_idx == rhs.old_idx && new_idx == rhs.new_idx && elem_id == rhs.elem_id);
   }
-
-  template <class T, class Object>
-  using Handle_Methods = Empty_Handle_Methods<T, Object>;
 };
 
 

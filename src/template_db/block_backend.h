@@ -55,9 +55,31 @@ private:
   uint32 pos;
 };
 
+template <typename...> using void_t = void;
 
 template< typename Object >
-class Handle : public Object::template Handle_Methods < Handle < Object >, Object >
+class Handle;
+
+template <class T, class Object>
+struct Empty_Handle { };
+
+
+template <typename Object, typename = void>
+struct Handle_Base
+{  // Empty class is the default fallback if Object doesn't have a Handle_Methods member type alias
+   using type = Empty_Handle < Handle < Object >, Object >;
+};
+
+template <typename Object>
+struct Handle_Base<Object,  void_t<decltype( typename Object::template Handle_Methods< Handle < Object>, Object > ()) >  >
+{
+   using type = typename Object::template Handle_Methods < Handle < Object>, Object >;
+};
+
+
+template< typename Object >
+class Handle : public Handle_Base<Object>::type
+
 {
 public:
   using object_type = Object;

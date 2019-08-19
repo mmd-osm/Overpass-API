@@ -35,11 +35,6 @@ typedef unsigned short int uint16;
 typedef unsigned int uint32;
 typedef unsigned long long uint64;
 
-template <class T, class Object>
-struct Empty_Handle_Methods
-{
-  // dummy implementation, for objects without handle() exported methods.
-};
 
 template <class T, class Object>
 struct Uint32_Index_Handle_Methods;
@@ -172,9 +167,6 @@ struct Uint31_Index : Uint32_Index
     }
     return (this->value < index.value);
   }
-
-  template <class T, class Object>
-  using Handle_Methods = Empty_Handle_Methods<T, Object>;
 };
 
 
@@ -245,9 +237,6 @@ struct Uint64
   }
 
   uint64 val() const { return value; }
-
-  template <class T, class Object>
-  using Handle_Methods = Empty_Handle_Methods<T, Object>;
 
   protected:
     uint64 value;

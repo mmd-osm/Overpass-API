@@ -152,9 +152,6 @@ struct Way_Skeleton
   {
     return this->id == a.id;
   }
-
-  template <class T, class Object>
-  using Handle_Methods = Empty_Handle_Methods<T, Object>;
 };
 
 

@@ -135,9 +135,6 @@ struct Node_Skeleton
   {
     return this->id.val() == a.id.val();
   }
-
-  template <class T, class Object>
-  using Handle_Methods = Empty_Handle_Methods<T, Object>;
 };
 
 

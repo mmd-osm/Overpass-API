@@ -28,12 +28,6 @@
 #include <sstream>
 
 
-template <class T, class Object>
-struct Empty_Handle_Methods
-{
-  // dummy implementation, for objects without handle() exported methods.
-};
-
 //-----------------------------------------------------------------------------
 
 /* Sample class for TIndex */
@@ -79,9 +73,6 @@ struct IntIndex
     return value;
   }
 
-  template <class T, class Object>
-  using Handle_Methods = Empty_Handle_Methods<T, Object>;
-
   private:
     uint32 value;
 };
@@ -117,9 +108,6 @@ struct IntObject
   {
     return value;
   }
-
-  template <class T, class Object>
-  using Handle_Methods = Empty_Handle_Methods<T, Object>;
 
   private:
     uint32 value;

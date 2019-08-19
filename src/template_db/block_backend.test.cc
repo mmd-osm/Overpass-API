@@ -26,11 +26,6 @@
 #include "transaction.h"
 
 
-template <class T, class Object>
-struct Empty_Handle_Methods
-{
-  // dummy implementation, for objects without handle() exported methods.
-};
 
 /**
  * Tests the library block_backend
@@ -76,9 +71,6 @@ struct IntIndex
     return value;
   }
 
-  template <class T, class Object>
-  using Handle_Methods = Empty_Handle_Methods<T, Object>;
-
   private:
     uint32 value;
 };
@@ -114,9 +106,6 @@ struct IntObject
   {
     return value;
   }
-
-  template <class T, class Object>
-  using Handle_Methods = Empty_Handle_Methods<T, Object>;
 
   private:
     uint32 value;
