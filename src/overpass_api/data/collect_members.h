@@ -267,7 +267,6 @@ void filter_attic_elements
         it = undeleted_db.discrete_begin(idx_set.begin(), idx_set.end());
         !(it == undeleted_db.discrete_end()); ++it)
     {
-
       auto current_timestamp = it.handle().get_timestamp();
 
       if (current_timestamp <= timestamp)
@@ -330,8 +329,6 @@ void filter_attic_elements
         entry[it2->id] = std::make_pair(0, it2->timestamp);
     }
 
-    auto it_ts = timestamp_by_id_by_idx.begin();
-
     Block_Backend< Index, OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >,
             typename std::vector< Index >::const_iterator >
         attic_meta_db(rman.get_transaction()->data_index
@@ -342,20 +339,11 @@ void filter_attic_elements
         it = attic_meta_db.discrete_begin(idx_set.begin(), idx_set.end());
         !(it == attic_meta_db.discrete_end()); ++it)
     {
-      auto current_ref = it.handle().get_timestamp();
-
-      while (it_ts != timestamp_by_id_by_idx.end() && it_ts->first < it.index())
-        ++it_ts;
-
-      if (it_ts == timestamp_by_id_by_idx.end())
-        break;
-
-      assert(it_ts->first == it.index());
-
       typename std::map< typename Skeleton::Id_Type, std::pair< uint64, uint64 > >::iterator
-          tit = (it_ts->second).find(current_ref);
-      if (tit != it_ts->second.end())
+          tit = timestamp_by_id_by_idx[it.index()].find(it.handle().get_ref());
+      if (tit != timestamp_by_id_by_idx[it.index()].end())
       {
+
         auto current_timestamp = it.handle().get_timestamp();
 
         if (timestamp < current_timestamp)
@@ -364,8 +352,6 @@ void filter_attic_elements
           tit->second.first = std::max(tit->second.first, current_timestamp);
       }
     }
-
-    it_ts = timestamp_by_id_by_idx.begin();
 
     // Same thing with current meta data
     Block_Backend< Index, OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >,
@@ -379,26 +365,14 @@ void filter_attic_elements
         it = meta_db.discrete_begin(idx_set.begin(), idx_set.end());
         !(it == meta_db.discrete_end()); ++it)
     {
-      auto current_ref = it.handle().get_ref();
-
-      while (it_ts != timestamp_by_id_by_idx.end() && it_ts->first < it.index())
-        ++it_ts;
-
-      if (it_ts == timestamp_by_id_by_idx.end())
-        break;
-
-      assert(it_ts->first == it.index());
-
       typename std::map< typename Skeleton::Id_Type, std::pair< uint64, uint64 > >::iterator
-          tit = (it_ts->second).find(current_ref);
-      if (tit != it_ts->second.end())
+          tit = timestamp_by_id_by_idx[it.index()].find(it.handle().get_ref());
+      if (tit != timestamp_by_id_by_idx[it.index()].end())
       {
-        auto current_timestamp = it.handle().get_timestamp();
-
-        if (timestamp < current_timestamp)
-          tit->second.second = std::min(tit->second.second, current_timestamp);
+        if (timestamp < it.handle().get_timestamp())
+          tit->second.second = std::min(tit->second.second, it.handle().get_timestamp());
         else
-          tit->second.first = std::max(tit->second.first, current_timestamp);
+          tit->second.first = std::max(tit->second.first, it.handle().get_timestamp());
       }
     }
 
