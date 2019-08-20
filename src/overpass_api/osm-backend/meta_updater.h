@@ -188,7 +188,7 @@ void collect_old_meta_data
     bool found = false;
     for (typename std::vector< Id_Type >::const_iterator it = del_it->second.begin();
         it != del_it->second.end(); ++it)
-      found |= (meta_it.object().ref == *it);
+      found |= (meta_it.handle().get_ref() == *it);
 
     if (found)
       meta_to_insert.push_back(std::make_pair(meta_it.object(), new_index_by_id[meta_it.object().ref]));

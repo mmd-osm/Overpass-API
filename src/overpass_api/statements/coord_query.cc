@@ -317,7 +317,7 @@ void Coord_Query_Statement::execute(Resource_Manager& rman)
       it = area_locations_db.discrete_begin(idx_req.begin(), idx_req.end());
       !(it == area_locations_db.discrete_end()); ++it)
   {
-    if (areas_found.find(it.object().id) != areas_found.end())
+    if (areas_found.find(it.handle().id()) != areas_found.end())
       into.areas[it.index()].push_back(it.object());
   }
 

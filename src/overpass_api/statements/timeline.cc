@@ -94,7 +94,7 @@ void create_timeline_entries(uint64 ref, uint32 version, Statement* stmt, Resour
         it = current_meta_db.discrete_begin(req.begin(), req.end());
         !(it == current_meta_db.discrete_end()); ++it)
     {
-      if (it.object().ref == ref)
+      if (it.handle().get_ref() == ref)
         metas.push_back(it.object());
     }
   }
@@ -107,7 +107,7 @@ void create_timeline_entries(uint64 ref, uint32 version, Statement* stmt, Resour
         it = attic_meta_db.discrete_begin(req.begin(), req.end());
         !(it == attic_meta_db.discrete_end()); ++it)
     {
-      if (it.object().ref == ref)
+      if (it.handle().get_ref() == ref)
         metas.push_back(it.object());
     }
   }

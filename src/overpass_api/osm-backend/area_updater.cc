@@ -92,7 +92,7 @@ void Area_Updater::update_area_ids
       it(area_locations_db.flat_begin());
       !(it == area_locations_db.flat_end()); ++it)
   {
-    if (ids_to_modify.find(it.object().id) != ids_to_modify.end())
+    if (ids_to_modify.find(it.handle().id()) != ids_to_modify.end())
     {
       for (std::vector< uint32 >::const_iterator it2(it.object().used_indices.begin());
           it2 != it.object().used_indices.end(); ++it2)
