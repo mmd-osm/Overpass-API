@@ -1016,6 +1016,13 @@ void Query_Statement::filter_by_tags
   if (timestamp != NOW)
     generate_ids_by_coarse(ids_by_coarse, *attic_items);
 
+  // no tags to filter by
+  if (key_values.empty() && keys.empty() && key_regexes.empty() && regkey_regexes.empty())
+  {
+    filter_by_ids(ids_by_coarse, items, attic_items);
+    return;
+  }
+
   // formulate range query
   std::set< std::pair< Tag_Index_Local, Tag_Index_Local > > range_set;
   formulate_range_query(range_set, ids_by_coarse);
