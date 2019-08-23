@@ -44,7 +44,9 @@ struct Dispatcher_Logger
   virtual void prolongate(pid_t pid) = 0;
   virtual void idle_counter(uint32 idle_count) = 0;
   virtual void read_finished(pid_t pid) = 0;
+  virtual void query_my_status(pid_t pid) = 0;
   virtual void read_aborted(pid_t pid) = 0;
+  virtual void hangup(pid_t pid) = 0;
   virtual void purge(pid_t pid) = 0;
 };
 
@@ -107,6 +109,7 @@ public:
   void set_rate_limit(uint rate_limit_) { rate_limit = rate_limit_; }
 
   const std::vector< Reader_Entry >& get_active() const { return active; }
+  bool is_active(pid_t client_pid) const;
   const std::vector< Quota_Entry >& get_afterwards() const { return afterwards; }
   uint32 get_total_claimed_time() const { return global_used_time; }
   uint32 get_total_available_time() const { return global_available_time; }
@@ -144,9 +147,9 @@ class Dispatcher_Socket
 {
 public:
   Dispatcher_Socket(const std::string& dispatcher_share_name,
-                    const std::string& shadow_name_,
-                    const std::string& db_dir_,
-                    uint max_num_reading_processes_);
+		    const std::string& shadow_name_,
+		    const std::string& db_dir_,
+		    uint max_num_reading_processes_);
   ~Dispatcher_Socket();
 
   void look_for_a_new_connection(Connection_Per_Pid_Map& connection_per_pid);
@@ -209,14 +212,14 @@ class Dispatcher
       * detects whether idx or idy are valid, clears to idx if necessary,
       * and loads them into the shared memory idx_share_name. */
     Dispatcher(std::string dispatcher_share_name,
-               std::string index_share_name,
-               std::string shadow_name,
-               std::string db_dir,
-               uint max_num_reading_processes, uint purge_timeout,
-               uint64 total_available_space,
-               uint64 total_available_time_units,
-               const std::vector< File_Properties* >& controlled_files,
-               Dispatcher_Logger* logger = 0);
+	       std::string index_share_name,
+	       std::string shadow_name,
+	       std::string db_dir,
+	       uint max_num_reading_processes, uint purge_timeout,
+	       uint64 total_available_space,
+	       uint64 total_available_time_units,
+	       const std::vector< File_Properties* >& controlled_files,
+	       Dispatcher_Logger* logger = 0);
 
     ~Dispatcher();
 
@@ -232,16 +235,16 @@ class Dispatcher
 
     /** Copies the shadow files onto the main index files. A lock prevents
         that incomplete copies after a crash may leave the database in an
-        unstable state. Removes the mutex for the write process. */
+	unstable state. Removes the mutex for the write process. */
     void write_commit(pid_t pid);
 
     /** Read operations: --------------------------------------------------- */
 
     /** Request the index for a read operation and registers the reading process.
         Reading the index files should be taking a quick copy, because if any process
-        is in this state, write_commits are blocked. */
+	is in this state, write_commits are blocked. */
     void request_read_and_idx(pid_t pid, uint32 max_allowed_time, uint64 max_allowed_space,
-                              uint32 client_token);
+			      uint32 client_token);
 
     /** Changes the registered state from reading the index to reading the
         database. Can be safely called multiple times for the same process. */
@@ -252,6 +255,9 @@ class Dispatcher
 
     /** Unregisters a reading process for other reasons. */
     void read_aborted(pid_t pid);
+
+    /** Unregisters a non-reading process. */
+    void hangup(pid_t pid);
 
     /** Other operations: -------------------------------------------------- */
 
