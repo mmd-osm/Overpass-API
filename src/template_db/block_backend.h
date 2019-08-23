@@ -27,6 +27,26 @@
 #include <set>
 #include <type_traits>
 
+template <typename...> using void_t = void;
+
+template< typename Object >
+class Handle;
+
+template <class T, class Object>
+struct Empty_Handle { };
+
+
+template <typename Object, typename = void>
+struct Handle_Base
+{  // Empty class is the default fallback if Object doesn't have a Handle_Methods member type alias
+   using type = Empty_Handle < Handle < Object >, Object >;
+};
+
+template <typename Object>
+struct Handle_Base<Object,  void_t<decltype( typename Object::template Handle_Methods< Handle < Object>, Object > ()) >  >
+{
+   using type = typename Object::template Handle_Methods < Handle < Object>, Object >;
+};
 
 template< typename Object >
 struct Idx_Handle
@@ -67,14 +87,28 @@ private:
 };
 
 template< typename Object >
-struct Handle : Idx_Handle< Object >
+struct Handle : Idx_Handle< Object >, public Handle_Base<Object>::type
 {
   typename Object::Id_Type id() const
   {
     return Object::get_id(this->get_ptr_to_raw());
   }
+
+  template< typename Functor >
+  auto apply_func(Functor f) const -> decltype((f(static_cast<const void*>(nullptr))));
 };
 
+
+template< typename Object >
+template< typename Functor >
+inline auto Handle< Object >::apply_func(Functor f) const -> decltype((f(static_cast<const void*>(nullptr))))
+{
+  // Static type check assumes a Functor class to have a "using reference_type" declaration,
+  // which has to match the data type that is required to handle the raw data in "const void* data".
+  static_assert( std::is_same<typename Functor::reference_type, Object>::value,
+                        "Functor reference type does not match the iterator object type");
+  return f(static_cast<const void*>(this->get_ptr_to_raw()));
+}
 
 //-----------------------------------------------------------------------------
 
@@ -354,9 +388,6 @@ struct Discrete_Idx_Assessor
     return index_it != index_end && *index_it == idx;
   }
 
-  typedef TIndex index_type;
-  typedef TObject object_type;
-
 private:
   Iterator index_it;
   Iterator index_end;
@@ -431,9 +462,6 @@ struct Range_Idx_Assessor
       ++index_it;
     return index_it != index_end && !(idx < index_it.lower_bound()) && idx < index_it.upper_bound();
   }
-
-  typedef TIndex index_type;
-  typedef TObject object_type;
 
 private:
   Iterator index_it;
