@@ -339,7 +339,6 @@ void Partial_Way_Geometry::add_point(const Point_Double& point)
 {
   delete bounds;
   bounds = 0;
-
   if (point.lat < 100.)
   {
     if (points.empty() || (points.back().lat >= 100.))

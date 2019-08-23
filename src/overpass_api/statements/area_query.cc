@@ -340,7 +340,6 @@ void Area_Query_Statement::get_ranges
 
 Query_Filter_Strategy Area_Constraint::delivers_data(Resource_Manager& rman)
 {
-
   if (!area->areas_from_input())
     return (area->count_ranges(rman) < 12) ? prefer_ranges : ids_useful;
   else

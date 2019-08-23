@@ -381,7 +381,7 @@ public:
   virtual double relation_pos_lon(unsigned int member_pos, unsigned int nd_pos) const { return 0; }
 
   virtual bool relevant_to_bbox(const Bbox_Double& bbox) const;
-  
+
   void add_linestring(const std::vector< Point_Double >& linestring);
 
 private:

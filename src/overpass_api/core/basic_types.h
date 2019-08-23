@@ -56,7 +56,7 @@ struct Uint32_Index
   {
     return 4;
   }
-  
+
   static uint32 size_of(const void* data)
   {
     return 4;
@@ -195,7 +195,6 @@ struct Uint64
 
   uint32 size_of() const { return 8; }
   static uint32 max_size_of() { return 8; }
-
   static uint32 size_of(const void* data) { return 8; }
 
   void to_data(void* data) const
@@ -278,12 +277,12 @@ struct Attic : public Element_Skeleton
   {
     return Element_Skeleton::size_of() + 5;
   }
-  
+
   static uint32 size_of(const void* data)
   {
     return Element_Skeleton::size_of(data) + 5;
   }
-  
+
   void to_data(void* data) const
   {
     Element_Skeleton::to_data(data);
@@ -330,7 +329,6 @@ struct Attic_Handle_Methods
      return (static_cast<const T*>(this)->apply_func(Attic_Timestamp_Functor< Element_Skeleton >()));
   }
 };
-
 
 
 template< typename Attic >

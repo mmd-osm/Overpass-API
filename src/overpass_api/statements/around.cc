@@ -678,7 +678,6 @@ Statement* Around_Statement::Criterion_Maker::create_criterion(const Token_Node_
 {
   Token_Node_Ptr tree_it = input_tree;
   uint line_nr = tree_it->line_col.first;
-
   std::vector< std::pair< std::string, std::string > > coords;
 
   while (tree_it->token == "," && tree_it->rhs && tree_it->lhs)
@@ -1104,7 +1103,6 @@ void add_way(const std::vector< Point_Double >& points, double radius,
 }
 
 
-
 struct Relation_Member_Collection
 {
   Relation_Member_Collection(const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& relations,
@@ -1360,6 +1358,7 @@ bool Around_Statement::is_inside(const std::vector< Quad_Coord >& way_geometry) 
   }
   return false;
 }
+
 
 void Around_Statement::execute(Resource_Manager& rman)
 {
