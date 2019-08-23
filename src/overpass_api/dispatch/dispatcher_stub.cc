@@ -327,6 +327,8 @@ void Dispatcher_Stub::ping() const
 
 bool Dispatcher_Stub::all_meta_empty() const
 {
+  return false; // TODO: Remove
+/*
   for (uint i = 0; i < meta_settings().idxs().size(); ++i)
   {
     if (transaction->data_index(meta_settings().idxs()[i])
@@ -334,6 +336,7 @@ bool Dispatcher_Stub::all_meta_empty() const
       return false;
   }
   return true;
+*/
 }
 
 
@@ -365,6 +368,8 @@ bool Dispatcher_Stub::is_meta_file(const std::string& filename) const
 
 bool Dispatcher_Stub::all_attic_empty() const
 {
+  return false;    // TODO: Remove
+/*
   for (uint i = 0; i < attic_settings().idxs().size(); ++i)
   {
     if (transaction->data_index(attic_settings().idxs()[i])
@@ -372,6 +377,7 @@ bool Dispatcher_Stub::all_attic_empty() const
       return false;
   }
   return true;
+*/
 }
 
 
