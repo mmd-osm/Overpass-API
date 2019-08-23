@@ -172,6 +172,9 @@ private:
 
   void increment_idx();
   void increment_block();
+
+  typedef Index index_type;
+  typedef Object object_type;
 };
 
 
@@ -368,6 +371,9 @@ struct Block_Backend_Flat_Iterator
 
   Block_Backend_Flat_Iterator(const Block_Backend_Flat_Iterator& rhs)
       : Block_Backend_Basic_Iterator< Index, Object, Flat_Idx_Assessor, File_Handle_ >(rhs) {}
+
+  typedef Index index_type;
+  typedef Object object_type;
 };
 
 
@@ -443,6 +449,9 @@ struct Block_Backend_Discrete_Iterator
 
   Block_Backend_Discrete_Iterator(const Block_Backend_Discrete_Iterator& it)
     : Block_Backend_Basic_Iterator< Index, Object, Discrete_Idx_Assessor< Index, Iterator >, File_Handle_ >(it) {}
+
+  typedef Index index_type;
+  typedef Object object_type;
 };
 
 
@@ -524,6 +533,9 @@ struct Block_Backend_Range_Iterator
   Block_Backend_Range_Iterator(const Block_Backend_Range_Iterator& it)
     : Block_Backend_Basic_Iterator< Index, Object,
         Range_Idx_Assessor< Index, Default_Range_Iterator< Index > >, File_Handle_ >(it) {}
+
+  typedef Index index_type;
+  typedef Object object_type;
 };
 
 

@@ -515,10 +515,9 @@ void collect_items_range(const Statement* stmt, Resource_Manager& rman,
   uint32 count_match = 0;
   uint64 current_result_size = 0;
 
-  Block_Backend< Index, Object, typename Container::const_iterator > db
+  Block_Backend< Index, Object > db
       (rman.get_transaction()->data_index(&file_properties));
-  for (typename Block_Backend< Index, Object, typename Container
-      ::const_iterator >::Range_Iterator
+  for (typename Block_Backend< Index, Object >::Range_Iterator
       it(db.range_begin(req.begin(), req.end()));
            !(it == db.range_end()); ++it)
   {
