@@ -31,7 +31,6 @@ struct Basic_Settings
   std::string INDEX_SUFFIX;
   std::string ID_SUFFIX;
   std::string SHADOW_SUFFIX;
-  std::string OLD_SUFFIX;
 
   std::string base_directory;
   std::string logfile_name;

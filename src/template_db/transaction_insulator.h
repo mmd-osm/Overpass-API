@@ -52,11 +52,9 @@ public:
   void read_finished(pid_t pid);
   std::set< pid_t > registered_pids() const;
 
-  void move_shadows_to_mains();
   void copy_shadows_to_mains();
   void copy_mains_to_shadows();
   void remove_shadows();
-  void remove_olds_and_shadows();
   void set_current_footprints();
   void write_index_of_empty_blocks();
 

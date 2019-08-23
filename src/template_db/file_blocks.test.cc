@@ -91,7 +91,6 @@ struct IntRangeIterator : std::list< std::pair< IntIndex, IntIndex > >::const_it
 std::string BASE_DIRECTORY("./");
 std::string DATA_SUFFIX(".bin");
 std::string INDEX_SUFFIX(".idx");
-std::string OLD_SUFFIX(".old");
 
 
 struct Test_File : File_Properties
@@ -127,11 +126,6 @@ struct Test_File : File_Properties
   {
     static std::string result(".shadow");
     return result;
-  }
-
-  const std::string& get_old_suffix() const
-  {
-    return OLD_SUFFIX;
   }
 
   uint32 get_block_size() const
@@ -225,11 +219,6 @@ struct Variable_Block_Test_File : File_Properties
     return result;
   }
 
-   const std::string& get_old_suffix() const
-   {
-     return OLD_SUFFIX;
-   }
-
   uint32 get_block_size() const
   {
     return 64;
@@ -319,11 +308,6 @@ struct Compressed_Test_File : File_Properties
   {
     static std::string result(".shadow");
     return result;
-  }
-
-  const std::string& get_old_suffix() const
-  {
-    return OLD_SUFFIX;
   }
 
   uint32 get_block_size() const
