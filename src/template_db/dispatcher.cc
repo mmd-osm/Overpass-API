@@ -559,7 +559,7 @@ void Dispatcher::write_start(pid_t pid)
       std::ifstream lock((shadow_name + ".lock").c_str());
       lock>>locked_pid;
       if (locked_pid == pid)
-        return;
+	return;
     }
     std::cerr<<"File_Error "<<e.error_number<<' '<<strerror(e.error_number)<<' '<<e.filename<<' '<<e.origin<<'\n';
     return;

@@ -112,8 +112,6 @@ private:
 
 /** Implementation --------------------------------------------------------- */
 
-
-
 template< typename Index, typename Object >
 void generate_index_query
   (std::set< Index >& indices,

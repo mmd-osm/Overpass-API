@@ -26,7 +26,6 @@
 #include "transaction.h"
 
 
-
 /**
  * Tests the library block_backend
  */
