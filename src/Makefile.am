@@ -224,8 +224,6 @@ nobase_dist_HEADERS = \
   expat/expat_justparse_interface.h\
   expat/map_ql_input.h\
   lib/overpass.h\
-  third_party/xxhash/xxhash.h\
-  third_party/xxhash/xxhash.c\
   overpass_api/core/basic_types.h\
   overpass_api/core/datatypes.h\
   overpass_api/core/four_field_index.h\
