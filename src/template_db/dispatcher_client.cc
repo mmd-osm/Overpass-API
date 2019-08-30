@@ -205,15 +205,23 @@ void Dispatcher_Client::request_read_and_idx(uint32 max_allowed_time, uint64 max
   uint32 ack = 0;
   while (ack == 0 && ++counter <= 100)
   {
-    uint32 msg[5];
-    msg[0] = Dispatcher::REQUEST_READ_AND_IDX;
-    msg[1] = max_allowed_time;
-    msg[2] = (uint32) max_allowed_space;
-    msg[3] = max_allowed_space >> 32;
-    msg[4] = client_token;
+    struct req_read_and_idx_msg_t {
+      uint32 msg;
+      uint32 max_allowed_time;
+      uint32 max_allowed_space_lower;
+      uint32 max_allowed_space_upper;
+      uint32 client_token;
+    } req_read_and_idx_msg;
 
-    if (send(socket.descriptor(), &msg, sizeof(uint32) * 5, 0) == -1)
-      throw File_Error(errno, dispatcher_share_name, "Dispatcher_Client::request_read_and_idx::socket::1");
+    static_assert(sizeof(req_read_and_idx_msg) == 20, "Alignment issue");
+
+    req_read_and_idx_msg.msg = Dispatcher::REQUEST_READ_AND_IDX;
+    req_read_and_idx_msg.max_allowed_time  = max_allowed_time;
+    req_read_and_idx_msg.max_allowed_space_lower = (uint32) max_allowed_space;
+    req_read_and_idx_msg.max_allowed_space_upper = max_allowed_space >> 32;
+    req_read_and_idx_msg.client_token = client_token;
+
+    send_message(req_read_and_idx_msg, "Dispatcher_Client::request_read_and_idx::socket::1");
     
     ack = ack_arrived();
     if (ack == Dispatcher::REQUEST_READ_AND_IDX)
@@ -260,12 +268,17 @@ void Dispatcher_Client::purge(uint32 pid)
 {
   while (true)
   {
-    uint32 msg[2];
-    msg[0] = Dispatcher::PURGE;
-    msg[1] = pid;
-    
-    if (send(socket.descriptor(), &msg, sizeof(uint32) * 2, 0) == -1)
-      throw File_Error(errno, dispatcher_share_name, "Dispatcher_Client::purge::socket::1");
+    struct purge_msg_t {
+      uint32 msg;
+      uint32 pid;
+    } purge_msg;
+
+    static_assert(sizeof(purge_msg) == 8, "Alignment issue");
+
+    purge_msg.msg = Dispatcher::PURGE;
+    purge_msg.pid = pid;
+
+    send_message(purge_msg, "Dispatcher_Client::purge::socket::1");
 
     if (ack_arrived())
       return;
@@ -275,12 +288,17 @@ void Dispatcher_Client::purge(uint32 pid)
 
 pid_t Dispatcher_Client::query_by_token(uint32 token)
 {
-  uint32 msg[2];
-  msg[0] = Dispatcher::QUERY_BY_TOKEN;
-  msg[1] = token;
+  struct query_token_msg_t {
+    uint32 msg;
+    uint32 token;
+  } query_token_msg;
 
-  if (send(socket.descriptor(), &msg, sizeof(uint32) * 2, 0) == -1)
-    throw File_Error(errno, dispatcher_share_name, "Dispatcher_Client::query_by_token::socket::1");
+  static_assert(sizeof(query_token_msg) == 8, "Alignment issue");
+
+  query_token_msg.msg = Dispatcher::QUERY_BY_TOKEN;
+  query_token_msg.token = token;
+
+  send_message(query_token_msg, "Dispatcher_Client::query_by_token::socket::1");
     
   return ack_arrived();
 }
@@ -288,13 +306,17 @@ pid_t Dispatcher_Client::query_by_token(uint32 token)
 
 Client_Status Dispatcher_Client::query_my_status(uint32 token)
 {
+  struct query_my_status_msg_t {
+    uint32 msg;
+    uint32 token;
+  } query_my_status_msg;
 
-  uint32 msg[2];
-  msg[0] = Dispatcher::QUERY_MY_STATUS;
-  msg[1] = token;
+  static_assert(sizeof(query_my_status_msg) == 8, "Alignment issue");
 
-  if (send(socket.descriptor(), &msg, sizeof(uint32) * 2, 0) == -1)
-    throw File_Error(errno, dispatcher_share_name, "Dispatcher_Client::query_my_status::socket::1");
+  query_my_status_msg.msg = Dispatcher::QUERY_MY_STATUS;
+  query_my_status_msg.token = token;
+
+  send_message(query_my_status_msg, "Dispatcher_Client::query_my_status::socket::1");
 
   Client_Status result;
   result.rate_limit = ack_arrived();
@@ -331,21 +353,25 @@ void Dispatcher_Client::set_global_limits(uint64 max_allowed_space, uint64 max_a
 {
   while (true)
   {
-    uint32 msg[6];
-    msg[0] = Dispatcher::SET_GLOBAL_LIMITS;
-    msg[1] = (uint32) max_allowed_space;
-    msg[2] = max_allowed_space >> 32;
-    msg[3] = (uint32) max_allowed_time_units;
-    msg[4] = max_allowed_time_units >> 32;
-    msg[5] = rate_limit;
+    struct global_limit_msg_t {
+      uint32 msg;
+      uint32 max_allowed_space_lower;
+      uint32 max_allowed_space_upper;
+      uint32 max_allowed_time_units_lower;
+      uint32 max_allowed_time_units_upper;
+      uint32 rate_limit;
+    } global_limit_msg;
 
-    if (send(socket.descriptor(), &msg, sizeof(uint32) * 6, 0) == -1)
-      throw File_Error(errno, dispatcher_share_name, "Dispatcher_Client::set_global_limits::1");
+    static_assert(sizeof(global_limit_msg) == 24, "Alignment issue");
 
-//    send_message(Dispatcher::SET_GLOBAL_LIMITS, "Dispatcher_Client::set_global_limits::1");
-//    send_message(max_allowed_space, "Dispatcher_Client::set_global_limits::2");
-//    send_message(max_allowed_time_units, "Dispatcher_Client::set_global_limits::3");
-//    send_message(rate_limit, "Dispatcher_Client::set_global_limits::4");
+    global_limit_msg.msg = Dispatcher::SET_GLOBAL_LIMITS;
+    global_limit_msg.max_allowed_space_lower  = (uint32) max_allowed_space;
+    global_limit_msg.max_allowed_space_upper  = max_allowed_space >> 32;
+    global_limit_msg.max_allowed_time_units_lower = (uint32) max_allowed_time_units;
+    global_limit_msg.max_allowed_time_units_upper = max_allowed_time_units >> 32;
+    global_limit_msg.rate_limit = rate_limit;
+
+    send_message(global_limit_msg, "Dispatcher_Client::set_global_limits::1");
     
     if (ack_arrived())
       return;
