@@ -158,7 +158,7 @@ public:
   void set_socket_reuse_addr();
   int accept_new_connection(Connection_Per_Pid_Map& connection_per_pid);
   void init_epoll();
-  std::vector<unsigned int> wait_for_clients(Connection_Per_Pid_Map& connection_per_pid);
+  std::vector<unsigned int> wait_for_clients(Connection_Per_Pid_Map& connection_per_pid, bool& timeout, uint64 milliseconds);
 
 
 private:

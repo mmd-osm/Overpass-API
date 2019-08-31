@@ -161,13 +161,18 @@ void Dispatcher_Socket::init_epoll()
 
 }
 
-std::vector<unsigned int> Dispatcher_Socket::wait_for_clients(Connection_Per_Pid_Map& connection_per_pid)
+std::vector<unsigned int> Dispatcher_Socket::wait_for_clients(Connection_Per_Pid_Map& connection_per_pid, bool& timeout, uint64 milliseconds)
 {
   int n, i;
 
   std::vector<unsigned int> result_pids;
 
-  n = epoll_wait(efd, events.data(), MAX_EVENTS, -1);
+  n = epoll_wait(efd, events.data(), MAX_EVENTS, (milliseconds == 0 ? -1 : milliseconds));
+
+  timeout = (n == 0 && milliseconds != 0);
+
+  if (n == -1)
+    throw File_Error( errno, "(socket)", "Dispatcher_Socket::wait_for_clients");
 
   for (i = 0; i < n; i++)
   {
@@ -677,16 +682,18 @@ void Dispatcher::hangup(pid_t pid)
 void Dispatcher::standby_loop(uint64 milliseconds)
 {
 
-
   socket.init_epoll();
 
-  uint32 counter = 0;
-  uint32 idle_counter = 0;
-
-  while ((milliseconds == 0) || (counter < milliseconds/100))
+  while (true)
   {
 
-    std::vector<unsigned int> pids = socket.wait_for_clients(connection_per_pid);
+    bool timeout;
+
+    std::vector<unsigned int> pids = socket.wait_for_clients(connection_per_pid, timeout, milliseconds);
+
+    // a timeout value was provided in milliseconds, and no file descriptors became ready during the timeout period
+    if (timeout)
+      return;  // leave standby loop
 
     uint32 command = 0;
     uint32 client_pid = 0;
@@ -888,11 +895,13 @@ void Dispatcher::standby_loop(uint64 milliseconds)
       {
         std::cerr<<"File_Error "<<e.error_number<<' '<<strerror(e.error_number)<<' '<<e.filename<<' '<<e.origin<<'\n';
 
-        counter += 30;
         millisleep(3000);
 
         // Set command state to zero.
         *(uint32*)dispatcher_shm_ptr = 0;
+
+        // Stop dispatcher
+        exit(1);
       }
     }
   }
