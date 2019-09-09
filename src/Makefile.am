@@ -190,7 +190,7 @@ bin_dispatcher_LDADD = libdispatcher.la libfrontend.la libsettings.la
 bin_create_tagged_nodes_SOURCES = overpass_api/osm-backend/create_tagged_nodes.cc template_db/types.cc template_db/zlib_wrapper.cc template_db/lz4_wrapper.cc
 bin_create_tagged_nodes_LDADD = libcore.la libdata.la @COMPRESS_LIBS@
 
-bin_map_demo_SOURCES = overpass_api/osm-backend/map_demo.cc template_db/types.cc template_db/zlib_wrapper.cc template_db/lz4_wrapper.cc
+bin_map_demo_SOURCES = overpass_api/osm-backend/map_demo.cc ${statements_cc} ${output_formats_cc} overpass_api/frontend/basic_formats.cc overpass_api/frontend/output_handler.cc overpass_api/frontend/console_output.cc overpass_api/frontend/web_output.cc overpass_api/osm-backend/clone_database.cc overpass_api/core/four_field_index.cc overpass_api/core/geometry.cc overpass_api/dispatch/scripting_core.cc overpass_api/dispatch/dispatcher_stub.cc template_db/types.cc overpass_api/frontend/decode_text.cc overpass_api/frontend/map_ql_parser.cc overpass_api/frontend/tokenizer_utils.cc template_db/zlib_wrapper.cc template_db/lz4_wrapper.cc
 bin_map_demo_LDADD = libcore.la libdata.la @COMPRESS_LIBS@
 
 cgi_bin_interpreter_SOURCES = ${statements_cc} ${output_formats_cc} overpass_api/frontend/basic_formats.cc overpass_api/frontend/output_handler.cc overpass_api/dispatch/web_query.cc overpass_api/core/four_field_index.cc overpass_api/core/geometry.cc overpass_api/dispatch/scripting_core.cc overpass_api/dispatch/dispatcher_stub.cc template_db/types.cc overpass_api/frontend/decode_text.cc overpass_api/frontend/map_ql_parser.cc overpass_api/frontend/tokenizer_utils.cc overpass_api/frontend/web_output.cc template_db/zlib_wrapper.cc template_db/lz4_wrapper.cc

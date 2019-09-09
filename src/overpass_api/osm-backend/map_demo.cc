@@ -16,53 +16,66 @@
  * along with Overpass_API.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <fstream>
-#include <iomanip>
+#include <bits/exception.h>
+#include <osmium/index/id_set.hpp>
+#include <cstring>
 #include <iostream>
-#include <list>
+#include <iterator>
+#include <map>
+#include <set>
+#include <string>
+#include <utility>
+#include <vector>
 
-#include <locale.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-#include "../../expat/expat_justparse_interface.h"
-#include "../../template_db/random_file.h"
+#include "../../template_db/block_backend.h"
 #include "../../template_db/transaction.h"
-#include "../core/settings.h"
-#include "../frontend/output.h"
-#include "../data/collect_members.h"
-#include "../data/bbox_filter.h"
-#include "../data/way_geometry_store.h"
+#include "../../template_db/types.h"
+#include "../core/basic_types.h"
 #include "../core/datatypes.h"
 #include "../core/geometry.h"
+#include "../core/index_computations.h"
+#include "../core/parsed_query.h"
+#include "../core/settings.h"
+#include "../core/type_node.h"
+#include "../core/type_relation.h"
+#include "../core/type_way.h"
+#include "../data/meta_collector.h"
+#include "../data/tag_store.h"
+#include "../dispatch/dispatcher_stub.h"
+#include "../dispatch/resource_manager.h"
+#include "../dispatch/scripting_core.h"
+#include "../frontend/console_output.h"
+#include "../frontend/web_output.h"
+#include "../output_formats/output_xml.h"
+#include "../statements/osm_script.h"
+#include "../statements/statement.h"
 
-#include <osmium/index/id_set.hpp>
+
+osmium::index::IdSetDense<Node_Skeleton::Id_Type::Id_Type>     nodes_dense;
+osmium::index::IdSetDense<Way_Skeleton::Id_Type::Id_Type>      ways_dense;
+osmium::index::IdSetDense<Relation_Skeleton::Id_Type::Id_Type> relations_dense;
+
+std::vector < std::pair<Node_Skeleton::Id_Type::Id_Type, Node_Skeleton::Id_Type::Id_Type>> node_pairs;
+std::vector < std::pair<Way_Skeleton::Id_Type::Id_Type, Way_Skeleton::Id_Type::Id_Type>> way_pairs;
+std::vector < std::pair<Relation_Skeleton::Id_Type::Id_Type, Relation_Skeleton::Id_Type::Id_Type>> rel_pairs;
+
+std::set< Uint31_Index > req;
+std::set< Uint32_Index > node_idx_outside_bbox;
+
+//Bbox_Double bbox(49.8,-14.2,59.5,3.3);  // UK+IRL
+Bbox_Double bbox(17.24,-67.88,19.11,-64.98); // Puerto Rico
+//Bbox_Double bbox(47.2587,-3.3134,47.4037,-3.0267); // belle-ile
 
 
 
-int main(int argc, char* args[])
+
+void prep_map_data(Resource_Manager& rman)
 {
-  if (argc < 2)
-  {
-    std::cout<<"Usage: "<<args[0]<<" db_dir\n";
-    return 0;
-  }
-  
-  std::string db_dir(args[1]);
+
   
   try
   {    
-    osmium::index::IdSetDense<Node_Skeleton::Id_Type::Id_Type>     nodes_dense;
-    osmium::index::IdSetDense<Way_Skeleton::Id_Type::Id_Type>      ways_dense;
-    osmium::index::IdSetDense<Relation_Skeleton::Id_Type::Id_Type> relations_dense;
-
-
     // based on map query: "(node(bbox);way(bn);node(w););(._;(rel(bn)->.a;rel(bw)->.a;);rel(br););out meta;"
-
-    Nonsynced_Transaction transaction(false, false, db_dir, "");
-
-    Bbox_Double bbox(49.8,-14.2,59.5,3.3);  // UK+IRL
-
 
     std::vector< uint32 > node_idxs;
 
@@ -79,7 +92,7 @@ int main(int argc, char* args[])
 
       Uint32_Index previous_node_idx{};
 
-      Block_Backend< Uint32_Index, Node_Skeleton > db (transaction.data_index(osm_base_settings().NODES));
+      Block_Backend< Uint32_Index, Node_Skeleton > db (rman.get_transaction()->data_index(osm_base_settings().NODES));
       for (auto it(db.range_begin(ranges.begin(), ranges.end()));
           !(it == db.range_end()); ++it)
       {
@@ -102,8 +115,6 @@ int main(int argc, char* args[])
 
     // Recurse nodes to ways:   way(bn)
 
-    std::set< Uint31_Index > req;
-
     {
       std::vector< uint32 > parents = calc_parents(node_idxs);
       for (std::vector< uint32 >::const_iterator it = parents.begin(); it != parents.end(); ++it)
@@ -113,7 +124,7 @@ int main(int argc, char* args[])
     // Fetch ways for nodes
 
     {
-      Block_Backend< Uint31_Index, Way_Skeleton > db (transaction.data_index(osm_base_settings().WAYS));
+      Block_Backend< Uint31_Index, Way_Skeleton > db (rman.get_transaction()->data_index(osm_base_settings().WAYS));
 
       for (typename Block_Backend< Uint31_Index, Way_Skeleton, std::set< Uint31_Index >::const_iterator >::Discrete_Iterator
           it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
@@ -131,7 +142,10 @@ int main(int argc, char* args[])
     // Mark all nodes in way nodes:    node(w)
 
     {
-      Block_Backend< Uint31_Index, Way_Skeleton > db (transaction.data_index(osm_base_settings().WAYS));
+      Random_File< Node_Skeleton::Id_Type, Uint32_Index > current(rman.get_transaction()->random_index
+          (current_skeleton_file_properties< Node_Skeleton >()));
+
+      Block_Backend< Uint31_Index, Way_Skeleton > db (rman.get_transaction()->data_index(osm_base_settings().WAYS));
 
       for (typename Block_Backend< Uint31_Index, Way_Skeleton, std::set< Uint31_Index >::const_iterator >::Discrete_Iterator
           it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
@@ -139,8 +153,10 @@ int main(int argc, char* args[])
         auto w = it.object();
         if (ways_dense.get(w.id.val())) {
           for (const auto& n : w.nds) {
-              nodes_dense.set(n.val());
-            }
+            bool added_new_entry = nodes_dense.check_and_set(n.val());
+            if (added_new_entry)
+              node_idx_outside_bbox.insert(current.get(n.val()));
+          }
         }
       }
     }
@@ -148,7 +164,7 @@ int main(int argc, char* args[])
     // Relations for nodes    rel(bn)->.a;
 
     {
-      Block_Backend< Uint31_Index, Relation_Skeleton > db (transaction.data_index(osm_base_settings().RELATIONS));
+      Block_Backend< Uint31_Index, Relation_Skeleton > db (rman.get_transaction()->data_index(osm_base_settings().RELATIONS));
 
       for (typename Block_Backend< Uint31_Index, Relation_Skeleton, std::set< Uint31_Index >::const_iterator >::Discrete_Iterator
           it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
@@ -169,7 +185,7 @@ int main(int argc, char* args[])
     // TODO: check req (it is based on nodes!)
 
     {
-      Block_Backend< Uint31_Index, Relation_Skeleton > db (transaction.data_index(osm_base_settings().RELATIONS));
+      Block_Backend< Uint31_Index, Relation_Skeleton > db (rman.get_transaction()->data_index(osm_base_settings().RELATIONS));
 
       for (typename Block_Backend< Uint31_Index, Relation_Skeleton, std::set< Uint31_Index >::const_iterator >::Discrete_Iterator
           it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
@@ -189,12 +205,11 @@ int main(int argc, char* args[])
     // Relations for relations:    rel(br);
 
     {
-      Block_Backend< Uint31_Index, Relation_Skeleton > db (transaction.data_index(osm_base_settings().RELATIONS));
+      Block_Backend< Uint31_Index, Relation_Skeleton > db (rman.get_transaction()->data_index(osm_base_settings().RELATIONS));
 
-      for (typename Block_Backend< Uint31_Index, Relation_Skeleton, std::set< Uint31_Index >::const_iterator >::Discrete_Iterator
-          it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
+      for (typename Block_Backend< Uint31_Index, Relation_Skeleton >::Flat_Iterator
+          it(db.flat_begin()); !(it == db.flat_end()); ++it)
       {
-
         auto r = it.object();
         for (const auto& m : r.members) {
           if (m.type == Relation_Entry::RELATION) {
@@ -204,21 +219,180 @@ int main(int argc, char* args[])
         }
       }
     }
+  }
+  catch (const File_Error & e)
+  {
+    std::cout<<e.origin<<' '<<e.filename<<' '<<e.error_number<<'\n';
+  }
+}
 
-    long nodes = 0;
-    for (const auto& n : nodes_dense) nodes++;
+void calc_node_pairs()
+{
+  Node_Skeleton::Id_Type::Id_Type lower_bound = 0;
+  Node_Skeleton::Id_Type::Id_Type upper_bound = 0;
+  long nodes = 0;
 
-    long ways = 0;
-    for (const auto& w : ways_dense) ways++;
+  for (const auto& n : nodes_dense) {
+    nodes++;
+    if (nodes == 1000000) {
+      node_pairs.push_back({lower_bound, upper_bound});
+      lower_bound = n;
+      nodes = 0;
+    }
+    upper_bound = n;
+  }
+  node_pairs.push_back({lower_bound, upper_bound});
+}
 
-    long rels = 0;
-    for (const auto& r : relations_dense) rels++;
+void calc_way_pairs()
+{
+  Way_Skeleton::Id_Type::Id_Type lower_bound = 0;
+  Way_Skeleton::Id_Type::Id_Type upper_bound = 0;
+  long ways = 0;
+
+  for (const auto& w : ways_dense) {
+    ways++;
+    if (ways == 100000) {
+      way_pairs.push_back({lower_bound, upper_bound});
+      lower_bound = w;
+      ways = 0;
+    }
+    upper_bound = w;
+  }
+  way_pairs.push_back({lower_bound, upper_bound});
+}
+
+void calc_rel_pairs()
+{
+  Relation_Skeleton::Id_Type::Id_Type lower_bound = 0;
+  Relation_Skeleton::Id_Type::Id_Type upper_bound = 0;
+  long relations = 0;
+
+  for (const auto& r : relations_dense) {
+    relations++;
+    if (relations == 100000) {
+      rel_pairs.push_back({lower_bound, upper_bound});
+      lower_bound = r;
+      relations = 0;
+    }
+    upper_bound = r;
+  }
+  rel_pairs.push_back({lower_bound, upper_bound});
+}
 
 
-    std::cout << nodes<< std::endl;
-    std::cout << ways<< std::endl;
-    std::cout << rels<< std::endl;
 
+
+void next_package_node(Resource_Manager& rman, std::pair<Node_Skeleton::Id_Type::Id_Type, Node_Skeleton::Id_Type::Id_Type> idx)
+{
+  try
+  {
+    // TODO: Fix ranges
+    auto ranges = ::get_ranges_32(bbox.south, bbox.north, bbox.west, bbox.east);
+
+    // Add ranges for nodes outside bbox that have been pulled in via way completion
+    for (const auto r : node_idx_outside_bbox)
+      ranges.insert({r, r + 1});
+
+    std::map< Uint32_Index, std::vector< Node_Skeleton > > result;
+    long cnt = 0;
+
+    Block_Backend< Uint32_Index, Node_Skeleton > db (rman.get_transaction()->data_index(osm_base_settings().NODES));
+    for (auto it(db.range_begin(ranges.begin(), ranges.end()));
+        !(it == db.range_end()); ++it)
+    {
+        if ( it.handle().id().val() >= idx.first &&
+             it.handle().id().val() <=  idx.second &&
+             nodes_dense.get( it.handle().id().val() ))
+        {
+          result[it.index()].push_back(it.object());
+          cnt++;
+        }
+    }
+
+    Set into;
+    into.nodes = result;
+
+    rman.swap_set("_", into);
+
+  }
+  catch (const File_Error & e)
+  {
+    std::cout<<e.origin<<' '<<e.filename<<' '<<e.error_number<<'\n';
+  }
+
+}
+
+
+void next_package_way(Resource_Manager& rman, std::pair<Way_Skeleton::Id_Type::Id_Type, Way_Skeleton::Id_Type::Id_Type> idx)
+{
+
+  try
+  {
+    // TODO: Fix ranges
+
+    std::map< Uint31_Index, std::vector< Way_Skeleton > > result;
+    long cnt = 0;
+
+    Block_Backend< Uint31_Index, Way_Skeleton > db (rman.get_transaction()->data_index(osm_base_settings().WAYS));
+
+    for (typename Block_Backend< Uint31_Index, Way_Skeleton, std::set< Uint31_Index >::const_iterator >::Discrete_Iterator
+        it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
+
+    {
+        if ( it.handle().id().val() >= idx.first &&
+             it.handle().id().val() <=  idx.second &&
+             ways_dense.get( it.handle().id().val() ))
+        {
+          result[it.index()].push_back(it.object());
+          cnt++;
+        }
+    }
+
+    Set into;
+    into.ways = result;
+
+    rman.swap_set("_", into);
+
+  }
+  catch (const File_Error & e)
+  {
+    std::cout<<e.origin<<' '<<e.filename<<' '<<e.error_number<<'\n';
+  }
+
+}
+
+
+void next_package_rel(Resource_Manager& rman, std::pair<Relation_Skeleton::Id_Type::Id_Type, Relation_Skeleton::Id_Type::Id_Type> idx)
+{
+
+  try
+  {
+
+    // TODO: Fix ranges
+
+    std::map< Uint31_Index, std::vector< Relation_Skeleton > > result;
+    long cnt = 0;
+
+    Block_Backend< Uint31_Index, Relation_Skeleton > db (rman.get_transaction()->data_index(osm_base_settings().RELATIONS));
+
+    for (typename Block_Backend< Uint31_Index, Relation_Skeleton, std::set< Uint31_Index >::const_iterator >::Discrete_Iterator
+        it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
+
+    {
+        if ( it.handle().id().val() >= idx.first &&
+             it.handle().id().val() <=  idx.second &&
+             relations_dense.get( it.handle().id().val() ))
+        {
+          result[it.index()].push_back(it.object());
+          cnt++;
+        }
+    }
+
+    Set into;
+    into.relations = result;
+
+    rman.swap_set("_", into);
 
   }
   catch (const File_Error & e)
@@ -226,5 +400,128 @@ int main(int argc, char* args[])
     std::cout<<e.origin<<' '<<e.filename<<' '<<e.error_number<<'\n';
   }
   
-  return 0;
 }
+
+
+
+
+
+int main(int argc, char *argv[])
+{
+  std::string db_dir = "";
+
+  uint log_level = Error_Output::ASSISTING;
+  Debug_Level debug_level = parser_execute;
+  Clone_Settings clone_settings;
+  int area_level = 0;
+  bool respect_timeout = true;
+
+  int argpos = 1;
+  while (argpos < argc)
+  {
+    if (!(strncmp(argv[argpos], "--db-dir=", 9)))
+    {
+      db_dir = ((std::string)argv[argpos]).substr(9);
+      if ((db_dir.size() > 0) && (db_dir[db_dir.size()-1] != '/'))
+        db_dir += '/';
+    }
+    else
+    {
+      std::cout<<"Unknown argument: "<<argv[argpos]<<"\n\n"
+      "Accepted arguments are:\n"
+      "  --db-dir=$DB_DIR: The directory where the database resides. If you set this parameter\n"
+      "        then osm3s_query will read from the database without using the dispatcher management.\n";
+
+      return 0;
+    }
+    ++argpos;
+  }
+
+  Error_Output* error_output(new Console_Output(log_level));
+  Statement::set_error_output(error_output);
+
+  // connect to dispatcher and get database dir
+  try
+  {
+    Parsed_Query global_settings;
+    std::string xml_raw = "[out:pbf];out meta;";
+
+
+    Statement::Factory stmt_factory(global_settings);
+    if (!parse_and_validate(stmt_factory, global_settings, xml_raw, error_output, debug_level))
+      return 0;
+
+
+    Osm_Script_Statement* osm_script = 0;
+    if (!get_statement_stack()->empty())
+      osm_script = dynamic_cast< Osm_Script_Statement* >(get_statement_stack()->front());
+
+    uint32 max_allowed_time = 0;
+    uint64 max_allowed_space = 0;
+
+
+    // open read transaction and log this.
+    area_level = determine_area_level(error_output, area_level);
+    Dispatcher_Stub dispatcher(db_dir, error_output, xml_raw,
+                               get_uses_meta_data(), area_level, max_allowed_time, max_allowed_space,
+                               global_settings);
+    if (osm_script && osm_script->get_desired_timestamp())
+      dispatcher.resource_manager().set_desired_timestamp(osm_script->get_desired_timestamp());
+
+    Web_Output web_output(log_level);
+    web_output.set_output_handler(global_settings.get_output_handler());
+    web_output.write_payload_header("", dispatcher.get_timestamp(),
+           area_level > 0 ? dispatcher.get_area_timestamp() : "", false);
+
+
+    // Inject one package into default inputset
+    prep_map_data(dispatcher.resource_manager());
+    calc_node_pairs();
+    calc_way_pairs();
+    calc_rel_pairs();
+
+    dispatcher.resource_manager().start_cpu_timer(0);
+
+    for (const auto & idx : node_pairs)
+    {
+      next_package_node(dispatcher.resource_manager(), idx);
+
+      for (std::vector< Statement* >::const_iterator it(get_statement_stack()->begin());
+           it != get_statement_stack()->end(); ++it)
+        (*it)->execute(dispatcher.resource_manager());
+    }
+
+    for (const auto & idx : way_pairs)
+    {
+      next_package_way(dispatcher.resource_manager(), idx);
+
+      for (std::vector< Statement* >::const_iterator it(get_statement_stack()->begin());
+           it != get_statement_stack()->end(); ++it)
+        (*it)->execute(dispatcher.resource_manager());
+    }
+
+    for (const auto & idx : rel_pairs)
+    {
+      next_package_rel(dispatcher.resource_manager(), idx);
+
+      for (std::vector< Statement* >::const_iterator it(get_statement_stack()->begin());
+           it != get_statement_stack()->end(); ++it)
+        (*it)->execute(dispatcher.resource_manager());
+    }
+
+    dispatcher.resource_manager().stop_cpu_timer(0);
+
+    web_output.write_footer();
+
+    return 0;
+  }
+  catch(std::exception& e)
+  {
+    error_output->runtime_error(std::string("Query failed with the exception: ") + e.what());
+    return 4;
+  }
+}
+
+
+
+
