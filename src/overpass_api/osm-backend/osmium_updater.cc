@@ -35,6 +35,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <array>
 #include <cstdio>
 #include <fstream>
 #include <iomanip>
@@ -309,6 +310,41 @@ void Osmium_Updater::parse_file_completely(FILE* in) {
     exit_code = 1;
   }
 }
+
+void Osmium_Updater::parse_multiple_files(const std::string& source_dir, const std::vector< std::string >& source_file_names)
+{
+  this->callback_->parser_started();
+
+  try
+  {
+    Osmium_Updater_Handler osm_updater(node_updater_, way_updater_,
+        relation_updater_, callback_, flush_limit, cpu_stopwatch);
+
+    std::array<osmium::osm_entity_bits::type, 3> types = { osmium::osm_entity_bits::node,
+                                                           osmium::osm_entity_bits::way,
+                                                           osmium::osm_entity_bits::relation};
+
+    for (const auto& t : types) {
+      for (const auto& file_name : source_file_names) {
+        osmium::io::File infile(source_dir + file_name);
+        osmium::io::Reader reader{infile, t};
+
+        while (osmium::memory::Buffer buffer = reader.read())
+          osmium::apply(buffer, osm_updater);
+
+        reader.close();
+      }
+    }
+    osm_updater.finish_updater();
+
+  } catch (std::exception& e)
+  {
+    std::cerr << e.what() << "\n";
+  }
+}
+
+
+
 
 Osmium_Updater::Osmium_Updater(Osm_Backend_Callback* callback_,
     const string& data_version_, meta_modes meta_, unsigned int flush_limit_,

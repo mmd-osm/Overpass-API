@@ -142,9 +142,9 @@ int main(int argc, char* argv[])
       }
       else
       {
-        Osmium_Updater osm_updater(get_verbatim_callback(), data_version, meta, flush_limit, parallel_processes);
+        Osmium_Updater osmium_updater(get_verbatim_callback(), data_version, meta, flush_limit, parallel_processes);
         //reading the main document
-        osm_updater.parse_file_completely(stdin);
+        osmium_updater.parse_file_completely(stdin);
       }
 
     }
@@ -158,9 +158,9 @@ int main(int argc, char* argv[])
       }
       else
       {
-        Osmium_Updater osm_updater(get_verbatim_callback(), db_dir, data_version, meta, flush_limit, parallel_processes);
+        Osmium_Updater osmium_updater(get_verbatim_callback(), db_dir, data_version, meta, flush_limit, parallel_processes);
         //reading the main document
-        osm_updater.parse_file_completely(stdin);
+        osmium_updater.parse_file_completely(stdin);
       }
     }
   }

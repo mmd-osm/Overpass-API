@@ -43,6 +43,7 @@ class Osmium_Updater
 
     void finish_updater();
     void parse_file_completely(FILE* in);
+    void parse_multiple_files(const std::string& source_dir, const std::vector< std::string >& source_file_names);
     
   private:
     Nonsynced_Transaction* transaction;
@@ -56,6 +57,7 @@ class Osmium_Updater
     meta_modes meta;
     unsigned int parallel_processes;
     Cpu_Stopwatch* cpu_stopwatch;
+
 
     void flush();
 };

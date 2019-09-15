@@ -35,6 +35,7 @@
 #include "relation_updater.h"
 #include "way_updater.h"
 #include "osm_updater.h"
+#include "osmium_updater.h"
 
 
 struct Node_Caller
@@ -90,6 +91,7 @@ int main(int argc, char* argv[])
   bool abort = false;
   unsigned int flush_limit = 16*1024*1024;
   unsigned int parallel_processes = 1;
+  bool use_osmium = false;
 
   int argpos(1);
   while (argpos < argc)
@@ -122,9 +124,13 @@ int main(int argc, char* argv[])
     {
       parallel_processes = atoi(std::string(argv[argpos]).substr(11).c_str());
     }
+    else if (!(strncmp(argv[argpos], "--use-osmium", 12)))
+    {
+      use_osmium = true;
+    }
     else
     {
-      std::cerr<<"Unkown argument: "<<argv[argpos]<<'\n';
+      std::cerr<<"Unknown argument: "<<argv[argpos]<<'\n';
       abort = true;
     }
     ++argpos;
@@ -143,8 +149,11 @@ int main(int argc, char* argv[])
   dp = opendir(source_dir.c_str());
   if (dp != NULL)
   {
-    while ((ep = readdir (dp)))
-      source_file_names.push_back(ep->d_name);
+    while ((ep = readdir (dp))) {
+      if (ep->d_type != DT_DIR) {
+        source_file_names.push_back(ep->d_name);
+      }
+    }
     closedir(dp);
   }
   else
@@ -158,25 +167,39 @@ int main(int argc, char* argv[])
   {
     if (db_dir == "")
     {
-      Osm_Updater osm_updater(get_verbatim_callback(), data_version, meta, flush_limit, parallel_processes);
-      get_verbatim_callback()->parser_started();
+      if (!use_osmium)
+      {
+        Osm_Updater osm_updater(get_verbatim_callback(), data_version, meta, flush_limit, parallel_processes);
+        get_verbatim_callback()->parser_started();
 
-      process_source_files< Node_Caller >(source_dir, source_file_names);
-      process_source_files< Way_Caller >(source_dir, source_file_names);
-      process_source_files< Relation_Caller >(source_dir, source_file_names);
+        process_source_files< Node_Caller >(source_dir, source_file_names);
+        process_source_files< Way_Caller >(source_dir, source_file_names);
+        process_source_files< Relation_Caller >(source_dir, source_file_names);
 
-      osm_updater.finish_updater();
+        osm_updater.finish_updater();
+      }
+      else {
+        Osmium_Updater osmium_updater(get_verbatim_callback(), data_version, meta, flush_limit, parallel_processes);
+        osmium_updater.parse_multiple_files(source_dir, source_file_names);
+      }
     }
     else
     {
-      Osm_Updater osm_updater(get_verbatim_callback(), db_dir, data_version, meta, flush_limit, parallel_processes);
-      get_verbatim_callback()->parser_started();
+      if (!use_osmium)
+      {
+        Osm_Updater osm_updater(get_verbatim_callback(), db_dir, data_version, meta, flush_limit, parallel_processes);
+        get_verbatim_callback()->parser_started();
 
-      process_source_files< Node_Caller >(source_dir, source_file_names);
-      process_source_files< Way_Caller >(source_dir, source_file_names);
-      process_source_files< Relation_Caller >(source_dir, source_file_names);
+        process_source_files< Node_Caller >(source_dir, source_file_names);
+        process_source_files< Way_Caller >(source_dir, source_file_names);
+        process_source_files< Relation_Caller >(source_dir, source_file_names);
 
-      osm_updater.finish_updater();
+        osm_updater.finish_updater();
+      }
+      else {
+        Osmium_Updater osmium_updater(get_verbatim_callback(), db_dir, data_version, meta, flush_limit, parallel_processes);
+        osmium_updater.parse_multiple_files(source_dir, source_file_names);
+      }
     }
   }
   catch(Context_Error e)
