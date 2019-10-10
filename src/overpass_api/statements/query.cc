@@ -194,13 +194,13 @@ void filter_id_list(
 
 template< typename Id_Type, typename Iterator, typename Key_Regex, typename Val_Regex, unsigned int L >
 std::vector< std::pair< Id_Type, Uint31_Index > > filter_id_list_fast(
-    experimental::IdSetDynamic<typename Id_Type::Id_Type, L>& new_ids, bool& filtered,
+    IdSetHybrid<typename Id_Type::Id_Type, L>& new_ids, bool& filtered,
     Iterator begin, Iterator end, const Key_Regex& key_regex, const Val_Regex& val_regex,
     Query_Filter_Strategy& check_keys_late, bool final)
 {
   std::vector< std::pair< Id_Type, Uint31_Index > > new_ids_idx;
 
-  experimental::IdSetDynamic<typename Id_Type::Id_Type, L> old_ids(std::move(new_ids));
+  IdSetHybrid<typename Id_Type::Id_Type, L> old_ids(std::move(new_ids));
   new_ids.clear();
 
   for (Iterator it = begin; !(it == end); ++it)
@@ -295,12 +295,12 @@ void filter_id_list(
 
 template< typename Id_Type, typename Container, unsigned int L >
 std::vector< std::pair< Id_Type, Uint31_Index > > filter_id_list_fast(
-    experimental::IdSetDynamic<typename Id_Type::Id_Type, L>& new_ids, bool& filtered,
+    IdSetHybrid<typename Id_Type::Id_Type, L>& new_ids, bool& filtered,
     const Container& container, bool final)
 {
   std::vector< std::pair< Id_Type, Uint31_Index > > new_ids_result;
 
-  experimental::IdSetDynamic<typename Id_Type::Id_Type, L> old_ids(std::move(new_ids));
+  IdSetHybrid<typename Id_Type::Id_Type, L> old_ids(std::move(new_ids));
   new_ids.clear();
 
   for (typename Container::const_iterator it = container.begin(); it != container.end(); ++it)
@@ -364,7 +364,7 @@ std::vector< std::pair< Id_Type, Uint31_Index > > Query_Statement::collect_ids
         (rman.get_transaction()->data_index(&attic_file_prop)));
 
 
-  experimental::IdSetDynamic<typename Id_Type::Id_Type, 16> tmp_ids;
+  IdSetHybrid<typename Id_Type::Id_Type> tmp_ids;
 
   // Handle simple Key-Value pairs
   std::vector< std::pair< Id_Type, Uint31_Index > > new_ids;

@@ -110,7 +110,7 @@ void filter_elems(const std::vector< typename TObject::Id_Type >& ids, std::map<
 }
 
 template< class TIndex, class TObject >
-void filter_elems_fast(const experimental::IdSetDense<typename TObject::Id_Type::Id_Type>& ids,
+void filter_elems_fast(const IdSetHybrid<typename TObject::Id_Type::Id_Type>& ids,
                        std::map< TIndex, std::vector< TObject > >& elems)
 {
   for (typename std::map< TIndex, std::vector< TObject > >::iterator it = elems.begin();
@@ -157,14 +157,14 @@ std::vector< typename Skeleton::Id_Type > collect_changed_elements
 }
 
 template< typename Index, typename Skeleton, typename Id_Predicate >
-experimental::IdSetDense<typename Skeleton::Id_Type::Id_Type> collect_changed_elements_fast
+IdSetHybrid<typename Skeleton::Id_Type::Id_Type> collect_changed_elements_fast
     (uint64 since, uint64 until,
      const Id_Predicate& relevant, Resource_Manager& rman)
 {
   std::set< std::pair< Timestamp, Timestamp > > range;
   range.insert(std::make_pair(Timestamp(since), Timestamp(until)));
 
-  experimental::IdSetDense<typename Skeleton::Id_Type::Id_Type> ids;
+  IdSetHybrid<typename Skeleton::Id_Type::Id_Type> ids;
 
   Block_Backend< Timestamp, Change_Entry< typename Skeleton::Id_Type > > changelog_db
       (rman.get_transaction()->data_index(changelog_file_properties< Skeleton >()));
@@ -176,6 +176,8 @@ experimental::IdSetDense<typename Skeleton::Id_Type::Id_Type> collect_changed_el
     if (relevant(it.handle().id()))
       ids.set(it.handle().id().val());
   }
+
+  ids.sort_unique();
 
   return ids;
 }
@@ -240,7 +242,7 @@ struct Ids_Dense_Predicate
   { return ids.get(id.val()); }
 
 private:
-  experimental::IdSetDense<typename Skeleton::Id_Type::Id_Type> ids;
+  IdSetHybrid<typename Skeleton::Id_Type::Id_Type> ids;
 };
 
 
