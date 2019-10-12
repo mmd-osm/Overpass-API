@@ -99,7 +99,7 @@ class IdSetHybrid {
          chunk[offset(e)] |= bitmask(e);
       }
 
-      m_data_use_bitmap[cid]= true;
+      m_data_use_bitmap[cid] = true;
       m_data_vector[cid].clear();
     }
   }
@@ -125,6 +125,7 @@ class IdSetHybrid {
     m_data_vector[cid].push_back(lower(id));
     ++m_size;
 
+    // Migrate from vector to bitmap if threshold value was reached
     check_vector_to_bitmap_migration(cid);
   }
 
@@ -140,6 +141,7 @@ class IdSetHybrid {
       return false;
     }
 
+    // Use bitmap or vector for lookup?
     if (m_data_use_bitmap[cid]) {
 
       if (m_data_bitmap[cid].empty()) {
@@ -153,17 +155,19 @@ class IdSetHybrid {
     auto lower_half = lower(id);
     auto& v = m_data_vector[cid];
 
+    // Use linear search for small vectors
     if (v.size() < 64) {
       const auto it = std::find(v.cbegin(), v.cend(), lower_half);
       return it != v.cend();
     }
 
+    //otherwise binary search
     return std::binary_search(v.cbegin(), v.cend(), lower_half);
   }
 
   /**
-   * Sort the internal vector and remove any duplicates. Call this
-   * before using size(), get_binary_search() or using an iterator.
+   * Sort the internal vector and remove duplicates. Call this
+   * before using get()
    */
   void sort_unique() {
     for (auto& v : m_data_vector) {
@@ -177,14 +181,8 @@ class IdSetHybrid {
    */
   bool empty() const noexcept { return m_size == 0; }
 
-  /**
-   * The number of Ids stored in the set.
-   */
   T size() const noexcept { return m_size; }
 
-  /**
-   * Clear the set.
-   */
   void clear() {
     m_data_bitmap.clear();
     m_data_vector.clear();
@@ -269,13 +267,18 @@ class Id_Predicate
 public:
   Id_Predicate(const std::vector< typename Object::Id_Type >& ids_)
   {
-    populate_ids_dense(ids_);
-  }
-  void populate_ids_dense(const std::vector< typename Object::Id_Type >& ids_)
-  {
-      for (auto & id : ids_)
-        ids_hybrid.set(id.val());
+    bool sorting_required = false;
+    typename Object::Id_Type::Id_Type previous_id{0};
+
+    for (const auto & id : ids_) {
+      const auto current_id = id.val();
+      sorting_required |= (current_id <= previous_id);
+      ids_hybrid.set(current_id);
+      previous_id = current_id;
+    }
+    if (sorting_required) {
       ids_hybrid.sort_unique();
+    }
   }
   bool match(const Object& obj) const
   {
