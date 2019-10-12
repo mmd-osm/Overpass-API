@@ -265,6 +265,8 @@ template < class Object >
 class Id_Predicate
 {
 public:
+  Id_Predicate(IdSetHybrid< typename Object::Id_Type::Id_Type> && set) : ids_hybrid(std::move(set)) {}
+
   Id_Predicate(const std::vector< typename Object::Id_Type >& ids_)
   {
     bool sorting_required = false;

@@ -70,6 +70,30 @@ std::vector< Node::Id_Type > small_way_nd_ids(const std::map< Uint31_Index, std:
   return ids;
 }
 
+template< typename Object >
+IdSetHybrid< Node::Id_Type::Id_Type> small_way_nd_ids_fast(const std::map< Uint31_Index, std::vector< Object > >& ways)
+{
+  IdSetHybrid< Node::Id_Type::Id_Type> ids;
+  for (typename std::map< Uint31_Index, std::vector< Object > >::const_iterator
+      it(ways.begin()); it != ways.end(); ++it)
+  {
+    if ((it->first.val() & 0x80000000) && ((it->first.val() & 0x1) == 0))
+      continue;
+    for (typename std::vector< Object >::const_iterator it2(it->second.begin());
+        it2 != it->second.end(); ++it2)
+    {
+      for (std::vector< Node::Id_Type >::const_iterator it3(it2->nds.begin());
+          it3 != it2->nds.end(); ++it3)
+        ids.set((*it3).val());
+    }
+  }
+
+  ids.sort_unique();
+
+  return ids;
+}
+
+
 
 std::map< Uint32_Index, std::vector< Node_Skeleton > > small_way_members
     (const Statement* stmt, Resource_Manager& rman,
@@ -79,7 +103,7 @@ std::map< Uint32_Index, std::vector< Node_Skeleton > > small_way_members
 
   collect_items_range(stmt, rman, *osm_base_settings().NODES,
                       small_way_nd_indices< Way_Skeleton >(stmt, rman, ways.begin(), ways.end()),
-                      Id_Predicate< Node_Skeleton >(small_way_nd_ids(ways)), result);
+                      Id_Predicate< Node_Skeleton >(std::move(small_way_nd_ids_fast(ways))), result);
 
   return result;
 }
