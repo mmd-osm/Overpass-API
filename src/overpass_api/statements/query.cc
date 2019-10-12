@@ -203,6 +203,12 @@ std::vector< std::pair< Id_Type, Uint31_Index > > filter_id_list_fast(
   IdSetHybrid<typename Id_Type::Id_Type, L> old_ids(std::move(new_ids));
   new_ids.clear();
 
+  if (filtered && old_ids.empty()) {
+    new_ids.clear();
+    new_ids_idx.clear();
+    return new_ids_idx;
+  }
+
   for (Iterator it = begin; !(it == end); ++it)
   {
     auto current_id = it.handle().id().val();
