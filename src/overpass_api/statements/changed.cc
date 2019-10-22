@@ -266,6 +266,8 @@ Ids_Dense_Predicate< Index, Skeleton >::Ids_Dense_Predicate(
         it_elem != it_idx->second.end(); ++it_elem)
       ids.set(it_elem->id.val());
   }
+
+  ids.sort_unique();
 }
 
 
