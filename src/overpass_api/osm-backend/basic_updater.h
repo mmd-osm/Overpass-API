@@ -309,7 +309,7 @@ std::map< Uint31_Index, std::set< Element_Skeleton > > get_existing_meta
       it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
   {
     if (binary_search(ids_with_position.begin(), ids_with_position.end(),
-        std::make_pair(it.object().ref, 0), comp))
+        std::make_pair(it.handle().get_ref(), 0), comp))
       result[it.index()].insert(it.object());
   }
 
