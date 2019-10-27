@@ -239,8 +239,10 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
           way_updater->get_new_skeletons(), way_updater->get_attic_skeletons(),
           way_updater->get_new_attic_skeletons());
 
-    flush();
-    callback->parser_succeeded();
+    // The following two statements were moved to Osmium_Updater
+
+    // flush();
+    // callback->parser_succeeded();
   }
 
   void move_to_state_in_ways() {
@@ -298,11 +300,14 @@ void Osmium_Updater::parse_file_completely(FILE* in) {
         relation_updater_, callback_, flush_limit, cpu_stopwatch);
 
     while (osmium::memory::Buffer buffer = reader.read())
-    {
       osmium::apply(buffer, osm_updater);
-    }
-    osm_updater.finish_updater();
+
     reader.close();
+
+    osm_updater.finish_updater();
+    flush();
+    callback_->parser_succeeded();
+
 
   } catch (std::exception& e)
   {
@@ -335,7 +340,10 @@ void Osmium_Updater::parse_multiple_files(const std::string& source_dir, const s
         reader.close();
       }
     }
+
     osm_updater.finish_updater();
+    flush();
+    callback_->parser_succeeded();
 
   } catch (std::exception& e)
   {
