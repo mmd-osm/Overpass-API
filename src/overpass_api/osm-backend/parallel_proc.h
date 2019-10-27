@@ -19,6 +19,7 @@
 #ifndef DE__OSM3S___OVERPASS_API__OSM_BACKEND__PARALLEL_PROC_H
 #define DE__OSM3S___OVERPASS_API__OSM_BACKEND__PARALLEL_PROC_H
 
+#include <algorithm>
 #include <atomic>
 #include <functional>
 #include <future>
@@ -42,7 +43,9 @@ inline void process_package(std::vector< std::function< void() > >& f, const int
   std::vector< std::future< void > > futures;
   std::atomic< unsigned int > package{0};
 
-  for (int i = 0; i < parallel_processes; i++)
+  const int procs = (f.size() < parallel_processes ? f.size() : parallel_processes);
+
+  for (int i = 0; i < procs; i++)
   {
     futures.push_back(
         std::async(std::launch::async, [&]
