@@ -336,6 +336,11 @@ struct Area_Block
     return (6 + 5 * *((uint16*)data + 2));
   }
 
+  static Id_Type get_id(void* data)
+  {
+    return *(Id_Type*)data;
+  }
+
   void to_data(void* data) const
   {
     *(Id_Type*)data = id.val();

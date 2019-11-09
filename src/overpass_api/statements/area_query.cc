@@ -394,7 +394,7 @@ void Area_Query_Statement::collect_nodes
     while ((!(area_it == area_blocks_db.discrete_end())) &&
         (area_it.index().val() == current_idx))
     {
-      if (binary_search(area_id.begin(), area_id.end(), area_it.object().id))
+      if (binary_search(area_id.begin(), area_id.end(), area_it.handle().id()))
 	areas[area_it.object().id].push_back(area_it.object());
       ++area_it;
     }
@@ -785,7 +785,7 @@ void Area_Query_Statement::collect_ways
     while ((!(area_it == area_blocks_db.discrete_end())) &&
         (area_it.index().val() == current_idx))
     {
-      if (binary_search(area_id.begin(), area_id.end(), area_it.object().id))
+      if (binary_search(area_id.begin(), area_id.end(), area_it.handle().id()))
 	areas[area_it.object().id].push_back(area_it.object());
       ++area_it;
     }

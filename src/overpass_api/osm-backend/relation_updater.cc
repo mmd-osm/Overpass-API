@@ -134,7 +134,7 @@ std::map< Uint31_Index, std::set< Relation_Skeleton > > get_implicitly_moved_ske
   for (Block_Backend< Uint31_Index, Relation_Skeleton >::Discrete_Iterator
       it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
   {
-    if (binary_search(known_relation_ids.begin(), known_relation_ids.end(), it.object().id))
+    if (binary_search(known_relation_ids.begin(), known_relation_ids.end(), it.handle().id()))
       continue;
     for (std::vector< Relation_Entry >::const_iterator nit = it.object().members.begin();
          nit != it.object().members.end(); ++nit)
