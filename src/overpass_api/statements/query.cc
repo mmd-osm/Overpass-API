@@ -578,6 +578,82 @@ std::vector< Id_Type > Query_Statement::collect_ids
 
 
 template< class Id_Type >
+IdSetHybrid<typename Id_Type::Id_Type> Query_Statement::collect_non_ids_hybrid
+  (const File_Properties& file_prop, const File_Properties& attic_file_prop,
+   Resource_Manager& rman, uint64 timestamp)
+{
+  if (key_nvalues.empty() && key_nregexes.empty())
+    return IdSetHybrid<typename Id_Type::Id_Type>();
+
+  Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > > tags_db
+      (rman.get_transaction()->data_index(&file_prop));
+  Optional< Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > > > attic_tags_db
+      (timestamp == NOW ? 0 :
+        new Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >
+        (rman.get_transaction()->data_index(&attic_file_prop)));
+
+  IdSetHybrid<typename Id_Type::Id_Type> new_ids;
+
+  // Handle Key-Non-Value pairs
+  for (std::vector< std::pair< std::string, std::string > >::const_iterator knvit = key_nvalues.begin();
+      knvit != key_nvalues.end(); ++knvit)
+  {
+    if (timestamp == NOW)
+    {
+      std::set< Tag_Index_Global > tag_req = get_kv_req(knvit->first, knvit->second);
+      for (typename Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > >::Discrete_Iterator
+          it2(tags_db.discrete_begin(tag_req.begin(), tag_req.end()));
+          !(it2 == tags_db.discrete_end()); ++it2)
+        new_ids.set(it2.handle().id().val());
+    }
+    else
+    {
+      std::map< Id_Type, std::pair< uint64, Uint31_Index > > timestamp_per_id
+          = collect_attic_kv(knvit, timestamp, tags_db, *attic_tags_db.obj);
+
+      for (typename std::map< Id_Type, std::pair< uint64, Uint31_Index > >::const_iterator
+          it = timestamp_per_id.begin(); it != timestamp_per_id.end(); ++it)
+        new_ids.set(it->first.val());
+    }
+    rman.health_check(*this);
+  }
+
+  // Handle Key-Regular-Expression-Non-Value pairs
+  for (std::vector< std::pair< std::string, Regular_Expression* > >::const_iterator knrit = key_nregexes.begin();
+      knrit != key_nregexes.end(); ++knrit)
+  {
+    if (timestamp == NOW)
+    {
+      std::set< std::pair< Tag_Index_Global, Tag_Index_Global > > range_req = get_k_req(knrit->first);
+      for (typename Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > >::Range_Iterator
+          it2(tags_db.range_begin
+          (Default_Range_Iterator< Tag_Index_Global >(range_req.begin()),
+           Default_Range_Iterator< Tag_Index_Global >(range_req.end())));
+          !(it2 == tags_db.range_end()); ++it2)
+      {
+        if (knrit->second->matches(it2.index().value))
+          new_ids.set(it2.handle().id().val());
+      }
+    }
+    else
+    {
+      std::map< Id_Type, std::pair< uint64, Uint31_Index > > timestamp_per_id
+          = collect_attic_kregv(knrit, timestamp, tags_db, *attic_tags_db.obj);
+
+      for (typename std::map< Id_Type, std::pair< uint64, Uint31_Index > >::const_iterator
+          it = timestamp_per_id.begin(); it != timestamp_per_id.end(); ++it)
+        new_ids.set(it->first.val());
+    }
+    rman.health_check(*this);
+  }
+
+  new_ids.sort_unique();
+
+  return new_ids;
+}
+
+
+template< class Id_Type >
 std::vector< Id_Type > Query_Statement::collect_non_ids
   (const File_Properties& file_prop, const File_Properties& attic_file_prop,
    Resource_Manager& rman, uint64 timestamp)
@@ -1416,6 +1492,7 @@ void Query_Statement::progress_1(std::vector< Id_Type >& ids, std::vector< Index
 
     if (!key_nvalues.empty() || (check_keys_late != prefer_ranges && !key_nregexes.empty()))
     {
+/*
       std::vector< Id_Type > non_ids
                 = collect_non_ids< Id_Type >(file_prop, attic_file_prop, rman, timestamp);
 
@@ -1431,6 +1508,21 @@ void Query_Statement::progress_1(std::vector< Id_Type >& ids, std::vector< Index
         ids.push_back(it->first);
         range_vec.push_back(it->second);
       }
+*/
+
+
+      auto non_ids  = collect_non_ids_hybrid< Id_Type >(file_prop, attic_file_prop, rman, timestamp);
+      ids.clear();
+      range_vec.clear();
+      for (typename std::vector< std::pair< Id_Type, Uint31_Index > >::const_iterator it = id_idxs.begin();
+          it != id_idxs.end(); ++it)
+      {
+        if (!(non_ids.get(it->first.val()))) {
+          ids.push_back(it->first);
+          range_vec.push_back(it->second);
+        }
+      }
+
     }
     else
     {

@@ -25,7 +25,7 @@
 #include "../../expat/escape_json.h"
 #include "../../expat/escape_xml.h"
 #include "statement.h"
-
+#include "../data/abstract_processing.h"
 
 const int QUERY_NODE = 1;
 const int QUERY_WAY = 2;
@@ -173,6 +173,11 @@ class Query_Statement : public Output_Statement
     std::vector< Id_Type > collect_ids
         (const File_Properties& file_prop,
          Resource_Manager& rman, Query_Filter_Strategy check_keys_late);
+
+    template< class Id_Type >
+    IdSetHybrid<typename Id_Type::Id_Type> collect_non_ids_hybrid
+       (const File_Properties& file_prop, const File_Properties& attic_file_prop,
+        Resource_Manager& rman, uint64 timestamp);
 
     template< class Id_Type >
     std::vector< Id_Type > collect_non_ids
