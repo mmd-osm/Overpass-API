@@ -48,6 +48,8 @@ struct Dispatcher_Logger
   virtual void read_aborted(pid_t pid) = 0;
   virtual void hangup(pid_t pid) = 0;
   virtual void purge(pid_t pid) = 0;
+
+  virtual ~Dispatcher_Logger() {};
 };
 
 

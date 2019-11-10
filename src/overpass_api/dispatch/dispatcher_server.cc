@@ -31,18 +31,20 @@ struct Default_Dispatcher_Logger : public Dispatcher_Logger
 {
   Default_Dispatcher_Logger(Logger& logger_) : logger(&logger_) {}
 
-  virtual void write_start(pid_t pid, const std::vector< pid_t >& registered);
-  virtual void write_rollback(pid_t pid);
-  virtual void write_commit(pid_t pid);
-  virtual void request_read_and_idx(pid_t pid, uint32 max_allowed_time, uint64 max_allowed_space);
-  virtual void read_idx_finished(pid_t pid);
-  virtual void prolongate(pid_t pid);
-  virtual void idle_counter(uint32 idle_count);
-  virtual void read_finished(pid_t pid);
-  virtual void query_my_status(pid_t pid);
-  virtual void read_aborted(pid_t pid);
-  virtual void hangup(pid_t pid);
-  virtual void purge(pid_t pid);
+  virtual ~Default_Dispatcher_Logger() {}
+
+  void write_start(pid_t pid, const std::vector< pid_t >& registered);
+  void write_rollback(pid_t pid);
+  void write_commit(pid_t pid);
+  void request_read_and_idx(pid_t pid, uint32 max_allowed_time, uint64 max_allowed_space);
+  void read_idx_finished(pid_t pid);
+  void prolongate(pid_t pid);
+  void idle_counter(uint32 idle_count);
+  void read_finished(pid_t pid);
+  void query_my_status(pid_t pid);
+  void read_aborted(pid_t pid);
+  void hangup(pid_t pid);
+  void purge(pid_t pid);
 
   private:
     Logger* logger;
@@ -137,6 +139,29 @@ void Default_Dispatcher_Logger::purge(pid_t pid)
   logger->annotated_log(out.str());
 }
 
+struct Quiet_Dispatcher_Logger : public Dispatcher_Logger
+{
+
+  Quiet_Dispatcher_Logger(Logger& logger_) : logger(&logger_) {}
+  virtual ~Quiet_Dispatcher_Logger() {}
+
+  void write_start(pid_t pid, const std::vector< pid_t >& registered) {}
+  void write_rollback(pid_t pid)  {}
+  void write_commit(pid_t pid) {}
+  void request_read_and_idx(pid_t pid, uint32 max_allowed_time, uint64 max_allowed_space) {}
+  void read_idx_finished(pid_t pid) {}
+  void prolongate(pid_t pid) {}
+  void idle_counter(uint32 idle_count) {}
+  void read_finished(pid_t pid) {}
+  void query_my_status(pid_t pid) {}
+  void read_aborted(pid_t pid){ }
+  void hangup(pid_t pid) {}
+  void purge(pid_t pid) {}
+
+  private:
+    Logger* logger;
+};
+
 
 std::string to_date(time_t time)
 {
@@ -177,6 +202,7 @@ int main(int argc, char* argv[])
   std::string db_dir;
   bool osm_base(false), areas(false), meta(false), attic(false),
       terminate(false), status(false), my_status(false), show_dir(false);
+  bool quiet(false);
   uint32 purge_id = 0;
   bool query_token = false;
   uint64 max_allowed_space = 0;
@@ -192,6 +218,8 @@ int main(int argc, char* argv[])
       if ((db_dir.size() > 0) && (db_dir[db_dir.size()-1] != '/'))
 	db_dir += '/';
     }
+    else if (std::string("--quiet") == argv[argpos])
+      quiet = true;
     else if (std::string("--osm-base") == argv[argpos])
       osm_base = true;
     else if (std::string("--areas") == argv[argpos])
@@ -471,7 +499,13 @@ int main(int argc, char* argv[])
   try
   {
     Logger logger(db_dir);
-    Default_Dispatcher_Logger disp_logger(logger);
+    std::unique_ptr<Dispatcher_Logger> disp_logger;
+
+    if (quiet)
+      disp_logger.reset(new Quiet_Dispatcher_Logger(logger));
+    else
+      disp_logger.reset(new Default_Dispatcher_Logger(logger));
+
     if (max_allowed_space <= 0)
       max_allowed_space = areas ? area_settings().total_available_space : osm_base_settings().total_available_space;
     if (max_allowed_time_units <= 0)
@@ -484,7 +518,7 @@ int main(int argc, char* argv[])
 	 areas ? area_settings().purge_timeout : osm_base_settings().purge_timeout,
 	 max_allowed_space,
 	 max_allowed_time_units,
-	 files_to_manage, &disp_logger);
+	 files_to_manage, disp_logger.get());
     if (rate_limit > -1)
       dispatcher.set_rate_limit(rate_limit);
     dispatcher.standby_loop(0);
