@@ -247,6 +247,8 @@ struct Area_Location
   }
 };
 
+template <class T, class Object>
+struct Area_Skeleton_Handle_Methods;
 
 struct Area_Skeleton
 {
@@ -277,11 +279,6 @@ struct Area_Skeleton
     return (8 + 4 * *((uint32*)data + 1));
   }
 
-  static Id_Type get_id(void* data)
-  {
-    return *(Id_Type*)data;
-  }
-
   void to_data(void* data) const
   {
     *(Id_Type*)data = id.val();
@@ -304,7 +301,35 @@ struct Area_Skeleton
   {
     return (this->id == a.id);
   }
+
+  template <class T, class Object>
+  using Handle_Methods = Area_Skeleton_Handle_Methods<T, Object>;
 };
+
+
+template <typename Id_Type >
+struct Area_Skeleton_Id_Functor {
+  Area_Skeleton_Id_Functor() {};
+
+  using reference_type = Area_Skeleton;
+
+  Id_Type operator()(const void* data) const
+   {
+     return *(Id_Type*)data;
+   }
+};
+
+
+template <class T, class Object>
+struct Area_Skeleton_Handle_Methods
+{
+  typename Object::Id_Type inline id() const {
+     return (static_cast<const T*>(this)->apply_func(Area_Skeleton_Id_Functor<typename Object::Id_Type>()));
+  }
+};
+
+template <class T, class Object>
+struct Area_Block_Handle_Methods;
 
 struct Area_Block
 {
@@ -334,11 +359,6 @@ struct Area_Block
   static uint32 size_of(void* data)
   {
     return (6 + 5 * *((uint16*)data + 2));
-  }
-
-  static Id_Type get_id(void* data)
-  {
-    return *(Id_Type*)data;
   }
 
   void to_data(void* data) const
@@ -380,9 +400,33 @@ struct Area_Block
     return ilat_ilon_pairs;
   }
 
+  template <class T, class Object>
+  using Handle_Methods = Area_Block_Handle_Methods<T, Object>;
+
   private:
     mutable std::vector< std::pair< uint32, int32 > > ilat_ilon_pairs;
 
+};
+
+template <typename Id_Type >
+struct Area_Block_Id_Functor {
+  Area_Block_Id_Functor() {};
+
+  using reference_type = Area_Block;
+
+  Id_Type operator()(const void* data) const
+   {
+     return *(Id_Type*)data;
+   }
+};
+
+
+template <class T, class Object>
+struct Area_Block_Handle_Methods
+{
+  typename Object::Id_Type inline id() const {
+     return (static_cast<const T*>(this)->apply_func(Area_Block_Id_Functor<typename Object::Id_Type>()));
+  }
 };
 
 #endif

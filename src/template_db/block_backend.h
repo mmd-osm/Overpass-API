@@ -89,11 +89,6 @@ private:
 template< typename Object >
 struct Handle : Idx_Handle< Object >, public Handle_Base<Object>::type
 {
-  typename Object::Id_Type id() const
-  {
-    return Object::get_id(this->get_ptr_to_raw());
-  }
-
   template< typename Functor >
   auto apply_func(Functor f) const -> decltype(f(static_cast<const void*>(nullptr)));
 };

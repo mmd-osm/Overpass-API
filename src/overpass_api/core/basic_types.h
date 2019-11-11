@@ -67,11 +67,6 @@ struct Uint32_Index
     *(uint32*)data = value;
   }
 
-  static Id_Type get_id(void* data)
-  {
-    return *(Id_Type*)data;
-  }
-
   bool operator<(const Uint32_Index& index) const
   {
     return this->value < index.value;
@@ -124,11 +119,28 @@ struct Uint32_Index_Val_Functor {
   }
 };
 
+template <typename Id_Type >
+struct Uint32_Id_Functor {
+  Uint32_Id_Functor() {};
+
+  using reference_type = Uint32_Index;
+
+  Id_Type operator()(const void* data)
+  {
+    return *(Id_Type*)data;
+  }
+};
+
+
 template <class T, class Object>
 struct Uint32_Index_Handle_Methods
 {
   uint32 inline get_val() const {
      return (static_cast<const T*>(this)->apply_func(Uint32_Index_Val_Functor()));
+  }
+
+  typename Object::Id_Type inline id() const {
+     return (static_cast<const T*>(this)->apply_func(Uint32_Id_Functor<typename Object::Id_Type>()));
   }
 };
 
@@ -184,6 +196,8 @@ inline unsigned long long difference(Uint31_Index lhs, Uint31_Index rhs)
   return 2*(rhs.val() - lhs.val()) - ((lhs.val()>>31) & 0x1) + ((rhs.val()>>31) & 0x1);
 }
 
+template <class T, class Object>
+struct Uint64_Handle_Methods;
 
 struct Uint64
 {
@@ -200,11 +214,6 @@ struct Uint64
   void to_data(void* data) const
   {
     *(uint64*)data = value;
-  }
-
-  static Id_Type get_id(void* data)
-  {
-    return *(Id_Type*)data;
   }
 
   bool operator<(const Uint64& index) const
@@ -237,8 +246,31 @@ struct Uint64
 
   uint64 val() const { return value; }
 
+  template <class T, class Object>
+  using Handle_Methods = Uint64_Handle_Methods<T, Object>;
+
   protected:
     uint64 value;
+};
+
+template <typename Id_Type >
+struct Uint64_Id_Functor {
+  Uint64_Id_Functor() {};
+
+  using reference_type = Uint64;
+
+  Id_Type operator()(const void* data)
+  {
+    return *(Id_Type*)data;
+  }
+};
+
+template <class T, class Object>
+struct Uint64_Handle_Methods
+{
+  typename Object::Id_Type inline id() const {
+     return (static_cast<const T*>(this)->apply_func(Uint64_Id_Functor<typename Object::Id_Type>()));
+  }
 };
 
 
@@ -322,12 +354,36 @@ struct Attic_Timestamp_Functor {
    }
 };
 
+template <typename...> using void_t = void;
+
+template< typename Object >
+class Handle;
+
+template <class T, class Object>
+struct Empty_Element_Handle { };
+
+
+template <typename Object, typename = void>
+struct Element_Base
+{  // Empty class is the default fallback if Object doesn't have a Handle_Methods member type alias
+   using type = Empty_Element_Handle < Handle < Object >, Object >;
+};
+
+template <typename Object>
+struct Element_Base<Object,  void_t<decltype( typename Object::template Handle_Methods< Handle < Object>, Object > ()) >  >
+{
+   using type = typename Object::template Handle_Methods < Handle < Object>, Object >;
+};
+
+
+
 template <class T, class Object, class Element_Skeleton>
-struct Attic_Handle_Methods
+struct Attic_Handle_Methods : public Element_Base<Element_Skeleton>::type
 {
   uint64 inline get_timestamp() const {
      return (static_cast<const T*>(this)->apply_func(Attic_Timestamp_Functor< Element_Skeleton >()));
   }
+
 };
 
 

@@ -290,6 +290,8 @@ struct Tag_Index_Global
   }
 };
 
+template <class T, class Object>
+struct Tag_Object_Global_Handle_Methods;
 
 template< typename Id_Type_ >
 struct Tag_Object_Global
@@ -325,11 +327,6 @@ struct Tag_Object_Global
     id.to_data((void*)((uint8*)data + 3));
   }
   
-  static Id_Type get_id(void* data)
-  {
-    return Id_Type((void*)((uint8*)data + 3));
-  }
-
   bool operator<(const Tag_Object_Global& a) const
   {
     if (id < a.id)
@@ -348,6 +345,30 @@ struct Tag_Object_Global
   static uint32 max_size_of()
   {
     return 3 + Id_Type::max_size_of();
+  }
+
+  template <class T, class Object>
+  using Handle_Methods = Tag_Object_Global_Handle_Methods<T, Object>;
+};
+
+template <typename Id_Type >
+struct Tag_Object_Global_Id_Functor {
+  Tag_Object_Global_Id_Functor() {};
+
+  using reference_type = Tag_Object_Global< Id_Type >;
+
+  Id_Type operator()(const void* data) const
+   {
+    return Id_Type((void*)((uint8*)data + 3));
+   }
+};
+
+
+template <class T, class Object>
+struct Tag_Object_Global_Handle_Methods
+{
+  typename Object::Id_Type inline id() const {
+     return (static_cast<const T*>(this)->apply_func(Tag_Object_Global_Id_Functor<typename Object::Id_Type>()));
   }
 };
 

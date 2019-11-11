@@ -82,6 +82,8 @@ struct Way_Equal_Id {
 
 struct Way_Delta;
 
+template <class T, class Object>
+struct Way_Skeleton_Handle_Methods;
 
 struct Way_Skeleton
 {
@@ -123,11 +125,6 @@ struct Way_Skeleton
     return (8 + 8 * *((uint16*)data + 2) + 8 * *((uint16*)data + 3));
   }
 
-  static Id_Type get_id(void* data)
-  {
-    return *(Id_Type*)data;
-  }
-
   void to_data(void* data) const
   {
     *(Id_Type*)data = id.val();
@@ -151,6 +148,30 @@ struct Way_Skeleton
   bool operator==(const Way_Skeleton& a) const
   {
     return this->id == a.id;
+  }
+
+  template <class T, class Object>
+  using Handle_Methods = Way_Skeleton_Handle_Methods<T, Object>;
+};
+
+template <typename Id_Type >
+struct Way_Skeleton_Id_Functor {
+  Way_Skeleton_Id_Functor() {};
+
+  using reference_type = Way_Skeleton;
+
+  Id_Type operator()(const void* data) const
+   {
+     return *(Id_Type*)data;
+   }
+};
+
+
+template <class T, class Object>
+struct Way_Skeleton_Handle_Methods
+{
+  typename Object::Id_Type inline id() const {
+     return (static_cast<const T*>(this)->apply_func(Way_Skeleton_Id_Functor<typename Object::Id_Type>()));
   }
 };
 

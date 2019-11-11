@@ -99,6 +99,9 @@ struct Relation_Equal_Id {
 
 struct Relation_Delta;
 
+template <class T, class Object>
+struct Relation_Skeleton_Handle_Methods;
+
 
 struct Relation_Skeleton
 {
@@ -151,11 +154,6 @@ struct Relation_Skeleton
     return 16 + 12 * *((uint32*)data + 1) + 4* *((uint32*)data + 2) + 4* *((uint32*)data + 3);
   }
 
-  static Id_Type get_id(void* data)
-  {
-    return *(Id_Type*)data;
-  }
-
   void to_data(void* data) const
   {
     *(Id_Type*)data = id.val();
@@ -185,8 +183,33 @@ struct Relation_Skeleton
   {
     return this->id == a.id;
   }
+
+  template <class T, class Object>
+  using Handle_Methods = Relation_Skeleton_Handle_Methods<T, Object>;
 };
 
+
+template <typename Id_Type >
+struct Relation_Skeleton_Id_Functor {
+  Relation_Skeleton_Id_Functor() {};
+
+  using reference_type = Relation_Skeleton;
+
+  Id_Type operator()(const void* data) const
+   {
+     return *(Id_Type*)data;
+   }
+};
+
+
+template <class T, class Object>
+struct Relation_Skeleton_Handle_Methods
+{
+  typename Object::Id_Type inline id() const {
+     return (static_cast<const T*>(this)->apply_func(Relation_Skeleton_Id_Functor<typename Object::Id_Type>()));
+  }
+
+};
 
 struct Relation_Delta
 {

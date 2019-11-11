@@ -630,6 +630,9 @@ const std::pair< TIndex, const TObject* >* binary_search_for_pair_id
 }
 
 
+template <class T, class Object>
+struct Change_Entry_Handle_Methods;
+
 template< typename Id_Type_ >
 struct Change_Entry
 {
@@ -655,11 +658,6 @@ struct Change_Entry
     return Id_Type::size_of((uint8*)data + 8) + 8;
   }
 
-  static Id_Type get_id(void* data)
-  {
-    return *(Id_Type*)((uint8*)data + 8);
-  }
-
   void to_data(void* data) const
   {
     old_idx.to_data((uint8*)data);
@@ -683,6 +681,30 @@ struct Change_Entry
   bool operator==(const Change_Entry& rhs) const
   {
     return (old_idx == rhs.old_idx && new_idx == rhs.new_idx && elem_id == rhs.elem_id);
+  }
+
+  template <class T, class Object>
+  using Handle_Methods = Change_Entry_Handle_Methods<T, Object>;
+};
+
+template <typename Id_Type >
+struct Change_Entry_Id_Functor {
+  Change_Entry_Id_Functor() {};
+
+  using reference_type = Change_Entry< Id_Type >;
+
+  Id_Type operator()(const void* data) const
+   {
+    return *(Id_Type*)((uint8*)data + 8);
+   }
+};
+
+
+template <class T, class Object>
+struct Change_Entry_Handle_Methods
+{
+  typename Object::Id_Type inline id() const {
+     return (static_cast<const T*>(this)->apply_func(Change_Entry_Id_Functor<typename Object::Id_Type>()));
   }
 };
 
