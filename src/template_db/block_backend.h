@@ -126,6 +126,12 @@ struct Block_Backend_Basic_Iterator
   {
     return obj_cache.object();
   }
+
+  const Handle< Index >& index_handle()
+  {
+    return idx_cache;
+  }
+
   const Handle< Object >& handle()
   { 
     return obj_cache;
@@ -147,7 +153,7 @@ private:
   uint32 buffer_size;
   uint32 idx_block_offset; // Points to the entry that contains the jump offset
   uint32 obj_offset;
-  Idx_Handle< Index > idx_cache;
+  Handle< Index > idx_cache;
   Handle< Object > obj_cache;
   File_Handle file_handle;
   Idx_Assessor idx_assessor;

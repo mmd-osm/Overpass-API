@@ -43,6 +43,8 @@ struct Tag_Entry
   std::vector< Id_Type > ids;
 };
 
+template <class T, class Object>
+struct Tag_Index_Local_Handle_Methods;
 
 struct Tag_Index_Local
 {
@@ -112,7 +114,33 @@ struct Tag_Index_Local
     throw Unsupported_Error("static uint32 Tag_Index_Local::max_size_of()");
     return 0;
   }
+
+  template <class T, class Object>
+  using Handle_Methods = Tag_Index_Local_Handle_Methods<T, Object>;
 };
+
+
+struct Tag_Index_Local_Index_Functor {
+  Tag_Index_Local_Index_Functor() {};
+
+  using reference_type = Tag_Index_Local;
+
+  inline uint32 operator()(const void* data) const
+   {
+     return (*((uint32*)data + 1))<<8;
+   }
+};
+
+
+template <class T, class Object>
+struct Tag_Index_Local_Handle_Methods
+{
+  inline uint32 get_index() const {
+     return (static_cast<const T*>(this)->apply_func(Tag_Index_Local_Index_Functor()));
+  }
+};
+
+
 
 namespace {
   class void_tag {
@@ -232,6 +260,9 @@ void generate_ids_by_coarse
 }
 
 
+template <class T, class Object>
+struct Tag_Index_Global_Handle_Methods;
+
 struct Tag_Index_Global
 {
   std::string key;
@@ -288,10 +319,68 @@ struct Tag_Index_Global
     throw Unsupported_Error("static uint32 Tag_Index_Global::max_size_of()");
     return 0;
   }
+
+  template <class T, class Object>
+  using Handle_Methods = Tag_Index_Global_Handle_Methods<T, Object>;
 };
+
+
+
+struct Tag_Index_Global_Has_Key_Functor {
+  Tag_Index_Global_Has_Key_Functor(std::string& key) : key(key) {};
+
+  using reference_type = Tag_Index_Global;
+
+  inline bool operator()(const void* data) const
+   {
+     char* k = ((int8*)data + 4);
+     int len = *(uint16*)data;
+     return (len == key.length() && std::strncmp(k, key.c_str(), len) == 0);
+   }
+
+  private:
+     std::string& key;
+};
+
+
+struct Tag_Index_Global_Has_Value_Functor {
+  Tag_Index_Global_Has_Value_Functor(std::string& value) : value(value) {};
+
+  using reference_type = Tag_Index_Global;
+
+  inline bool operator()(const void* data) const
+   {
+     char* k = ((int8*)data + 4);
+     int key_len = *(uint16*)data;
+
+     char* v = ((int8*)data + 4 + key_len);
+     int value_len = *((uint16*)data + 1);
+
+     return (value_len == value.length() && std::strncmp(v, value.c_str(), value_len) == 0);
+   }
+
+  private:
+     std::string& value;
+};
+
+
+template <class T, class Object>
+struct Tag_Index_Global_Handle_Methods
+{
+  inline bool has_key(std::string& key) const {
+     return (static_cast<const T*>(this)->apply_func(Tag_Index_Global_Has_Key_Functor(key)));
+  }
+
+  inline bool has_value(std::string& value) const {
+     return (static_cast<const T*>(this)->apply_func(Tag_Index_Global_Has_Value_Functor(value)));
+  }
+};
+
+
 
 template <class T, class Object>
 struct Tag_Object_Global_Handle_Methods;
+
 
 template< typename Id_Type_ >
 struct Tag_Object_Global
@@ -364,11 +453,27 @@ struct Tag_Object_Global_Id_Functor {
 };
 
 
+template <typename Id_Type >
+struct Tag_Object_Global_Idx_Functor {
+  Tag_Object_Global_Idx_Functor() {};
+
+  using reference_type = Tag_Object_Global< Id_Type >;
+
+  Uint31_Index operator()(const void* data) const
+   {
+    return Uint31_Index(((*((uint32*)data))<<8) & 0xffffff00);
+   }
+};
+
 template <class T, class Object>
 struct Tag_Object_Global_Handle_Methods
 {
   typename Object::Id_Type inline id() const {
      return (static_cast<const T*>(this)->apply_func(Tag_Object_Global_Id_Functor<typename Object::Id_Type>()));
+  }
+
+  inline Uint31_Index get_idx() const {
+     return (static_cast<const T*>(this)->apply_func(Tag_Object_Global_Idx_Functor<typename Object::Id_Type>()));
   }
 };
 
