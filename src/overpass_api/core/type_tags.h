@@ -61,7 +61,7 @@ struct Tag_Index_Local
   Tag_Index_Local(Uint31_Index index_, std::string key_, std::string value_)
       : index(index_.val() & 0x7fffff00), key(key_), value(value_) {}
 
-  Tag_Index_Local(void* data)
+  Tag_Index_Local(const void* data)
   {
     index = (*((uint32*)data + 1))<<8;
     key = std::string(((int8*)data + 7), *(uint16*)data);
@@ -131,12 +131,27 @@ struct Tag_Index_Local_Index_Functor {
    }
 };
 
+struct Tag_Index_Local_Element_Functor {
+  Tag_Index_Local_Element_Functor() {};
+
+  using reference_type = Tag_Index_Local;
+
+  inline Tag_Index_Local operator()(const void* data)
+   {
+     return (Tag_Index_Local(data));
+   }
+};
+
 
 template <class T, class Object>
 struct Tag_Index_Local_Handle_Methods
 {
   inline uint32 get_index() const {
      return (static_cast<const T*>(this)->apply_func(Tag_Index_Local_Index_Functor()));
+  }
+
+  inline Tag_Index_Local get_element() const {
+    return (static_cast<const T*>(this)->apply_func(Tag_Index_Local_Element_Functor()));
   }
 };
 

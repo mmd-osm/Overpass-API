@@ -228,15 +228,18 @@ void collect_tags
    const std::vector< Id_Type >& ids, uint32 coarse_index)
 {
   while ((!(tag_it == items_db.range_end())) &&
-      (((tag_it.index().index) & 0x7fffff00) < coarse_index))
+      (((tag_it.index_handle().get_index()) & 0x7fffff00) < coarse_index))
     ++tag_it;
   while ((!(tag_it == items_db.range_end())) &&
-      (((tag_it.index().index) & 0x7fffff00) == coarse_index))
+      (((tag_it.index_handle().get_index()) & 0x7fffff00) == coarse_index))
   {
     Id_Type current(tag_it.handle().id());     // avoid creating a new object instance via object()
     if ((binary_search(ids.begin(), ids.end(), current)))
+    {
+      auto elem = tag_it.index_handle().get_element();
       tags_by_id[current].push_back
-          (std::make_pair(tag_it.index().key, tag_it.index().value));
+          (std::make_pair(std::move(elem.key), std::move(elem.value)));
+    }
     ++tag_it;
   }
 }
@@ -252,17 +255,21 @@ void collect_tags_framed
    Id_Type lower_id_bound, Id_Type upper_id_bound)
 {
   while ((!(tag_it == items_db.range_end())) &&
-      (((tag_it.index_handle().get_index()  /* .index().index */ ) & 0x7fffff00) < coarse_index))
+      (((tag_it.index_handle().get_index()) & 0x7fffff00) < coarse_index))
     ++tag_it;
   while ((!(tag_it == items_db.range_end())) &&
-      (((tag_it.index_handle().get_index()   /* index().index */ ) & 0x7fffff00) == coarse_index))
+      (((tag_it.index_handle().get_index()) & 0x7fffff00) == coarse_index))
   {
     Id_Type current(tag_it.handle().id());     // avoid creating a new object instance via object()
+
     if (!(current < lower_id_bound) &&
       (current < upper_id_bound) &&
        binary_search(ids_by_coarse[coarse_index].begin(), ids_by_coarse[coarse_index].end(), current))
+    {
+      auto elem = tag_it.index_handle().get_element();
       tags_by_id[current].push_back
-          (std::make_pair(tag_it.index().key, tag_it.index().value));
+          (std::make_pair(std::move(elem.key), std::move(elem.value)));
+    }
     ++tag_it;
   }
 }
