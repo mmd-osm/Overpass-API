@@ -814,7 +814,15 @@ struct Timestamp
     throw Unsupported_Error("static uint32 Timestamp::max_size_of()");
     return 0;
   }
+
+  friend std::ostream & operator<<(std::ostream &os, const Timestamp& t);
 };
+
+inline std::ostream & operator<<(std::ostream &os, const Timestamp& p)
+{
+    return os << "[ " << p.str() << " ]";
+}
+
 
 
 typedef enum { only_data, keep_meta, keep_attic } meta_modes;

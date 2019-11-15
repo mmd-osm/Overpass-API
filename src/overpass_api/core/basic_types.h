@@ -19,7 +19,7 @@
 #ifndef DE__OSM3S___OVERPASS_API__CORE__BASIC_TYPES_H
 #define DE__OSM3S___OVERPASS_API__CORE__BASIC_TYPES_H
 
-
+#include <iostream>
 #include <vector>
 
 
@@ -103,9 +103,16 @@ struct Uint32_Index
   template <class T, class Object>
   using Handle_Methods = Uint32_Index_Handle_Methods<T, Object>;
 
+  friend std::ostream & operator<<(std::ostream &os, const Uint32_Index& t);
+
   protected:
     uint32 value;
 };
+
+inline std::ostream & operator<<(std::ostream &os, const Uint32_Index& p)
+{
+    return os << "[ " << p.value << " ]";
+}
 
 
 struct Uint32_Index_Val_Functor {
@@ -179,7 +186,14 @@ struct Uint31_Index : Uint32_Index
     }
     return (this->value < index.value);
   }
+
+  friend std::ostream & operator<<(std::ostream &os, const Uint31_Index& t);
 };
+
+inline std::ostream & operator<<(std::ostream &os, const Uint31_Index& p)
+{
+    return os << "[ " << (p.value & 0x7fffffff) << " (" << p.value << ") ]";
+}
 
 
 inline Uint31_Index inc(Uint31_Index idx)
@@ -249,9 +263,17 @@ struct Uint64
   template <class T, class Object>
   using Handle_Methods = Uint64_Handle_Methods<T, Object>;
 
+  friend std::ostream & operator<<(std::ostream &os, const Uint64& t);
+
   protected:
     uint64 value;
 };
+
+inline std::ostream & operator<<(std::ostream &os, const Uint64& p)
+{
+    return os << "[ " << p.value << " ]";
+}
+
 
 template <typename Id_Type >
 struct Uint64_Id_Functor {

@@ -115,9 +115,17 @@ struct Tag_Index_Local
     return 0;
   }
 
+  friend std::ostream & operator<<(std::ostream &os, const Tag_Index_Local& t);
+
   template <class T, class Object>
   using Handle_Methods = Tag_Index_Local_Handle_Methods<T, Object>;
 };
+
+inline std::ostream & operator<<(std::ostream &os, const Tag_Index_Local& p)
+{
+    return os << "[ " << p.index << " | " << p.key << " | " << p.value << " ]";
+}
+
 
 
 struct Tag_Index_Local_Index_Functor {
@@ -335,11 +343,16 @@ struct Tag_Index_Global
     return 0;
   }
 
+  friend std::ostream & operator<<(std::ostream &os, const Tag_Index_Global& t);
+
   template <class T, class Object>
   using Handle_Methods = Tag_Index_Global_Handle_Methods<T, Object>;
 };
 
-
+inline std::ostream & operator<<(std::ostream &os, const Tag_Index_Global& p)
+{
+    return os << "[ " << p.key << " | " << p.value << " ]";
+}
 
 struct Tag_Index_Global_Has_Key_Functor {
   Tag_Index_Global_Has_Key_Functor(std::string& key) : key(key) {};
