@@ -141,7 +141,7 @@ class Void_Pointer
   Void_Pointer& operator=(const Void_Pointer&);
 
 public:
-  explicit Void_Pointer(int block_size) { ptr = block_size > 0 ? (T*)malloc(block_size) : 0; }
+  explicit Void_Pointer(int block_size) { ptr = block_size > 0 ? (T*)malloc(block_size) : 0; }  // TODO: ADD ERROR HANDLING!!!
   ~Void_Pointer() { clear(); }
 
   void clear()
@@ -155,7 +155,7 @@ public:
     clear();
     ptr = 0;
     if (block_size > 0)
-      ptr = (T*)malloc(block_size);
+      ptr = (T*)malloc(block_size); // TODO: ADD ERROR HANDLING!!!
   }
 
   T* ptr;
@@ -173,7 +173,7 @@ class Void64_Pointer
 public:
   explicit Void64_Pointer(int block_size)
   { 
-    ptr = block_size > 0 ? (T*)aligned_alloc(8, block_size) : 0;
+    ptr = block_size > 0 ? (T*)aligned_alloc(8, block_size) : 0;       // TODO: ADD ERROR HANDLING!!!
   }
   ~Void64_Pointer() { clear(); }
 
@@ -188,7 +188,7 @@ public:
     clear();
     ptr = 0;
     if (block_size > 0)
-      ptr = (T*)aligned_alloc(8, block_size);
+      ptr = (T*)aligned_alloc(8, block_size);      // TODO: ADD ERROR HANDLING!!!
   }
   void swap(Void64_Pointer& rhs)
   {

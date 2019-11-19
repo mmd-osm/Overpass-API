@@ -71,10 +71,30 @@ public:
 
   std::list< File_Block_Index_Entry< TIndex > >& get_blocks()
   {
-    if (index_buf.ptr)
+    if (index_buf.ptr) {
       init_blocks();
+    }
     return blocks;
   }
+
+  std::vector< File_Block_Index_Entry< TIndex > >& get_blocks_vector()
+  {
+    if (index_buf.ptr)
+      init_blocks();
+
+    // TODO: create helper vectors for O(log n) access to file block index entries.
+    //       CHANGING THE blocks list IS NOT SUPPORTED AND CAUSES INCONSISTENCIES!
+    if (!blocks.empty() && blocks.size() != blocks_vector.size()) {
+      blocks_vector.clear();
+      blocks_vector.reserve(blocks.size());
+      for (auto it = blocks.begin(); it != blocks.end(); ++it) {
+        blocks_vector.push_back(*it);
+      }
+    }
+
+    return blocks_vector;
+  }
+
   std::vector< std::pair< uint32, uint32 > >& get_void_blocks()
   {
     if (!void_blocks_initialized)
@@ -96,6 +116,7 @@ private:
   uint64 file_size;
   uint32 index_size;
   std::list< File_Block_Index_Entry< TIndex > > blocks;
+  std::vector< File_Block_Index_Entry< TIndex > > blocks_vector;
   std::vector< std::pair< uint32, uint32 > > void_blocks;
   bool void_blocks_initialized;
 
