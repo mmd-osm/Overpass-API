@@ -495,7 +495,8 @@ void File_Blocks_Range_Iterator< TIndex, TRangeIterator >::find_next_block()
       return;
     }
 
-    bool tmp_index_equals_last_index = index_equals_last_index;
+    // TODO: std::lower_bound is only needed for a new index_it.lower_bound(), rather than
+    //       every time we call this method
 
     auto lower_bound_entry(File_Block_Index_Entry<TIndex>(index_it.lower_bound(), 0, 0, 0));
 
@@ -505,7 +506,7 @@ void File_Blocks_Range_Iterator< TIndex, TRangeIterator >::find_next_block()
                                        return lhs.index < rhs.index; });
 
     typename std::vector< File_Block_Index_Entry< TIndex > >::const_iterator
-         tmp_result(this->block_it);
+         new_target_block_it(this->block_it);
 
 
     auto new_pos = std::distance(this->block_begin, lower);
@@ -513,86 +514,54 @@ void File_Blocks_Range_Iterator< TIndex, TRangeIterator >::find_next_block()
 
 
     if (lower != this->block_end) {
+
+      // Lower bound lookup result exactly matches a file block index entry index
       if (lower->index == index_it.lower_bound()) {
+
+        // TODO: this condition will no longer be needed once we call std::lower_bound for new index_it.lower_bound() only
+        //       Always moving forward is only possible if index_it is sorted!
         if ((new_pos - current_pos) > 0) {
-          std::advance(tmp_result, (new_pos - current_pos));
+          std::advance(new_target_block_it, (new_pos - current_pos));
         }
       } else {
+
+        // Lower index points to the first File Block Index entry, that is not smaller
+        // than index_it.lower_bound(). However, as we need to start with a File Block Index Entry
+        // which is lower than index_it.lower_bound(), we have to iterate backwards with
+        // new_target_block_it, until this condition is fulfilled.
+
+        // TODO: Review, simplify code
         if (!index_equals_last_index) {
           if ((new_pos - current_pos) > 0) {
-            std::advance(tmp_result, (new_pos - current_pos));
-            while (tmp_result != this->block_begin &&
-                   !(tmp_result->index < index_it.lower_bound())) {
-              --tmp_result;
+            std::advance(new_target_block_it, (new_pos - current_pos));
+            while (new_target_block_it != this->block_begin &&
+                   !(new_target_block_it->index < index_it.lower_bound())) {
+              --new_target_block_it;
             }
-            tmp_index_equals_last_index = index_equals_next_index(tmp_result, this->block_end);
+            index_equals_last_index = index_equals_next_index(new_target_block_it, this->block_end);
           }
         }
       }
     } else {  // lower is at block_end
-      std::advance(tmp_result, (new_pos - current_pos));
-      --tmp_result;
+      std::advance(new_target_block_it, (new_pos - current_pos));
+      --new_target_block_it;
     }
 
     typename std::vector< File_Block_Index_Entry< TIndex > >::const_iterator
-    tmp_next_block(tmp_result);
+    tmp_next_block(new_target_block_it);
     ++tmp_next_block;
 
     if ((tmp_next_block != this->block_end) &&
       (!(index_it.lower_bound() < tmp_next_block->index)))
     {
-      if (!(tmp_result->index < index_it.lower_bound())) {
+      if (!(new_target_block_it->index < index_it.lower_bound())) {
         // We have found a relevant block that is a segment
-//        std::cerr << "\n\n*********** Exit1\n\n";
-
-        this->block_it = tmp_result;
-        index_equals_last_index = tmp_index_equals_last_index;
-
+        this->block_it = new_target_block_it;
         return;
       }
     }
 
-
-//    typename std::vector< File_Block_Index_Entry< TIndex > >::const_iterator
-//    next_block(this->block_it);
-//    ++next_block;
-//
-//    long iterations = 0;
-//
-//
-//
-//    while ((next_block != this->block_end) &&
-//      (!(index_it.lower_bound() < next_block->index)))
-//    {
-//      if (!(this->block_it->index < index_it.lower_bound())) {
-//	// We have found a relevant block that is a segment
-////        std::cerr << "\n\n*********** Match 1: " << (tmp_result == this->block_it)
-////                  << " Iterations: " << iterations
-////                  << " distance: " << std::distance(tmp_result, this->block_it )
-////                  << " index_equals_last_index: " << index_equals_last_index
-////                  << " index_equals_last_index2: " << tmp_index_equals_last_index
-////                  <<  "\n\n";
-//
-//        this->block_it = tmp_result;
-//        index_equals_last_index = tmp_index_equals_last_index;
-//
-//	return;
-//      }
-//      index_equals_last_index = index_equals_next_index(this->block_it, this->block_end);
-//      ++(this->block_it);
-//      ++next_block;
-//
-//      ++iterations;
-//    }
-//
-//    std::cerr << "\n\n*********** Match 0: " << (tmp_result == this->block_it)
-//              << " Iterations: " << iterations
-//              << " distance: " << std::distance(tmp_result, this->block_it )
-//              << " index_equals_last_index: " << index_equals_last_index
-//              << " index_equals_last_index2: " << tmp_index_equals_last_index
-//              <<  "\n\n";
-
-    this->block_it = tmp_result;
+    this->block_it = new_target_block_it;
 
     typename std::vector< File_Block_Index_Entry< TIndex > >::const_iterator
          prev_result(this->block_it);
@@ -602,17 +571,8 @@ void File_Blocks_Range_Iterator< TIndex, TRangeIterator >::find_next_block()
     index_equals_last_index = index_equals_next_index(prev_result, this->block_end);
 
     if (!index_equals_last_index || (!(this->block_it->index < index_it.lower_bound()))) {
-//      std::cerr << "\n\n*********** Match 2: " << (tmp_result == this->block_it)
-//                << " Iterations: " << iterations
-//                << " distance: " << std::distance(tmp_result, this->block_it )
-//                << " index_equals_last_index: " << index_equals_last_index
-//                << " index_equals_last_index2: " << tmp_index_equals_last_index
-//                <<  "\n\n";
-
-
       break;
     }
-
 
     index_equals_last_index = index_equals_next_index(this->block_it, this->block_end);
     ++(this->block_it);
