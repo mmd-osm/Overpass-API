@@ -376,7 +376,7 @@ void read_loop(
     File_Blocks< IntIndex, IntIterator, IntRangeIterator >::Flat_Iterator& it,
     uint32 block_size)
 {
-  while (!(it == blocks.flat_end()))
+  while (!it.is_end())
   {
     std::cout<<"Predicted size "<<blocks.answer_size(it);
     uint8* data = (uint8*)(blocks.read_block(it));
@@ -415,7 +415,7 @@ void read_loop(
       for (uint i = block_size; i < large_block_size; i += block_size)
       {
         ++it;
-        if (it == blocks.flat_end())
+        if (it.is_end())
         {
           std::cout<<"Unexpected end of index inside oversized object.\n";
           break;
@@ -440,7 +440,7 @@ void read_loop(
     }
     else
       std::cout<<'\n';
-    if (!(it == blocks.flat_end()))
+    if (!it.is_end())
       ++it;
   }
 }
@@ -450,7 +450,7 @@ void read_loop(
     File_Blocks< IntIndex, IntIterator, IntRangeIterator >::Discrete_Iterator& it,
     uint32 block_size)
 {
-  while (!(it == blocks.discrete_end()))
+  while (!it.is_end())
   {
     uint32 answer_size(blocks.answer_size(it));
     std::cout<<"Predicted size "<<answer_size;
@@ -474,7 +474,7 @@ void read_loop(
         for (uint i = block_size; i < large_block_size; i += block_size)
         {
           ++it;
-          if (it == blocks.discrete_end())
+          if (it.is_end())
           {
             std::cout<<"\nUnexpected end of index inside oversized object.";
             break;
@@ -483,7 +483,7 @@ void read_loop(
       }
     }
     std::cout<<'\n';
-    if (!(it == blocks.discrete_end()))
+    if (!it.is_end())
       ++it;
   }
 }
@@ -493,7 +493,7 @@ void read_loop(
     File_Blocks< IntIndex, IntIterator, IntRangeIterator >::Range_Iterator& it,
     uint32 block_size)
 {
-  while (!(it == blocks.range_end()))
+  while (!it.is_end())
   {
     std::cout<<"Predicted size "<<blocks.answer_size(it);
     uint8* data((uint8*)(blocks.read_block(it)));
@@ -514,7 +514,7 @@ void read_loop(
       for (uint i = block_size; i < large_block_size; i += block_size)
       {
         ++it;
-        if (it == blocks.range_end())
+        if (it.is_end())
         {
           std::cout<<"\nUnexpected end of index inside oversized object.";
           break;
@@ -522,7 +522,7 @@ void read_loop(
       }
     }
     std::cout<<'\n';
-    if (!(it == blocks.range_end()))
+    if (!it.is_end())
       ++it;
   }
 }
@@ -1113,7 +1113,7 @@ int main(int argc, char* args[])
     File_Blocks< IntIndex, IntIterator, IntRangeIterator >::Write_Iterator
         it(blocks.write_begin(indices.begin(), indices.end()));
 
-    while (!(it == blocks.write_end()))
+    while (!it.is_end())
     {
       it = blocks.erase_block(it);
     }
@@ -1240,13 +1240,13 @@ int main(int argc, char* args[])
     Test_File tf;
     File_Blocks< IntIndex, IntIterator, IntRangeIterator > blocks
         (transaction.data_index(&tf));
-    while (!(blocks.flat_begin() == blocks.flat_end()))
+    while (!blocks.flat_begin().is_end())
     {
       std::list< IntIndex > indices;
-      indices.push_back(blocks.flat_begin().block_begin->index);
+      indices.push_back(blocks.flat_begin().block_it->index);
       File_Blocks_Write_Iterator< IntIndex, std::list< IntIndex >::const_iterator > it =
           blocks.write_begin(indices.begin(), indices.end());
-      while (!(it == blocks.write_end()))
+      while (!it.is_end())
         it = blocks.erase_block(it);
     }
   }
@@ -1610,7 +1610,7 @@ int main(int argc, char* args[])
 
     uint64* buf = (uint64*)aligned_alloc(8, Variable_Block_Test_File().get_block_size() * Variable_Block_Test_File().get_compression_factor());
 
-    while (!(it == blocks.write_end()) && it.block_it->index < 25)
+    while (!it.is_end() && it.block().index < 25)
       ++it;
     indices.clear();
     indices.push_back(IntIndex(25));
@@ -1646,7 +1646,7 @@ int main(int argc, char* args[])
 
     uint64* buf = (uint64*)aligned_alloc(8, Variable_Block_Test_File().get_block_size() * Variable_Block_Test_File().get_compression_factor());
 
-    while (!(it == blocks.write_end()) && it.block_it->index < 26)
+    while (!it.is_end() && it.block().index < 26)
       ++it;
     indices.clear();
     indices.push_back(IntIndex(26));
@@ -1682,7 +1682,7 @@ int main(int argc, char* args[])
 
     uint64* buf = (uint64*)aligned_alloc(8, Variable_Block_Test_File().get_block_size() * Variable_Block_Test_File().get_compression_factor());
 
-    while (!(it == blocks.write_end()) && it.block_it->index < 60)
+    while (!it.is_end() && it.block().index < 60)
       ++it;
     indices.clear();
     indices.push_back(IntIndex(60));
@@ -1719,7 +1719,7 @@ int main(int argc, char* args[])
 
     uint64* buf = (uint64*)aligned_alloc(8, Variable_Block_Test_File().get_block_size() * Variable_Block_Test_File().get_compression_factor());
 
-    while (!(it == blocks.write_end()) && it.block_it->index < 65)
+    while (!it.is_end() && it.block().index < 65)
       ++it;
     indices.clear();
     indices.push_back(IntIndex(65));
@@ -1757,7 +1757,7 @@ int main(int argc, char* args[])
 
     uint64* buf = (uint64*)aligned_alloc(8, Variable_Block_Test_File().get_block_size() * Variable_Block_Test_File().get_compression_factor());
 
-    while (!(it == blocks.write_end()) && it.block_it->index < 68)
+    while (!it.is_end() && it.block().index < 68)
       ++it;
     indices.clear();
     indices.push_back(IntIndex(68));
@@ -1794,7 +1794,7 @@ int main(int argc, char* args[])
 
     uint64* buf = (uint64*)aligned_alloc(8, Variable_Block_Test_File().get_block_size() * Variable_Block_Test_File().get_compression_factor());
 
-    while (!(it == blocks.write_end()) && it.block_it->index < 70)
+    while (!it.is_end() && it.block().index < 70)
       ++it;
     indices.clear();
     indices.push_back(IntIndex(70));
@@ -1832,7 +1832,7 @@ int main(int argc, char* args[])
 
     uint64* buf = (uint64*)aligned_alloc(8, Variable_Block_Test_File().get_block_size() * Variable_Block_Test_File().get_compression_factor());
 
-    while (!(it == blocks.write_end()) && it.block_it->index < 20)
+    while (!it.is_end() && it.block().index < 20)
       ++it;
     indices.clear();
     indices.push_back(IntIndex(20));
