@@ -129,7 +129,7 @@ struct File_Blocks_Range_Iterator : File_Blocks_Basic_Iterator< TIndex >
        const typename std::vector< File_Block_Index_Entry< TIndex > >::const_iterator& end,
        const TRangeIterator& index_it_,  const TRangeIterator& index_end_)
     : File_Blocks_Basic_Iterator< TIndex >(begin, end),
-      index_it(index_it_), index_end(index_end_), index_equals_last_index(false)
+      index_it(index_it_), index_end(index_end_), index_equals_last_index(false), new_index_search_needed(true)
   {
     find_next_block();
   }
@@ -153,6 +153,7 @@ private:
   TRangeIterator index_it;
   TRangeIterator index_end;
   bool index_equals_last_index;
+  bool new_index_search_needed;
 
   void find_next_block();
 };
@@ -485,8 +486,10 @@ void File_Blocks_Range_Iterator< TIndex, TRangeIterator >::find_next_block()
   while (!(this->block_it == this->block_end))
   {
     while ((index_it != index_end) &&
-      (!(this->block_it->index < index_it.upper_bound())))
+      (!(this->block_it->index < index_it.upper_bound()))) {
       ++index_it;
+      this->new_index_search_needed = true;
+    }
 
     if (index_it == index_end)
     {
@@ -495,39 +498,37 @@ void File_Blocks_Range_Iterator< TIndex, TRangeIterator >::find_next_block()
       return;
     }
 
-    // TODO: std::lower_bound is only needed for a new index_it.lower_bound(), rather than
-    //       every time we call this method
+    if (this->new_index_search_needed) {
 
-    auto lower_bound_entry(File_Block_Index_Entry<TIndex>(index_it.lower_bound(), 0, 0, 0));
+      auto lower_bound_entry(File_Block_Index_Entry<TIndex>(index_it.lower_bound(), 0, 0, 0));
 
-    auto lower = std::lower_bound(this->block_begin, this->block_end, lower_bound_entry,
-                                  [](File_Block_Index_Entry<TIndex> lhs,
-                                     File_Block_Index_Entry<TIndex> rhs) -> bool {
-                                       return lhs.index < rhs.index; });
+      auto lower = std::lower_bound(this->block_begin, this->block_end, lower_bound_entry,
+                                    [](File_Block_Index_Entry<TIndex> lhs,
+                                       File_Block_Index_Entry<TIndex> rhs) -> bool {
+                                         return lhs.index < rhs.index; });
 
+      auto dist = std::distance(this->block_it, lower);
 
-    auto dist = std::distance(this->block_it, lower);
+      if (lower != this->block_end) {
+        // TODO: Always moving forward is only possible if index_it is sorted!
+        if (dist > 0) {
+          this->block_it = lower;
 
-    if (lower != this->block_end) {
-
-      // TODO: this condition will no longer be needed once we call std::lower_bound for a new index_it.lower_bound() only
-      //       Always moving forward is only possible if index_it is sorted!
-      if (dist > 0) {
-        this->block_it = lower;
-
-        if (!(lower->index == index_it.lower_bound())) {
-          // "Lower index" points to the first File Block Index entry, that is not smaller
-          // than index_it.lower_bound(). However, as we need to start with a File Block Index Entry
-          // which is lower than index_it.lower_bound(), we have to go one entry backwards.
-          --this->block_it;
+          if (!(lower->index == index_it.lower_bound())) {
+            // "Lower index" points to the first File Block Index entry, that is not smaller
+            // than index_it.lower_bound(). However, as we need to start with a File Block Index Entry
+            // which is lower than index_it.lower_bound(), we have to go one entry backwards.
+            --this->block_it;
+          }
         }
+      } else {  // lower is at block_end
+        this->block_it = lower;
+        --this->block_it;
       }
-    } else {  // lower is at block_end
-      this->block_it = lower;
-      --this->block_it;
-    }
 
-    index_equals_last_index = index_equals_next_index(this->block_it, this->block_end);
+      index_equals_last_index = index_equals_next_index(this->block_it, this->block_end);
+      this->new_index_search_needed = false;
+    }
 
     typename std::vector< File_Block_Index_Entry< TIndex > >::const_iterator
     tmp_next_block(this->block_it);
