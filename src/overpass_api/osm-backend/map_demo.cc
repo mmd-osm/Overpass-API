@@ -22,6 +22,7 @@
 #include <iostream>
 #include <iterator>
 #include <map>
+#include <regex>
 #include <set>
 #include <string>
 #include <utility>
@@ -63,13 +64,13 @@ std::set< Uint31_Index > req;
 std::set< Uint32_Index > node_idx_outside_bbox;
 
 //Bbox_Double bbox(49.8,-14.2,59.5,3.3);  // UK+IRL
-Bbox_Double bbox(17.24,-67.88,19.11,-64.98); // Puerto Rico
+//Bbox_Double bbox(17.24,-67.88,19.11,-64.98); // Puerto Rico
 //Bbox_Double bbox(47.2587,-3.3134,47.4037,-3.0267); // belle-ile
 
 
 
 
-void prep_map_data(Resource_Manager& rman)
+void prep_map_data(Resource_Manager& rman, Bbox_Double bbox)
 {
 
   
@@ -283,7 +284,7 @@ void calc_rel_pairs()
 
 
 
-void next_package_node(Resource_Manager& rman, std::pair<Node_Skeleton::Id_Type::Id_Type, Node_Skeleton::Id_Type::Id_Type> idx)
+void next_package_node(Resource_Manager& rman, std::pair<Node_Skeleton::Id_Type::Id_Type, Node_Skeleton::Id_Type::Id_Type> idx, Bbox_Double bbox)
 {
   try
   {
@@ -410,11 +411,17 @@ int main(int argc, char *argv[])
 {
   std::string db_dir = "";
 
-  uint log_level = Error_Output::ASSISTING;
+  uint log_level = Error_Output::CONCISE;
   Debug_Level debug_level = parser_execute;
   Clone_Settings clone_settings;
   int area_level = 0;
   bool respect_timeout = true;
+
+  Bbox_Double bbox(bbox.invalid);
+
+
+  Error_Output* error_output(new Console_Output(log_level));
+  Statement::set_error_output(error_output);
 
   int argpos = 1;
   while (argpos < argc)
@@ -425,26 +432,60 @@ int main(int argc, char *argv[])
       if ((db_dir.size() > 0) && (db_dir[db_dir.size()-1] != '/'))
         db_dir += '/';
     }
+    if (!(strncmp(argv[argpos], "--bbox=", 7)))
+    {
+      std::string bbox_string = ((std::string)argv[argpos]).substr(7);
+
+      std::smatch sm;
+
+      try {
+          std::regex r("(-?[0-9\\.]+),(-?[0-9\\.]+),(-?[0-9\\.]+),(-?[0-9\\.]+)");
+
+          if (!std::regex_match(bbox_string, sm, r)) {
+            error_output->add_parse_error("Invalid bbox argument", 1);
+            exit(1);
+          }
+
+          if (sm.size() != 5) {
+            error_output->add_parse_error("Invalid bbox argument", 1);
+            exit(1);
+          }
+
+      } catch (std::regex_error&) {
+        error_output->add_parse_error("Invalid bbox argument", 1);
+        exit(1);
+      }
+
+      bbox.west  = atof((sm[1]).str().c_str());
+      bbox.south = atof((sm[2]).str().c_str());
+      bbox.east  = atof((sm[3]).str().c_str());
+      bbox.north = atof((sm[4]).str().c_str());
+
+    }
     else
     {
       std::cout<<"Unknown argument: "<<argv[argpos]<<"\n\n"
       "Accepted arguments are:\n"
       "  --db-dir=$DB_DIR: The directory where the database resides. If you set this parameter\n"
-      "        then osm3s_query will read from the database without using the dispatcher management.\n";
+      "        then osm3s_query will read from the database without using the dispatcher management.\n"
+      "  --bbox=west,south,east,north: defines bounding box for map call\n";
 
       return 0;
     }
     ++argpos;
   }
 
-  Error_Output* error_output(new Console_Output(log_level));
-  Statement::set_error_output(error_output);
+  if (!bbox.valid()) {
+    error_output->add_parse_error("Invalid bbox argument", 1);
+    exit(1);
+  }
+
 
   // connect to dispatcher and get database dir
   try
   {
     Parsed_Query global_settings;
-    std::string xml_raw = "[out:pbf];out meta;";
+    std::string xml_raw = "[timeout:3600][out:pbf];out meta;";
 
 
     Statement::Factory stmt_factory(global_settings);
@@ -475,7 +516,7 @@ int main(int argc, char *argv[])
 
 
     // Inject one package into default inputset
-    prep_map_data(dispatcher.resource_manager());
+    prep_map_data(dispatcher.resource_manager(), bbox);
     calc_node_pairs();
     calc_way_pairs();
     calc_rel_pairs();
@@ -484,7 +525,7 @@ int main(int argc, char *argv[])
 
     for (const auto & idx : node_pairs)
     {
-      next_package_node(dispatcher.resource_manager(), idx);
+      next_package_node(dispatcher.resource_manager(), idx, bbox);
 
       for (std::vector< Statement* >::const_iterator it(get_statement_stack()->begin());
            it != get_statement_stack()->end(); ++it)
@@ -518,6 +559,11 @@ int main(int argc, char *argv[])
   catch(std::exception& e)
   {
     error_output->runtime_error(std::string("Query failed with the exception: ") + e.what());
+    return 4;
+  }
+  catch(...)
+  {
+    error_output->runtime_error(std::string("Query could not be executed"));
     return 4;
   }
 }
