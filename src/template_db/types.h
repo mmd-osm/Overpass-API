@@ -118,14 +118,14 @@ class Raw_File
   Raw_File operator=(const Raw_File&);
 
   public:
-    Raw_File(const std::string& name, int oflag, mode_t mode, const std::string& caller_id);
+    Raw_File(const std::string& name, int oflag, mode_t mode, const char* caller_id);
     ~Raw_File() { close(fd_); }
     int fd() const { return fd_; }
-    uint64 size(const std::string& caller_id) const;
-    void resize(uint64 size, const std::string& caller_id) const;
-    void read(void* buf, uint64 size, const std::string& caller_id) const;
-    void write(void* buf, uint64 size, const std::string& caller_id) const;
-    void seek(uint64 pos, const std::string& caller_id) const;
+    uint64 size(const char* caller_id) const;
+    void resize(uint64 size, const char* caller_id) const;
+    void read(void* buf, uint64 size, const char* caller_id) const;
+    void write(void* buf, uint64 size, const char* caller_id) const;
+    void seek(uint64 pos, const char* caller_id) const;
 
   private:
     int fd_;
@@ -225,7 +225,7 @@ private:
 
 //-----------------------------------------------------------------------------
 
-inline Raw_File::Raw_File(const std::string& name_, int oflag, mode_t mode, const std::string& caller_id)
+inline Raw_File::Raw_File(const std::string& name_, int oflag, mode_t mode, const char* caller_id)
   : fd_(0), name(name_)
 {
   fd_ = open64(name.c_str(), oflag, mode);
@@ -235,11 +235,11 @@ inline Raw_File::Raw_File(const std::string& name_, int oflag, mode_t mode, cons
   {
     int ret = fchmod(fd_, mode);
     if (ret < 0)
-      throw File_Error(errno, name, caller_id + "::fchmod");
+      throw File_Error(errno, name, std::string(caller_id) + "::fchmod");
   }
 }
 
-inline uint64 Raw_File::size(const std::string& caller_id) const
+inline uint64 Raw_File::size(const char* caller_id) const
 {
   uint64 size = lseek64(fd_, 0, SEEK_END);
   uint64 foo = lseek64(fd_, 0, SEEK_SET);
@@ -248,28 +248,28 @@ inline uint64 Raw_File::size(const std::string& caller_id) const
   return size;
 }
 
-inline void Raw_File::resize(uint64 size, const std::string& caller_id) const
+inline void Raw_File::resize(uint64 size, const char* caller_id) const
 {
   uint64 foo = ftruncate64(fd_, size);
   if (foo != 0)
     throw File_Error(errno, name, caller_id);
 }
 
-inline void Raw_File::read(void* buf, uint64 size, const std::string& caller_id) const
+inline void Raw_File::read(void* buf, uint64 size, const char* caller_id) const
 {
   uint64 foo = ::read(fd_, buf, size);
   if (foo != size)
     throw File_Error(errno, name, caller_id);
 }
 
-inline void Raw_File::write(void* buf, uint64 size, const std::string& caller_id) const
+inline void Raw_File::write(void* buf, uint64 size, const char* caller_id) const
 {
   uint64 foo = ::write(fd_, buf, size);
   if (foo != size)
     throw File_Error(errno, name, caller_id);
 }
 
-inline void Raw_File::seek(uint64 pos, const std::string& caller_id) const
+inline void Raw_File::seek(uint64 pos, const char* caller_id) const
 {
   uint64 foo = lseek64(fd_, pos, SEEK_SET);
   if (foo != pos)
