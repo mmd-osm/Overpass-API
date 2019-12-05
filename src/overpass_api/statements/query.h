@@ -76,10 +76,8 @@ class Query_Statement : public Output_Statement
   public:
     Query_Statement(int line_number_, const std::map< std::string, std::string >& input_attributes,
                     Parsed_Query& global_settings);
-    virtual ~Query_Statement() {
-      if (type == QUERY_AREA && area_query_ref_counter_ > 0)
-        --area_query_ref_counter_;
-    }
+    virtual ~Query_Statement();
+
     virtual void add_statement(Statement* statement, std::string text);
     virtual std::string get_name() const { return "query"; }
     virtual void execute(Resource_Manager& rman);

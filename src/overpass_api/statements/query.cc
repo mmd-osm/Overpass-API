@@ -84,6 +84,13 @@ Query_Statement::Query_Statement
   }
 }
 
+Query_Statement::~Query_Statement() {
+  if (type == QUERY_AREA && area_query_ref_counter_ > 0)
+    --area_query_ref_counter_;
+
+  delete global_bbox_statement;
+}
+
 void Query_Statement::add_statement(Statement* statement, std::string text)
 {
   assure_no_text(text, this->get_name());
