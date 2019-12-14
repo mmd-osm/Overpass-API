@@ -58,9 +58,18 @@ struct IntIndex
 
   uint32 val() const { return value; }
 
+  friend std::ostream & operator<<(std::ostream &os, const IntIndex& t);
+
   private:
     uint32 value;
 };
+
+
+
+inline std::ostream & operator<<(std::ostream &os, const IntIndex& p)
+{
+    return os << "[ " << p.value << " ]";
+}
 
 
 typedef std::list< IntIndex >::const_iterator IntIterator;
