@@ -70,16 +70,10 @@ struct IntIndex
     return value;
   }
 
-  friend std::ostream & operator<<(std::ostream &os, const IntIndex& t);
-
   private:
     uint32 value;
 };
 
-inline std::ostream & operator<<(std::ostream &os, const IntIndex& p)
-{
-    return os << "[ " << p.value << " ]";
-}
 
 struct IntObject
 {

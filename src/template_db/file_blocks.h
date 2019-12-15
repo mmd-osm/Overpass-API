@@ -89,19 +89,6 @@ struct File_Blocks_Discrete_Iterator : File_Blocks_Basic_Iterator< TIndex >
     : File_Blocks_Basic_Iterator< TIndex >(begin, end),
       index_lower(index_it_), index_upper(index_it_), index_end(index_end_)
   {
-
-    if (debug) {
-      std::cerr << "\nIndexes:\n";
-
-      for (auto v = index_it_; v != index_end_; v++)
-        std::cerr << " :: " << *v << "\n";
-
-      std::cerr << "\nFBIEs:\n";
-
-      for (auto r = begin; r != end; r++)
-        std::cerr << " :: " << r->index << " - pos: " << r->pos << "\n";
-    }
-
     find_next_block();
   }
 
@@ -131,10 +118,6 @@ struct File_Blocks_Discrete_Iterator : File_Blocks_Basic_Iterator< TIndex >
 
 private:
   void find_next_block();
-  void find_next_block_old();
-  void find_next_block_new();
-
-  static constexpr bool debug = false;
 };
 
 
@@ -400,89 +383,10 @@ File_Blocks_Discrete_Iterator< TIndex, TIterator >::operator++()
   return *this;
 }
 
+
 template< typename TIndex, typename TIterator >
 void File_Blocks_Discrete_Iterator< TIndex, TIterator >::find_next_block()
 {
-  if (debug) {
-
-    std::cerr << "Before:    ";
-    if (index_lower != index_end)
-      std::cerr << *index_lower;
-    else
-      std::cerr << "END";
-    std::cerr << " - ";
-    if (index_upper != index_end)
-      std::cerr << *index_upper;
-    else
-      std::cerr << "END";
-    std::cerr << " - ";
-    if (this->block_it != this->block_end)
-      std::cerr << this->block_it->index << " - " << this->block_it->pos << "\n";
-    else
-      std::cerr << "END\n";
-
-    auto prev_index_lower = index_lower;
-    auto prev_index_upper = index_upper;
-    auto prev_block_it    = this->block_it;
-
-    find_next_block_new();
-
-    std::cerr << "After New: ";
-
-    if (index_lower != index_end)
-      std::cerr << *index_lower;
-    else
-      std::cerr << "END";
-    std::cerr << " - ";
-    if (index_upper != index_end)
-      std::cerr << *index_upper;
-    else
-      std::cerr << "END";
-    std::cerr << " - ";
-    if (this->block_it != this->block_end)
-      std::cerr << this->block_it->index << " - " << this->block_it->pos << "\n";
-    else
-      std::cerr << "END\n";
-
-    auto post_index_lower = index_lower;
-    auto post_index_upper = index_upper;
-    auto post_block_it    = this->block_it;
-
-    index_lower = prev_index_lower;
-    index_upper = prev_index_upper;
-    this->block_it = prev_block_it;
-
-    find_next_block_old();
-
-    std::cerr << "After:     ";
-
-    if (index_lower != index_end)
-      std::cerr << *index_lower;
-    else
-      std::cerr << "END";
-    std::cerr << " - ";
-    if (index_upper != index_end)
-      std::cerr << *index_upper;
-    else
-      std::cerr << "END";
-    std::cerr << " - ";
-    if (this->block_it != this->block_end)
-      std::cerr << this->block_it->index << " - " << this->block_it->pos << "\n";
-    else
-      std::cerr << "END\n";
-
-    if (post_index_lower != index_lower)     std::cerr << "**** Dev index_lower\n";
-    if (post_index_upper != index_upper)     std::cerr << "**** Dev index_upper\n";
-    if (post_block_it    != this->block_it)  std::cerr << "**** Dev block_it\n";
-
-  }
-  else
-    find_next_block_new();
-}
-
-template< typename TIndex, typename TIterator >
-void File_Blocks_Discrete_Iterator< TIndex, TIterator >::find_next_block_old()
-{
   index_lower = index_upper;
 
   while (this->block_it != this->block_end)
@@ -496,8 +400,6 @@ void File_Blocks_Discrete_Iterator< TIndex, TIterator >::find_next_block_old()
       return;
     }
 
-    if (debug) std::cerr << " -> index_lower: " << *index_lower << "\n";
-
     typename std::vector< File_Block_Index_Entry< TIndex > >::const_iterator next_block = this->block_it;
     ++next_block;
 
@@ -506,25 +408,20 @@ void File_Blocks_Discrete_Iterator< TIndex, TIterator >::find_next_block_old()
       index_upper = index_end;
       return;
     }
-
-    if (debug) std::cerr << " - next: " << next_block->index << " - pos: " << next_block->pos << "\n";
-
-    if (*index_lower < next_block->index)
+    else if (*index_lower < next_block->index)
     {
       index_upper = index_lower;
       while (index_upper != index_end && *index_upper < next_block->index)
         ++index_upper;
       return;
     }
-
-    if (*index_lower == this->block_it->index) // implies: this->block_it->index == next_block->index
+    else if (*index_lower == this->block_it->index) // implies: this->block_it->index == next_block->index
     {
       index_upper = index_lower;
       ++index_upper;
       return;
     }
-
-    if (this->block_it->index == next_block->index)
+    else if (this->block_it->index == next_block->index)
     {
       while (this->block_it != this->block_end && this->block_it->index == next_block->index)
         ++this->block_it;
@@ -535,106 +432,6 @@ void File_Blocks_Discrete_Iterator< TIndex, TIterator >::find_next_block_old()
 
   index_upper = index_end;
 }
-
-template< typename TIndex, typename TIterator >
-void File_Blocks_Discrete_Iterator< TIndex, TIterator >::find_next_block_new()
-{
-  index_lower = index_upper;
-
-  while (this->block_it != this->block_end)
-  {
-    while (index_lower != index_end && *index_lower < this->block_it->index)
-      ++index_lower;
-    if (index_lower == index_end)
-    {
-      index_upper = index_end;
-      this->block_it = this->block_end;
-      if (debug) std::cerr << "Ex0\n";
-      return;
-    }
-
-    if (debug) std::cerr << " -> index_lower: " << *index_lower << "\n";
-
-    auto lower_bound_entry(File_Block_Index_Entry<TIndex>(*index_lower, 0, 0, 0));
-
-    auto lower = std::lower_bound(this->block_begin, this->block_end, lower_bound_entry,
-                                  [](File_Block_Index_Entry<TIndex> lhs,
-                                     File_Block_Index_Entry<TIndex> rhs) -> bool {
-                                       return lhs.index < rhs.index; });
-
-    auto dist = std::distance(this->block_it, lower);
-
-    if (debug) std::cerr << " - dist: " << dist << "\n";
-
-    if (lower != this->block_end) {
-
-      if (debug) std::cerr << " - lower: " << lower->index << " - pos: " << lower->pos << "\n";
-
-      this->block_it = lower;
-      if (!(lower->index == *index_lower)) {
-        --this->block_it;
-      }
-      if (debug) std::cerr << " - block_it: " << this->block_it->index << " - pos: " << this->block_it->pos << "\n";
-
-
-    } else {  // lower is at block_end
-      if (debug) std::cerr << " - lower: end\n";
-       this->block_it = lower;
-       --this->block_it;
-    }
-
-    typename std::vector< File_Block_Index_Entry< TIndex > >::const_iterator next_block = this->block_it;
-    ++next_block;
-
-    if (next_block == this->block_end)
-    {
-
-      if (this->block_it != this->block_begin) {
-        typename std::vector< File_Block_Index_Entry< TIndex > >::const_iterator prev_block = this->block_it;
-        --prev_block;
-
-        if (this->block_it->index == prev_block->index)
-          this->block_it = this->block_end;
-      }
-
-      index_upper = index_end;
-      if (debug) std::cerr << "Ex1\n";
-      return;
-    }
-
-    if (*index_lower < next_block->index)
-    {
-      if (debug) std::cerr << " - next: " << next_block->index << " - pos: " << next_block->pos << "\n";
-      index_upper = index_lower;
-      while (index_upper != index_end && *index_upper < next_block->index)
-        ++index_upper;
-      if (debug) std::cerr << " -> index_upper: " << *index_upper << "\n";
-
-
-      if (debug) std::cerr << "Ex2\n";
-      return;
-    }
-
-    if (*index_lower == this->block_it->index) // implies: this->block_it->index == next_block->index
-    {
-      index_upper = index_lower;
-      ++index_upper;
-      if (debug) std::cerr << "Ex3\n";
-      return;
-    }
-
-    if (this->block_it->index == next_block->index)
-    {
-      while (this->block_it != this->block_end && this->block_it->index == next_block->index)
-        ++this->block_it;
-    }
-    else
-      ++this->block_it;
-  }
-
-  index_upper = index_end;
-}
-
 
 
 /** Implementation File_Blocks_Range_Iterator: ------------------------------*/
