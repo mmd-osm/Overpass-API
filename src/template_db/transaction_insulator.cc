@@ -39,7 +39,7 @@
 
 void Idx_Footprints::set_current_footprint(const std::vector< bool >& footprint)
 {
-  current_footprint = footprint;
+  current_footprint = std::make_shared<std::vector< bool > >(footprint);
 }
 
 
@@ -58,7 +58,7 @@ void Idx_Footprints::unregister_pid(pid_t pid)
 std::vector< Idx_Footprints::pid_t > Idx_Footprints::registered_processes() const
 {
   std::vector< pid_t > result;
-  for (std::map< pid_t, std::vector< bool > >::const_iterator
+  for (std::map< pid_t, std::shared_ptr< std::vector< bool > > >::const_iterator
       it(footprint_per_pid.begin()); it != footprint_per_pid.end(); ++it)
     result.push_back(it->first);
   return result;
@@ -67,13 +67,13 @@ std::vector< Idx_Footprints::pid_t > Idx_Footprints::registered_processes() cons
 
 std::vector< bool > Idx_Footprints::total_footprint() const
 {
-  std::vector< bool > result = current_footprint;
-  for (std::map< pid_t, std::vector< bool > >::const_iterator
+  std::vector< bool > result(*current_footprint.get());
+  for (std::map< pid_t, std::shared_ptr< std::vector< bool > > >::const_iterator
       it(footprint_per_pid.begin()); it != footprint_per_pid.end(); ++it)
   {
     // By construction, it->second.size() <= result.size()
-    for (std::vector< bool >::size_type i = 0; i < it->second.size(); ++i)
-      result[i] = result[i] | (it->second)[i];
+    for (std::vector< bool >::size_type i = 0; i < it->second.get()->size(); ++i)
+      result[i] = result[i] | (*it->second)[i];
   }
   return result;
 }

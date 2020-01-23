@@ -23,6 +23,7 @@
 #include "types.h"
 
 #include <map>
+#include <memory>
 #include <set>
 #include <vector>
 
@@ -39,8 +40,8 @@ class Idx_Footprints
     std::vector< bool > total_footprint() const;
 
   private:
-    std::vector< bool > current_footprint;
-    std::map< pid_t, std::vector< bool > > footprint_per_pid;
+    std::shared_ptr< std::vector< bool > > current_footprint;
+    std::map< pid_t, std::shared_ptr< std::vector< bool > > > footprint_per_pid;
 };
 
 
