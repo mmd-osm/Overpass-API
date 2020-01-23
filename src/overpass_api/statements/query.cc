@@ -232,7 +232,7 @@ std::vector< std::pair< Id_Type, Uint31_Index > > filter_id_list_fast(
         (!filtered || old_ids.get(current_id)))
     {
       if (final)
-         new_ids_idx.push_back(std::make_pair(current_id, it.object().idx));
+         new_ids_idx.push_back(std::make_pair(current_id, it.handle().get_idx())); // it.object().idx));
       else
          new_ids.set(current_id);
     }
