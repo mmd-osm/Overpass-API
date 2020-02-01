@@ -44,7 +44,7 @@ class Id_Query_Statement : public Output_Statement
     struct Criterion_Maker : public Statement::Criterion_Maker
     {
       virtual bool can_standalone(const std::string& type)
-      { return type == "node" || type == "way" || type == "relation" || type == "area"; }
+      { return type == "node" || type == "way" || type == "relation"; }
       virtual Statement* create_criterion(const Token_Node_Ptr& tree_it,
           const std::string& type, const std::string& into,
           Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
