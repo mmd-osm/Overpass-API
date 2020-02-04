@@ -22,6 +22,7 @@
 
 #include "regular_expression.h"
 
+#include <osmium/index/id_set.hpp>
 
 std::set< Tag_Index_Global > get_kv_req(const std::string& key, const std::string& value)
 {
@@ -94,13 +95,17 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kv(
     Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > >& tags_db,
     Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >& attic_tags_db)
 {
+  osmium::index::IdSetDense<typename Id_Type::Id_Type> dense;
+
   std::map< Id_Type, std::pair< uint64, Uint31_Index > > timestamp_per_id;
   std::set< Tag_Index_Global > tag_req = get_kv_req(kvit->first, kvit->second);
 
   for (typename Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > >::Discrete_Iterator
       it2(tags_db.discrete_begin(tag_req.begin(), tag_req.end()));
-      !(it2 == tags_db.discrete_end()); ++it2)
-    timestamp_per_id[it2.object().id] = std::make_pair(NOW, it2.object().idx);
+      !(it2 == tags_db.discrete_end()); ++it2) {
+    timestamp_per_id[it2.handle().id()] = std::make_pair(NOW, it2.handle().get_idx());
+    dense.set(it2.handle().id().val());
+  }
 
   for (typename Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >::Discrete_Iterator
       it2(attic_tags_db.discrete_begin(tag_req.begin(), tag_req.end()));
@@ -110,9 +115,10 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kv(
 
     if (current_timestamp > timestamp)
     {
+      dense.set(it2.handle().id().val());
       std::pair< uint64, Uint31_Index >& ref = timestamp_per_id[it2.handle().id()];
       if (ref.first == 0 || current_timestamp < ref.first)
-        ref = std::make_pair(current_timestamp, it2.object().idx);
+        ref = std::make_pair(current_timestamp, it2.handle().get_idx());
     }
   }
 
@@ -127,6 +133,9 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kv(
 
     if (current_timestamp > timestamp)
     {
+      if (!dense.get(it2.handle().id().val()))
+        continue;
+
       typename std::map< Id_Type, std::pair< uint64, Uint31_Index > >::iterator
           it = timestamp_per_id.find(it2.handle().id());
       if (it != timestamp_per_id.end())
@@ -155,7 +164,7 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_k(
         (Default_Range_Iterator< Tag_Index_Global >(range_req.begin()),
       Default_Range_Iterator< Tag_Index_Global >(range_req.end())));
       !(it2 == tags_db.range_end()); ++it2)
-    timestamp_per_id[it2.object().id] = std::make_pair(NOW, it2.object().idx);
+    timestamp_per_id[it2.handle().id()] = std::make_pair(NOW, it2.handle().get_idx());
 
   for (typename Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >::Range_Iterator
       it2(attic_tags_db.range_begin
@@ -169,7 +178,7 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_k(
     {
       std::pair< uint64, Uint31_Index >& ref = timestamp_per_id[it2.handle().id()];
       if (ref.first == 0 || current_timestamp < ref.first)
-        ref = std::make_pair(current_timestamp, it2.object().idx);
+        ref = std::make_pair(current_timestamp, it2.handle().get_idx());
     }
   }
 
