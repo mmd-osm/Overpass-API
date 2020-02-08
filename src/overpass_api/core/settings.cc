@@ -33,7 +33,6 @@
 #include <unistd.h>
 
 
-#include <iostream>
 template < typename TVal >
 struct OSM_File_Properties : public File_Properties
 {
@@ -97,8 +96,8 @@ Basic_Settings::Basic_Settings()
   base_directory("./"),
   logfile_name("transactions.log"),
   shared_name_base("/osm3s_v0.7.56"),
-  version("0.7.55.1009"),
-  source_hash("5e627b636e5059d6812a656c469076221fd348ce"),
+  version("0.7.55.1011"),
+  source_hash("6c2efc3061fefe93024591015ad2e885c3b9e705"),
 #ifdef HAVE_LZ4
   compression_method(File_Blocks_Index< Uint31_Index >::LZ4_COMPRESSION),
 #else
