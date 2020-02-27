@@ -19,6 +19,7 @@
 #ifndef DE__OSM3S___OVERPASS_API__CORE__DATATYPES_H
 #define DE__OSM3S___OVERPASS_API__CORE__DATATYPES_H
 
+#include <cassert>
 #include <cstring>
 #include <iomanip>
 #include <limits>
@@ -767,19 +768,69 @@ struct Timestamp
   int minute() const { return minute(timestamp); }
   int second() const { return second(timestamp); }
 
+  // source: https://github.com/osmcode/libosmium/blob/master/include/osmium/osm/timestamp.hpp
+
+  inline void add_2digit_int_to_string(int value, std::string& out) const {
+      assert(value >= 0 && value <= 99);
+      if (value > 9) {
+          const int dec = value / 10;
+          out += static_cast<char>('0' + dec);
+          value -= dec * 10;
+      } else {
+          out += '0';
+      }
+      out += static_cast<char>('0' + value);
+  }
+
+  inline void add_4digit_int_to_string(int value, std::string& out) const {
+      assert(value >= 0 && value <= 9999);
+
+      const int dec1 = value / 1000;
+      out += static_cast<char>('0' + dec1);
+      value -= dec1 * 1000;
+
+      const int dec2 = value / 100;
+      out += static_cast<char>('0' + dec2);
+      value -= dec2 * 100;
+
+      const int dec3 = value / 10;
+      out += static_cast<char>('0' + dec3);
+      value -= dec3 * 10;
+
+      out += static_cast<char>('0' + value);
+  }
+
   std::string str() const
   {
     if (timestamp == std::numeric_limits< unsigned long long >::max())
       return "NOW";
 
-    std::ostringstream out;
-    out<<std::setw(4)<<std::setfill('0')<<year()<<"-"
-        <<std::setw(2)<<std::setfill('0')<<month()<<"-"
-	<<std::setw(2)<<std::setfill('0')<<day()<<"T"
-	<<std::setw(2)<<std::setfill('0')<<hour()<<":"
-	<<std::setw(2)<<std::setfill('0')<<minute()<<":"
-	<<std::setw(2)<<std::setfill('0')<<second()<<"Z";
-    return out.str();
+    std::string s;
+    s.reserve(20);
+
+    add_4digit_int_to_string(year(), s);
+    s += '-';
+    add_2digit_int_to_string(month(), s);
+    s += '-';
+    add_2digit_int_to_string(day(), s);
+    s += 'T';
+    add_2digit_int_to_string(hour(), s);
+    s += ':';
+    add_2digit_int_to_string(minute(), s);
+    s += ':';
+    add_2digit_int_to_string(second(), s);
+    s += 'Z';
+
+    return s;
+
+//    std::ostringstream out;
+//    out<<std::setw(4)<<std::setfill('0')<<year()<<"-"
+//        <<std::setw(2)<<std::setfill('0')<<month()<<"-"
+//	<<std::setw(2)<<std::setfill('0')<<day()<<"T"
+//	<<std::setw(2)<<std::setfill('0')<<hour()<<":"
+//	<<std::setw(2)<<std::setfill('0')<<minute()<<":"
+//	<<std::setw(2)<<std::setfill('0')<<second()<<"Z";
+//    return out.str();
   }
 
   uint32 size_of() const
