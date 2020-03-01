@@ -73,79 +73,92 @@ Eval_Task* Evaluator_Pair_Operator::get_string_task(Prepare_Task_Context& contex
 
 std::string Binary_Eval_Task::eval(const std::string* key) const
 {
-  return evaluator->process(lhs ? lhs->eval(key) : "", rhs ? rhs->eval(key) : "");
+  return evaluator->process([&] { return (lhs ? lhs->eval(key) : ""); },
+                            [&] { return (rhs ? rhs->eval(key) : ""); });
 }
 
 
 std::string Binary_Eval_Task::eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process(lhs ? lhs->eval(data, key) : "", rhs ? rhs->eval(data, key) : "");
+  return evaluator->process([&] { return (lhs ? lhs->eval(data, key) : ""); },
+                            [&] { return (rhs ? rhs->eval(data, key) : ""); });
 }
 
 
 std::string Binary_Eval_Task::eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
 {
-  return evaluator->process(lhs ? lhs->eval(data, key) : "", rhs ? rhs->eval(data, key) : "");
+  return evaluator->process([&] { return (lhs ? lhs->eval(data, key) : ""); },
+                            [&] { return (rhs ? rhs->eval(data, key) : ""); });
 }
 
 
 std::string Binary_Eval_Task::eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process(lhs ? lhs->eval(data, key) : "", rhs ? rhs->eval(data, key) : "");
+  return evaluator->process([&] { return (lhs ? lhs->eval(data, key) : ""); },
+                            [&] { return (rhs ? rhs->eval(data, key) : ""); });
 }
 
 
 std::string Binary_Eval_Task::eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
 {
-  return evaluator->process(lhs ? lhs->eval(data, key) : "", rhs ? rhs->eval(data, key) : "");
+  return evaluator->process([&] { return (lhs ? lhs->eval(data, key) : ""); },
+                            [&] { return (rhs ? rhs->eval(data, key) : ""); });
 }
 
 
 std::string Binary_Eval_Task::eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process(lhs ? lhs->eval(data, key) : "", rhs ? rhs->eval(data, key) : "");
+  return evaluator->process([&] { return (lhs ? lhs->eval(data, key) : ""); },
+                            [&] { return (rhs ? rhs->eval(data, key) : ""); });
 }
 
 
 std::string Binary_Eval_Task::eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
 {
-  return evaluator->process(lhs ? lhs->eval(data, key) : "", rhs ? rhs->eval(data, key) : "");
+  return evaluator->process([&] { return (lhs ? lhs->eval(data, key) : ""); },
+                            [&] { return (rhs ? rhs->eval(data, key) : ""); });
 }
 
 
 std::string Binary_Eval_Task::eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process(lhs ? lhs->eval(data, key) : "", rhs ? rhs->eval(data, key) : "");
+  return evaluator->process([&] { return (lhs ? lhs->eval(data, key) : ""); },
+                            [&] { return (rhs ? rhs->eval(data, key) : ""); });
 }
 
 
 std::string Binary_Eval_Task::eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process(lhs ? lhs->eval(data, key) : "", rhs ? rhs->eval(data, key) : "");
+  return evaluator->process([&] { return (lhs ? lhs->eval(data, key) : ""); },
+                            [&] { return (rhs ? rhs->eval(data, key) : ""); });
 }
 
 
 std::string Binary_Eval_Task::eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process(lhs ? lhs->eval(pos, data, key) : "", rhs ? rhs->eval(pos, data, key) : "");
+  return evaluator->process([&] { return (lhs ? lhs->eval(pos, data, key) : ""); },
+                            [&] { return (rhs ? rhs->eval(pos, data, key) : ""); });
 }
 
 
 std::string Binary_Eval_Task::eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
 {
-  return evaluator->process(lhs ? lhs->eval(pos, data, key) : "", rhs ? rhs->eval(pos, data, key) : "");
+  return evaluator->process([&] { return (lhs ? lhs->eval(pos, data, key) : ""); },
+                            [&] { return (rhs ? rhs->eval(pos, data, key) : ""); });
 }
 
 
 std::string Binary_Eval_Task::eval(uint pos, const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process(lhs ? lhs->eval(pos, data, key) : "", rhs ? rhs->eval(pos, data, key) : "");
+  return evaluator->process([&] { return (lhs ? lhs->eval(pos, data, key) : ""); },
+                            [&] { return (rhs ? rhs->eval(pos, data, key) : ""); });
 }
 
 
 std::string Binary_Eval_Task::eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
 {
-  return evaluator->process(lhs ? lhs->eval(pos, data, key) : "", rhs ? rhs->eval(pos, data, key) : "");
+  return evaluator->process([&] { return (lhs ? lhs->eval(pos, data, key) : ""); },
+                            [&] { return (rhs ? rhs->eval(pos, data, key) : ""); });
 }
 
 
@@ -178,6 +191,11 @@ std::string Evaluator_And::process(const std::string& lhs_s, const std::string& 
   return string_represents_boolean_true(lhs_s) && string_represents_boolean_true(rhs_s) ? "1" : "0";
 }
 
+inline std::string Evaluator_And::process(TransientFunction<std::string()> lhs, TransientFunction<std::string()> rhs) const
+{
+  return string_represents_boolean_true(lhs()) && string_represents_boolean_true(rhs()) ? "1" : "0";
+}
+
 
 //-----------------------------------------------------------------------------
 
@@ -189,6 +207,11 @@ Operator_Eval_Maker< Evaluator_Or > Evaluator_Or::evaluator_maker;
 std::string Evaluator_Or::process(const std::string& lhs_s, const std::string& rhs_s) const
 {
   return string_represents_boolean_true(lhs_s) || string_represents_boolean_true(rhs_s) ? "1" : "0";
+}
+
+inline std::string Evaluator_Or::process(TransientFunction<std::string()> lhs, TransientFunction<std::string()> rhs) const
+{
+  return string_represents_boolean_true(lhs()) || string_represents_boolean_true(rhs()) ? "1" : "0";
 }
 
 

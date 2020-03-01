@@ -85,6 +85,11 @@ public:
 
   virtual std::string process(const std::string& lhs_result, const std::string& rhs_result) const = 0;
 
+
+  virtual inline std::string process(TransientFunction<std::string()> lhs, TransientFunction<std::string()> rhs) const {
+    return process(lhs(), rhs());
+  }
+
   static bool applicable_by_subtree_structure(const Token_Node_Ptr& tree_it) { return tree_it->lhs && tree_it->rhs; }
   static void add_substatements(Statement* result, const std::string& operator_name, const Token_Node_Ptr& tree_it,
       Statement::QL_Context tree_context, Statement::Factory& stmt_factory, Error_Output* error_output);
@@ -189,6 +194,9 @@ struct Evaluator_Or : public Evaluator_Pair_Operator_Syntax< Evaluator_Or >
       : Evaluator_Pair_Operator_Syntax< Evaluator_Or >(line_number_, input_attributes) {}
 
   virtual std::string process(const std::string& lhs_result, const std::string& rhs_result) const;
+
+  virtual inline std::string process(TransientFunction<std::string()> lhs, TransientFunction<std::string()> rhs) const;
+
 };
 
 
@@ -219,6 +227,8 @@ struct Evaluator_And : public Evaluator_Pair_Operator_Syntax< Evaluator_And >
       : Evaluator_Pair_Operator_Syntax< Evaluator_And >(line_number_, input_attributes) {}
 
   virtual std::string process(const std::string& lhs_result, const std::string& rhs_result) const;
+
+  virtual inline std::string process(TransientFunction<std::string()> lhs, TransientFunction<std::string()> rhs) const;
 };
 
 

@@ -29,6 +29,7 @@
 #include <map>
 #include <sstream>
 #include <string>
+#include <type_traits> // For std::decay
 #include <vector>
 
 
@@ -167,6 +168,58 @@ inline void sort(Set& set)
   sort_second(set.deriveds);
   sort_second(set.area_blocks);
 }
+
+
+
+// https://vittorioromeo.info/index/blog/passing_functions_to_functions.html#fn_view_impl
+// https://gist.github.com/twoscomplement/030818a6c38c5a983482dc3a385a3ab8
+// https://godbolt.org/z/6LG-W7
+// https://godbolt.org/z/-Xzk4N
+
+template<typename>
+struct TransientFunction; // intentionally not defined
+
+template<typename R, typename ...Args>
+struct TransientFunction<R(Args...)>
+{
+  using Dispatcher = R(*)(void*, Args...);
+
+  Dispatcher m_Dispatcher; // A pointer to the static function that will call the
+                           // wrapped invokable object
+  void* m_Target;          // A pointer to the invokable object
+
+  // Dispatch() is instantiated by the TransientFunction constructor,
+  // which will store a pointer to the function in m_Dispatcher.
+  template<typename S>
+  static R Dispatch(void* target, Args... args)
+  {
+    return (*(S*)target)(args...);
+  }
+
+  template<typename T>
+  TransientFunction(T&& target)
+    : m_Dispatcher(&Dispatch<typename std::decay<T>::type>)
+    , m_Target(&target)
+  {
+  }
+
+  // Specialize for reference-to-function, to ensure that a valid pointer is
+  // stored.
+  using TargetFunctionRef = R(Args...);
+  TransientFunction(TargetFunctionRef target)
+    : m_Dispatcher(Dispatch<TargetFunctionRef>)
+  {
+    static_assert(sizeof(void*) == sizeof target,
+    "It will not be possible to pass functions by reference on this platform. "
+    "Please use explicit function pointers i.e. foo(target) -> foo(&target)");
+    m_Target = (void*)target;
+  }
+
+  R operator()(Args... args) const
+  {
+    return m_Dispatcher(m_Target, args...);
+  }
+};
 
 
 #endif
