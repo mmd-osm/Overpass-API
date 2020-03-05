@@ -155,7 +155,7 @@ void print_nodes(const std::vector< std::pair< Node_With_Context, Node_With_Cont
             (output_mode & Output_Mode::META) ? &it->first.meta : 0,
             &users, output_mode, Output_Handler::erase);
     }
-    else if (it->first.idx.val() != 0xffu)
+    else if ((it->first.idx.val() | 2) != 0xffu)      // TODO: CHECK | 2
     {
       // The elements differ
       Null_Geometry null_geom;
@@ -217,7 +217,7 @@ void print_ways(const std::vector< std::pair< Way_With_Context, Way_With_Context
             (output_mode & Output_Mode::META) ? &it->first.meta : 0,
             &users, output_mode, Output_Handler::erase);
     }
-    else if (it->first.idx.val() != 0xffu)
+    else if ((it->first.idx.val() | 2) != 0xffu)      // TODO: CHECK | 2
     {
       // The elements differ
       Double_Coords double_coords(it->first.geometry);
@@ -285,7 +285,7 @@ void print_relations(
             (output_mode & Output_Mode::META) ? &it->first.meta : 0,
             &roles, &users, output_mode, Output_Handler::erase);
     }
-    else if (it->first.idx.val() != 0xffu)
+    else if ((it->first.idx.val() | 2) != 0xffu)     // TODO: CHECK | 2
     {
       // The elements differ
       Double_Coords double_coords(it->first.geometry);
