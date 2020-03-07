@@ -76,7 +76,7 @@ std::string fixed_to_string(T t, unsigned int precision)
 
 inline bool try_double(const std::string& input, double& result)
 {
-  if (input == "")
+  if (input.empty())
     return false;
 
   const char* input_c = input.c_str();
@@ -89,7 +89,7 @@ inline bool try_double(const std::string& input, double& result)
 
 inline bool try_starts_with_double(const std::string& input, double& result)
 {
-  if (input == "")
+  if (input.empty())
     return false;
 
   const char* input_c = input.c_str();
@@ -102,7 +102,7 @@ inline bool try_starts_with_double(const std::string& input, double& result)
 
 inline std::string double_suffix(const std::string& input)
 {
-  if (input == "")
+  if (input.empty())
     return "";
 
   const char* input_c = input.c_str();
@@ -123,7 +123,7 @@ inline std::string double_suffix(const std::string& input)
 
 inline bool try_int64(const std::string& input, int64& result)
 {
-  if (input == "")
+  if (input.empty())
     return false;
 
   const char* input_c = input.c_str();
@@ -136,10 +136,12 @@ inline bool try_int64(const std::string& input, int64& result)
 
 inline bool string_represents_boolean_true(const std::string& val)
 {
-  if (val == "0")
-    return false;
-  if (val == "1")
-    return true;
+  if (val.size() == 1) {
+    if (val[0] == '0')
+      return false;
+    if (val[0] == '1')
+      return true;
+  }
 
   double val_d = 0;
   if (try_double(val, val_d))
