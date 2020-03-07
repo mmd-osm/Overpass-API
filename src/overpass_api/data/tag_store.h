@@ -254,6 +254,8 @@ void collect_tags_framed
    uint32 coarse_index,
    Id_Type lower_id_bound, Id_Type upper_id_bound)
 {
+  const std::vector< Id_Type > & ids_by_coarse_ref = ids_by_coarse[coarse_index];
+
   while ((!(tag_it == items_db.range_end())) &&
       (((tag_it.index_handle().get_index()) & 0x7fffff00) < coarse_index))
     ++tag_it;
@@ -264,7 +266,7 @@ void collect_tags_framed
 
     if (!(current < lower_id_bound) &&
       (current < upper_id_bound) &&
-       binary_search(ids_by_coarse[coarse_index].begin(), ids_by_coarse[coarse_index].end(), current))
+       binary_search(ids_by_coarse_ref.begin(), ids_by_coarse_ref.end(), current))
     {
       auto elem = tag_it.index_handle().get_element();
       tags_by_id[current].push_back
