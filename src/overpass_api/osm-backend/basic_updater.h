@@ -221,7 +221,7 @@ std::map< Uint31_Index, std::set< Element_Skeleton > > get_existing_skeletons
     });
   }
 
-  process_package(f, 8);
+  process_package(f, 1); // TODO: File_Blocks_Index is no longer thread safe, no current access to the same file at the moment
 
   return result;
 }
