@@ -228,8 +228,8 @@ int main(int argc, char* args[])
 	 it(ways_db.flat_begin()); !(it == ways_db.flat_end()); ++it)
     {
       member_db_out<<it.object().id.val()<<'\t';
-      for (uint i(0); i < it.object().nds.size(); ++i)
-	member_db_out<<it.object().nds[i].val()<<' ';
+      for (uint i(0); i < it.object().nds().size(); ++i)
+	member_db_out<<it.object().nds()[i].val()<<' ';
       member_db_out<<'\n';
     }
 

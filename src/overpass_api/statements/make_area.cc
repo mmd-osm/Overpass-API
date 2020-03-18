@@ -119,14 +119,14 @@ Node::Id_Type Make_Area_Statement::check_node_parity(const Set& pivot)
     for (std::vector< Way_Skeleton >::const_iterator it2(it->second.begin());
     it2 != it->second.end(); ++it2)
     {
-      if (it2->nds.size() < 2)
+      if (it2->nds().size() < 2)
 	continue;
       std::pair< std::set< Node::Id_Type >::iterator, bool > npp(node_parity_control.insert
-          (it2->nds.front()));
+          (it2->nds().front()));
       if (!npp.second)
 	node_parity_control.erase(npp.first);
       npp = node_parity_control.insert
-          (it2->nds.back());
+          (it2->nds().back());
       if (!npp.second)
 	node_parity_control.erase(npp.first);
     }
@@ -194,12 +194,12 @@ void Make_Area_Statement::add_segment_blocks
     for (std::vector< Area_Block >::const_iterator it2(it->second.begin());
         it2 != it->second.end(); ++it2)
     {
-      if (it2->coors.empty())
+      if (it2->coors().empty())
 	continue;
 
-      const uint64& ll_front(it2->coors.front());
+      const uint64& ll_front(it2->coors().front());
       int32 lon_front(lon_(ll_front>>32, ll_front & 0xffffffffull));
-      const uint64& ll_back(it2->coors.back());
+      const uint64& ll_back(it2->coors().back());
       int32 lon_back(lon_(ll_back>>32, ll_back & 0xffffffffull));
       if (lons.find(lon_front) == lons.end())
 	lons.insert(lon_front);

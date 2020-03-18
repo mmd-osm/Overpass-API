@@ -57,9 +57,9 @@ struct Is_Closed_Eval_Task : public Eval_Task
   virtual std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
       { return "NaW"; }
   virtual std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
-      { return !data.object->nds.empty() && data.object->nds.front() == data.object->nds.back() ? "1" : "0"; }
+      { return !data.object->nds().empty() && data.object->nds().front() == data.object->nds().back() ? "1" : "0"; }
   virtual std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
-      { return !data.object->nds.empty() && data.object->nds.front() == data.object->nds.back() ? "1" : "0"; }
+      { return !data.object->nds().empty() && data.object->nds().front() == data.object->nds().back() ? "1" : "0"; }
   virtual std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
       { return "NaW"; }
   virtual std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const

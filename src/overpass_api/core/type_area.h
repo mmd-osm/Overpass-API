@@ -250,28 +250,48 @@ struct Area_Location
 template <class T, class Object>
 struct Area_Skeleton_Handle_Methods;
 
+class Area_Skeleton_Data : public SharedData
+{
+public:
+  Area_Skeleton_Data() { }
+
+  Area_Skeleton_Data(const Area_Skeleton_Data &other)
+     : SharedData(other),
+       used_indices(other.used_indices) {}
+
+  ~Area_Skeleton_Data() {}
+
+  std::vector< uint32 > used_indices;
+
+};
+
 struct Area_Skeleton
 {
   typedef Area::Id_Type Id_Type;
 
   Id_Type id;
-  std::vector< uint32 > used_indices;
 
-  Area_Skeleton() : id(0u) {}
+  Area_Skeleton() : id(0u) { d = new Area_Skeleton_Data; }
 
   Area_Skeleton(void* data) : id(0u)
   {
+    d = new Area_Skeleton_Data;
+
     id = *(Id_Type*)data;
     for (uint i(0); i < *((uint32*)data + 1); ++i)
-      used_indices.push_back(*((uint32*)data + i + 2));
+      d->used_indices.push_back(*((uint32*)data + i + 2));
   }
 
   Area_Skeleton(const Area_Location& loc)
-      : id(loc.id), used_indices(loc.used_indices) {}
+      : id(loc.id) {
+
+    d = new Area_Skeleton_Data;
+    d->used_indices = loc.used_indices;
+  }
 
   uint32 size_of() const
   {
-    return 8 + 4*used_indices.size();
+    return 8 + 4* d->used_indices.size();
   }
 
   static uint32 size_of(void* data)
@@ -282,15 +302,18 @@ struct Area_Skeleton
   void to_data(void* data) const
   {
     *(Id_Type*)data = id.val();
-    *((uint32*)data + 1) = used_indices.size();
+    *((uint32*)data + 1) = d->used_indices.size();
     uint i(2);
-    for (std::vector< uint32 >::const_iterator it(used_indices.begin());
-    it != used_indices.end(); ++it)
+    for (std::vector< uint32 >::const_iterator it(d->used_indices.begin());
+    it != d->used_indices.end(); ++it)
     {
       *((uint32*)data + i) = *it;
       ++i;
     }
   }
+
+  const std::vector< uint32 > & used_indices() const { return d->used_indices; }
+  std::vector< uint32 > & used_indices() { return d->used_indices; }
 
   bool operator<(const Area_Skeleton& a) const
   {
@@ -304,6 +327,9 @@ struct Area_Skeleton
 
   template <class T, class Object>
   using Handle_Methods = Area_Skeleton_Handle_Methods<T, Object>;
+
+private:
+  SharedDataPointer<Area_Skeleton_Data> d;
 };
 
 
@@ -331,29 +357,52 @@ struct Area_Skeleton_Handle_Methods
 template <class T, class Object>
 struct Area_Block_Handle_Methods;
 
+class Area_Block_Data : public SharedData
+{
+public:
+  Area_Block_Data() { }
+
+  Area_Block_Data(const Area_Block_Data &other)
+     : SharedData(other),
+       coors(other.coors) {}
+
+  ~Area_Block_Data() {}
+
+  std::vector< uint64 > coors;
+
+  mutable std::vector< std::pair< uint32, int32 > > ilat_ilon_pairs;
+
+};
+
 struct Area_Block
 {
   typedef Area::Id_Type Id_Type;
 
   Id_Type id;
-  std::vector< uint64 > coors;
 
-  Area_Block() : id(0u) {}
+  Area_Block() : id(0u) { d = new Area_Block_Data; }
 
   Area_Block(void* data) : id(*(Id_Type*)data)
   {
+    d = new Area_Block_Data;
+
     id = *(Id_Type*)data;
-    coors.resize(*((uint16*)data + 2));
+    d->coors.resize(*((uint16*)data + 2));
     for (int i(0); i < *((uint16*)data + 2); ++i)
-      coors[i] = (*(uint64*)((uint8*)data + 6 + 5*i)) & (uint64)0xffffffffffull;
+      d->coors[i] = (*(uint64*)((uint8*)data + 6 + 5*i)) & (uint64)0xffffffffffull;
   }
 
   Area_Block(Id_Type id_, const std::vector< uint64 >& coors_)
-  : id(id_), coors(coors_) {}
+  : id(id_) {
+
+    d = new Area_Block_Data;
+    d->coors = coors_;
+
+  }
 
   uint32 size_of() const
   {
-    return 6 + 5*coors.size();
+    return 6 + 5* d->coors.size();
   }
 
   static uint32 size_of(void* data)
@@ -364,11 +413,11 @@ struct Area_Block
   void to_data(void* data) const
   {
     *(Id_Type*)data = id.val();
-    *((uint16*)data + 2) = coors.size();
-    for (uint i(0); i < coors.size(); ++i)
+    *((uint16*)data + 2) = d->coors.size();
+    for (uint i(0); i < d->coors.size(); ++i)
     {
-      *(uint32*)((uint8*)data + 6 + 5*i) = coors[i];
-      *((uint8*)data + 10 + 5*i) = (coors[i])>>32;
+      *(uint32*)((uint8*)data + 6 + 5*i) = d->coors[i];
+      *((uint8*)data + 10 + 5*i) = (d->coors[i])>>32;
     }
   }
 
@@ -378,33 +427,36 @@ struct Area_Block
       return true;
     else if (a.id < this->id)
       return false;
-    return (this->coors < a.coors);
+    return (this->coors() < a.coors());
   }
 
   bool operator==(const Area_Block& a) const
   {
-    return ((this->id == a.id) && (this->coors == a.coors));
+    return ((this->id == a.id) && (this->coors() == a.coors()));
   }
+
+  const std::vector< uint64 > & coors() const { return d->coors; }
+  std::vector< uint64 > & coors() { return d->coors; }
 
   const std::vector< std::pair< uint32, int32 > > &  get_ilat_ilon_pairs() const
   {
-    if (ilat_ilon_pairs.empty())
+    if (d->ilat_ilon_pairs.empty())
     {
-      for (std::vector< uint64 >::const_iterator it = coors.begin(); it != coors.end(); ++it)
+      for (std::vector< uint64 >::const_iterator it = coors().begin(); it != coors().end(); ++it)
       {
         uint32 _lat = ::ilat((*it >> 32) & 0xff, *it & 0xffffffffull);
         int32 _lon = ::ilon((*it >> 32) & 0xff, *it & 0xffffffffull);
-        ilat_ilon_pairs.push_back(std::make_pair(_lat, _lon));
+        d->ilat_ilon_pairs.push_back(std::make_pair(_lat, _lon));
       }
     }
-    return ilat_ilon_pairs;
+    return d->ilat_ilon_pairs;
   }
 
   template <class T, class Object>
   using Handle_Methods = Area_Block_Handle_Methods<T, Object>;
 
   private:
-    mutable std::vector< std::pair< uint32, int32 > > ilat_ilon_pairs;
+    SharedDataPointer<Area_Block_Data> d;
 
 };
 

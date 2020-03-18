@@ -132,7 +132,7 @@ void prep_map_data(Resource_Manager& rman, Bbox_Double bbox)
       {
 
         auto w = it.object();
-        for (const auto& n : w.nds) {
+        for (const auto& n : w.nds()) {
           if (nodes_dense.get(n.val())) {
             ways_dense.set(w.id.val());
           }
@@ -153,7 +153,7 @@ void prep_map_data(Resource_Manager& rman, Bbox_Double bbox)
       {
         auto w = it.object();
         if (ways_dense.get(w.id.val())) {
-          for (const auto& n : w.nds) {
+          for (const auto& n : w.nds()) {
             bool added_new_entry = nodes_dense.check_and_set(n.val());
             if (added_new_entry)
               node_idx_outside_bbox.insert(current.get(n.val()));
@@ -172,7 +172,7 @@ void prep_map_data(Resource_Manager& rman, Bbox_Double bbox)
       {
 
         auto r = it.object();
-        for (const auto& m : r.members) {
+        for (const auto& m : r.members()) {
           if (m.type == Relation_Entry::NODE) {
             if (nodes_dense.get(m.ref.val()))
               relations_dense.set(r.id.val());
@@ -193,7 +193,7 @@ void prep_map_data(Resource_Manager& rman, Bbox_Double bbox)
       {
 
         auto r = it.object();
-        for (const auto& m : r.members) {
+        for (const auto& m : r.members()) {
           if (m.type == Relation_Entry::WAY)
           {
             if (ways_dense.get(m.ref.val()))
@@ -212,7 +212,7 @@ void prep_map_data(Resource_Manager& rman, Bbox_Double bbox)
           it(db.flat_begin()); !(it == db.flat_end()); ++it)
       {
         auto r = it.object();
-        for (const auto& m : r.members) {
+        for (const auto& m : r.members()) {
           if (m.type == Relation_Entry::RELATION) {
             if (relations_dense.get(m.ref.val()))
               relations_dense.set(r.id.val());

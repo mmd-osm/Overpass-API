@@ -539,4 +539,101 @@ void expand_diff_fast(std::vector< Object >& reference,
   }
 }
 
+// Shared data helper classes
+// Derived from QtCore module of the Qt Toolkit. (qt5)
+
+template <class T> class SharedDataPointer;
+
+class SharedData
+{
+public:
+  mutable uint32 ref;   // not thread safe!
+
+  inline SharedData() : ref(0) { }
+  inline SharedData(const SharedData &) : ref(0) { }
+
+  // using the assignment operator would lead to corruption in the ref-counting
+  SharedData &operator=(const SharedData &) = delete;
+};
+
+template <class T> class SharedDataPointer
+{
+public:
+  typedef T Type;
+  typedef T *pointer;
+
+  inline void detach() { if (d && d->ref != 1) detach_helper(); }
+  inline T &operator*() { detach(); return *d; }
+  inline const T &operator*() const { return *d; }
+  inline T *operator->() { detach(); return d; }
+  inline const T *operator->() const { return d; }
+  inline operator T *() { detach(); return d; }
+  inline operator const T *() const { return d; }
+  inline T *data() { detach(); return d; }
+  inline const T *data() const { return d; }
+  inline const T *constData() const { return d; }
+
+  inline bool operator==(const SharedDataPointer<T> &other) const { return d == other.d; }
+  inline bool operator!=(const SharedDataPointer<T> &other) const { return d != other.d; }
+
+  inline SharedDataPointer() { d = nullptr; }
+  inline ~SharedDataPointer() { if (d && !--d->ref) delete d; }
+
+  explicit SharedDataPointer(T *data) noexcept;
+  inline SharedDataPointer(const SharedDataPointer<T> &o) : d(o.d) { if (d) ++d->ref; }
+  inline SharedDataPointer<T> & operator=(const SharedDataPointer<T> &o) {
+    if (o.d != d) {
+      if (o.d)
+        ++o.d->ref;
+      T *old = d;
+      d = o.d;
+      if (old && !--old->ref)
+        delete old;
+    }
+    return *this;
+  }
+  inline SharedDataPointer &operator=(T *o) {
+    if (o != d) {
+      if (o)
+        ++o->ref;
+      T *old = d;
+      d = o;
+      if (old && !--old->ref)
+        delete old;
+    }
+    return *this;
+  }
+
+  inline bool operator!() const { return !d; }
+
+protected:
+  T *clone();
+
+private:
+  void detach_helper();
+
+  T *d;
+};
+
+template <class T>
+SharedDataPointer<T>::SharedDataPointer(T *adata) noexcept
+: d(adata) { if (d) ++d->ref; }
+
+template <class T>
+T *SharedDataPointer<T>::clone()
+{
+  return new T(*d);
+}
+
+template <class T>
+void SharedDataPointer<T>::detach_helper()
+{
+  T *x = clone();
+  ++x->ref;
+  if (!d->ref)
+    delete d;
+  d = x;
+}
+
+
 #endif

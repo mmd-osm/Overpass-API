@@ -102,6 +102,24 @@ struct Relation_Delta;
 template <class T, class Object>
 struct Relation_Skeleton_Handle_Methods;
 
+class Relation_Skeleton_Data : public SharedData
+{
+public:
+  Relation_Skeleton_Data() { }
+
+  Relation_Skeleton_Data(const Relation_Skeleton_Data &other)
+     : SharedData(other),
+       members(other.members),
+       node_idxs(other.node_idxs),
+       way_idxs(other.way_idxs) {}
+
+  ~Relation_Skeleton_Data() {}
+
+  std::vector< Relation_Entry > members;
+  std::vector< Uint31_Index > node_idxs;
+  std::vector< Uint31_Index > way_idxs;
+};
+
 
 struct Relation_Skeleton
 {
@@ -109,44 +127,57 @@ struct Relation_Skeleton
   typedef Relation_Delta Delta;
 
   Id_Type id;
-  std::vector< Relation_Entry > members;
-  std::vector< Uint31_Index > node_idxs;
-  std::vector< Uint31_Index > way_idxs;
 
-  Relation_Skeleton() : id(0u) {}
+  Relation_Skeleton() : id(0u) { d = new Relation_Skeleton_Data; }
 
-  Relation_Skeleton(Relation::Id_Type id_) : id(id_) {}
+  Relation_Skeleton(Relation::Id_Type id_) : id(id_) { d = new Relation_Skeleton_Data;}
 
   Relation_Skeleton(void* data) : id(*(Id_Type*)data)
   {
-    members.resize(*((uint32*)data + 1));
-    node_idxs.resize(*((uint32*)data + 2), 0u);
-    way_idxs.resize(*((uint32*)data + 3), 0u);
+    d = new Relation_Skeleton_Data;
+
+    d->members.resize(*((uint32*)data + 1));
+    d->node_idxs.resize(*((uint32*)data + 2), 0u);
+    d->way_idxs.resize(*((uint32*)data + 3), 0u);
     for (uint i(0); i < *((uint32*)data + 1); ++i)
     {
-      members[i].ref = *(uint64*)((uint32*)data + 4 + 3*i);
-      members[i].role = *((uint32*)data + 6 + 3*i) & 0xffffff;
-      members[i].type = *((uint8*)data + 27 + 12*i);
+      d->members[i].ref = *(uint64*)((uint32*)data + 4 + 3*i);
+      d->members[i].role = *((uint32*)data + 6 + 3*i) & 0xffffff;
+      d->members[i].type = *((uint8*)data + 27 + 12*i);
     }
-    uint32* start_ptr = (uint32*)data + 4 + 3*members.size();
-    for (uint i = 0; i < node_idxs.size(); ++i)
-      node_idxs[i] = *(start_ptr + i);
-    start_ptr = (uint32*)data + 4 + 3*members.size() + node_idxs.size();
-    for (uint i = 0; i < way_idxs.size(); ++i)
-      way_idxs[i] = *(start_ptr + i);
+    uint32* start_ptr = (uint32*)data + 4 + 3* d->members.size();
+    for (uint i = 0; i < d->node_idxs.size(); ++i)
+      d->node_idxs[i] = *(start_ptr + i);
+    start_ptr = (uint32*)data + 4 + 3* d->members.size() + d->node_idxs.size();
+    for (uint i = 0; i < d->way_idxs.size(); ++i)
+      d->way_idxs[i] = *(start_ptr + i);
   }
 
   Relation_Skeleton(const Relation& rel)
-      : id(rel.id), members(rel.members), node_idxs(rel.node_idxs), way_idxs(rel.way_idxs) {}
+      : id(rel.id) {
+
+    d = new Relation_Skeleton_Data;
+    d->members = rel.members;
+    d->node_idxs = rel.node_idxs;
+    d->way_idxs = rel.way_idxs;
+
+  }
 
   Relation_Skeleton(Id_Type id_, const std::vector< Relation_Entry >& members_,
 		    const std::vector< Uint31_Index >& node_idxs_,
 		    const std::vector< Uint31_Index >& way_idxs_)
-      : id(id_), members(members_), node_idxs(node_idxs_), way_idxs(way_idxs_) {}
+      : id(id_) {
+
+    d = new Relation_Skeleton_Data;
+    d->members = members_;
+    d->node_idxs = node_idxs_;
+    d->way_idxs = way_idxs_;
+
+  }
 
   uint32 size_of() const
   {
-    return 16 + 12*members.size() + 4*node_idxs.size() + 4*way_idxs.size();
+    return 16 + 12* d->members.size() + 4* d->node_idxs.size() + 4* d->way_idxs.size();
   }
 
   static uint32 size_of(const void* data)
@@ -157,22 +188,32 @@ struct Relation_Skeleton
   void to_data(void* data) const
   {
     *(Id_Type*)data = id.val();
-    *((uint32*)data + 1) = members.size();
-    *((uint32*)data + 2) = node_idxs.size();
-    *((uint32*)data + 3) = way_idxs.size();
-    for (uint i = 0; i < members.size(); ++i)
+    *((uint32*)data + 1) = d->members.size();
+    *((uint32*)data + 2) = d->node_idxs.size();
+    *((uint32*)data + 3) = d->way_idxs.size();
+    for (uint i = 0; i < d->members.size(); ++i)
     {
-      *(uint64*)((uint32*)data + 4 + 3*i) = members[i].ref.val();
-      *((uint32*)data + 6 + 3*i) = members[i].role & 0xffffff;
-      *((uint8*)data + 27 + 12*i) = members[i].type;
+      *(uint64*)((uint32*)data + 4 + 3*i) = d->members[i].ref.val();
+      *((uint32*)data + 6 + 3*i) = d->members[i].role & 0xffffff;
+      *((uint8*)data + 27 + 12*i) = d->members[i].type;
     }
-    Uint31_Index* start_ptr = (Uint31_Index*)data + 4 + 3*members.size();
-    for (uint i = 0; i < node_idxs.size(); ++i)
-      *(start_ptr + i) = node_idxs[i];
-    start_ptr = (Uint31_Index*)data + 4 + 3*members.size() + node_idxs.size();
-    for (uint i = 0; i < way_idxs.size(); ++i)
-      *(start_ptr + i) = way_idxs[i];
+    Uint31_Index* start_ptr = (Uint31_Index*)data + 4 + 3* d->members.size();
+    for (uint i = 0; i < d->node_idxs.size(); ++i)
+      *(start_ptr + i) = d->node_idxs[i];
+    start_ptr = (Uint31_Index*)data + 4 + 3* d->members.size() + d->node_idxs.size();
+    for (uint i = 0; i < d->way_idxs.size(); ++i)
+      *(start_ptr + i) = d->way_idxs[i];
   }
+
+  const std::vector< Relation_Entry > & members() const { return d->members; }
+  std::vector< Relation_Entry > & members() { return d->members; }
+
+  const std::vector< Uint31_Index > & node_idxs() const { return d->node_idxs; }
+  std::vector< Uint31_Index > & node_idxs() { return d->node_idxs; }
+
+  const std::vector< Uint31_Index > & way_idxs() const { return d->way_idxs; }
+  std::vector< Uint31_Index > & way_idxs() { return d->way_idxs; }
+
 
   bool operator<(const Relation_Skeleton& a) const
   {
@@ -186,6 +227,9 @@ struct Relation_Skeleton
 
   template <class T, class Object>
   using Handle_Methods = Relation_Skeleton_Handle_Methods<T, Object>;
+
+private:
+  SharedDataPointer<Relation_Skeleton_Data> d;
 };
 
 
@@ -324,12 +368,12 @@ struct Relation_Delta
       full = true;
     else
     {
-      make_delta(skel.members, reference.members, members_removed, members_added);
-      make_delta(skel.node_idxs, reference.node_idxs, node_idxs_removed, node_idxs_added);
-      make_delta(skel.way_idxs, reference.way_idxs, way_idxs_removed, way_idxs_added);
+      make_delta(skel.members(), reference.members(), members_removed, members_added);
+      make_delta(skel.node_idxs(), reference.node_idxs(), node_idxs_removed, node_idxs_added);
+      make_delta(skel.way_idxs(), reference.way_idxs(), way_idxs_removed, way_idxs_added);
     }
 
-    if (members_added.size() >= skel.members.size()/2)
+    if (members_added.size() >= skel.members().size()/2)
     {
       members_removed.clear();
       members_added.clear();
@@ -342,9 +386,9 @@ struct Relation_Delta
 
     if (full)
     {
-      copy_elems(skel.members, members_added);
-      copy_elems(skel.node_idxs, node_idxs_added);
-      copy_elems(skel.way_idxs, way_idxs_added);
+      copy_elems(skel.members(), members_added);
+      copy_elems(skel.node_idxs(), node_idxs_added);
+      copy_elems(skel.way_idxs(), way_idxs_added);
     }
   }
 
@@ -354,23 +398,23 @@ struct Relation_Delta
 
     if (full)
     {
-      result.members.reserve(members_added.size());
+      result.members().reserve(members_added.size());
       for (uint i = 0; i < members_added.size(); ++i)
-        result.members.push_back(members_added[i].second);
+        result.members().push_back(members_added[i].second);
 
-      result.node_idxs.reserve(node_idxs_added.size());
+      result.node_idxs().reserve(node_idxs_added.size());
       for (uint i = 0; i < node_idxs_added.size(); ++i)
-        result.node_idxs.push_back(node_idxs_added[i].second);
+        result.node_idxs().push_back(node_idxs_added[i].second);
 
-      result.way_idxs.reserve(way_idxs_added.size());
+      result.way_idxs().reserve(way_idxs_added.size());
       for (uint i = 0; i < way_idxs_added.size(); ++i)
-        result.way_idxs.push_back(way_idxs_added[i].second);
+        result.way_idxs().push_back(way_idxs_added[i].second);
     }
     else if (reference.id == id)
     {
-      expand_diff(reference.members, members_removed, members_added, result.members);
-      expand_diff(reference.node_idxs, node_idxs_removed, node_idxs_added, result.node_idxs);
-      expand_diff(reference.way_idxs, way_idxs_removed, way_idxs_added, result.way_idxs);
+      expand_diff(reference.members(), members_removed, members_added, result.members());
+      expand_diff(reference.node_idxs(), node_idxs_removed, node_idxs_added, result.node_idxs());
+      expand_diff(reference.way_idxs(), way_idxs_removed, way_idxs_added, result.way_idxs());
     }
     else
       result.id = 0u;
@@ -384,23 +428,23 @@ struct Relation_Delta
 
     if (full)
     {
-      result.members.reserve(members_added.size());
+      result.members().reserve(members_added.size());
       for (uint i = 0; i < members_added.size(); ++i)
-        result.members.push_back(members_added[i].second);
+        result.members().push_back(members_added[i].second);
 
-      result.node_idxs.reserve(node_idxs_added.size());
+      result.node_idxs().reserve(node_idxs_added.size());
       for (uint i = 0; i < node_idxs_added.size(); ++i)
-        result.node_idxs.push_back(node_idxs_added[i].second);
+        result.node_idxs().push_back(node_idxs_added[i].second);
 
-      result.way_idxs.reserve(way_idxs_added.size());
+      result.way_idxs().reserve(way_idxs_added.size());
       for (uint i = 0; i < way_idxs_added.size(); ++i)
-        result.way_idxs.push_back(way_idxs_added[i].second);
+        result.way_idxs().push_back(way_idxs_added[i].second);
     }
     else if (reference.id == id)
     {
-      expand_diff_fast(reference.members, members_removed, members_added, result.members);
-      expand_diff_fast(reference.node_idxs, node_idxs_removed, node_idxs_added, result.node_idxs);
-      expand_diff_fast(reference.way_idxs, way_idxs_removed, way_idxs_added, result.way_idxs);
+      expand_diff_fast(reference.members(), members_removed, members_added, result.members());
+      expand_diff_fast(reference.node_idxs(), node_idxs_removed, node_idxs_added, result.node_idxs());
+      expand_diff_fast(reference.way_idxs(), way_idxs_removed, way_idxs_added, result.way_idxs());
     }
     else
       result.id = 0u;

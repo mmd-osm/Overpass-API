@@ -161,8 +161,8 @@ void filter_relations_expensive(const Bbox_Filter& filter,
     for (typename std::vector< Relation_Skeleton >::const_iterator iit = it->second.begin();
         iit != it->second.end(); ++iit)
     {
-      for (std::vector< Relation_Entry >::const_iterator nit = iit->members.begin();
-          nit != iit->members.end(); ++nit)
+      for (std::vector< Relation_Entry >::const_iterator nit = iit->members().begin();
+          nit != iit->members().end(); ++nit)
       {
         if (nit->type == Relation_Entry::NODE)
         {

@@ -119,12 +119,12 @@ void Set_Comparison::print_item(Extra_Data_For_Diff& extra_data, uint32 ll_upper
     if (final_target)
       compare_item(ll_upper, skel, tags,
           geometry.empty() ? 0 : bound_variant(double_coords, extra_data.mode),
-          ((extra_data.mode & Output_Mode::GEOMETRY) && geometry.size() == skel.nds.size()) ? &geometry : 0,
+          ((extra_data.mode & Output_Mode::GEOMETRY) && geometry.size() == skel.nds().size()) ? &geometry : 0,
           NOW, meta, users);
     else
       store_item(ll_upper, skel, tags,
           geometry.empty() ? 0 : bound_variant(double_coords, extra_data.mode),
-          ((extra_data.mode & Output_Mode::GEOMETRY) && geometry.size() == skel.nds.size()) ? &geometry : 0,
+          ((extra_data.mode & Output_Mode::GEOMETRY) && geometry.size() == skel.nds().size()) ? &geometry : 0,
           NOW, meta, users);
   }
   else
@@ -149,12 +149,12 @@ void Set_Comparison::print_item(Extra_Data_For_Diff& extra_data, uint32 ll_upper
     if (final_target)
       compare_item(ll_upper, skel, tags,
           geometry.empty() ? 0 : bound_variant(double_coords, extra_data.mode),
-          ((extra_data.mode & Output_Mode::GEOMETRY) && geometry.size() == skel.nds.size()) ? &geometry : 0,
+          ((extra_data.mode & Output_Mode::GEOMETRY) && geometry.size() == skel.nds().size()) ? &geometry : 0,
           skel.timestamp, meta, users);
     else
       store_item(ll_upper, skel, tags,
           geometry.empty() ? 0 : bound_variant(double_coords, extra_data.mode),
-          ((extra_data.mode & Output_Mode::GEOMETRY) && geometry.size() == skel.nds.size()) ? &geometry : 0,
+          ((extra_data.mode & Output_Mode::GEOMETRY) && geometry.size() == skel.nds().size()) ? &geometry : 0,
           skel.timestamp, meta, users);
   }
   else
@@ -179,12 +179,12 @@ void Set_Comparison::print_item(Extra_Data_For_Diff& extra_data, uint32 ll_upper
     if (final_target)
       compare_item(ll_upper, skel, tags,
           geometry.empty() ? 0 : bound_variant(double_coords, extra_data.mode),
-          ((extra_data.mode & Output_Mode::GEOMETRY) && geometry.size() == skel.members.size()) ? &geometry : 0,
+          ((extra_data.mode & Output_Mode::GEOMETRY) && geometry.size() == skel.members().size()) ? &geometry : 0,
           NOW, meta, users);
     else
       store_item(ll_upper, skel, tags,
           geometry.empty() ? 0 : bound_variant(double_coords, extra_data.mode),
-          ((extra_data.mode & Output_Mode::GEOMETRY) && geometry.size() == skel.members.size()) ? &geometry : 0,
+          ((extra_data.mode & Output_Mode::GEOMETRY) && geometry.size() == skel.members().size()) ? &geometry : 0,
           NOW, meta, users);
   }
   else
@@ -209,12 +209,12 @@ void Set_Comparison::print_item(Extra_Data_For_Diff& extra_data, uint32 ll_upper
     if (final_target)
       compare_item(ll_upper, skel, tags,
         geometry.empty() ? 0 : bound_variant(double_coords, extra_data.mode),
-        ((extra_data.mode & Output_Mode::GEOMETRY) && geometry.size() == skel.members.size()) ? &geometry : 0,
+        ((extra_data.mode & Output_Mode::GEOMETRY) && geometry.size() == skel.members().size()) ? &geometry : 0,
         skel.timestamp, meta, users);
     else
       store_item(ll_upper, skel, tags,
         geometry.empty() ? 0 : bound_variant(double_coords, extra_data.mode),
-        ((extra_data.mode & Output_Mode::GEOMETRY) && geometry.size() == skel.members.size()) ? &geometry : 0,
+        ((extra_data.mode & Output_Mode::GEOMETRY) && geometry.size() == skel.members().size()) ? &geometry : 0,
         skel.timestamp, meta, users);
   }
   else
@@ -584,7 +584,7 @@ void Set_Comparison::compare_item(uint32 ll_upper, const Way_Skeleton& skel,
               tags ? *tags : std::vector< std::pair< std::string, std::string > >())));
   else
   {
-    if (!(ways_it->idx.val() == ll_upper) || !(ways_it->elem.nds == skel.nds) ||
+    if (!(ways_it->idx.val() == ll_upper) || !(ways_it->elem.nds() == skel.nds()) ||
           (geometry && !(ways_it->geometry == *geometry)) ||
           (tags && !(ways_it->tags == *tags)) || (meta && !(ways_it->meta.timestamp == meta->timestamp)))
       result.different_ways.push_back(std::make_pair(*ways_it, Way_With_Context(ll_upper, skel,
@@ -716,7 +716,7 @@ void Set_Comparison::compare_item(uint32 ll_upper, const Relation_Skeleton& skel
               tags ? *tags : std::vector< std::pair< std::string, std::string > >())));
   else
   {
-    if (!(relations_it->idx.val() == ll_upper) || !(relations_it->elem.members == skel.members) ||
+    if (!(relations_it->idx.val() == ll_upper) || !(relations_it->elem.members() == skel.members()) ||
 	  (geometry && !(relations_it->geometry == *geometry)) ||
 	  (tags && !(relations_it->tags == *tags)) || (meta && !(relations_it->meta.timestamp == meta->timestamp)))
       result.different_relations.push_back(std::make_pair(*relations_it, Relation_With_Context(ll_upper, skel,

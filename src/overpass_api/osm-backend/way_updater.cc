@@ -59,7 +59,7 @@ Way_Updater::Way_Updater(std::string db_dir_, meta_modes meta_, unsigned int par
 
 bool geometrically_equal(const Way_Skeleton& a, const Way_Skeleton& b)
 {
-  return (a.nds == b.nds);
+  return (a.nds() == b.nds());
 }
 
 
@@ -71,8 +71,8 @@ void compute_idx_and_geometry
 {
   std::vector< Quad_Coord > geometry;
 
-  for (std::vector< Node_Skeleton::Id_Type >::const_iterator it = skeleton.nds.begin();
-       it != skeleton.nds.end(); ++it)
+  for (std::vector< Node_Skeleton::Id_Type >::const_iterator it = skeleton.nds().begin();
+       it != skeleton.nds().end(); ++it)
   {
     std::map< Node_Skeleton::Id_Type, std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > > >
         ::const_iterator nit = nodes_by_id.find(*it);
@@ -98,9 +98,9 @@ void compute_idx_and_geometry
   idx = Way::calc_index(nd_idxs);
 
   if (Way::indicates_geometry(idx))
-    skeleton.geometry.swap(geometry);
+    skeleton.geometry().swap(geometry);
   else
-    skeleton.geometry.clear();
+    skeleton.geometry().clear();
 }
 
 
@@ -118,8 +118,8 @@ Way_Skeleton add_intermediate_versions
      std::map< Way_Skeleton::Id_Type, std::set< Uint31_Index > >& idx_lists)
 {
   std::vector< uint64 > relevant_timestamps;
-  for (std::vector< Node_Skeleton::Id_Type >::const_iterator it = skeleton.nds.begin();
-       it != skeleton.nds.end(); ++it)
+  for (std::vector< Node_Skeleton::Id_Type >::const_iterator it = skeleton.nds().begin();
+       it != skeleton.nds().end(); ++it)
   {
     std::map< Node_Skeleton::Id_Type, std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > > >
         ::const_iterator nit = nodes_by_id.find(*it);
@@ -215,8 +215,8 @@ void add_intermediate_changelog_entries
      std::map< Timestamp, std::set< Change_Entry< Way_Skeleton::Id_Type > > >& result)
 {
   std::vector< uint64 > relevant_timestamps;
-  for (std::vector< Node_Skeleton::Id_Type >::const_iterator it = skeleton.nds.begin();
-       it != skeleton.nds.end(); ++it)
+  for (std::vector< Node_Skeleton::Id_Type >::const_iterator it = skeleton.nds().begin();
+       it != skeleton.nds().end(); ++it)
   {
     std::map< Node_Skeleton::Id_Type, std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > > >
         ::const_iterator nit = nodes_by_id.find(*it);
@@ -474,8 +474,8 @@ std::map< Uint31_Index, std::set< Way_Skeleton > > get_implicitly_moved_skeleton
   {
     if (binary_search(known_way_ids.begin(), known_way_ids.end(), it.handle().id()))
       continue;
-    for (std::vector< Node::Id_Type >::const_iterator nit = it.object().nds.begin();
-         nit != it.object().nds.end(); ++nit)
+    for (std::vector< Node::Id_Type >::const_iterator nit = it.object().nds().begin();
+         nit != it.object().nds().end(); ++nit)
     {
       if (binary_search(node_ids.begin(), node_ids.end(), *nit))
       {
@@ -500,11 +500,11 @@ void add_implicitly_known_nodes
   {
     for (std::set< Way_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
-      if (!it2->geometry.empty())
+      if (!it2->geometry().empty())
       {
-        for (std::vector< Quad_Coord >::size_type i = 0; i < it2->geometry.size(); ++i)
+        for (std::vector< Quad_Coord >::size_type i = 0; i < it2->geometry().size(); ++i)
           // Choose std::map::insert to only insert if the id doesn't exist yet.
-          new_node_idx_by_id.insert(std::make_pair(it2->nds[i], it2->geometry[i]));
+          new_node_idx_by_id.insert(std::make_pair(it2->nds()[i], it2->geometry()[i]));
       }
     }
   }
@@ -528,7 +528,7 @@ void lookup_missing_nodes
       continue;
 
     std::vector< uint32 > nd_idxs;
-    for (std::vector< Node::Id_Type >::const_iterator nit = it->elem.nds.begin(); nit != it->elem.nds.end(); ++nit)
+    for (std::vector< Node::Id_Type >::const_iterator nit = it->elem.nds().begin(); nit != it->elem.nds().end(); ++nit)
     {
       if (new_node_idx_by_id.find(*nit) == new_node_idx_by_id.end())
         missing_ids.push_back(*nit);
@@ -540,7 +540,7 @@ void lookup_missing_nodes
   {
     for (std::set< Way_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
-      for (std::vector< Node::Id_Type >::const_iterator nit = it2->nds.begin(); nit != it2->nds.end(); ++nit)
+      for (std::vector< Node::Id_Type >::const_iterator nit = it2->nds().begin(); nit != it2->nds().end(); ++nit)
       {
         if (new_node_idx_by_id.find(*nit) == new_node_idx_by_id.end())
           missing_ids.push_back(*nit);
@@ -553,7 +553,7 @@ void lookup_missing_nodes
   {
     for (std::set< Way_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
-      for (std::vector< Node::Id_Type >::const_iterator nit = it2->nds.begin(); nit != it2->nds.end(); ++nit)
+      for (std::vector< Node::Id_Type >::const_iterator nit = it2->nds().begin(); nit != it2->nds().end(); ++nit)
       {
         if (new_node_idx_by_id.find(*nit) == new_node_idx_by_id.end())
           missing_ids.push_back(*nit);
@@ -602,7 +602,7 @@ void compute_geometry
       continue;
 
     std::vector< uint32 > nd_idxs;
-    for (std::vector< Node::Id_Type >::const_iterator nit = it->elem.nds.begin(); nit != it->elem.nds.end(); ++nit)
+    for (std::vector< Node::Id_Type >::const_iterator nit = it->elem.nds().begin(); nit != it->elem.nds().end(); ++nit)
     {
       std::map< Node_Skeleton::Id_Type, Quad_Coord >::const_iterator it2 = new_node_idx_by_id.find(*nit);
       if (it2 != new_node_idx_by_id.end())
@@ -613,19 +613,19 @@ void compute_geometry
 
     Uint31_Index index = Way::calc_index(nd_idxs);
 
-    it->elem.geometry.clear();
+    it->elem.geometry().clear();
 
     if (Way::indicates_geometry(index))
     {
-      for (std::vector< Node::Id_Type >::const_iterator nit = it->elem.nds.begin();
-           nit != it->elem.nds.end(); ++nit)
+      for (std::vector< Node::Id_Type >::const_iterator nit = it->elem.nds().begin();
+           nit != it->elem.nds().end(); ++nit)
       {
         std::map< Node_Skeleton::Id_Type, Quad_Coord >::const_iterator it2 = new_node_idx_by_id.find(*nit);
         if (it2 != new_node_idx_by_id.end())
-          it->elem.geometry.push_back(it2->second);
+          it->elem.geometry().push_back(it2->second);
         else
           //TODO: throw an error in an appropriate form
-          it->elem.geometry.push_back(Quad_Coord(0, 0));
+          it->elem.geometry().push_back(Quad_Coord(0, 0));
       }
     }
 
@@ -659,7 +659,7 @@ void new_implicit_skeletons
     for (std::set< Way_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
       std::vector< uint32 > nd_idxs;
-      for (std::vector< Node::Id_Type >::const_iterator nit = it2->nds.begin(); nit != it2->nds.end(); ++nit)
+      for (std::vector< Node::Id_Type >::const_iterator nit = it2->nds().begin(); nit != it2->nds().end(); ++nit)
       {
         std::map< Node_Skeleton::Id_Type, Quad_Coord >::const_iterator it3 = new_node_idx_by_id.find(*nit);
         if (it3 != new_node_idx_by_id.end())
@@ -671,18 +671,18 @@ void new_implicit_skeletons
       Uint31_Index index = Way::calc_index(nd_idxs);
 
       Way_Skeleton new_skeleton = *it2;
-      new_skeleton.geometry.clear();
+      new_skeleton.geometry().clear();
 
       if (Way::indicates_geometry(index))
       {
-        for (std::vector< Node::Id_Type >::const_iterator nit = it2->nds.begin(); nit != it2->nds.end(); ++nit)
+        for (std::vector< Node::Id_Type >::const_iterator nit = it2->nds().begin(); nit != it2->nds().end(); ++nit)
         {
           std::map< Node_Skeleton::Id_Type, Quad_Coord >::const_iterator it3 = new_node_idx_by_id.find(*nit);
           if (it3 != new_node_idx_by_id.end())
-            new_skeleton.geometry.push_back(it3->second);
+            new_skeleton.geometry().push_back(it3->second);
           else
             //TODO: throw an error in an appropriate form
-            new_skeleton.geometry.push_back(Quad_Coord(0, 0));
+            new_skeleton.geometry().push_back(Quad_Coord(0, 0));
         }
 
         new_skeletons[index].insert(new_skeleton);

@@ -136,8 +136,8 @@ std::map< Uint31_Index, std::set< Relation_Skeleton > > get_implicitly_moved_ske
   {
     if (binary_search(known_relation_ids.begin(), known_relation_ids.end(), it.handle().id()))
       continue;
-    for (std::vector< Relation_Entry >::const_iterator nit = it.object().members.begin();
-         nit != it.object().members.end(); ++nit)
+    for (std::vector< Relation_Entry >::const_iterator nit = it.object().members().begin();
+         nit != it.object().members().end(); ++nit)
     {
       if (nit->type == Relation_Entry::NODE)
       {
@@ -188,8 +188,8 @@ void new_implicit_skeletons
     for (std::set< Relation_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
       std::vector< uint32 > member_idxs;
-      for (std::vector< Relation_Entry >::const_iterator nit = it2->members.begin();
-           nit != it2->members.end(); ++nit)
+      for (std::vector< Relation_Entry >::const_iterator nit = it2->members().begin();
+           nit != it2->members().end(); ++nit)
       {
         if (nit->type == Relation_Entry::NODE)
         {
@@ -210,27 +210,27 @@ void new_implicit_skeletons
       Uint31_Index index = Relation::calc_index(member_idxs);
 
       Relation_Skeleton new_skeleton = *it2;
-      new_skeleton.node_idxs.clear();
-      new_skeleton.way_idxs.clear();
+      new_skeleton.node_idxs().clear();
+      new_skeleton.way_idxs().clear();
 
       if (Relation::indicates_geometry(index))
       {
-        for (std::vector< Relation_Entry >::const_iterator nit = it2->members.begin();
-             nit != it2->members.end(); ++nit)
+        for (std::vector< Relation_Entry >::const_iterator nit = it2->members().begin();
+             nit != it2->members().end(); ++nit)
         {
           if (nit->type == Relation_Entry::NODE)
           {
             std::map< Node_Skeleton::Id_Type, Quad_Coord >::const_iterator it2
                 = new_node_idx_by_id.find(Node_Skeleton::Id_Type(nit->ref.val()));
             if (it2 != new_node_idx_by_id.end())
-              new_skeleton.node_idxs.push_back(it2->second.ll_upper);
+              new_skeleton.node_idxs().push_back(it2->second.ll_upper);
           }
           else if (nit->type == Relation_Entry::WAY)
           {
             std::map< Way_Skeleton::Id_Type, Uint31_Index >::const_iterator it2
                 = new_way_idx_by_id.find(Way_Skeleton::Id_Type(nit->ref.val()));
             if (it2 != new_way_idx_by_id.end())
-              new_skeleton.way_idxs.push_back(it2->second);
+              new_skeleton.way_idxs().push_back(it2->second);
           }
         }
 
@@ -279,8 +279,8 @@ void lookup_missing_nodes
       continue;
 
     std::vector< uint32 > nd_idxs;
-    for (std::vector< Relation_Entry >::const_iterator nit = it->elem.members.begin();
-         nit != it->elem.members.end(); ++nit)
+    for (std::vector< Relation_Entry >::const_iterator nit = it->elem.members().begin();
+         nit != it->elem.members().end(); ++nit)
     {
       if (nit->type == Relation_Entry::NODE &&
           new_node_idx_by_id.find(nit->ref) == new_node_idx_by_id.end())
@@ -293,8 +293,8 @@ void lookup_missing_nodes
   {
     for (std::set< Relation_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
-      for (std::vector< Relation_Entry >::const_iterator nit = it2->members.begin();
-           nit != it2->members.end(); ++nit)
+      for (std::vector< Relation_Entry >::const_iterator nit = it2->members().begin();
+           nit != it2->members().end(); ++nit)
       {
         if (nit->type == Relation_Entry::NODE &&
             new_node_idx_by_id.find(nit->ref) == new_node_idx_by_id.end())
@@ -308,8 +308,8 @@ void lookup_missing_nodes
   {
     for (std::set< Relation_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
-      for (std::vector< Relation_Entry >::const_iterator nit = it2->members.begin();
-           nit != it2->members.end(); ++nit)
+      for (std::vector< Relation_Entry >::const_iterator nit = it2->members().begin();
+           nit != it2->members().end(); ++nit)
       {
         if (nit->type == Relation_Entry::NODE &&
             new_node_idx_by_id.find(nit->ref) == new_node_idx_by_id.end())
@@ -356,8 +356,8 @@ void lookup_missing_ways
       continue;
 
     std::vector< uint32 > nd_idxs;
-    for (std::vector< Relation_Entry >::const_iterator nit = it->elem.members.begin();
-         nit != it->elem.members.end(); ++nit)
+    for (std::vector< Relation_Entry >::const_iterator nit = it->elem.members().begin();
+         nit != it->elem.members().end(); ++nit)
     {
       if (nit->type == Relation_Entry::WAY &&
           new_way_idx_by_id.find(Way_Skeleton::Id_Type(nit->ref.val())) == new_way_idx_by_id.end())
@@ -370,8 +370,8 @@ void lookup_missing_ways
   {
     for (std::set< Relation_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
-      for (std::vector< Relation_Entry >::const_iterator nit = it2->members.begin();
-           nit != it2->members.end(); ++nit)
+      for (std::vector< Relation_Entry >::const_iterator nit = it2->members().begin();
+           nit != it2->members().end(); ++nit)
       {
         if (nit->type == Relation_Entry::WAY &&
             new_way_idx_by_id.find(Way_Skeleton::Id_Type(nit->ref.val())) == new_way_idx_by_id.end())
@@ -385,8 +385,8 @@ void lookup_missing_ways
   {
     for (std::set< Relation_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
-      for (std::vector< Relation_Entry >::const_iterator nit = it2->members.begin();
-           nit != it2->members.end(); ++nit)
+      for (std::vector< Relation_Entry >::const_iterator nit = it2->members().begin();
+           nit != it2->members().end(); ++nit)
       {
         if (nit->type == Relation_Entry::WAY &&
             new_way_idx_by_id.find(Way_Skeleton::Id_Type(nit->ref.val())) == new_way_idx_by_id.end())
@@ -437,8 +437,8 @@ void compute_geometry
       continue;
 
     std::vector< uint32 > member_idxs;
-    for (std::vector< Relation_Entry >::const_iterator nit = it->elem.members.begin();
-         nit != it->elem.members.end(); ++nit)
+    for (std::vector< Relation_Entry >::const_iterator nit = it->elem.members().begin();
+         nit != it->elem.members().end(); ++nit)
     {
       if (nit->type == Relation_Entry::NODE)
       {
@@ -462,27 +462,27 @@ void compute_geometry
 
     Uint31_Index index = Relation::calc_index(member_idxs);
 
-    it->elem.node_idxs.clear();
-    it->elem.way_idxs.clear();
+    it->elem.node_idxs().clear();
+    it->elem.way_idxs().clear();
 
     if (Relation::indicates_geometry(index))
     {
-      for (std::vector< Relation_Entry >::const_iterator nit = it->elem.members.begin();
-           nit != it->elem.members.end(); ++nit)
+      for (std::vector< Relation_Entry >::const_iterator nit = it->elem.members().begin();
+           nit != it->elem.members().end(); ++nit)
       {
         if (nit->type == Relation_Entry::NODE)
         {
           std::map< Node_Skeleton::Id_Type, Quad_Coord >::const_iterator it2
               = new_node_idx_by_id.find(Node_Skeleton::Id_Type(nit->ref.val()));
           if (it2 != new_node_idx_by_id.end())
-            it->elem.node_idxs.push_back(it2->second.ll_upper);
+            it->elem.node_idxs().push_back(it2->second.ll_upper);
         }
         else if (nit->type == Relation_Entry::WAY)
         {
           std::map< Way_Skeleton::Id_Type, Uint31_Index >::const_iterator it2
               = new_way_idx_by_id.find(Way_Skeleton::Id_Type(nit->ref.val()));
           if (it2 != new_way_idx_by_id.end())
-            it->elem.way_idxs.push_back(it2->second);
+            it->elem.way_idxs().push_back(it2->second);
         }
       }
     }
@@ -503,8 +503,8 @@ void compute_idx_and_geometry
   std::vector< Uint31_Index > node_idxs;
   std::vector< Uint31_Index > way_idxs;
 
-  for (std::vector< Relation_Entry >::const_iterator mit = skeleton.members.begin();
-       mit != skeleton.members.end(); ++mit)
+  for (std::vector< Relation_Entry >::const_iterator mit = skeleton.members().begin();
+       mit != skeleton.members().end(); ++mit)
   {
       if (mit->type == Relation_Entry::NODE)
       {
@@ -557,13 +557,13 @@ void compute_idx_and_geometry
 
   if (Relation::indicates_geometry(idx))
   {
-    skeleton.node_idxs.swap(node_idxs);
-    skeleton.way_idxs.swap(way_idxs);
+    skeleton.node_idxs().swap(node_idxs);
+    skeleton.way_idxs().swap(way_idxs);
   }
   else
   {
-    skeleton.node_idxs.clear();
-    skeleton.way_idxs.clear();
+    skeleton.node_idxs().clear();
+    skeleton.way_idxs().clear();
   }
 }
 
@@ -584,8 +584,8 @@ Relation_Skeleton add_intermediate_versions
      std::map< Relation_Skeleton::Id_Type, std::set< Uint31_Index > >& idx_lists)
 {
   std::vector< uint64 > relevant_timestamps;
-  for (std::vector< Relation_Entry >::const_iterator mit = skeleton.members.begin();
-       mit != skeleton.members.end(); ++mit)
+  for (std::vector< Relation_Entry >::const_iterator mit = skeleton.members().begin();
+       mit != skeleton.members().end(); ++mit)
   {
     if (mit->type == Relation_Entry::NODE)
     {
@@ -702,8 +702,8 @@ void add_intermediate_changelog_entries
      std::map< Timestamp, std::set< Change_Entry< Relation_Skeleton::Id_Type > > >& result)
 {
   std::vector< uint64 > relevant_timestamps;
-  for (std::vector< Relation_Entry >::const_iterator mit = skeleton.members.begin();
-       mit != skeleton.members.end(); ++mit)
+  for (std::vector< Relation_Entry >::const_iterator mit = skeleton.members().begin();
+       mit != skeleton.members().end(); ++mit)
   {
     if (mit->type == Relation_Entry::NODE)
     {
@@ -780,7 +780,7 @@ void add_intermediate_changelog_entries
 
 bool geometrically_equal(const Relation_Skeleton& a, const Relation_Skeleton& b)
 {
-  return (a.members == b.members);
+  return (a.members() == b.members());
 }
 
 

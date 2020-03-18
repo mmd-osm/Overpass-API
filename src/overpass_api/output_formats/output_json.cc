@@ -174,12 +174,12 @@ void Output_JSON::print_item(const Way_Skeleton& skel,
 
   print_bounds(geometry, mode);
 
-  if ((mode.mode & Output_Mode::NDS) != 0 && !skel.nds.empty())
+  if ((mode.mode & Output_Mode::NDS) != 0 && !skel.nds().empty())
   {
-    std::vector< Node::Id_Type >::const_iterator it = skel.nds.begin();
+    std::vector< Node::Id_Type >::const_iterator it = skel.nds().begin();
     std::cout<<",\n  \"nodes\": ["
            "\n    "<<it->val();
-    for (++it; it != skel.nds.end(); ++it)
+    for (++it; it != skel.nds().end(); ++it)
       std::cout<<",\n    "<<it->val();
     std::cout<<"\n  ]";
   }
@@ -232,24 +232,24 @@ void Output_JSON::print_item(const Relation_Skeleton& skel,
 
   print_bounds(geometry, mode);
 
-  if (roles && (mode.mode & Output_Mode::MEMBERS) != 0 && !skel.members.empty())
+  if (roles && (mode.mode & Output_Mode::MEMBERS) != 0 && !skel.members().empty())
   {
     std::cout<<",\n  \"members\": [";
-    for (uint i = 0; i < skel.members.size(); i++)
+    for (uint i = 0; i < skel.members().size(); i++)
     {
-      std::map< uint32, std::string >::const_iterator rit = roles->find(skel.members[i].role);
+      std::map< uint32, std::string >::const_iterator rit = roles->find(skel.members()[i].role);
       std::cout<< (i == 0 ? "" : ",");
       std::cout <<"\n    {"
-            "\n      \"type\": \""<<member_type_name(skel.members[i].type)<<
-            "\",\n      \"ref\": "<<skel.members[i].ref.val()<<
+            "\n      \"type\": \""<<member_type_name(skel.members()[i].type)<<
+            "\",\n      \"ref\": "<<skel.members()[i].ref.val()<<
             ",\n      \"role\": \""<<escape_cstr(rit != roles->end() ? rit->second : "???") << "\"";
 
-      if (skel.members[i].type == Relation_Entry::NODE &&
+      if (skel.members()[i].type == Relation_Entry::NODE &&
           geometry.has_faithful_relation_geometry() && geometry.relation_pos_is_valid(i))
         std::cout<<",\n      \"lat\": "<<std::fixed<<std::setprecision(7)<<geometry.relation_pos_lat(i)
             <<",\n      \"lon\": "<<std::fixed<<std::setprecision(7)<<geometry.relation_pos_lon(i);
 
-      if (skel.members[i].type == Relation_Entry::WAY && geometry.has_faithful_relation_geometry())
+      if (skel.members()[i].type == Relation_Entry::WAY && geometry.has_faithful_relation_geometry())
       {
         std::cout<<",\n      \"geometry\": [";
         for (uint j = 0; j < geometry.relation_way_size(i); ++j)

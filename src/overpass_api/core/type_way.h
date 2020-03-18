@@ -85,39 +85,72 @@ struct Way_Delta;
 template <class T, class Object>
 struct Way_Skeleton_Handle_Methods;
 
+class Way_Skeleton_Data : public SharedData
+{
+public:
+  Way_Skeleton_Data() { }
+
+  Way_Skeleton_Data(const Way_Skeleton_Data &other)
+     : SharedData(other),
+       nds(other.nds),
+       geometry(other.geometry) {}
+
+  ~Way_Skeleton_Data() {}
+
+  std::vector< Node::Id_Type > nds;
+  std::vector< Quad_Coord > geometry;
+};
+
 struct Way_Skeleton
 {
   typedef Way::Id_Type Id_Type;
   typedef Way_Delta Delta;
 
   Id_Type id;
-  std::vector< Node::Id_Type > nds;
-  std::vector< Quad_Coord > geometry;
 
-  Way_Skeleton() : id(0u) {}
+  Way_Skeleton() : id(0u) { d = new Way_Skeleton_Data; }
 
-  Way_Skeleton(Way::Id_Type id_) : id(id_) {}
+  Way_Skeleton(Way::Id_Type id_) : id(id_) { d = new Way_Skeleton_Data; }
 
   Way_Skeleton(void* data) : id(*(Id_Type*)data)
   {
-    nds.reserve(*((uint16*)data + 2));
+    d = new Way_Skeleton_Data;
+
+    d->nds.reserve(*((uint16*)data + 2));
     for (int i(0); i < *((uint16*)data + 2); ++i)
-      nds.push_back(*(uint64*)((uint16*)data + 4 + 4*i));
-    uint16* start_ptr = (uint16*)data + 4 + 4*nds.size();
-    geometry.reserve(*((uint16*)data + 3));
+      d->nds.push_back(*(uint64*)((uint16*)data + 4 + 4*i));
+    uint16* start_ptr = (uint16*)data + 4 + 4*d->nds.size();
+    d->geometry.reserve(*((uint16*)data + 3));
     for (int i(0); i < *((uint16*)data + 3); ++i)
-      geometry.push_back(Quad_Coord(*(uint32*)(start_ptr + 4*i), *(uint32*)(start_ptr + 4*i + 2)));
+      d->geometry.push_back(Quad_Coord(*(uint32*)(start_ptr + 4*i), *(uint32*)(start_ptr + 4*i + 2)));
+
   }
 
   Way_Skeleton(const Way& way)
-      : id(way.id), nds(way.nds), geometry(way.geometry) {}
+      : id(way.id) {
+
+    d = new Way_Skeleton_Data;
+    d->nds = way.nds;
+    d->geometry = way.geometry;
+  }
 
   Way_Skeleton(Id_Type id_, const std::vector< Node::Id_Type >& nds_, const std::vector< Quad_Coord >& geometry_)
-      : id(id_), nds(nds_), geometry(geometry_) {}
+      : id(id_) {
+
+    d = new Way_Skeleton_Data;
+    d->nds = nds_;
+    d->geometry = geometry_;
+  }
+
+  const std::vector< Node::Id_Type > & nds() const { return d->nds; }
+  std::vector< Node::Id_Type > & nds() { return d->nds; }
+
+  const std::vector< Quad_Coord > & geometry() const { return d->geometry; }
+  std::vector< Quad_Coord > & geometry() { return d->geometry; }
 
   uint32 size_of() const
   {
-    return 8 + 8*nds.size() + 8*geometry.size();
+    return 8 + 8*d->nds.size() + 8*d->geometry.size();
   }
 
   static uint32 size_of(const void* data)
@@ -128,15 +161,15 @@ struct Way_Skeleton
   void to_data(void* data) const
   {
     *(Id_Type*)data = id.val();
-    *((uint16*)data + 2) = nds.size();
-    *((uint16*)data + 3) = geometry.size();
-    for (uint i(0); i < nds.size(); ++i)
-      *(uint64*)((uint16*)data + 4 + 4*i) = nds[i].val();
-    uint16* start_ptr = (uint16*)data + 4 + 4*nds.size();
-    for (uint i(0); i < geometry.size(); ++i)
+    *((uint16*)data + 2) = d->nds.size();
+    *((uint16*)data + 3) = d->geometry.size();
+    for (uint i(0); i < d->nds.size(); ++i)
+      *(uint64*)((uint16*)data + 4 + 4*i) = d->nds[i].val();
+    uint16* start_ptr = (uint16*)data + 4 + 4*d->nds.size();
+    for (uint i(0); i < d->geometry.size(); ++i)
     {
-      *(uint32*)(start_ptr + 4*i) = geometry[i].ll_upper;
-      *(uint32*)(start_ptr + 4*i + 2) = geometry[i].ll_lower;
+      *(uint32*)(start_ptr + 4*i) = d->geometry[i].ll_upper;
+      *(uint32*)(start_ptr + 4*i + 2) = d->geometry[i].ll_lower;
     }
   }
 
@@ -152,6 +185,9 @@ struct Way_Skeleton
 
   template <class T, class Object>
   using Handle_Methods = Way_Skeleton_Handle_Methods<T, Object>;
+
+private:
+  SharedDataPointer<Way_Skeleton_Data> d;
 };
 
 template <typename Id_Type >
@@ -259,11 +295,11 @@ struct Way_Delta
       full = true;
     else
     {
-      make_delta(skel.nds, reference.nds, nds_removed, nds_added);
-      make_delta(skel.geometry, reference.geometry, geometry_removed, geometry_added);
+      make_delta(skel.nds(), reference.nds(), nds_removed, nds_added);
+      make_delta(skel.geometry(), reference.geometry(), geometry_removed, geometry_added);
     }
 
-    if (nds_added.size() >= skel.nds.size()/2)
+    if (nds_added.size() >= skel.nds().size()/2)
     {
       nds_removed.clear();
       nds_added.clear();
@@ -274,8 +310,8 @@ struct Way_Delta
 
     if (full)
     {
-      copy_elems(skel.nds, nds_added);
-      copy_elems(skel.geometry, geometry_added);
+      copy_elems(skel.nds(), nds_added);
+      copy_elems(skel.geometry(), geometry_added);
     }
   }
 
@@ -285,19 +321,19 @@ struct Way_Delta
 
     if (full)
     {
-      result.nds.reserve(nds_added.size());
+      result.nds().reserve(nds_added.size());
       for (uint i = 0; i < nds_added.size(); ++i)
-        result.nds.push_back(nds_added[i].second);
+        result.nds().push_back(nds_added[i].second);
 
-      result.geometry.reserve(geometry_added.size());
+      result.geometry().reserve(geometry_added.size());
       for (uint i = 0; i < geometry_added.size(); ++i)
-        result.geometry.push_back(geometry_added[i].second);
+        result.geometry().push_back(geometry_added[i].second);
     }
     else if (reference.id == id)
     {
-      expand_diff(reference.nds, nds_removed, nds_added, result.nds);
-      expand_diff(reference.geometry, geometry_removed, geometry_added, result.geometry);
-      if (!result.geometry.empty() && result.nds.size() != result.geometry.size())
+      expand_diff(reference.nds(), nds_removed, nds_added, result.nds());
+      expand_diff(reference.geometry(), geometry_removed, geometry_added, result.geometry());
+      if (!result.geometry().empty() && result.nds().size() != result.geometry().size())
       {
 	std::ostringstream out;
 	out<<"Bad geometry for way "<<id.val();
@@ -316,19 +352,19 @@ struct Way_Delta
 
     if (full)
     {
-      result.nds.reserve(nds_added.size());
+      result.nds().reserve(nds_added.size());
       for (uint i = 0; i < nds_added.size(); ++i)
-        result.nds.push_back(nds_added[i].second);
+        result.nds().push_back(nds_added[i].second);
 
-      result.geometry.reserve(geometry_added.size());
+      result.geometry().reserve(geometry_added.size());
       for (uint i = 0; i < geometry_added.size(); ++i)
-        result.geometry.push_back(geometry_added[i].second);
+        result.geometry().push_back(geometry_added[i].second);
     }
     else if (reference.id == id)
     {
-      expand_diff_fast(reference.nds, nds_removed, nds_added, result.nds);
-      expand_diff_fast(reference.geometry, geometry_removed, geometry_added, result.geometry);
-      if (!result.geometry.empty() && result.nds.size() != result.geometry.size())
+      expand_diff_fast(reference.nds(), nds_removed, nds_added, result.nds());
+      expand_diff_fast(reference.geometry(), geometry_removed, geometry_added, result.geometry());
+      if (!result.geometry().empty() && result.nds().size() != result.geometry().size())
       {
         std::ostringstream out;
         out<<"Bad geometry for way "<<id.val();

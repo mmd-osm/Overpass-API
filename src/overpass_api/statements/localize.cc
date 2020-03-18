@@ -189,12 +189,12 @@ struct Count_Node_Use
 {
   void operator()(Uint31_Index idx, const Way_Skeleton& way)
   {
-    if (!way.nds.empty())
+    if (!way.nds().empty())
     {
-      (*context_by_node_id)[way.nds.front()].count += 2;
-      for (uint i = 1; i < way.nds.size()-1; ++i)
-        ++(*context_by_node_id)[way.nds[i]].count;
-      (*context_by_node_id)[way.nds.back()].count += 2;
+      (*context_by_node_id)[way.nds().front()].count += 2;
+      for (uint i = 1; i < way.nds().size()-1; ++i)
+        ++(*context_by_node_id)[way.nds()[i]].count;
+      (*context_by_node_id)[way.nds().back()].count += 2;
     }
   }
 
@@ -209,13 +209,13 @@ struct Partition_Into_Links
 {
   void operator()(Uint31_Index idx, const Way_Skeleton& way)
   {
-    if (!way.nds.empty())
+    if (!way.nds().empty())
     {
       std::vector< NWR_Context::Way_Section_Context >& way_context = (*context_by_way_id)[way.id];
 
       std::vector< NWR_Context::Node_Context* > nds_contexts;
-      nds_contexts.reserve(way.nds.size());
-      for (std::vector< Node::Id_Type >::const_iterator it_nds = way.nds.begin(); it_nds != way.nds.end(); ++it_nds)
+      nds_contexts.reserve(way.nds().size());
+      for (std::vector< Node::Id_Type >::const_iterator it_nds = way.nds().begin(); it_nds != way.nds().end(); ++it_nds)
       {
         std::map< Node_Skeleton::Id_Type, NWR_Context::Node_Context >::iterator it_ctx
             = context_by_node_id->find(*it_nds);
@@ -230,14 +230,14 @@ struct Partition_Into_Links
       way_context.back().local_from = start_context.local_id;
       way_context.back().points.push_back(Point_Double(start_context.lat, start_context.lon));
 
-      for (uint i = 1; i < way.nds.size()-1; ++i)
+      for (uint i = 1; i < way.nds().size()-1; ++i)
       {
         NWR_Context::Node_Context& context = *nds_contexts[i];
         way_context.back().points.push_back(Point_Double(context.lat, context.lon));
 
         if (context.local_id.val() || context.count > 1)
         {
-          context.link_by_origin[way.nds[start]].push_back(way.id);
+          context.link_by_origin[way.nds()[start]].push_back(way.id);
           start = i;
           way_context.back().local_to = context.local_id;
           if (!admissible_by_bbox(*bbox, way_context.back().points))
@@ -251,7 +251,7 @@ struct Partition_Into_Links
       NWR_Context::Node_Context& context = *nds_contexts.back();
       way_context.back().points.push_back(Point_Double(context.lat, context.lon));
       way_context.back().local_to = context.local_id;
-      context.link_by_origin[way.nds[start]].push_back(way.id);
+      context.link_by_origin[way.nds()[start]].push_back(way.id);
       if (!admissible_by_bbox(*bbox, way_context.back().points))
         way_context.back().points.clear();
     }
@@ -273,7 +273,7 @@ struct Figure_Out_Local_Ids_Of_Links
 {
   void operator()(Uint31_Index idx, const Way_Skeleton& way)
   {
-    if (!way.nds.empty())
+    if (!way.nds().empty())
     {
       std::vector< NWR_Context::Way_Section_Context >& way_context = (*context_by_way_id)[way.id];
       std::vector< std::pair< Node_Skeleton::Id_Type, Node_Skeleton::Id_Type > > segment_count;
@@ -281,9 +281,9 @@ struct Figure_Out_Local_Ids_Of_Links
       for (uint i = 0; i < way_context.size(); ++i)
       {
         NWR_Context::Node_Context& context = (*context_by_node_id)[
-            i+1 < way_context.size() ? way.nds[way_context[i+1].pos] : way.nds.back()];
+            i+1 < way_context.size() ? way.nds()[way_context[i+1].pos] : way.nds().back()];
         const std::vector< Way_Skeleton::Id_Type >& parallel_links
-            = context.link_by_origin.find(way.nds[way_context[i].pos])->second;
+            = context.link_by_origin.find(way.nds()[way_context[i].pos])->second;
         if (parallel_links.size() > 1)
         {
           uint parallel_links_pos = 0;
@@ -295,15 +295,15 @@ struct Figure_Out_Local_Ids_Of_Links
           else
           {
             Node_Skeleton::Id_Type target_id =
-                (i+1 < way_context.size() ? way.nds[way_context[i+1].pos] : way.nds.back());
+                (i+1 < way_context.size() ? way.nds()[way_context[i+1].pos] : way.nds().back());
             for (std::vector< std::pair< Node_Skeleton::Id_Type, Node_Skeleton::Id_Type > >::const_iterator
                 it_pair = segment_count.begin(); it_pair != segment_count.end(); ++it_pair)
             {
-              if (it_pair->first == way.nds[way_context[i].pos] && it_pair->second == target_id)
+              if (it_pair->first == way.nds()[way_context[i].pos] && it_pair->second == target_id)
                 ++parallel_links_pos;
             }
             way_context[i].local_id = parallel_links_pos + 1;
-            segment_count.push_back(std::make_pair(way.nds[way_context[i].pos], target_id));
+            segment_count.push_back(std::make_pair(way.nds()[way_context[i].pos], target_id));
           }
         }
       }
@@ -587,7 +587,7 @@ void generate_loose_links(const std::map< Index, std::vector< Maybe_Attic > >& i
       const Element_With_Context< Maybe_Attic >& data = context_from.get_context(it_idx->first, *it_elem);
 
       if ((mode == Localize_Statement::all || (data.tags && !data.tags->empty()))
-          && it_elem->nds.empty())
+          && it_elem->nds().empty())
       {
         Derived_Structure_Builder result(rman, "link", new Null_Geometry(), data.tags);
 
@@ -619,8 +619,8 @@ void generate_trigraphs(const std::map< Index, std::vector< Maybe_Attic > >& ite
         Derived_Structure* last = 0;
         Point_Double last_point(100., 0.);
 
-        for (std::vector< Relation_Entry >::const_iterator it_memb = data.object->members.begin();
-            it_memb != data.object->members.end(); ++it_memb)
+        for (std::vector< Relation_Entry >::const_iterator it_memb = data.object->members().begin();
+            it_memb != data.object->members().end(); ++it_memb)
         {
           if (it_memb->type == Relation_Entry::NODE)
           {
@@ -673,7 +673,7 @@ void generate_trigraphs(const std::map< Index, std::vector< Maybe_Attic > >& ite
             if (elem_orientation == both_possible)
             {
               std::vector< Relation_Entry >::const_iterator it_next = it_memb+1;
-              if (it_next != data.object->members.end() && it_next->type == Relation_Entry::WAY)
+              if (it_next != data.object->members().end() && it_next->type == Relation_Entry::WAY)
               {
                 std::vector< NWR_Context::Way_Section_Context >& next_way_context
                     = nwr_context.context_by_way_id(Way_Skeleton::Id_Type(it_next->ref.val()));

@@ -660,17 +660,21 @@ void Output_Custom::print_item(const Way_Skeleton& skel,
 
   if (geometry.has_bbox())
   {
+    const auto n = skel.nds();
+
     output += process_template(way_template, skel.id.val(), "way",
 			      geometry.south(), geometry.west(), geometry.north(), geometry.east(),
 			      detect_zoom(geometry),
-			      tags, mode.mode & Output_Mode::NDS ? &skel.nds : 0, 0, 0);
+			      tags, mode.mode & Output_Mode::NDS ? &n : 0, 0, 0);
   }
   else
   {
+    const auto n = skel.nds();
+
     output += process_template(way_template, skel.id.val(), "way",
 			      200.0, 200.0, 200.0, 200.0,
 			      detect_zoom(geometry),
-			      tags, mode.mode & Output_Mode::NDS ? &skel.nds : 0, 0, 0);
+			      tags, mode.mode & Output_Mode::NDS ? &n : 0, 0, 0);
   }
 }
 
@@ -699,17 +703,21 @@ void Output_Custom::print_item(const Relation_Skeleton& skel,
 
   if (geometry.has_bbox())
   {
+    const auto members = skel.members();
+
     output += process_template(relation_template, skel.id.val(), "relation",
 			       geometry.south(), geometry.west(), geometry.north(), geometry.east(),
 			       detect_zoom(geometry),
-			       tags, 0, mode.mode & Output_Mode::MEMBERS ? &skel.members : 0, roles);
+			       tags, 0, mode.mode & Output_Mode::MEMBERS ? &members : 0, roles);
   }
   else
   {
+    const auto members = skel.members();
+
     output += process_template(relation_template, skel.id.val(), "relation",
 			       200.0, 200.0, 200.0, 200.0,
 			       detect_zoom(geometry),
-			       tags, 0, mode.mode & Output_Mode::MEMBERS ? &skel.members : 0, roles);
+			       tags, 0, mode.mode & Output_Mode::MEMBERS ? &members : 0, roles);
   }
 }
 

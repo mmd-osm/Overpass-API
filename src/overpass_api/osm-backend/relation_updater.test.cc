@@ -328,10 +328,10 @@ int main(int argc, char* args[])
 	 it(relations_db.flat_begin()); !(it == relations_db.flat_end()); ++it)
     {
       member_db_out<<it.object().id.val()<<'\t';
-      for (uint i(0); i < it.object().members.size(); ++i)
-	member_db_out<<it.object().members[i].ref.val()<<' '
-	    <<it.object().members[i].type<<' '
-	    <<roles[it.object().members[i].role]<<' ';
+      for (uint i(0); i < it.object().members().size(); ++i)
+	member_db_out<<it.object().members()[i].ref.val()<<' '
+	    <<it.object().members()[i].type<<' '
+	    <<roles[it.object().members()[i].role]<<' ';
       member_db_out<<'\n';
     }
 

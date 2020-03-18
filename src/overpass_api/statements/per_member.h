@@ -297,9 +297,9 @@ struct Membertype_Eval_Task : public Eval_Task
   virtual std::string eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
       { return "node"; }
   virtual std::string eval(uint pos, const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
-      { return member_type_name(data.object->members[pos].type); }
+      { return member_type_name(data.object->members()[pos].type); }
   virtual std::string eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
-      { return member_type_name(data.object->members[pos].type); }
+      { return member_type_name(data.object->members()[pos].type); }
 };
 
 
@@ -337,13 +337,13 @@ struct Ref_Eval_Task : public Eval_Task
   virtual std::string eval(const std::string* key) const { return ""; }
 
   virtual std::string eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
-      { return to_string(data.object->nds[pos].val()); }
+      { return to_string(data.object->nds()[pos].val()); }
   virtual std::string eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
-      { return to_string(data.object->nds[pos].val()); }
+      { return to_string(data.object->nds()[pos].val()); }
   virtual std::string eval(uint pos, const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
-      { return to_string(data.object->members[pos].ref.val()); }
+      { return to_string(data.object->members()[pos].ref.val()); }
   virtual std::string eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
-      { return to_string(data.object->members[pos].ref.val()); }
+      { return to_string(data.object->members()[pos].ref.val()); }
 };
 
 
@@ -396,9 +396,9 @@ struct Role_Eval_Task : public Eval_Task
   virtual std::string eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
       { return ""; }
   virtual std::string eval(uint pos, const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
-      { return roles ? roles->find(data.object->members[pos].role)->second : std::string(); }
+      { return roles ? roles->find(data.object->members()[pos].role)->second : std::string(); }
   virtual std::string eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
-      { return roles ? roles->find(data.object->members[pos].role)->second : std::string(); }
+      { return roles ? roles->find(data.object->members()[pos].role)->second : std::string(); }
 
 private:
   const std::map< uint32, std::string >* roles;

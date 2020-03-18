@@ -63,10 +63,10 @@ Eval_Task* Evaluator_Per_Member::get_string_task(Prepare_Task_Context& context, 
 std::string Per_Member_Eval_Task::eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
 {
   std::string result;
-  if (!data.object->nds.empty())
+  if (!data.object->nds().empty())
   {
     result = rhs_task->eval(0, data, key);
-    for (uint i = 1; i < data.object->nds.size(); ++i)
+    for (uint i = 1; i < data.object->nds().size(); ++i)
       result += ";" + rhs_task->eval(i, data, key);
   }
   return result;
@@ -76,10 +76,10 @@ std::string Per_Member_Eval_Task::eval(const Element_With_Context< Way_Skeleton 
 std::string Per_Member_Eval_Task::eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
 {
   std::string result;
-  if (!data.object->nds.empty())
+  if (!data.object->nds().empty())
   {
     result = rhs_task->eval(0, data, key);
-    for (uint i = 1; i < data.object->nds.size(); ++i)
+    for (uint i = 1; i < data.object->nds().size(); ++i)
       result += ";" + rhs_task->eval(i, data, key);
   }
   return result;
@@ -89,10 +89,10 @@ std::string Per_Member_Eval_Task::eval(const Element_With_Context< Attic< Way_Sk
 std::string Per_Member_Eval_Task::eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
 {
   std::string result;
-  if (!data.object->members.empty())
+  if (!data.object->members().empty())
   {
     result = rhs_task->eval(0, data, key);
-    for (uint i = 1; i < data.object->members.size(); ++i)
+    for (uint i = 1; i < data.object->members().size(); ++i)
       result += ";" + rhs_task->eval(i, data, key);
   }
   return result;
@@ -102,10 +102,10 @@ std::string Per_Member_Eval_Task::eval(const Element_With_Context< Relation_Skel
 std::string Per_Member_Eval_Task::eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
 {
   std::string result;
-  if (!data.object->members.empty())
+  if (!data.object->members().empty())
   {
     result = rhs_task->eval(0, data, key);
-    for (uint i = 1; i < data.object->members.size(); ++i)
+    for (uint i = 1; i < data.object->members().size(); ++i)
       result += ";" + rhs_task->eval(i, data, key);
   }
   return result;
@@ -142,13 +142,13 @@ Eval_Task* Evaluator_Per_Vertex::get_string_task(Prepare_Task_Context& context, 
 std::string Per_Vertex_Eval_Task::eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
 {
   std::string result;
-  if (data.object->nds.size() > 2)
+  if (data.object->nds().size() > 2)
   {
     result = rhs_task->eval(1, data, key);
-    for (uint i = 2; i < data.object->nds.size() - 1; ++i)
+    for (uint i = 2; i < data.object->nds().size() - 1; ++i)
       result += ";" + rhs_task->eval(i, data, key);
-    if (data.object->nds.front() == data.object->nds.back())
-      result += ";" + rhs_task->eval(data.object->nds.size() - 1, data, key);
+    if (data.object->nds().front() == data.object->nds().back())
+      result += ";" + rhs_task->eval(data.object->nds().size() - 1, data, key);
   }
   return result;
 }
@@ -157,13 +157,13 @@ std::string Per_Vertex_Eval_Task::eval(const Element_With_Context< Way_Skeleton 
 std::string Per_Vertex_Eval_Task::eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
 {
   std::string result;
-  if (data.object->nds.size() > 2)
+  if (data.object->nds().size() > 2)
   {
     result = rhs_task->eval(1, data, key);
-    for (uint i = 2; i < data.object->nds.size() - 1; ++i)
+    for (uint i = 2; i < data.object->nds().size() - 1; ++i)
       result += ";" + rhs_task->eval(i, data, key);
-    if (data.object->nds.front() == data.object->nds.back())
-      result += ";" + rhs_task->eval(data.object->nds.size() - 1, data, key);
+    if (data.object->nds().front() == data.object->nds().back())
+      result += ";" + rhs_task->eval(data.object->nds().size() - 1, data, key);
   }
   return result;
 }
@@ -245,7 +245,7 @@ std::string Angle_Eval_Task::eval(uint pos, const Element_With_Context< Way_Skel
     return "";
   keep_cartesians_up_to_date(data.object->id, data.geometry);
 
-  if (pos+1 < data.object->nds.size() || data.object->nds.front() == data.object->nds.back())
+  if (pos+1 < data.object->nds().size() || data.object->nds().front() == data.object->nds().back())
     return prettyprinted_angle(pos);
   return "";
 }
@@ -257,7 +257,7 @@ std::string Angle_Eval_Task::eval(uint pos, const Element_With_Context< Attic< W
     return "";
   keep_cartesians_up_to_date(data.object->id, data.geometry);
 
-  if (pos+1 < data.object->nds.size() || data.object->nds.front() == data.object->nds.back())
+  if (pos+1 < data.object->nds().size() || data.object->nds().front() == data.object->nds().back())
     return prettyprinted_angle(pos);
   return "";
 }

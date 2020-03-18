@@ -287,16 +287,16 @@ void print_geometry(const Opaque_Geometry& geometry, Output_Mode mode, bool& inn
 void print_members(const Way_Skeleton& skel, const Opaque_Geometry& geometry,
 		   Output_Mode mode, bool& inner_tags_printed)
 {
-  if ((mode.mode & Output_Mode::NDS) && !skel.nds.empty())
+  if ((mode.mode & Output_Mode::NDS) && !skel.nds().empty())
   {
     if (!inner_tags_printed)
     {
       std::cout<<">\n";
       inner_tags_printed = true;
     }
-    for (uint i = 0; i < skel.nds.size(); ++i)
+    for (uint i = 0; i < skel.nds().size(); ++i)
     {
-      std::cout<<"    <nd ref=\""<<skel.nds[i].val()<<"\"";
+      std::cout<<"    <nd ref=\""<<skel.nds()[i].val()<<"\"";
       if (geometry.has_faithful_way_geometry() && geometry.way_pos_is_valid(i))
         std::cout<<" lat=\""<<std::fixed<<std::setprecision(7)<<geometry.way_pos_lat(i)
             <<"\" lon=\""<<std::fixed<<std::setprecision(7)<<geometry.way_pos_lon(i)<<'\"';
@@ -310,28 +310,28 @@ void print_members(const Relation_Skeleton& skel, const Opaque_Geometry& geometr
 		   const std::map< uint32, std::string >& roles,
 		   Output_Mode mode, bool& inner_tags_printed)
 {
-  if ((mode.mode & Output_Mode::MEMBERS) && !skel.members.empty())
+  if ((mode.mode & Output_Mode::MEMBERS) && !skel.members().empty())
   {
     if (!inner_tags_printed)
     {
       std::cout<<">\n";
       inner_tags_printed = true;
     }
-    for (uint i = 0; i < skel.members.size(); ++i)
+    for (uint i = 0; i < skel.members().size(); ++i)
     {
-      std::map< uint32, std::string >::const_iterator it = roles.find(skel.members[i].role);
-      std::cout<<"    <member type=\""<<member_type_name(skel.members[i].type)
-	  <<"\" ref=\""<<skel.members[i].ref.val()
+      std::map< uint32, std::string >::const_iterator it = roles.find(skel.members()[i].role);
+      std::cout<<"    <member type=\""<<member_type_name(skel.members()[i].type)
+	  <<"\" ref=\""<<skel.members()[i].ref.val()
 	  <<"\" role=\""<<escape_xml(it != roles.end() ? it->second : "???")<<"\"";
 
-      if (skel.members[i].type == Relation_Entry::NODE)
+      if (skel.members()[i].type == Relation_Entry::NODE)
       {
 	if (geometry.has_faithful_relation_geometry() && geometry.relation_pos_is_valid(i))
           std::cout<<" lat=\""<<std::fixed<<std::setprecision(7)<<geometry.relation_pos_lat(i)
               <<"\" lon=\""<<std::fixed<<std::setprecision(7)<<geometry.relation_pos_lon(i)<<'\"';
         std::cout<<"/>\n";
       }
-      else if (skel.members[i].type == Relation_Entry::WAY)
+      else if (skel.members()[i].type == Relation_Entry::WAY)
       {
 	if (!geometry.has_faithful_relation_geometry())
 	  std::cout<<"/>\n";

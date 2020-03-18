@@ -169,8 +169,8 @@ std::vector< std::vector< Quad_Coord > > Relation_Geometry_Store::get_geometry
     (const Relation_Skeleton& relation) const
 {
   std::vector< std::vector< Quad_Coord > > result;
-  for (std::vector< Relation_Entry >::const_iterator it = relation.members.begin();
-       it != relation.members.end(); ++it)
+  for (std::vector< Relation_Entry >::const_iterator it = relation.members().begin();
+       it != relation.members().end(); ++it)
   {
     if (it->type == Relation_Entry::NODE)
     {

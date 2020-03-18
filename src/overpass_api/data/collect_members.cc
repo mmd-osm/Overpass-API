@@ -39,19 +39,19 @@ std::vector< Node::Id_Type > way_nd_ids(
         std::vector< int >::const_iterator it3 = pos->begin();
         for (; it3 != pos->end() && *it3 < 0; ++it3)
         {
-          if (*it3 + (int)it2->nds.size() >= 0)
-            ids.push_back(it2->nds[*it3 + it2->nds.size()]);
+          if (*it3 + (int)it2->nds().size() >= 0)
+            ids.push_back(it2->nds()[*it3 + it2->nds().size()]);
         }
         for (; it3 != pos->end(); ++it3)
         {
-          if (*it3 > 0 && *it3 < (int)it2->nds.size()+1)
-            ids.push_back(it2->nds[*it3-1]);
+          if (*it3 > 0 && *it3 < (int)it2->nds().size()+1)
+            ids.push_back(it2->nds()[*it3-1]);
         }
       }
       else
       {
-        for (std::vector< Node::Id_Type >::const_iterator it3 = it2->nds.begin();
-            it3 != it2->nds.end(); ++it3)
+        for (std::vector< Node::Id_Type >::const_iterator it3 = it2->nds().begin();
+            it3 != it2->nds().end(); ++it3)
           ids.push_back(*it3);
       }
     }
@@ -85,19 +85,19 @@ std::vector< Node::Id_Type > way_nd_ids(
         std::vector< int >::const_iterator it3 = pos->begin();
         for (; it3 != pos->end() && *it3 < 0; ++it3)
         {
-          if (*it3 + (int)it2->nds.size() >= 0)
-            ids.push_back(it2->nds[*it3 + it2->nds.size()]);
+          if (*it3 + (int)it2->nds().size() >= 0)
+            ids.push_back(it2->nds()[*it3 + it2->nds().size()]);
         }
         for (; it3 != pos->end(); ++it3)
         {
-          if (*it3 > 0 && *it3 < (int)it2->nds.size()+1)
-            ids.push_back(it2->nds[*it3-1]);
+          if (*it3 > 0 && *it3 < (int)it2->nds().size()+1)
+            ids.push_back(it2->nds()[*it3-1]);
         }
       }
       else
       {
-        for (std::vector< Node::Id_Type >::const_iterator it3 = it2->nds.begin();
-            it3 != it2->nds.end(); ++it3)
+        for (std::vector< Node::Id_Type >::const_iterator it3 = it2->nds().begin();
+            it3 != it2->nds().end(); ++it3)
           ids.push_back(*it3);
       }
     }
@@ -366,8 +366,8 @@ std::set< std::pair< Uint32_Index, Uint32_Index > > way_nd_indices
       for (std::vector< Way_Skeleton >::const_iterator it2 = it->second.begin();
           it2 != it->second.end(); ++it2)
       {
-        for (std::vector< Quad_Coord >::const_iterator it3 = it2->geometry.begin();
-            it3 != it2->geometry.end(); ++it3)
+        for (std::vector< Quad_Coord >::const_iterator it3 = it2->geometry().begin();
+            it3 != it2->geometry().end(); ++it3)
           parents.push_back(it3->ll_upper);
       }
     }
@@ -401,8 +401,8 @@ std::set< std::pair< Uint32_Index, Uint32_Index > > way_nd_indices
       for (std::vector< Way_Skeleton >::const_iterator it2 = it->second.begin();
           it2 != it->second.end(); ++it2)
       {
-        for (std::vector< Quad_Coord >::const_iterator it3 = it2->geometry.begin();
-            it3 != it2->geometry.end(); ++it3)
+        for (std::vector< Quad_Coord >::const_iterator it3 = it2->geometry().begin();
+            it3 != it2->geometry().end(); ++it3)
           parents.push_back(it3->ll_upper);
       }
     }
@@ -418,8 +418,8 @@ std::set< std::pair< Uint32_Index, Uint32_Index > > way_nd_indices
       for (std::vector< Attic< Way_Skeleton > >::const_iterator it2 = it->second.begin();
           it2 != it->second.end(); ++it2)
       {
-        for (std::vector< Quad_Coord >::const_iterator it3 = it2->geometry.begin();
-            it3 != it2->geometry.end(); ++it3)
+        for (std::vector< Quad_Coord >::const_iterator it3 = it2->geometry().begin();
+            it3 != it2->geometry().end(); ++it3)
           parents.push_back(it3->ll_upper);
       }
     }
@@ -939,8 +939,8 @@ std::vector< Quad_Coord > make_geometry(const Way_Skeleton& way, const std::vect
 {
   std::vector< Quad_Coord > result;
 
-  for (std::vector< Node::Id_Type >::const_iterator it3(way.nds.begin());
-      it3 != way.nds.end(); ++it3)
+  for (std::vector< Node::Id_Type >::const_iterator it3(way.nds().begin());
+      it3 != way.nds().end(); ++it3)
   {
     const Node* node = binary_search_for_id(nodes, *it3);
     if (node == 0)
@@ -991,7 +991,7 @@ void filter_ways_by_ranges_generic
              it2 != it->second.end(); ++it2)
         {
           std::set< std::pair< Uint31_Index, Uint31_Index > >::const_iterator ranges_it2 = ranges_begin;
-          std::vector< Uint31_Index > segment_idxs_ = segment_idxs(it2->geometry);
+          std::vector< Uint31_Index > segment_idxs_ = segment_idxs(it2->geometry());
           for (std::vector< Uint31_Index >::const_iterator it3 = segment_idxs_.begin();
                it3 != segment_idxs_.end() && ranges_it2 != ranges.end(); )
           {

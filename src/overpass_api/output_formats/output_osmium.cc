@@ -234,10 +234,10 @@ void Output_Osmium::print_item(const Way_Skeleton& skel,
     if (mode & Output_Mode::NDS)
     {
 
-      for (uint i = 0; i < skel.nds.size(); ++i)
+      for (uint i = 0; i < skel.nds().size(); ++i)
       {
         osmium::Location location;
-        osmium::object_id_type ref = skel.nds[i].val();
+        osmium::object_id_type ref = skel.nds()[i].val();
 
         if (geometry.has_faithful_way_geometry() && geometry.way_pos_is_valid(i))
         {
@@ -311,13 +311,13 @@ void Output_Osmium::print_item(const Relation_Skeleton& skel,
   {
     if (mode & Output_Mode::MEMBERS)
     {
-      for (uint i = 0; i < skel.members.size(); ++i)
+      for (uint i = 0; i < skel.members().size(); ++i)
       {
-        std::map< uint32, std::string >::const_iterator it = roles->find(skel.members[i].role);
+        std::map< uint32, std::string >::const_iterator it = roles->find(skel.members()[i].role);
 
         osmium::item_type type;
 
-        switch(skel.members[i].type) {
+        switch(skel.members()[i].type) {
 
         case 1:
           type = osmium::item_type::node;
@@ -333,7 +333,7 @@ void Output_Osmium::print_item(const Relation_Skeleton& skel,
         }
 
         members.push_back(member_type{type,
-          (osmium::object_id_type) skel.members[i].ref.val(),
+          (osmium::object_id_type) skel.members()[i].ref.val(),
           it != roles->end() ? it->second.c_str() : "???" });
       }
     }

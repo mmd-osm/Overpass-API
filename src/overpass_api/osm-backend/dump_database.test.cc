@@ -293,8 +293,8 @@ void dump_ways(Transaction& transaction, const std::string& db_dir, uint64 divis
   {
     std::ofstream* out(way_db_out.get(it.object().id.val() / divisor));
     (*out)<<it.object().id.val()<<'\t'<<std::hex<<it.index().val()<<'\t';
-    for (uint i(0); i < it.object().nds.size(); ++i)
-      (*out)<<std::dec<<it.object().nds[i].val()<<' ';
+    for (uint i(0); i < it.object().nds().size(); ++i)
+      (*out)<<std::dec<<it.object().nds()[i].val()<<' ';
     (*out)<<'\n';
   }
 
@@ -457,8 +457,8 @@ void check_ways(Transaction& transaction)
       it(ways_db.flat_begin()); !(it == ways_db.flat_end()); ++it)
   {
     out<<it.object().id.val()<<'\t';
-    for (uint i(0); i < it.object().nds.size(); ++i)
-      out<<it.object().nds[i].val()<<' ';
+    for (uint i(0); i < it.object().nds().size(); ++i)
+      out<<it.object().nds()[i].val()<<' ';
     out<<'\n';
     if (++element_count % 1000000 == 0)
       std::cerr<<it.object().id.val()<<' ';
@@ -513,10 +513,10 @@ void dump_relations(Transaction& transaction, const std::string& db_dir, uint64 
     {
       std::ofstream* out(relation_db_out.get(it.object().id.val() / divisor));
       (*out)<<it.object().id.val()<<'\t';
-      for (uint i(0); i < it.object().members.size(); ++i)
-	(*out)<<it.object().members[i].ref.val()<<' '
-	    <<it.object().members[i].type<<' '
-	    <<roles[it.object().members[i].role]<<' ';
+      for (uint i(0); i < it.object().members().size(); ++i)
+	(*out)<<it.object().members()[i].ref.val()<<' '
+	    <<it.object().members()[i].type<<' '
+	    <<roles[it.object().members()[i].role]<<' ';
       (*out)<<'\n';
     }
 
@@ -565,10 +565,10 @@ void check_relations(Transaction& transaction)
     it(relations_db.flat_begin()); !(it == relations_db.flat_end()); ++it)
   {
     out<<it.object().id.val()<<'\t';
-    for (uint i(0); i < it.object().members.size(); ++i)
-      out<<it.object().members[i].ref.val()<<' '
-          <<it.object().members[i].type<<' '
-          <<roles[it.object().members[i].role]<<' ';
+    for (uint i(0); i < it.object().members().size(); ++i)
+      out<<it.object().members()[i].ref.val()<<' '
+          <<it.object().members()[i].type<<' '
+          <<roles[it.object().members()[i].role]<<' ';
     out<<'\n';
     if (++element_count % 1000000 == 0)
       std::cerr<<it.object().id.val()<<' ';

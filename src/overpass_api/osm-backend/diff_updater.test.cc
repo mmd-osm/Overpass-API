@@ -164,8 +164,8 @@ void dump_ways(uint32 pattern_size, std::string db_dir)
     std::ostringstream buf;
     buf<<std::hex<<it.index().val()<<std::dec
         <<'\t'<<it.object().id.val()<<'\t';
-    for (uint i(0); i < it.object().nds.size(); ++i)
-      buf<<it.object().nds[i].val()<<' ';
+    for (uint i(0); i < it.object().nds().size(); ++i)
+      buf<<it.object().nds()[i].val()<<' ';
     buf<<'\n';
     output_sorter.output_per_index.push_back(buf.str());
   }
@@ -232,10 +232,10 @@ void dump_relations(uint32 pattern_size, std::string db_dir)
     std::ostringstream buf;
     buf<<std::hex<<it.index().val()<<std::dec
         <<'\t'<<it.object().id.val()<<'\t';
-    for (uint i(0); i < it.object().members.size(); ++i)
-      buf<<it.object().members[i].ref.val()<<' '
-          <<it.object().members[i].type<<' '
-          <<roles[it.object().members[i].role]<<' ';
+    for (uint i(0); i < it.object().members().size(); ++i)
+      buf<<it.object().members()[i].ref.val()<<' '
+          <<it.object().members()[i].type<<' '
+          <<roles[it.object().members()[i].role]<<' ';
     buf<<'\n';
     output_sorter.output_per_index.push_back(buf.str());
   }

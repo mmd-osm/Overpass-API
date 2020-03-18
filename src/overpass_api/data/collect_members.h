@@ -431,8 +431,8 @@ void filter_for_member_ids(const std::vector< Relation_Skeleton >& relations,
   for (typename std::vector< Relation_Skeleton >::const_iterator it2(relations.begin());
       it2 != relations.end(); ++it2)
   {
-    for (std::vector< Relation_Entry >::const_iterator it3(it2->members.begin());
-        it3 != it2->members.end(); ++it3)
+    for (std::vector< Relation_Entry >::const_iterator it3(it2->members().begin());
+        it3 != it2->members().end(); ++it3)
     {
       if (it3->type == type)
         ids.push_back(Ref_Type(it3->ref.val()));
@@ -448,8 +448,8 @@ void filter_for_member_ids(const std::vector< Relation_Skeleton >& relations,
   for (typename std::vector< Relation_Skeleton >::const_iterator it2(relations.begin());
       it2 != relations.end(); ++it2)
   {
-    for (std::vector< Relation_Entry >::const_iterator it3(it2->members.begin());
-        it3 != it2->members.end(); ++it3)
+    for (std::vector< Relation_Entry >::const_iterator it3(it2->members().begin());
+        it3 != it2->members().end(); ++it3)
     {
       if (it3->type == type && it3->role == role_id)
         ids.push_back(Ref_Type(it3->ref.val()));
@@ -715,8 +715,8 @@ void filter_relations_expensive(const std::vector< std::pair< Uint32_Index, cons
     for (typename std::vector< Relation_Skeleton >::const_iterator iit = it->second.begin();
         iit != it->second.end(); ++iit)
     {
-      for (std::vector< Relation_Entry >::const_iterator nit = iit->members.begin();
-          nit != iit->members.end(); ++nit)
+      for (std::vector< Relation_Entry >::const_iterator nit = iit->members().begin();
+          nit != iit->members().end(); ++nit)
       {
         if (nit->type == Relation_Entry::NODE)
         {
@@ -770,8 +770,8 @@ std::vector< Uint31_Index > relation_way_member_indices
       for (typename std::vector< Relation_Skeleton >::const_iterator it2 = it->second.begin();
           it2 != it->second.end(); ++it2)
       {
-	for (std::vector< Uint31_Index >::const_iterator it3 = it2->way_idxs.begin();
-	    it3 != it2->way_idxs.end(); ++it3)
+	for (std::vector< Uint31_Index >::const_iterator it3 = it2->way_idxs().begin();
+	    it3 != it2->way_idxs().end(); ++it3)
 	  children_idxs.push_back(*it3);
       }
     }
@@ -809,8 +809,8 @@ std::vector< Uint31_Index > relation_way_member_indices
       for (typename std::vector< Relation_Skeleton >::const_iterator it2 = it->second.begin();
           it2 != it->second.end(); ++it2)
       {
-        for (std::vector< Uint31_Index >::const_iterator it3 = it2->way_idxs.begin();
-            it3 != it2->way_idxs.end(); ++it3)
+        for (std::vector< Uint31_Index >::const_iterator it3 = it2->way_idxs().begin();
+            it3 != it2->way_idxs().end(); ++it3)
           children_idxs.push_back(*it3);
       }
     }
@@ -826,8 +826,8 @@ std::vector< Uint31_Index > relation_way_member_indices
       for (typename std::vector< Attic< Relation_Skeleton > >::const_iterator it2 = it->second.begin();
           it2 != it->second.end(); ++it2)
       {
-        for (std::vector< Uint31_Index >::const_iterator it3 = it2->way_idxs.begin();
-            it3 != it2->way_idxs.end(); ++it3)
+        for (std::vector< Uint31_Index >::const_iterator it3 = it2->way_idxs().begin();
+            it3 != it2->way_idxs().end(); ++it3)
           children_idxs.push_back(*it3);
       }
     }
@@ -879,8 +879,8 @@ std::set< std::pair< Uint32_Index, Uint32_Index > > relation_node_member_indices
       for (typename std::vector< Relation_Skeleton >::const_iterator it2 = it->second.begin();
           it2 != it->second.end(); ++it2)
       {
-	for (std::vector< Uint31_Index >::const_iterator it3 = it2->node_idxs.begin();
-	    it3 != it2->node_idxs.end(); ++it3)
+	for (std::vector< Uint31_Index >::const_iterator it3 = it2->node_idxs().begin();
+	    it3 != it2->node_idxs().end(); ++it3)
 	  parents.push_back(it3->val());
       }
     }
@@ -915,8 +915,8 @@ std::set< std::pair< Uint32_Index, Uint32_Index > > relation_node_member_indices
       for (typename std::vector< Relation_Skeleton >::const_iterator it2 = it->second.begin();
           it2 != it->second.end(); ++it2)
       {
-        for (std::vector< Uint31_Index >::const_iterator it3 = it2->node_idxs.begin();
-            it3 != it2->node_idxs.end(); ++it3)
+        for (std::vector< Uint31_Index >::const_iterator it3 = it2->node_idxs().begin();
+            it3 != it2->node_idxs().end(); ++it3)
           parents.push_back(it3->val());
       }
     }
@@ -932,8 +932,8 @@ std::set< std::pair< Uint32_Index, Uint32_Index > > relation_node_member_indices
       for (typename std::vector< Attic< Relation_Skeleton > >::const_iterator it2 = it->second.begin();
           it2 != it->second.end(); ++it2)
       {
-        for (std::vector< Uint31_Index >::const_iterator it3 = it2->node_idxs.begin();
-            it3 != it2->node_idxs.end(); ++it3)
+        for (std::vector< Uint31_Index >::const_iterator it3 = it2->node_idxs().begin();
+            it3 != it2->node_idxs().end(); ++it3)
           parents.push_back(it3->val());
       }
     }

@@ -58,8 +58,8 @@ std::vector< Node::Id_Type > small_way_nd_ids(const std::map< Uint31_Index, std:
     for (typename std::vector< Object >::const_iterator it2(it->second.begin());
         it2 != it->second.end(); ++it2)
     {
-      for (std::vector< Node::Id_Type >::const_iterator it3(it2->nds.begin());
-          it3 != it2->nds.end(); ++it3)
+      for (std::vector< Node::Id_Type >::const_iterator it3(it2->nds().begin());
+          it3 != it2->nds().end(); ++it3)
         ids.push_back(*it3);
     }
   }
@@ -82,8 +82,8 @@ IdSetHybrid< Node::Id_Type::Id_Type> small_way_nd_ids_fast(const std::map< Uint3
     for (typename std::vector< Object >::const_iterator it2(it->second.begin());
         it2 != it->second.end(); ++it2)
     {
-      for (std::vector< Node::Id_Type >::const_iterator it3(it2->nds.begin());
-          it3 != it2->nds.end(); ++it3)
+      for (std::vector< Node::Id_Type >::const_iterator it3(it2->nds().begin());
+          it3 != it2->nds().end(); ++it3)
         ids.set((*it3).val());
     }
   }
@@ -144,10 +144,10 @@ Way_Geometry_Store::Way_Geometry_Store
 
 std::vector< Quad_Coord > Way_Geometry_Store::get_geometry(const Way_Skeleton& way) const
 {
-  if (way.geometry.empty())
+  if (way.geometry().empty())
     return make_geometry(way, nodes);
   else
-    return way.geometry;
+    return way.geometry();
 }
 
 

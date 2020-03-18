@@ -358,8 +358,8 @@ void Polygon_Query_Statement::collect_nodes(std::map< Uint32_Index, std::vector<
     while (area_it != segments.end() && area_it->ll_upper_ == current_idx)
     {
       Area_Block block;
-      block.coors.push_back(area_it->ll_lower_a);
-      block.coors.push_back(area_it->ll_lower_b);
+      block.coors().push_back(area_it->ll_lower_a);
+      block.coors().push_back(area_it->ll_lower_b);
       areas.push_back(block);
       ++area_it;
     }
@@ -449,8 +449,8 @@ void Polygon_Query_Statement::collect_ways
     while (area_it != segments.end() && area_it->ll_upper_ == current_idx)
     {
       Area_Block block;
-      block.coors.push_back(area_it->ll_lower_a);
-      block.coors.push_back(area_it->ll_lower_b);
+      block.coors().push_back(area_it->ll_lower_a);
+      block.coors().push_back(area_it->ll_lower_b);
       areas.push_back(block);
       ++area_it;
     }
