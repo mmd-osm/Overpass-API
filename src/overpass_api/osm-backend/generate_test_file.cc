@@ -5900,4 +5900,6 @@ int main(int argc, char* args[])
 
     std::cout<<"</osm>\n";
   }
+
+  delete modifier;
 }
