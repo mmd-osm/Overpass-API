@@ -579,6 +579,10 @@ public:
   inline SharedDataPointer() { d = nullptr; }
   inline ~SharedDataPointer() { if (d && !--d->ref) delete d; }
 
+  SharedDataPointer(SharedDataPointer &&o) noexcept : d(o.d) { o.d = nullptr; }
+  inline SharedDataPointer<T> &operator=(SharedDataPointer<T> &&other) noexcept
+  { std::swap(d, other.d); return *this; }
+
   explicit SharedDataPointer(T *data) noexcept;
   inline SharedDataPointer(const SharedDataPointer<T> &o) : d(o.d) { if (d) ++d->ref; }
   inline SharedDataPointer<T> & operator=(const SharedDataPointer<T> &o) {
@@ -630,7 +634,7 @@ void SharedDataPointer<T>::detach_helper()
 {
   T *x = clone();
   ++x->ref;
-  if (!d->ref)
+  if (!(--d->ref))
     delete d;
   d = x;
 }
