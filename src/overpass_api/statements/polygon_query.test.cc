@@ -42,11 +42,13 @@ void perform_polygon_print(std::string bounds, Transaction& transaction)
       const char* attributes[] = { "bounds", bounds.c_str(), 0 };
       Polygon_Query_Statement* stmt1 = new Polygon_Query_Statement(0, convert_c_pairs(attributes), global_settings);
       stmt1->execute(rman);
+      delete stmt1;
     }
     {
       const char* attributes[] = { "mode", "body", "order", "id", 0 };
       Print_Statement* stmt1 = new Print_Statement(0, convert_c_pairs(attributes), global_settings);
       stmt1->execute(rman);
+      delete stmt1;
     }
   }
   catch (File_Error e)
@@ -67,25 +69,33 @@ void perform_query_polygon_print(std::string bounds, std::string type, Transacti
     global_settings.set_output_handler(Output_Handler_Parser::get_format_parser("xml"), 0, 0);
     Resource_Manager rman(transaction, &global_settings);
     {
+      Query_Statement* stmt1 = nullptr;
+      Polygon_Query_Statement* stmt2 = nullptr;
+      Has_Kv_Statement* stmt3 = nullptr;
+
       const char* attributes[] = { "type", type.c_str(), 0 };
-      Query_Statement* stmt1 = new Query_Statement(0, convert_c_pairs(attributes), global_settings);
+      stmt1 = new Query_Statement(0, convert_c_pairs(attributes), global_settings);
       {
         const char* attributes[] = { "bounds", bounds.c_str(), 0 };
-        Polygon_Query_Statement* stmt2 = new Polygon_Query_Statement(0, convert_c_pairs(attributes), global_settings);
+        stmt2 = new Polygon_Query_Statement(0, convert_c_pairs(attributes), global_settings);
         stmt1->add_statement(stmt2, "");
       }
       if (type == "node")
       {
         const char* attributes[] = { "k", "node_key_5", 0 };
-        Has_Kv_Statement* stmt2 = new Has_Kv_Statement(0, convert_c_pairs(attributes), global_settings);
-        stmt1->add_statement(stmt2, "");
+        stmt3 = new Has_Kv_Statement(0, convert_c_pairs(attributes), global_settings);
+        stmt1->add_statement(stmt3, "");
       }
       stmt1->execute(rman);
+      delete stmt1;
+      delete stmt2;
+      delete stmt3;
     }
     {
       const char* attributes[] = { "mode", "body", "order", "id", 0 };
       Print_Statement* stmt1 = new Print_Statement(0, convert_c_pairs(attributes), global_settings);
       stmt1->execute(rman);
+      delete stmt1;
     }
   }
   catch (File_Error e)
