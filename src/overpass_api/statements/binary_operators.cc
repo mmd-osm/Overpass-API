@@ -453,12 +453,7 @@ std::string Evaluator_Modulo::process(const std::string& lhs_s, const std::strin
   int64 lhs_l = 0;
   int64 rhs_l = 0;
   if (try_int64(lhs_s, lhs_l) && try_int64(rhs_s, rhs_l))
-    return to_string(lhs_l % rhs_l);
-
-//  double lhs_d = 0;
-//  double rhs_d = 0;
-//  if (try_double(lhs_s, lhs_d) && try_double(rhs_s, rhs_d))
-//    return to_string(lhs_d - rhs_d);
+    return (rhs_l == 0 ? "NaN" : to_string(lhs_l % rhs_l));
 
   return "NaN";
 }
