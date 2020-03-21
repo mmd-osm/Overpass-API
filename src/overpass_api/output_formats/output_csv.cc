@@ -81,13 +81,13 @@ void Output_CSV::write_footer()
 
 void Output_CSV::display_remark(const std::string& text)
 {
-  // Intentionally empty
+  std::cout << "\n\n" << text;
 }
 
 
 void Output_CSV::display_error(const std::string& text)
 {
-  // Intentionally empty
+  std::cout << "\n\n" << text;
 }
 
 
