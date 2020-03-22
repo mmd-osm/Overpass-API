@@ -60,13 +60,113 @@ std::vector < std::pair<Node_Skeleton::Id_Type::Id_Type, Node_Skeleton::Id_Type:
 std::vector < std::pair<Way_Skeleton::Id_Type::Id_Type, Way_Skeleton::Id_Type::Id_Type>> way_pairs;
 std::vector < std::pair<Relation_Skeleton::Id_Type::Id_Type, Relation_Skeleton::Id_Type::Id_Type>> rel_pairs;
 
-std::set< Uint31_Index > req;
+std::set< Uint32_Index > req_node;
+std::set< Uint31_Index > req_way;
+std::set< Uint31_Index > req_rel;
+
 std::set< Uint32_Index > node_idx_outside_bbox;
 
-//Bbox_Double bbox(49.8,-14.2,59.5,3.3);  // UK+IRL
-//Bbox_Double bbox(17.24,-67.88,19.11,-64.98); // Puerto Rico
-//Bbox_Double bbox(47.2587,-3.3134,47.4037,-3.0267); // belle-ile
+std::set< std::pair< Uint32_Index, Uint32_Index > > node_ranges;
 
+
+// collect_members.cc:113:
+
+inline std::set< std::pair< Uint32_Index, Uint32_Index > > calc_node_children_ranges
+    (const std::set< uint32 >& way_rel_idxs)
+{
+  std::set< std::pair< Uint32_Index, Uint32_Index > > result;
+
+  std::vector< std::pair< uint32, uint32 > > ranges;
+
+  for (std::set< uint32 >::const_iterator it = way_rel_idxs.begin();
+      it != way_rel_idxs.end(); ++it)
+  {
+    if (*it & 0x80000000)
+    {
+      uint32 lat = 0;
+      uint32 lon = 0;
+      uint32 lat_u = 0;
+      uint32 lon_u = 0;
+      uint32 offset = 0;
+
+      if (*it & 0x00000001)
+      {
+        lat = upper_ilat(*it & 0x2aaaaaa8);
+        lon = upper_ilon(*it & 0x55555554);
+        offset = 2;
+      }
+      else if (*it & 0x00000002)
+      {
+        lat = upper_ilat(*it & 0x2aaaaa80);
+        lon = upper_ilon(*it & 0x55555540);
+        offset = 8;
+      }
+      else if (*it & 0x00000004)
+      {
+        lat = upper_ilat(*it & 0x2aaaa800);
+        lon = upper_ilon(*it & 0x55555400);
+        offset = 0x20;
+      }
+      else if (*it & 0x00000008)
+      {
+        lat = upper_ilat(*it & 0x2aaa8000);
+        lon = upper_ilon(*it & 0x55554000);
+        offset = 0x80;
+      }
+      else if (*it & 0x00000010)
+      {
+        lat = upper_ilat(*it & 0x2aa80000);
+        lon = upper_ilon(*it & 0x55540000);
+        offset = 0x200;
+      }
+      else if (*it & 0x00000020)
+      {
+        lat = upper_ilat(*it & 0x2a800000);
+        lon = upper_ilon(*it & 0x55400000);
+        offset = 0x800;
+      }
+      else if (*it & 0x00000040)
+      {
+        lat = upper_ilat(*it & 0x28000000);
+        lon = upper_ilon(*it & 0x54000000);
+        offset = 0x2000;
+      }
+      else // *it == 0x80000080
+      {
+        lat = 0;
+        lon = 0;
+        offset = 0x8000;
+      }
+
+      ranges.push_back(std::make_pair(ll_upper(lat<<16, lon<<16),
+                                 ll_upper((lat+offset-1)<<16, (lon+offset-1)<<16)+1));
+      ranges.push_back(std::make_pair(ll_upper(lat<<16, (lon+offset)<<16),
+                                 ll_upper((lat+offset-1)<<16, (lon+2*offset-1)<<16)+1));
+      ranges.push_back(std::make_pair(ll_upper((lat+offset)<<16, lon<<16),
+                                 ll_upper((lat+2*offset-1)<<16, (lon+offset-1)<<16)+1));
+      ranges.push_back(std::make_pair(ll_upper((lat+offset)<<16, (lon+offset)<<16),
+                                 ll_upper((lat+2*offset-1)<<16, (lon+2*offset-1)<<16)+1));
+      for (uint32 i = lat; i <= lat_u; ++i)
+      {
+        for (uint32 j = lon; j <= lon_u; ++j)
+          result.insert(std::make_pair(ll_upper(i<<16, j<<16), ll_upper(i<<16, j<<16)+1));
+      }
+    }
+    else
+      ranges.push_back(std::make_pair(*it, (*it) + 1));
+  }
+  std::sort(ranges.begin(), ranges.end());
+  uint32 pos = 0;
+  for (std::vector< std::pair< uint32, uint32 > >::const_iterator it = ranges.begin();
+      it != ranges.end(); ++it)
+  {
+    if (pos < it->first)
+      pos = it->first;
+    result.insert(std::make_pair(pos, it->second));
+    pos = it->second;
+  }
+  return result;
+}
 
 
 
@@ -79,10 +179,11 @@ void prep_map_data(Resource_Manager& rman, Bbox_Double bbox)
     // based on map query: "(node(bbox);way(bn);node(w););(._;(rel(bn)->.a;rel(bw)->.a;);rel(br););out meta;"
 
     std::vector< uint32 > node_idxs;
+    std::vector< uint32 > node_idxs_outside;
 
     {
       // Ranges for bbox
-      auto ranges = ::get_ranges_32(bbox.south, bbox.north, bbox.west, bbox.east);
+      node_ranges = ::get_ranges_32(bbox.south, bbox.north, bbox.west, bbox.east);
 
       // Nodes inside bbox:     node( {{bbox}} )
 
@@ -94,7 +195,7 @@ void prep_map_data(Resource_Manager& rman, Bbox_Double bbox)
       Uint32_Index previous_node_idx{};
 
       Block_Backend< Uint32_Index, Node_Skeleton > db (rman.get_transaction()->data_index(osm_base_settings().NODES));
-      for (auto it(db.range_begin(ranges.begin(), ranges.end()));
+      for (auto it(db.range_begin(node_ranges.begin(), node_ranges.end()));
           !(it == db.range_end()); ++it)
       {
         auto n = it.object();
@@ -108,67 +209,145 @@ void prep_map_data(Resource_Manager& rman, Bbox_Double bbox)
           nodes_dense.set(n.id.val());
           if (!(it.index() == previous_node_idx)) {
             node_idxs.push_back(it.index().val());
+            req_node.insert(it.index());
             previous_node_idx = it.index();
           }
         }
       }
+
+      // remove duplicates in node_idxs
+      std::sort(node_idxs.begin(), node_idxs.end());
+      node_idxs.erase(unique(node_idxs.begin(), node_idxs.end()), node_idxs.end());
     }
 
-    // Recurse nodes to ways:   way(bn)
-
+    // Recurse nodes to ways:   way(bn)   - RECURSE_NODE_WAY
+    // collect_ways (collect_mnembers.cc1208)
+    //                    --> extract_children_ids (collect all Node ids)
+    //                    --> extract_parent_indices -> calls calc_parents on node_idxs.
     {
       std::vector< uint32 > parents = calc_parents(node_idxs);
       for (std::vector< uint32 >::const_iterator it = parents.begin(); it != parents.end(); ++it)
-        req.insert(Uint31_Index(*it));
+        req_way.insert(Uint31_Index(*it));
+
+      // req_way now contains the result of extract_parent_indices(nodes)
     }
 
-    // Fetch ways for nodes
 
     {
+      // Fetch ways for nodes  - collect_ways / collect_items_discrete
+      std::set< uint32 > parents;
+
+      uint32 prev_ll_upper = 0;
+      uint32 prev_idx = 0;
+
+      // collect_ways --> collect_items_discrete
       Block_Backend< Uint31_Index, Way_Skeleton > db (rman.get_transaction()->data_index(osm_base_settings().WAYS));
 
       for (typename Block_Backend< Uint31_Index, Way_Skeleton, std::set< Uint31_Index >::const_iterator >::Discrete_Iterator
-          it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
+          it(db.discrete_begin(req_way.begin(), req_way.end())); !(it == db.discrete_end()); ++it)
       {
-
         auto w = it.object();
+
+        // check if way contains a known node id
         for (const auto& n : w.nds()) {
           if (nodes_dense.get(n.val())) {
+
+            // mark way id as relevant
             ways_dense.set(w.id.val());
+            // collect indices for ways, see collect_items_discrete
+            // Logic from way_nd_indices (collect_members:cc:393):
+            if ((it.index().val() & 0x80000000) && ((it.index().val() & 0x1) == 0)) // Adapt 0x3
+            {
+              // Treat ways with really large indices: get the node indexes from the segment indexes
+
+                for (const auto g : w.geometry()) {
+                  if (g.ll_upper != prev_ll_upper) {
+                    parents.insert(g.ll_upper);
+                    prev_ll_upper = g.ll_upper;
+                  }
+                }
+            }
+            else {
+              if (it.index().val() != prev_idx) {
+                parents.insert(it.index().val());
+                prev_idx = it.index().val();
+              }
+            }
+
           }
         }
       }
+
+      // remaining part way_nd_indices (collect_members.cc:429)
+
+      // collect_members.cc:280 (remaining part of collect_node_req is not relevant, as map_ids is empty)
+      auto node_ranges_par = calc_node_children_ranges(parents);   // node_ranges contains result of way_nd_indices now
+      node_ranges.insert(node_ranges_par.begin(), node_ranges_par.end());
     }
 
-    // Mark all nodes in way nodes:    node(w)
+
+    // Mark all nodes in way nodes:    node(w)    - RECURSE_WAY_NODE - recurse.cc:2712 - collect_members.cc:833 - way_members
+    //                                                                 --> way_nd_ids (collect_members.cc:72) -> way_nd_ids (collect_members.cc:30)
+    //                                                                     (-> collects all way' nodes: see ways_dense)
+    //                                                                     way_nd_indices (collect_members.cc:393)
+    // --> way_members (collect_members.cc:847) --> paired_items_range
+    //                                              --> collect_items_range (collect_items.h:453) with all node ids on NODES
+    //                                                  (collects Node_Skeletons in into.nodes, not yet needed here!)
+
+
 
     {
+      // Random access to NODES: lookup index for node id
       Random_File< Node_Skeleton::Id_Type, Uint32_Index > current(rman.get_transaction()->random_index
           (current_skeleton_file_properties< Node_Skeleton >()));
 
       Block_Backend< Uint31_Index, Way_Skeleton > db (rman.get_transaction()->data_index(osm_base_settings().WAYS));
 
       for (typename Block_Backend< Uint31_Index, Way_Skeleton, std::set< Uint31_Index >::const_iterator >::Discrete_Iterator
-          it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
+          it(db.discrete_begin(req_way.begin(), req_way.end())); !(it == db.discrete_end()); ++it)
       {
         auto w = it.object();
         if (ways_dense.get(w.id.val())) {
           for (const auto& n : w.nds()) {
             bool added_new_entry = nodes_dense.check_and_set(n.val());
-            if (added_new_entry)
-              node_idx_outside_bbox.insert(current.get(n.val()));
+            if (added_new_entry) {
+              auto n_idx = current.get(n.val());       // collect indices for new nodes which are outside of bounding box
+              node_idx_outside_bbox.insert(n_idx);
+              node_idxs_outside.push_back(n_idx.val());
+            }
           }
         }
       }
+
+      std::sort(node_idxs_outside.begin(), node_idxs_outside.end());
+      node_idxs_outside.erase(unique(node_idxs_outside.begin(), node_idxs_outside.end()), node_idxs_outside.end());
     }
 
-    // Relations for nodes    rel(bn)->.a;
+    // Relations for nodes    rel(bn)->.a;         // RECURSE_NODE_RELATION - recurse.cc:2774   --> collect_relations (recurse.cc:212)
+    //                                                --> extract_children_ids (get all Node Ids)
+    //                                                --> extract_parent_indices (collect_members.h:1008) -> collect all node idxs
+    //                                                     --> calc_parents (based on nodes idx)
+    //                                                --> collect_items_discrete (for RELATIONS) -> checks if Relation has node with relevant id
+
+    {
+      auto parents_node_idx = calc_parents(node_idxs);
+      for (const auto & node_idx : parents_node_idx)
+        req_rel.insert(Uint31_Index(node_idx));
+
+      auto parents_node_outside_idx = calc_parents(node_idxs_outside);
+      for (const auto & node_outside_idx : parents_node_outside_idx)
+        req_rel.insert(Uint31_Index(node_outside_idx));
+
+      auto parents_way_idx = calc_parents(req_way);
+      for (const auto & parent_way_idx : parents_way_idx)
+        req_rel.insert(parent_way_idx);
+    }
 
     {
       Block_Backend< Uint31_Index, Relation_Skeleton > db (rman.get_transaction()->data_index(osm_base_settings().RELATIONS));
 
       for (typename Block_Backend< Uint31_Index, Relation_Skeleton, std::set< Uint31_Index >::const_iterator >::Discrete_Iterator
-          it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
+          it(db.discrete_begin(req_rel.begin(), req_rel.end())); !(it == db.discrete_end()); ++it)
       {
 
         auto r = it.object();
@@ -181,17 +360,18 @@ void prep_map_data(Resource_Manager& rman, Bbox_Double bbox)
       }
     }
 
-    // Relations for ways    rel(bw)->.a;
-
-    // TODO: check req (it is based on nodes!)
+    // Relations for ways    rel(bw)->.a;                 RECURSE_WAY_RELATION (recurse.cc:2783)
+    //                                                    --> collect_relations (recuse.cc:212), based on ways
+    //                                                    --> extract_children_ids (get all Way ids)
+    //                                                    --> extract_parent_indices (collect_members.cc:1008) --> calc_parents ((based on way_idxs)
+    //                                                    --> collect_items_discrete (for RELATIONS) -> checks if Relation has way with relevant id
 
     {
       Block_Backend< Uint31_Index, Relation_Skeleton > db (rman.get_transaction()->data_index(osm_base_settings().RELATIONS));
 
       for (typename Block_Backend< Uint31_Index, Relation_Skeleton, std::set< Uint31_Index >::const_iterator >::Discrete_Iterator
-          it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
+          it(db.discrete_begin(req_rel.begin(), req_rel.end())); !(it == db.discrete_end()); ++it)
       {
-
         auto r = it.object();
         for (const auto& m : r.members()) {
           if (m.type == Relation_Entry::WAY)
@@ -203,7 +383,10 @@ void prep_map_data(Resource_Manager& rman, Bbox_Double bbox)
       }
     }
 
-    // Relations for relations:    rel(br);
+    // Relations for relations:    rel(br);               RECURSE_RELATION_BACKWARDS (recuse.cc:2661)
+    //                                                    --> collect_relations (recuse.cc:456)
+    //                                                    --> extract_children_ids (get all relations ids)
+    //                                                    --> collect_items_flat :: check if relation has known relation id as member
 
     {
       Block_Backend< Uint31_Index, Relation_Skeleton > db (rman.get_transaction()->data_index(osm_base_settings().RELATIONS));
@@ -216,6 +399,7 @@ void prep_map_data(Resource_Manager& rman, Bbox_Double bbox)
           if (m.type == Relation_Entry::RELATION) {
             if (relations_dense.get(m.ref.val()))
               relations_dense.set(r.id.val());
+              req_rel.insert(it.index());
           }
         }
       }
@@ -288,8 +472,10 @@ void next_package_node(Resource_Manager& rman, std::pair<Node_Skeleton::Id_Type:
 {
   try
   {
-    // TODO: Fix ranges
-    auto ranges = ::get_ranges_32(bbox.south, bbox.north, bbox.west, bbox.east);
+
+//    auto ranges = ::get_ranges_32(bbox.south, bbox.north, bbox.west, bbox.east);
+
+    auto ranges = node_ranges;
 
     // Add ranges for nodes outside bbox that have been pulled in via way completion
     for (const auto r : node_idx_outside_bbox)
@@ -330,15 +516,13 @@ void next_package_way(Resource_Manager& rman, std::pair<Way_Skeleton::Id_Type::I
 
   try
   {
-    // TODO: Fix ranges
-
     std::map< Uint31_Index, std::vector< Way_Skeleton > > result;
     long cnt = 0;
 
     Block_Backend< Uint31_Index, Way_Skeleton > db (rman.get_transaction()->data_index(osm_base_settings().WAYS));
 
     for (typename Block_Backend< Uint31_Index, Way_Skeleton, std::set< Uint31_Index >::const_iterator >::Discrete_Iterator
-        it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
+        it(db.discrete_begin(req_way.begin(), req_way.end())); !(it == db.discrete_end()); ++it)
 
     {
         if ( it.handle().id().val() >= idx.first &&
@@ -369,16 +553,13 @@ void next_package_rel(Resource_Manager& rman, std::pair<Relation_Skeleton::Id_Ty
 
   try
   {
-
-    // TODO: Fix ranges
-
     std::map< Uint31_Index, std::vector< Relation_Skeleton > > result;
     long cnt = 0;
 
     Block_Backend< Uint31_Index, Relation_Skeleton > db (rman.get_transaction()->data_index(osm_base_settings().RELATIONS));
 
     for (typename Block_Backend< Uint31_Index, Relation_Skeleton, std::set< Uint31_Index >::const_iterator >::Discrete_Iterator
-        it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
+        it(db.discrete_begin(req_rel.begin(), req_rel.end())); !(it == db.discrete_end()); ++it)
 
     {
         if ( it.handle().id().val() >= idx.first &&
@@ -400,11 +581,7 @@ void next_package_rel(Resource_Manager& rman, std::pair<Relation_Skeleton::Id_Ty
   {
     std::cout<<e.origin<<' '<<e.filename<<' '<<e.error_number<<'\n';
   }
-  
 }
-
-
-
 
 
 int main(int argc, char *argv[])
