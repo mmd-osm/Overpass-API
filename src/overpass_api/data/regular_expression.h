@@ -28,12 +28,13 @@
 #include <unicode/regex.h>
 
 
-struct Regular_Expression_Error
+struct Regular_Expression_Error : public std::runtime_error
 {
   public:
-    Regular_Expression_Error(int errno_) : error_no(errno_) {}
-    int error_no;
+    Regular_Expression_Error(const std::string& arg) : std::runtime_error("Regular expression error: " + arg) { }
+
 };
+
 
 
 class Regular_Expression
@@ -88,8 +89,12 @@ class Regular_Expression_POSIX : public Regular_Expression
         setlocale(LC_ALL, "C.UTF-8");
         int case_flag = case_sensitive ? 0 : REG_ICASE;
         int error_no = regcomp(&preg, regex.c_str(), REG_EXTENDED|REG_NOSUB|case_flag);
-        if (error_no != 0)
-          throw Regular_Expression_Error(error_no);
+        if (error_no != 0) {
+          const int MAX_ERROR_MSG = 0x1000;
+          char error_message[MAX_ERROR_MSG];
+          size_t size = regerror(error_no, &preg, error_message, MAX_ERROR_MSG);
+          throw Regular_Expression_Error(std::string(error_message, size));
+        }
       }
     }
     
@@ -146,13 +151,13 @@ class Regular_Expression_ICU : public Regular_Expression
 
         matcher = new RegexMatcher(regexp_U, flags, status);
         if (U_FAILURE(status)) {
-          throw Regular_Expression_Error(status);
+          throw Regular_Expression_Error(u_errorName(status));
         }
 
         status = U_ZERO_ERROR;
         matcher->setTimeLimit(1000, status);
         if (U_FAILURE(status)) {
-          throw Regular_Expression_Error(status);
+          throw Regular_Expression_Error(u_errorName(status));
         }
       }
     }
@@ -182,7 +187,7 @@ class Regular_Expression_ICU : public Regular_Expression
       bool result = (matcher->find(0, status));
 
       if (U_FAILURE(status)) {
-        throw Regular_Expression_Error(status);
+        throw Regular_Expression_Error(u_errorName(status));
       }
 
       is_cache_available = true;

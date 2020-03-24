@@ -200,7 +200,7 @@ int handle_request(const std::string & content, bool is_cgi, Index_Cache* ic)
   catch(std::exception& e)
   {
     error_output.runtime_error(std::string("Query failed with the exception: ") + e.what());
-    return 4;
+    return 5;
   }
   catch(Exit_Error e) {}
 

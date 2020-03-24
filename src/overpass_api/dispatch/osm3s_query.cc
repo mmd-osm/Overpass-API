@@ -332,10 +332,11 @@ int main(int argc, char *argv[])
     std::ostringstream temp;
     temp<<"Query run out of memory using about "<<limit.rlim_cur/(1024*1024)<<" MB of RAM.";
     error_output->runtime_error(temp.str());
+    return 5;
   }
   catch(std::exception& e)
   {
     error_output->runtime_error(std::string("Query failed with the exception: ") + e.what());
-    return 4;
+    return 6;
   }
 }
