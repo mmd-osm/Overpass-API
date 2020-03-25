@@ -7,6 +7,13 @@
 #include "../frontend/output_handler.h"
 #include "../../template_db/types.h"
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#undef VERSION
+#endif
+
+#ifdef HAVE_LIBOSMIUM
+
 #include <future>
 
 #include <osmium/builder/osm_object_builder.hpp>
@@ -103,5 +110,6 @@ private:
   std::string repeater_file;
 };
 
+#endif
 
 #endif

@@ -19,10 +19,16 @@
 #ifndef DE__OSM3S___OVERPASS_API__DATA__FILTER_BY_TAGS_H
 #define DE__OSM3S___OVERPASS_API__DATA__FILTER_BY_TAGS_H
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#undef VERSION
+#endif
 
 #include "regular_expression.h"
 
+#ifdef HAVE_LIBOSMIUM
 #include <osmium/index/id_set.hpp>
+#endif
 
 std::set< Tag_Index_Global > get_kv_req(const std::string& key, const std::string& value)
 {
@@ -95,7 +101,9 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kv(
     Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > >& tags_db,
     Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >& attic_tags_db)
 {
+#ifdef HAVE_LIBOSMIUM
   osmium::index::IdSetDense<typename Id_Type::Id_Type> dense;
+#endif
 
   std::map< Id_Type, std::pair< uint64, Uint31_Index > > timestamp_per_id;
   std::set< Tag_Index_Global > tag_req = get_kv_req(kvit->first, kvit->second);
@@ -104,7 +112,9 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kv(
       it2(tags_db.discrete_begin(tag_req.begin(), tag_req.end()));
       !(it2 == tags_db.discrete_end()); ++it2) {
     timestamp_per_id[it2.handle().id()] = std::make_pair(NOW, it2.handle().get_idx());
+#ifdef HAVE_LIBOSMIUM
     dense.set(it2.handle().id().val());
+#endif
   }
 
   for (typename Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >::Discrete_Iterator
@@ -115,7 +125,9 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kv(
 
     if (current_timestamp > timestamp)
     {
+#ifdef HAVE_LIBOSMIUM
       dense.set(it2.handle().id().val());
+#endif
       std::pair< uint64, Uint31_Index >& ref = timestamp_per_id[it2.handle().id()];
       if (ref.first == 0 || current_timestamp < ref.first)
         ref = std::make_pair(current_timestamp, it2.handle().get_idx());
@@ -133,8 +145,10 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kv(
 
     if (current_timestamp > timestamp)
     {
+#ifdef HAVE_LIBOSMIUM
       if (!dense.get(it2.handle().id().val()))
         continue;
+#endif
 
       typename std::map< Id_Type, std::pair< uint64, Uint31_Index > >::iterator
           it = timestamp_per_id.find(it2.handle().id());

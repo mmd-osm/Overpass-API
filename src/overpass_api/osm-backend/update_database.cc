@@ -22,6 +22,11 @@
 #include <list>
 #include <sstream>
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#undef VERSION
+#endif
+
 #include <stdio.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -29,7 +34,10 @@
 #include "../core/settings.h"
 #include "../frontend/output.h"
 #include "osm_updater.h"
+
+#ifdef HAVE_LIBOSMIUM
 #include "osmium_updater.h"
+#endif
 
 
 int main(int argc, char* argv[])
@@ -109,8 +117,10 @@ int main(int argc, char* argv[])
         abort = true;
       }
     }
+#ifdef HAVE_LIBOSMIUM
     else if (!(strncmp(argv[argpos], "--use-osmium", 12)))
       use_osmium = true;
+#endif
     else
     {
       std::cerr<<"Unknown argument: "<<argv[argpos]<<'\n';
@@ -142,9 +152,11 @@ int main(int argc, char* argv[])
       }
       else
       {
+#ifdef HAVE_LIBOSMIUM
         Osmium_Updater osmium_updater(get_verbatim_callback(), data_version, meta, flush_limit, parallel_processes);
         //reading the main document
         osmium_updater.parse_file_completely(stdin);
+#endif
       }
 
     }
@@ -158,9 +170,11 @@ int main(int argc, char* argv[])
       }
       else
       {
+#ifdef HAVE_LIBOSMIUM
         Osmium_Updater osmium_updater(get_verbatim_callback(), db_dir, data_version, meta, flush_limit, parallel_processes);
         //reading the main document
         osmium_updater.parse_file_completely(stdin);
+#endif
       }
     }
   }

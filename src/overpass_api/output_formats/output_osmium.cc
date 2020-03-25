@@ -1,4 +1,12 @@
 
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#undef VERSION
+#endif
+
+#ifdef HAVE_LIBOSMIUM
+
 #include "../../expat/escape_xml.h"
 #include "../core/settings.h"
 #include "../frontend/basic_formats.h"
@@ -395,3 +403,5 @@ void Output_Osmium::maybe_flush()
   }
 }
 
+
+#endif

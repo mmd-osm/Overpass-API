@@ -27,6 +27,11 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#undef VERSION
+#endif
+
 #include "../../expat/expat_justparse_interface.h"
 #include "../../template_db/random_file.h"
 #include "../core/settings.h"
@@ -35,7 +40,10 @@
 #include "relation_updater.h"
 #include "way_updater.h"
 #include "osm_updater.h"
+
+#ifdef HAVE_LIBOSMIUM
 #include "osmium_updater.h"
+#endif
 
 
 struct Node_Caller
@@ -124,10 +132,12 @@ int main(int argc, char* argv[])
     {
       parallel_processes = atoi(std::string(argv[argpos]).substr(11).c_str());
     }
+#ifdef HAVE_LIBOSMIUM
     else if (!(strncmp(argv[argpos], "--use-osmium", 12)))
     {
       use_osmium = true;
     }
+#endif
     else
     {
       std::cerr<<"Unknown argument: "<<argv[argpos]<<'\n';
@@ -179,8 +189,10 @@ int main(int argc, char* argv[])
         osm_updater.finish_updater();
       }
       else {
+#ifdef HAVE_LIBOSMIUM
         Osmium_Updater osmium_updater(get_verbatim_callback(), data_version, meta, flush_limit, parallel_processes);
         osmium_updater.parse_multiple_files(source_dir, source_file_names);
+#endif
       }
     }
     else
@@ -197,8 +209,10 @@ int main(int argc, char* argv[])
         osm_updater.finish_updater();
       }
       else {
+#ifdef HAVE_LIBOSMIUM
         Osmium_Updater osmium_updater(get_verbatim_callback(), db_dir, data_version, meta, flush_limit, parallel_processes);
         osmium_updater.parse_multiple_files(source_dir, source_file_names);
+#endif
       }
     }
   }

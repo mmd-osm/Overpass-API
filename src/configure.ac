@@ -49,7 +49,6 @@ AC_FUNC_STRFTIME
 AC_CHECK_FUNCS([clock_gettime floor ftruncate getcwd munmap regcomp select shm_open socket sqrt strnlen])
 
 
-
 AC_ARG_ENABLE([lz4],
      AS_HELP_STRING([--enable-lz4],[enable lz4 compression algorithm]),
      [case "${enableval}" in
@@ -125,6 +124,27 @@ fi
 
 AC_SUBST(FASTCGI_LIBS, ["$FASTCGI_LIBS"])     
 AC_LANG_POP([C++])
+
+
+
+AC_DEFINE(HAVE_LIBOSMIUM, 1, [Define if you have libosmium library])
+AC_DEFINE(HAVE_ICU, 1, [Define if you have ICU library])
+AC_DEFINE(HAVE_OPENMP, 1, [Define if you have OpenMP])
+
+# Regular expression libs
+ICU_LIBS=""
+ICU_LIBS="-licuuc -licui18n"
+AC_SUBST(ICU_LIBS, ["$ICU_LIBS"])
+
+OPENMP_FLAG=""
+OPENMP_FLAG="-fopenmp"
+AC_SUBST(OPENMP_FLAG, ["$OPENMP_FLAG"])
+
+PTHREAD_LIBS="-lpthread"
+AC_SUBST(PTHREAD_LIBS, ["$PTHREAD_LIBS"])
+
+BZ2_LIBS="-lbz2"
+AC_SUBST(BZ2_LIBS, ["$BZ2_LIBS"])
 
 
 AC_CONFIG_FILES([Makefile])

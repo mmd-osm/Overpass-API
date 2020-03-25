@@ -19,13 +19,21 @@
 #ifndef DE__OSM3S___OVERPASS_API__DATA__REGULAR_EXPRESSION_H
 #define DE__OSM3S___OVERPASS_API__DATA__REGULAR_EXPRESSION_H
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#undef VERSION
+#endif
+
 #include "sys/types.h"
 #include "locale.h"
 #include "regex.h"
 
 #include <iostream>
 #include <string>
+
+#ifdef HAVE_ICU
 #include <unicode/regex.h>
+#endif
 
 
 struct Regular_Expression_Error : public std::runtime_error
@@ -128,7 +136,9 @@ class Regular_Expression_POSIX : public Regular_Expression
 };
 
 
-// Link: -licuuc -licui18n
+
+
+#ifdef HAVE_ICU
 
 class Regular_Expression_ICU : public Regular_Expression
 {
@@ -201,6 +211,8 @@ class Regular_Expression_ICU : public Regular_Expression
     RegexMatcher *matcher;
 };
 
+#endif
+
 class Regular_Expression_Factory
 {
 
@@ -208,8 +220,13 @@ public:
 
   static Regular_Expression* get_regexp_engine(const std::string engine, const std::string& regex, bool case_sensitive )
   {
-    if (engine == "ICU")
+    if (engine == "ICU") {
+#ifdef HAVE_ICU
       return new Regular_Expression_ICU(regex, case_sensitive);
+#else
+      throw std::runtime_error("ICU support not available");
+#endif
+    }
 
     // always fall back to POSIX
     return new Regular_Expression_POSIX(regex, case_sensitive);

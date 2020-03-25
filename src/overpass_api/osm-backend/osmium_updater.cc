@@ -16,6 +16,13 @@
  * along with Overpass_API.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#undef VERSION
+#endif
+
+#ifdef HAVE_LIBOSMIUM
+
 #include "node_updater.h"
 #include "osmium_updater.h"
 #include "relation_updater.h"
@@ -455,3 +462,5 @@ Osmium_Updater::~Osmium_Updater() {
   delete cpu_stopwatch;
 }
 
+
+#endif

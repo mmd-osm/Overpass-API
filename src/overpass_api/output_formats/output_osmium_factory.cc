@@ -1,5 +1,13 @@
 
 #include "../frontend/output_handler_parser.h"
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#undef VERSION
+#endif
+
+#ifdef HAVE_LIBOSMIUM
+
 #include "output_osmium.h"
 
 
@@ -46,3 +54,6 @@ Output_Handler* Output_Osmium_OPL_Generator::new_output_handler(const std::map< 
 {
   return new Output_Osmium("opl");
 }
+
+
+#endif

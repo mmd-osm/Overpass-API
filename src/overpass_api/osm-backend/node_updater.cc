@@ -16,8 +16,17 @@
  * along with Overpass_API.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#undef VERSION
+#endif
+
 #include <algorithm>
+
+#ifdef HAVE_OPENMP
 #include <parallel/algorithm>
+#endif
+
 #include <functional>
 #include <map>
 #include <set>
@@ -443,8 +452,13 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
     transaction = new Nonsynced_Transaction(true, false, db_dir, "");
 
   // Prepare collecting all data of existing skeletons
-//  std::stable_sort(new_data.data.begin(), new_data.data.end());
-  __gnu_parallel::stable_sort(new_data.data.begin(), new_data.data.end());
+//
+#ifndef  HAVE_OPENMP
+   std::stable_sort(new_data.data.begin(), new_data.data.end());
+#else
+   __gnu_parallel::stable_sort(new_data.data.begin(), new_data.data.end());
+#endif
+
   if (meta == keep_attic)
     remove_time_inconsistent_versions(new_data);
   else
@@ -793,8 +807,12 @@ void Node_Updater::update_node_ids
   static Pair_Equal_Id< Node::Id_Type, bool > pair_equal_id;
 
   // keep always the most recent (last) element of all equal elements
+#ifndef HAVE_OPENMP
+  std::stable_sort(ids_to_modify.begin(), ids_to_modify.end(), pair_comparator_by_id);
+#else
   __gnu_parallel::stable_sort
       (ids_to_modify.begin(), ids_to_modify.end(), pair_comparator_by_id);
+#endif
   std::vector< std::pair< Node::Id_Type, bool > >::iterator modi_begin
       (unique(ids_to_modify.rbegin(), ids_to_modify.rend(), pair_equal_id).base());
   ids_to_modify.erase(ids_to_modify.begin(), modi_begin);
