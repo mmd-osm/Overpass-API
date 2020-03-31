@@ -510,33 +510,106 @@ void expand_diff_fast(std::vector< Object >& reference,
     const std::vector< uint >& removed, const std::vector< std::pair< uint, Object > >& added,
     std::vector< Object >& target)
 {
+  int removed_min;
+  int removed_max;
+  int added_min;
+  int added_max;
+  bool copy_prefix;
+  bool copy_suffix;
+  int prefix_end_index;
+  int suffix_start_index;
+
   if (removed.empty() && added.empty())
   {
     target = std::move(reference);
     return;
   }
 
-  target.reserve(reference.size() - removed.size() + added.size());
-  std::vector< uint >::const_iterator it_removed = removed.begin();
-  typename std::vector< std::pair< uint, Object > >::const_iterator it_added = added.begin();
-  for (uint i = 0; i < reference.size(); ++i)
-  {
-    while (it_added != added.end() && target.size() == it_added->first)
-    {
-      target.push_back(it_added->second);
-      ++it_added;
-    }
+  if (!removed.empty()) {
+    removed_min = removed.front();
+    removed_max = removed.back();
 
-    if (it_removed == removed.end() || i < *it_removed)
-      target.push_back(std::move(reference[i]));
-    else
-      ++it_removed;
+    // Paranoia fallback, if removed does not match expected structure (should never be called!)
+    // Code assumes that removed has been populated by make_delta method above
+    if (removed_max - removed_min + 1 != removed.size()) {
+      expand_diff(reference, removed, added, target);
+      return;
+    }
   }
-  while (it_added != added.end() && target.size() == it_added->first)
-  {
-    target.push_back(it_added->second);
-    ++it_added;
+
+  if (!added.empty()) {
+    added_min = added.front().first;
+    added_max = added.back().first;
+
+    // Fallback (should never be called!)
+    // Code assumes that removed has been populated by make_delta method above
+    if (added_max - added_min + 1 != added.size()) {
+      expand_diff(reference, removed, added, target);
+      return;
+    }
   }
+
+  // Added and Removed have exactly the same indices -> do in-place update of elements instead of copying the reference
+  if (added.size() == removed.size() &&
+      added_min    == removed_min    &&
+      added_max    == removed_max) {
+
+    target = std::move(reference);
+
+    for (const auto & e : added) {
+      target[e.first] = e.second;
+    }
+    return;
+  }
+
+  target.reserve(reference.size() - removed.size() + added.size());
+
+  if (reference.empty()) {
+    // in case reference is empty, we only add new elements
+    copy_prefix = false;
+    copy_suffix = false;
+  }
+  else if (removed.empty()) {
+     // only new elements should be added
+    copy_prefix = true;
+    copy_suffix = true;
+    prefix_end_index = added_min;
+    suffix_start_index = added_min;
+  } else {
+    copy_prefix = true;
+    copy_suffix = true;
+
+    prefix_end_index = removed_min;
+    suffix_start_index = removed_max + 1;
+  }
+
+  // out of range checks
+  if ( prefix_end_index < 0 || prefix_end_index > reference.size()) {
+    copy_prefix = false;
+  }
+
+  if (suffix_start_index < 0 || suffix_start_index > reference.size()) {
+    copy_suffix = false;
+  }
+
+  // copy prefix
+  if (copy_prefix) {
+    target.insert(target.end(), reference.cbegin(), reference.cbegin() + prefix_end_index);
+  }
+
+  // copy added elements
+   typename std::vector< std::pair< uint, Object > >::const_iterator it_added = added.begin();
+
+   while (it_added != added.end() && target.size() == it_added->first)
+   {
+     target.emplace_back(std::move(it_added->second));
+     ++it_added;
+   }
+
+   // copy suffix
+   if (copy_suffix) {
+     target.insert(target.end(), reference.cbegin() + suffix_start_index, reference.cend());
+   }
 }
 
 // Shared data helper classes
