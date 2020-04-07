@@ -47,7 +47,7 @@ Its syntax is
 The whitespace is optional.
 */
 
-class Filter_Statement : public Output_Statement
+class Filter_Statement final : public Output_Statement
 {
   public:
     Filter_Statement(int line_number_, const std::map< std::string, std::string >& attributes,

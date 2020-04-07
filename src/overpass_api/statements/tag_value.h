@@ -42,7 +42,7 @@ Its syntax is
   <Value>
 */
 
-class Evaluator_Fixed : public Evaluator
+class Evaluator_Fixed final : public Evaluator
 {
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Fixed >
@@ -107,7 +107,7 @@ resp.
   type()
 */
 
-struct Id_Eval_Task : public Eval_Task
+struct Id_Eval_Task final : public Eval_Task
 {
   virtual std::string eval(const std::string* key) const { return ""; }
 
@@ -130,7 +130,7 @@ struct Id_Eval_Task : public Eval_Task
 };
 
 
-class Evaluator_Id : public Evaluator
+class Evaluator_Id final : public Evaluator
 {
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Id >
@@ -159,7 +159,7 @@ public:
 };
 
 
-struct Type_Eval_Task : public Eval_Task
+struct Type_Eval_Task final : public Eval_Task
 {
   virtual std::string eval(const std::string* key) const { return ""; }
 
@@ -182,7 +182,7 @@ struct Type_Eval_Task : public Eval_Task
 };
 
 
-class Evaluator_Type : public Evaluator
+class Evaluator_Type final : public Evaluator
 {
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Type >
@@ -243,7 +243,7 @@ Its syntax is
 std::string find_value(const std::vector< std::pair< std::string, std::string > >* tags, const std::string& key);
 
 
-struct Value_Eval_Task : public Eval_Task
+struct Value_Eval_Task final : public Eval_Task
 {
   Value_Eval_Task(Eval_Task* rhs_) : rhs(rhs_) {}
   ~Value_Eval_Task() { delete rhs; }
@@ -264,7 +264,7 @@ private:
 };
 
 
-class Evaluator_Value : public Evaluator
+class Evaluator_Value final : public Evaluator
 {
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Value >
@@ -311,7 +311,7 @@ private:
 std::string exists_value(const std::vector< std::pair< std::string, std::string > >* tags, const std::string& key);
 
 
-struct Is_Tag_Eval_Task : public Eval_Task
+struct Is_Tag_Eval_Task final : public Eval_Task
 {
   Is_Tag_Eval_Task(const std::string& key_) : key(key_) {}
 
@@ -339,7 +339,7 @@ private:
 };
 
 
-class Evaluator_Is_Tag : public Evaluator
+class Evaluator_Is_Tag final : public Evaluator
 {
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Is_Tag >
@@ -379,7 +379,7 @@ private:
 };
 
 
-struct Generic_Eval_Task : public Eval_Task
+struct Generic_Eval_Task final : public Eval_Task
 {
   virtual std::string eval(const std::string* key) const { return ""; }
 
@@ -402,7 +402,7 @@ struct Generic_Eval_Task : public Eval_Task
 };
 
 
-class Evaluator_Generic : public Evaluator
+class Evaluator_Generic final : public Evaluator
 {
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Generic >
@@ -451,7 +451,7 @@ Its syntax is
 std::vector< std::string > all_keys(const std::vector< std::pair< std::string, std::string > >* tags);
 
 
-struct All_Keys_Eval_Task : public Eval_Container_Task
+struct All_Keys_Eval_Task final : public Eval_Container_Task
 {
   virtual std::vector< std::string > eval(const std::string* key) const { return std::vector< std::string >(); }
 
@@ -482,7 +482,7 @@ struct All_Keys_Eval_Task : public Eval_Container_Task
 };
 
 
-class Evaluator_All_Keys : public Evaluator
+class Evaluator_All_Keys final : public Evaluator
 {
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_All_Keys >
@@ -547,7 +547,7 @@ Its syntax is:
   user()
 */
 
-struct Version_Eval_Task : public Eval_Task
+struct Version_Eval_Task final : public Eval_Task
 {
   Version_Eval_Task() {}
 
@@ -572,7 +572,7 @@ struct Version_Eval_Task : public Eval_Task
 };
 
 
-class Evaluator_Version : public Evaluator
+class Evaluator_Version final : public Evaluator
 {
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Version >
@@ -603,7 +603,7 @@ public:
 };
 
 
-struct Timestamp_Eval_Task : public Eval_Task
+struct Timestamp_Eval_Task final : public Eval_Task
 {
   Timestamp_Eval_Task() {}
 
@@ -628,7 +628,7 @@ struct Timestamp_Eval_Task : public Eval_Task
 };
 
 
-class Evaluator_Timestamp : public Evaluator
+class Evaluator_Timestamp final : public Evaluator
 {
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Timestamp >
@@ -659,7 +659,7 @@ public:
 };
 
 
-struct Changeset_Eval_Task : public Eval_Task
+struct Changeset_Eval_Task final : public Eval_Task
 {
   Changeset_Eval_Task() {}
 
@@ -684,7 +684,7 @@ struct Changeset_Eval_Task : public Eval_Task
 };
 
 
-class Evaluator_Changeset : public Evaluator
+class Evaluator_Changeset final : public Evaluator
 {
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Changeset >
@@ -715,7 +715,7 @@ public:
 };
 
 
-struct Uid_Eval_Task : public Eval_Task
+struct Uid_Eval_Task final : public Eval_Task
 {
   Uid_Eval_Task() {}
 
@@ -740,7 +740,7 @@ struct Uid_Eval_Task : public Eval_Task
 };
 
 
-class Evaluator_Uid : public Evaluator
+class Evaluator_Uid final : public Evaluator
 {
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Uid >
@@ -771,7 +771,7 @@ public:
 };
 
 
-struct User_Eval_Task : public Eval_Task
+struct User_Eval_Task final : public Eval_Task
 {
   User_Eval_Task() {}
 
@@ -796,7 +796,7 @@ struct User_Eval_Task : public Eval_Task
 };
 
 
-class Evaluator_User : public Evaluator
+class Evaluator_User final : public Evaluator
 {
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_User >
@@ -856,7 +856,7 @@ The syntax to count the number of distinct members with a specific role is
   count_distinct_by_role()
 */
 
-class Evaluator_Properties_Count : public Evaluator
+class Evaluator_Properties_Count final : public Evaluator
 {
 public:
   enum Objects { nothing, tags, members, distinct_members, by_role, distinct_by_role };
@@ -921,7 +921,7 @@ private:
 };
 
 
-struct Prop_Count_Eval_Task : public Eval_Task
+struct Prop_Count_Eval_Task final : public Eval_Task
 {
   Prop_Count_Eval_Task(
       Evaluator_Properties_Count::Objects to_count_, Evaluator_Properties_Count::Members_Type type_to_count_,

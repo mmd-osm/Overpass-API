@@ -60,7 +60,7 @@ where <Evaluator> is an evaulator and <List of Substatements> is a list of subst
 
 */
 
-class If_Statement : public Statement
+class If_Statement final : public Statement
 {
 public:
   If_Statement(int line_number_, const std::map< std::string, std::string >& attributes,
@@ -143,7 +143,7 @@ private:
 };
 
 
-class Else_Statement : public Statement
+class Else_Statement final : public Statement
 {
 public:
   Else_Statement(int line_number_, const std::map< std::string, std::string >& attributes,

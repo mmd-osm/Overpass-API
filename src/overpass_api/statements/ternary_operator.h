@@ -50,7 +50,7 @@ The parenthesis variant exists to override operator precedence.
 For the precendence, see the binary operators.
 */
 
-struct Ternary_Eval_Task : public Eval_Task
+struct Ternary_Eval_Task final : public Eval_Task
 {
   Ternary_Eval_Task(Eval_Task* condition_, Eval_Task* lhs_, Eval_Task* rhs_)
       : condition(condition_), lhs(lhs_), rhs(rhs_) {}
@@ -84,7 +84,7 @@ private:
 };
 
 
-struct Ternary_Eval_Geometry_Task : public Eval_Geometry_Task
+struct Ternary_Eval_Geometry_Task final : public Eval_Geometry_Task
 {
   Ternary_Eval_Geometry_Task(Eval_Task* condition_, Eval_Geometry_Task* lhs_, Eval_Geometry_Task* rhs_)
       : condition(condition_), lhs(lhs_), rhs(rhs_) {}
@@ -113,7 +113,7 @@ private:
 };
 
 
-struct Ternary_Evaluator : public Evaluator
+struct Ternary_Evaluator final : public Evaluator
 {
   static Operator_Stmt_Maker< Ternary_Evaluator > statement_maker;
   static Operator_Eval_Maker< Ternary_Evaluator > evaluator_maker;

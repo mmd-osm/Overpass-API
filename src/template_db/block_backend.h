@@ -304,7 +304,7 @@ void Block_Backend_Basic_Iterator< Index, Object, Idx_Assessor, File_Handle >::i
 
 
 template< class Index >
-struct Default_Range_Iterator : std::set< std::pair< Index, Index > >::const_iterator
+struct Default_Range_Iterator final : std::set< std::pair< Index, Index > >::const_iterator
 {
   Default_Range_Iterator
       (const typename std::set< std::pair< Index, Index > >::const_iterator it)
@@ -358,7 +358,7 @@ private:
 
 
 template< typename Index, typename Object, typename Iterator >
-struct Block_Backend_Flat_Iterator
+struct Block_Backend_Flat_Iterator final
     : Block_Backend_Basic_Iterator< Index, Object, Flat_Idx_Assessor,
         Flat_File_Handle< File_Blocks< Index, Iterator, Default_Range_Iterator< Index > >,
             typename File_Blocks< Index, Iterator, Default_Range_Iterator< Index > >::Flat_Iterator > >
@@ -429,7 +429,7 @@ private:
 
 
 template< typename Index, typename Object, typename Iterator >
-struct Block_Backend_Discrete_Iterator
+struct Block_Backend_Discrete_Iterator final
     : Block_Backend_Basic_Iterator< Index, Object, Discrete_Idx_Assessor< Index, Iterator >,
           Discrete_File_Handle< File_Blocks< Index, Iterator, Default_Range_Iterator< Index > >,
               typename File_Blocks< Index, Iterator, Default_Range_Iterator< Index > >::Discrete_Iterator > >
@@ -507,7 +507,7 @@ private:
 
 
 template< typename Index, typename Object, typename Iterator >
-struct Block_Backend_Range_Iterator
+struct Block_Backend_Range_Iterator final
     : Block_Backend_Basic_Iterator< Index, Object, Range_Idx_Assessor< Index, Default_Range_Iterator< Index > >,
         Range_File_Handle< File_Blocks< Index, Iterator, Default_Range_Iterator< Index > >,
             typename File_Blocks< Index, Iterator, Default_Range_Iterator< Index > >::Range_Iterator > >

@@ -250,7 +250,7 @@ struct Area_Location
 template <class T, class Object>
 struct Area_Skeleton_Handle_Methods;
 
-class Area_Skeleton_Data : public SharedData
+class Area_Skeleton_Data final : public SharedData
 {
 public:
   Area_Skeleton_Data() { }
@@ -357,7 +357,7 @@ struct Area_Skeleton_Handle_Methods
 template <class T, class Object>
 struct Area_Block_Handle_Methods;
 
-class Area_Block_Data : public SharedData
+class Area_Block_Data final : public SharedData
 {
 public:
   Area_Block_Data() { }

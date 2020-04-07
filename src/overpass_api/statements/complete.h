@@ -92,7 +92,7 @@ resp.
 
 */
 
-class Complete_Statement : public Output_Statement
+class Complete_Statement final : public Output_Statement
 {
 public:
   Complete_Statement(int line_number_, const std::map< std::string, std::string >& attributes,

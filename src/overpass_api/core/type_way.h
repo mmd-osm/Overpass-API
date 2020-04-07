@@ -85,7 +85,7 @@ struct Way_Delta;
 template <class T, class Object>
 struct Way_Skeleton_Handle_Methods;
 
-class Way_Skeleton_Data : public SharedData
+class Way_Skeleton_Data final : public SharedData
 {
 public:
   Way_Skeleton_Data() { }

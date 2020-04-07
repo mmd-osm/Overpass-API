@@ -57,7 +57,7 @@ The first set is the input set,
 the second set is the output set.
 */
 
-class Localize_Statement : public Output_Statement
+class Localize_Statement final : public Output_Statement
 {
 public:
   enum Mode { data, also_loose, all };

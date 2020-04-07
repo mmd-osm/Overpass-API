@@ -117,7 +117,7 @@ public:
 };
 
 
-class Null_Geometry : public Opaque_Geometry
+class Null_Geometry final : public Opaque_Geometry
 {
 public:
   Null_Geometry() {}
@@ -156,7 +156,7 @@ public:
 };
 
 
-class Point_Geometry : public Opaque_Geometry
+class Point_Geometry final : public Opaque_Geometry
 {
 public:
   Point_Geometry(double lat_, double lon_) : pt(lat_, lon_) {}
@@ -198,7 +198,7 @@ private:
 };
 
 
-class Bbox_Geometry : public Opaque_Geometry
+class Bbox_Geometry final : public Opaque_Geometry
 {
 public:
   Bbox_Geometry(double south, double west, double north, double east) : bbox(south, west, north, east) {}
@@ -241,7 +241,7 @@ private:
 };
 
 
-class Linestring_Geometry : public Opaque_Geometry
+class Linestring_Geometry final : public Opaque_Geometry
 {
 public:
   Linestring_Geometry(const std::vector< Point_Double >& points_) : points(points_), bounds(0) {}
@@ -287,7 +287,7 @@ private:
 };
 
 
-class Partial_Way_Geometry : public Opaque_Geometry
+class Partial_Way_Geometry final : public Opaque_Geometry
 {
 public:
   Partial_Way_Geometry() : bounds(0), has_coords(false) {}
@@ -342,7 +342,7 @@ private:
 };
 
 
-class Free_Polygon_Geometry : public Opaque_Geometry
+class Free_Polygon_Geometry final : public Opaque_Geometry
 {
 public:
   Free_Polygon_Geometry() : bounds(0) {}
@@ -390,7 +390,7 @@ private:
 };
 
 
-class RHR_Polygon_Geometry : public Opaque_Geometry
+class RHR_Polygon_Geometry final : public Opaque_Geometry
 {
 public:
   RHR_Polygon_Geometry(const Free_Polygon_Geometry& rhs);
@@ -440,7 +440,7 @@ private:
 };
 
 
-class Compound_Geometry : public Opaque_Geometry
+class Compound_Geometry final : public Opaque_Geometry
 {
 public:
   Compound_Geometry() : bounds(0) {}
@@ -496,7 +496,7 @@ private:
 };
 
 
-class Partial_Relation_Geometry : public Opaque_Geometry
+class Partial_Relation_Geometry final : public Opaque_Geometry
 {
 public:
   Partial_Relation_Geometry() : bounds(0), has_coords(false) {}

@@ -82,7 +82,7 @@ resp.
 
 */
 
-class Compare_Statement : public Output_Statement
+class Compare_Statement final : public Output_Statement
 {
 public:
   Compare_Statement(int line_number_, const std::map< std::string, std::string >& attributes,

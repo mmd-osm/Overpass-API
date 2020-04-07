@@ -52,7 +52,7 @@ struct File_Block_Index_Entry
 
 
 template< class TIndex >
-struct File_Blocks_Index : public File_Blocks_Index_Base
+struct File_Blocks_Index final : public File_Blocks_Index_Base
 {
 public:
   File_Blocks_Index(const File_Properties& file_prop,

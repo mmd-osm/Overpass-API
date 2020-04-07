@@ -26,7 +26,7 @@
 #include "statement.h"
 
 
-class Union_Statement : public Output_Statement
+class Union_Statement final : public Output_Statement
 {
   public:
     Union_Statement(int line_number_, const std::map< std::string, std::string >& input_attributes,

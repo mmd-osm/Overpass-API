@@ -25,7 +25,7 @@
 
 #include "statement.h"
 
-class Difference_Statement : public Output_Statement
+class Difference_Statement final : public Output_Statement
 {
   public:
     Difference_Statement(int line_number_, const std::map< std::string, std::string >& input_attributes,

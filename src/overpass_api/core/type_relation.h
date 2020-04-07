@@ -102,7 +102,7 @@ struct Relation_Delta;
 template <class T, class Object>
 struct Relation_Skeleton_Handle_Methods;
 
-class Relation_Skeleton_Data : public SharedData
+class Relation_Skeleton_Data final : public SharedData
 {
 public:
   Relation_Skeleton_Data() { }

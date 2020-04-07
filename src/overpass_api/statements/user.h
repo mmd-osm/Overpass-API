@@ -29,7 +29,7 @@
 #include "statement.h"
 
 
-class User_Statement : public Output_Statement
+class User_Statement final : public Output_Statement
 {
   public:
     User_Statement(int line_number_, const std::map< std::string, std::string >& input_attributes,

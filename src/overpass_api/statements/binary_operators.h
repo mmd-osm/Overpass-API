@@ -183,7 +183,7 @@ Its syntax is
 The whitespace is optional.
 */
 
-struct Evaluator_Or : public Evaluator_Pair_Operator_Syntax< Evaluator_Or >
+struct Evaluator_Or final : public Evaluator_Pair_Operator_Syntax< Evaluator_Or >
 {
   static Operator_Stmt_Maker< Evaluator_Or > statement_maker;
   static Operator_Eval_Maker< Evaluator_Or > evaluator_maker;
@@ -216,7 +216,7 @@ Its syntax is
 The whitespace is optional.
 */
 
-struct Evaluator_And : public Evaluator_Pair_Operator_Syntax< Evaluator_And >
+struct Evaluator_And final : public Evaluator_Pair_Operator_Syntax< Evaluator_And >
 {
   static Operator_Stmt_Maker< Evaluator_And > statement_maker;
   static Operator_Eval_Maker< Evaluator_And > evaluator_maker;
@@ -253,7 +253,7 @@ and for inequality
 The whitespace is optional.
 */
 
-struct Evaluator_Equal : public Evaluator_Pair_Operator_Syntax< Evaluator_Equal >
+struct Evaluator_Equal final : public Evaluator_Pair_Operator_Syntax< Evaluator_Equal >
 {
   static Operator_Stmt_Maker< Evaluator_Equal > statement_maker;
   static Operator_Eval_Maker< Evaluator_Equal > evaluator_maker;
@@ -267,7 +267,7 @@ struct Evaluator_Equal : public Evaluator_Pair_Operator_Syntax< Evaluator_Equal 
 };
 
 
-struct Evaluator_Not_Equal : public Evaluator_Pair_Operator_Syntax< Evaluator_Not_Equal >
+struct Evaluator_Not_Equal final : public Evaluator_Pair_Operator_Syntax< Evaluator_Not_Equal >
 {
   static Operator_Stmt_Maker< Evaluator_Not_Equal > statement_maker;
   static Operator_Eval_Maker< Evaluator_Not_Equal > evaluator_maker;
@@ -302,7 +302,7 @@ The syntaxes for less, less-equal, greater, and greater-equal in this order are
 The whitespace is optional.
 */
 
-struct Evaluator_Less : public Evaluator_Pair_Operator_Syntax< Evaluator_Less >
+struct Evaluator_Less final : public Evaluator_Pair_Operator_Syntax< Evaluator_Less >
 {
   static Operator_Stmt_Maker< Evaluator_Less > statement_maker;
   static Operator_Eval_Maker< Evaluator_Less > evaluator_maker;
@@ -316,7 +316,7 @@ struct Evaluator_Less : public Evaluator_Pair_Operator_Syntax< Evaluator_Less >
 };
 
 
-struct Evaluator_Less_Equal : public Evaluator_Pair_Operator_Syntax< Evaluator_Less_Equal >
+struct Evaluator_Less_Equal final : public Evaluator_Pair_Operator_Syntax< Evaluator_Less_Equal >
 {
   static Operator_Stmt_Maker< Evaluator_Less_Equal > statement_maker;
   static Operator_Eval_Maker< Evaluator_Less_Equal > evaluator_maker;
@@ -330,7 +330,7 @@ struct Evaluator_Less_Equal : public Evaluator_Pair_Operator_Syntax< Evaluator_L
 };
 
 
-struct Evaluator_Greater : public Evaluator_Pair_Operator_Syntax< Evaluator_Greater >
+struct Evaluator_Greater final : public Evaluator_Pair_Operator_Syntax< Evaluator_Greater >
 {
   static Operator_Stmt_Maker< Evaluator_Greater > statement_maker;
   static Operator_Eval_Maker< Evaluator_Greater > evaluator_maker;
@@ -344,7 +344,7 @@ struct Evaluator_Greater : public Evaluator_Pair_Operator_Syntax< Evaluator_Grea
 };
 
 
-struct Evaluator_Greater_Equal : public Evaluator_Pair_Operator_Syntax< Evaluator_Greater_Equal >
+struct Evaluator_Greater_Equal final : public Evaluator_Pair_Operator_Syntax< Evaluator_Greater_Equal >
 {
   static Operator_Stmt_Maker< Evaluator_Greater_Equal > statement_maker;
   static Operator_Eval_Maker< Evaluator_Greater_Equal > evaluator_maker;
@@ -378,7 +378,7 @@ The syntaxes for plus and minus in this order are
 The whitespace is optional.
 */
 
-struct Evaluator_Plus : public Evaluator_Pair_Operator_Syntax< Evaluator_Plus >
+struct Evaluator_Plus final : public Evaluator_Pair_Operator_Syntax< Evaluator_Plus >
 {
   static Operator_Stmt_Maker< Evaluator_Plus > statement_maker;
   static Operator_Eval_Maker< Evaluator_Plus > evaluator_maker;
@@ -392,7 +392,7 @@ struct Evaluator_Plus : public Evaluator_Pair_Operator_Syntax< Evaluator_Plus >
 };
 
 
-struct Evaluator_Minus : public Evaluator_Pair_Operator_Syntax< Evaluator_Minus >
+struct Evaluator_Minus final : public Evaluator_Pair_Operator_Syntax< Evaluator_Minus >
 {
   static Operator_Stmt_Maker< Evaluator_Minus > statement_maker;
   static Operator_Eval_Maker< Evaluator_Minus > evaluator_maker;
@@ -423,7 +423,7 @@ The syntaxes for plus and minus in this order are
 The whitespace is optional.
 */
 
-struct Evaluator_Times : public Evaluator_Pair_Operator_Syntax< Evaluator_Times >
+struct Evaluator_Times final : public Evaluator_Pair_Operator_Syntax< Evaluator_Times >
 {
   static Operator_Stmt_Maker< Evaluator_Times > statement_maker;
   static Operator_Eval_Maker< Evaluator_Times > evaluator_maker;
@@ -437,7 +437,7 @@ struct Evaluator_Times : public Evaluator_Pair_Operator_Syntax< Evaluator_Times 
 };
 
 
-struct Evaluator_Divided : public Evaluator_Pair_Operator_Syntax< Evaluator_Divided >
+struct Evaluator_Divided final : public Evaluator_Pair_Operator_Syntax< Evaluator_Divided >
 {
   static Operator_Stmt_Maker< Evaluator_Divided > statement_maker;
   static Operator_Eval_Maker< Evaluator_Divided > evaluator_maker;
@@ -454,7 +454,7 @@ struct Evaluator_Divided : public Evaluator_Pair_Operator_Syntax< Evaluator_Divi
 // Test: Modulo operator
 
 
-struct Evaluator_Modulo : public Evaluator_Pair_Operator_Syntax< Evaluator_Modulo >
+struct Evaluator_Modulo final : public Evaluator_Pair_Operator_Syntax< Evaluator_Modulo >
 {
   static Operator_Stmt_Maker< Evaluator_Modulo > statement_maker;
   static Operator_Eval_Maker< Evaluator_Modulo > evaluator_maker;

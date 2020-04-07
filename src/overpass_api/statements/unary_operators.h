@@ -116,7 +116,7 @@ Its syntax is
 The whitespace is optional.
 */
 
-class Evaluator_Not : public Evaluator_Prefix_Operator_Syntax< Evaluator_Not >
+class Evaluator_Not final : public Evaluator_Prefix_Operator_Syntax< Evaluator_Not >
 {
 public:
   static Operator_Stmt_Maker< Evaluator_Not > statement_maker;
@@ -144,7 +144,7 @@ The syntax for unary minus is:
 The whitespace is optional.
 */
 
-class Evaluator_Negate : public Evaluator_Prefix_Operator_Syntax< Evaluator_Negate >
+class Evaluator_Negate final : public Evaluator_Prefix_Operator_Syntax< Evaluator_Negate >
 {
 public:
   static Operator_Stmt_Maker< Evaluator_Negate > statement_maker;

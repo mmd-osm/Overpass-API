@@ -25,7 +25,7 @@
 #include "statement.h"
 
 
-class Map_To_Area_Statement : public Output_Statement
+class Map_To_Area_Statement final : public Output_Statement
 {
   public:
     Map_To_Area_Statement(int line_number_, const std::map< std::string, std::string >& attributes,

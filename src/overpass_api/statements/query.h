@@ -71,7 +71,7 @@ The ''query'' statement has a result set that can be changed with the usual post
 The individual filters may have in addition input sets that can be changed in the individual filters. Please see for this at the respective filter.
 */
 
-class Query_Statement : public Output_Statement
+class Query_Statement final : public Output_Statement
 {
   public:
     Query_Statement(int line_number_, const std::map< std::string, std::string >& input_attributes,

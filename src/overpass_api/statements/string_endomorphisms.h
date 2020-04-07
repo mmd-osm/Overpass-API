@@ -41,14 +41,14 @@ Their syntax is always
 */
 
 template< typename Evaluator_ >
-struct String_Endom_Statement_Maker : public Generic_Statement_Maker< Evaluator_ >
+struct String_Endom_Statement_Maker final : public Generic_Statement_Maker< Evaluator_ >
 {
   String_Endom_Statement_Maker() : Generic_Statement_Maker< Evaluator_ >(Evaluator_::stmt_name()) {}
 };
 
 
 template< typename Evaluator_ >
-struct String_Endom_Evaluator_Maker : public Statement::Evaluator_Maker
+struct String_Endom_Evaluator_Maker final : public Statement::Evaluator_Maker
 {
   virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
       Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output)
@@ -129,7 +129,7 @@ resp.
 
 */
 
-class Evaluator_Number : public Evaluator_String_Endom_Syntax< Evaluator_Number >
+class Evaluator_Number final : public Evaluator_String_Endom_Syntax< Evaluator_Number >
 {
 public:
   static String_Endom_Statement_Maker< Evaluator_Number > statement_maker;
@@ -144,7 +144,7 @@ public:
 };
 
 
-class Evaluator_Is_Num : public Evaluator_String_Endom_Syntax< Evaluator_Is_Num >
+class Evaluator_Is_Num final : public Evaluator_String_Endom_Syntax< Evaluator_Is_Num >
 {
 public:
   static String_Endom_Statement_Maker< Evaluator_Is_Num > statement_maker;
@@ -159,7 +159,7 @@ public:
 };
 
 
-class Evaluator_Suffix : public Evaluator_String_Endom_Syntax< Evaluator_Suffix >
+class Evaluator_Suffix final : public Evaluator_String_Endom_Syntax< Evaluator_Suffix >
 {
 public:
   static String_Endom_Statement_Maker< Evaluator_Suffix > statement_maker;
@@ -204,7 +204,7 @@ resp.
   is_date(<Evaluator>)
 */
 
-class Evaluator_Date : public Evaluator_String_Endom_Syntax< Evaluator_Date >
+class Evaluator_Date final : public Evaluator_String_Endom_Syntax< Evaluator_Date >
 {
 public:
   static String_Endom_Statement_Maker< Evaluator_Date > statement_maker;
@@ -219,7 +219,7 @@ public:
 };
 
 
-class Evaluator_Is_Date : public Evaluator_String_Endom_Syntax< Evaluator_Is_Date >
+class Evaluator_Is_Date final : public Evaluator_String_Endom_Syntax< Evaluator_Is_Date >
 {
 public:
   static String_Endom_Statement_Maker< Evaluator_Is_Date > statement_maker;

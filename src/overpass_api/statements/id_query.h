@@ -26,7 +26,7 @@
 #include "statement.h"
 
 
-class Id_Query_Statement : public Output_Statement
+class Id_Query_Statement final : public Output_Statement
 {
   public:
     Id_Query_Statement(int line_number_, const std::map< std::string, std::string >& attributes,

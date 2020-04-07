@@ -57,7 +57,7 @@ each of which must be one the following
   !<Key>
 */
 
-class Convert_Statement : public Output_Statement
+class Convert_Statement final : public Output_Statement
 {
 public:
   Convert_Statement(int line_number_, const std::map< std::string, std::string >& attributes,

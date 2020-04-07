@@ -27,7 +27,7 @@
 #include "statement.h"
 
 
-class Item_Statement : public Output_Statement
+class Item_Statement final : public Output_Statement
 {
   public:
     Item_Statement(int line_number_, const std::map< std::string, std::string >& attributes,

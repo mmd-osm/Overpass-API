@@ -84,14 +84,14 @@ bool try_parse_input_set(const Token_Node_Ptr& tree_it, Error_Output* error_outp
 
 
 template< typename Evaluator_ >
-struct Aggregator_Statement_Maker : public Generic_Statement_Maker< Evaluator_ >
+struct Aggregator_Statement_Maker final : public Generic_Statement_Maker< Evaluator_ >
 {
   Aggregator_Statement_Maker() : Generic_Statement_Maker< Evaluator_ >(Evaluator_::stmt_name()) {}
 };
 
 
 template< typename Evaluator_ >
-struct Aggregator_Evaluator_Maker : Statement::Evaluator_Maker
+struct Aggregator_Evaluator_Maker final : Statement::Evaluator_Maker
 {
   virtual Statement* create_evaluator(
       const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
@@ -178,7 +178,7 @@ If no value is found then <em>u</em> returns an empty string.
 If multiple different values are found then <em>set</em> returns the text "< multiple values found >".
 */
 
-class Evaluator_Union_Value : public Evaluator_Aggregator_Syntax< Evaluator_Union_Value >
+class Evaluator_Union_Value final : public Evaluator_Aggregator_Syntax< Evaluator_Union_Value >
 {
 public:
   static Aggregator_Statement_Maker< Evaluator_Union_Value > statement_maker;
@@ -202,7 +202,7 @@ public:
 };
 
 
-class Evaluator_Set_Value : public Evaluator_Aggregator_Syntax< Evaluator_Set_Value >
+class Evaluator_Set_Value final : public Evaluator_Aggregator_Syntax< Evaluator_Set_Value >
 {
 public:
   static Aggregator_Statement_Maker< Evaluator_Set_Value > statement_maker;
@@ -252,7 +252,7 @@ Likewise, if not all return values are valid numbers then <em>max</em> returns t
 If no value is found then each <em>min</em> and <em>max </em> return an empty string.
 */
 
-class Evaluator_Min_Value : public Evaluator_Aggregator_Syntax< Evaluator_Min_Value >
+class Evaluator_Min_Value final : public Evaluator_Aggregator_Syntax< Evaluator_Min_Value >
 {
 public:
   static Aggregator_Statement_Maker< Evaluator_Min_Value > statement_maker;
@@ -281,7 +281,7 @@ public:
 };
 
 
-class Evaluator_Max_Value : public Evaluator_Aggregator_Syntax< Evaluator_Max_Value >
+class Evaluator_Max_Value final : public Evaluator_Aggregator_Syntax< Evaluator_Max_Value >
 {
 public:
   static Aggregator_Statement_Maker< Evaluator_Max_Value > statement_maker;
@@ -325,7 +325,7 @@ If all return values are valid numbers then <em>sum</em> returns their sum.
 If not all return values are valid numbers then <em>sum</em> returns "NaN".
 */
 
-class Evaluator_Sum_Value : public Evaluator_Aggregator_Syntax< Evaluator_Sum_Value >
+class Evaluator_Sum_Value final : public Evaluator_Aggregator_Syntax< Evaluator_Sum_Value >
 {
 public:
   static Aggregator_Statement_Maker< Evaluator_Sum_Value > statement_maker;
@@ -381,7 +381,7 @@ counts elements in the default set <em>_</em>, and the syntax variant
 counts elements in the set &lt;Set&gt;.
 */
 
-class Evaluator_Set_Count : public Evaluator
+class Evaluator_Set_Count final : public Evaluator
 {
 public:
   enum Objects { nothing, nodes, ways, relations, deriveds, nwr, nw, wr, nr };
@@ -441,7 +441,7 @@ If geometries are contained multiple times in the group
 then they are as well repeated as members of the result.
 */
 
-class Evaluator_Geom_Concat_Value : public Evaluator_Aggregator_Syntax< Evaluator_Geom_Concat_Value >
+class Evaluator_Geom_Concat_Value final : public Evaluator_Aggregator_Syntax< Evaluator_Geom_Concat_Value >
 {
 public:
   static Aggregator_Statement_Maker< Evaluator_Geom_Concat_Value > statement_maker;

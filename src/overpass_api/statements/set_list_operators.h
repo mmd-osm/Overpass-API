@@ -48,7 +48,7 @@ This means that the order of list elements does no matter.
 */
 
 template< typename Evaluator_ >
-struct Unary_Set_List_Operator_Statement_Maker : public Generic_Statement_Maker< Evaluator_ >
+struct Unary_Set_List_Operator_Statement_Maker final : public Generic_Statement_Maker< Evaluator_ >
 {
   Unary_Set_List_Operator_Statement_Maker() : Generic_Statement_Maker< Evaluator_ >(Evaluator_::stmt_name()) {}
 };
@@ -113,7 +113,7 @@ struct Evaluator_Unary_Set_List_Operator_Syntax : public Evaluator_Unary_Functio
 
 
 template< typename Evaluator_ >
-struct Binary_Set_List_Operator_Statement_Maker : public Generic_Statement_Maker< Evaluator_ >
+struct Binary_Set_List_Operator_Statement_Maker final : public Generic_Statement_Maker< Evaluator_ >
 {
   Binary_Set_List_Operator_Statement_Maker() : Generic_Statement_Maker< Evaluator_ >(Evaluator_::stmt_name()) {}
 };

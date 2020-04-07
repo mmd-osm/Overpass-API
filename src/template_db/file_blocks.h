@@ -59,7 +59,7 @@ struct File_Blocks_Basic_Iterator
 
 
 template< typename TIndex >
-struct File_Blocks_Flat_Iterator : File_Blocks_Basic_Iterator< TIndex >
+struct File_Blocks_Flat_Iterator final : File_Blocks_Basic_Iterator< TIndex >
 {
   File_Blocks_Flat_Iterator
   (const typename std::vector< File_Block_Index_Entry< TIndex > >::const_iterator& begin,
@@ -80,7 +80,7 @@ struct File_Blocks_Flat_Iterator : File_Blocks_Basic_Iterator< TIndex >
 
 
 template< typename TIndex, typename TIterator >
-struct File_Blocks_Discrete_Iterator : File_Blocks_Basic_Iterator< TIndex >
+struct File_Blocks_Discrete_Iterator final : File_Blocks_Basic_Iterator< TIndex >
 {
   File_Blocks_Discrete_Iterator
       (TIterator const& index_it_, TIterator const& index_end_,
@@ -122,7 +122,7 @@ private:
 
 
 template< typename TIndex, typename TRangeIterator >
-struct File_Blocks_Range_Iterator : File_Blocks_Basic_Iterator< TIndex >
+struct File_Blocks_Range_Iterator final : File_Blocks_Basic_Iterator< TIndex >
 {
   File_Blocks_Range_Iterator
       (const typename std::vector< File_Block_Index_Entry< TIndex > >::const_iterator& begin,

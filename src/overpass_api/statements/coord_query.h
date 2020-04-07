@@ -26,7 +26,7 @@
 #include "statement.h"
 
 
-class Coord_Query_Statement : public Output_Statement
+class Coord_Query_Statement final : public Output_Statement
 {
   public:
     Coord_Query_Statement(int line_number_, const std::map< std::string, std::string >& attributes,

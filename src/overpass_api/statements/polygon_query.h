@@ -29,7 +29,7 @@
 #include <vector>
 
 
-class Polygon_Query_Statement : public Output_Statement
+class Polygon_Query_Statement final : public Output_Statement
 {
   public:
     Polygon_Query_Statement(int line_number_, const std::map< std::string, std::string >& attributes,

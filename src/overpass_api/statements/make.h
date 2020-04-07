@@ -61,7 +61,7 @@ It is a syntax error to set the same key twice.
 Also, at most one generic key can be set.
 */
 
-class Make_Statement : public Output_Statement
+class Make_Statement final : public Output_Statement
 {
 public:
   Make_Statement(int line_number_, const std::map< std::string, std::string >& attributes,

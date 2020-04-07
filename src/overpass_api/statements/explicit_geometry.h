@@ -39,7 +39,7 @@ Its syntax is
 */
 
 
-struct Eval_Point_Geometry_Task : Eval_Geometry_Task
+struct Eval_Point_Geometry_Task final : Eval_Geometry_Task
 {
   Eval_Point_Geometry_Task(Eval_Task* lat_, Eval_Task* lon_) : lat(lat_), lon(lon_) {}
 
@@ -76,7 +76,7 @@ private:
 };
 
 
-class Evaluator_Point : public Evaluator
+class Evaluator_Point final : public Evaluator
 {
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Point >
@@ -140,7 +140,7 @@ Its syntax is
 */
 
 
-struct Eval_Linestring_Geometry_Task : Eval_Geometry_Task
+struct Eval_Linestring_Geometry_Task final : Eval_Geometry_Task
 {
   Eval_Linestring_Geometry_Task(std::vector< Eval_Geometry_Task* >& points_) : points(points_) {}
 
@@ -179,7 +179,7 @@ private:
 };
 
 
-class Evaluator_Linestring : public Evaluator
+class Evaluator_Linestring final : public Evaluator
 {
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Linestring >
@@ -254,7 +254,7 @@ Its syntax is
 */
 
 
-struct Eval_Polygon_Geometry_Task : Eval_Geometry_Task
+struct Eval_Polygon_Geometry_Task final : Eval_Geometry_Task
 {
   Eval_Polygon_Geometry_Task(std::vector< Eval_Geometry_Task* >& linestrings_) : linestrings(linestrings_) {}
 
@@ -293,7 +293,7 @@ private:
 };
 
 
-class Evaluator_Polygon : public Evaluator
+class Evaluator_Polygon final : public Evaluator
 {
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Polygon >

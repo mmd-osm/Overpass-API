@@ -66,7 +66,7 @@ struct Per_Member_Aggregator_Syntax : public Per_Member_Aggregator
 
 
 template< typename Evaluator_ >
-struct Per_Member_Aggregator_Maker : Statement::Evaluator_Maker
+struct Per_Member_Aggregator_Maker final : Statement::Evaluator_Maker
 {
   virtual Statement* create_evaluator(
       const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
@@ -120,7 +120,7 @@ The syntax is
   per_member(<Evaluator>)
 */
 
-struct Per_Member_Eval_Task : public Eval_Task
+struct Per_Member_Eval_Task final : public Eval_Task
 {
   Per_Member_Eval_Task(Eval_Task* rhs) : rhs_task(rhs) {}
 
@@ -136,7 +136,7 @@ private:
 };
 
 
-class Evaluator_Per_Member : public Per_Member_Aggregator_Syntax< Evaluator_Per_Member >
+class Evaluator_Per_Member final : public Per_Member_Aggregator_Syntax< Evaluator_Per_Member >
 {
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Per_Member >
@@ -176,7 +176,7 @@ The syntax is
   per_vertex(<Evaluator>)
 */
 
-struct Per_Vertex_Eval_Task : public Eval_Task
+struct Per_Vertex_Eval_Task final : public Eval_Task
 {
   Per_Vertex_Eval_Task(Eval_Task* rhs) : rhs_task(rhs) {}
 
@@ -190,7 +190,7 @@ private:
 };
 
 
-class Evaluator_Per_Vertex : public Per_Member_Aggregator_Syntax< Evaluator_Per_Vertex >
+class Evaluator_Per_Vertex final : public Per_Member_Aggregator_Syntax< Evaluator_Per_Vertex >
 {
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Per_Vertex >
@@ -231,7 +231,7 @@ The syntax is
   pos()
 */
 
-struct Pos_Eval_Task : public Eval_Task
+struct Pos_Eval_Task final : public Eval_Task
 {
   virtual std::string eval(const std::string* key) const { return ""; }
 
@@ -246,7 +246,7 @@ struct Pos_Eval_Task : public Eval_Task
 };
 
 
-class Evaluator_Pos : public Evaluator
+class Evaluator_Pos final : public Evaluator
 {
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Pos >
@@ -288,7 +288,7 @@ resp.
   ref()
 */
 
-struct Membertype_Eval_Task : public Eval_Task
+struct Membertype_Eval_Task final : public Eval_Task
 {
   virtual std::string eval(const std::string* key) const { return ""; }
 
@@ -303,7 +303,7 @@ struct Membertype_Eval_Task : public Eval_Task
 };
 
 
-class Evaluator_Membertype : public Evaluator
+class Evaluator_Membertype final : public Evaluator
 {
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Membertype >
@@ -332,7 +332,7 @@ public:
 };
 
 
-struct Ref_Eval_Task : public Eval_Task
+struct Ref_Eval_Task final : public Eval_Task
 {
   virtual std::string eval(const std::string* key) const { return ""; }
 
@@ -347,7 +347,7 @@ struct Ref_Eval_Task : public Eval_Task
 };
 
 
-class Evaluator_Ref : public Evaluator
+class Evaluator_Ref final : public Evaluator
 {
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Ref >
@@ -385,7 +385,7 @@ The syntax is
   role()
 */
 
-struct Role_Eval_Task : public Eval_Task
+struct Role_Eval_Task final : public Eval_Task
 {
   Role_Eval_Task(const std::map< uint32, std::string >* roles_) : roles(roles_) {}
 
@@ -405,7 +405,7 @@ private:
 };
 
 
-class Evaluator_Role : public Evaluator
+class Evaluator_Role final : public Evaluator
 {
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Role >
@@ -448,7 +448,7 @@ The syntax is
   role()
 */
 
-struct Angle_Eval_Task : public Eval_Task
+struct Angle_Eval_Task final : public Eval_Task
 {
   Angle_Eval_Task() : cache_way_ref(0u), cache_geom_ref(0) {}
 
@@ -467,7 +467,7 @@ private:
 };
 
 
-class Evaluator_Angle : public Evaluator
+class Evaluator_Angle final : public Evaluator
 {
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Angle >

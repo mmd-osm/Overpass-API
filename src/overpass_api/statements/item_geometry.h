@@ -48,7 +48,7 @@ The syntax is
   is_closed()
 */
 
-struct Is_Closed_Eval_Task : public Eval_Task
+struct Is_Closed_Eval_Task final : public Eval_Task
 {
   virtual std::string eval(const std::string* key) const { return ""; }
 
@@ -71,7 +71,7 @@ struct Is_Closed_Eval_Task : public Eval_Task
 };
 
 
-class Evaluator_Is_Closed : public Evaluator
+class Evaluator_Is_Closed final : public Evaluator
 {
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Is_Closed >
@@ -110,7 +110,7 @@ Its syntax is:
   geom()
 */
 
-struct Geometry_Geometry_Task : Eval_Geometry_Task
+struct Geometry_Geometry_Task final : Eval_Geometry_Task
 {
   Geometry_Geometry_Task() {}
 
@@ -135,7 +135,7 @@ struct Geometry_Geometry_Task : Eval_Geometry_Task
 };
 
 
-class Evaluator_Geometry : public Evaluator
+class Evaluator_Geometry final : public Evaluator
 {
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Geometry >
@@ -181,7 +181,7 @@ Its syntax is:
   length()
 */
 
-struct Length_Eval_Task : public Eval_Task
+struct Length_Eval_Task final : public Eval_Task
 {
   Length_Eval_Task() {}
 
@@ -206,7 +206,7 @@ struct Length_Eval_Task : public Eval_Task
 };
 
 
-class Evaluator_Length : public Evaluator
+class Evaluator_Length final : public Evaluator
 {
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Length >
@@ -252,7 +252,7 @@ resp.
   lon()
 */
 
-struct Latitude_Eval_Task : public Eval_Task
+struct Latitude_Eval_Task final : public Eval_Task
 {
   Latitude_Eval_Task() {}
 
@@ -285,7 +285,7 @@ struct Latitude_Eval_Task : public Eval_Task
 };
 
 
-class Evaluator_Latitude : public Evaluator
+class Evaluator_Latitude final : public Evaluator
 {
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Latitude >
@@ -316,7 +316,7 @@ public:
 };
 
 
-struct Longitude_Eval_Task : public Eval_Task
+struct Longitude_Eval_Task final : public Eval_Task
 {
   Longitude_Eval_Task() {}
 
@@ -349,7 +349,7 @@ struct Longitude_Eval_Task : public Eval_Task
 };
 
 
-class Evaluator_Longitude : public Evaluator
+class Evaluator_Longitude final : public Evaluator
 {
 public:
   struct Statement_Maker : public Generic_Statement_Maker< Evaluator_Longitude >

@@ -257,7 +257,7 @@ struct Eval_Task
 };
 
 
-struct Const_Eval_Task : public Eval_Task
+struct Const_Eval_Task final : public Eval_Task
 {
   Const_Eval_Task(const std::string& value_) : value(value_) {}
 
@@ -326,7 +326,7 @@ struct Eval_Geometry_Task
 };
 
 
-struct Const_Eval_Geometry_Task : public Eval_Geometry_Task
+struct Const_Eval_Geometry_Task final : public Eval_Geometry_Task
 {
   Const_Eval_Geometry_Task(Opaque_Geometry* geometry_) : geometry(geometry_) {}
 
@@ -354,7 +354,7 @@ struct Evaluator : public Statement
 
 
 template< typename Evaluator_ >
-struct Element_Function_Maker : public Statement::Evaluator_Maker
+struct Element_Function_Maker final : public Statement::Evaluator_Maker
 {
   virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
       Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output)
@@ -371,7 +371,7 @@ struct Element_Function_Maker : public Statement::Evaluator_Maker
 
 
 template< typename Evaluator_ >
-struct Member_Function_Maker : public Statement::Evaluator_Maker
+struct Member_Function_Maker final : public Statement::Evaluator_Maker
 {
   virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
       Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output)
@@ -388,14 +388,14 @@ struct Member_Function_Maker : public Statement::Evaluator_Maker
 
 
 template< typename Evaluator_ >
-struct Operator_Stmt_Maker : public Generic_Statement_Maker< Evaluator_ >
+struct Operator_Stmt_Maker final : public Generic_Statement_Maker< Evaluator_ >
 {
   Operator_Stmt_Maker() : Generic_Statement_Maker< Evaluator_ >(Evaluator_::stmt_name()) {}
 };
 
 
 template< typename Evaluator_ >
-struct Operator_Eval_Maker : public Statement::Evaluator_Maker
+struct Operator_Eval_Maker final : public Statement::Evaluator_Maker
 {
   virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
       Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output)

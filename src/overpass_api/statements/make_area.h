@@ -34,7 +34,7 @@
 // - due to the size restrictions, the algorithm might split up line segments and produce
 //   addtional vertices. It does not add nodes for these datastructures to the "into"-std::set,
 //   they are contained only in the Area dataset.
-class Make_Area_Statement : public Output_Statement
+class Make_Area_Statement final : public Output_Statement
 {
   public:
     Make_Area_Statement(int line_number_, const std::map< std::string, std::string >& attributes,

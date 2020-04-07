@@ -57,7 +57,7 @@ resp.
 
 */
 
-class Timeline_Statement : public Output_Statement
+class Timeline_Statement final : public Output_Statement
 {
 public:
   Timeline_Statement(int line_number_, const std::map< std::string, std::string >& attributes,

@@ -29,7 +29,7 @@
 #include <vector>
 
 
-class Recurse_Statement : public Output_Statement
+class Recurse_Statement final : public Output_Statement
 {
   public:
     Recurse_Statement(int line_number_, const std::map< std::string, std::string >& input_attributes,
