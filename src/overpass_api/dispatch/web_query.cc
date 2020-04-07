@@ -176,7 +176,7 @@ int handle_request(const std::string & content, bool is_cgi, Index_Cache* ic)
     error_output.runtime_error(temp.str());
     return 1;
   }
-  catch(Resource_Error e)
+  catch (const Resource_Error &e)
   {
     std::ostringstream temp;
     if (e.timed_out)
@@ -188,7 +188,7 @@ int handle_request(const std::string & content, bool is_cgi, Index_Cache* ic)
     error_output.runtime_error(temp.str());
     return 2;
   }
-  catch(std::bad_alloc& e)
+  catch(const std::bad_alloc& e)
   {
     rlimit limit;
     getrlimit(RLIMIT_AS, &limit);
@@ -197,12 +197,14 @@ int handle_request(const std::string & content, bool is_cgi, Index_Cache* ic)
     error_output.runtime_error(temp.str());
     return 4;
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     error_output.runtime_error(std::string("Query failed with the exception: ") + e.what());
     return 5;
   }
-  catch(Exit_Error e) {}
+  catch (const Exit_Error &e)
+  {
+  }
 
   return 0;
 }

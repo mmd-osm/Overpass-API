@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
       error_output.write_payload_header(dispatcher_client.get_db_dir(), timestamp, "", true);
     }
   }
-  catch(File_Error e)
+  catch (const File_Error &e)
   {
     std::ostringstream temp;
     if (e.origin.substr(e.origin.size()-9) == "::timeout")

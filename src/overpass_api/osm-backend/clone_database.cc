@@ -78,7 +78,7 @@ void clone_bin_file(const File_Properties& src_file_prop, const File_Properties&
       ++src_it;
     }
   }
-  catch (File_Error e)
+  catch (const File_Error &e)
   {
     std::cout<<e.origin<<' '<<e.error_number<<' '<<strerror(e.error_number)<<' '<<e.filename<<'\n';
   }
@@ -110,7 +110,7 @@ void clone_map_file(const File_Properties& file_prop, Transaction& transaction, 
       }
     }
   }
-  catch (File_Error e)
+  catch (const File_Error &e)
   {
     std::cout<<e.origin<<' '<<e.error_number<<' '<<strerror(e.error_number)<<' '<<e.filename<<'\n';
   }

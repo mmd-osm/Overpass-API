@@ -197,7 +197,7 @@ bool parse_and_validate
 	stmt_factory_global = 0;
       }
     }
-    catch(Parse_Error parse_error)
+    catch (const Parse_Error &parse_error)
     {
       stmt_factory_global = 0;
       stmt_dump_factory_global = 0;
@@ -206,7 +206,7 @@ bool parse_and_validate
         error_output->add_parse_error(parse_error.message,
 				      xml_parser->current_line_number());
     }
-    catch(File_Error e)
+    catch (const File_Error &e)
     {
       stmt_factory_global = 0;
       stmt_dump_factory_global = 0;

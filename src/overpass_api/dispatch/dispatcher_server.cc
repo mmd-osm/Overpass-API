@@ -300,7 +300,7 @@ int main(int argc, char* argv[])
           (areas ? area_settings().shared_name : osm_base_settings().shared_name);
       client.terminate();
     }
-    catch (File_Error e)
+    catch (const File_Error &e)
     {
       std::cout<<"File_Error "<<strerror(e.error_number)<<' '<<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
@@ -315,7 +315,7 @@ int main(int argc, char* argv[])
           (areas ? area_settings().shared_name : osm_base_settings().shared_name);
       client.output_status();
     }
-    catch (File_Error e)
+    catch (const File_Error &e)
     {
       std::cout<<"File_Error "<<strerror(e.error_number)<<' '<<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
@@ -330,7 +330,7 @@ int main(int argc, char* argv[])
           (areas ? area_settings().shared_name : osm_base_settings().shared_name);
       std::cout<<client.get_db_dir();
     }
-    catch (File_Error e)
+    catch (const File_Error &e)
     {
       std::cout<<"File_Error "<<strerror(e.error_number)<<' '<<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
@@ -345,7 +345,7 @@ int main(int argc, char* argv[])
           (areas ? area_settings().shared_name : osm_base_settings().shared_name);
       client.purge(purge_id);
     }
-    catch (File_Error e)
+    catch (const File_Error &e)
     {
       std::cout<<"File_Error "<<strerror(e.error_number)<<' '<<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
@@ -361,7 +361,7 @@ int main(int argc, char* argv[])
       if (pid > 0)
         std::cout<<pid<<'\n';
     }
-    catch (File_Error e)
+    catch (const File_Error &e)
     {
       std::cout<<"File_Error "<<strerror(e.error_number)<<' '<<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
@@ -389,7 +389,7 @@ int main(int argc, char* argv[])
       for (std::vector< Running_Query >::const_iterator it = status.queries.begin(); it != status.queries.end(); ++it)
         std::cout<<it->pid<<'\t'<<it->max_space<<'\t'<<it->max_time<<'\t'<<to_date(it->start_time)<<'\n';
     }
-    catch (File_Error e)
+    catch (const File_Error &e)
     {
       std::cout<<"File_Error "<<strerror(e.error_number)<<' '<<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
@@ -403,7 +403,7 @@ int main(int argc, char* argv[])
           (areas ? area_settings().shared_name : osm_base_settings().shared_name);
       client.set_global_limits(max_allowed_space, max_allowed_time_units, rate_limit);
     }
-    catch (File_Error e)
+    catch (const File_Error &e)
     {
       std::cout<<"File_Error "<<strerror(e.error_number)<<' '<<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
@@ -523,7 +523,7 @@ int main(int argc, char* argv[])
       dispatcher.set_rate_limit(rate_limit);
     dispatcher.standby_loop(0);
   }
-  catch (File_Error e)
+  catch (const File_Error &e)
   {
     std::cout<<"File_Error "<<strerror(e.error_number)<<' '<<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
   }

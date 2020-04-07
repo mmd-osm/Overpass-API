@@ -132,7 +132,7 @@ inline Random_File_Index::Random_File_Index
     Raw_File val_file(map_file_name, O_RDONLY, S_666, "Random_File:8");
     file_size = val_file.size("Random_File:9");
   }
-  catch (File_Error e)
+  catch (const File_Error &e)
   {
     if (e.error_number != 2)
       throw e;
@@ -255,7 +255,9 @@ inline void Random_File_Index::init_void_blocks()
         void_blocks.push_back(*(std::pair< uint32, uint32 >*)(index_buf.ptr + 8*i));
       empty_index_file_used = true;
     }
-    catch (File_Error e) {}
+    catch (const File_Error &e)
+    {
+    }
   }
 
   if (!empty_index_file_used)
@@ -322,7 +324,9 @@ inline Random_File_Index::~Random_File_Index()
     Raw_File void_file(empty_index_file_name, O_RDWR|O_TRUNC, S_666, "Random_File:5");
     void_file.write(void_index_buf.ptr, void_blocks.size() * 8, "Random_File:18");
   }
-  catch (File_Error e) {}
+  catch (const File_Error &e)
+  {
+  }
 }
 
 

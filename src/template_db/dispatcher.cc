@@ -556,7 +556,7 @@ void Dispatcher::write_start(pid_t pid)
       logger->write_start(pid, registered_v);
     }
   }
-  catch (File_Error e)
+  catch (const File_Error &e)
   {
     if ((e.error_number == EEXIST) && (e.filename == (shadow_name + ".lock")))
     {
@@ -605,7 +605,7 @@ void Dispatcher::write_commit(pid_t pid)
 
     transaction_insulator.copy_shadows_to_mains();
   }
-  catch (File_Error e)
+  catch (const File_Error &e)
   {
     std::cerr<<"File_Error "<<e.error_number<<' '<<strerror(e.error_number)<<' '<<e.filename<<' '<<e.origin<<'\n';
     return;
@@ -891,7 +891,7 @@ void Dispatcher::standby_loop(uint64 milliseconds)
           connection_per_pid.get(client_pid)->send_result(command);
         }
       }
-      catch (File_Error e)
+      catch (const File_Error &e)
       {
         std::cerr<<"File_Error "<<e.error_number<<' '<<strerror(e.error_number)<<' '<<e.filename<<' '<<e.origin<<'\n';
 

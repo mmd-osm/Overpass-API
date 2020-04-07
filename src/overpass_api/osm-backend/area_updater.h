@@ -112,7 +112,7 @@ inline void Area_Updater::flush()
         (!area_blocks.empty()))
       update();
   }
-  catch(File_Error e)
+  catch (const File_Error &e)
   {
     std::cerr<<"File_Error: "<<strerror(e.error_number)<<' '<<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
   }

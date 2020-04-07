@@ -284,7 +284,7 @@ int main(int argc, char *argv[])
 
     return 0;
   }
-  catch(File_Error e)
+  catch (const File_Error &e)
   {
     if (e.origin != "Dispatcher_Stub::Dispatcher_Stub::1")
     {
@@ -302,7 +302,7 @@ int main(int argc, char *argv[])
     }
     return 1;
   }
-  catch(Resource_Error e)
+  catch (const Resource_Error &e)
   {
     std::ostringstream temp;
     if (e.timed_out)
@@ -316,16 +316,16 @@ int main(int argc, char *argv[])
 
     return 2;
   }
-  catch(Context_Error e)
+  catch (const Context_Error &e)
   {
     error_output->runtime_error("Context error: " + e.message);
     return 3;
   }
-  catch(Exit_Error e)
+  catch (const Exit_Error &e)
   {
     return 4;
   }
-  catch(std::bad_alloc& e)
+  catch(const std::bad_alloc& e)
   {
     rlimit limit;
     getrlimit(RLIMIT_AS, &limit);
@@ -334,7 +334,7 @@ int main(int argc, char *argv[])
     error_output->runtime_error(temp.str());
     return 5;
   }
-  catch(std::exception& e)
+  catch(const std::exception& e)
   {
     error_output->runtime_error(std::string("Query failed with the exception: ") + e.what());
     return 6;
