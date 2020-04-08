@@ -272,7 +272,7 @@ Ids_Dense_Predicate< Index, Skeleton >::Ids_Dense_Predicate(
 
 
 
-class Changed_Constraint : public Query_Constraint
+class Changed_Constraint final : public Query_Constraint
 {
   public:
     Changed_Constraint(Changed_Statement& stmt_) : stmt(&stmt_) {}

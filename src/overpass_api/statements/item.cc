@@ -20,7 +20,7 @@
 #include "item.h"
 
 
-class Item_Constraint : public Query_Constraint
+class Item_Constraint final : public Query_Constraint
 {
   public:
     Item_Constraint(Item_Statement& item_) : item(&item_) {}

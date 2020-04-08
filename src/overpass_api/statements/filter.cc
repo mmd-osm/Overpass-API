@@ -24,7 +24,7 @@
 #include <sstream>
 
 
-class Filter_Constraint : public Query_Constraint
+class Filter_Constraint final : public Query_Constraint
 {
   public:
     Query_Filter_Strategy delivers_data(Resource_Manager& rman) { return ids_required; }

@@ -1002,7 +1002,7 @@ void relations_up_loop(const Statement& query, Resource_Manager& rman,
 
 //-----------------------------------------------------------------------------
 
-class Recurse_Constraint : public Query_Constraint
+class Recurse_Constraint final : public Query_Constraint
 {
   public:
     Recurse_Constraint(Recurse_Statement& stmt_) : stmt(&stmt_) {}

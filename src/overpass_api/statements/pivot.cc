@@ -141,7 +141,7 @@ std::vector< Relation::Id_Type > get_relation_pivot_ids(const std::map< Uint31_I
 //-----------------------------------------------------------------------------
 
 
-class Pivot_Constraint : public Query_Constraint
+class Pivot_Constraint final : public Query_Constraint
 {
   public:
     Pivot_Constraint(Pivot_Statement& stmt_) : stmt(&stmt_) {}

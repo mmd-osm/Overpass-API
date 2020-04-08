@@ -35,7 +35,7 @@
 #include "recurse.h"
 
 
-class Area_Constraint : public Query_Constraint
+class Area_Constraint final : public Query_Constraint
 {
   public:
     Area_Constraint(Area_Query_Statement& area_) : area(&area_) {}

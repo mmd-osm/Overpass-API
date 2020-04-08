@@ -34,7 +34,7 @@
 
 //-----------------------------------------------------------------------------
 
-class Polygon_Constraint : public Query_Constraint
+class Polygon_Constraint final : public Query_Constraint
 {
   public:
     Query_Filter_Strategy delivers_data(Resource_Manager& rman);

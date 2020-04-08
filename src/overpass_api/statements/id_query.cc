@@ -110,7 +110,7 @@ void filter_elems(const std::vector< uint64 > & ids,
 
 //-----------------------------------------------------------------------------
 
-class Id_Query_Constraint : public Query_Constraint
+class Id_Query_Constraint final : public Query_Constraint
 {
   public:
     Id_Query_Constraint(Id_Query_Statement& stmt_) : stmt(&stmt_) {}

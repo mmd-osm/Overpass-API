@@ -48,7 +48,7 @@ private:
    std::set< Uint32_Index > m_user_ids;
 };
 
-class User_Constraint : public Query_Constraint
+class User_Constraint final : public Query_Constraint
 {
   public:
     User_Constraint(User_Statement& user_) : user(&user_) {}

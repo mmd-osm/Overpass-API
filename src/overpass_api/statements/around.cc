@@ -399,7 +399,7 @@ inline Prepared_BBox calc_distance_bbox(double lat, double lon, double dist)
 
 //-----------------------------------------------------------------------------
 
-class Around_Constraint : public Query_Constraint
+class Around_Constraint final : public Query_Constraint
 {
   public:
     Around_Constraint(Around_Statement& around_) : around(&around_), ranges_used(false) {}

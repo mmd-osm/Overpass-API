@@ -44,7 +44,7 @@ private:
    uint64 m_timestamp = 0;
 };
 
-class Newer_Constraint : public Query_Constraint
+class Newer_Constraint final : public Query_Constraint
 {
   public:
     Newer_Constraint(Newer_Statement& newer) : timestamp(newer.get_timestamp()) {}
