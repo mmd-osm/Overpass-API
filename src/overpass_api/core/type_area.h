@@ -442,6 +442,7 @@ struct Area_Block
   {
     if (d->ilat_ilon_pairs.empty())
     {
+      d->ilat_ilon_pairs.reserve(coors().size());
       for (std::vector< uint64 >::const_iterator it = coors().begin(); it != coors().end(); ++it)
       {
         uint32 _lat = ::ilat((*it >> 32) & 0xff, *it & 0xffffffffull);
