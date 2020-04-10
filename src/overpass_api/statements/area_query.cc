@@ -69,6 +69,8 @@ void copy_discrete_to_area_ranges(
 bool Area_Constraint::get_ranges
     (Resource_Manager& rman, std::set< std::pair< Uint32_Index, Uint32_Index > >& ranges)
 {
+  area_blocks_req.clear();
+
   if (area->areas_from_input())
   {
     const Set* input = rman.get_set(area->get_input());
