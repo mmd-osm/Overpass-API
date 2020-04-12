@@ -938,6 +938,7 @@ bool add_way_to_area_blocks(const std::vector< Quad_Coord >& coords,
 std::vector< Quad_Coord > make_geometry(const Way_Skeleton& way, const std::vector< Node >& nodes)
 {
   std::vector< Quad_Coord > result;
+  result.reserve(way.nds().size());
 
   for (std::vector< Node::Id_Type >::const_iterator it3(way.nds().begin());
       it3 != way.nds().end(); ++it3)
@@ -958,6 +959,7 @@ std::vector< Quad_Coord > make_geometry(const Way_Skeleton& way, const std::vect
 std::vector< Uint31_Index > segment_idxs(const std::vector< Quad_Coord >& geometry)
 {
   std::vector< uint32 > nd_idxs;
+  nd_idxs.reserve(geometry.size());
 
   for (std::vector< Quad_Coord >::const_iterator it = geometry.begin(); it != geometry.end(); ++it)
     nd_idxs.push_back(it->ll_upper);
