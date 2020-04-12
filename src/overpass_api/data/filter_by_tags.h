@@ -235,7 +235,7 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kregv(
       !(it2 == tags_db.range_end()); ++it2)
   {
     if (krit->second->matches(it2.index().value))
-      timestamp_per_id[it2.object().id] = std::make_pair(NOW, it2.object().idx);
+      timestamp_per_id[it2.handle().id()] = std::make_pair(NOW, it2.handle().get_idx());
   }
 
   for (typename Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >::Range_Iterator
@@ -298,13 +298,13 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_regkregv(
       Default_Range_Iterator< Tag_Index_Global >(range_req.end())));
       !(it2 == tags_db.range_end()); ++it2)
   {
-    if (it2.index().key != last_key)
+    if (!it2.index_handle().has_key(last_key))
     {
       last_key = it2.index().key;
       matches = krit->first->matches(it2.index().key);
     }
     if (matches && krit->second->matches(it2.index().value))
-      timestamp_per_id[it2.object().id][last_key] = std::make_pair(NOW, it2.object().idx);
+      timestamp_per_id[it2.handle().id()][last_key] = std::make_pair(NOW, it2.handle().get_idx());
   }
 
   last_key = void_tag_value();
@@ -312,7 +312,7 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_regkregv(
   for (typename Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >::Flat_Iterator
       it2(attic_tags_db.flat_begin()); !(it2 == attic_tags_db.flat_end()); ++it2)
   {
-    if (it2.index().key != last_key)
+    if (!it2.index_handle().has_key(last_key))
     {
       last_key = it2.index().key;
       matches = krit->first->matches(it2.index().key);
@@ -336,7 +336,7 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_regkregv(
   for (typename Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >::Flat_Iterator
       it2(attic_tags_db.flat_begin()); !(it2 == attic_tags_db.flat_end()); ++it2)
   {
-    if (it2.index().key != last_key)
+    if (!it2.index_handle().has_key(last_key))
     {
       last_key = it2.index().key;
       matches = krit->first->matches(it2.index().key);
