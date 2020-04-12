@@ -79,7 +79,7 @@ void filter_ids_by_tags
     {
       if (key_relevant)
       {
-	valid = key_it->second.first == "" || tag_it.index().value == key_it->second.first;
+	valid = key_it->second.first.empty() || tag_it.index().value == key_it->second.first;
 	for (std::vector< Regular_Expression* >::const_iterator rit = key_it->second.second.begin();
 	    valid && rit != key_it->second.second.end(); ++rit)
 	  valid &= (*rit)->matches(tag_it.index().value);
@@ -188,7 +188,7 @@ public:
 
   bool value_relevant(const std::string& value) const
   {
-    bool valid = value_ == "" || value_ == value;
+    bool valid = value_.empty() || value_ == value;
     for (std::vector< Regular_Expression* >::const_iterator it = conditions_.begin(); valid && it != conditions_.end();
         ++it)
       valid &= (*it)->matches(value);

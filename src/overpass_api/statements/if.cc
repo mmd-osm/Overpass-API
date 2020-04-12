@@ -66,7 +66,7 @@ bool evals_to_true(Evaluator& criterion, const Statement& stmt, Resource_Manager
   Owner< Eval_Task > task(criterion.get_string_task(context, 0));
   std::string valuation = (*task).eval(0);
   double val_d = 0;
-  return valuation != "" && (!try_double(valuation, val_d) || val_d != 0);
+  return (!valuation.empty())  && (!try_double(valuation, val_d) || val_d != 0);
 }
 
 

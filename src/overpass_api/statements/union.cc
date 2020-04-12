@@ -55,7 +55,7 @@ void Union_Statement::add_statement(Statement* statement, std::string text)
   {
     if (statement->get_name() == "newer")
       add_static_error("\"newer\" can appear only inside \"query\" statements.");
-    else if (statement->get_result_name() == "")
+    else if (statement->get_result_name().empty())
       substatement_error(get_name(), statement);
     else
       substatements.push_back(statement);

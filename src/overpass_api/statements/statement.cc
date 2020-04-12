@@ -265,7 +265,7 @@ Statement* Statement::Factory::create_evaluator(
             all_it->second, *this, global_settings, Statement::error_output);
     }
   }
-  else if (tree_it->token == "")
+  else if (tree_it->token.empty())
     error_output->add_parse_error("Evaluator expected, but empty token found.", tree_it->line_col.first);
   else
   {

@@ -198,8 +198,8 @@ Aggregator_Evaluator_Maker< Evaluator_Union_Value > Evaluator_Union_Value::evalu
 
 void Evaluator_Union_Value::Aggregator::update_value(const std::string& value)
 {
-  if (value != "" && value != agg_value)
-    agg_value = (agg_value == "" ? value : "< multiple values found >");
+  if (!value.empty() && value != agg_value)
+    agg_value = (agg_value.empty() ? value : "< multiple values found >");
 }
 
 
@@ -233,8 +233,8 @@ void Evaluator_Min_Value::Aggregator::update_value(const std::string& value)
       relevant_type = type_string;
   }
 
-  if (value != "")
-    result_s = (result_s != "" ? std::min(result_s, value) : value);
+  if (!value.empty())
+    result_s = (!result_s.empty() ? std::min(result_s, value) : value);
 }
 
 
@@ -281,8 +281,8 @@ void Evaluator_Max_Value::Aggregator::update_value(const std::string& value)
       relevant_type = type_string;
   }
 
-  if (value != "")
-    result_s = (result_s != "" ? std::max(result_s, value) : value);
+  if (!value.empty())
+    result_s = (!result_s.empty() ? std::max(result_s, value) : value);
 }
 
 
@@ -348,7 +348,7 @@ Aggregator_Evaluator_Maker< Evaluator_Set_Value > Evaluator_Set_Value::evaluator
 
 void Evaluator_Set_Value::Aggregator::update_value(const std::string& value)
 {
-  if (value != "")
+  if (!value.empty())
     values.insert(value);
 }
 

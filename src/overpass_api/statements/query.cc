@@ -2191,7 +2191,7 @@ Has_Kv_Statement::Has_Kv_Statement
   key = attributes["k"];
   value = attributes["v"];
 
-  if (key == "" && attributes["regk"] == "")
+  if (key.empty() && attributes["regk"].empty())
   {
     std::ostringstream temp("");
     temp<<"For the attribute \"k\" of the element \"has-kv\""
@@ -2255,11 +2255,11 @@ Has_Kv_Statement::Has_Kv_Statement
     }
   }
 
-  if (attributes["modv"] == "" || attributes["modv"] == "not")
+  if (attributes["modv"].empty() || attributes["modv"] == "not")
   {
     if (attributes["modv"] == "not")
     {
-      if (attributes["regk"] == "")
+      if (attributes["regk"].empty())
         straight = false;
       else
 	add_static_error("In the element \"has-kv\" regular expressions on keys cannot be combined"
