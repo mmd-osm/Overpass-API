@@ -251,7 +251,7 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kregv(
     {
       std::pair< uint64, Uint31_Index >& ref = timestamp_per_id[it2.handle().id()];
       if (ref.first == 0 || current_timestamp < ref.first)
-        ref = std::make_pair(current_timestamp, it2.object().idx);
+        ref = std::make_pair(current_timestamp, it2.handle().get_idx());
     }
   }
 

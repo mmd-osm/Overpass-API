@@ -403,11 +403,11 @@ void filter_ids_by_tags
       update_listeners_values(tag_listeners, relevant_listeners, current_value);
     }
 
-    if (!relevant_listeners.empty() && timestamp < attic_tag_it.object().timestamp)
+    if (!relevant_listeners.empty() && timestamp < attic_tag_it.handle().get_timestamp())
     {
       for (uint64 i = 0; i < relevant_listeners.size(); ++i)
 	tag_listeners[relevant_listeners[i].first]->eval_id(
-	    attic_tag_it.object(), attic_tag_it.object().timestamp, relevant_listeners[i].second);
+	    attic_tag_it.object(), attic_tag_it.handle().get_timestamp(), relevant_listeners[i].second);
     }
 
     ++attic_tag_it;
