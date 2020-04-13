@@ -163,18 +163,20 @@ void Dispatcher_Socket::init_epoll()
 
 std::vector<unsigned int> Dispatcher_Socket::wait_for_clients(Connection_Per_Pid_Map& connection_per_pid, bool& timeout, uint64 milliseconds)
 {
-  int n, i;
+  int nr, i;
 
   std::vector<unsigned int> result_pids;
 
-  n = epoll_wait(efd, events.data(), MAX_EVENTS, (milliseconds == 0 ? -1 : milliseconds));
+  do {
+    nr = epoll_wait(efd, events.data(), MAX_EVENTS, (milliseconds == 0 ? -1 : milliseconds));
+  } while (nr == -1 && errno == EINTR);
 
-  timeout = (n == 0 && milliseconds != 0);
+  timeout = (nr == 0 && milliseconds != 0);
 
-  if (n == -1)
+  if (nr == -1)
     throw File_Error( errno, "(socket)", "Dispatcher_Socket::wait_for_clients");
 
-  for (i = 0; i < n; i++)
+  for (i = 0; i < nr; i++)
   {
     if ((events[i].events & EPOLLERR) || (events[i].events & EPOLLHUP)
         || (!(events[i].events & EPOLLIN)))
