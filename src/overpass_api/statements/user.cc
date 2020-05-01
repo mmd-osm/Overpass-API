@@ -362,7 +362,6 @@ void User_Statement::execute(Resource_Manager& rman)
 
   if (rman.get_desired_timestamp() == NOW)
   {
-
     if ((result_type == "") || (result_type == "node") || (result_type == "nwr"))
     {
       std::set< std::pair< Uint32_Index, Uint32_Index > > ranges;
@@ -373,8 +372,10 @@ void User_Statement::execute(Resource_Manager& rman)
       Meta_Collector< Uint32_Index, Node_Skeleton::Id_Type, User_Ids_Functor< Node_Skeleton::Id_Type > > meta_collector
       (ranges, *rman.get_transaction(), user_id_filter, meta_settings().NODES_META);
 
+      Uint32_Index idx_start;
+
       collect_items_range< Uint32_Index, Node_Skeleton >
-         (this, rman, *osm_base_settings().NODES, ranges, into.nodes,
+         (this, rman, *osm_base_settings().NODES, ranges, idx_start, into.nodes,
           [&] (Uint32_Index first, Node_Skeleton::Id_Type second)
           {
             return (meta_collector.get(first, second));
@@ -391,8 +392,10 @@ void User_Statement::execute(Resource_Manager& rman)
       Meta_Collector< Uint31_Index, Way_Skeleton::Id_Type, User_Ids_Functor< Way_Skeleton::Id_Type > > meta_collector
       (ranges, *rman.get_transaction(), user_id_filter, meta_settings().WAYS_META);
 
+      Uint31_Index idx_start;
+
       collect_items_range< Uint31_Index, Way_Skeleton >
-        (this, rman, *osm_base_settings().WAYS, ranges, into.ways,
+        (this, rman, *osm_base_settings().WAYS, ranges, idx_start, into.ways,
           [&] (Uint31_Index first, Way_Skeleton::Id_Type second)
           {
             return (meta_collector.get(first, second));
@@ -409,8 +412,10 @@ void User_Statement::execute(Resource_Manager& rman)
       Meta_Collector< Uint31_Index, Relation_Skeleton::Id_Type, User_Ids_Functor< Relation_Skeleton::Id_Type > > meta_collector
       (ranges, *rman.get_transaction(), user_id_filter, meta_settings().RELATIONS_META);
 
+      Uint31_Index idx_start;
+
       collect_items_range< Uint31_Index, Relation_Skeleton >
-         (this, rman, *osm_base_settings().RELATIONS, ranges, into.relations,
+         (this, rman, *osm_base_settings().RELATIONS, ranges, idx_start, into.relations,
           [&] (Uint31_Index first, Relation_Skeleton::Id_Type second)
           {
             return (meta_collector.get(first, second));
@@ -426,7 +431,7 @@ void User_Statement::execute(Resource_Manager& rman)
       constraint.get_ranges(rman, ranges);
       get_elements_by_id_from_db< Uint32_Index, Node_Skeleton >
       (into.nodes, into.attic_nodes,
-          std::vector< Node::Id_Type >(), false, ranges, *this, rman,
+          std::vector< Node::Id_Type >(), false, ranges, 0, *this, rman,
           *osm_base_settings().NODES, *attic_settings().NODES);
       filter_attic_elements(rman, rman.get_desired_timestamp(), into.nodes, into.attic_nodes);
     }
@@ -437,7 +442,7 @@ void User_Statement::execute(Resource_Manager& rman)
       constraint.get_ranges(rman, ranges);
       get_elements_by_id_from_db< Uint31_Index, Way_Skeleton >
       (into.ways, into.attic_ways,
-          std::vector< Way::Id_Type >(), false, ranges, *this, rman,
+          std::vector< Way::Id_Type >(), false, ranges, 0, *this, rman,
           *osm_base_settings().WAYS, *attic_settings().WAYS);
       filter_attic_elements(rman, rman.get_desired_timestamp(), into.ways, into.attic_ways);
     }
@@ -448,7 +453,7 @@ void User_Statement::execute(Resource_Manager& rman)
       constraint.get_ranges(rman, ranges);
       get_elements_by_id_from_db< Uint31_Index, Relation_Skeleton >
       (into.relations, into.attic_relations,
-          std::vector< Relation::Id_Type >(), false, ranges, *this, rman,
+          std::vector< Relation::Id_Type >(), false, ranges, 0, *this, rman,
           *osm_base_settings().RELATIONS, *attic_settings().RELATIONS);
       filter_attic_elements(rman, rman.get_desired_timestamp(), into.relations, into.attic_relations);
     }

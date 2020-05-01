@@ -181,11 +181,11 @@ void filter_relations_by_ranges(std::map< Uint31_Index, std::vector< Relation_Sk
 
 
 template < typename TIndex, typename TObject >
-void get_elements_by_id_from_db
+bool get_elements_by_id_from_db
     (std::map< TIndex, std::vector< TObject > >& elements,
      std::map< TIndex, std::vector< Attic< TObject > > >& attic_elements,
      const std::vector< typename TObject::Id_Type >& ids, bool invert_ids,
-     const std::set< std::pair< TIndex, TIndex > >& range_req,
+     const std::set< std::pair< TIndex, TIndex > >& range_req, TIndex* min_idx,
      const Statement& query, Resource_Manager& rman,
      File_Properties& file_prop, File_Properties& attic_file_prop)
 {
@@ -195,32 +195,54 @@ void get_elements_by_id_from_db
   attic_elements.clear();
   if (ids.empty())
   {
-    if (timestamp == NOW)
-      collect_items_range(&query, rman, file_prop, range_req,
-          Trivial_Predicate< TObject >(), elements);
-    else
-      collect_items_range_by_timestamp(&query, rman, range_req,
-          Trivial_Predicate< TObject >(), elements, attic_elements);
+    if (range_req.empty())
+      return false;
+    TIndex cur_idx = min_idx ? *min_idx : range_req.begin()->first;
+    while (timestamp == NOW
+        ? collect_items_range(&query, rman, file_prop, range_req, Trivial_Predicate< TObject >(), cur_idx, elements)
+        : collect_items_range_by_timestamp(&query, rman, range_req, Trivial_Predicate< TObject >(), cur_idx,
+              elements, attic_elements))
+    {
+      if (min_idx)
+      {
+        *min_idx = cur_idx;
+        return true;
+      }
+    }
   }
   else if (!invert_ids)
   {
-    if (timestamp == NOW)
-      collect_items_range(&query, rman, file_prop, range_req,
-          Id_Predicate< TObject >(ids), elements);
-    else
-      collect_items_range_by_timestamp(&query, rman, range_req,
-          Id_Predicate< TObject >(ids), elements, attic_elements);
+    if (range_req.empty())
+      return false;
+    TIndex cur_idx = min_idx ? *min_idx : range_req.begin()->first;
+    while (timestamp == NOW
+        ? collect_items_range(&query, rman, file_prop, range_req, Id_Predicate< TObject >(ids), cur_idx, elements)
+        : collect_items_range_by_timestamp(&query, rman, range_req, Id_Predicate< TObject >(ids), cur_idx,
+              elements, attic_elements))
+    {
+      if (min_idx)
+      {
+        *min_idx = cur_idx;
+        return true;
+      }
+    }  
   }
   else if (!range_req.empty())
   {
-    if (timestamp == NOW)
-      collect_items_range(&query, rman, file_prop, range_req,
-          Not_Predicate< TObject, Id_Predicate< TObject > >(Id_Predicate< TObject >(ids)),
-          elements);
-    else
-      collect_items_range_by_timestamp(&query, rman, range_req,
-          Not_Predicate< TObject, Id_Predicate< TObject > >(Id_Predicate< TObject >(ids)),
-          elements, attic_elements);
+    TIndex cur_idx = min_idx ? *min_idx : range_req.begin()->first;
+    while (timestamp == NOW
+        ? collect_items_range(&query, rman, file_prop, range_req,
+              Not_Predicate< TObject, Id_Predicate< TObject > >(Id_Predicate< TObject >(ids)), cur_idx, elements)
+        : collect_items_range_by_timestamp(&query, rman, range_req,
+              Not_Predicate< TObject, Id_Predicate< TObject > >(Id_Predicate< TObject >(ids)), cur_idx,
+              elements, attic_elements))
+    {
+      if (min_idx)
+      {
+        *min_idx = cur_idx;
+        return true;
+      }
+    }
   }
   else
   {
@@ -233,6 +255,8 @@ void get_elements_by_id_from_db
           Not_Predicate< TObject, Id_Predicate< TObject > >(Id_Predicate< TObject >(ids)),
           elements, attic_elements);
   }
+
+  return false;
 }
 
 
@@ -618,6 +642,59 @@ void keep_matching_skeletons
         local_into.push_back(*it2);
     }
     local_into.swap(it->second);
+  }
+}
+
+
+template< typename Index, typename Skeleton >
+void keep_matching_skeletons
+    (std::map< Index, std::vector< Attic< Skeleton > > >& result,
+     const std::map< Index, std::vector< Skeleton > >& current,
+     const std::map< Index, std::vector< Attic< Skeleton > > >& attic,
+     uint64 timestamp)
+{
+  std::map< typename Skeleton::Id_Type, uint64 > timestamp_by_id;
+
+  result.clear();
+
+  for (typename std::map< Index, std::vector< Skeleton > >::const_iterator it = current.begin();
+       it != current.end(); ++it)
+  {
+    for (typename std::vector< Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+      timestamp_by_id[it2->id] = NOW;
+  }
+
+  for (typename std::map< Index, std::vector< Attic< Skeleton > > >::const_iterator it = attic.begin();
+       it != attic.end(); ++it)
+  {
+    for (typename std::vector< Attic< Skeleton > >::const_iterator it2 = it->second.begin();
+         it2 != it->second.end(); ++it2)
+    {
+      uint64& stored_timestamp = timestamp_by_id[it2->id];
+      if (it2->timestamp > timestamp && (stored_timestamp == 0 || stored_timestamp > it2->timestamp))
+        stored_timestamp = it2->timestamp;
+    }
+  }
+
+  for (typename std::map< Index, std::vector< Skeleton > >::const_iterator it = current.begin();
+       it != current.end(); ++it)
+  {
+    for (typename std::vector< Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    {
+      if (timestamp_by_id[it2->id] == NOW)
+        result[it->first].push_back(Attic< Skeleton >(*it2, NOW));
+    }
+  }
+
+  for (typename std::map< Index, std::vector< Attic< Skeleton > > >::const_iterator it = attic.begin();
+       it != attic.end(); ++it)
+  {
+    for (typename std::vector< Attic< Skeleton > >::const_iterator it2 = it->second.begin();
+         it2 != it->second.end(); ++it2)
+    {
+      if (timestamp_by_id[it2->id] == it2->timestamp)
+        result[it->first].push_back(Attic< Skeleton >(*it2, it2->timestamp));
+    }
   }
 }
 
