@@ -30,6 +30,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <csignal>
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
@@ -38,6 +39,8 @@
 #include <string>
 #include <vector>
 
+#include <sys/time.h>
+#include <sys/resource.h>
 
 std::string de_escape(std::string input)
 {
@@ -69,8 +72,6 @@ void set_limits(uint32 time, uint64 space)
 {
   rlimit limit;
 
-  //TODO: Set soft limits for FastCGI instead of hard limits!
-
   int result = getrlimit(RLIMIT_CPU, &limit);
   if (result == 0 && time < limit.rlim_cur && time < limit.rlim_max)
   {
@@ -88,6 +89,41 @@ void set_limits(uint32 time, uint64 space)
   }
 }
 
+void set_limits_fastcgi(uint32 time, uint64 space)
+{
+  rlimit limit;
+
+  const rlim_t hard_cpu_limit = 7200;     // 2 hours maximum
+
+  // determine already used cpu consumption
+  struct rusage usage;
+  getrusage(RUSAGE_SELF, &usage);
+
+  // include already used up time in new limit
+  rlim_t soft_cpu_limit = time + usage.ru_utime.tv_sec + usage.ru_stime.tv_sec;
+
+  if (soft_cpu_limit > hard_cpu_limit)
+    soft_cpu_limit = hard_cpu_limit;
+
+  limit.rlim_cur = soft_cpu_limit;
+  limit.rlim_max = hard_cpu_limit;
+  int result = setrlimit(RLIMIT_CPU, &limit);
+
+  result = getrlimit(RLIMIT_AS, &limit);
+  if (result == 0 && space < limit.rlim_cur && space < limit.rlim_max)
+  {
+    limit.rlim_cur = space;
+    limit.rlim_max = space;
+    result = setrlimit(RLIMIT_AS, &limit);
+  }
+}
+
+void signalHandler_terminate_process(int signum) {
+
+  // terminate program
+  std::_Exit(signum);
+}
+
 
 Dispatcher_Stub::Dispatcher_Stub
     (std::string db_dir_, Error_Output* error_output_, std::string xml_raw, meta_modes meta_, int area_level,
@@ -103,8 +139,15 @@ Dispatcher_Stub::Dispatcher_Stub
       dispatcher_client(0), area_dispatcher_client(0),
       transaction(0), area_transaction(0), rman(0), meta(meta_), client_token(0)
 {
-  if (max_allowed_time > 0)
-    set_limits(2*max_allowed_time + 60, 2*max_allowed_space + 1024*1024*1024);
+  if (max_allowed_time > 0) {
+    if (ic == nullptr)
+      set_limits(2*max_allowed_time + 60, 2*max_allowed_space + 1024*1024*1024);
+    else {
+      // FastCGI enabled with IndexCache
+      signal(SIGXCPU, signalHandler_terminate_process);  // called when reaching soft CPU limit threshold
+      set_limits_fastcgi(2*max_allowed_time + 60, 17179869184ULL); // 16GB
+    }
+  }
 
   if (db_dir == "")
   {
