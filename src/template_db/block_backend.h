@@ -90,13 +90,13 @@ template< typename Object >
 struct Handle : Idx_Handle< Object >, public Handle_Base<Object>::type
 {
   template< typename Functor >
-  auto apply_func(Functor f) const -> decltype(f(static_cast<const void*>(nullptr)));
+  auto apply_func(Functor f) const -> decltype(f(static_cast<const void*>(std::declval<const void *>())));
 };
 
 
 template< typename Object >
 template< typename Functor >
-inline auto Handle< Object >::apply_func(Functor f) const -> decltype(f(static_cast<const void*>(nullptr)))
+inline auto Handle< Object >::apply_func(Functor f) const -> decltype(f(static_cast<const void*>(std::declval<const void *>())))
 {
   // Static type check assumes a Functor class to have a "using reference_type" declaration,
   // which has to match the data type that is required to handle the raw data in "const void* data".
