@@ -72,6 +72,25 @@ struct Way_Updater
       user_by_id[meta->user_id] = meta->user_name;
   }
 
+  void set_way(Way&& way,
+               const OSM_Element_Metadata* meta = 0)
+  {
+    if (meta)
+      new_data.data.push_back(Data_By_Id< Way_Skeleton >::Entry
+          (Uint31_Index(0xff), Way_Skeleton(way.id, std::move(way.nds)),
+           std::move(way.tags),
+           OSM_Element_Metadata_Skeleton< Way_Skeleton::Id_Type >(way.id, *meta)));
+    else
+      new_data.data.push_back(Data_By_Id< Way_Skeleton >::Entry
+          (Uint31_Index(0xff), Way_Skeleton(way.id, std::move(way.nds)),
+           std::move(way.tags),
+           std::move(OSM_Element_Metadata_Skeleton< Way_Skeleton::Id_Type >(way.id))));
+
+    if (meta)
+      user_by_id[meta->user_id] = meta->user_name;
+  }
+
+
   void update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_stopwatch, bool partial,
               const std::map< Uint31_Index, std::set< Node_Skeleton > >& new_node_skeletons,
               const std::map< Uint31_Index, std::set< Node_Skeleton > >& attic_node_skeletons,

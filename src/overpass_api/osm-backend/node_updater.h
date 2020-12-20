@@ -74,6 +74,25 @@ struct Node_Updater
       user_by_id[meta->user_id] = meta->user_name;
   }
 
+  void set_node(Node&& node, const OSM_Element_Metadata* meta = 0)
+  {
+    if (meta)
+      new_data.data.push_back(Data_By_Id< Node_Skeleton >::Entry
+          (Uint31_Index(node.index), Node_Skeleton(node),
+           std::move(node.tags),
+           OSM_Element_Metadata_Skeleton< Node_Skeleton::Id_Type >(node.id, *meta)));
+    else
+      new_data.data.push_back(Data_By_Id< Node_Skeleton >::Entry
+          (Uint31_Index(node.index), Node_Skeleton(node),
+           std::move(node.tags),
+           OSM_Element_Metadata_Skeleton< Node_Skeleton::Id_Type >(node.id)));
+
+    ids_to_modify.push_back(std::make_pair(node.id, true));
+    nodes_to_insert.push_back(node);
+    if (meta)
+      user_by_id[meta->user_id] = meta->user_name;
+  }
+
   void update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_stopwatch, bool partial);
 
   const std::vector< std::pair< Node::Id_Type, Uint32_Index > >& get_moved_nodes() const

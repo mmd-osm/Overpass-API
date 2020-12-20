@@ -72,6 +72,24 @@ struct Relation_Updater
       user_by_id[meta->user_id] = meta->user_name;
   }
 
+  void set_relation(Relation&& rel,
+                    const OSM_Element_Metadata* meta = 0)
+  {
+    if (meta)
+      new_data.data.push_back(Data_By_Id< Relation_Skeleton >::Entry
+          (Uint31_Index(0xff), Relation_Skeleton(rel.id, std::move(rel.members)),
+           std::move(rel.tags),
+           OSM_Element_Metadata_Skeleton< Relation_Skeleton::Id_Type >(rel.id, *meta)));
+    else
+      new_data.data.push_back(Data_By_Id< Relation_Skeleton >::Entry
+          (Uint31_Index(0xff), Relation_Skeleton(rel.id, std::move(rel.members)),
+           std::move(rel.tags),
+           OSM_Element_Metadata_Skeleton< Relation_Skeleton::Id_Type >(rel.id)));
+
+    if (meta)
+      user_by_id[meta->user_id] = meta->user_name;
+  }
+
   uint32 get_role_id(const std::string& s);
   std::vector< std::string > get_roles();
 

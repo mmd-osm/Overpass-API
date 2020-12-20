@@ -111,7 +111,7 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
     if (n.deleted())
       node_updater->set_id_deleted(n.id(), &meta);
     else
-      node_updater->set_node(node, &meta);
+      node_updater->set_node(std::move(node), &meta);
 
     if (osm_element_count >= flush_limit)
     {
@@ -132,6 +132,8 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
     for (const auto & tag : w.tags())
       way.tags.push_back(make_pair(tag.key(), tag.value()));
 
+    way.nds.reserve(w.nodes().size());
+
     for (const auto & nd : w.nodes())
       way.nds.push_back(nd.ref());
 
@@ -141,7 +143,7 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
     if (w.deleted())
       way_updater->set_id_deleted(w.id(), &meta);
     else
-      way_updater->set_way(way, &meta);
+      way_updater->set_way(std::move(way), &meta);
 
     if (osm_element_count * 5 >= flush_limit)
     {
@@ -164,6 +166,8 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
     for (const auto & tag : r.tags())
       relation.tags.push_back(make_pair(tag.key(), tag.value()));
 
+    relation.members.reserve(r.members().size());
+
     for (const auto & member : r.members())
     {
       Relation_Entry entry;
@@ -185,7 +189,7 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
     if (r.deleted())
       relation_updater->set_id_deleted(r.id(), &meta);
     else
-      relation_updater->set_relation(relation, &meta);
+      relation_updater->set_relation(std::move(relation), &meta);
 
     if (osm_element_count >= flush_limit)
     {
@@ -201,16 +205,17 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
   }
 
   void get_meta(const osmium::OSMObject& object, OSM_Element_Metadata& meta) {
-    std::string ts_string = object.timestamp().to_iso();
-    const char* ts = ts_string.c_str();
 
-    uint64 timestamp = Timestamp(atol(ts),      //year
-    atoi(ts + 5),    //month
-    atoi(ts + 8),    //day
-    atoi(ts + 11),   //hour
-    atoi(ts + 14),   //minute
-    atoi(ts + 17)    //second
-        ).timestamp;
+    std::tm tm;
+    auto sse = object.timestamp().seconds_since_epoch();
+    gmtime_r(&sse, &tm);
+
+    uint64 timestamp = Timestamp(tm.tm_year + 1900,
+                                 tm.tm_mon + 1,
+                                 tm.tm_mday,
+                                 tm.tm_hour,
+                                 tm.tm_min,
+                                 tm.tm_sec).timestamp;
 
     meta.changeset = object.changeset();
     meta.timestamp = timestamp;

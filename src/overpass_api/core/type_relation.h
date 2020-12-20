@@ -163,6 +163,13 @@ struct Relation_Skeleton
 
   }
 
+  Relation_Skeleton(Id_Type id_, std::vector< Relation_Entry >&& members_)
+      : id(id_) {
+
+    d = new Relation_Skeleton_Data;
+    d->members = std::move(members_);
+  }
+
   Relation_Skeleton(Id_Type id_, const std::vector< Relation_Entry >& members_,
 		    const std::vector< Uint31_Index >& node_idxs_,
 		    const std::vector< Uint31_Index >& way_idxs_)

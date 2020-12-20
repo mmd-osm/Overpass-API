@@ -134,6 +134,14 @@ struct Way_Skeleton
     d->geometry = way.geometry;
   }
 
+  Way_Skeleton(Id_Type id_,  std::vector< Node::Id_Type >&& nds_)
+      : id(id_) {
+
+    d = new Way_Skeleton_Data;
+    d->nds = std::move(nds_);
+  }
+
+
   Way_Skeleton(Id_Type id_, const std::vector< Node::Id_Type >& nds_, const std::vector< Quad_Coord >& geometry_)
       : id(id_) {
 

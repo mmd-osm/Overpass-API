@@ -49,6 +49,11 @@ struct Data_By_Id
             = Tag_Container())
         : idx(idx_), elem(elem_), meta(meta_), tags(tags_) {}
 
+    Entry(Uint31_Index idx_, Element_Skeleton && elem_,
+        Tag_Container && tags_,
+        OSM_Element_Metadata_Skeleton< typename Element_Skeleton::Id_Type > && meta_)
+        : idx(idx_), elem(std::move(elem_)), meta(std::move(meta_)), tags(std::move(tags_)) {}
+
     bool operator<(const Entry& e) const
     {
       if (this->elem.id < e.elem.id)
