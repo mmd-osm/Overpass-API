@@ -155,35 +155,6 @@ struct Idx_Agnostic_Compare
   }
 };
 
-namespace {
-
-std::vector< std::set< Uint31_Index > > build_req_packages(const std::set< Uint31_Index >& s)
-{
-
-  constexpr int PACKAGE_SIZE = 50000;
-
-  std::vector< std::set< Uint31_Index > > result;
-
-  std::set<Uint31_Index> package;
-
-  if (s.empty())
-    return result;
-
-  for (const auto& elem : s)
-  {
-    if (package.size() == PACKAGE_SIZE)
-    {
-      result.push_back(package);
-      package.clear();
-    }
-    package.insert(elem);
-  }
-  result.push_back(package);
-
-  return result;
-}
-
-}
 
 template< typename Element_Skeleton >
 std::map< Uint31_Index, std::set< Element_Skeleton > > get_existing_skeletons
