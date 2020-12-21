@@ -190,43 +190,22 @@ std::map< Uint31_Index, std::set< Element_Skeleton > > get_existing_skeletons
     (const std::vector< std::pair< typename Element_Skeleton::Id_Type, Uint31_Index > >& ids_with_position,
      Transaction& transaction, const File_Properties& file_properties)
 {
-  std::mutex transaction_mutex;
   std::set< Uint31_Index > req;
-  std::vector< typename Element_Skeleton::Id_Type > ids(ids_with_position.size());
-
   for (typename std::vector< std::pair< typename Element_Skeleton::Id_Type, Uint31_Index > >::const_iterator
-      it = ids_with_position.begin(); it != ids_with_position.end(); ++it) {
+      it = ids_with_position.begin(); it != ids_with_position.end(); ++it)
     req.insert(it->second);
-    ids.emplace_back(it->first);
-  }
 
   std::map< Uint31_Index, std::set< Element_Skeleton > > result;
+  Idx_Agnostic_Compare< typename Element_Skeleton::Id_Type > comp;
 
-  const auto packages = build_req_packages(req);
-
-  std::vector< std::function< void() > > f;
-
-  for (int i = 0; i < packages.size();i++) {
-
-    f.push_back( [i, &packages, &transaction, &file_properties, &result, &ids, &transaction_mutex]
-    {
-      std::map< Uint31_Index, std::set< Element_Skeleton > > local_result;
-
-      const auto & r = packages.at(i);
-
-      Block_Backend< Uint31_Index, Element_Skeleton > db(transaction.data_index(&file_properties));
-      for (typename Block_Backend< Uint31_Index, Element_Skeleton >::Discrete_Iterator
-          it(db.discrete_begin(r.begin(), r.end())); !(it == db.discrete_end()); ++it)
-      {
-        if (binary_search(ids.begin(), ids.end(), it.handle().id()))
-          local_result[it.index()].insert(it.object());
-      }
-      std::lock_guard<std::mutex> guard(transaction_mutex);
-      result.insert(local_result.begin(), local_result.end());
-    });
+  Block_Backend< Uint31_Index, Element_Skeleton > db(transaction.data_index(&file_properties));
+  for (typename Block_Backend< Uint31_Index, Element_Skeleton >::Discrete_Iterator
+      it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
+  {
+    if (binary_search(ids_with_position.begin(), ids_with_position.end(),
+        std::make_pair(it.object().id, 0), comp))
+      result[it.index()].insert(it.object());
   }
-
-  process_package(f, 1); // TODO: File_Blocks_Index is no longer thread safe, no current access to the same file at the moment
 
   return result;
 }
