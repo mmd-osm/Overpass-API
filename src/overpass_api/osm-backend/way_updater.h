@@ -35,9 +35,9 @@
 
 struct Way_Updater
 {
-  Way_Updater(Transaction& transaction, meta_modes meta, unsigned int parallel_processes = 1);
+  Way_Updater(Transaction& transaction, meta_modes meta, unsigned int parallel_processes = 1, bool initial_load = false);
 
-  Way_Updater(std::string db_dir, meta_modes meta, unsigned int parallel_processes = 1);
+  Way_Updater(std::string db_dir, meta_modes meta, unsigned int parallel_processes = 1, bool initial_load = false);
 
   void set_id_deleted(Way::Id_Type id, const OSM_Element_Metadata* meta = 0)
   {
@@ -130,6 +130,7 @@ private:
   void merge_files(const std::vector< std::string >& froms, std::string into);
 
   unsigned int parallel_processes;
+  bool initial_load;
 };
 
 #endif

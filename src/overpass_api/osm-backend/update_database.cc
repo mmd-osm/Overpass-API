@@ -50,6 +50,7 @@ int main(int argc, char* argv[])
   unsigned int flush_limit = 16*1024*1024;
   unsigned int parallel_processes = 1;
   bool use_osmium = false;
+  bool initial_load = false;   // input is sorted planet file (skip
 
   int argpos(1);
   while (argpos < argc)
@@ -76,6 +77,10 @@ int main(int argc, char* argv[])
     else if (!(strncmp(argv[argpos], "--parallel=", 11)))
     {
       parallel_processes = atoi(std::string(argv[argpos]).substr(11).c_str());
+    }
+    else if (!(strncmp(argv[argpos], "--initial-load", 14)))
+    {
+      initial_load = true;
     }
     else if (!(strncmp(argv[argpos], "--compression-method=", 21)))
     {
@@ -153,7 +158,7 @@ int main(int argc, char* argv[])
       else
       {
 #ifdef HAVE_LIBOSMIUM
-        Osmium_Updater osmium_updater(get_verbatim_callback(), data_version, meta, flush_limit, parallel_processes);
+        Osmium_Updater osmium_updater(get_verbatim_callback(), data_version, meta, flush_limit, parallel_processes, initial_load);
         //reading the main document
         osmium_updater.parse_file_completely(stdin);
 #endif
@@ -171,7 +176,7 @@ int main(int argc, char* argv[])
       else
       {
 #ifdef HAVE_LIBOSMIUM
-        Osmium_Updater osmium_updater(get_verbatim_callback(), db_dir, data_version, meta, flush_limit, parallel_processes);
+        Osmium_Updater osmium_updater(get_verbatim_callback(), db_dir, data_version, meta, flush_limit, parallel_processes, initial_load);
         //reading the main document
         osmium_updater.parse_file_completely(stdin);
 #endif

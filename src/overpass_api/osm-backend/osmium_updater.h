@@ -36,9 +36,11 @@ class Osmium_Updater
 {
   public:
     Osmium_Updater(Osm_Backend_Callback* callback_, const string& data_version,
-		meta_modes meta, unsigned int flush_limit, unsigned int parallel_processes);
+		meta_modes meta, unsigned int flush_limit, unsigned int parallel_processes,
+		bool initial_load = false);
     Osmium_Updater(Osm_Backend_Callback* callback_, string db_dir, const string& data_version,
-		meta_modes meta, unsigned int flush_limit, unsigned int parallel_processes);
+		meta_modes meta, unsigned int flush_limit, unsigned int parallel_processes,
+		bool initial_load = false);
     ~Osmium_Updater();
 
     void finish_updater();
@@ -57,6 +59,7 @@ class Osmium_Updater
     meta_modes meta;
     unsigned int parallel_processes;
     Cpu_Stopwatch* cpu_stopwatch;
+    bool initial_load;
 
 
     void flush();

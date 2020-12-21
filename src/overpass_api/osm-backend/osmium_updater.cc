@@ -368,8 +368,11 @@ void Osmium_Updater::parse_multiple_files(const std::string& source_dir, const s
 
 Osmium_Updater::Osmium_Updater(Osm_Backend_Callback* callback_,
     const string& data_version_, meta_modes meta_, unsigned int flush_limit_,
-    unsigned int parallel_processes_) :
-    dispatcher_client(0), meta(meta_), parallel_processes(parallel_processes_) {
+    unsigned int parallel_processes_, bool initial_load_) :
+    dispatcher_client(0), meta(meta_),
+    parallel_processes(parallel_processes_),
+    initial_load(initial_load_)
+{
   dispatcher_client = new Dispatcher_Client(osm_base_settings().shared_name);
   Logger logger(dispatcher_client->get_db_dir());
   logger.annotated_log("write_start() start version='" + data_version_ + '\'');
@@ -383,9 +386,9 @@ Osmium_Updater::Osmium_Updater(Osm_Backend_Callback* callback_,
     version << data_version_ << '\n';
   }
 
-  this->node_updater_ = new Node_Updater(*transaction, meta, parallel_processes);
-  this->way_updater_ = new Way_Updater(*transaction, meta, parallel_processes);
-  this->relation_updater_ = new Relation_Updater(*transaction, meta, parallel_processes);
+  this->node_updater_ = new Node_Updater(*transaction, meta, parallel_processes, initial_load);
+  this->way_updater_ = new Way_Updater(*transaction, meta, parallel_processes, initial_load);
+  this->relation_updater_ = new Relation_Updater(*transaction, meta, parallel_processes, initial_load);
   this->callback_ = callback_;
   this->flush_limit = flush_limit_;
 
@@ -395,18 +398,18 @@ Osmium_Updater::Osmium_Updater(Osm_Backend_Callback* callback_,
 
 Osmium_Updater::Osmium_Updater(Osm_Backend_Callback* callback_, string db_dir,
     const string& data_version_, meta_modes meta_, unsigned int flush_limit_,
-    unsigned int parallel_processes_
-    ) :
+    unsigned int parallel_processes_, bool initial_load_) :
     transaction(0), dispatcher_client(0), db_dir_(db_dir), meta(meta_),
-    parallel_processes(parallel_processes_){
+    parallel_processes(parallel_processes_),
+    initial_load(initial_load_) {
   {
     ofstream version((db_dir + "osm_base_version").c_str());
     version << data_version_ << '\n';
   }
 
-  this->node_updater_ = new Node_Updater(db_dir, meta, parallel_processes);
-  this->way_updater_ = new Way_Updater(db_dir, meta, parallel_processes);
-  this->relation_updater_ = new Relation_Updater(db_dir, meta, parallel_processes);
+  this->node_updater_ = new Node_Updater(db_dir, meta, parallel_processes, initial_load);
+  this->way_updater_ = new Way_Updater(db_dir, meta, parallel_processes, initial_load);
+  this->relation_updater_ = new Relation_Updater(db_dir, meta, parallel_processes, initial_load);
   this->flush_limit = flush_limit_;
   this->callback_ = callback_;
 

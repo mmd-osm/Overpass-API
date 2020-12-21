@@ -35,9 +35,9 @@
 
 struct Relation_Updater
 {
-  Relation_Updater(Transaction& transaction, meta_modes meta, unsigned int parallel_processes = 1);
+  Relation_Updater(Transaction& transaction, meta_modes meta, unsigned int parallel_processes = 1, bool initial_load = false);
 
-  Relation_Updater(std::string db_dir, meta_modes meta, unsigned int parallel_processes = 1);
+  Relation_Updater(std::string db_dir, meta_modes meta, unsigned int parallel_processes = 1, bool initial_load = false);
 
   void set_id_deleted(Relation::Id_Type id, const OSM_Element_Metadata* meta = 0)
   {
@@ -126,6 +126,7 @@ private:
   void load_roles();
 
   unsigned int parallel_processes;
+  bool initial_load;
 };
 
 #endif

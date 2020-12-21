@@ -38,16 +38,17 @@
 
 
 
-Way_Updater::Way_Updater(Transaction& transaction_, meta_modes meta_, unsigned int parallel_processes_)
+Way_Updater::Way_Updater(Transaction& transaction_, meta_modes meta_, unsigned int parallel_processes_, bool initial_load_)
   : update_counter(0), transaction(&transaction_),
     external_transaction(true), partial_possible(false), meta(meta_), keys(*osm_base_settings().WAY_KEYS),
-    parallel_processes(parallel_processes_)
+    parallel_processes(parallel_processes_), initial_load(initial_load_)
 {}
 
-Way_Updater::Way_Updater(std::string db_dir_, meta_modes meta_, unsigned int parallel_processes_)
+Way_Updater::Way_Updater(std::string db_dir_, meta_modes meta_, unsigned int parallel_processes_, bool initial_load_)
   : update_counter(0), transaction(0),
     external_transaction(false), partial_possible(true), db_dir(db_dir_), meta(meta_),
-    keys(*osm_base_settings().WAY_KEYS), parallel_processes(parallel_processes_)
+    keys(*osm_base_settings().WAY_KEYS), parallel_processes(parallel_processes_),
+    initial_load(initial_load_)
 {
   partial_possible = !file_exists
       (db_dir +
@@ -802,12 +803,14 @@ void Way_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_stop
   if (!external_transaction)
     transaction = new Nonsynced_Transaction(true, false, db_dir, "");
 
-  // Prepare collecting all data of existing skeletons
-  std::stable_sort(new_data.data.begin(), new_data.data.end());
-  if (meta == keep_attic)
-    remove_time_inconsistent_versions(new_data);
-  else
-    deduplicate_data(new_data);
+  if (!initial_load) {  // assume sorted and duplicate free data in case of planet initial load
+    // Prepare collecting all data of existing skeletons
+    std::stable_sort(new_data.data.begin(), new_data.data.end());
+    if (meta == keep_attic)
+      remove_time_inconsistent_versions(new_data);
+    else
+      deduplicate_data(new_data);
+  }
   std::vector< Way_Skeleton::Id_Type > ids_to_update_ = ids_to_update(new_data);
 
   // Collect all data of existing id indexes
