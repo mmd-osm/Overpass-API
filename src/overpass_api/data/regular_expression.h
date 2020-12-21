@@ -33,7 +33,11 @@
 
 #ifdef HAVE_ICU
 #include <unicode/regex.h>
+
+using icu::UnicodeString;
+using icu::RegexMatcher;
 #endif
+
 
 
 struct Regular_Expression_Error : public std::runtime_error
@@ -144,10 +148,10 @@ class Regular_Expression_ICU : public Regular_Expression
 {
   public:
 
-
     Regular_Expression_ICU(const std::string& regex, bool case_sensitive) :
         Regular_Expression(regex, case_sensitive), matcher(0)
     {
+
       if (strategy == Strategy::call_library)
       {
         setlocale(LC_ALL, "C.UTF-8");
