@@ -203,12 +203,38 @@ std::map< Uint31_Index, std::set< Element_Skeleton > > get_existing_skeletons
       it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
   {
     if (binary_search(ids_with_position.begin(), ids_with_position.end(),
-        std::make_pair(it.object().id, 0), comp))
+        std::make_pair(it.handle().id(), 0), comp))
       result[it.index()].insert(it.object());
   }
 
   return result;
 }
+
+
+template< typename Element_Skeleton, class Functor >
+void get_existing_skeletons
+    (const std::vector< std::pair< typename Element_Skeleton::Id_Type, Uint31_Index > >& ids_with_position,
+     Transaction& transaction, const File_Properties& file_properties, Functor f)
+{
+  std::set< Uint31_Index > req;
+  for (typename std::vector< std::pair< typename Element_Skeleton::Id_Type, Uint31_Index > >::const_iterator
+      it = ids_with_position.begin(); it != ids_with_position.end(); ++it)
+    req.insert(it->second);
+
+  std::map< Uint31_Index, std::set< Element_Skeleton > > result;
+  Idx_Agnostic_Compare< typename Element_Skeleton::Id_Type > comp;
+
+  Block_Backend< Uint31_Index, Element_Skeleton > db(transaction.data_index(&file_properties));
+  for (typename Block_Backend< Uint31_Index, Element_Skeleton >::Discrete_Iterator
+      it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
+  {
+    if (binary_search(ids_with_position.begin(), ids_with_position.end(),
+        std::make_pair(it.handle().id(), 0), comp)) {
+      f(it);
+    }
+  }
+}
+
 
 
 template< typename Index, typename Element_Skeleton, typename Element_Skeleton_Delta >

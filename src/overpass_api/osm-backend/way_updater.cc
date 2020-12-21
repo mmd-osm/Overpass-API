@@ -569,6 +569,7 @@ void lookup_missing_nodes
   std::vector< std::pair< Node_Skeleton::Id_Type, Uint31_Index > > existing_map_positions
       = get_existing_map_positions(missing_ids, transaction, *osm_base_settings().NODES);
 
+  /*
   // Collect all data of existing skeletons
   std::map< Uint31_Index, std::set< Node_Skeleton > > existing_skeletons
       = get_existing_skeletons< Node_Skeleton >
@@ -580,6 +581,13 @@ void lookup_missing_nodes
     for (std::set< Node_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
       new_node_idx_by_id.insert(std::make_pair(it2->id, Quad_Coord(it->first.val(), it2->ll_lower)));
   }
+  */
+
+  get_existing_skeletons< Node_Skeleton >(existing_map_positions, transaction, *osm_base_settings().NODES,
+       [&new_node_idx_by_id] (typename Block_Backend< Uint31_Index, Node_Skeleton >::Discrete_Iterator& it)
+       {
+          new_node_idx_by_id.insert(std::make_pair(it.handle().id(), Quad_Coord(it.index_handle().get_val(), it.handle().get_ll_lower())));
+       });
 }
 
 

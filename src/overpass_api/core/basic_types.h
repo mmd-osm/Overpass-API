@@ -171,6 +171,8 @@ inline unsigned long long difference(Uint32_Index lhs, Uint32_Index rhs)
   return rhs.val() - lhs.val();
 }
 
+template <class T, class Object>
+struct Uint31_Index_Handle_Methods;
 
 struct Uint31_Index : Uint32_Index
 {
@@ -188,6 +190,9 @@ struct Uint31_Index : Uint32_Index
   }
 
   friend std::ostream & operator<<(std::ostream &os, const Uint31_Index& t);
+
+  template <class T, class Object>
+  using Handle_Methods = Uint31_Index_Handle_Methods<T, Object>;
 };
 
 inline std::ostream & operator<<(std::ostream &os, const Uint31_Index& p)
@@ -203,6 +208,42 @@ inline Uint31_Index inc(Uint31_Index idx)
   else
     return Uint31_Index(idx.val() | 0x80000000);
 }
+
+struct Uint31_Index_Val_Functor {
+  Uint31_Index_Val_Functor() {};
+
+  using reference_type = Uint31_Index;
+
+  uint32 operator()(const void* data)
+  {
+    return *(uint32*)data;
+  }
+};
+
+template <typename Id_Type >
+struct Uint31_Id_Functor {
+  Uint31_Id_Functor() {};
+
+  using reference_type = Uint31_Index;
+
+  Id_Type operator()(const void* data)
+  {
+    return *(Id_Type*)data;
+  }
+};
+
+
+template <class T, class Object>
+struct Uint31_Index_Handle_Methods
+{
+  uint32 inline get_val() const {
+     return (static_cast<const T*>(this)->apply_func(Uint31_Index_Val_Functor()));
+  }
+
+  typename Object::Id_Type inline id() const {
+     return (static_cast<const T*>(this)->apply_func(Uint31_Id_Functor<typename Object::Id_Type>()));
+  }
+};
 
 
 inline unsigned long long difference(Uint31_Index lhs, Uint31_Index rhs)
