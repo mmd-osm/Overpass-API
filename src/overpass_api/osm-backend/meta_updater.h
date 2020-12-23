@@ -20,15 +20,12 @@
 #define DE__OSM3S___OVERPASS_API__OSM_BACKEND__META_UPDATER_H
 
 #include <algorithm>
-#include <future>
 #include <map>
 #include <set>
 #include <vector>
 
 #include <cstdio>
 #include <sys/stat.h>
-
-#include <osmium/thread/queue.hpp>
 
 #include "../core/datatypes.h"
 #include "../core/settings.h"
@@ -249,32 +246,8 @@ void merge_files
     (Transaction_Collection& from_transaction, Transaction& into_transaction,
      const File_Properties& file_prop)
 {
-  using queue_type = std::map< TIndex, std::set< TObject > >;
-
-  osmium::thread::Queue<queue_type> queue(20);
-
-  std::future< void >  future;
-
-  future = std::async(std::launch::async, [&]
-      {
-        std::map< TIndex, std::set< TObject > > to_insert;
-
-        while (true) {
-          queue.wait_and_pop(to_insert);
-
-          // empty list stops processing
-          if (to_insert.empty())
-            return;
-
-          Block_Backend< TIndex, TObject > into_db(into_transaction.data_index(&file_prop));
-          into_db.update({}, to_insert);
-          to_insert.clear();
-        }
-      });
-
-
   {
-    // std::map< TIndex, std::set< TObject > > db_to_delete;
+    std::map< TIndex, std::set< TObject > > db_to_delete;
     std::map< TIndex, std::set< TObject > > db_to_insert;
 
     uint32 item_count = 0;
@@ -304,9 +277,10 @@ void merge_files
 
 	  if (++item_count > 4*1024*1024)
 	  {
-	    queue.push(std::move(db_to_insert));
+	    Block_Backend< TIndex, TObject > into_db
+	        (into_transaction.data_index(&file_prop));
+	    into_db.update(db_to_delete, db_to_insert);
 	    db_to_insert.clear();
-
 	    item_count = 0;
 	  }
 	}
@@ -315,15 +289,9 @@ void merge_files
       }
     }
 
-    if (!db_to_insert.empty())
-      queue.push(std::move(db_to_insert));
-
-    // empty queue -> stop processing
-    queue.push({});
-
-    // wait for thread to finish processing
-    future.get();
-
+    Block_Backend< TIndex, TObject > into_db
+        (into_transaction.data_index(&file_prop));
+    into_db.update(db_to_delete, db_to_insert);
   }
   from_transaction.remove_referred_files(file_prop);
 }
