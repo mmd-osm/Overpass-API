@@ -315,7 +315,8 @@ void merge_files
       }
     }
 
-    queue.push(std::move(db_to_insert));
+    if (!db_to_insert.empty())
+      queue.push(std::move(db_to_insert));
 
     // empty queue -> stop processing
     queue.push({});
