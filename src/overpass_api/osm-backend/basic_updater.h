@@ -29,6 +29,7 @@
 #include "../../template_db/transaction.h"
 #include "../core/datatypes.h"
 #include "../core/settings.h"
+#include "../data/abstract_processing.h"
 #include "parallel_proc.h"
 
 template< typename Element_Skeleton >
@@ -198,9 +199,16 @@ void get_existing_skeletons
      Transaction& transaction, const File_Properties& file_properties, Functor f)
 {
   std::set< Uint31_Index > req;
+  IdSetHybrid<typename Element_Skeleton::Id_Type::Id_Type > ids_lookup;
+
   for (typename std::vector< std::pair< typename Element_Skeleton::Id_Type, Uint31_Index > >::const_iterator
-      it = ids_with_position.begin(); it != ids_with_position.end(); ++it)
+      it = ids_with_position.begin(); it != ids_with_position.end(); ++it) {
     req.insert(it->second);
+    ids_lookup.set(it->first.val());
+  }
+
+  // not needed: ids_with_positions is already sorted
+  //ids_lookup.sort_unique();
 
   std::map< Uint31_Index, std::set< Element_Skeleton > > result;
   Idx_Agnostic_Compare< typename Element_Skeleton::Id_Type > comp;
@@ -209,7 +217,10 @@ void get_existing_skeletons
   for (typename Block_Backend< Uint31_Index, Element_Skeleton >::Discrete_Iterator
       it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
   {
-    if (binary_search(ids_with_position.begin(), ids_with_position.end(), it.handle().id(), comp)) {
+//    if (binary_search(ids_with_position.begin(), ids_with_position.end(), it.handle().id(), comp)) {
+//      f(it);
+//    }
+    if (ids_lookup.get(it.handle().id().val())) {
       f(it);
     }
   }
