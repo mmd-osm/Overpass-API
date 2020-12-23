@@ -153,6 +153,16 @@ struct Idx_Agnostic_Compare
   {
     return (a.first < b.first);
   }
+
+  bool operator()(const std::pair< Id_Type, Uint31_Index >& a, const Id_Type& b)
+  {
+    return (a.first < b);
+  }
+
+  bool operator()(const Id_Type& a, const std::pair< Id_Type, Uint31_Index >& b)
+  {
+    return (a < b.first);
+  }
 };
 
 
@@ -199,8 +209,7 @@ void get_existing_skeletons
   for (typename Block_Backend< Uint31_Index, Element_Skeleton >::Discrete_Iterator
       it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
   {
-    if (binary_search(ids_with_position.begin(), ids_with_position.end(),
-        std::make_pair(it.handle().id(), 0), comp)) {
+    if (binary_search(ids_with_position.begin(), ids_with_position.end(), it.handle().id(), comp)) {
       f(it);
     }
   }
