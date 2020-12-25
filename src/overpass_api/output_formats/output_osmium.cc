@@ -35,12 +35,6 @@
 #include <osmium/osm.hpp>
 #include <osmium/osm/types.hpp>
 
-Output_Osmium::~Output_Osmium()
-{
-  delete writer;
-  delete output_file;
-  delete header;
-}
 
 /*
  * Libosmium/FastCGI repeater Libosmium writes directly to stdout fd rather
@@ -62,8 +56,9 @@ void Output_Osmium::prepare_fifo()
   int ret = remove(repeater_file.c_str());
 
   ret = mkfifo(repeater_file.c_str(), 0600);
-  if (ret < 0)
+  if (ret < 0) {
     throw File_Error(errno, repeater_file, "print_target::osmium::mkfifo");
+  }
 
   repeater = std::async(std::launch::async, [](std::string repeater_file)
   {
@@ -71,24 +66,32 @@ void Output_Osmium::prepare_fifo()
     char buffer[PIPE_BUF];
 
     int readFd = open(repeater_file.c_str(), O_RDONLY);
-    if (readFd < 0)
+    if (readFd < 0) {
       throw File_Error(errno, repeater_file, "print_target::osmium::open");
+    }
 
-    int foo = unlink(repeater_file.c_str());
-    if (foo < 0)
-      throw File_Error(errno, repeater_file, "print_target::osmium::unlink");
+    try {
 
-    while(true)
-    {
-      len = read(readFd, &buffer, sizeof(buffer));
-      if (len < 0)
-        throw File_Error(errno, repeater_file, "print_target::osmium::read");
+      int foo = unlink(repeater_file.c_str());
+      if (foo < 0) {
+        throw File_Error(errno, repeater_file, "print_target::osmium::unlink");
+      }
 
-      if (len == 0)
-        break;
+      while(true)
+      {
+        len = read(readFd, &buffer, sizeof(buffer));
+        if (len < 0) {
+          throw File_Error(errno, repeater_file, "print_target::osmium::read");
+        }
 
-      if (len > 0)
+        if (len == 0)
+          break;
+
         std::cout.write(&buffer[0], len);
+      }
+    } catch (...) {
+      close(readFd);
+      throw;
     }
     close(readFd);
 
@@ -109,36 +112,41 @@ bool Output_Osmium::write_http_headers()
 void Output_Osmium::write_payload_header
     (const std::string& db_dir, const std::string& timestamp, const std::string& area_timestamp)
 {
+  signal(SIGPIPE, SIG_IGN);
   prepare_fifo();
-  output_file = new osmium::io::File(repeater_file, output_format);
-  header = new osmium::io::Header();
+  output_file.reset(new osmium::io::File(repeater_file, output_format));
+  header.reset(new osmium::io::Header());
 
   std::string generator = "Overpass API " + basic_settings().version + " " + basic_settings().source_hash.substr(0, 8);
 
   header->set("generator", generator);
   header->set("osmosis_replication_timestamp", timestamp);
-  writer = new osmium::io::Writer(*output_file, *header, osmium::io::overwrite::allow);
+  writer.reset(new osmium::io::Writer(*output_file, *header, osmium::io::overwrite::allow));
 }
 
 void Output_Osmium::write_footer()
 {
-  (*writer)(std::move(buffer));
-  writer->flush();
-  writer->close();
+  try {
+    if (writer) {
+      writer->operator()(std::move(buffer));
+      writer->flush();
+      writer->close();
+      writer.reset();
+    }
+  } catch (osmium::io_error&) {
+    throw File_Error(1, "", "Output_Osmium::write_footer");
+  }
 
-  delete writer;
-  delete output_file;
-  delete header;
+  output_file.reset();
+  header.reset();
 
-  writer = nullptr;
-  output_file = nullptr;
-  header = nullptr;
+  if (repeater_file.empty())
+    return;
 
-  if (repeater_file != "")
+  if (repeater.valid())
     repeater.get();
 
-  if (repeater_file != "")
-    remove(repeater_file.c_str());
+  remove(repeater_file.c_str());
 }
 
 void Output_Osmium::display_remark(const std::string& text)
@@ -395,11 +403,16 @@ void Output_Osmium::print_item(const Derived_Skeleton& skel,
 
 void Output_Osmium::maybe_flush()
 {
-  if (buffer.committed() > 800*1024) {
-    osmium::memory::Buffer _buffer{1024*1024};
-    using std::swap;
-    swap(_buffer, buffer);
-    (*writer)(std::move(_buffer));
+  try {
+
+    if (buffer.committed() > 800*1024) {
+      osmium::memory::Buffer _buffer{1024*1024};
+      using std::swap;
+      swap(_buffer, buffer);
+      writer->operator()(std::move(_buffer));
+    }
+  } catch (osmium::io_error& e) {
+    throw File_Error(1, "", "Output_Osmium::maybe_flush");
   }
 }
 

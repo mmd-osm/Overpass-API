@@ -43,7 +43,7 @@ public:
                                             output_file(nullptr), header(nullptr),
                                             repeater_file("") {}
 
-  ~Output_Osmium();
+
 
   virtual bool write_http_headers();
   virtual void write_payload_header(const std::string& db_dir,
@@ -103,9 +103,9 @@ private:
 
   std::string output_format;
   osmium::memory::Buffer buffer{1024*1024};
-  osmium::io::Writer* writer;
-  osmium::io::File * output_file;
-  osmium::io::Header* header;
+  std::unique_ptr<osmium::io::Writer> writer;
+  std::unique_ptr<osmium::io::File> output_file;
+  std::unique_ptr<osmium::io::Header> header;
   std::future<void> repeater;
   std::string repeater_file;
 };

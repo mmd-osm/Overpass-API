@@ -31,7 +31,11 @@ struct Web_Output : public Error_Output
       encoding_errors(false), parse_errors(false), static_errors(false), log_level(log_level_),
       output_handler(0) {}
 
-  ~Web_Output() { write_footer(); }
+  ~Web_Output() {
+    try {
+      write_footer();
+    } catch (...) {}
+  }
 
   virtual void add_encoding_error(const std::string& error);
   virtual void add_parse_error(const std::string& error, int line_number);
