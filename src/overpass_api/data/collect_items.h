@@ -414,8 +414,7 @@ void collect_items_discrete(const Statement* stmt, Resource_Manager& rman,
 		   std::map< Index, std::vector< Object > >& result)
 {
   uint32 count = 0;
-  uint32 count_match = 0;
-  uint64 current_result_size = 0;
+  uint64 current_result_size = eval_map(result);
 
   Block_Backend< Index, Object, typename Container::const_iterator > db
       (rman.get_transaction()->data_index(&file_properties));
@@ -423,11 +422,6 @@ void collect_items_discrete(const Statement* stmt, Resource_Manager& rman,
       ::const_iterator >::Discrete_Iterator
       it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
   {
-    if (count_match >= 256*1024 && stmt)
-    {
-      current_result_size = eval_map(result);
-      count_match = 0;
-    }
     if (++count >= 256*1024)
     {
       count = 0;
@@ -436,8 +430,12 @@ void collect_items_discrete(const Statement* stmt, Resource_Manager& rman,
     }
     if (predicate.match(it.handle()))
     {
-      ++count_match;
+      auto prev_map_size = result.size();
       result[it.index()].push_back(it.object());
+      if (result.size() != prev_map_size) {     // new index added to map?
+        current_result_size += eval_map_index_size;
+      }
+      current_result_size += eval_elem<Object>();
     }
   }
 }
@@ -534,8 +532,7 @@ bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
 		   std::map< Index, std::vector< Object > >& result)
 {
   uint32 count = 0;
-  uint32 count_match = 0;
-  uint64 current_result_size = 0;
+  uint64 current_result_size = eval_map(result);
   
   bool too_much_data = false;
 
@@ -552,11 +549,6 @@ bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
       cur_idx = it.index();
       return true;
     }  
-    if (count_match >= 256*1024 && stmt)
-    {
-      current_result_size = eval_map(result);
-      count_match = 0;
-    }
 
     if (++count >= 256*1024 && stmt)
     {
@@ -567,8 +559,12 @@ bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
 
     if (predicate.match(it.handle()))
     {
-      ++count_match;
+      auto prev_map_size = result.size();
       result[it.index()].push_back(it.object());
+      if (result.size() != prev_map_size) {     // new index added to map?
+        current_result_size += eval_map_index_size;
+      }
+      current_result_size += eval_elem<Object>();
     }
   }
   
@@ -583,8 +579,7 @@ bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
                    Functor pred)
 {
   uint32 count = 0;
-  uint32 count_match = 0;
-  uint64 current_result_size = 0;
+  uint64 current_result_size = eval_map(result);
   
   bool too_much_data = false;
 
@@ -601,11 +596,6 @@ bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
       cur_idx = it.index();
       return true;
     }  
-    if (count_match >= 256*1024 && stmt)
-    {
-      current_result_size = eval_map(result);
-      count_match = 0;
-    }
 
     if (++count >= 256*1024 && stmt)
     {
@@ -616,8 +606,12 @@ bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
 
     if (pred(it.index(), it.handle().id()))
     {
-      ++count_match;
+      auto prev_map_size = result.size();
       result[it.index()].push_back(it.object());
+      if (result.size() != prev_map_size) {     // new index added to map?
+        current_result_size += eval_map_index_size;
+      }
+      current_result_size += eval_elem<Object>();
     }
   }
   
@@ -649,19 +643,13 @@ void collect_items_flat(const Statement& stmt, Resource_Manager& rman,
 		   std::map< Index, std::vector< Object > >& result)
 {
   uint32 count = 0;
-  uint32 count_match = 0;
-  uint64 current_result_size = 0;
+  uint64 current_result_size = eval_map(result);
 
   Block_Backend< Index, Object > db
       (rman.get_transaction()->data_index(&file_properties));
   for (typename Block_Backend< Index, Object >::Flat_Iterator
       it(db.flat_begin()); !(it == db.flat_end()); ++it)
   {
-    if (count_match >= 256*1024)
-    {
-      current_result_size = eval_map(result);
-      count_match = 0;
-    }
     if (++count >= 256*1024)
     {
       count = 0;
@@ -669,8 +657,12 @@ void collect_items_flat(const Statement& stmt, Resource_Manager& rman,
     }
     if (predicate.match(it.handle()))
     {
-      ++count_match;
+      auto prev_map_size = result.size();
       result[it.index()].push_back(it.object());
+      if (result.size() != prev_map_size) {     // new index added to map?
+        current_result_size += eval_map_index_size;
+      }
+      current_result_size += eval_elem<Object>();
     }
   }
 }

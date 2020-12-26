@@ -23,6 +23,7 @@
 
 #include <sstream>
 
+/*
 
 uint64 eval_map(const std::map< Uint32_Index, std::vector< Node_Skeleton > >& nodes)
 {
@@ -92,7 +93,7 @@ uint64 eval_map(const std::map< Uint31_Index, std::vector< Area_Skeleton > >& ar
     size += it->second.size()*128 + 64;
   return size;
 }
-
+*/
 
 uint64 eval_set(const Set& set_)
 {

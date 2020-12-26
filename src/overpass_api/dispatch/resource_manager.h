@@ -207,6 +207,43 @@ private:
 };
 
 
+template<typename T>
+constexpr uint64 eval_elem();
+
+template<>
+constexpr uint64 eval_elem< Node_Skeleton >() { return 8; }
+
+template<>
+constexpr uint64 eval_elem< Way_Skeleton >() { return 128; }
+
+template<>
+constexpr uint64 eval_elem< Relation_Skeleton>() { return 192; }
+
+template<>
+constexpr uint64 eval_elem< Attic< Node_Skeleton > >() { return 16; }
+
+template<>
+constexpr uint64 eval_elem< Attic< Way_Skeleton > >() { return 136; }
+
+template<>
+constexpr uint64 eval_elem< Attic< Relation_Skeleton > >() { return 200; }
+
+template<>
+constexpr uint64 eval_elem< Area_Skeleton >() { return 128; }
+
+const uint64 eval_map_index_size = 64;
+
+
+template<class TIndex, class TObject>
+uint64 eval_map(const std::map< TIndex, std::vector< TObject > >& obj) {
+  uint64 size(0);
+  for (typename std::map< TIndex, std::vector< TObject > >::const_iterator
+      it(obj.begin()); it != obj.end(); ++it)
+    size += it->second.size()*eval_elem<TObject>() + eval_map_index_size;
+  return size;
+}
+
+/*
 uint64 eval_map(const std::map< Uint32_Index, std::vector< Node_Skeleton > >& nodes);
 uint64 eval_map(const std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways);
 uint64 eval_map(const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& relations);
@@ -216,6 +253,7 @@ uint64 eval_map(const std::map< Uint31_Index, std::vector< Attic< Way_Skeleton >
 uint64 eval_map(const std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > >& relations);
 
 uint64 eval_map(const std::map< Uint31_Index, std::vector< Area_Skeleton > >& areas);
+*/
 
 
 struct Resource_Error
