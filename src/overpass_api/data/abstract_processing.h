@@ -553,10 +553,10 @@ struct Compare_By_Id
 
 
 template< class TIndex, class TObject >
-bool indexed_set_union(std::map< TIndex, std::vector< TObject > >& result,
+uint64 indexed_set_union(std::map< TIndex, std::vector< TObject > >& result,
 		       const std::map< TIndex, std::vector< TObject > >& summand)
 {
-  bool result_has_grown = false;
+  uint64 result_size_increase = 0;
 
   for (typename std::map< TIndex, std::vector< TObject > >::const_iterator
       it = summand.begin(); it != summand.end(); ++it)
@@ -568,7 +568,7 @@ bool indexed_set_union(std::map< TIndex, std::vector< TObject > >& result,
     if (target.empty())
     {
       target = it->second;
-      result_has_grown = true;
+      result_size_increase += eval_map_index_size + it->second.size()*eval_elem<TObject>();
       continue;
     }
 
@@ -579,12 +579,12 @@ bool indexed_set_union(std::map< TIndex, std::vector< TObject > >& result,
       if (it_target == target.end())
       {
         target.push_back(it->second.front());
-        result_has_grown = true;
+        result_size_increase += eval_elem<TObject>();
       }
       else if (!(*it_target == it->second.front()))
       {
         target.insert(it_target, it->second.front());
-        result_has_grown = true;
+        result_size_increase += eval_elem<TObject>();
       }
     }
     else
@@ -594,11 +594,11 @@ bool indexed_set_union(std::map< TIndex, std::vector< TObject > >& result,
       std::set_union(it->second.begin(), it->second.end(), other.begin(), other.end(),
                 back_inserter(target), Compare_By_Id< TObject >());
 
-      result_has_grown |= (target.size() > other.size());
+      result_size_increase += eval_elem<TObject>() * (target.size() - other.size());
     }
   }
 
-  return result_has_grown;
+  return result_size_increase;
 }
 
 //-----------------------------------------------------------------------------

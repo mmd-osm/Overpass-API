@@ -69,6 +69,7 @@ public:
   void copy_outward(const std::string& inner_set_name, const std::string& top_set_name);
   void move_outward(const std::string& inner_set_name, const std::string& top_set_name);
   bool union_inward(const std::string& top_set_name, const std::string& inner_set_name);
+  void union_current_frame(const std::string& top_set_name, const std::string& inner_set_name);
   void copy_inward(const std::string& top_set_name, const std::string& inner_set_name);
   void substract_from_inward(const std::string& top_set_name, const std::string& inner_set_name);
   void move_all_inward();
@@ -139,6 +140,7 @@ public:
   void push_stack_frame();
   void copy_outward(const std::string& inner_set_name, const std::string& top_set_name);
   void move_outward(const std::string& inner_set_name, const std::string& top_set_name);
+  void union_current_frame(const std::string& top_set_name, const std::string& inner_set_name);
   bool union_inward(const std::string& top_set_name, const std::string& inner_set_name);
   void copy_inward(const std::string& top_set_name, const std::string& inner_set_name);
   void substract_from_inward(const std::string& top_set_name, const std::string& inner_set_name);
@@ -230,6 +232,12 @@ constexpr uint64 eval_elem< Attic< Relation_Skeleton > >() { return 200; }
 
 template<>
 constexpr uint64 eval_elem< Area_Skeleton >() { return 128; }
+
+template<>
+constexpr uint64 eval_elem< Derived_Structure >() { return 128; }
+
+template<>
+constexpr uint64 eval_elem< Area_Block >() { return 128; }
 
 const uint64 eval_map_index_size = 64;
 

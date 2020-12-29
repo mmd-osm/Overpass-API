@@ -62,9 +62,67 @@ void Union_Statement::add_statement(Statement* statement, std::string text)
   }
 }
 
+bool Union_Statement::union_item_statements(Resource_Manager& rman)
+{
+  /* Shortcut union operation for frequently occurring pattern
+   *   (.element1; ...; ._elementn; .result;)->.result:
+   *
+   * Prerequisites:
+   * - All union statements must be item statements
+   * - Only first union statement may be optionally ._;  (otherwise inputset ._ gets overwritten inside union)
+   * - get_result_name() may not be "._" (otherwise data gets overwritten inside union)
+   * - get_result_name() must appear at least once in item statements
+   *
+   * Enables simplified operation:
+   * - don't create new stack frame
+   * - ignore item statements where inputsets matches get_result_name()
+   * - copy item inputset over via indexed_set_union(target.nodes, source->nodes);
+   * - skip all other copying operations
+   */
+
+
+  if (get_result_name() == "_")
+    return false;
+
+  bool result_name_found = false;
+
+  for (auto s : substatements) {
+
+    if (s->get_name() != "item")
+      return false;
+
+    const auto input_name = s->dump_ql_in_query("").replace(0, 1, "");   // avoid dynamic casts to Item_Statement!
+
+    if (input_name == get_result_name())
+      result_name_found = true;
+
+    if (input_name == "_" && s != substatements.front())
+      return false;
+  }
+
+  if (!result_name_found)
+    return false;
+
+  for (auto s : substatements) {
+    const auto input_name = s->dump_ql_in_query("").replace(0, 1, "");
+
+    if (input_name == get_result_name())
+      continue;
+
+    s->execute(rman);
+    rman.union_current_frame(s->get_result_name(), get_result_name());
+  }
+
+  rman.health_check(*this);
+  return true;
+}
+
 
 void Union_Statement::execute(Resource_Manager& rman)
 {
+  if (union_item_statements(rman))
+    return;
+
   rman.push_stack_frame();
   rman.move_outward(get_result_name(), get_result_name());
 

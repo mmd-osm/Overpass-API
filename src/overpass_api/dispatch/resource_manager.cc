@@ -264,36 +264,65 @@ void Runtime_Stack_Frame::move_outward(const std::string& inner_set_name, const 
   key_values.erase(top_set_name);
 }
 
+void Runtime_Stack_Frame::union_current_frame(const std::string& top_set_name, const std::string& inner_set_name)
+{
+  uint64 result_size_increase = 0;
+  Set* source = get_set(top_set_name);
+
+  if (source)
+  {
+    Set& target = sets[inner_set_name];
+
+    result_size_increase += indexed_set_union(target.nodes, source->nodes);
+    result_size_increase += indexed_set_union(target.attic_nodes, source->attic_nodes);
+
+    result_size_increase += indexed_set_union(target.ways, source->ways);
+    result_size_increase += indexed_set_union(target.attic_ways, source->attic_ways);
+
+    result_size_increase += indexed_set_union(target.relations, source->relations);
+    result_size_increase += indexed_set_union(target.attic_relations, source->attic_relations);
+
+    result_size_increase += indexed_set_union(target.areas, source->areas);
+    result_size_increase += indexed_set_union(target.deriveds, source->deriveds);
+
+    result_size_increase += indexed_set_union(target.area_blocks, source->area_blocks);
+
+    size_per_set[inner_set_name] += result_size_increase;   // eval_set(target);
+  }
+  diff_sets.erase(inner_set_name);
+
+}
+
 
 bool Runtime_Stack_Frame::union_inward(const std::string& top_set_name, const std::string& inner_set_name)
 {
-  bool new_elements_found = false;
+  uint64 result_size_increase = 0;
   Set* source = get_set(top_set_name);
 
   if (source && parent)
   {
     Set& target = parent->sets[inner_set_name];
 
-    new_elements_found |= indexed_set_union(target.nodes, source->nodes);
-    new_elements_found |= indexed_set_union(target.attic_nodes, source->attic_nodes);
+    result_size_increase += indexed_set_union(target.nodes, source->nodes);
+    result_size_increase += indexed_set_union(target.attic_nodes, source->attic_nodes);
 
-    new_elements_found |= indexed_set_union(target.ways, source->ways);
-    new_elements_found |= indexed_set_union(target.attic_ways, source->attic_ways);
+    result_size_increase += indexed_set_union(target.ways, source->ways);
+    result_size_increase += indexed_set_union(target.attic_ways, source->attic_ways);
 
-    new_elements_found |= indexed_set_union(target.relations, source->relations);
-    new_elements_found |= indexed_set_union(target.attic_relations, source->attic_relations);
+    result_size_increase += indexed_set_union(target.relations, source->relations);
+    result_size_increase += indexed_set_union(target.attic_relations, source->attic_relations);
 
-    new_elements_found |= indexed_set_union(target.areas, source->areas);
-    new_elements_found |= indexed_set_union(target.deriveds, source->deriveds);
+    result_size_increase += indexed_set_union(target.areas, source->areas);
+    result_size_increase += indexed_set_union(target.deriveds, source->deriveds);
 
-    new_elements_found |= indexed_set_union(target.area_blocks, source->area_blocks);
+    result_size_increase += indexed_set_union(target.area_blocks, source->area_blocks);
 
-    parent->size_per_set[inner_set_name] = eval_set(target);
+    parent->size_per_set[inner_set_name] += result_size_increase;   // eval_set(target);
   }
   parent->diff_sets.erase(inner_set_name);
   parent->key_values.erase(top_set_name);
 
-  return new_elements_found;
+  return result_size_increase > 0;
 }
 
 
@@ -534,6 +563,11 @@ void Resource_Manager::move_outward(const std::string& inner_set_name, const std
     runtime_stack.back()->move_outward(inner_set_name, top_set_name);
 }
 
+void Resource_Manager::union_current_frame(const std::string& top_set_name, const std::string& inner_set_name)
+{
+  if (!runtime_stack.empty())
+    runtime_stack.back()->union_current_frame(top_set_name, inner_set_name);
+}
 
 bool Resource_Manager::union_inward(const std::string& top_set_name, const std::string& inner_set_name)
 {

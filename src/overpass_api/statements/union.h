@@ -70,6 +70,8 @@ class Union_Statement final : public Output_Statement
       return result + dump_ql_result_name() + ";";
     }
 
+    bool union_item_statements(Resource_Manager& rman);
+
   private:
     std::vector< Statement* > substatements;
 };
