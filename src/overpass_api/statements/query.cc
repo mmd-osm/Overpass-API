@@ -455,8 +455,8 @@ std::vector< std::pair< Id_Type, Uint31_Index > > Query_Statement::collect_ids
     }
     else
     {
-      auto attic_kv = collect_attic_kv(kvit, timestamp, tags_db, *attic_tags_db.obj);
-      new_ids = filter_id_list_fast<Id_Type>(tmp_ids, filtered, attic_kv, last);
+      auto attic_kv = collect_attic_kv2(kvit, timestamp, tags_db, *attic_tags_db.obj);
+      new_ids = filter_id_list_fast2<Id_Type>(tmp_ids, filtered, attic_kv, last);
     }
 
     rman.health_check(*this);

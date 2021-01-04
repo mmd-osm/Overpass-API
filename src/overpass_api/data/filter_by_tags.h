@@ -26,9 +26,41 @@
 
 #include "regular_expression.h"
 
-#ifdef HAVE_LIBOSMIUM
-#include <osmium/index/id_set.hpp>
-#endif
+// TODO: fix iterator class typedefs, etc.
+template<typename Iter, typename Functor>
+class transform_iterator  {
+
+public:
+  using iterator_type = Iter;
+  using functor_return_type = decltype(std::declval<Functor>()(std::declval<Iter>()));
+
+  typedef functor_return_type              value_type;
+  typedef typename Iter::difference_type   difference_type;
+  typedef functor_return_type              pointer;
+  typedef functor_return_type              reference;
+  typedef std::input_iterator_tag          iterator_category;
+
+  explicit transform_iterator(Iter p, Functor f) : current{p}, func{f} {}
+
+  Iter base() const { return current; }
+
+  transform_iterator& operator++() { current.operator++(); return *this; }
+  reference operator*() const { return func(current); }
+
+  bool operator!=(transform_iterator& y) noexcept { return current != y.current; }
+
+protected:
+  Iter current;
+  Functor func;
+};
+
+template <typename Id_Type>
+struct extract_key_val_functor {
+
+  std::pair<Id_Type, Uint31_Index> operator()(const typename std::map< Id_Type, std::pair< uint64, Uint31_Index > >::iterator& it) const {
+      return  std::pair<Id_Type, Uint31_Index>(it->first, it->second.second);
+  }
+};
 
 std::set< Tag_Index_Global > get_kv_req(const std::string& key, const std::string& value)
 {
@@ -101,10 +133,6 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kv(
     Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > >& tags_db,
     Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >& attic_tags_db)
 {
-#ifdef HAVE_LIBOSMIUM
-  osmium::index::IdSetDense<typename Id_Type::Id_Type> dense;
-#endif
-
   std::map< Id_Type, std::pair< uint64, Uint31_Index > > timestamp_per_id;
   std::set< Tag_Index_Global > tag_req = get_kv_req(kvit->first, kvit->second);
 
@@ -112,9 +140,6 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kv(
       it2(tags_db.discrete_begin(tag_req.begin(), tag_req.end()));
       !(it2 == tags_db.discrete_end()); ++it2) {
     timestamp_per_id[it2.handle().id()] = std::make_pair(NOW, it2.handle().get_idx());
-#ifdef HAVE_LIBOSMIUM
-    dense.set(it2.handle().id().val());
-#endif
   }
 
   for (typename Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >::Discrete_Iterator
@@ -125,9 +150,6 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kv(
 
     if (current_timestamp > timestamp)
     {
-#ifdef HAVE_LIBOSMIUM
-      dense.set(it2.handle().id().val());
-#endif
       std::pair< uint64, Uint31_Index >& ref = timestamp_per_id[it2.handle().id()];
       if (ref.first == 0 || current_timestamp < ref.first)
         ref = std::make_pair(current_timestamp, it2.handle().get_idx());
@@ -145,11 +167,6 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kv(
 
     if (current_timestamp > timestamp)
     {
-#ifdef HAVE_LIBOSMIUM
-      if (!dense.get(it2.handle().id().val()))
-        continue;
-#endif
-
       typename std::map< Id_Type, std::pair< uint64, Uint31_Index > >::iterator
           it = timestamp_per_id.find(it2.handle().id());
       if (it != timestamp_per_id.end())
@@ -162,6 +179,103 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kv(
 
   return timestamp_per_id;
 }
+
+
+template< class Id_Type >
+std::vector< std::pair< Id_Type, Uint31_Index > > collect_attic_kv2(
+    std::vector< std::pair< std::string, std::string > >::const_iterator kvit, uint64 timestamp,
+    Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > >& tags_db,
+    Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >& attic_tags_db)
+{
+  std::map< Id_Type, std::pair< uint64, Uint31_Index > > timestamp_per_id;
+  std::set< Tag_Index_Global > tag_req = get_kv_req(kvit->first, kvit->second);
+
+  const uint32 DELETED = 0xffffffff;
+
+  std::vector< std::pair < Id_Type, Uint31_Index > > ts_now;
+
+  for (typename Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > >::Discrete_Iterator
+      it2(tags_db.discrete_begin(tag_req.begin(), tag_req.end()));
+      !(it2 == tags_db.discrete_end()); ++it2) {
+    ts_now.emplace_back(std::pair<Id_Type, Uint31_Index >(it2.handle().id(), it2.handle().get_idx()));
+  }
+
+  std::sort(ts_now.begin(), ts_now.end());
+  ts_now.erase(std::unique(ts_now.begin(), ts_now.end()), ts_now.end());
+
+  for (typename Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >::Discrete_Iterator
+      it2(attic_tags_db.discrete_begin(tag_req.begin(), tag_req.end()));
+      !(it2 == attic_tags_db.discrete_end()); ++it2)
+  {
+    auto current_timestamp = it2.handle().get_timestamp();
+
+    if (current_timestamp > timestamp)
+    {
+      auto it_now = std::lower_bound(ts_now.begin(), ts_now.end(), std::pair<Id_Type, Uint31_Index>(it2.handle().id(), std::numeric_limits<uint32>::min()));
+
+      if (it_now != ts_now.end()) {
+        if (it_now->first == it2.handle().id() && current_timestamp < NOW) {
+          it_now->second = DELETED;           // vector ---> set second to dummy value 0xffffffff? to mark it as deleted
+        }
+      }
+
+      std::pair< uint64, Uint31_Index >& ref = timestamp_per_id[it2.handle().id()];
+      if (ref.first == 0 || current_timestamp < ref.first)
+        ref = std::make_pair(current_timestamp, it2.handle().get_idx());
+    }
+  }
+
+  std::set< std::pair< Tag_Index_Global, Tag_Index_Global > > range_req = get_k_req(kvit->first);
+
+  for (typename Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >::Range_Iterator
+      it2(attic_tags_db.range_begin(Default_Range_Iterator< Tag_Index_Global >(range_req.begin()),
+          Default_Range_Iterator< Tag_Index_Global >(range_req.end())));
+      !(it2 == attic_tags_db.range_end()); ++it2)
+  {
+    auto current_timestamp = it2.handle().get_timestamp();
+
+    if (current_timestamp > timestamp)
+    {
+      typename std::map< Id_Type, std::pair< uint64, Uint31_Index > >::iterator
+          it = timestamp_per_id.find(it2.handle().id());
+      if (it != timestamp_per_id.end())
+      {
+        if (current_timestamp < it->second.first)
+          timestamp_per_id.erase(it);
+      }
+
+      auto it_now = std::lower_bound(ts_now.begin(), ts_now.end(), std::pair<Id_Type, Uint31_Index>(it2.handle().id(), std::numeric_limits<uint32>::min()));
+      if (it_now != ts_now.end())
+      {
+        if (it_now->first == it2.handle().id() && current_timestamp < NOW)
+          it_now->second = DELETED;
+      }
+
+    }
+  }
+
+  // remove deleted elements
+  ts_now.erase(std::remove_if(ts_now.begin(), ts_now.end(),
+                                [](const std::pair<Id_Type, Uint31_Index>& el)
+                                { return el.second == DELETED; }), ts_now.end());
+
+  // prepare result
+  std::vector< std::pair < Id_Type, Uint31_Index > > result;
+  result.reserve(ts_now.size() + timestamp_per_id.size());
+
+  using map_iterator = typename std::map< Id_Type, std::pair< uint64, Uint31_Index > >::iterator;
+  using extract_functor = extract_key_val_functor<Id_Type>;
+
+  // merge set and vector into vector
+  std::merge(ts_now.begin(), ts_now.end(),
+             transform_iterator<map_iterator, extract_functor >(timestamp_per_id.begin(), extract_key_val_functor<Id_Type>{}),
+             transform_iterator<map_iterator, extract_functor >(timestamp_per_id.end(), extract_key_val_functor<Id_Type>{}),
+             std::back_inserter(result));
+
+  return result;
+}
+
+
 
 
 template< class Id_Type >
@@ -217,42 +331,6 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_k(
 
   return timestamp_per_id;
 }
-
-// TODO: fix iterator class typedefs, etc.
-template<typename Iter, typename Functor>
-class transform_iterator  {
-
-public:
-  using iterator_type = Iter;
-  using functor_return_type = decltype(std::declval<Functor>()(std::declval<Iter>()));
-
-  typedef functor_return_type              value_type;
-  typedef typename Iter::difference_type   difference_type;
-  typedef functor_return_type              pointer;
-  typedef functor_return_type              reference;
-  typedef std::input_iterator_tag          iterator_category;
-
-  explicit transform_iterator(Iter p, Functor f) : current{p}, func{f} {}
-
-  Iter base() const { return current; }
-
-  transform_iterator& operator++() { current.operator++(); return *this; }
-  reference operator*() const { return func(current); }
-
-  bool operator!=(transform_iterator& y) noexcept { return current != y.current; }
-
-protected:
-  Iter current;
-  Functor func;
-};
-
-template <typename Id_Type>
-struct extract_key_val_functor {
-
-  std::pair<Id_Type, Uint31_Index> operator()(const typename std::map< Id_Type, std::pair< uint64, Uint31_Index > >::iterator& it) const {
-      return  std::pair<Id_Type, Uint31_Index>(it->first, it->second.second);
-  }
-};
 
 
 // more memory efficient version of collect_attic_k
