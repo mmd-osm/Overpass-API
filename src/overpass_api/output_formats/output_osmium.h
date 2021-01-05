@@ -39,9 +39,9 @@
 class Output_Osmium : public Output_Handler
 {
 public:
-  Output_Osmium(std::string output_format_) : output_format(output_format_), writer(nullptr),
-                                            output_file(nullptr), header(nullptr),
-                                            repeater_file("") {}
+  Output_Osmium(std::string output_format_, std::string params_) :
+        output_format(output_format_), params(params_), writer(nullptr),
+        output_file(nullptr), header(nullptr), repeater_file("") {}
 
 
 
@@ -108,6 +108,7 @@ private:
   std::unique_ptr<osmium::io::Header> header;
   std::future<void> repeater;
   std::string repeater_file;
+  std::string params;
 };
 
 #endif

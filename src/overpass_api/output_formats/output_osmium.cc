@@ -114,7 +114,7 @@ void Output_Osmium::write_payload_header
 {
   signal(SIGPIPE, SIG_IGN);
   prepare_fifo();
-  output_file.reset(new osmium::io::File(repeater_file, output_format));
+  output_file.reset(new osmium::io::File(repeater_file, output_format + params));
   header.reset(new osmium::io::Header());
 
   std::string generator = "Overpass API " + basic_settings().version + " " + basic_settings().source_hash.substr(0, 8);
