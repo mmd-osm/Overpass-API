@@ -266,6 +266,9 @@ bool collect_items_by_timestamp(const Statement* stmt, Resource_Manager& rman,
                    std::map< Index, std::vector< Object > >& result,
                    std::map< Index, std::vector< Attic< Object > > >& attic_result)
 {
+  auto result_eval_map = eval_map(result);
+  auto attic_result_eval_map = eval_map(attic_result);
+
   uint32 count = 0;
   while (!(current_begin == current_end) || !(attic_begin == attic_end))
   {
@@ -278,8 +281,8 @@ bool collect_items_by_timestamp(const Statement* stmt, Resource_Manager& rman,
       count = 0;
       if (stmt)
       {
-        rman.health_check(*stmt, 0, eval_map(result));
-        rman.health_check(*stmt, 0, eval_map(attic_result));
+        rman.health_check(*stmt, 0, result_eval_map);
+        rman.health_check(*stmt, 0, attic_result_eval_map);
       }
     }
     Index index =
@@ -292,6 +295,9 @@ bool collect_items_by_timestamp(const Statement* stmt, Resource_Manager& rman,
       return true;
     }
 
+    auto prev_result_size = result.size();
+    auto prev_attic_result_size = attic_result.size();
+
     reconstruct_items(current_begin, current_end, index, predicate, result[index], timestamp_by_id_attic, timestamp_by_id_current, timestamp, count);
     reconstruct_items(attic_begin, attic_end, index, predicate, attic_result[index], timestamp_by_id_attic, timestamp_by_id_current, timestamp, count);
 
@@ -302,6 +308,8 @@ bool collect_items_by_timestamp(const Statement* stmt, Resource_Manager& rman,
     filter_items_by_timestamp(timestamp_by_id_attic, timestamp_by_id_current, attic_result[index]);
 
     // check_for_duplicated_objects< Object >(timestamp_by_id_attic, rman);
+    result_eval_map       += result[index].size() * eval_elem<Object>() + (result.size() - prev_result_size) * eval_map_index_size;
+    attic_result_eval_map += attic_result[index].size() * eval_elem< Attic< Object > >() + (attic_result.size() - prev_attic_result_size) * eval_map_index_size;
   }
   return false;    
 }
@@ -315,6 +323,9 @@ bool collect_items_by_timestamp(const Statement* stmt, Resource_Manager& rman,
                    std::map< Index, std::vector< Relation_Skeleton > >& result,
                    std::map< Index, std::vector< Attic< Relation_Skeleton > > >& attic_result)
 {
+  auto result_eval_map = eval_map(result);
+  auto attic_result_eval_map = eval_map(attic_result);
+
   uint32 count = 0;
   while (!(current_begin == current_end) || !(attic_begin == attic_end))
   {
@@ -327,8 +338,8 @@ bool collect_items_by_timestamp(const Statement* stmt, Resource_Manager& rman,
       count = 0;
       if (stmt)
       {
-        rman.health_check(*stmt, 0, eval_map(result));
-        rman.health_check(*stmt, 0, eval_map(attic_result));
+        rman.health_check(*stmt, 0, result_eval_map);
+        rman.health_check(*stmt, 0, attic_result_eval_map);
       }
     }
     Index index =
@@ -341,6 +352,9 @@ bool collect_items_by_timestamp(const Statement* stmt, Resource_Manager& rman,
       return true;
     }
 
+    auto prev_result_size = result.size();
+    auto prev_attic_result_size = attic_result.size();
+
     reconstruct_items(stmt, rman, current_begin, current_end, attic_begin, attic_end, index,
                       predicate, result[index], attic_result[index], timestamp_by_id_attic, timestamp_by_id_current, timestamp);
 
@@ -351,6 +365,10 @@ bool collect_items_by_timestamp(const Statement* stmt, Resource_Manager& rman,
     filter_items_by_timestamp(timestamp_by_id_attic, timestamp_by_id_current, attic_result[index]);
 
    // check_for_duplicated_objects< Relation_Skeleton >(timestamp_by_id, rman);
+    result_eval_map       += result[index].size() * eval_elem<Relation_Skeleton>() + (result.size() - prev_result_size) * eval_map_index_size;
+    attic_result_eval_map += attic_result[index].size() * eval_elem< Attic< Relation_Skeleton > >() + (attic_result.size() - prev_attic_result_size) * eval_map_index_size;
+
+
   }
   return false;
 }
@@ -364,6 +382,9 @@ bool collect_items_by_timestamp(const Statement* stmt, Resource_Manager& rman,
                    std::map< Index, std::vector< Way_Skeleton > >& result,
                    std::map< Index, std::vector< Attic< Way_Skeleton > > >& attic_result)
 {
+  auto result_eval_map = eval_map(result);
+  auto attic_result_eval_map = eval_map(attic_result);
+
   uint32 count = 0;
   while (!(current_begin == current_end) || !(attic_begin == attic_end))
   {
@@ -375,8 +396,8 @@ bool collect_items_by_timestamp(const Statement* stmt, Resource_Manager& rman,
       count = 0;
       if (stmt)
       {
-        rman.health_check(*stmt, 0, eval_map(result));
-        rman.health_check(*stmt, 0, eval_map(attic_result));
+        rman.health_check(*stmt, 0, result_eval_map);
+        rman.health_check(*stmt, 0, attic_result_eval_map);
       }
     }
     Index index =
@@ -389,6 +410,9 @@ bool collect_items_by_timestamp(const Statement* stmt, Resource_Manager& rman,
       return true;
     }
     
+    auto prev_result_size = result.size();
+    auto prev_attic_result_size = attic_result.size();
+
     std::vector< std::pair< Way_Skeleton::Id_Type, uint64 > > timestamp_by_id_attic;
     std::vector< Way_Skeleton::Id_Type > timestamp_by_id_current;
 
@@ -400,6 +424,9 @@ bool collect_items_by_timestamp(const Statement* stmt, Resource_Manager& rman,
 
     filter_items_by_timestamp(timestamp_by_id_attic, timestamp_by_id_current, result[index]);
     filter_items_by_timestamp(timestamp_by_id_attic, timestamp_by_id_current, attic_result[index]);
+
+    result_eval_map       += result[index].size() * eval_elem<Way_Skeleton>() + (result.size() - prev_result_size) * eval_map_index_size;
+    attic_result_eval_map += attic_result[index].size() * eval_elem< Attic< Way_Skeleton > >() + (attic_result.size() - prev_attic_result_size) * eval_map_index_size;
 
   // check_for_duplicated_objects< Object >(timestamp_by_id_attic, rman);
    }
