@@ -70,7 +70,7 @@ inline typename std::enable_if< std::is_same< TObject, Relation_Skeleton >::valu
 
 template < class Index, class Object, class Iterator, class Predicate >
 void reconstruct_items(
-    Iterator& it, Iterator end, Index index,
+    Iterator& it, Iterator& end, Index& index,
     const Predicate& predicate,
     std::vector< Object >& result,
     std::vector< std::pair< typename Object::Id_Type, uint64 > >& timestamp_by_id_attic,
@@ -104,8 +104,8 @@ void reconstruct_items(
 
 template < class Index, class Object, class Attic_Iterator, class Current_Iterator, class Predicate >
 void reconstruct_items(const Statement* stmt, Resource_Manager& rman,
-    Current_Iterator& current_it, Current_Iterator current_end,
-    Attic_Iterator& attic_it, Attic_Iterator attic_end, Index& idx,
+    Current_Iterator& current_it, Current_Iterator& current_end,
+    Attic_Iterator& attic_it, Attic_Iterator& attic_end, Index& idx,
     const Predicate& predicate,
     std::vector< Object >& result, std::vector< Attic< Object > > & attic_result,
     std::vector< std::pair< typename Object::Id_Type, uint64 > >& timestamp_by_id_attic,
