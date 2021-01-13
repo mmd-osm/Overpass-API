@@ -1,5 +1,5 @@
 sudo: required
-dist: bionic
+dist: focal
 
 language: cpp
 
@@ -8,7 +8,7 @@ compiler:
 
 before_install:
   - sudo apt-get update -qq || true
-  - sudo apt-get install -y expat libexpat1-dev liblz4-dev libfcgi-dev zlib1g-dev libbz2-dev libicu-dev
+  - sudo apt-get install -y expat libexpat1-dev liblz4-dev libfcgi-dev zlib1g-dev libbz2-dev libicu-dev libfmt-dev
   
 before_script:  
   - mkdir -p $HOME/overpass
@@ -23,7 +23,7 @@ before_script:
   - popd
   - mkdir -p build
   - cd build
-  - ../src/configure CXXFLAGS="-Werror=implicit-function-declaration  -D_FORTIFY_SOURCE=2 -fexceptions -fpie -Wl,-pie -fpic -shared -fstack-protector-strong -Wl,--no-as-needed -pipe -Wl,-z,defs -Wl,-z,now -Wl,-z,relro -fno-omit-frame-pointer -flto -fwhole-program  -O2" LDFLAGS="-flto -fwhole-program" --prefix=$EXEC_DIR --enable-lz4 --enable-fastcgi --enable-tests
+  - ../src/configure CXXFLAGS="-Werror=implicit-function-declaration  -D_FORTIFY_SOURCE=2 -fexceptions -fpie -Wl,-pie -fpic -shared -fstack-protector-strong -Wl,--no-as-needed -pipe -Wl,-z,defs -Wl,-z,now -Wl,-z,relro -fno-omit-frame-pointer -flto -fwhole-program  -O2" LDFLAGS="-flto -fwhole-program -lfmt" --prefix=$EXEC_DIR --enable-lz4 --enable-fastcgi --enable-tests
 
 script:  
   - make V=0 install -j3
