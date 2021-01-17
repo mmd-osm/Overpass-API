@@ -21,6 +21,7 @@
 #include "../frontend/basic_formats.h"
 #include "output_json.h"
 
+#include <fmt/core.h>
 
 bool Output_JSON::write_http_headers()
 {
@@ -124,8 +125,10 @@ void Output_JSON::print_item(const Node_Skeleton& skel,
     std::cout<<",\n  \"id\": "<<skel.id.val();
 
   if (mode.mode & (Output_Mode::COORDS | Output_Mode::GEOMETRY | Output_Mode::BOUNDS | Output_Mode::CENTER))
-    std::cout<<",\n  \"lat\": "<<std::fixed<<std::setprecision(7)<<geometry.center_lat()
-        <<",\n  \"lon\": "<<std::fixed<<std::setprecision(7)<<geometry.center_lon();
+//    std::cout<<",\n  \"lat\": "<<std::fixed<<std::setprecision(7)<<geometry.center_lat()
+//        <<",\n  \"lon\": "<<std::fixed<<std::setprecision(7)<<geometry.center_lon();
+      std::cout<< fmt::format(",\n  \"lat\": {:.7f},\n  \"lon\": {:.7f}", geometry.center_lat(), geometry.center_lon());
+
   if (meta)
     print_meta_json(*meta, *users);
 
@@ -137,17 +140,33 @@ void Output_JSON::print_item(const Node_Skeleton& skel,
 void print_bounds(const Opaque_Geometry& geometry, Output_Mode mode)
 {
   if ((mode.mode & Output_Mode::BOUNDS) && geometry.has_bbox())
+/*
     std::cout<<",\n  \"bounds\": {\n"
         "    \"minlat\": "<<std::fixed<<std::setprecision(7)<<geometry.south()<<",\n"
         "    \"minlon\": "<<std::fixed<<std::setprecision(7)<<geometry.west()<<",\n"
         "    \"maxlat\": "<<std::fixed<<std::setprecision(7)<<geometry.north()<<",\n"
         "    \"maxlon\": "<<std::fixed<<std::setprecision(7)<<geometry.east()<<"\n"
         "  }";
+  */
+  std::cout<<  fmt::format(",\n  \"bounds\": {{\n"
+      "    \"minlat\": {:.7f},\n"
+      "    \"minlon\": {:.7f},\n"
+      "    \"maxlat\": {:.7f},\n"
+      "    \"maxlon\": {:.7f}\n"
+      "  }}", geometry.south(), geometry.west(), geometry.north(), geometry.east());
   else if ((mode.mode & Output_Mode::CENTER) && geometry.has_center())
+/*
     std::cout<<",\n  \"center\": {\n"
         "    \"lat\": "<<std::fixed<<std::setprecision(7)<<geometry.center_lat()<<",\n"
         "    \"lon\": "<<std::fixed<<std::setprecision(7)<<geometry.center_lon()<<"\n"
         "  }";
+*/
+
+    std::cout<< fmt::format(",\n  \"center\": {{\n"
+        "    \"lat\": {:.7f},\n"
+        "    \"lon\": {:.7f}\n"
+        "  }}", geometry.center_lat(), geometry.center_lon());
+
 }
 
 
@@ -190,10 +209,13 @@ void Output_JSON::print_item(const Way_Skeleton& skel,
     for (uint i = 0; i < geometry.way_size(); ++i)
     {
       if (geometry.way_pos_is_valid(i))
+/*
         std::cout<<"\n    { \"lat\": "<<std::fixed<<std::setprecision(7)
             <<geometry.way_pos_lat(i)
             <<", \"lon\": "<<std::fixed<<std::setprecision(7)
             <<geometry.way_pos_lon(i)<<" }";
+*/
+        std::cout<< fmt::format("\n    {{ \"lat\": {:.7f}, \"lon\": {:.7f} }}", geometry.way_pos_lat(i), geometry.way_pos_lon(i));
       else
         std::cout<<"\n    null";
 
@@ -246,8 +268,11 @@ void Output_JSON::print_item(const Relation_Skeleton& skel,
 
       if (skel.members()[i].type == Relation_Entry::NODE &&
           geometry.has_faithful_relation_geometry() && geometry.relation_pos_is_valid(i))
+/*
         std::cout<<",\n      \"lat\": "<<std::fixed<<std::setprecision(7)<<geometry.relation_pos_lat(i)
             <<",\n      \"lon\": "<<std::fixed<<std::setprecision(7)<<geometry.relation_pos_lon(i);
+*/
+        std::cout<< fmt::format(",\n      \"lat\": {:.7f},\n      \"lon\": {:.7f}", geometry.relation_pos_lat(i), geometry.relation_pos_lon(i));
 
       if (skel.members()[i].type == Relation_Entry::WAY && geometry.has_faithful_relation_geometry())
       {
@@ -256,10 +281,13 @@ void Output_JSON::print_item(const Relation_Skeleton& skel,
         {
           if (geometry.relation_pos_is_valid(i, j))
           {
+/*
             std::cout<<"\n         { \"lat\": "<<std::fixed<<std::setprecision(7)
                 <<geometry.relation_pos_lat(i, j)
                 <<", \"lon\": "<<std::fixed<<std::setprecision(7)
                 <<geometry.relation_pos_lon(i, j)<<" }";
+*/
+            std::cout<<  fmt::format("\n         {{ \"lat\": {:.7f}, \"lon\": {:.7f} }}", geometry.relation_pos_lat(i, j), geometry.relation_pos_lon(i, j));
           }
           else
             std::cout<<"\n         null";
