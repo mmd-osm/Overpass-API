@@ -824,24 +824,21 @@ Around_Statement::~Around_Statement()
 
 std::tuple< double, double, double > cartesian(double lat, double lon)
 {
-
   return std::make_tuple( sin(lat/90.0*acos(0)),
                           cos(lat/90.0*acos(0))*sin(lon/90.0*acos(0)),
                           cos(lat/90.0*acos(0))*cos(lon/90.0*acos(0)));
 }
 
 
-void rescale(double a, std::tuple< double, double, double >& v)
+inline void rescale(double a, std::tuple< double, double, double >& v)
 {
-
   std::get<0>(v) *= a;
   std::get<1>(v) *= a;
   std::get<2>(v) *= a;
-
 }
 
 
-std::tuple< double, double, double > sum(const std::tuple< double, double, double >& v,
+inline std::tuple< double, double, double > sum(const std::tuple< double, double, double >& v,
                                          const std::tuple< double, double, double >& w)
 {
   return std::make_tuple( std::get<0>(v) + std::get<0>(w),
@@ -850,7 +847,7 @@ std::tuple< double, double, double > sum(const std::tuple< double, double, doubl
 }
 
 
-double scalar_prod(const std::tuple< double, double, double >& v,
+inline double scalar_prod(const std::tuple< double, double, double >& v,
                    const std::tuple< double, double, double >& w)
 {
   return (std::get<0>(v) * std::get<0>(w) +
@@ -862,7 +859,6 @@ double scalar_prod(const std::tuple< double, double, double >& v,
 std::tuple< double, double, double >cross_prod(const std::tuple< double, double, double >& v,
                                                const std::tuple< double, double, double >& w)
 {
-
   return std::make_tuple(std::get<1>(v) * std::get<2>(w) - std::get<2>(v) * std::get<1>(w),
                          std::get<2>(v) * std::get<0>(w) - std::get<0>(v) * std::get<2>(w),
                          std::get<0>(v) * std::get<1>(w) - std::get<1>(v) * std::get<0>(w));
