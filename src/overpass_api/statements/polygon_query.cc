@@ -241,6 +241,9 @@ Statement* Polygon_Query_Statement::Criterion_Maker::create_criterion(const Toke
     return new Polygon_Query_Statement(line_nr, attributes, global_settings);
   }
 
+  error_output->add_parse_error("For the attribute \"bounds\" of the element \"polygon-query\""
+      " at least 3 lat/lon float value pairs must be provided.", line_nr);
+
   return 0;
 }
 
