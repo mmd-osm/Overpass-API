@@ -821,6 +821,7 @@ Around_Statement::~Around_Statement()
     delete *it;
 }
 
+namespace {
 
 std::tuple< double, double, double > cartesian(double lat, double lon)
 {
@@ -864,7 +865,7 @@ std::tuple< double, double, double >cross_prod(const std::tuple< double, double,
                          std::get<0>(v) * std::get<1>(w) - std::get<1>(v) * std::get<0>(w));
 }
 
-
+}
 
 Prepared_Segment::Prepared_Segment
   (double first_lat_, double first_lon_, double second_lat_, double second_lon_)
@@ -883,6 +884,7 @@ Prepared_Point::Prepared_Point
   cartesian = ::cartesian(lat, lon);
 }
 
+namespace {
 
 double great_circle_line_dist(const Prepared_Segment& segment, const std::tuple< double, double, double >& cartesian)
 {
@@ -945,6 +947,7 @@ bool intersect(double alat1, double alon1, double alat2, double alon2,
       && std::abs(scalar_prod(bsum, intersection_pt)) >= scalar_prod(bsum, b1));
 }
 
+}
 
 std::set< std::pair< Uint32_Index, Uint32_Index > > Around_Statement::calc_ranges
     (const Set& input, Resource_Manager& rman) const
