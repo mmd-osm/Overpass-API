@@ -607,8 +607,18 @@ std::map< Uint31_Index, std::vector< Way_Skeleton > > relation_way_members
   {
     std::vector< Uint31_Index > req =
         relation_way_member_indices< Relation_Skeleton >(stmt, rman, relations.begin(), relations.end());
-    collect_items_discrete(stmt, rman, *osm_base_settings().WAYS, req,
-			Id_Predicate< Way_Skeleton >(intersect_ids), result);
+
+    std::set< std::pair< Uint31_Index, Uint31_Index > > wr;
+    for (const auto & v: req) {
+      wr.insert(std::make_pair(v, inc(v)));
+    }
+
+    Uint31_Index cur_idx = wr.begin()->first;
+    while (collect_items_range(stmt, rman, *osm_base_settings().WAYS, wr,
+        Id_Predicate< Way_Skeleton >(intersect_ids), cur_idx, result));
+
+//    collect_items_discrete(stmt, rman, *osm_base_settings().WAYS, req,
+//			Id_Predicate< Way_Skeleton >(intersect_ids), result);
   }
 
   return result;
