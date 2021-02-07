@@ -69,7 +69,7 @@ class IdSetHybrid {
   }
 
 
-  uint64_t get_cid(T id) noexcept {
+  uint64_t get_cid(T id) {
     const auto cid = chunk_id(id);
     if (cid >= m_data_bitmap.size()) {
       m_data_bitmap.resize(cid + 1);
