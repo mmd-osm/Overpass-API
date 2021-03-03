@@ -232,12 +232,12 @@ std::vector< std::pair< Id_Type, Uint31_Index > > filter_id_list_fast(
         (!filtered || old_ids.get(current_id)))
     {
       if (final)
-         new_ids_idx.push_back(std::make_pair(current_id, it.handle().get_idx())); // it.object().idx));
+         new_ids_idx.push_back(std::make_pair(current_id, it.handle().get_idx()));
       else
          new_ids.set(current_id);
     }
 
-    if (!filtered && new_ids_idx.size() == 1024*1024)
+    if (!filtered && (new_ids_idx.size() == 1024*1024 || new_ids.size() == 1024*1024))
     {
       if (check_keys_late == prefer_ranges)
       {
