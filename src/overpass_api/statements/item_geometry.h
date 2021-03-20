@@ -192,13 +192,13 @@ struct Length_Eval_Task final : public Eval_Task
   virtual std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
       { return "0"; }
   virtual std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
-      { return data.geometry ? fixed_to_string(length(*data.geometry), 3) : "0"; }
+      { return data.geometry ? fixed_to_string_3(length(*data.geometry)) : "0"; }
   virtual std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
-      { return data.geometry ? fixed_to_string(length(*data.geometry), 3) : "0"; }
+      { return data.geometry ? fixed_to_string_3(length(*data.geometry)) : "0"; }
   virtual std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
-      { return data.geometry ? fixed_to_string(length(*data.geometry), 3) : "0"; }
+      { return data.geometry ? fixed_to_string_3(length(*data.geometry)) : "0"; }
   virtual std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
-      { return data.geometry ? fixed_to_string(length(*data.geometry), 3) : "0"; }
+      { return data.geometry ? fixed_to_string_3(length(*data.geometry)) : "0"; }
   virtual std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
       { return "0"; }
   virtual std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
@@ -260,28 +260,28 @@ struct Latitude_Eval_Task final : public Eval_Task
 
   virtual std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
       { return data.geometry &&
-          data.geometry->has_center() ? fixed_to_string(data.geometry->center_lat(), 7) : "NaN"; }
+          data.geometry->has_center() ? fixed_to_string_7(data.geometry->center_lat()) : "NaN"; }
   virtual std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
       { return data.geometry &&
-          data.geometry->has_center() ? fixed_to_string(data.geometry->center_lat(), 7) : "NaN"; }
+          data.geometry->has_center() ? fixed_to_string_7(data.geometry->center_lat()) : "NaN"; }
   virtual std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
       { return data.geometry &&
-          data.geometry->has_center() ? fixed_to_string(data.geometry->center_lat(), 7) : "NaN"; }
+          data.geometry->has_center() ? fixed_to_string_7(data.geometry->center_lat()) : "NaN"; }
   virtual std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
       { return data.geometry &&
-          data.geometry->has_center() ? fixed_to_string(data.geometry->center_lat(), 7) : "NaN"; }
+          data.geometry->has_center() ? fixed_to_string_7(data.geometry->center_lat()) : "NaN"; }
   virtual std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
       { return data.geometry &&
-          data.geometry->has_center() ? fixed_to_string(data.geometry->center_lat(), 7) : "NaN"; }
+          data.geometry->has_center() ? fixed_to_string_7(data.geometry->center_lat()) : "NaN"; }
   virtual std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
       { return data.geometry &&
-          data.geometry->has_center() ? fixed_to_string(data.geometry->center_lat(), 7) : "NaN"; }
+          data.geometry->has_center() ? fixed_to_string_7(data.geometry->center_lat()) : "NaN"; }
   virtual std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
       { return data.geometry &&
-          data.geometry->has_center() ? fixed_to_string(data.geometry->center_lat(), 7) : "NaN"; }
+          data.geometry->has_center() ? fixed_to_string_7(data.geometry->center_lat()) : "NaN"; }
   virtual std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
       { return data.geometry &&
-          data.geometry->has_center() ? fixed_to_string(data.geometry->center_lat(), 7) : "NaN"; }
+          data.geometry->has_center() ? fixed_to_string_7(data.geometry->center_lat()) : "NaN"; }
 };
 
 
@@ -324,28 +324,28 @@ struct Longitude_Eval_Task final : public Eval_Task
 
   virtual std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
       { return data.geometry &&
-          data.geometry->has_center() ? fixed_to_string(data.geometry->center_lon(), 7) : "NaN"; }
+          data.geometry->has_center() ? fixed_to_string_7(data.geometry->center_lon()) : "NaN"; }
   virtual std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
       { return data.geometry &&
-          data.geometry->has_center() ? fixed_to_string(data.geometry->center_lon(), 7) : "NaN"; }
+          data.geometry->has_center() ? fixed_to_string_7(data.geometry->center_lon()) : "NaN"; }
   virtual std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
       { return data.geometry &&
-          data.geometry->has_center() ? fixed_to_string(data.geometry->center_lon(), 7) : "NaN"; }
+          data.geometry->has_center() ? fixed_to_string_7(data.geometry->center_lon()) : "NaN"; }
   virtual std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
       { return data.geometry &&
-          data.geometry->has_center() ? fixed_to_string(data.geometry->center_lon(), 7) : "NaN"; }
+          data.geometry->has_center() ? fixed_to_string_7(data.geometry->center_lon()) : "NaN"; }
   virtual std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
       { return data.geometry &&
-          data.geometry->has_center() ? fixed_to_string(data.geometry->center_lon(), 7) : "NaN"; }
+          data.geometry->has_center() ? fixed_to_string_7(data.geometry->center_lon()) : "NaN"; }
   virtual std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
       { return data.geometry &&
-          data.geometry->has_center() ? fixed_to_string(data.geometry->center_lon(), 7) : "NaN"; }
+          data.geometry->has_center() ? fixed_to_string_7(data.geometry->center_lon()) : "NaN"; }
   virtual std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
       { return data.geometry &&
-          data.geometry->has_center() ? fixed_to_string(data.geometry->center_lon(), 7) : "NaN"; }
+          data.geometry->has_center() ? fixed_to_string_7(data.geometry->center_lon()) : "NaN"; }
   virtual std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
       { return data.geometry &&
-          data.geometry->has_center() ? fixed_to_string(data.geometry->center_lon(), 7) : "NaN"; }
+          data.geometry->has_center() ? fixed_to_string_7(data.geometry->center_lon()) : "NaN"; }
 };
 
 

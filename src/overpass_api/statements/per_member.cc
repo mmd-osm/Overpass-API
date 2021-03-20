@@ -279,7 +279,7 @@ std::string Angle_Eval_Task::prettyprinted_angle(uint pos) const
     return "NaN";
   double prod = (in.x*out.x + in.y*out.y + in.z*out.z)/lg_in/lg_out;
   double cw = (mid.x-prev.x)*out.x + (mid.y-prev.y)*out.y + (mid.z-prev.z)*out.z;
-  return fabs(prod) > 1 ? "0.000" : fixed_to_string(copysign(acos(prod)/acos(0)*90., cw), 3);
+  return fabs(prod) > 1 ? "0.000" : fixed_to_string_3(copysign(acos(prod)/acos(0)*90., cw));
 }
 
 
