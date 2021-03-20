@@ -229,7 +229,7 @@ class Regular_Expression_PCRE : public Regular_Expression
   public:
 
     Regular_Expression_PCRE(const std::string& regex, bool case_sensitive) :
-        Regular_Expression(regex, case_sensitive)
+        Regular_Expression(regex, case_sensitive), re(nullptr), match_data(nullptr)
     {
 
       if (strategy == Strategy::call_library)
