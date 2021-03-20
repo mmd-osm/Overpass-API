@@ -8,7 +8,7 @@ compiler:
 
 before_install:
   - sudo apt-get update -qq || true
-  - sudo apt-get install -y expat libexpat1-dev liblz4-dev libfcgi-dev zlib1g-dev libbz2-dev libicu-dev libfmt-dev
+  - sudo apt-get install -y expat libexpat1-dev liblz4-dev libfcgi-dev zlib1g-dev libbz2-dev libicu-dev libfmt-dev libpcre2-dev
   
 before_script:  
   - mkdir -p $HOME/overpass
