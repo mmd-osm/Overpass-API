@@ -1,6 +1,6 @@
 
 
-AM_LDFLAGS  = @PTHREAD_LIBS@ @BZ2_LIBS@ @ICU_LIBS@
+AM_LDFLAGS  = @PTHREAD_LIBS@ @BZ2_LIBS@ @ICU_LIBS@ @PCRE_LIBS@
 AM_CXXFLAGS = -I$(top_srcdir)/third_party/libosmium/include -I$(top_srcdir)/third_party/protozero/include @OPENMP_FLAG@
 
 testbindir = ${prefix}/test-bin

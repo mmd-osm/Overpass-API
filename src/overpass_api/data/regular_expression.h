@@ -38,6 +38,11 @@ using icu::UnicodeString;
 using icu::RegexMatcher;
 #endif
 
+#ifdef HAVE_PCRE
+#define PCRE2_CODE_UNIT_WIDTH 8
+#include <pcre2.h>
+#endif
+
 
 
 struct Regular_Expression_Error : public std::runtime_error
@@ -217,6 +222,111 @@ class Regular_Expression_ICU : public Regular_Expression
 
 #endif
 
+#ifdef HAVE_PCRE
+
+class Regular_Expression_PCRE : public Regular_Expression
+{
+  public:
+
+    Regular_Expression_PCRE(const std::string& regex, bool case_sensitive) :
+        Regular_Expression(regex, case_sensitive)
+    {
+
+      if (strategy == Strategy::call_library)
+      {
+        setlocale(LC_ALL, "C.UTF-8");
+
+        int errornumber;
+        PCRE2_SIZE erroroffset;
+
+        uint32_t flags = PCRE2_UTF;
+        flags |= case_sensitive ? 0 : PCRE2_CASELESS;
+
+        re = pcre2_compile(
+          reinterpret_cast<PCRE2_SPTR>(regex.c_str()),         /* the pattern */
+          PCRE2_ZERO_TERMINATED,                               /* indicates pattern is zero-terminated */
+          flags,                                               /* options */
+          &errornumber,                                        /* for error number */
+          &erroroffset,                                        /* for error offset */
+          NULL);                                               /* use default compile context */
+
+        if (re == nullptr)
+          {
+          PCRE2_UCHAR buffer[256];
+          size_t size = pcre2_get_error_message(errornumber, buffer, sizeof(buffer));
+          throw Regular_Expression_Error(std::string(reinterpret_cast<const char*>(buffer), size));
+        }
+
+        match_data = pcre2_match_data_create_from_pattern(re, NULL);
+        if (match_data == nullptr) {
+          throw Regular_Expression_Error("pcre2_match_data issue");
+        }
+      }
+    }
+
+    ~Regular_Expression_PCRE()
+    {
+      if (strategy == Strategy::call_library)
+        if (match_data != nullptr) {
+          pcre2_match_data_free(match_data);
+        }
+        if (re != nullptr) {
+          pcre2_code_free(re);
+        }
+    }
+
+    inline bool matches(const std::string& line) const
+    {
+      if (strategy == Strategy::match_anything)
+        return true;
+      else if (strategy == Strategy::match_nonempty)
+        return !line.empty();
+
+      if (is_cache_available && line == prev_line)
+        return prev_result;
+
+      bool result;
+
+      uint32_t options = 0;
+
+      int rc = pcre2_match(
+        re,                                            /* the compiled pattern */
+        reinterpret_cast<PCRE2_SPTR>(line.c_str()),    /* the subject string */
+        line.size(),                                   /* the length of the subject */
+        0,                                             /* starting offset in the subject */
+        options,                                       /* options */
+        match_data,                                    /* block for storing the result */
+        NULL);                                         /* use default match context */
+
+      if (rc < 0)  {
+        switch(rc)
+          {
+          case PCRE2_ERROR_NOMATCH:
+              result = false;
+              break;
+          default:
+            throw Regular_Expression_Error("PCRE2 failed");
+          }
+      } else {
+        result = true;
+      }
+
+      is_cache_available = true;
+      prev_result = result;
+      prev_line = line;
+
+      return (result);
+    }
+
+  private:
+    pcre2_code *re;
+    pcre2_match_data *match_data;
+};
+
+
+#endif
+
+
 class Regular_Expression_Factory
 {
 
@@ -229,6 +339,12 @@ public:
       return new Regular_Expression_ICU(regex, case_sensitive);
 #else
       throw std::runtime_error("ICU support not available");
+#endif
+    } else if (engine == "PCRE") {
+#ifdef HAVE_PCRE
+      return new Regular_Expression_PCRE(regex, case_sensitive);
+#else
+      throw std::runtime_error("PCRE support not available");
 #endif
     }
 

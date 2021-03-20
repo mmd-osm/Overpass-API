@@ -129,12 +129,18 @@ AC_LANG_POP([C++])
 
 AC_DEFINE(HAVE_LIBOSMIUM, 1, [Define if you have libosmium library])
 AC_DEFINE(HAVE_ICU, 1, [Define if you have ICU library])
+AC_DEFINE(HAVE_PCRE, 1, [Define if you have PCRE library])
 AC_DEFINE(HAVE_OPENMP, 1, [Define if you have OpenMP])
 
-# Regular expression libs
+# Regular expression libs ICU
 ICU_LIBS=""
 ICU_LIBS="-licuuc -licui18n"
 AC_SUBST(ICU_LIBS, ["$ICU_LIBS"])
+
+PCRE_LIBS=""
+PCRE_LIBS="-lpcre2-8"
+AC_SUBST(PCRE_LIBS, ["$PCRE_LIBS"])
+
 
 OPENMP_FLAG=""
 OPENMP_FLAG="-fopenmp"
