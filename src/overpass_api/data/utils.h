@@ -32,7 +32,6 @@
 #include <type_traits> // For std::decay
 #include <vector>
 
-#include <fmt/core.h>
 
 template< typename Index, typename Skeleton >
 unsigned int count(const std::map< Index, std::vector< Skeleton > >& elems)
@@ -60,33 +59,19 @@ inline std::string to_string(std::string t)
 template < >
 inline std::string to_string(double t)
 {
-  /*
   std::ostringstream out;
   out<<std::setprecision(14)<<t;
   return out.str();
-  */
-  return fmt::format("{:.14f}", t);
-
 }
 
 
 template < typename T >
-std::string fixed_to_string_3(T t)
+std::string fixed_to_string(T t, unsigned int precision)
 {
-/*
   std::ostringstream out;
   out<<std::fixed<<std::setprecision(precision)<<t;
   return out.str();
-*/
-  return fmt::format("{:.3f}", t);
 }
-
-template < typename T >
-std::string fixed_to_string_7(T t)
-{
-  return fmt::format("{:.7f}", t);
-}
-
 
 
 inline bool try_double(const std::string& input, double& result)
