@@ -30,7 +30,15 @@
 class Parsed_Query
 {
 public:
-  Parsed_Query() : output_handler(0), global_bbox_limitation(Bbox_Double::invalid), last_dispensed_id(0ull), regexp_engine("POSIX") {}
+  Parsed_Query() : output_handler(0), global_bbox_limitation(Bbox_Double::invalid), last_dispensed_id(0ull), regexp_engine("")  {
+
+    default_regexp_engine = "POSIX";
+    char const* default_regexp_engine_c = std::getenv("OVERPASS_REGEXP_ENGINE");
+    if (default_regexp_engine_c != nullptr) {
+      default_regexp_engine = std::string(default_regexp_engine_c);
+    }
+  }
+
   ~Parsed_Query() { delete output_handler; }
 
   Output_Handler* get_output_handler() const { return output_handler; }
@@ -48,6 +56,7 @@ public:
 
   void set_regexp_engine(std::string regexp_engine_) { regexp_engine = regexp_engine_; }
   std::string get_regexp_engine() { return regexp_engine; }
+  std::string get_default_regexp_engine() { return default_regexp_engine; }
 
 private:
   // The class has ownership of objects - hence no assignment or copies are allowed
@@ -59,6 +68,7 @@ private:
   std::map< std::string, std::string > input_params;
   Derived_Skeleton::Id_Type last_dispensed_id;
   std::string regexp_engine;
+  std::string default_regexp_engine;
 };
 
 

@@ -47,7 +47,7 @@ Osm_Script_Statement::Osm_Script_Statement
   attributes["date"] = "";
   attributes["from"] = "";
   attributes["augmented"] = "";
-  attributes["regexp"] = "POSIX";
+  attributes["regexp"] = global_settings.get_default_regexp_engine();
   
   eval_attributes_array(get_name(), attributes, input_attributes);
 
