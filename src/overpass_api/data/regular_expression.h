@@ -228,8 +228,9 @@ class Regular_Expression_PCRE : public Regular_Expression
 {
   public:
 
-    Regular_Expression_PCRE(const std::string& regex, bool case_sensitive) :
-        Regular_Expression(regex, case_sensitive), re(nullptr), match_data(nullptr)
+    Regular_Expression_PCRE(const std::string& regex, bool case_sensitive, bool enable_jit) :
+        Regular_Expression(regex, case_sensitive), re(nullptr), match_data(nullptr),
+        mcontext(nullptr), jit_stack(nullptr), pcre2_jit_on(false)
     {
 
       if (strategy == Strategy::call_library)
@@ -243,8 +244,8 @@ class Regular_Expression_PCRE : public Regular_Expression
         flags |= case_sensitive ? 0 : PCRE2_CASELESS;
 
         re = pcre2_compile(
-          reinterpret_cast<PCRE2_SPTR>(regex.c_str()),         /* the pattern */
-          PCRE2_ZERO_TERMINATED,                               /* indicates pattern is zero-terminated */
+          reinterpret_cast<PCRE2_SPTR>(regex.data()),          /* the pattern */
+          regex.size(),                                        /* pattern length */
           flags,                                               /* options */
           &errornumber,                                        /* for error number */
           &erroroffset,                                        /* for error offset */
@@ -257,6 +258,29 @@ class Regular_Expression_PCRE : public Regular_Expression
           throw Regular_Expression_Error(std::string(reinterpret_cast<const char*>(buffer), size));
         }
 
+        if (enable_jit) {
+          pcre2_config(PCRE2_CONFIG_JIT, &pcre2_jit_on);
+        }
+
+        if (pcre2_jit_on) {
+          int rc = pcre2_jit_compile(re, PCRE2_JIT_COMPLETE);
+          if (rc != 0) {
+            throw Regular_Expression_Error("jit_compile issue");
+          }
+
+          jit_stack = pcre2_jit_stack_create(32*1024, 512*1024, NULL);
+          if (jit_stack == nullptr) {
+            throw Regular_Expression_Error("jit_stack issue");
+          }
+
+          mcontext = pcre2_match_context_create(NULL);
+          if (mcontext == nullptr) {
+            throw Regular_Expression_Error("mcontext issue");
+          }
+
+          pcre2_jit_stack_assign(mcontext, NULL, jit_stack);
+        }
+
         match_data = pcre2_match_data_create_from_pattern(re, NULL);
         if (match_data == nullptr) {
           throw Regular_Expression_Error("pcre2_match_data issue");
@@ -267,11 +291,21 @@ class Regular_Expression_PCRE : public Regular_Expression
     ~Regular_Expression_PCRE()
     {
       if (strategy == Strategy::call_library)
+
+        if (re != nullptr) {
+          pcre2_code_free(re);
+        }
+
         if (match_data != nullptr) {
           pcre2_match_data_free(match_data);
         }
-        if (re != nullptr) {
-          pcre2_code_free(re);
+
+        if (jit_stack != nullptr) {
+          pcre2_jit_stack_free(jit_stack);
+        }
+
+        if (mcontext != nullptr) {
+           pcre2_match_context_free(mcontext);
         }
     }
 
@@ -289,14 +323,28 @@ class Regular_Expression_PCRE : public Regular_Expression
 
       uint32_t options = 0;
 
-      int rc = pcre2_match(
-        re,                                            /* the compiled pattern */
-        reinterpret_cast<PCRE2_SPTR>(line.c_str()),    /* the subject string */
-        line.size(),                                   /* the length of the subject */
-        0,                                             /* starting offset in the subject */
-        options,                                       /* options */
-        match_data,                                    /* block for storing the result */
-        NULL);                                         /* use default match context */
+      int rc;
+
+      if (pcre2_jit_on) {
+        rc = pcre2_jit_match(
+          re,                                            /* the compiled pattern */
+          reinterpret_cast<PCRE2_SPTR>(line.data()),     /* the subject string */
+          line.size(),                                   /* the length of the subject */
+          0,                                             /* starting offset in the subject */
+          options,                                       /* options */
+          match_data,                                    /* block for storing the result */
+          NULL);                                         /* use default match context */
+      }
+      else {
+        rc = pcre2_match(
+          re,                                            /* the compiled pattern */
+          reinterpret_cast<PCRE2_SPTR>(line.data()),     /* the subject string */
+          line.size(),                                   /* the length of the subject */
+          0,                                             /* starting offset in the subject */
+          options,                                       /* options */
+          match_data,                                    /* block for storing the result */
+          NULL);                                         /* use default match context */
+      }
 
       if (rc < 0)  {
         switch(rc)
@@ -321,6 +369,9 @@ class Regular_Expression_PCRE : public Regular_Expression
   private:
     pcre2_code *re;
     pcre2_match_data *match_data;
+    pcre2_match_context *mcontext;
+    pcre2_jit_stack *jit_stack;
+    bool pcre2_jit_on;
 };
 
 
@@ -342,7 +393,13 @@ public:
 #endif
     } else if (engine == "PCRE") {
 #ifdef HAVE_PCRE
-      return new Regular_Expression_PCRE(regex, case_sensitive);
+      return new Regular_Expression_PCRE(regex, case_sensitive, false);
+#else
+      throw std::runtime_error("PCRE support not available");
+#endif
+   } else if (engine == "PCREJIT") {
+#ifdef HAVE_PCRE
+      return new Regular_Expression_PCRE(regex, case_sensitive, true);
 #else
       throw std::runtime_error("PCRE support not available");
 #endif

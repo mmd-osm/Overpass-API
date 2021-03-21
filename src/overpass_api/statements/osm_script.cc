@@ -89,13 +89,14 @@ Osm_Script_Statement::Osm_Script_Statement
   
   if (attributes["regexp"] == "POSIX" ||
       attributes["regexp"] == "ICU" ||
-      attributes["regexp"] == "PCRE")
+      attributes["regexp"] == "PCRE" ||
+      attributes["regexp"] == "PCREJIT")
     global_settings.set_regexp_engine(attributes["regexp"]);
   else
   {
     std::ostringstream temp;
     temp<<"For the attribute \"regexp\" of the element \"osm-script\""
-        <<" the only allowed values are \"POSIX\", \"PCRE\" and \"ICU\".";
+        <<" the only allowed values are \"POSIX\", \"PCRE\", \"PCREJIT\" and \"ICU\".";
     add_static_error(temp.str());
   }
 
