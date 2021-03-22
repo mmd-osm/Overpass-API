@@ -193,6 +193,11 @@ int main(int argc, char* argv[])
     report_file_error(e);
     return 2;
   }
+  catch (std::exception& e)
+  {
+    std::cerr << "Exception occurred: " << e.what() << "\n";
+    return 4;
+  }
 
   return 0;
 }

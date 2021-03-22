@@ -224,7 +224,12 @@ int main(int argc, char* argv[])
   catch (const File_Error& e)
   {
     report_file_error(e);
-    return -1;
+    return 2;
+  }
+  catch (std::exception& e)
+  {
+    std::cerr << "Exception occurred: " << e.what() << "\n";
+    return 4;
   }
 
   return 0;
