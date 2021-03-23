@@ -294,7 +294,7 @@ void filter_attic_elements
       if (current_timestamp <= timestamp)
         continue;
 
-      typename std::map< Index, std::vector< Skeleton > >::iterator cit = current.find(it.index());
+      typename std::map< Index, std::vector< Skeleton > >::iterator cit = current.find(it.index_handle().id());
       if (cit != current.end())
       {
         for (typename std::vector< Skeleton >::iterator it2 = cit->second.begin(); it2 != cit->second.end(); )
@@ -309,7 +309,7 @@ void filter_attic_elements
         }
       }
 
-      typename std::map< Index, std::vector< Attic< Skeleton > > >::iterator ait = attic.find(it.index());
+      typename std::map< Index, std::vector< Attic< Skeleton > > >::iterator ait = attic.find(it.index_handle().id());
       if (ait != attic.end())
       {
         for (typename std::vector< Attic< Skeleton > >::iterator it2 = ait->second.begin();
@@ -361,9 +361,12 @@ void filter_attic_elements
         it = attic_meta_db.discrete_begin(idx_set.begin(), idx_set.end());
         !(it == attic_meta_db.discrete_end()); ++it)
     {
+      std::map< typename Skeleton::Id_Type, std::pair< uint64, uint64 > >& entry =
+          timestamp_by_id_by_idx[it.index_handle().id()];
+
       typename std::map< typename Skeleton::Id_Type, std::pair< uint64, uint64 > >::iterator
-          tit = timestamp_by_id_by_idx[it.index()].find(it.handle().get_ref());
-      if (tit != timestamp_by_id_by_idx[it.index()].end())
+          tit = entry.find(it.handle().get_ref());
+      if (tit != entry.end())
       {
 
         auto current_timestamp = it.handle().get_timestamp();
@@ -387,9 +390,12 @@ void filter_attic_elements
         it = meta_db.discrete_begin(idx_set.begin(), idx_set.end());
         !(it == meta_db.discrete_end()); ++it)
     {
+      std::map< typename Skeleton::Id_Type, std::pair< uint64, uint64 > >& entry
+          = timestamp_by_id_by_idx[it.index_handle().id()];
+
       typename std::map< typename Skeleton::Id_Type, std::pair< uint64, uint64 > >::iterator
-          tit = timestamp_by_id_by_idx[it.index()].find(it.handle().get_ref());
-      if (tit != timestamp_by_id_by_idx[it.index()].end())
+          tit = entry.find(it.handle().get_ref());
+      if (tit != entry.end())
       {
         if (timestamp < it.handle().get_timestamp())
           tit->second.second = std::min(tit->second.second, it.handle().get_timestamp());
