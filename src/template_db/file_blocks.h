@@ -136,11 +136,13 @@ struct File_Blocks_Range_Iterator final : File_Blocks_Basic_Iterator< TIndex >
 
   File_Blocks_Range_Iterator
       (const typename std::vector< File_Block_Index_Entry< TIndex > >::const_iterator& end)
-    : File_Blocks_Basic_Iterator< TIndex >(end, end) {}
+    : File_Blocks_Basic_Iterator< TIndex >(end, end),
+      index_equals_last_index(false), new_index_search_needed(true) {}
 
   File_Blocks_Range_Iterator(const File_Blocks_Range_Iterator& a)
     : File_Blocks_Basic_Iterator< TIndex >(a),
-      index_it(a.index_it), index_end(a.index_end) {}
+      index_it(a.index_it), index_end(a.index_end),
+      index_equals_last_index(false), new_index_search_needed(true) {}
 
   ~File_Blocks_Range_Iterator() {}
 
