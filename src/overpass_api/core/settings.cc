@@ -19,6 +19,10 @@
 #include "datatypes.h"
 #include "settings.h"
 
+#ifndef GIT_VERSION
+#define GIT_VERSION "(unknown)"
+#endif
+
 #include "../../template_db/file_blocks.h"
 #include "../../template_db/file_blocks_index.h"
 #include "../../template_db/random_file_index.h"
