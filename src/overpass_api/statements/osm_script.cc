@@ -40,8 +40,8 @@ Osm_Script_Statement::Osm_Script_Statement
   std::map< std::string, std::string > attributes;
 
   attributes["bbox"] = "";
-  attributes["timeout"] = "180";
-  attributes["element-limit"] = "536870912";
+  attributes["timeout"] = global_settings.get_default_timeout();
+  attributes["element-limit"] = global_settings.get_default_element_limit();
   attributes["output"] = "xml";
   attributes["output-config"] = "";
   attributes["date"] = "";

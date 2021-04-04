@@ -37,6 +37,18 @@ public:
     if (default_regexp_engine_c != nullptr) {
       default_regexp_engine = std::string(default_regexp_engine_c);
     }
+
+    default_timeout = "180";
+    char const* default_timeout_c = std::getenv("OVERPASS_DEFAULT_TIMEOUT");
+    if (default_timeout_c != nullptr) {
+      default_timeout = std::string(default_timeout_c);
+    }
+
+    default_element_limit = "536870912";
+    char const* default_element_limit_c = std::getenv("OVERPASS_DEFAULT_ELEMENT_LIMIT");
+    if (default_element_limit_c != nullptr) {
+      default_element_limit = std::string(default_element_limit_c);
+    }
   }
 
   ~Parsed_Query() { delete output_handler; }
@@ -57,6 +69,8 @@ public:
   void set_regexp_engine(std::string regexp_engine_) { regexp_engine = regexp_engine_; }
   std::string get_regexp_engine() { return regexp_engine; }
   std::string get_default_regexp_engine() { return default_regexp_engine; }
+  std::string get_default_timeout() { return default_timeout; }
+  std::string get_default_element_limit() { return default_element_limit; }
 
 private:
   // The class has ownership of objects - hence no assignment or copies are allowed
@@ -69,6 +83,8 @@ private:
   Derived_Skeleton::Id_Type last_dispensed_id;
   std::string regexp_engine;
   std::string default_regexp_engine;
+  std::string default_timeout;
+  std::string default_element_limit;
 };
 
 
