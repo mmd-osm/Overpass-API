@@ -67,14 +67,11 @@ public:
 
   ~Meta_Collector()
   {
-    if (meta_db)
-    {
-      delete db_it;
-      delete meta_db;
-    }
-
-    if (current_index)
-      delete current_index;
+    delete last_index;
+    delete current_index;
+    delete range_it;
+    delete db_it;
+    delete meta_db;
   }
 
 private:
@@ -86,6 +83,7 @@ private:
   typename Block_Backend< Index, OSM_Element_Metadata_Skeleton< Id_Type > >
       ::Range_Iterator* range_it;
   Index* current_index;
+  Index* last_index;
   std::vector< OSM_Element_Metadata_Skeleton< Id_Type > > current_objects;
 
   Functor m_functor;
@@ -128,7 +126,7 @@ template< typename Object >
 Meta_Collector< Index, Id_Type, Functor >::Meta_Collector
     (const std::map< Index, std::vector< Object > >& items,
      Transaction& transaction, const File_Properties* meta_file_prop)
-  : meta_db(0), db_it(0), range_it(0), current_index(0)
+  : meta_db(0), db_it(0), range_it(0), current_index(0), last_index(0)
 {
   if (!meta_file_prop)
     return;
@@ -145,7 +143,7 @@ template< typename Index, typename Id_Type, class Functor >
 Meta_Collector< Index, Id_Type, Functor >::Meta_Collector
     (const std::set< std::pair< Index, Index > >& used_ranges_,
      Transaction& transaction, const File_Properties* meta_file_prop)
-  : used_ranges(used_ranges_), meta_db(0), db_it(0), range_it(0), current_index(0)
+  : used_ranges(used_ranges_), meta_db(0), db_it(0), range_it(0), current_index(0), last_index(0)
 {
   if (!meta_file_prop)
     return;
@@ -163,7 +161,7 @@ Meta_Collector< Index, Id_Type, Functor >::Meta_Collector
     (const std::map< Index, std::vector< Object > >& items,
      Transaction& transaction,  Functor functor,
      const File_Properties* meta_file_prop) :
-     meta_db(0), db_it(0), range_it(0), current_index(0), m_functor(functor)
+     meta_db(0), db_it(0), range_it(0), current_index(0), last_index(0), m_functor(functor)
 {
   if (!meta_file_prop)
     return;
@@ -200,18 +198,20 @@ void Meta_Collector< Index, Id_Type, Functor >::reset()
   if (!meta_db)
     return;
 
-  if (db_it)
-    delete db_it;
-  if (range_it)
-    delete range_it;
-  if (current_index)
-  {
-    delete current_index;
-    current_index = 0;
-  }
+  delete db_it;
+  db_it = 0;
+  delete range_it;
+  range_it = 0;
+  delete current_index;
+  current_index = 0;
+  delete last_index;
+  last_index = 0;
 
   if (used_ranges.empty())
   {
+    if (!used_indices.empty())
+      last_index = new Index(*used_indices.begin());
+
     db_it = new typename Block_Backend< Index, OSM_Element_Metadata_Skeleton< Id_Type > >
         ::Discrete_Iterator(meta_db->discrete_begin(used_indices.begin(), used_indices.end()));
 
@@ -232,6 +232,8 @@ void Meta_Collector< Index, Id_Type, Functor >::reset()
   }
   else
   {
+    last_index = new Index(used_ranges.begin()->first);
+
     range_it = new typename Block_Backend< Index, OSM_Element_Metadata_Skeleton< Id_Type > >
         ::Range_Iterator(meta_db->range_begin(
 	    Default_Range_Iterator< Index >(used_ranges.begin()),
@@ -262,6 +264,9 @@ void Meta_Collector< Index, Id_Type, Functor >::update_current_objects(const Ind
     std::vector< OSM_Element_Metadata_Skeleton< Id_Type > > new_objects{};
     current_objects.swap(new_objects);
   }
+
+  if (last_index)
+    *last_index = index;
 
   if (db_it)
   {
@@ -307,8 +312,8 @@ const OSM_Element_Metadata_Skeleton< Id_Type >* Meta_Collector< Index, Id_Type, 
   if (!meta_db)
     return 0;
 
-  if (current_index && index < *current_index)
-      reset();
+  if (current_index && index < *last_index)
+    reset();
   if (current_index && *current_index < index)
     update_current_objects(index);
 
@@ -329,8 +334,8 @@ const OSM_Element_Metadata_Skeleton< Id_Type >* Meta_Collector< Index, Id_Type, 
   if (!meta_db)
     return 0;
 
-  if (current_index && index < *current_index)
-      reset();
+  if (current_index && index < *last_index)
+    reset();
   if (current_index && *current_index < index)
     update_current_objects(index);
 
