@@ -53,8 +53,11 @@ class Newer_Constraint final : public Query_Constraint
 
     void filter(const Statement& query, Resource_Manager& rman, Set& into);
     virtual ~Newer_Constraint() {}
-
   private:
+    std::ostream& print_constraint( std::ostream &os ) const override{
+      return os << "(newer:\"" << Timestamp(timestamp).str() << "\")";
+    }
+
     uint64 timestamp;
 };
 

@@ -34,8 +34,11 @@ class Item_Constraint final : public Query_Constraint
     bool collect(Resource_Manager& rman, Set& into);
     void filter(Resource_Manager& rman, Set& into);
     virtual ~Item_Constraint() {}
-
   private:
+    std::ostream& print_constraint( std::ostream &os ) const override {
+      return os <<  (item != nullptr ? item->dump_ql_in_query("") : "item");
+    }
+
     Item_Statement* item;
 };
 

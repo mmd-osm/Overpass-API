@@ -49,8 +49,11 @@ class Area_Constraint final : public Query_Constraint
     void filter(Resource_Manager& rman, Set& into);
     void filter(const Statement& query, Resource_Manager& rman, Set& into);
     virtual ~Area_Constraint() {}
-
   private:
+    virtual std::ostream& print_constraint( std::ostream &os ) const {
+        return os << (area != nullptr ? area->dump_ql_in_query("") : "area");
+    }
+
     Area_Query_Statement* area;
     std::set< Uint31_Index > area_blocks_req;
 };

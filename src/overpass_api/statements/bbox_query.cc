@@ -46,8 +46,11 @@ class Bbox_Constraint final : public Query_Constraint
     void filter(Resource_Manager& rman, Set& into);
     void filter(const Statement& query, Resource_Manager& rman, Set& into);
     virtual ~Bbox_Constraint() {}
-
   private:
+    std::ostream& print_constraint( std::ostream &os ) const override {
+      return os << (bbox != nullptr ? bbox->dump_ql_in_query("") : "bbox");
+    }
+
     Bbox_Query_Statement* bbox;
     Bbox_Filter filter_;
 };

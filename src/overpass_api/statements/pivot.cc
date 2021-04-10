@@ -159,8 +159,11 @@ class Pivot_Constraint final : public Query_Constraint
                           bool invert_ids);
     void filter(Resource_Manager& rman, Set& into);
     virtual ~Pivot_Constraint() {}
-
   private:
+    std::ostream& print_constraint( std::ostream &os ) const override {
+      return os << (stmt != nullptr ? stmt->dump_ql_in_query("") : "pivot");
+    }
+
     Pivot_Statement* stmt;
 };
 

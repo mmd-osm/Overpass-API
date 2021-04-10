@@ -35,8 +35,11 @@ class Filter_Constraint final : public Query_Constraint
     void filter(Resource_Manager& rman, Set& into) {}
     void filter(const Statement& query, Resource_Manager& rman, Set& into);
     virtual ~Filter_Constraint() {}
-
   private:
+    std::ostream& print_constraint( std::ostream &os ) const override {
+      return os << (stmt != nullptr ? stmt->dump_ql_in_query("") : "filter");
+    }
+
     Filter_Statement* stmt;
 };
 

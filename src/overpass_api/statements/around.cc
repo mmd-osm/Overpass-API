@@ -414,8 +414,11 @@ class Around_Constraint final : public Query_Constraint
     void filter(Resource_Manager& rman, Set& into);
     void filter(const Statement& query, Resource_Manager& rman, Set& into);
     virtual ~Around_Constraint() {}
-
   private:
+    std::ostream& print_constraint( std::ostream &os ) const override {
+      return os << (around != nullptr ? around->dump_ql_in_query("") : "around");
+    }
+
     Around_Statement* around;
     bool ranges_used;
 };

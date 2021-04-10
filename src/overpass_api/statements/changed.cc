@@ -293,8 +293,11 @@ class Changed_Constraint final : public Query_Constraint
 
     void filter(Resource_Manager& rman, Set& into);
     virtual ~Changed_Constraint() {}
-
   private:
+    std::ostream& print_constraint( std::ostream &os ) const override {
+      return os << (stmt != nullptr ? stmt->dump_ql_in_query("") : "changed");
+    }
+
     Changed_Statement* stmt;
 };
 

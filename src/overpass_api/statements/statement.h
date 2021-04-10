@@ -94,7 +94,19 @@ class Query_Constraint
     virtual void filter(const Statement& query, Resource_Manager& rman, Set& into) {}
 
     virtual ~Query_Constraint() {}
+    friend std::ostream & operator<<(std::ostream &os, const Query_Constraint& p);
+
+  private:
+    virtual std::ostream& print_constraint( std::ostream &os ) const {
+        return os;
+    }
 };
+
+inline std::ostream & operator<<(std::ostream &os, const Query_Constraint& p)
+{
+    return p.print_constraint(os);
+}
+
 
 /**
  * The base class for all statements
