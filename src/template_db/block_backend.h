@@ -89,8 +89,11 @@ private:
 template< typename Object >
 struct Handle : Idx_Handle< Object >, public Handle_Base<Object>::type
 {
+ private:
   template< typename Functor >
   auto apply_func(Functor f) const -> decltype(f(static_cast<const void*>(std::declval<const void *>())));
+
+  friend typename Handle_Base<Object>::type;
 };
 
 
