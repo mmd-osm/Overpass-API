@@ -31,6 +31,8 @@
 #include <string>
 #include <vector>
 
+#include <protozero/varint.hpp>
+
 
 struct Way
 {
@@ -117,9 +119,9 @@ struct Way_Skeleton
     d = new Way_Skeleton_Data;
 
     d->nds.reserve(*((uint16*)data + 2));
-    for (int i(0); i < *((uint16*)data + 2); ++i)
-      d->nds.push_back(*(uint64*)((uint16*)data + 4 + 4*i));
-    uint16* start_ptr = (uint16*)data + 4 + 4*d->nds.size();
+
+    uint16* start_ptr = (uint16*) decompress_nds(d->nds, *((uint16*)data + 2), *((uint16*)data + 4), ((uint8*)data + 10));
+
     d->geometry.reserve(*((uint16*)data + 3));
     for (int i(0); i < *((uint16*)data + 3); ++i)
       d->geometry.push_back(Quad_Coord(*(uint32*)(start_ptr + 4*i), *(uint32*)(start_ptr + 4*i + 2)));
@@ -158,12 +160,15 @@ struct Way_Skeleton
 
   uint32 size_of() const
   {
-    return 8 + 8*d->nds.size() + 8*d->geometry.size();
+    uint32 compress_size = calculate_nds_compressed_size(d->nds);
+    return 8 + 2 + compress_size + 8*d->geometry.size();
   }
 
   static uint32 size_of(const void* data)
   {
-    return (8 + 8 * *((uint16*)data + 2) + 8 * *((uint16*)data + 3));
+    return (8 + 2 +
+            8 * *((uint16*)data + 3) +      // geometry size elements, 8 byte per element
+            *((uint16*)data + 4));          // nds_compressed_size (in bytes)
   }
 
   void to_data(void* data) const
@@ -171,9 +176,11 @@ struct Way_Skeleton
     *(Id_Type*)data = id.val();
     *((uint16*)data + 2) = d->nds.size();
     *((uint16*)data + 3) = d->geometry.size();
-    for (uint i(0); i < d->nds.size(); ++i)
-      *(uint64*)((uint16*)data + 4 + 4*i) = d->nds[i].val();
-    uint16* start_ptr = (uint16*)data + 4 + 4*d->nds.size();
+
+    uint16* start_ptr = (uint16*) compress_nds(d->nds, (uint8*)data + 10);
+    uint16 nds_compressed_size = (uint16) ((uint8*)start_ptr - ((uint8*)data + 10));
+    *((uint16*)data + 4) = nds_compressed_size;
+
     for (uint i(0); i < d->geometry.size(); ++i)
     {
       *(uint32*)(start_ptr + 4*i) = d->geometry[i].ll_upper;
@@ -196,6 +203,63 @@ struct Way_Skeleton
 
 private:
   SharedDataPointer<Way_Skeleton_Data> d;
+
+  uint8* compress_nds(const std::vector< Node::Id_Type >& nds_, uint8* buffer_) const
+  {
+    char* current = (char*) buffer_;
+    char* buffer = (char*) buffer_;
+    Node::Id_Type prev = (uint64) 0;
+
+    for (std::vector< Node_Skeleton::Id_Type>::const_iterator it = nds_.begin();
+         it != nds_.end(); ++it)
+    {
+      int64_t delta = (int64_t) it->val() - (int64_t) prev.val();
+      uint64 zigzag = protozero::encode_zigzag64(delta);
+      int size = protozero::add_varint_to_buffer(current, zigzag);
+      current += size;
+      prev = it->val();
+    }
+
+    if ((current - buffer) & 1)    // add padding byte
+      *current++ = 0;
+
+    return (uint8*) current;
+  }
+
+  uint8* decompress_nds(std::vector< Node::Id_Type >& nds_, const uint16 nodes_count, const uint16 nodes_bytes, uint8* buffer_)
+  {
+    const char* current = (char*) buffer_;
+    const char* end = (char*)(buffer_ + nodes_bytes);
+
+    Node::Id_Type nodeid = (uint64) 0;
+
+    for (int i=0; i<nodes_count;i++)
+    {
+      auto value = protozero::decode_varint(&current, end);
+      int64_t delta = protozero::decode_zigzag64(value);
+      nodeid += delta;
+      nds_.push_back(nodeid);
+    }
+    if ((current - (char*) buffer_) & 1)    // add padding byte
+      current++;
+    return (uint8*) current;
+  }
+
+  inline uint32 calculate_nds_compressed_size(const std::vector< Node::Id_Type >& nds_) const
+  {
+    Node::Id_Type prev = (uint64) 0;
+    uint32 compressed_size = 0;
+
+    for (std::vector< Node_Skeleton::Id_Type>::const_iterator it = nds_.begin();
+        it != nds_.end(); ++it)
+    {
+      int64_t diff = (int64_t) it->val() - (int64_t) prev.val();
+      compressed_size += protozero::length_of_varint(protozero::encode_zigzag64(diff));
+      prev = it->val();
+    }
+    compressed_size += compressed_size & 1;
+    return compressed_size;
+  }
 };
 
 template <typename Id_Type >
