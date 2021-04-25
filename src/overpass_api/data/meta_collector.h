@@ -179,7 +179,7 @@ Meta_Collector< Index, Id_Type, Functor >::Meta_Collector
      Transaction& transaction, Functor functor,
      const File_Properties* meta_file_prop) :
      used_ranges(used_ranges_), meta_db(0), db_it(0), range_it(0), current_index(0),
-     m_functor(functor)
+     last_index(0), m_functor(functor)
 
 {
   if (!meta_file_prop)
