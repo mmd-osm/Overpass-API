@@ -104,10 +104,12 @@ Basic_Settings::Basic_Settings()
   source_hash(GIT_VERSION),
 #ifdef HAVE_LZ4
   compression_method(File_Blocks_Index< Uint31_Index >::LZ4_COMPRESSION),
+  map_compression_method(File_Blocks_Index< Uint31_Index >::LZ4_COMPRESSION)
 #else
   compression_method(File_Blocks_Index< Uint31_Index >::ZLIB_COMPRESSION),
-#endif
   map_compression_method(File_Blocks_Index< Uint31_Index >::NO_COMPRESSION)
+#endif
+
 {}
 
 Basic_Settings& basic_settings()
