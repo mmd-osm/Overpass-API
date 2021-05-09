@@ -587,7 +587,7 @@ bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
     if (predicate.match(it.handle()))
     {
       auto prev_map_size = result.size();
-      result[it.index()].push_back(it.object());
+      result[it.index()].emplace_back(std::move(it.handle().get_element()));
       if (result.size() != prev_map_size) {     // new index added to map?
         current_result_size += eval_map_index_size;
       }
@@ -634,7 +634,7 @@ bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
     if (pred(it.index(), it.handle().id()))
     {
       auto prev_map_size = result.size();
-      result[it.index()].push_back(it.object());
+      result[it.index()].emplace_back(std::move(it.handle().get_element()));
       if (result.size() != prev_map_size) {     // new index added to map?
         current_result_size += eval_map_index_size;
       }

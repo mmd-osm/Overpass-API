@@ -132,7 +132,7 @@ struct Relation_Skeleton
 
   Relation_Skeleton(Relation::Id_Type id_) : id(id_) { d = new Relation_Skeleton_Data;}
 
-  Relation_Skeleton(void* data) : id(*(Id_Type*)data)
+  Relation_Skeleton(const void* data) : id(*(Id_Type*)data)
   {
     d = new Relation_Skeleton_Data;
 
@@ -252,6 +252,17 @@ struct Relation_Skeleton_Id_Functor {
    }
 };
 
+template <typename Id_Type >
+struct Relation_Skeleton_Element_Functor {
+  Relation_Skeleton_Element_Functor() {};
+
+  using reference_type = Relation_Skeleton;
+
+  Relation_Skeleton operator()(const void* data) const
+   {
+     return Relation_Skeleton(data);
+   }
+};
 
 template <class T, class Object>
 struct Relation_Skeleton_Handle_Methods
@@ -260,6 +271,9 @@ struct Relation_Skeleton_Handle_Methods
      return (static_cast<const T*>(this)->apply_func(Relation_Skeleton_Id_Functor<typename Object::Id_Type>()));
   }
 
+  Relation_Skeleton inline get_element() const {
+    return (static_cast<const T*>(this)->apply_func(Relation_Skeleton_Element_Functor<typename Object::Id_Type>()));
+  }
 };
 
 struct Relation_Delta

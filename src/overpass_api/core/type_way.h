@@ -114,7 +114,7 @@ struct Way_Skeleton
 
   Way_Skeleton(Way::Id_Type id_) : id(id_) { d = new Way_Skeleton_Data; }
 
-  Way_Skeleton(void* data) : id(*(Id_Type*)data)
+  Way_Skeleton(const void* data) : id(*(Id_Type*)data)
   {
     d = new Way_Skeleton_Data;
 
@@ -274,12 +274,27 @@ struct Way_Skeleton_Id_Functor {
    }
 };
 
+template <typename Id_Type >
+struct Way_Skeleton_Element_Functor {
+  Way_Skeleton_Element_Functor() {};
+
+  using reference_type = Way_Skeleton;
+
+  Way_Skeleton operator()(const void* data) const
+   {
+     return Way_Skeleton(data);
+   }
+};
 
 template <class T, class Object>
 struct Way_Skeleton_Handle_Methods
 {
   typename Object::Id_Type inline id() const {
      return (static_cast<const T*>(this)->apply_func(Way_Skeleton_Id_Functor<typename Object::Id_Type>()));
+  }
+
+  Way_Skeleton inline get_element() const {
+    return (static_cast<const T*>(this)->apply_func(Way_Skeleton_Element_Functor<typename Object::Id_Type>()));
   }
 };
 

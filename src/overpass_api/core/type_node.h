@@ -95,7 +95,7 @@ struct Node_Skeleton
 
   Node_Skeleton() : id(0ull) {}
 
-  Node_Skeleton(void* data)
+  Node_Skeleton(const void* data)
     : id(*(Id_Type*)data), ll_lower(*(uint32*)((uint8*)data+8)) {}
 
   Node_Skeleton(const Node& node)
@@ -161,6 +161,18 @@ struct Node_Skeleton_ll_lower_Functor {
    }
 };
 
+template <typename Id_Type >
+struct Node_Skeleton_Element_Functor {
+  Node_Skeleton_Element_Functor() {};
+
+  using reference_type = Node_Skeleton;
+
+  Node_Skeleton operator()(const void* data) const
+   {
+     return Node_Skeleton(data);
+   }
+};
+
 template <class T, class Object>
 struct Node_Skeleton_Handle_Methods
 {
@@ -170,6 +182,10 @@ struct Node_Skeleton_Handle_Methods
 
   uint32 inline get_ll_lower() const {
      return (static_cast<const T*>(this)->apply_func(Node_Skeleton_ll_lower_Functor<typename Object::Id_Type>()));
+  }
+
+  Node_Skeleton inline get_element() const {
+    return (static_cast<const T*>(this)->apply_func(Node_Skeleton_Element_Functor<typename Object::Id_Type>()));
   }
 };
 
