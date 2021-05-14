@@ -23,6 +23,7 @@
 #include <signal.h>
 #include <sys/mman.h>
 #include <sys/select.h>
+#include <sys/signalfd.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/time.h>
@@ -161,7 +162,34 @@ void Dispatcher_Socket::init_epoll()
 
 }
 
-std::vector<unsigned int> Dispatcher_Socket::wait_for_clients(Connection_Per_Pid_Map& connection_per_pid, bool& timeout, uint64 milliseconds)
+void Dispatcher_Socket::init_signal_handling()
+{
+  sigset_t mask;
+  sigemptyset(&mask);
+  sigaddset(&mask, SIGTERM);
+  sigaddset(&mask, SIGINT);
+  int r = sigprocmask(SIG_BLOCK, &mask, 0);
+  if (r == -1) {
+    throw File_Error
+          (errno, "(socket)", "Dispatcher_Server::21");
+  }
+  signal_fd = signalfd(-1, &mask, 0);
+  if (signal_fd == -1) {
+    throw File_Error
+          (errno, "(socket)", "Dispatcher_Server::22");
+  }
+
+  epoll_event event;
+  event.data.fd = signal_fd;
+  event.events = EPOLLIN;
+  r = epoll_ctl(efd, EPOLL_CTL_ADD, signal_fd, &event);
+  if (r == -1) {
+    throw File_Error
+          (errno, "(socket)", "Dispatcher_Server::23");
+  }
+}
+
+std::vector<unsigned int> Dispatcher_Socket::wait_for_clients(Connection_Per_Pid_Map& connection_per_pid, bool& terminate_dispatcher, uint64 milliseconds)
 {
   int nr, i;
 
@@ -171,7 +199,7 @@ std::vector<unsigned int> Dispatcher_Socket::wait_for_clients(Connection_Per_Pid
     nr = epoll_wait(efd, events.data(), MAX_EVENTS, (milliseconds == 0 ? -1 : milliseconds));
   } while (nr == -1 && errno == EINTR);
 
-  timeout = (nr == 0 && milliseconds != 0);
+  terminate_dispatcher = (nr == 0 && milliseconds != 0);
 
   if (nr == -1)
     throw File_Error( errno, "(socket)", "Dispatcher_Socket::wait_for_clients");
@@ -199,6 +227,12 @@ std::vector<unsigned int> Dispatcher_Socket::wait_for_clients(Connection_Per_Pid
     else
     {
       int pid = events[i].data.fd;
+
+      // terminate dispatcher upon SIGTERM
+      if (pid == signal_fd) {
+        terminate_dispatcher = true;
+        continue;
+      }
 
       struct ucred ucred;
       socklen_t len = sizeof(struct ucred);
@@ -695,16 +729,18 @@ void Dispatcher::standby_loop(uint64 milliseconds)
 {
 
   socket.init_epoll();
+  socket.init_signal_handling();
 
   while (true)
   {
 
-    bool timeout;
+    bool terminate_dispatcher;
 
-    std::vector<unsigned int> pids = socket.wait_for_clients(connection_per_pid, timeout, milliseconds);
+    std::vector<unsigned int> pids = socket.wait_for_clients(connection_per_pid, terminate_dispatcher, milliseconds);
 
     // a timeout value was provided in milliseconds, and no file descriptors became ready during the timeout period
-    if (timeout)
+    // - or - the dispatcher process received a SIGINT or SIGTERM signal
+    if (terminate_dispatcher)
       return;  // leave standby loop
 
     uint32 command = 0;
@@ -712,7 +748,7 @@ void Dispatcher::standby_loop(uint64 milliseconds)
 
     for (const auto pid : pids) {
 
-      bool is_privileged_user =false;
+      bool is_privileged_user = false;
 
       connection_per_pid.get_command_for_pid(pid, command, is_privileged_user, client_pid);
 

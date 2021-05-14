@@ -486,8 +486,19 @@ int main(int argc, char* argv[])
 
   {
     Logger log(db_dir);
+    std::string mode;
+
+    if (areas)
+      mode = "areas";
+    if (attic)
+      mode = "attic";
+    else if (meta)
+      mode = "meta";
+    else if (osm_base)
+      mode = "osm_base";
+
     log.annotated_log("Dispatcher version " + basic_settings().version + " "
-        + basic_settings().source_hash + " just started.");
+        + basic_settings().source_hash + " just started in " + mode  + " mode.");
   }
   int chmod_res = chmod((db_dir + basic_settings().logfile_name).c_str(), S_666);
   if (chmod_res)
@@ -522,6 +533,8 @@ int main(int argc, char* argv[])
     if (rate_limit > -1)
       dispatcher.set_rate_limit(rate_limit);
     dispatcher.standby_loop(0);
+
+    logger.annotated_log("Dispatcher process has terminated.");
   }
   catch (const File_Error &e)
   {

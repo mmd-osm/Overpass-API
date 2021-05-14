@@ -160,6 +160,7 @@ public:
   void set_socket_reuse_addr();
   int accept_new_connection(Connection_Per_Pid_Map& connection_per_pid);
   void init_epoll();
+  void init_signal_handling();
   std::vector<unsigned int> wait_for_clients(Connection_Per_Pid_Map& connection_per_pid, bool& timeout, uint64 milliseconds);
 
 
@@ -171,6 +172,7 @@ private:
   std::vector< int > started_connections;
 
   int efd;   // epoll file descriptor
+  int signal_fd; // signal file descriptor
 
   std::array<struct epoll_event, MAX_EVENTS> events;
 };
