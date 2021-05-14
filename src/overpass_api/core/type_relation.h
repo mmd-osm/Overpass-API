@@ -264,6 +264,21 @@ struct Relation_Skeleton_Element_Functor {
    }
 };
 
+template <typename Id_Type >
+struct Relation_Skeleton_Add_Element_Functor {
+  Relation_Skeleton_Add_Element_Functor(std::vector< Relation_Skeleton >& v_) : v(v_) {};
+
+  using reference_type = Relation_Skeleton;
+
+  void operator()(const void* data) const
+   {
+     v.emplace_back(data);
+   }
+
+private:
+  std::vector< Relation_Skeleton > & v;
+};
+
 template <class T, class Object>
 struct Relation_Skeleton_Handle_Methods
 {
@@ -273,6 +288,10 @@ struct Relation_Skeleton_Handle_Methods
 
   Relation_Skeleton inline get_element() const {
     return (static_cast<const T*>(this)->apply_func(Relation_Skeleton_Element_Functor<typename Object::Id_Type>()));
+  }
+
+  void inline add_element(std::vector< Object > & v) const {
+    static_cast<const T*>(this)->apply_func(Relation_Skeleton_Add_Element_Functor<typename Object::Id_Type>(v));
   }
 };
 
