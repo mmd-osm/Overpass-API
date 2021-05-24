@@ -139,6 +139,8 @@ Dispatcher_Stub::Dispatcher_Stub
       dispatcher_client(0), area_dispatcher_client(0),
       transaction(0), area_transaction(0), rman(0), meta(meta_), client_token(0)
 {
+  t1 = std::chrono::high_resolution_clock::now();
+
   if (max_allowed_time > 0) {
     if (ic == nullptr)
       set_limits(2*max_allowed_time + 60, 2*max_allowed_space + 1024*1024*1024);
@@ -433,7 +435,7 @@ bool Dispatcher_Stub::is_attic_file(const std::string& filename) const
 Dispatcher_Stub::~Dispatcher_Stub()
 {
   bool areas_written = (rman->area_updater() != 0);
-  std::vector< uint64 > cpu_runtime = rman ? rman->cpu_time() : std::vector< uint64 >();
+  std::vector< std::chrono::milliseconds > cpu_runtime = rman ? rman->cpu_time() : std::vector< std::chrono::milliseconds >();
   delete rman;
   if (transaction)
     delete transaction;
@@ -444,10 +446,13 @@ Dispatcher_Stub::~Dispatcher_Stub()
     Logger logger(dispatcher_client->get_db_dir());
     try
     {
+      auto t2 = std::chrono::high_resolution_clock::now();
+      auto int_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
+
       std::ostringstream out;
-      out<<"read_finished() start "<<client_token<<' '<<global_read_counter();
-      for (std::vector< uint64 >::const_iterator it = cpu_runtime.begin(); it != cpu_runtime.end(); ++it)
-        out<<' '<<*it;
+      out<<"read_finished() start "<<client_token<<' '<<global_read_counter() << " total runtime: " << int_ms.count() << " ms - ";
+      for (const auto & r : cpu_runtime)
+        out<<' '<<r.count();
       logger.annotated_log(out.str());
       dispatcher_client->read_finished();
       logger.annotated_log("read_finished() end");

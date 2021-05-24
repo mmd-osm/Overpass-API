@@ -826,15 +826,18 @@ void Resource_Manager::set_desired_timestamp(uint64 timestamp)
 void Resource_Manager::start_cpu_timer(uint index)
 {
   if (cpu_start_time.size() <= index)
-    cpu_start_time.resize(index+1, 0);
-  cpu_start_time[index] = clock()/1000;
+    cpu_start_time.resize(index+1);
+  cpu_start_time[index] = std::chrono::high_resolution_clock::now();
 }
 
 
 void Resource_Manager::stop_cpu_timer(uint index)
 {
   if (cpu_runtime.size() <= index)
-    cpu_runtime.resize(index+1, 0);
-  if (index < cpu_start_time.size())
-    cpu_runtime[index] += clock()/1000 - cpu_start_time[index];
+    cpu_runtime.resize(index+1);
+  if (index < cpu_start_time.size()) {
+    auto t2 = std::chrono::high_resolution_clock::now();
+    auto int_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - cpu_start_time[index]);
+    cpu_runtime[index] += int_ms;
+  }
 }

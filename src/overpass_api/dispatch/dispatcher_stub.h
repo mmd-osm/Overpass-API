@@ -22,6 +22,7 @@
 #include "../dispatch/resource_manager.h"
 #include "../../template_db/dispatcher_client.h"
 
+#include <chrono>
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/mman.h>
@@ -83,6 +84,7 @@ class Dispatcher_Stub : public Watchdog_Callback
     meta_modes meta;
 
     uint32 client_token;
+    std::chrono::time_point<std::chrono::system_clock> t1;
 };
 
 

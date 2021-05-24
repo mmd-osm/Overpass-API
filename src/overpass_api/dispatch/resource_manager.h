@@ -185,7 +185,7 @@ public:
 
   void start_cpu_timer(uint index);
   void stop_cpu_timer(uint index);
-  const std::vector< uint64 >& cpu_time() const { return cpu_runtime; }
+  const std::vector< std::chrono::milliseconds >& cpu_time() const { return cpu_runtime; }
 
 private:
   std::vector< Runtime_Stack_Frame* > runtime_stack;
@@ -204,8 +204,8 @@ private:
   uint32 max_allowed_time;
   uint64 max_allowed_space;
 
-  std::vector< clock_t > cpu_start_time;
-  std::vector< uint64 > cpu_runtime;
+  std::vector< std::chrono::time_point<std::chrono::system_clock> > cpu_start_time;
+  std::vector< std::chrono::milliseconds > cpu_runtime;
 };
 
 
