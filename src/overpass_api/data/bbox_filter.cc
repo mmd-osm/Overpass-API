@@ -81,7 +81,7 @@ void filter_deriveds_by_bbox(const Bbox_Double& bbox,
 
 void Bbox_Filter::filter(Set& into) const
 {
-  if (!bbox.valid())
+  if (!bbox.valid() || bbox.redundant())
     return;
 
   // process nodes
@@ -200,7 +200,7 @@ void filter_relations_expensive(const Bbox_Filter& filter,
 
 void Bbox_Filter::filter(const Statement& query, Resource_Manager& rman, Set& into, bool with_attic) const
 {
-  if (!bbox.valid())
+  if (!bbox.valid() || bbox.redundant())
     return;
 
   //Process ways

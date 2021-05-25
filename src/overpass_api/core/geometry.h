@@ -54,6 +54,11 @@ public:
         && east >= -180.0 && east <= 180.0 && west >= -180.0 && west <= 180.0);
   }
 
+  bool redundant() const
+  {
+    return (south == -90.0 && north == 90.0 && west == -180.0 && east == 180.0);
+  }
+
   double center_lat() const;
   double center_lon() const;
 
