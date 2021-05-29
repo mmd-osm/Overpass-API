@@ -141,13 +141,13 @@ std::pair< Node::Id_Type, Uint32_Index > Make_Area_Statement::create_area_blocks
     (std::map< Uint31_Index, std::vector< Area_Block > >& areas, bool& wraps_around_date_line,
      uint32 id, const Set& pivot)
 {
-  std::vector< Node > nodes;
+  std::vector< Node_Base > nodes;
   for (std::map< Uint32_Index, std::vector< Node_Skeleton > >::const_iterator
       it(pivot.nodes.begin()); it != pivot.nodes.end(); ++it)
   {
     for (std::vector< Node_Skeleton >::const_iterator it2(it->second.begin());
         it2 != it->second.end(); ++it2)
-      nodes.push_back(Node(it2->id.val(), it->first.val(), it2->ll_lower));
+      nodes.push_back(Node_Base(it2->id.val(), it->first.val(), it2->ll_lower));
   }
   sort(nodes.begin(), nodes.end(), Node_Comparator_By_Id());
 

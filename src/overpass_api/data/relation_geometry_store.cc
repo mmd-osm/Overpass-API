@@ -53,7 +53,7 @@ Relation_Geometry_Store::Relation_Geometry_Store
   {
     for (std::vector< Node_Skeleton >::const_iterator iit = it->second.begin();
         iit != it->second.end(); ++iit)
-      nodes.push_back(Node(iit->id, it->first.val(), iit->ll_lower));
+      nodes.push_back(Node_Base(iit->id, it->first.val(), iit->ll_lower));
   }
   sort(nodes.begin(), nodes.end(), Node_Comparator_By_Id());
 
@@ -109,14 +109,14 @@ Relation_Geometry_Store::Relation_Geometry_Store
   {
     for (std::vector< Node_Skeleton >::const_iterator iit = it->second.begin();
         iit != it->second.end(); ++iit)
-      nodes.push_back(Node(iit->id, it->first.val(), iit->ll_lower));
+      nodes.push_back(Node_Base(iit->id, it->first.val(), iit->ll_lower));
   }
   for (std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > >::iterator it = nodes_by_idx.second.begin();
       it != nodes_by_idx.second.end(); ++it)
   {
     for (std::vector< Attic< Node_Skeleton > >::const_iterator iit = it->second.begin();
         iit != it->second.end(); ++iit)
-      nodes.push_back(Node(iit->id, it->first.val(), iit->ll_lower));
+      nodes.push_back(Node_Base(iit->id, it->first.val(), iit->ll_lower));
   }
   sort(nodes.begin(), nodes.end(), Node_Comparator_By_Id());
 
@@ -168,7 +168,7 @@ std::vector< std::vector< Quad_Coord > > Relation_Geometry_Store::get_geometry
   {
     if (it->type == Relation_Entry::NODE)
     {
-      const Node* node = binary_search_for_id(nodes, it->ref);
+      const Node_Base* node = binary_search_for_id(nodes, it->ref);
       if (node == 0 || !matches_bbox(node->index, node->ll_lower_))
         result.push_back(std::vector< Quad_Coord >(1, Quad_Coord(0u, 0u)));
       else

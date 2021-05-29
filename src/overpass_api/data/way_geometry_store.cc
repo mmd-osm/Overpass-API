@@ -125,7 +125,7 @@ Way_Geometry_Store::Way_Geometry_Store
   {
     for (std::vector< Node_Skeleton >::const_iterator iit = it->second.begin();
         iit != it->second.end(); ++iit)
-      nodes.push_back(Node(iit->id, it->first.val(), iit->ll_lower));
+      nodes.push_back(Node_Base(iit->id, it->first.val(), iit->ll_lower));
   }
   sort(nodes.begin(), nodes.end(), Node_Comparator_By_Id());
 }

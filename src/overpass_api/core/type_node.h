@@ -26,44 +26,57 @@
 #include <vector>
 
 
-struct Node
+struct Node_Base
 {
   typedef Uint64 Id_Type;
 
   Id_Type id;
   uint32 index;
   uint32 ll_lower_;
-  std::vector< std::pair< std::string, std::string > > tags;
 
-  Node() : id(0ull) {}
-
-  Node(Id_Type id_, double lat, double lon)
-      : id(id_), index(ll_upper_(lat, lon)), ll_lower_(ll_lower(lat, lon))
-  {}
-
-  Node(Id_Type id_, uint32 ll_upper_, uint32 ll_lower__)
-      : id(id_), index(ll_upper_), ll_lower_(ll_lower__)
-  {}
-
-  bool operator<(const Node& a) const
+  bool operator<(const Node_Base& a) const
   {
     return this->id.val() < a.id.val();
   }
 
-  bool operator==(const Node& a) const
+  bool operator==(const Node_Base& a) const
   {
     return this->id.val() == a.id.val();
   }
+
+  Node_Base() : id(0ull), index(0), ll_lower_(0) {}
+
+  Node_Base(Id_Type id_, double lat, double lon)
+      : id(id_), index(ll_upper_(lat, lon)), ll_lower_(ll_lower(lat, lon))
+  {}
+
+  Node_Base(Id_Type id_, uint32 ll_upper_, uint32 ll_lower__)
+      : id(id_), index(ll_upper_), ll_lower_(ll_lower__)
+  {}
+
+};
+
+
+struct Node : public Node_Base
+{
+  std::vector< std::pair< std::string, std::string > > tags;
+
+  Node() : Node_Base() {}
+
+  Node(Id_Type id_, double lat, double lon) : Node_Base(id_, lat, lon) {}
+
+  Node(Id_Type id_, uint32 ll_upper_, uint32 ll_lower__) : Node_Base(id_, ll_upper_, ll_lower__) {}
+
 };
 
 
 struct Node_Comparator_By_Id {
-  bool operator() (const Node& a, const Node& b)
+  bool operator() (const Node_Base& a, const Node_Base& b)
   {
     return (a.id.val() < b.id.val());
   }
 
-  bool operator() (const Node* a, const Node* b)
+  bool operator() (const Node_Base* a, const Node_Base* b)
   {
     return (a->id.val() < b->id.val());
   }
@@ -71,12 +84,12 @@ struct Node_Comparator_By_Id {
 
 
 struct Node_Equal_Id {
-  bool operator() (const Node& a, const Node& b)
+  bool operator() (const Node_Base& a, const Node_Base& b)
   {
     return (a.id.val() == b.id.val());
   }
 
-  bool operator() (const Node* a, const Node* b)
+  bool operator() (const Node_Base* a, const Node_Base* b)
   {
     return (a->id.val() == b->id.val());
   }

@@ -145,7 +145,7 @@ bool add_way_to_area_blocks(const std::vector< Quad_Coord >& coords,
                             uint32 id, std::map< Uint31_Index, std::vector< Area_Block > >& areas);
 
 
-std::vector< Quad_Coord > make_geometry(const Way_Skeleton& way, const std::vector< Node >& nodes);
+std::vector< Quad_Coord > make_geometry(const Way_Skeleton& way, const std::vector< Node_Base >& nodes);
 
 
 void filter_ways_by_ranges(std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
@@ -706,7 +706,7 @@ void keep_matching_skeletons
 
 
 void keep_matching_skeletons
-    (std::vector< Node >& result,
+    (std::vector< Node_Base >& result,
      const std::map< Uint32_Index, std::vector< Node_Skeleton > >& current,
      const std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > >& attic,
      uint64 timestamp);

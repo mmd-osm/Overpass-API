@@ -922,7 +922,7 @@ bool add_way_to_area_blocks(const std::vector< Quad_Coord >& coords,
 }
 
 
-std::vector< Quad_Coord > make_geometry(const Way_Skeleton& way, const std::vector< Node >& nodes)
+std::vector< Quad_Coord > make_geometry(const Way_Skeleton& way, const std::vector< Node_Base >& nodes)
 {
   std::vector< Quad_Coord > result;
   result.reserve(way.nds().size());
@@ -930,7 +930,7 @@ std::vector< Quad_Coord > make_geometry(const Way_Skeleton& way, const std::vect
   for (std::vector< Node::Id_Type >::const_iterator it3(way.nds().begin());
       it3 != way.nds().end(); ++it3)
   {
-    const Node* node = binary_search_for_id(nodes, *it3);
+    const Node_Base* node = binary_search_for_id(nodes, *it3);
     if (node == 0)
     {
       result.clear();
@@ -1029,7 +1029,7 @@ void filter_ways_by_ranges(std::map< Uint31_Index, std::vector< Attic< Way_Skele
 
 
 void keep_matching_skeletons
-    (std::vector< Node >& result,
+    (std::vector< Node_Base >& result,
      const std::map< Uint32_Index, std::vector< Node_Skeleton > >& current,
      const std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > >& attic,
      uint64 timestamp)
@@ -1063,7 +1063,7 @@ void keep_matching_skeletons
     for (std::vector< Node_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
       if (timestamp_by_id[it2->id] == NOW)
-        result.push_back(Node(it2->id, it->first.val(), it2->ll_lower));
+        result.push_back(Node_Base(it2->id, it->first.val(), it2->ll_lower));
     }
   }
 
@@ -1074,7 +1074,7 @@ void keep_matching_skeletons
          it2 != it->second.end(); ++it2)
     {
       if (timestamp_by_id[it2->id] == it2->timestamp)
-        result.push_back(Node(it2->id, it->first.val(), it2->ll_lower));
+        result.push_back(Node_Base(it2->id, it->first.val(), it2->ll_lower));
     }
   }
 

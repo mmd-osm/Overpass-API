@@ -43,7 +43,7 @@ public:
   std::vector< std::vector< Quad_Coord > > get_geometry(const Relation_Skeleton& relation) const;
 
 private:
-  std::vector< Node > nodes;
+  std::vector< Node_Base > nodes;
   std::vector< Way_Skeleton > ways;
   Way_Geometry_Store* way_geometry_store;
 

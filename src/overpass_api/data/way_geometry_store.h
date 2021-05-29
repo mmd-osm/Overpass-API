@@ -40,7 +40,7 @@ public:
   std::vector< Quad_Coord > get_geometry(const Way_Skeleton& way) const;
 
 private:
-  std::vector< Node > nodes;
+  std::vector< Node_Base > nodes;
 };
 
 
