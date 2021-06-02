@@ -106,8 +106,9 @@ std::map< Uint32_Index, std::vector< Node_Skeleton > > small_way_members
     return result;
 
   Uint32_Index cur_idx = req.begin()->first;
+  auto ids = small_way_nd_ids_fast(ways);
   while (collect_items_range(stmt, rman, *osm_base_settings().NODES,
-      req, Id_Predicate< Node_Skeleton >(small_way_nd_ids_fast(ways)), cur_idx, result));
+      req, Id_Predicate< Node_Skeleton >(std::move(ids)), cur_idx, result));
 
   return result;
 }
