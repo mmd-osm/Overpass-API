@@ -25,6 +25,7 @@
 // #include "filenames.h"
 
 #include <map>
+#include <memory>
 #include <vector>
 
 
@@ -32,15 +33,29 @@ class Way_Geometry_Store
 {
 public:
   Way_Geometry_Store(const std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
-                     const Statement& query, Resource_Manager& rman);
+                     const Statement& query, Resource_Manager& rman,
+                     bool lazy_loading = false);
   Way_Geometry_Store(const std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >& ways,
-                     const Statement& query, Resource_Manager& rman);
+                     const Statement& query, Resource_Manager& rman,
+                     bool lazy_loading = false);
 
   // return the empty std::vector if the way is not found
   std::vector< Quad_Coord > get_geometry(const Way_Skeleton& way) const;
 
+  void prefetch(Uint31_Index);
+  void prefetch_attic(Uint31_Index);
+
 private:
+  void way_members_to_nodes(std::map< Uint32_Index, std::vector< Node_Skeleton > >& way_members_);
+
+  const std::map< Uint31_Index, std::vector< Way_Skeleton > > * ways;
+  const std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > > * attic_ways;
+  const Statement * query;
+  Resource_Manager * rman;
+
   std::vector< Node_Base > nodes;
+  std::vector< Uint31_Index > ranges;
+  std::unique_ptr<Uint31_Index> current_index;
 };
 
 
@@ -49,10 +64,12 @@ class Way_Bbox_Geometry_Store : public Way_Geometry_Store
 public:
   Way_Bbox_Geometry_Store(const std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
                      const Statement& query, Resource_Manager& rman,
-                     double south_, double north_, double west_, double east_);
+                     double south_, double north_, double west_, double east_,
+                     bool lazy_loading = false);
   Way_Bbox_Geometry_Store(const std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >& ways,
                      const Statement& query, Resource_Manager& rman,
-                     double south_, double north_, double west_, double east_);
+                     double south_, double north_, double west_, double east_,
+                     bool lazy_loading = false);
 
   // return the empty std::vector if the way is not found
   std::vector< Quad_Coord > get_geometry(const Way_Skeleton& way) const;

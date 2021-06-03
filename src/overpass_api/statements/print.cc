@@ -194,8 +194,12 @@ struct Extra_Data
   Extra_Data(
       Resource_Manager& rman, const Statement& stmt, const Set& to_print,
       unsigned int mode_, Output_Handler::Feature_Action action_,
-      double south, double north, double west, double east);
+      double south, double north, double west, double east,
+      bool lazy_loading = false);
   ~Extra_Data();
+
+  void prefetch_nodes(Uint31_Index idx);
+  void prefetch_attic_nodes(Uint31_Index idx);
 
   const std::map< uint32, std::string >* get_users() const;
 
@@ -213,18 +217,19 @@ struct Extra_Data
 Extra_Data::Extra_Data(
     Resource_Manager& rman, const Statement& stmt, const Set& to_print,
     unsigned int mode_, Output_Handler::Feature_Action action_,
-    double south, double north, double west, double east)
+    double south, double north, double west, double east,
+    bool lazy_loading)
     : mode(mode_), action(action_), way_geometry_store(0), attic_way_geometry_store(0),
     relation_geometry_store(0), attic_relation_geometry_store(0), roles(0), users(0)
 {
   if (mode & (Output_Mode::GEOMETRY | Output_Mode::BOUNDS | Output_Mode::CENTER))
   {
-    way_geometry_store = new Way_Bbox_Geometry_Store(to_print.ways, stmt, rman, south, north, west, east);
+    way_geometry_store = new Way_Bbox_Geometry_Store(to_print.ways, stmt, rman, south, north, west, east, lazy_loading);
     if (rman.get_desired_timestamp() < NOW)
     {
       attic_way_geometry_store = new Way_Bbox_Geometry_Store(
           to_print.attic_ways, stmt, rman,
-          south, north, west, east);
+          south, north, west, east, lazy_loading);
     }
 
     relation_geometry_store = new Relation_Geometry_Store(
@@ -247,6 +252,19 @@ Extra_Data::Extra_Data(
 const std::map< uint32, std::string >* Extra_Data::get_users() const
 {
   return users;
+}
+
+void Extra_Data::prefetch_nodes(Uint31_Index idx)
+{
+  if (way_geometry_store) {
+    way_geometry_store->prefetch(idx);
+  }
+}
+
+void Extra_Data::prefetch_attic_nodes(Uint31_Index idx)
+{
+  if (attic_way_geometry_store)
+    attic_way_geometry_store->prefetch_attic(idx);
 }
 
 
@@ -331,6 +349,25 @@ void print_item(Extra_Data& extra_data, Output_Handler& output, uint32 ll_upper,
     output.print_item(skel, Null_Geometry(), tags, Output_Mode(extra_data.mode), extra_data.action);
 }
 
+template< class TIndex, class TObject >
+void prefetch_qt(Extra_Data& extra_data, TIndex idx) {
+  // intentionally left empty
+}
+
+
+template< >
+void prefetch_qt<Uint31_Index, Way_Skeleton>(Extra_Data& extra_data, Uint31_Index idx)
+{
+  extra_data.prefetch_nodes(idx);
+}
+
+
+template< >
+void prefetch_qt< Uint31_Index, Attic< Way_Skeleton > >(Extra_Data& extra_data, Uint31_Index idx)
+{
+  extra_data.prefetch_attic_nodes(idx);
+}
+
 
 template< class TIndex, class TObject >
 void quadtile_
@@ -342,6 +379,7 @@ void quadtile_
   // print the result
   while (item_it != items.end())
   {
+    prefetch_qt<TIndex, TObject>(extra_data, item_it->first);
     for (typename std::vector< TObject >::const_iterator it2(item_it->second.begin());
         it2 != item_it->second.end(); ++it2)
     {
@@ -372,6 +410,7 @@ void tags_quadtile_
   // print the result
   while (item_it != items.end())
   {
+    prefetch_qt<Index, Object>(extra_data, item_it->first);
     for (typename std::vector< Object >::const_iterator it2(item_it->second.begin());
         it2 != item_it->second.end(); ++it2)
     {
@@ -400,6 +439,7 @@ void tags_quadtile_attic_
       item_it(items.begin());
   while (item_it != items.end())
   {
+    prefetch_qt<Index, Object>(extra_data, item_it->first);
     for (typename std::vector< Attic< Object > >::const_iterator it2(item_it->second.begin());
         it2 != item_it->second.end(); ++it2)
     {
@@ -814,7 +854,7 @@ void Print_Statement::execute(Resource_Manager& rman)
   else if (action == Diff_Action::show_new)
     feature_action = Output_Handler::show_to;
 
-  Extra_Data extra_data(rman, *this, *output_items, mode, feature_action, south, north, west, east);
+  Extra_Data extra_data(rman, *this, *output_items, mode, feature_action, south, north, west, east, (order == order_by_quadtile));
   Output_Handler& output_handler = *rman.get_global_settings().get_output_handler();
   uint32 element_count = 0;
 
