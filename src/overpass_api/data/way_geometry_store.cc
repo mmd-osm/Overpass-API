@@ -145,8 +145,9 @@ Way_Geometry_Store::Way_Geometry_Store
     return;
 
   Uint32_Index cur_idx = req.begin()->first;
+  auto ids = small_way_nd_ids(ways);
   while (collect_items_range_by_timestamp(&query, rman, req,
-      Id_Predicate< Node_Skeleton >(small_way_nd_ids(ways)), cur_idx, current, attic));
+      Id_Predicate< Node_Skeleton >(std::move(ids)), cur_idx, current, attic));
 
   keep_matching_skeletons(nodes, current, attic, rman.get_desired_timestamp());
 }
