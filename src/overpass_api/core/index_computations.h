@@ -78,49 +78,21 @@ inline uint32 ll_upper_(uint32 ilat, int32 ilon)
 
 inline uint32 upper_ilat(uint32 quadtile)
 {
-  uint32 result = 0;
-
-  result |= (quadtile & 0x2)>>1;
-  result |= (quadtile & 0x8)>>2;
-  result |= (quadtile & 0x20)>>3;
-  result |= (quadtile & 0x80)>>4;
-  result |= (quadtile & 0x200)>>5;
-  result |= (quadtile & 0x800)>>6;
-  result |= (quadtile & 0x2000)>>7;
-  result |= (quadtile & 0x8000)>>8;
-  result |= (quadtile & 0x20000)>>9;
-  result |= (quadtile & 0x80000)>>10;
-  result |= (quadtile & 0x200000)>>11;
-  result |= (quadtile & 0x800000)>>12;
-  result |= (quadtile & 0x2000000)>>13;
-  result |= (quadtile & 0x8000000)>>14;
-  result |= (quadtile & 0x20000000)>>15;
-
-  return result;
+  uint32 result = (quadtile>>1) & 0x15555555;
+  result = (result | (result>>1)) & 0x33333333;
+  result = (result | (result>>2)) & 0xf0f0f0f;
+  result = (result | (result>>4)) & 0xff00ff;
+  return (result | (result>>8)) & 0xffff;
 }
+
 
 inline uint32 upper_ilon(uint32 quadtile)
 {
-  uint32 result = 0;
-
-  result |= (quadtile & 0x1);
-  result |= (quadtile & 0x4)>>1;
-  result |= (quadtile & 0x10)>>2;
-  result |= (quadtile & 0x40)>>3;
-  result |= (quadtile & 0x100)>>4;
-  result |= (quadtile & 0x400)>>5;
-  result |= (quadtile & 0x1000)>>6;
-  result |= (quadtile & 0x4000)>>7;
-  result |= (quadtile & 0x10000)>>8;
-  result |= (quadtile & 0x40000)>>9;
-  result |= (quadtile & 0x100000)>>10;
-  result |= (quadtile & 0x400000)>>11;
-  result |= (quadtile & 0x1000000)>>12;
-  result |= (quadtile & 0x4000000)>>13;
-  result |= (quadtile & 0x10000000)>>14;
-  result |= (quadtile & 0x40000000)>>15;
-
-  return result;
+  uint32 result = quadtile & 0x55555555;
+  result = (result | (result>>1)) & 0x33333333;
+  result = (result | (result>>2)) & 0xf0f0f0f;
+  result = (result | (result>>4)) & 0xff00ff;
+  return (result | (result>>8)) & 0xffff;
 }
 
 inline uint32 calc_index(const std::vector< uint32 >& node_idxs)
