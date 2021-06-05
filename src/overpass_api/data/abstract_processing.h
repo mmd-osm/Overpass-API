@@ -156,7 +156,7 @@ class IdSetHybrid {
     auto& v = m_data_vector[cid];
 
     // Use linear search for small vectors
-    if (v.size() < 64) {
+    if (v.size() < 16) {
       const auto it = std::find(v.cbegin(), v.cend(), lower_half);
       return it != v.cend();
     }
