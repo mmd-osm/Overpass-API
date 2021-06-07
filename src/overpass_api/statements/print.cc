@@ -229,7 +229,7 @@ Extra_Data::Extra_Data(
     {
       attic_way_geometry_store = new Way_Bbox_Geometry_Store(
           to_print.attic_ways, stmt, rman,
-          south, north, west, east, false);           // TODO: lazy loading not yet supported for attic
+          south, north, west, east, lazy_loading);
     }
 
     relation_geometry_store = new Relation_Geometry_Store(
@@ -263,8 +263,8 @@ void Extra_Data::prefetch_nodes(Uint31_Index idx)
 
 void Extra_Data::prefetch_attic_nodes(Uint31_Index idx)
 {
-//  if (attic_way_geometry_store)                            // TODO
-//    attic_way_geometry_store->prefetch_attic(idx);
+  if (attic_way_geometry_store)
+    attic_way_geometry_store->prefetch_attic(idx);
 }
 
 

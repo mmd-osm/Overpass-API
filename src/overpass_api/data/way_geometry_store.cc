@@ -166,7 +166,8 @@ std::map< Uint32_Index, std::vector< Node_Skeleton > > small_way_members_ranges
 // Packaging for lazy loading of nodes: calculate sub-ranges for indices, so that each subrange
 // contains at least min_nodes_per_range way nodes (except for the last sub-range, which may be smaller).
 // Sub-ranges in the result vector are defined as [start index, next start index)
-std::vector< Uint31_Index > calc_index_ranges_for_ways(const std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways, unsigned int min_nodes_per_range)
+template <typename Object >
+std::vector< Uint31_Index > calc_index_ranges_for_ways(const std::map< Uint31_Index, std::vector< Object > >& ways, unsigned int min_nodes_per_range)
 {
   std::vector< Uint31_Index > result;
 
@@ -236,22 +237,25 @@ Way_Geometry_Store::Way_Geometry_Store
      const Statement& query, Resource_Manager& rman, bool lazy_loading) :
      ways(nullptr), attic_ways(&ways), query(&query), rman(&rman)
 {
-  // TODO: lazy loading not yet implemented for attic
+  if (!lazy_loading) {
+    // Retrieve all nodes referred by the ways.
+    std::map< Uint32_Index, std::vector< Node_Skeleton > > current;
+    std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > > attic;
+    std::set< std::pair< Uint32_Index, Uint32_Index > > req
+        = small_way_nd_indices< Attic< Way_Skeleton > >(&query, rman, ways.begin(), ways.end());
+    if (req.empty())
+      return;
 
-  // Retrieve all nodes referred by the ways.
-  std::map< Uint32_Index, std::vector< Node_Skeleton > > current;
-  std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > > attic;
-  std::set< std::pair< Uint32_Index, Uint32_Index > > req
-      = small_way_nd_indices< Attic< Way_Skeleton > >(&query, rman, ways.begin(), ways.end());
-  if (req.empty())
-    return;
+    Uint32_Index cur_idx = req.begin()->first;
+    auto ids = small_way_nd_ids_fast(ways);
+    while (collect_items_range_by_timestamp(&query, rman, req,
+        Id_Predicate< Node_Skeleton >(std::move(ids)), cur_idx, current, attic));
 
-  Uint32_Index cur_idx = req.begin()->first;
-  auto ids = small_way_nd_ids(ways);
-  while (collect_items_range_by_timestamp(&query, rman, req,
-      Id_Predicate< Node_Skeleton >(std::move(ids)), cur_idx, current, attic));
+    keep_matching_skeletons(nodes, current, attic, rman.get_desired_timestamp());
 
-  keep_matching_skeletons(nodes, current, attic, rman.get_desired_timestamp());
+  } else {
+    ranges = calc_index_ranges_for_ways(ways, 10000);
+  }
 }
 
 
@@ -286,14 +290,52 @@ void Way_Geometry_Store::prefetch(Uint31_Index idx)
 
   current_index.reset(new Uint31_Index(ways_begin->first));
 
-  std::map< Uint32_Index, std::vector< Node_Skeleton > > way_members_ranges  = small_way_members_ranges(query, *rman, ways_begin, ways_end);
+  std::map< Uint32_Index, std::vector< Node_Skeleton > > way_members_ranges = small_way_members_ranges(query, *rman, ways_begin, ways_end);
 
   way_members_to_nodes(way_members_ranges);
 }
 
 void Way_Geometry_Store::prefetch_attic(Uint31_Index idx)
 {
-  // TODO: not yet implemented
+  std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >::const_iterator attic_ways_begin, attic_ways_end;
+
+  // check idx vs. ranges (upper bound)
+  auto r = std::upper_bound(ranges.begin(), ranges.end(), idx);
+
+  if (r == ranges.end()) {
+    attic_ways_begin = attic_ways->find(ranges.back());
+    attic_ways_end = attic_ways->end();
+  } else {
+    attic_ways_end = attic_ways->find(*r);
+    auto begin_index = std::prev(r);
+    attic_ways_begin = attic_ways->find(*begin_index);
+  }
+
+   // data already loaded
+  if ((current_index) && attic_ways_begin->first == *current_index){
+    return;
+  }
+
+  current_index.reset(new Uint31_Index(attic_ways_begin->first));
+
+  // reset nodes
+  std::vector< Node_Base > nds;
+  nodes.swap(nds);
+
+  // Retrieve all nodes referred by the ways.
+  std::map< Uint32_Index, std::vector< Node_Skeleton > > current;
+  std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > > attic;
+  std::set< std::pair< Uint32_Index, Uint32_Index > > req
+      = small_way_nd_indices< Attic< Way_Skeleton > >(query, *rman, attic_ways_begin, attic_ways_end);
+  if (req.empty())
+    return;
+
+  Uint32_Index cur_idx = req.begin()->first;
+  auto ids = small_way_nd_ids_fast_ranges< Attic< Way_Skeleton > >(attic_ways_begin,attic_ways_end);
+  while (collect_items_range_by_timestamp(query, *rman, req,
+      Id_Predicate< Node_Skeleton >(std::move(ids)), cur_idx, current, attic));
+
+  keep_matching_skeletons(nodes, current, attic, rman->get_desired_timestamp());
 }
 
 
