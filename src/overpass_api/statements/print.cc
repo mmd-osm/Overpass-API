@@ -229,7 +229,7 @@ Extra_Data::Extra_Data(
     {
       attic_way_geometry_store = new Way_Bbox_Geometry_Store(
           to_print.attic_ways, stmt, rman,
-          south, north, west, east, lazy_loading);
+          south, north, west, east, false);           // TODO: lazy loading not yet supported for attic
     }
 
     relation_geometry_store = new Relation_Geometry_Store(
@@ -263,8 +263,8 @@ void Extra_Data::prefetch_nodes(Uint31_Index idx)
 
 void Extra_Data::prefetch_attic_nodes(Uint31_Index idx)
 {
-  if (attic_way_geometry_store)
-    attic_way_geometry_store->prefetch_attic(idx);
+//  if (attic_way_geometry_store)                            // TODO
+//    attic_way_geometry_store->prefetch_attic(idx);
 }
 
 
@@ -439,7 +439,7 @@ void tags_quadtile_attic_
       item_it(items.begin());
   while (item_it != items.end())
   {
-    prefetch_qt<Index, Object>(extra_data, item_it->first);
+    prefetch_qt<Index, Attic< Object > >(extra_data, item_it->first);
     for (typename std::vector< Attic< Object > >::const_iterator it2(item_it->second.begin());
         it2 != item_it->second.end(); ++it2)
     {
@@ -854,7 +854,9 @@ void Print_Statement::execute(Resource_Manager& rman)
   else if (action == Diff_Action::show_new)
     feature_action = Output_Handler::show_to;
 
-  Extra_Data extra_data(rman, *this, *output_items, mode, feature_action, south, north, west, east, (order == order_by_quadtile));
+  const bool use_lazy_loading = order == order_by_quadtile;
+
+  Extra_Data extra_data(rman, *this, *output_items, mode, feature_action, south, north, west, east, use_lazy_loading);
   Output_Handler& output_handler = *rman.get_global_settings().get_output_handler();
   uint32 element_count = 0;
 
