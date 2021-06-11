@@ -45,7 +45,7 @@ struct Uint32_Index
 
   Uint32_Index() : value(0u) {}
   Uint32_Index(uint32 i) : value(i) {}
-  Uint32_Index(void* data) : value(*(uint32*)data) {}
+  Uint32_Index(const void* data) : value(*(uint32*)data) {}
 
   uint32 size_of() const
   {
@@ -260,7 +260,7 @@ struct Uint64
 
   Uint64() : value(0ull) {}
   Uint64(uint64 i) : value(i) {}
-  Uint64(void* data) : value(*(uint64*)data) {}
+  Uint64(const void* data) : value(*(uint64*)data) {}
 
   uint32 size_of() const { return 8; }
   static uint32 max_size_of() { return 8; }
@@ -364,7 +364,7 @@ struct Attic : public Element_Skeleton
 
   uint64 timestamp;
 
-  Attic(void* data)
+  Attic(const void* data)
     : Element_Skeleton(data),
       timestamp(*(uint64*)((uint8*)data + Element_Skeleton::size_of(data)) & 0xffffffffffull) {}
 
@@ -417,6 +417,22 @@ struct Attic_Timestamp_Functor {
    }
 };
 
+template< typename Element_Skeleton >
+struct Attic_Add_Element_Functor {
+  Attic_Add_Element_Functor(std::vector< Attic< Element_Skeleton > >& v_) : v(v_) {};
+
+  using reference_type = Attic< Element_Skeleton >;
+
+  void operator()(const void* data) const
+   {
+     v.emplace_back(data);
+   }
+
+private:
+  std::vector< Attic< Element_Skeleton > > & v;
+};
+
+
 template <typename...> using void_t = void;
 
 template< typename Object >
@@ -447,6 +463,9 @@ struct Attic_Handle_Methods : public Element_Base<Element_Skeleton>::type
      return (static_cast<const T*>(this)->apply_func(Attic_Timestamp_Functor< Element_Skeleton >()));
   }
 
+  void inline add_element(std::vector< Attic< Element_Skeleton > > & v) const {
+    static_cast<const T*>(this)->apply_func(Attic_Add_Element_Functor<Element_Skeleton>(v));
+  }
 };
 
 

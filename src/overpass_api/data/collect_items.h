@@ -95,7 +95,7 @@ void reconstruct_items(
       }
 
       if (match)
-        result.push_back(it.object());
+        it.handle().add_element(result);
     }
     ++it;
   }
@@ -118,9 +118,9 @@ void reconstruct_items(const Statement* stmt, Resource_Manager& rman,
 
     while (!(current_it == current_end) && current_it.index() == idx)
     {
-      timestamp_by_id_current.push_back(current_it.object().id);
-      local_timestamp_by_id.push_back(std::make_pair(current_it.object().id, NOW));
-      skels.push_back(current_it.object());
+      timestamp_by_id_current.push_back(current_it.handle().id());
+      local_timestamp_by_id.push_back(std::make_pair(current_it.handle().id(), NOW));
+      current_it.handle().add_element(skels);
       ++current_it;
     }
 
@@ -128,9 +128,10 @@ void reconstruct_items(const Statement* stmt, Resource_Manager& rman,
     {
       if (timestamp < timestamp_of_it< typename Attic_Iterator::object_type >(attic_it))
       {
-        timestamp_by_id_attic.push_back(std::make_pair(attic_it.object().id, attic_it.object().timestamp));
-        local_timestamp_by_id.push_back(std::make_pair(attic_it.object().id, attic_it.object().timestamp));
-        deltas.push_back(attic_it.object());
+        const auto obj_timestamp = attic_it.handle().get_timestamp();
+        timestamp_by_id_attic.push_back(std::make_pair(attic_it.handle().id(), obj_timestamp));
+        local_timestamp_by_id.push_back(std::make_pair(attic_it.handle().id(), obj_timestamp));
+        attic_it.handle().add_element(deltas);
       }
       ++attic_it;
     }
@@ -458,7 +459,9 @@ void collect_items_discrete(const Statement* stmt, Resource_Manager& rman,
     if (predicate.match(it.handle()))
     {
       auto prev_map_size = result.size();
-      result[it.index()].push_back(it.object());
+
+      it.handle().add_element(result[it.index()]);
+
       if (result.size() != prev_map_size) {     // new index added to map?
         current_result_size += eval_map_index_size;
       }
@@ -481,7 +484,7 @@ void collect_items_discrete(Transaction& transaction,
       it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
   {
     if (predicate.match(it.handle()))
-      result[it.index()].push_back(it.object());
+      it.handle().add_element(result[it.index()]);
   }
 }
 

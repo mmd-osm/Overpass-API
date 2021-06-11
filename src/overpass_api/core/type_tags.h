@@ -293,7 +293,7 @@ struct Tag_Index_Global
 
   Tag_Index_Global() {}
 
-  Tag_Index_Global(void* data)
+  Tag_Index_Global(const void* data)
   {
     key = std::string(((int8*)data + 4), *(uint16*)data);
     value = std::string(((int8*)data + 4 + key.length()),
@@ -422,7 +422,7 @@ struct Tag_Object_Global
 
   Tag_Object_Global(Id_Type id_, Uint31_Index idx_) : idx(idx_), id(id_) {}
 
-  Tag_Object_Global(void* data)
+  Tag_Object_Global(const void* data)
   {
     idx = Uint31_Index(((*((uint32*)data))<<8) & 0xffffff00);
     id = Id_Type((void*)((uint8*)data + 3));

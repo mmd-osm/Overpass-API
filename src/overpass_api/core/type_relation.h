@@ -295,6 +295,9 @@ struct Relation_Skeleton_Handle_Methods
   }
 };
 
+template <class T, class Object>
+struct Relation_Delta_Handle_Methods;
+
 struct Relation_Delta
 {
   typedef Relation_Skeleton::Id_Type Id_Type;
@@ -310,7 +313,7 @@ struct Relation_Delta
 
   Relation_Delta() : id(0u), full(false) {}
 
-  Relation_Delta(void* data) : id(*(Id_Type*)data), full(false)
+  Relation_Delta(const void* data) : id(*(Id_Type*)data), full(false)
   {
     if (*((uint32*)data + 1) == 0xffffffff)
     {
@@ -607,6 +610,31 @@ struct Relation_Delta
   {
     return this->id == a.id;
   }
+
+  template <class T, class Object>
+  using Handle_Methods = Relation_Delta_Handle_Methods<T, Object>;
+};
+
+template <typename Id_Type >
+struct Relation_Delta_Id_Functor {
+  Relation_Delta_Id_Functor() {};
+
+  using reference_type = Relation_Delta;
+
+  Id_Type operator()(const void* data) const
+   {
+     return *(Id_Type*)data;
+   }
+};
+
+
+template <class T, class Object>
+struct Relation_Delta_Handle_Methods
+{
+  typename Object::Id_Type inline id() const {
+     return (static_cast<const T*>(this)->apply_func(Relation_Delta_Id_Functor<typename Object::Id_Type>()));
+  }
+
 };
 
 

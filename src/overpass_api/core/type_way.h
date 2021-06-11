@@ -319,6 +319,9 @@ struct Way_Skeleton_Handle_Methods
 };
 
 
+template <class T, class Object>
+struct Way_Delta_Handle_Methods;
+
 struct Way_Delta
 {
   typedef Way_Skeleton::Id_Type Id_Type;
@@ -332,7 +335,7 @@ struct Way_Delta
 
   Way_Delta() : id(0u), full(false) {}
 
-  Way_Delta(void* data) : id(*(Id_Type*)data), full(false)
+  Way_Delta(const void* data) : id(*(Id_Type*)data), full(false)
   {
     if (*((uint32*)data + 1) == 0xffffffff)
     {
@@ -571,6 +574,32 @@ struct Way_Delta
   {
     return this->id == a.id;
   }
+
+  template <class T, class Object>
+  using Handle_Methods = Way_Delta_Handle_Methods<T, Object>;
+
+};
+
+template <typename Id_Type >
+struct Way_Delta_Id_Functor {
+  Way_Delta_Id_Functor() {};
+
+  using reference_type = Way_Delta;
+
+  Id_Type operator()(const void* data) const
+   {
+     return *(Id_Type*)data;
+   }
+};
+
+
+template <class T, class Object>
+struct Way_Delta_Handle_Methods
+{
+  typename Object::Id_Type inline id() const {
+     return (static_cast<const T*>(this)->apply_func(Way_Delta_Id_Functor<typename Object::Id_Type>()));
+  }
+
 };
 
 
