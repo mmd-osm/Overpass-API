@@ -82,6 +82,67 @@ struct Way_Equal_Id {
 };
 
 
+namespace {
+
+inline uint32 calculate_nds_compressed_size(const std::vector< Node::Id_Type >& nds_)
+{
+  Node::Id_Type prev = (uint64) 0;
+  uint32 compressed_size = 0;
+
+  for (std::vector< Node_Skeleton::Id_Type>::const_iterator it = nds_.begin();
+      it != nds_.end(); ++it)
+  {
+    int64_t diff = (int64_t) it->val() - (int64_t) prev.val();
+    compressed_size += protozero::length_of_varint(protozero::encode_zigzag64(diff));
+    prev = it->val();
+  }
+  compressed_size += compressed_size & 1;
+  return compressed_size;
+}
+
+uint8* compress_nds(const std::vector< Node::Id_Type >& nds_, uint8* buffer_)
+{
+  char* current = (char*) buffer_;
+  char* buffer = (char*) buffer_;
+  Node::Id_Type prev = (uint64) 0;
+
+  for (std::vector< Node_Skeleton::Id_Type>::const_iterator it = nds_.begin();
+       it != nds_.end(); ++it)
+  {
+    int64_t delta = (int64_t) it->val() - (int64_t) prev.val();
+    uint64 zigzag = protozero::encode_zigzag64(delta);
+    int size = protozero::add_varint_to_buffer(current, zigzag);
+    current += size;
+    prev = it->val();
+  }
+
+  if ((current - buffer) & 1)    // add padding byte
+    *current++ = 0;
+
+  return (uint8*) current;
+}
+
+uint8* decompress_nds(std::vector< Node::Id_Type >& nds_, const uint16 nodes_count, const uint16 nodes_bytes, uint8* buffer_)
+{
+  const char* current = (char*) buffer_;
+  const char* end = (char*)(buffer_ + nodes_bytes);
+
+  Node::Id_Type nodeid = (uint64) 0;
+
+  for (int i=0; i<nodes_count;i++)
+  {
+    auto value = protozero::decode_varint(&current, end);
+    int64_t delta = protozero::decode_zigzag64(value);
+    nodeid += delta;
+    nds_.push_back(nodeid);
+  }
+  if ((current - (char*) buffer_) & 1)    // add padding byte
+    current++;
+  return (uint8*) current;
+}
+
+}
+
 struct Way_Delta;
 
 template <class T, class Object>
@@ -203,63 +264,6 @@ struct Way_Skeleton
 
 private:
   SharedDataPointer<Way_Skeleton_Data> d;
-
-  uint8* compress_nds(const std::vector< Node::Id_Type >& nds_, uint8* buffer_) const
-  {
-    char* current = (char*) buffer_;
-    char* buffer = (char*) buffer_;
-    Node::Id_Type prev = (uint64) 0;
-
-    for (std::vector< Node_Skeleton::Id_Type>::const_iterator it = nds_.begin();
-         it != nds_.end(); ++it)
-    {
-      int64_t delta = (int64_t) it->val() - (int64_t) prev.val();
-      uint64 zigzag = protozero::encode_zigzag64(delta);
-      int size = protozero::add_varint_to_buffer(current, zigzag);
-      current += size;
-      prev = it->val();
-    }
-
-    if ((current - buffer) & 1)    // add padding byte
-      *current++ = 0;
-
-    return (uint8*) current;
-  }
-
-  uint8* decompress_nds(std::vector< Node::Id_Type >& nds_, const uint16 nodes_count, const uint16 nodes_bytes, uint8* buffer_)
-  {
-    const char* current = (char*) buffer_;
-    const char* end = (char*)(buffer_ + nodes_bytes);
-
-    Node::Id_Type nodeid = (uint64) 0;
-
-    for (int i=0; i<nodes_count;i++)
-    {
-      auto value = protozero::decode_varint(&current, end);
-      int64_t delta = protozero::decode_zigzag64(value);
-      nodeid += delta;
-      nds_.push_back(nodeid);
-    }
-    if ((current - (char*) buffer_) & 1)    // add padding byte
-      current++;
-    return (uint8*) current;
-  }
-
-  inline uint32 calculate_nds_compressed_size(const std::vector< Node::Id_Type >& nds_) const
-  {
-    Node::Id_Type prev = (uint64) 0;
-    uint32 compressed_size = 0;
-
-    for (std::vector< Node_Skeleton::Id_Type>::const_iterator it = nds_.begin();
-        it != nds_.end(); ++it)
-    {
-      int64_t diff = (int64_t) it->val() - (int64_t) prev.val();
-      compressed_size += protozero::length_of_varint(protozero::encode_zigzag64(diff));
-      prev = it->val();
-    }
-    compressed_size += compressed_size & 1;
-    return compressed_size;
-  }
 };
 
 template <typename Id_Type >
