@@ -34,6 +34,8 @@
 
 //-----------------------------------------------------------------------------
 
+namespace {
+
 template < class TIndex, class TObject >
 std::set< std::pair< TIndex, TIndex > > ranges(const std::map< TIndex, std::vector< TObject > >& elems)
 {
@@ -66,24 +68,18 @@ std::set< std::pair< Uint32_Index, Uint32_Index > > ranges(double lat, double lo
   return result;
 }
 
-
 template < class TIndex >
-std::set< std::pair< TIndex, TIndex > > set_union_(const std::set< std::pair< TIndex, TIndex > >& a,
-					 const std::set< std::pair< TIndex, TIndex > >& b)
+std::set< std::pair< TIndex, TIndex > > condense_ranges(const std::set< std::pair< TIndex, TIndex > >& temp_ranges)
 {
-  std::set< std::pair< TIndex, TIndex > > temp;
-  set_union(a.begin(), a.end(), b.begin(), b.end(),
-	    std::insert_iterator< std::set< std::pair< TIndex, TIndex > > >(temp, temp.begin()));
-
   std::set< std::pair< TIndex, TIndex > > result;
-  if (temp.empty())
+  if (temp_ranges.empty())
     return result;
 
-  typename std::set< std::pair< TIndex, TIndex > >::const_iterator it = temp.begin();
+  typename std::set< std::pair< TIndex, TIndex > >::const_iterator it = temp_ranges.begin();
   TIndex last_first = it->first;
   TIndex last_second = it->second;
   ++it;
-  for (; it != temp.end(); ++it)
+  for (; it != temp_ranges.end(); ++it)
   {
     if (last_second < it->first)
     {
@@ -96,6 +92,24 @@ std::set< std::pair< TIndex, TIndex > > set_union_(const std::set< std::pair< TI
   result.insert(std::make_pair(last_first, last_second));
 
   return result;
+}
+
+
+template < class TIndex >
+std::set< std::pair< TIndex, TIndex > > set_union_(std::set< std::pair< TIndex, TIndex > >&& a,
+					           std::set< std::pair< TIndex, TIndex > >&& b)
+{
+  std::set< std::pair< TIndex, TIndex > > temp;
+
+  if (a.size() > b.size()) {
+    temp = std::move(a);
+    temp.insert(b.begin(), b.end());
+  } else {
+    temp = std::move(b);
+    temp.insert(a.begin(), a.end());
+  }
+
+  return condense_ranges(temp);
 }
 
 std::set< std::pair< Uint32_Index, Uint32_Index > > blockwise_split
@@ -164,8 +178,12 @@ std::set< std::pair< Uint32_Index, Uint32_Index > > expand
     double east = ::lon(dec(it->second).val(), 0xffffffff)
         + radius*(90.0/10/1000/1000)/lon_factor;
 
-    result = set_union_(result, calc_ranges_(south, north, west, east));
+    auto ranges = calc_ranges_(south, north, west, east);
+
+    result.insert(ranges.begin(), ranges.end());
   }
+
+  result = condense_ranges(result);
 
   return result;
 }
@@ -264,6 +282,8 @@ std::set< std::pair< Uint32_Index, Uint32_Index > > children
   return result;
 }
 
+}
+
 //-----------------------------------------------------------------------------
 
 Prepared_BBox::Prepared_BBox()
@@ -315,6 +335,8 @@ std::ostream& operator << (std::ostream &o, const Prepared_BBox &b)
     << std::endl;
   return o;
 }
+
+namespace {
 
 inline Prepared_BBox lat_lon_bbox(double lat, double lon)
 {
@@ -395,6 +417,8 @@ inline Prepared_BBox calc_distance_bbox(double lat, double lon, double dist)
   bbox.min_lon = min_lon_rad * 90.0 / acos(0);
   bbox.max_lon = max_lon_rad * 90.0 / acos(0);
   return bbox;
+}
+
 }
 
 //-----------------------------------------------------------------------------
