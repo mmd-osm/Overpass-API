@@ -59,6 +59,14 @@ Osm_Script_Statement::Osm_Script_Statement
         <<" the only allowed values are positive integers.";
     add_static_error(temp.str());
   }
+
+  // optionally limit query timeout
+  const int max_timeout = global_settings.get_max_timeout();
+
+  if (max_timeout > 0 && timeout > max_timeout) {
+    timeout = max_timeout;
+  }
+
   max_allowed_time = timeout;
 
   int64 max_space(atoll(attributes["element-limit"].c_str()));

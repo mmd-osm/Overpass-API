@@ -44,6 +44,14 @@ public:
       default_timeout = std::string(default_timeout_c);
     }
 
+    max_timeout = 0;   // unlimited
+    char const* max_timeout_c = std::getenv("OVERPASS_MAX_TIMEOUT");
+    if (max_timeout_c != nullptr) {
+      max_timeout = atoi(max_timeout_c);
+      if (max_timeout < 0)
+        max_timeout = 0;
+    }
+
     default_element_limit = "536870912";
     char const* default_element_limit_c = std::getenv("OVERPASS_DEFAULT_ELEMENT_LIMIT");
     if (default_element_limit_c != nullptr) {
@@ -70,6 +78,7 @@ public:
   std::string get_regexp_engine() { return regexp_engine; }
   std::string get_default_regexp_engine() { return default_regexp_engine; }
   std::string get_default_timeout() { return default_timeout; }
+  int32 get_max_timeout() { return max_timeout; }
   std::string get_default_element_limit() { return default_element_limit; }
 
 private:
@@ -84,6 +93,7 @@ private:
   std::string regexp_engine;
   std::string default_regexp_engine;
   std::string default_timeout;
+  int32 max_timeout;
   std::string default_element_limit;
 };
 
