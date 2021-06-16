@@ -43,59 +43,59 @@ struct Uint32_Index
 {
   typedef uint32 Id_Type;
 
-  Uint32_Index() : value(0u) {}
-  Uint32_Index(uint32 i) : value(i) {}
-  Uint32_Index(const void* data) : value(*(uint32*)data) {}
+  Uint32_Index() noexcept : value(0u) {}
+  Uint32_Index(uint32 i) noexcept : value(i) {}
+  Uint32_Index(const void* data) noexcept : value(*(uint32*)data) {}
 
-  uint32 size_of() const
+  uint32 size_of() const noexcept
   {
     return 4;
   }
 
-  static uint32 max_size_of()
+  static uint32 max_size_of() noexcept
   {
     return 4;
   }
 
-  static uint32 size_of(const void* data)
+  static uint32 size_of(const void* data) noexcept
   {
     return 4;
   }
 
-  void to_data(void* data) const
+  void to_data(void* data) const noexcept
   {
     *(uint32*)data = value;
   }
 
-  bool operator<(const Uint32_Index& index) const
+  bool operator<(const Uint32_Index& index) const noexcept
   {
     return this->value < index.value;
   }
 
-  bool operator==(const Uint32_Index& index) const
+  bool operator==(const Uint32_Index& index) const noexcept
   {
     return this->value == index.value;
   }
 
-  Uint32_Index operator++()
+  Uint32_Index operator++() noexcept
   {
     ++value;
     return this;
   }
 
-  Uint32_Index operator+=(Uint32_Index offset)
+  Uint32_Index operator+=(Uint32_Index offset) noexcept
   {
     value += offset.val();
     return this;
   }
 
-  Uint32_Index operator+(Uint32_Index offset) const
+  Uint32_Index operator+(Uint32_Index offset) const noexcept
   {
     Uint32_Index temp(*this);
     return (temp += offset);
   }
 
-  uint32 val() const
+  uint32 val() const noexcept
   {
     return value;
   }
@@ -154,19 +154,19 @@ struct Uint32_Index_Handle_Methods
 
 
 
-inline Uint32_Index inc(Uint32_Index idx)
+inline Uint32_Index inc(Uint32_Index idx) noexcept
 {
   return Uint32_Index(idx.val() + 1);
 }
 
 
-inline Uint32_Index dec(Uint32_Index idx)
+inline Uint32_Index dec(Uint32_Index idx) noexcept
 {
   return Uint32_Index(idx.val() - 1);
 }
 
 
-inline unsigned long long difference(Uint32_Index lhs, Uint32_Index rhs)
+inline unsigned long long difference(Uint32_Index lhs, Uint32_Index rhs) noexcept
 {
   return rhs.val() - lhs.val();
 }
@@ -176,11 +176,11 @@ struct Uint31_Index_Handle_Methods;
 
 struct Uint31_Index : Uint32_Index
 {
-  Uint31_Index() : Uint32_Index() {}
-  Uint31_Index(uint32 i) : Uint32_Index(i) {}
-  Uint31_Index(void* data) : Uint32_Index(*(uint32*)data) {}
+  Uint31_Index() noexcept : Uint32_Index() {}
+  Uint31_Index(uint32 i) noexcept : Uint32_Index(i) {}
+  Uint31_Index(void* data) noexcept : Uint32_Index(*(uint32*)data) {}
 
-  bool operator<(const Uint31_Index& index) const
+  bool operator<(const Uint31_Index& index) const noexcept
   {
     if ((this->value & 0x7fffffff) != (index.value & 0x7fffffff))
     {
@@ -201,7 +201,7 @@ inline std::ostream & operator<<(std::ostream &os, const Uint31_Index& p)
 }
 
 
-inline Uint31_Index inc(Uint31_Index idx)
+inline Uint31_Index inc(Uint31_Index idx) noexcept
 {
   if (idx.val() & 0x80000000)
     return Uint31_Index((idx.val() & 0x7fffffff) + 1);
@@ -258,48 +258,48 @@ struct Uint64
 {
   typedef uint64 Id_Type;
 
-  Uint64() : value(0ull) {}
-  Uint64(uint64 i) : value(i) {}
-  Uint64(const void* data) : value(*(uint64*)data) {}
+  Uint64() noexcept : value(0ull) {}
+  Uint64(uint64 i) noexcept : value(i) {}
+  Uint64(const void* data) noexcept : value(*(uint64*)data) {}
 
-  uint32 size_of() const { return 8; }
-  static uint32 max_size_of() { return 8; }
-  static uint32 size_of(const void* data) { return 8; }
+  uint32 size_of() const noexcept { return 8; }
+  static uint32 max_size_of() noexcept { return 8; }
+  static uint32 size_of(const void* data) noexcept { return 8; }
 
-  void to_data(void* data) const
+  void to_data(void* data) const noexcept
   {
     *(uint64*)data = value;
   }
 
-  bool operator<(const Uint64& index) const
+  bool operator<(const Uint64& index) const noexcept
   {
     return this->value < index.value;
   }
 
-  bool operator==(const Uint64& index) const
+  bool operator==(const Uint64& index) const noexcept
   {
     return this->value == index.value;
   }
 
-  Uint64 operator++()
+  Uint64 operator++() noexcept
   {
     ++value;
     return this;
   }
 
-  Uint64 operator+=(Uint64 offset)
+  Uint64 operator+=(Uint64 offset) noexcept
   {
     value += offset.val();
     return this;
   }
 
-  Uint64 operator+(Uint64 offset) const
+  Uint64 operator+(Uint64 offset) const noexcept
   {
     Uint64 temp(*this);
     return (temp += offset);
   }
 
-  uint64 val() const { return value; }
+  uint64 val() const noexcept { return value; }
 
   template <class T, class Object>
   using Handle_Methods = Uint64_Handle_Methods<T, Object>;
@@ -339,13 +339,13 @@ struct Uint64_Handle_Methods
 
 struct Quad_Coord
 {
-  Quad_Coord() : ll_upper(0), ll_lower(0) {}
-  Quad_Coord(uint32 ll_upper_, uint32 ll_lower_) : ll_upper(ll_upper_), ll_lower(ll_lower_) {}
+  Quad_Coord() noexcept : ll_upper(0), ll_lower(0) {}
+  Quad_Coord(uint32 ll_upper_, uint32 ll_lower_) noexcept : ll_upper(ll_upper_), ll_lower(ll_lower_) {}
 
   uint32 ll_upper;
   uint32 ll_lower;
 
-  bool operator==(const Quad_Coord& rhs) const
+  bool operator==(const Quad_Coord& rhs) const noexcept
   {
     return ll_upper == rhs.ll_upper && ll_lower == rhs.ll_lower;
   }

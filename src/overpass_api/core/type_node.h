@@ -34,23 +34,23 @@ struct Node_Base
   uint32 index;
   uint32 ll_lower_;
 
-  bool operator<(const Node_Base& a) const
+  bool operator<(const Node_Base& a) const noexcept
   {
     return this->id.val() < a.id.val();
   }
 
-  bool operator==(const Node_Base& a) const
+  bool operator==(const Node_Base& a) const noexcept
   {
     return this->id.val() == a.id.val();
   }
 
-  Node_Base() : id(0ull), index(0), ll_lower_(0) {}
+  Node_Base() noexcept : id(0ull), index(0), ll_lower_(0) {}
 
-  Node_Base(Id_Type id_, double lat, double lon)
+  Node_Base(Id_Type id_, double lat, double lon) noexcept
       : id(id_), index(ll_upper_(lat, lon)), ll_lower_(ll_lower(lat, lon))
   {}
 
-  Node_Base(Id_Type id_, uint32 ll_upper_, uint32 ll_lower__)
+  Node_Base(Id_Type id_, uint32 ll_upper_, uint32 ll_lower__) noexcept
       : id(id_), index(ll_upper_), ll_lower_(ll_lower__)
   {}
 
@@ -61,22 +61,22 @@ struct Node : public Node_Base
 {
   std::vector< std::pair< std::string, std::string > > tags;
 
-  Node() : Node_Base() {}
+  Node() noexcept : Node_Base() {}
 
-  Node(Id_Type id_, double lat, double lon) : Node_Base(id_, lat, lon) {}
+  Node(Id_Type id_, double lat, double lon) noexcept : Node_Base(id_, lat, lon) {}
 
-  Node(Id_Type id_, uint32 ll_upper_, uint32 ll_lower__) : Node_Base(id_, ll_upper_, ll_lower__) {}
+  Node(Id_Type id_, uint32 ll_upper_, uint32 ll_lower__) noexcept : Node_Base(id_, ll_upper_, ll_lower__) {}
 
 };
 
 
 struct Node_Comparator_By_Id {
-  bool operator() (const Node_Base& a, const Node_Base& b)
+  bool operator() (const Node_Base& a, const Node_Base& b) noexcept
   {
     return (a.id.val() < b.id.val());
   }
 
-  bool operator() (const Node_Base* a, const Node_Base* b)
+  bool operator() (const Node_Base* a, const Node_Base* b) noexcept
   {
     return (a->id.val() < b->id.val());
   }
@@ -84,12 +84,12 @@ struct Node_Comparator_By_Id {
 
 
 struct Node_Equal_Id {
-  bool operator() (const Node_Base& a, const Node_Base& b)
+  bool operator() (const Node_Base& a, const Node_Base& b) noexcept
   {
     return (a.id.val() == b.id.val());
   }
 
-  bool operator() (const Node_Base* a, const Node_Base* b)
+  bool operator() (const Node_Base* a, const Node_Base* b) noexcept
   {
     return (a->id.val() == b->id.val());
   }
@@ -106,42 +106,42 @@ struct Node_Skeleton
   Node::Id_Type id;
   uint32 ll_lower;
 
-  Node_Skeleton() : id(0ull) {}
+  Node_Skeleton() noexcept : id(0ull) {}
 
-  Node_Skeleton(const void* data)
+  Node_Skeleton(const void* data) noexcept
     : id(*(Id_Type*)data), ll_lower(*(uint32*)((uint8*)data+8)) {}
 
-  Node_Skeleton(const Node& node)
+  Node_Skeleton(const Node& node) noexcept
   : id(node.id), ll_lower(node.ll_lower_) {}
 
-  Node_Skeleton(Node::Id_Type id_)
+  Node_Skeleton(Node::Id_Type id_) noexcept
   : id(id_), ll_lower(0) {}
 
-  Node_Skeleton(Node::Id_Type id_, uint32 ll_lower_)
+  Node_Skeleton(Node::Id_Type id_, uint32 ll_lower_) noexcept
   : id(id_), ll_lower(ll_lower_) {}
 
-  uint32 size_of() const
+  uint32 size_of() const noexcept
   {
     return 12;
   }
 
-  static uint32 size_of(const void* data)
+  static uint32 size_of(const void* data) noexcept
   {
     return 12;
   }
 
-  void to_data(void* data) const
+  void to_data(void* data) const noexcept
   {
     *(Id_Type*)data = id.val();
     *(uint32*)((uint8*)data+8) = ll_lower;
   }
 
-  bool operator<(const Node_Skeleton& a) const
+  bool operator<(const Node_Skeleton& a) const noexcept
   {
     return this->id.val() < a.id.val();
   }
 
-  bool operator==(const Node_Skeleton& a) const
+  bool operator==(const Node_Skeleton& a) const noexcept
   {
     return this->id.val() == a.id.val();
   }

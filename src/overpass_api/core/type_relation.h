@@ -33,7 +33,7 @@ struct Relation_Entry
 {
   typedef Uint64 Ref_Type;
 
-  Relation_Entry() : ref(0ull), type(0), role(0) {}
+  Relation_Entry() noexcept : ref(0ull), type(0), role(0) {}
 
   Uint64 ref;
   uint32 type;
@@ -62,9 +62,9 @@ struct Relation
   std::vector< Uint31_Index > way_idxs;
   std::vector< std::pair< std::string, std::string > > tags;
 
-  Relation() : id(0u) {}
+  Relation() noexcept : id(0u) {}
 
-  Relation(Id_Type id_) : id(id_) {}
+  Relation(Id_Type id_) noexcept : id(id_) {}
 
   Relation(Id_Type id_, uint32 index_, const std::vector< Relation_Entry >& members_)
   : id(id_), index(index_), members(members_) {}

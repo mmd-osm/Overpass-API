@@ -45,9 +45,9 @@ struct Way
   std::vector< Quad_Coord > geometry;
   std::vector< std::pair< std::string, std::string > > tags;
 
-  Way() : id(0u), index(0) {}
+  Way() noexcept : id(0u), index(0) {}
 
-  Way(uint32 id_)
+  Way(uint32 id_) noexcept
   : id(id_), index(0)
   {}
 
@@ -59,7 +59,7 @@ struct Way
     return ::calc_index(nd_idxs);
   }
 
-  static bool indicates_geometry(Uint31_Index index)
+  static bool indicates_geometry(Uint31_Index index) noexcept
   {
     return ((index.val() & 0x80000000) != 0 && ((index.val() & 0x1) == 0));
   }
@@ -67,7 +67,7 @@ struct Way
 
 
 struct Way_Comparator_By_Id {
-  bool operator() (const Way* a, const Way* b)
+  bool operator() (const Way* a, const Way* b) noexcept
   {
     return (a->id < b->id);
   }
@@ -75,7 +75,7 @@ struct Way_Comparator_By_Id {
 
 
 struct Way_Equal_Id {
-  bool operator() (const Way* a, const Way* b)
+  bool operator() (const Way* a, const Way* b) noexcept
   {
     return (a->id == b->id);
   }
@@ -225,7 +225,7 @@ struct Way_Skeleton
     return 8 + 2 + compress_size + 8*d->geometry.size();
   }
 
-  static uint32 size_of(const void* data)
+  static uint32 size_of(const void* data) noexcept
   {
     return (8 + 2 +
             8 * *((uint16*)data + 3) +      // geometry size elements, 8 byte per element
@@ -249,12 +249,12 @@ struct Way_Skeleton
     }
   }
 
-  bool operator<(const Way_Skeleton& a) const
+  bool operator<(const Way_Skeleton& a) const noexcept
   {
     return this->id < a.id;
   }
 
-  bool operator==(const Way_Skeleton& a) const
+  bool operator==(const Way_Skeleton& a) const noexcept
   {
     return this->id == a.id;
   }
