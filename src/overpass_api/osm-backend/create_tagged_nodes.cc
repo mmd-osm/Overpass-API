@@ -54,7 +54,8 @@ int main(int argc, char* args[])
     Block_Backend< Tag_Index_Local, Node_Skeleton::Id_Type > db_tags(transaction.data_index(osm_base_settings().NODE_TAGS_LOCAL));
     Block_Backend< Tag_Index_Local, Node_Skeleton::Id_Type >::Flat_Iterator it_tags(db_tags.flat_begin());
 
-
+    Nonsynced_Transaction target_transaction(true, false, db_dir, "");
+    Block_Backend< Uint31_Index, Node_Skeleton > db_tagged(target_transaction.data_index(osm_base_settings().NODES_TAGGED));
 
     int elems = 0;
 
@@ -87,25 +88,27 @@ int main(int argc, char* args[])
 
       for (auto const & n : node_ids_all) {
 
-        if (std::binary_search(node_ids_tag.begin(), node_ids_tag.end(), n.second.id.val()))
-        {
+        if (std::binary_search(node_ids_tag.begin(), node_ids_tag.end(), n.second.id.val())) {
            std::set< Node_Skeleton > & refs = nodes_map_insert[n.first];
            refs.insert(n.second);
            elems++;
         }
       }
       
-      {
-      Nonsynced_Transaction target_transaction(true, false, db_dir, "");
-      Block_Backend< Uint31_Index, Node_Skeleton > db_tagged(target_transaction.data_index(osm_base_settings().NODES_TAGGED));
-      db_tagged.update(std::map< Uint31_Index, std::set< Node_Skeleton > > (), nodes_map_insert);
-      nodes_map_insert.clear();
+      if (elems >= 1000000) {
+         db_tagged.update(std::map< Uint31_Index, std::set< Node_Skeleton > > (), nodes_map_insert);
+         nodes_map_insert.clear();
+         elems = 0;
       }
 
       node_ids_tag.clear();
       node_ids_all.clear();
     }
     
+    if (!nodes_map_insert.empty()) {
+      db_tagged.update(std::map< Uint31_Index, std::set< Node_Skeleton > > (), nodes_map_insert);
+    }
+
     while (!(it_tags == db_tags.flat_end()))
       ++it_tags;
 
