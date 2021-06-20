@@ -411,6 +411,7 @@ int main(int argc, char* args[])
   }
 
   std::string db_dir(args[1]);
+  uint32 step = atoi(args[2]);
 
   try
   {
@@ -427,8 +428,6 @@ int main(int argc, char* args[])
     //        keep_attic, 0, 24*60*60, 1024*1024*1024, global_settings);
 
     //    Transaction& transaction = *dispatcher.resource_manager().get_transaction();
-
-    uint32 step = atoi(args[2]);
 
     if (std::string("--nodes") == args[2] || step == 1)
     {
@@ -615,11 +614,11 @@ int main(int argc, char* args[])
   }
   catch (File_Error & e)
   {
-    std::cerr<<e.origin<<' '<<e.filename<<' '<<e.error_number<<'\n';
+    std::cerr << "Error while executing step " << step << ": " << e.origin<<' '<<e.filename<<' '<<e.error_number<<'\n';
     return 1;
   }
   catch (std::exception& ex) {
-    std::cerr << ex.what() << "\n";
+    std::cerr << "Error while executing step " << step << ": " << ex.what() << "\n";
     return 2;
   }
 
