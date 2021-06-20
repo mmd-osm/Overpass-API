@@ -50,7 +50,6 @@
 
 
 
-
 // Attic
 
 template<class Archive>
@@ -78,9 +77,11 @@ void serialize(Archive & archive,
           cereal::make_nvp("timestamp",m.timestamp));
 }
 
+
+
 template<class Archive>
 void serialize(Archive & archive,
-               Attic<Relation_Delta> & m)
+          Attic<Relation_Delta> & m)
 {
   archive(cereal::make_nvp("id",m.id),
           cereal::make_nvp("full",m.full),
@@ -91,7 +92,9 @@ void serialize(Archive & archive,
           cereal::make_nvp("way_idxs_removed",m.way_idxs_removed),
           cereal::make_nvp("way_idxs_added",m.way_idxs_added),
           cereal::make_nvp("timestamp",m.timestamp));
+
 }
+
 
 template<class Archive>
 void serialize(Archive & archive,
@@ -123,16 +126,30 @@ template<class Archive>
 void load(Archive & archive,
     Attic<Uint32_Index> & m)
 {
- // archive( m.x, m.y, m.z );
+    uint32 v;
+    uint64 ts;
+    archive( v, ts );
+    m = std::move(Attic<Uint32_Index>(v, ts));
 }
 
 template<class Archive>
-void serialize(Archive & archive,
-               Attic<Uint64> & m)
+void save(Archive & archive,
+               Attic<Uint64> const & m)
 {
   auto val = m.val();
   archive(val, cereal::make_nvp("timestamp",m.timestamp));
 }
+
+template<class Archive>
+void load(Archive & archive,
+    Attic<Uint64> & m)
+{
+    uint64 v;
+    uint64 ts;
+    archive( v, ts );
+    m = std::move(Attic<Uint64>(v, ts));
+}
+
 
 template<class Archive>
 void serialize(Archive & archive,
@@ -180,19 +197,11 @@ void serialize(Archive & archive,
 }
 
 template<class Archive>
-void save(Archive & archive,
-    Timestamp const & m)
+void serialize(Archive & archive,
+    Timestamp & m)
 {
   archive( cereal::make_nvp("timestamp",m.timestamp));
 }
-
-template<class Archive>
-void load(Archive & archive,
-    Timestamp & m)
-{
- // archive( m.x, m.y, m.z );
-}
-
 
 template<class Archive>
 void save(Archive & archive,
@@ -205,7 +214,9 @@ template<class Archive>
 void load(Archive & archive,
     String_Object & m)
 {
- // archive( m.x, m.y, m.z );
+  std::string s;
+  archive( s );
+  m = std::move(String_Object(s));
 }
 
 
@@ -235,12 +246,22 @@ void serialize(Archive & archive,
 }
 
 template<class Archive>
-void serialize(Archive & archive,
-               Uint64 & m)
+void save(Archive & archive,
+               const Uint64 & m)
 {
   auto val = m.val();
   archive(val);
 }
+
+template<class Archive>
+void load(Archive & archive,
+    Uint64 & m)
+{
+  uint64 val;
+  archive( val );
+  m = std::move(Uint64(val));
+}
+
 
 template<class Archive>
 void save(Archive & archive,
@@ -253,7 +274,9 @@ template<class Archive>
 void load(Archive & archive,
     Uint32_Index & m)
 {
- // archive( m.x, m.y, m.z );
+  uint32 v;
+  archive( v );
+  m = std::move(Uint32_Index(v));
 }
 
 template<class Archive>
@@ -267,7 +290,9 @@ template<class Archive>
 void load(Archive & archive,
     Uint31_Index & m)
 {
- // archive( m.x, m.y, m.z );
+  uint32 v;
+  archive( v );
+  m = std::move(Uint31_Index(v));
 }
 
 template<class Archive>
@@ -345,64 +370,35 @@ void serialize(Archive & archive,
 
 
 template <class Index, class Object>
-void export_bin(Transaction& transaction, const File_Properties* fp) {
+void import_bin(Transaction& transaction, const File_Properties* fp) {
 
   std::map<Index, std::set< Object > > res;
 
-  cereal::BinaryOutputArchive oarchive(std::cout);
-
-  // cereal::JSONOutputArchive oarchive(std::cout);
+  cereal::BinaryInputArchive iarchive(std::cin);
 
   Block_Backend< Index, Object > db(transaction.data_index(fp));
 
-  int objcount = 0;
-
-  for (auto it(db.flat_begin()), prev = it.index(); !(it == db.flat_end()); ++it)
-  {
-    Index idx_ = it.index();
-    Object obj_ = it.object();
-
-    if (/* !(prev == idx_) && */ objcount >= 1000000) {
-      if (!res.empty()) {
-        oarchive(res);
-      }
-      objcount = 0;
-      res.clear();
-      prev = idx_;
-    }
-
-    res[idx_].insert(obj_);
-    ++objcount;
+  while (std::cin.peek() != std::char_traits<char>::eof()) {
+    iarchive( res );
+    db.update(std::map< Index, std::set< Object > > (), res);
+    res.clear();
   }
-
-  if (!res.empty())
-    oarchive(res);
 }
 
 
 template< typename Key, typename TIndex >
-void export_map(Transaction& transaction, const File_Properties* fp) {
+void import_map(Transaction& transaction, const File_Properties* fp) {
 
-  cereal::BinaryOutputArchive oarchive(std::cout);
+  cereal::BinaryInputArchive iarchive(std::cin);
 
-  // cereal::JSONOutputArchive oarchive(std::cout);
+  Random_File_Index& dest_idx = *transaction.random_index(fp);
+  Random_File< Key, TIndex > dest_file(&dest_idx);
 
-  Random_File_Index& src_idx = *transaction.random_index(fp);
-  Random_File< Key, TIndex > src_file(&src_idx);
-
-  for (std::vector< uint32 >::size_type i = 0; i < src_idx.get_blocks().size(); ++i)
-  {
-    if (src_idx.get_blocks()[i].pos != src_idx.npos)
-    {
-      for (uint32 j = 0; j < src_idx.get_block_size()*src_idx.get_compression_factor()/Uint31_Index::max_size_of(); ++j)
-      {
-        Key key = i*(src_idx.get_block_size()*src_idx.get_compression_factor()/Uint31_Index::max_size_of()) + j;
-        TIndex val = src_file.get(key);
-        if (!(val == TIndex(uint32(0)))) {
-          oarchive(key, val);
-        }
-      }
-    }
+  while (std::cin.peek() != std::char_traits<char>::eof()) {
+    Key key;
+    TIndex idx;
+    iarchive( key, idx );
+    dest_file.put(key, idx);
   }
 }
 
@@ -418,7 +414,7 @@ int main(int argc, char* args[])
 
   try
   {
-    Nonsynced_Transaction transaction(false, false, db_dir, "");
+    Nonsynced_Transaction transaction(true, false, db_dir, "");
 
     Parsed_Query global_settings;
 
@@ -430,189 +426,189 @@ int main(int argc, char* args[])
     //    Dispatcher_Stub dispatcher(db_dir, error_output, "-- export tables --",
     //        keep_attic, 0, 24*60*60, 1024*1024*1024, global_settings);
 
-    // Transaction& transaction = *dispatcher.resource_manager().get_transaction();
+    //    Transaction& transaction = *dispatcher.resource_manager().get_transaction();
 
     uint32 step = atoi(args[2]);
 
     if (std::string("--nodes") == args[2] || step == 1)
     {
-      export_bin< Uint31_Index, Node_Skeleton >(transaction, osm_base_settings().NODES);
+      import_bin< Uint31_Index, Node_Skeleton >(transaction, osm_base_settings().NODES);
     }
     if (std::string("--nodes-map") == args[2] || step == 2)
     {
-      export_map<Node_Skeleton::Id_Type, Uint32_Index>(transaction, osm_base_settings().NODES);
+      import_map<Node_Skeleton::Id_Type, Uint32_Index>(transaction, osm_base_settings().NODES);
     }
     else if (std::string("--node-tags-local") == args[2] || step == 3)
     {
-      export_bin< Tag_Index_Local, Node_Skeleton::Id_Type >(transaction, osm_base_settings().NODE_TAGS_LOCAL);
+      import_bin< Tag_Index_Local, Node_Skeleton::Id_Type >(transaction, osm_base_settings().NODE_TAGS_LOCAL);
     }
     else if (std::string("--node-tags-global") == args[2] || step == 4)
     {
-      export_bin< Tag_Index_Global, Tag_Object_Global< Node_Skeleton::Id_Type > >(transaction, osm_base_settings().NODE_TAGS_GLOBAL);
+      import_bin< Tag_Index_Global, Tag_Object_Global< Node_Skeleton::Id_Type > >(transaction, osm_base_settings().NODE_TAGS_GLOBAL);
     }
     else if (std::string("--node-keys") == args[2] || step == 5)
     {
-      export_bin< Uint32_Index, String_Object >(transaction, osm_base_settings().NODE_KEYS);
+      import_bin< Uint32_Index, String_Object >(transaction, osm_base_settings().NODE_KEYS);
     }
     else if (std::string("--ways") == args[2] || step == 6)
     {
-      export_bin< Uint31_Index, Way_Skeleton >(transaction, osm_base_settings().WAYS);
+      import_bin< Uint31_Index, Way_Skeleton >(transaction, osm_base_settings().WAYS);
     }
     else if (std::string("--ways-map") == args[2] || step == 7)
     {
-      export_map< Way_Skeleton::Id_Type, Uint31_Index >(transaction, osm_base_settings().WAYS);
+      import_map< Way_Skeleton::Id_Type, Uint31_Index >(transaction, osm_base_settings().WAYS);
     }
     else if (std::string("--way-tags-local") == args[2] || step == 8)
     {
-      export_bin< Tag_Index_Local, Way_Skeleton::Id_Type >(transaction, osm_base_settings().WAY_TAGS_LOCAL);
+      import_bin< Tag_Index_Local, Way_Skeleton::Id_Type >(transaction, osm_base_settings().WAY_TAGS_LOCAL);
     }
     else if (std::string("--way-tags-global") == args[2] || step == 9)
     {
-      export_bin< Tag_Index_Global, Tag_Object_Global< Way_Skeleton::Id_Type > >(transaction, osm_base_settings().WAY_TAGS_GLOBAL);
+      import_bin< Tag_Index_Global, Tag_Object_Global< Way_Skeleton::Id_Type > >(transaction, osm_base_settings().WAY_TAGS_GLOBAL);
     }
     else if (std::string("--way-keys") == args[2] || step == 10)
     {
-      export_bin< Uint32_Index, String_Object >(transaction, osm_base_settings().WAY_KEYS);
+      import_bin< Uint32_Index, String_Object >(transaction, osm_base_settings().WAY_KEYS);
     }
     else if (std::string("--rels") == args[2] || step == 11)
     {
-      export_bin< Uint31_Index, Relation_Skeleton >(transaction, osm_base_settings().RELATIONS);
+      import_bin< Uint31_Index, Relation_Skeleton >(transaction, osm_base_settings().RELATIONS);
     }
     else if (std::string("--rels-map") == args[2] || step == 12)
     {
-      export_map< Relation_Skeleton::Id_Type, Uint31_Index >(transaction, osm_base_settings().RELATIONS);
+      import_map< Relation_Skeleton::Id_Type, Uint31_Index >(transaction, osm_base_settings().RELATIONS);
     }
     else if (std::string("--rel-roles") == args[2] || step == 13)
     {
-      export_bin< Uint32_Index, String_Object >(transaction, osm_base_settings().RELATION_ROLES);
+      import_bin< Uint32_Index, String_Object >(transaction, osm_base_settings().RELATION_ROLES);
     }
     else if (std::string("--rel-tags-local") == args[2] || step == 14)
     {
-      export_bin< Tag_Index_Local, Relation_Skeleton::Id_Type >(transaction, osm_base_settings().RELATION_TAGS_LOCAL);
+      import_bin< Tag_Index_Local, Relation_Skeleton::Id_Type >(transaction, osm_base_settings().RELATION_TAGS_LOCAL);
     }
     else if (std::string("--rel-tags-global") == args[2] || step == 15)
     {
-      export_bin< Tag_Index_Global, Tag_Object_Global< Relation_Skeleton::Id_Type > >(transaction, osm_base_settings().RELATION_TAGS_GLOBAL);
+      import_bin< Tag_Index_Global, Tag_Object_Global< Relation_Skeleton::Id_Type > >(transaction, osm_base_settings().RELATION_TAGS_GLOBAL);
     }
     else if (std::string("--rel-keys") == args[2] || step == 16)
     {
-      export_bin< Uint32_Index, String_Object >(transaction, osm_base_settings().RELATION_KEYS);
+      import_bin< Uint32_Index, String_Object >(transaction, osm_base_settings().RELATION_KEYS);
     }
     else if (std::string("--nodes-meta") == args[2] || step == 17)
     {
-      export_bin< Uint31_Index, OSM_Element_Metadata_Skeleton< Node_Skeleton::Id_Type > >(transaction, meta_settings().NODES_META);
+      import_bin< Uint31_Index, OSM_Element_Metadata_Skeleton< Node_Skeleton::Id_Type > >(transaction, meta_settings().NODES_META);
     }
     else if (std::string("--ways-meta") == args[2] || step == 18)
     {
-      export_bin< Uint31_Index, OSM_Element_Metadata_Skeleton< Way_Skeleton::Id_Type > >(transaction, meta_settings().WAYS_META);
+      import_bin< Uint31_Index, OSM_Element_Metadata_Skeleton< Way_Skeleton::Id_Type > >(transaction, meta_settings().WAYS_META);
     }
     else if (std::string("--rels-meta") == args[2] || step == 19)
     {
-      export_bin< Uint31_Index, OSM_Element_Metadata_Skeleton< Relation_Skeleton::Id_Type > >(transaction, meta_settings().RELATIONS_META);
+      import_bin< Uint31_Index, OSM_Element_Metadata_Skeleton< Relation_Skeleton::Id_Type > >(transaction, meta_settings().RELATIONS_META);
     }
     else if (std::string("--user") == args[2] || step == 20)
     {
-      export_bin< Uint32_Index, User_Data >(transaction, meta_settings().USER_DATA);
+      import_bin< Uint32_Index, User_Data >(transaction, meta_settings().USER_DATA);
     }
     else if (std::string("--user-idxs") == args[2] || step == 21)
     {
-      export_bin< Uint32_Index, Uint31_Index >(transaction, meta_settings().USER_INDICES);
+      import_bin< Uint32_Index, Uint31_Index >(transaction, meta_settings().USER_INDICES);
     }
     else if (std::string("--attic-nodes") == args[2] || step == 22)
     {
-      export_bin< Uint31_Index, Attic< Node_Skeleton > >(transaction, attic_settings().NODES);
+      import_bin< Uint31_Index, Attic< Node_Skeleton > >(transaction, attic_settings().NODES);
     }
     else if (std::string("--attic-nodes-map") == args[2] || step == 23)
     {
-      export_map< Node_Skeleton::Id_Type, Uint31_Index >(transaction, attic_settings().NODES);
+      import_map< Node_Skeleton::Id_Type, Uint31_Index >(transaction, attic_settings().NODES);
     }
     else if (std::string("--nodes-undelete") == args[2] || step == 24)
     {
-      export_bin< Uint32_Index, Attic< Node_Skeleton::Id_Type > >(transaction, attic_settings().NODES_UNDELETED);
+      import_bin< Uint32_Index, Attic< Node_Skeleton::Id_Type > >(transaction, attic_settings().NODES_UNDELETED);
     }
     else if (std::string("--attic-node-idxs") == args[2] || step == 25)
     {
-      export_bin< Node_Skeleton::Id_Type, Uint31_Index >(transaction, attic_settings().NODE_IDX_LIST);
+      import_bin< Node_Skeleton::Id_Type, Uint31_Index >(transaction, attic_settings().NODE_IDX_LIST);
     }
     else if (std::string("--attic-node-tags-local") == args[2] || step == 26)
     {
-      export_bin< Tag_Index_Local, Attic< Node_Skeleton::Id_Type > >(transaction, attic_settings().NODE_TAGS_LOCAL);
+      import_bin< Tag_Index_Local, Attic< Node_Skeleton::Id_Type > >(transaction, attic_settings().NODE_TAGS_LOCAL);
     }
     else if (std::string("--attic-node-tags-global") == args[2] || step == 27)
     {
-      export_bin< Tag_Index_Global, Attic< Tag_Object_Global< Node_Skeleton::Id_Type > > >(transaction, attic_settings().NODE_TAGS_GLOBAL);
+      import_bin< Tag_Index_Global, Attic< Tag_Object_Global< Node_Skeleton::Id_Type > > >(transaction, attic_settings().NODE_TAGS_GLOBAL);
     }
     else if (std::string("--attic-nodes-meta") == args[2] || step == 28)
     {
-      export_bin< Uint31_Index, OSM_Element_Metadata_Skeleton< Node_Skeleton::Id_Type > >(transaction, attic_settings().NODES_META);
+      import_bin< Uint31_Index, OSM_Element_Metadata_Skeleton< Node_Skeleton::Id_Type > >(transaction, attic_settings().NODES_META);
     }
     else if (std::string("--node-changelog") == args[2] || step == 29)
     {
-      export_bin< Timestamp, Change_Entry< Node_Skeleton::Id_Type > >(transaction, attic_settings().NODE_CHANGELOG);
+      import_bin< Timestamp, Change_Entry< Node_Skeleton::Id_Type > >(transaction, attic_settings().NODE_CHANGELOG);
     }
     else if (std::string("--attic-ways-delta") == args[2] || step == 30)
     {
-      export_bin< Uint31_Index, Attic< Way_Delta > >(transaction, attic_settings().WAYS);
+      import_bin< Uint31_Index, Attic< Way_Delta > >(transaction, attic_settings().WAYS);
     }
     else if (std::string("--attic-ways-map") == args[2] || step == 31)
     {
-      export_map< Way_Skeleton::Id_Type, Uint31_Index >(transaction, attic_settings().WAYS);
+      import_map< Way_Skeleton::Id_Type, Uint31_Index >(transaction, attic_settings().WAYS);
     }
     else if (std::string("--ways-undelete") == args[2] || step == 32)
     {
-      export_bin< Uint31_Index, Attic< Way_Skeleton::Id_Type > >(transaction, attic_settings().WAYS_UNDELETED);
+      import_bin< Uint31_Index, Attic< Way_Skeleton::Id_Type > >(transaction, attic_settings().WAYS_UNDELETED);
     }
     else if (std::string("--attic-ways-idxs") == args[2] || step == 33)
     {
-      export_bin< Way_Skeleton::Id_Type, Uint31_Index >(transaction, attic_settings().WAY_IDX_LIST);
+      import_bin< Way_Skeleton::Id_Type, Uint31_Index >(transaction, attic_settings().WAY_IDX_LIST);
     }
     else if (std::string("--attic-way-tags-local") == args[2] || step == 34)
     {
-      export_bin< Tag_Index_Local, Attic< Way_Skeleton::Id_Type > >(transaction, attic_settings().WAY_TAGS_LOCAL);
+      import_bin< Tag_Index_Local, Attic< Way_Skeleton::Id_Type > >(transaction, attic_settings().WAY_TAGS_LOCAL);
     }
     else if (std::string("--attic-way-tags-global") == args[2] || step == 35)
     {
-      export_bin< Tag_Index_Global, Attic< Tag_Object_Global< Way_Skeleton::Id_Type > > >(transaction, attic_settings().WAY_TAGS_GLOBAL);
+      import_bin< Tag_Index_Global, Attic< Tag_Object_Global< Way_Skeleton::Id_Type > > >(transaction, attic_settings().WAY_TAGS_GLOBAL);
     }
     else if (std::string("--attic-ways-meta") == args[2] || step == 36)
     {
-      export_bin< Uint31_Index, OSM_Element_Metadata_Skeleton< Way_Skeleton::Id_Type > >(transaction, attic_settings().WAYS_META);
+      import_bin< Uint31_Index, OSM_Element_Metadata_Skeleton< Way_Skeleton::Id_Type > >(transaction, attic_settings().WAYS_META);
     }
     else if (std::string("--way-changelog") == args[2] || step == 37)
     {
-      export_bin< Timestamp, Change_Entry< Way_Skeleton::Id_Type > >(transaction, attic_settings().WAY_CHANGELOG);
+      import_bin< Timestamp, Change_Entry< Way_Skeleton::Id_Type > >(transaction, attic_settings().WAY_CHANGELOG);
     }
     else if (std::string("--attic-rels-delta") == args[2] || step == 38)
     {
-      export_bin< Uint31_Index, Attic< Relation_Delta > >(transaction, attic_settings().RELATIONS);
+      import_bin< Uint31_Index, Attic< Relation_Delta > >(transaction, attic_settings().RELATIONS);
     }
     else if (std::string("--attic-rels-map") == args[2] || step == 39)
     {
-      export_map< Relation_Skeleton::Id_Type, Uint31_Index >(transaction, attic_settings().RELATIONS);
+      import_map< Relation_Skeleton::Id_Type, Uint31_Index >(transaction, attic_settings().RELATIONS);
     }
     else if (std::string("--rels-undelete") == args[2] || step == 40)
     {
-      export_bin< Uint31_Index, Attic< Relation_Skeleton::Id_Type > >(transaction, attic_settings().RELATIONS_UNDELETED);
+      import_bin< Uint31_Index, Attic< Relation_Skeleton::Id_Type > >(transaction, attic_settings().RELATIONS_UNDELETED);
     }
     else if (std::string("--attic-rel-idxs") == args[2] || step == 41)
     {
-      export_bin< Relation_Skeleton::Id_Type, Uint31_Index >(transaction, attic_settings().RELATION_IDX_LIST);
+      import_bin< Relation_Skeleton::Id_Type, Uint31_Index >(transaction, attic_settings().RELATION_IDX_LIST);
     }
     else if (std::string("--attic-rel-tags-local") == args[2] || step == 42)
     {
-      export_bin< Tag_Index_Local, Attic< Relation_Skeleton::Id_Type > >(transaction, attic_settings().RELATION_TAGS_LOCAL);
+      import_bin< Tag_Index_Local, Attic< Relation_Skeleton::Id_Type > >(transaction, attic_settings().RELATION_TAGS_LOCAL);
     }
     else if (std::string("--attic-rel-tags-global") == args[2] || step == 43)
     {
-      export_bin< Tag_Index_Global, Attic< Tag_Object_Global< Relation_Skeleton::Id_Type > > >(transaction, attic_settings().RELATION_TAGS_GLOBAL);
+      import_bin< Tag_Index_Global, Attic< Tag_Object_Global< Relation_Skeleton::Id_Type > > >(transaction, attic_settings().RELATION_TAGS_GLOBAL);
     }
     else if (std::string("--attic-rels-meta") == args[2] || step == 44)
     {
-      export_bin< Uint31_Index, OSM_Element_Metadata_Skeleton< Relation_Skeleton::Id_Type > >(transaction, attic_settings().RELATIONS_META);
+      import_bin< Uint31_Index, OSM_Element_Metadata_Skeleton< Relation_Skeleton::Id_Type > >(transaction, attic_settings().RELATIONS_META);
     }
     else if (std::string("--rel-changelog") == args[2] || step == 45)
     {
-      export_bin< Timestamp, Change_Entry< Relation_Skeleton::Id_Type > >(transaction, attic_settings().RELATION_CHANGELOG);
+      import_bin< Timestamp, Change_Entry< Relation_Skeleton::Id_Type > >(transaction, attic_settings().RELATION_CHANGELOG);
     }
     else
       std::cout<<"Unknown target.\n";
@@ -626,5 +622,6 @@ int main(int argc, char* args[])
     std::cerr << ex.what() << "\n";
     return 2;
   }
+
   return 0;
 }

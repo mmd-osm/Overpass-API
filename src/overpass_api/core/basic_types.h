@@ -358,6 +358,8 @@ struct Attic_Handle_Methods;
 template< typename Element_Skeleton >
 struct Attic : public Element_Skeleton
 {
+  Attic() = default;
+
   Attic(const Element_Skeleton& elem, uint64 timestamp_) : Element_Skeleton(elem), timestamp(timestamp_) {}
 
   Attic(Element_Skeleton&& elem, uint64 timestamp_) : Element_Skeleton(std::move(elem)), timestamp(timestamp_) {}

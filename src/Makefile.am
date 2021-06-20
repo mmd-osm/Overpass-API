@@ -1,7 +1,7 @@
 AM_CPPFLAGS = -I$(top_srcdir)/third_party/libosmium/include -I$(top_srcdir)/third_party/protozero/include
 AM_CXXFLAGS = -DGIT_VERSION="\"$(shell git log -1 --pretty='%h')\""
 
-bin_mandatory = bin/osm3s_query bin/dispatcher bin/update_database bin/update_from_dir bin/create_tagged_nodes bin/map_demo bin/dump_file bin/export_tables
+bin_mandatory = bin/osm3s_query bin/dispatcher bin/update_database bin/update_from_dir bin/create_tagged_nodes bin/map_demo bin/dump_file bin/export_tables bin/import_tables
 bin_script_mandatory = \
   bin/apply_osc_to_db.sh\
   bin/download_clone.sh\
@@ -205,6 +205,9 @@ bin_dump_file_LDADD = libcore.la libdata.la @COMPRESS_LIBS@ @ICU_LIBS@ @PCRE_LIB
 
 bin_export_tables_SOURCES = overpass_api/osm-backend/export_tables.cc   ${statements_cc} ${output_formats_cc} overpass_api/frontend/basic_formats.cc overpass_api/frontend/output_handler.cc overpass_api/frontend/console_output.cc overpass_api/frontend/web_output.cc overpass_api/osm-backend/clone_database.cc overpass_api/core/four_field_index.cc overpass_api/core/geometry.cc overpass_api/dispatch/scripting_core.cc overpass_api/dispatch/dispatcher_stub.cc template_db/types.cc overpass_api/frontend/decode_text.cc overpass_api/frontend/map_ql_parser.cc overpass_api/frontend/tokenizer_utils.cc template_db/zlib_wrapper.cc template_db/lz4_wrapper.cc
 bin_export_tables_LDADD = libcore.la libdata.la @COMPRESS_LIBS@ @ICU_LIBS@ @PCRE_LIBS@ @PTHREAD_LIBS@
+
+bin_import_tables_SOURCES = overpass_api/osm-backend/import_tables.cc   ${statements_cc} ${output_formats_cc} overpass_api/frontend/basic_formats.cc overpass_api/frontend/output_handler.cc overpass_api/frontend/console_output.cc overpass_api/frontend/web_output.cc overpass_api/osm-backend/clone_database.cc overpass_api/core/four_field_index.cc overpass_api/core/geometry.cc overpass_api/dispatch/scripting_core.cc overpass_api/dispatch/dispatcher_stub.cc template_db/types.cc overpass_api/frontend/decode_text.cc overpass_api/frontend/map_ql_parser.cc overpass_api/frontend/tokenizer_utils.cc template_db/zlib_wrapper.cc template_db/lz4_wrapper.cc
+bin_import_tables_LDADD = libcore.la libdata.la @COMPRESS_LIBS@ @ICU_LIBS@ @PCRE_LIBS@ @PTHREAD_LIBS@
 
 cgi_bin_interpreter_SOURCES = ${statements_cc} ${output_formats_cc} overpass_api/frontend/basic_formats.cc overpass_api/frontend/output_handler.cc overpass_api/dispatch/web_query.cc overpass_api/core/four_field_index.cc overpass_api/core/geometry.cc overpass_api/dispatch/scripting_core.cc overpass_api/dispatch/dispatcher_stub.cc template_db/types.cc overpass_api/frontend/decode_text.cc overpass_api/frontend/map_ql_parser.cc overpass_api/frontend/tokenizer_utils.cc overpass_api/frontend/web_output.cc template_db/zlib_wrapper.cc template_db/lz4_wrapper.cc
 cgi_bin_interpreter_LDADD = libcore.la libdata.la @COMPRESS_LIBS@ @FASTCGI_LIBS@ @ICU_LIBS@ @PCRE_LIBS@ @PTHREAD_LIBS@

@@ -42,6 +42,8 @@ struct String_Object
 {
   typedef uint32 Id_Type;
 
+  String_Object() = default;
+
   String_Object(std::string s) : value(s) {}
 
   String_Object(void* data) : value()
@@ -639,6 +641,8 @@ struct Change_Entry
 {
   typedef Id_Type_ Id_Type;
 
+  Change_Entry() = default;
+
   Change_Entry(const Id_Type& elem_id_, const Uint31_Index& old_idx_, const Uint31_Index& new_idx_)
       : old_idx(old_idx_), new_idx(new_idx_), elem_id(elem_id_) {}
 
@@ -712,6 +716,8 @@ struct Change_Entry_Handle_Methods
 
 struct Timestamp
 {
+  Timestamp() = default;
+
   Timestamp(uint64 timestamp_) : timestamp(timestamp_) {}
 
   uint64 timestamp;
