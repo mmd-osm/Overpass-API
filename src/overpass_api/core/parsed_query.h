@@ -30,7 +30,7 @@
 class Parsed_Query
 {
 public:
-  Parsed_Query() : output_handler(0), global_bbox_limitation(Bbox_Double::invalid), last_dispensed_id(0ull), regexp_engine("")  {
+  Parsed_Query() : output_handler(0), global_bbox_limitation(Bbox_Double::invalid), last_dispensed_id(0ull), regexp_engine(""), use_nodes_tagged(true)  {
 
     default_regexp_engine = "POSIX";
     char const* default_regexp_engine_c = std::getenv("OVERPASS_REGEXP_ENGINE");
@@ -57,6 +57,14 @@ public:
     if (default_element_limit_c != nullptr) {
       default_element_limit = std::string(default_element_limit_c);
     }
+
+    char const* use_nodes_tagged_c = std::getenv("OVERPASS_USE_NODES_TAGGED");
+    if (use_nodes_tagged_c != nullptr) {
+      if (use_nodes_tagged_c == "1" || use_nodes_tagged_c == "true")
+        use_nodes_tagged = true;
+      else if (use_nodes_tagged_c == "0" || use_nodes_tagged_c == "false")
+        use_nodes_tagged = false;
+    }
   }
 
   ~Parsed_Query() { delete output_handler; }
@@ -80,6 +88,7 @@ public:
   std::string get_default_timeout() { return default_timeout; }
   int32 get_max_timeout() { return max_timeout; }
   std::string get_default_element_limit() { return default_element_limit; }
+  bool get_use_nodes_tagged() { return use_nodes_tagged; }
 
 private:
   // The class has ownership of objects - hence no assignment or copies are allowed
@@ -95,6 +104,7 @@ private:
   std::string default_timeout;
   int32 max_timeout;
   std::string default_element_limit;
+  bool use_nodes_tagged;     // tagged nodes prototype enabled?
 };
 
 

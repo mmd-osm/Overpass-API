@@ -2099,7 +2099,14 @@ void Query_Statement::execute(Resource_Manager& rman)
 	}
         // TODO: <<<<<<<<<<<<<<<<< PROTOTYPE <<<<<<<<<<<<<<<<<<<<<<<<<<<
         
-        bool use_nodes_tagged = !(key_values.empty() && keys.empty() && key_regexes.empty() && regkey_regexes.empty());
+        // Nodes without a tag account for 93% of all nodes. By using a tagged nodes bin file, we can significantly reduce
+        // the number of nodes to process. In case nodes_tagged.bin.* files are not available in the database directory,
+        // a helper tool `create_tagged_nodes` must be used first to create the respective files. This tool will read
+        // existing nodes and node_tags_local files to recreate the tagged nodes file.
+        // Setting environment variable OVERPASS_USE_TAGGED_NODES to 0 or false turns this feature off.
+
+        bool use_nodes_tagged = !(key_values.empty() && keys.empty() && key_regexes.empty() && regkey_regexes.empty())
+                                 && rman.get_global_settings().get_use_nodes_tagged();
 
         if (range_req_32.empty())
           ::get_elements_by_id_from_db< Uint32_Index, Node_Skeleton >
