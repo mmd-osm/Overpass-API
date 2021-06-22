@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <csignal>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -378,10 +379,34 @@ void import_bin(Transaction& transaction, const File_Properties* fp) {
 
   Block_Backend< Index, Object > db(transaction.data_index(fp));
 
-  while (std::cin.peek() != std::char_traits<char>::eof()) {
-    iarchive( res );
-    db.update(std::map< Index, std::set< Object > > (), res);
-    res.clear();
+  uint64 total_objcount = 0;
+  uint64 export_total_objcount = 0;
+
+  bool last_entry = false;
+
+  try {
+
+    while (!last_entry) {
+      iarchive( export_total_objcount, last_entry, res );
+
+      for (auto const & t : res) {
+        for (auto const & s : t.second) {
+          ++total_objcount;
+        }
+      }
+
+      if (total_objcount != export_total_objcount) {
+        throw std::runtime_error ("Mismatch total object count");
+      }
+
+      if (!res.empty()) {
+        db.update(std::map< Index, std::set< Object > > (), res);
+      }
+      res.clear();
+    }
+  } catch(std::exception& ex) {
+    std::cerr << "(err) Import: total object count: " << total_objcount << "\n";
+    throw;
   }
 }
 
@@ -394,16 +419,21 @@ void import_map(Transaction& transaction, const File_Properties* fp) {
   Random_File_Index& dest_idx = *transaction.random_index(fp);
   Random_File< Key, TIndex > dest_file(&dest_idx);
 
-  while (std::cin.peek() != std::char_traits<char>::eof()) {
+  while (true) {
     Key key;
     TIndex idx;
-    iarchive( key, idx );
+    bool eof;
+    iarchive( key, idx, eof );
+    if (eof)
+      return;
     dest_file.put(key, idx);
   }
 }
 
 int main(int argc, char* args[])
 {
+  signal(SIGPIPE, SIG_IGN);
+
   if (argc < 3)
   {
     std::cout<<"Usage: "<<args[0]<<" db_dir step\n";

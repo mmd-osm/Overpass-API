@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <csignal>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -357,26 +358,35 @@ void export_bin(Transaction& transaction, const File_Properties* fp) {
 
   int objcount = 0;
 
-  for (auto it(db.flat_begin()), prev = it.index(); !(it == db.flat_end()); ++it)
-  {
-    Index idx_ = it.index();
-    Object obj_ = it.object();
+  uint64 total_objcount = 0;
 
-    if (/* !(prev == idx_) && */ objcount >= 1000000) {
-      if (!res.empty()) {
-        oarchive(res);
+  try {
+
+    for (auto it(db.flat_begin()), prev = it.index(); !(it == db.flat_end()); ++it)
+    {
+      Index idx_ = it.index();
+      Object obj_ = it.object();
+
+      if (/* !(prev == idx_) && */ objcount >= 1000000) {
+        if (!res.empty()) {
+          oarchive(total_objcount, false, res);
+        }
+        objcount = 0;
+        res.clear();
+        prev = idx_;
       }
-      objcount = 0;
-      res.clear();
-      prev = idx_;
+
+      res[idx_].insert(obj_);
+      ++objcount;
+      ++total_objcount;
     }
 
-    res[idx_].insert(obj_);
-    ++objcount;
-  }
+    oarchive(total_objcount, true, res);
 
-  if (!res.empty())
-    oarchive(res);
+  } catch(std::exception& ex) {
+    std::cerr << "(err) Export: total object count: " << total_objcount << "\n";
+    throw;
+  }
 }
 
 
@@ -399,15 +409,19 @@ void export_map(Transaction& transaction, const File_Properties* fp) {
         Key key = i*(src_idx.get_block_size()*src_idx.get_compression_factor()/Uint31_Index::max_size_of()) + j;
         TIndex val = src_file.get(key);
         if (!(val == TIndex(uint32(0)))) {
-          oarchive(key, val);
+          oarchive(key, val, false);
         }
       }
     }
   }
+
+  oarchive(Key{}, TIndex{}, true);  // eof marker
 }
 
 int main(int argc, char* args[])
 {
+  signal(SIGPIPE, SIG_IGN);
+
   if (argc < 3)
   {
     std::cout<<"Usage: "<<args[0]<<" db_dir step\n";
