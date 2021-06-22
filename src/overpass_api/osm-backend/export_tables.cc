@@ -376,9 +376,11 @@ void export_bin(Transaction& transaction, const File_Properties* fp) {
         prev = idx_;
       }
 
-      res[idx_].insert(obj_);
-      ++objcount;
-      ++total_objcount;
+      auto m = res[idx_].insert(obj_);
+      if (m.second) {
+        ++objcount;
+        ++total_objcount;
+      }
     }
 
     oarchive(total_objcount, true, res);

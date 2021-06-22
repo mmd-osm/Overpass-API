@@ -396,7 +396,10 @@ void import_bin(Transaction& transaction, const File_Properties* fp) {
       }
 
       if (total_objcount != export_total_objcount) {
-        throw std::runtime_error ("Mismatch total object count");
+        std::cerr << "total_objcount: " << total_objcount << "\n";
+        std::cerr << "export_total_objcount: " << export_total_objcount << "\n";
+        std::cerr << "last_entry: " << last_entry << "\n";
+        throw std::runtime_error ("import_tables: mismatch total object count");
       }
 
       if (!res.empty()) {
