@@ -389,11 +389,8 @@ void import_bin(Transaction& transaction, const File_Properties* fp) {
     while (!last_entry) {
       iarchive( export_total_objcount, last_entry, res );
 
-      for (auto const & t : res) {
-        for (auto const & s : t.second) {
-          ++total_objcount;
-        }
-      }
+      for (auto const & t : res)
+        total_objcount += t.second.size();
 
       if (total_objcount != export_total_objcount) {
         std::cerr << "total_objcount: " << total_objcount << "\n";

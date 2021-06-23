@@ -369,6 +369,9 @@ void export_bin(Transaction& transaction, const File_Properties* fp) {
 
       if (/* !(prev == idx_) && */ objcount >= 1000000) {
         if (!res.empty()) {
+          for (auto const & t : res)
+            total_objcount += t.second.size();
+
           oarchive(total_objcount, false, res);
         }
         objcount = 0;
@@ -376,12 +379,12 @@ void export_bin(Transaction& transaction, const File_Properties* fp) {
         prev = idx_;
       }
 
-      auto m = res[idx_].insert(obj_);
-      if (m.second) {
-        ++objcount;
-        ++total_objcount;
-      }
-    }
+      res[idx_].insert(obj_);
+      ++objcount;
+     }
+
+    for (auto const & t : res)
+      total_objcount += t.second.size();
 
     oarchive(total_objcount, true, res);
 
