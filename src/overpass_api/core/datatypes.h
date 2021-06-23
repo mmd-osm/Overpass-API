@@ -716,7 +716,7 @@ struct Change_Entry_Handle_Methods
 
 struct Timestamp
 {
-  Timestamp() = default;
+  Timestamp() : timestamp(0) {}
 
   Timestamp(uint64 timestamp_) : timestamp(timestamp_) {}
 
