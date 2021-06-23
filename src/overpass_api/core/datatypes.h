@@ -675,11 +675,11 @@ struct Change_Entry
     if (old_idx < rhs.old_idx)
       return true;
     if (rhs.old_idx < old_idx)
-      return true;
+      return false;
     if (new_idx < rhs.new_idx)
       return true;
     if (rhs.new_idx < new_idx)
-      return true;
+      return false;
     return (elem_id < rhs.elem_id);
   }
 
