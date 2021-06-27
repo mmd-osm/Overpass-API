@@ -256,7 +256,7 @@ std::map< typename Element_Skeleton::Id_Type, std::pair< Index, Attic< Element_S
       it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
   {
     if (binary_search(ids_with_position.begin(), ids_with_position.end(),
-        std::make_pair(it.object().id, 0), comp))
+        std::make_pair(it.handle().id(), 0), comp))
     {
       typename std::map< typename Element_Skeleton::Id_Type,
           std::pair< Index, Attic< Element_Skeleton_Delta > > >::iterator
