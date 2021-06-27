@@ -380,6 +380,13 @@ File_Blocks_Discrete_Iterator< TIndex, TIterator >::operator++()
 {
   typename std::vector< File_Block_Index_Entry< TIndex > >::const_iterator it = this->block_it;
   ++(this->block_it);
+
+  if (this->block_it == this->block_end) {
+    index_lower = index_upper;
+    index_upper = index_end;
+    return *this;
+  }
+
   if (!(this->block_it->index == it->index))
     find_next_block();
   return *this;
