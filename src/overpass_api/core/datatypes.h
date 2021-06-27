@@ -722,8 +722,11 @@ struct Timestamp
 
   uint64 timestamp;
 
-  Timestamp(void* data)
-    : timestamp((*(uint64*)(uint8*)data) & 0xffffffffffull) {}
+  Timestamp(const void* data) {
+
+    timestamp = (uint64) (*(uint32*)(data));
+    timestamp |= (uint64)(*(uint8*)((uint8*)data+4)) << 32;
+  }
 
   Timestamp(int year, int month, int day, int hour, int minute, int second)
     : timestamp(0)

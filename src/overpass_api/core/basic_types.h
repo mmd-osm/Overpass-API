@@ -367,8 +367,13 @@ struct Attic : public Element_Skeleton
   uint64 timestamp;
 
   Attic(const void* data)
-    : Element_Skeleton(data),
-      timestamp(*(uint64*)((uint8*)data + Element_Skeleton::size_of(data)) & 0xffffffffffull) {}
+    : Element_Skeleton(data) {
+
+    const void* pos = (uint8*)data + Element_Skeleton::size_of(data);
+
+    timestamp = (uint64) (*(uint32*)(pos));
+    timestamp |= (uint64)(*(uint8*)((uint8*)pos+4)) << 32;
+  }
 
   uint32 size_of() const
   {
@@ -414,8 +419,14 @@ struct Attic_Timestamp_Functor {
 
   uint64 operator()(const void* data) const
    {
-    uint64 _timestamp(*(uint64*)((uint8*)data + Element_Skeleton::size_of(data)) & 0xffffffffffull);
-    return _timestamp;
+    const void* pos = (uint8*)data + Element_Skeleton::size_of(data);
+
+    uint64 ts;
+
+    ts = (uint64) (*(uint32*)(pos));
+    ts |= (uint64)(*(uint8*)((uint8*)pos+4)) << 32;
+
+    return ts;
    }
 };
 
