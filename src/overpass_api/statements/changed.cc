@@ -501,7 +501,7 @@ Changed_Statement::Changed_Statement
   attributes["into"] = "_";
   attributes["since"] = "auto";
   attributes["until"] = "auto";
-  attributes["changeset"] = "0";
+  attributes["changeset"] = "";
 
   Statement::eval_attributes_array(get_name(), attributes, input_attributes);
 
@@ -531,7 +531,14 @@ Changed_Statement::Changed_Statement
   if (!behave_trivial && attributes["until"] != "auto" && (until == 0 || until == NOW))
     add_static_error("The attribute \"until\" must contain a timestamp exactly in the form \"yyyy-mm-ddThh:mm:ssZ\".");
 
-  filter_changeset = atol(attributes["changeset"].c_str());
+  filter_changeset = 0;
+  const auto changeset = attributes["changeset"];
+  if (changeset != "") {
+    filter_changeset = atol(changeset.c_str());
+    if (filter_changeset <= 0) {
+      add_static_error("The attribute \"changeset\" must be a positive number");
+    }
+  }
 }
 
 
