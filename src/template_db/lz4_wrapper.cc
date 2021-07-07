@@ -52,8 +52,8 @@ int LZ4_Deflate::compress(const void* in, int in_size, void* out, int out_buffer
 
    int ret = LZ4_compress_limitedOutput((const char*) in, (char *) out + 4, in_size, out_buffer_size - 4);
 
-   if (ret == 0)
-   { // compression failed
+   if (ret == 0 || ret > in_size)
+   { // compression failed, or result size increased during compression
      if (in_size > out_buffer_size - 4)
        throw std::runtime_error("LZ4: output buffer too small during compression");
 
