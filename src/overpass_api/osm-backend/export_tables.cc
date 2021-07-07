@@ -457,7 +457,7 @@ int main(int argc, char* args[])
     {
       export_bin< Uint31_Index, Node_Skeleton >(transaction, osm_base_settings().NODES);
     }
-    if (std::string("--nodes-map") == args[2] || step == 2)
+    else if (std::string("--nodes-map") == args[2] || step == 2)
     {
       export_map<Node_Skeleton::Id_Type, Uint32_Index>(transaction, osm_base_settings().NODES);
     }
