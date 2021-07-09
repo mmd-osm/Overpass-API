@@ -94,7 +94,7 @@ namespace
   {
     if (current_way.id.val() > 0)
     {
-      Uint64 ref;
+      Node::Id_Type ref;
       for (unsigned int i(0); attr[i]; i += 2)
       {
 	if (!strcmp(attr[i], "ref"))
@@ -109,7 +109,7 @@ namespace
   {
     if (current_relation.id.val() > 0)
     {
-      Uint64 ref;
+      Global_Id_Type ref;
       std::string type, role;
       for (unsigned int i(0); attr[i]; i += 2)
       {

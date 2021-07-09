@@ -28,7 +28,7 @@
 
 struct Node_Base
 {
-  typedef Uint64 Id_Type;
+  typedef Uint40 Id_Type;
 
   Id_Type id;
   uint32 index;

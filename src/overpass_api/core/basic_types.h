@@ -35,6 +35,13 @@ typedef unsigned short int uint16;
 typedef unsigned int uint32;
 typedef unsigned long long uint64;
 
+struct Uint64;
+struct Uint40;
+
+// Global object Id type
+// needs to be large enough to store node, way and relation object ids
+using Global_Id_Type = Uint40;
+
 
 template <class T, class Object>
 struct Uint32_Index_Handle_Methods;
@@ -335,6 +342,103 @@ struct Uint64_Handle_Methods
      return (static_cast<const T*>(this)->apply_func(Uint64_Id_Functor<typename Object::Id_Type>()));
   }
 };
+
+
+/*-------------------------------------*/
+
+
+template <class T, class Object>
+struct Uint40_Handle_Methods;
+
+struct Uint40
+{
+  typedef uint64 Id_Type;
+
+  Uint40() noexcept : value(0ull) {}
+  Uint40(uint64 i) noexcept : value(i) {}
+  Uint40(const void* data) noexcept {
+    value = (uint64)(*(uint32*)(data));
+    value |= (uint64)(*(uint8*)((uint8*)data + 4)) << 32;
+  }
+
+  uint32 size_of() const noexcept { return 5; }
+  static const uint32 max_size_of() noexcept { return 5; }
+  static uint32 size_of(const void* data) noexcept { return 5; }
+
+  void to_data(void* data) const noexcept
+  {
+    void* pos = (uint8*)data;
+    *(uint32*)(pos) = (value & 0xffffffffull);
+    *(uint8*)((uint8*)pos+4) = ((value & 0xff00000000ull)>>32);
+  }
+
+  bool operator<(const Uint40& index) const noexcept
+  {
+    return this->value < index.value;
+  }
+
+  bool operator==(const Uint40& index) const noexcept
+  {
+    return this->value == index.value;
+  }
+
+  Uint40 operator++() noexcept
+  {
+    ++value;
+    return this;
+  }
+
+  Uint40 operator+=(Uint40 offset) noexcept
+  {
+    value += offset.val();
+    return this;
+  }
+
+  Uint40 operator+(Uint40 offset) const noexcept
+  {
+    Uint40 temp(*this);
+    return (temp += offset);
+  }
+
+  uint64 val() const noexcept { return value; }
+
+  template <class T, class Object>
+  using Handle_Methods = Uint40_Handle_Methods<T, Object>;
+
+  friend std::ostream & operator<<(std::ostream &os, const Uint40& t);
+
+  protected:
+    uint64 value;
+};
+
+inline std::ostream & operator<<(std::ostream &os, const Uint40& p)
+{
+    return os << "[ " << p.value << " ]";
+}
+
+
+template <typename Id_Type >
+struct Uint40_Id_Functor {
+  Uint40_Id_Functor() {};
+
+  using reference_type = Uint40;
+
+  Id_Type operator()(const void* data)
+  {
+    return Uint40(data).val();
+  }
+};
+
+template <class T, class Object>
+struct Uint40_Handle_Methods
+{
+  typename Object::Id_Type inline id() const {
+     return (static_cast<const T*>(this)->apply_func(Uint40_Id_Functor<typename Object::Id_Type>()));
+  }
+};
+
+
+
 
 
 struct Quad_Coord

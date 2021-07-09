@@ -314,7 +314,7 @@ void collect_relations
   std::set< Uint31_Index > attic_req = extract_parent_indices(attic_sources);
   rman.health_check(stmt);
 
-  std::vector< Uint64 > ids;
+  std::vector< Global_Id_Type > ids;
   std::set_union(current_ids.begin(), current_ids.end(), attic_ids.begin(), attic_ids.end(),
                  std::back_inserter(ids));
   for (std::set< Uint31_Index >::const_iterator it = attic_req.begin(); it != attic_req.end(); ++it)
@@ -347,7 +347,7 @@ void collect_relations
   std::set< Uint31_Index > attic_req = extract_parent_indices(attic_sources);
   rman.health_check(stmt);
 
-  std::vector< Uint64 > ids;
+  std::vector< Global_Id_Type > ids;
   std::set_union(current_ids.begin(), current_ids.end(), attic_ids.begin(), attic_ids.end(),
                  std::back_inserter(ids));
   for (std::set< Uint31_Index >::const_iterator it = attic_req.begin(); it != attic_req.end(); ++it)
@@ -380,7 +380,7 @@ void collect_relations
   std::set< Uint31_Index > attic_req = extract_parent_indices(attic_sources);
   rman.health_check(stmt);
 
-  std::vector< Uint64 > children_ids;
+  std::vector< Global_Id_Type > children_ids;
   std::set_union(current_ids.begin(), current_ids.end(), attic_ids.begin(), attic_ids.end(),
                  std::back_inserter(children_ids));
   for (std::set< Uint31_Index >::const_iterator it = attic_req.begin(); it != attic_req.end(); ++it)
@@ -425,7 +425,7 @@ void collect_relations
   std::set< Uint31_Index > attic_req = extract_parent_indices(attic_sources);
   rman.health_check(stmt);
 
-  std::vector< Uint64 > children_ids;
+  std::vector< Global_Id_Type > children_ids;
   std::set_union(current_ids.begin(), current_ids.end(), attic_ids.begin(), attic_ids.end(),
                  std::back_inserter(children_ids));
   for (std::set< Uint31_Index >::const_iterator it = attic_req.begin(); it != attic_req.end(); ++it)
@@ -453,7 +453,7 @@ void collect_relations
      const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& sources,
      std::map< Uint31_Index, std::vector< Relation_Skeleton > >& result)
 {
-  std::vector< Uint64 > ids = extract_children_ids< Uint31_Index, Relation_Skeleton, Uint64 >(sources);
+  std::vector< Global_Id_Type > ids = extract_children_ids< Uint31_Index, Relation_Skeleton, Global_Id_Type >(sources);
   rman.health_check(stmt);
 
   collect_items_flat(stmt, rman, *osm_base_settings().RELATIONS,
@@ -466,7 +466,7 @@ void collect_relations
      const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& sources,
      std::map< Uint31_Index, std::vector< Relation_Skeleton > >& result, uint32 role_id)
 {
-  std::vector< Uint64 > ids = extract_children_ids< Uint31_Index, Relation_Skeleton, Uint64 >(sources);
+  std::vector< Global_Id_Type > ids = extract_children_ids< Uint31_Index, Relation_Skeleton, Global_Id_Type >(sources);
   rman.health_check(stmt);
 
   collect_items_flat(stmt, rman, *osm_base_settings().RELATIONS,
@@ -480,7 +480,7 @@ void collect_relations
      std::map< Uint31_Index, std::vector< Relation_Skeleton > >& result,
      const std::vector< Relation::Id_Type >& ids, bool invert_ids)
 {
-  std::vector< Uint64 > children_ids = extract_children_ids< Uint31_Index, Relation_Skeleton, Uint64 >(sources);
+  std::vector< Global_Id_Type > children_ids = extract_children_ids< Uint31_Index, Relation_Skeleton, Global_Id_Type >(sources);
   rman.health_check(stmt);
 
   if (!invert_ids)
@@ -508,7 +508,7 @@ void collect_relations
      std::map< Uint31_Index, std::vector< Relation_Skeleton > >& result,
      const std::vector< Relation::Id_Type >& ids, bool invert_ids, uint32 role_id)
 {
-  std::vector< Uint64 > children_ids = extract_children_ids< Uint31_Index, Relation_Skeleton, Uint64 >(sources);
+  std::vector< Global_Id_Type > children_ids = extract_children_ids< Uint31_Index, Relation_Skeleton, Global_Id_Type >(sources);
   rman.health_check(stmt);
 
   if (!invert_ids)
@@ -545,7 +545,7 @@ void collect_relations
       < Uint31_Index, Attic< Relation_Skeleton >, Relation_Entry::Ref_Type >(attic_sources);
   rman.health_check(stmt);
 
-  std::vector< Uint64 > ids;
+  std::vector< Global_Id_Type > ids;
   std::set_union(current_ids.begin(), current_ids.end(), attic_ids.begin(), attic_ids.end(),
                  std::back_inserter(ids));
 
@@ -569,7 +569,7 @@ void collect_relations
       < Uint31_Index, Attic< Relation_Skeleton >, Relation_Entry::Ref_Type >(attic_sources);
   rman.health_check(stmt);
 
-  std::vector< Uint64 > ids;
+  std::vector< Global_Id_Type > ids;
   std::set_union(current_ids.begin(), current_ids.end(), attic_ids.begin(), attic_ids.end(),
                  std::back_inserter(ids));
 
@@ -594,7 +594,7 @@ void collect_relations
       < Uint31_Index, Attic< Relation_Skeleton >, Relation_Entry::Ref_Type >(attic_sources);
   rman.health_check(stmt);
 
-  std::vector< Uint64 > children_ids;
+  std::vector< Global_Id_Type > children_ids;
   std::set_union(current_ids.begin(), current_ids.end(), attic_ids.begin(), attic_ids.end(),
                  std::back_inserter(children_ids));
 
@@ -633,7 +633,7 @@ void collect_relations
       < Uint31_Index, Attic< Relation_Skeleton >, Relation_Entry::Ref_Type >(attic_sources);
   rman.health_check(stmt);
 
-  std::vector< Uint64 > children_ids;
+  std::vector< Global_Id_Type > children_ids;
   std::set_union(current_ids.begin(), current_ids.end(), attic_ids.begin(), attic_ids.end(),
                  std::back_inserter(children_ids));
 
@@ -1964,9 +1964,9 @@ void Recurse_Constraint::filter(Resource_Manager& rman, Set& into)
       std::vector< Relation_Entry::Ref_Type > ids;
       if (stmt->get_type() == RECURSE_NODE_RELATION)
       {
-        std::vector< Node::Id_Type > current_ids = extract_children_ids
+        std::vector< Relation_Entry::Ref_Type > current_ids = extract_children_ids
             < Uint32_Index, Node_Skeleton, Relation_Entry::Ref_Type >(input->nodes);
-        std::vector< Node::Id_Type > attic_ids = extract_children_ids
+        std::vector< Relation_Entry::Ref_Type > attic_ids = extract_children_ids
             < Uint32_Index, Attic< Node_Skeleton >, Relation_Entry::Ref_Type >(input->attic_nodes);
         ids.clear();
         std::set_union(current_ids.begin(), current_ids.end(), attic_ids.begin(), attic_ids.end(),
@@ -2068,9 +2068,9 @@ void Recurse_Constraint::filter(Resource_Manager& rman, Set& into)
     std::vector< Relation_Entry::Ref_Type > ids;
     if (stmt->get_type() == RECURSE_NODE_RELATION)
     {
-      std::vector< Node::Id_Type > current_ids = extract_children_ids
+      std::vector< Relation_Entry::Ref_Type > current_ids = extract_children_ids
           < Uint32_Index, Node_Skeleton, Relation_Entry::Ref_Type >(input->nodes);
-      std::vector< Node::Id_Type > attic_ids = extract_children_ids
+      std::vector< Relation_Entry::Ref_Type > attic_ids = extract_children_ids
           < Uint32_Index, Attic< Node_Skeleton >, Relation_Entry::Ref_Type >(input->attic_nodes);
       ids.clear();
       std::set_union(current_ids.begin(), current_ids.end(), attic_ids.begin(), attic_ids.end(),

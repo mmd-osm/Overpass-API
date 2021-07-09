@@ -244,6 +244,14 @@ void serialize(Archive & archive,
 }
 
 template<class Archive>
+void serialize(Archive & archive,
+               Uint40 & m)
+{
+  auto val = m.val();
+  archive(val);
+}
+
+template<class Archive>
 void save(Archive & archive,
     Uint32_Index const & m)
 {

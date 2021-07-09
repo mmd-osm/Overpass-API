@@ -307,7 +307,7 @@ private:
 //-----------------------------------------------------------------------------
 
 inline bool has_a_child_with_id
-    (const Relation_Skeleton& relation, const std::vector< Uint64 >& ids, uint32 type)
+    (const Relation_Skeleton& relation, const std::vector< Global_Id_Type >& ids, uint32 type)
 {
   for (std::vector< Relation_Entry >::const_iterator it3(relation.members().begin());
       it3 != relation.members().end(); ++it3)
@@ -321,7 +321,7 @@ inline bool has_a_child_with_id
 
 
 inline bool has_a_child_with_id_and_role
-    (const Relation_Skeleton& relation, const std::vector< Uint64 >& ids, uint32 type, uint32 role_id)
+    (const Relation_Skeleton& relation, const std::vector< Global_Id_Type >& ids, uint32 type, uint32 role_id)
 {
   for (std::vector< Relation_Entry >::const_iterator it3(relation.members().begin());
       it3 != relation.members().end(); ++it3)
@@ -369,7 +369,7 @@ inline bool has_a_child_with_id
 class Get_Parent_Rels_Predicate
 {
 public:
-  Get_Parent_Rels_Predicate(const std::vector< Uint64 >& ids_, uint32 child_type_)
+  Get_Parent_Rels_Predicate(const std::vector< Global_Id_Type >& ids_, uint32 child_type_)
     : ids(ids_), child_type(child_type_) {}
   bool match(const Relation_Skeleton& obj) const
   { return has_a_child_with_id(obj, ids, child_type); }
@@ -380,7 +380,7 @@ public:
   bool is_time_dependent() const { return true; };
 
 private:
-  const std::vector< Uint64 >& ids;
+  const std::vector< Global_Id_Type >& ids;
   uint32 child_type;
 };
 
@@ -388,7 +388,7 @@ private:
 class Get_Parent_Rels_Role_Predicate
 {
 public:
-  Get_Parent_Rels_Role_Predicate(const std::vector< Uint64 >& ids_, uint32 child_type_, uint32 role_id_)
+  Get_Parent_Rels_Role_Predicate(const std::vector< Global_Id_Type >& ids_, uint32 child_type_, uint32 role_id_)
     : ids(ids_), child_type(child_type_), role_id(role_id_) {}
   bool match(const Relation_Skeleton& obj) const
   { return has_a_child_with_id_and_role(obj, ids, child_type, role_id); }
@@ -399,7 +399,7 @@ public:
   bool is_time_dependent() const { return true; };
 
 private:
-  const std::vector< Uint64 >& ids;
+  const std::vector< Global_Id_Type >& ids;
   uint32 child_type;
   uint32 role_id;
 };

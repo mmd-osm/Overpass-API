@@ -153,6 +153,26 @@ void load(Archive & archive,
 
 
 template<class Archive>
+void save(Archive & archive,
+               Attic<Uint40> const & m)
+{
+  auto val = m.val();
+  archive(val, cereal::make_nvp("timestamp",m.timestamp));
+}
+
+template<class Archive>
+void load(Archive & archive,
+    Attic<Uint40> & m)
+{
+    uint64 v;
+    uint64 ts;
+    archive( v, ts );
+    m = std::move(Attic<Uint40>(v, ts));
+}
+
+
+
+template<class Archive>
 void serialize(Archive & archive,
     Attic< Tag_Object_Global< Uint64 > >& m)
 {
@@ -263,6 +283,23 @@ void load(Archive & archive,
   m = std::move(Uint64(val));
 }
 
+
+template<class Archive>
+void save(Archive & archive,
+               const Uint40 & m)
+{
+  auto val = m.val();
+  archive(val);
+}
+
+template<class Archive>
+void load(Archive & archive,
+    Uint40 & m)
+{
+  uint64 val;
+  archive( val );
+  m = std::move(Uint40(val));
+}
 
 template<class Archive>
 void save(Archive & archive,

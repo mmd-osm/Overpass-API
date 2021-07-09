@@ -69,17 +69,17 @@ Make_Area_Statement::Make_Area_Statement
 }
 
 
-std::pair< uint32, Uint64 > Make_Area_Statement::detect_pivot(const Set& pivot)
+std::pair< uint32, Global_Id_Type > Make_Area_Statement::detect_pivot(const Set& pivot)
 {
   uint32 pivot_type(0);
-  Node::Id_Type pivot_id(0ull);
+  Global_Id_Type pivot_id(0ull);
   std::map< Uint32_Index, std::vector< Node_Skeleton > >::const_iterator
       nit(pivot.nodes.begin());
   while ((pivot_id.val() == 0) && (nit != pivot.nodes.end()))
   {
     if (nit->second.size() > 0)
     {
-      pivot_id = nit->second.front().id;
+      pivot_id = Global_Id_Type(nit->second.front().id.val());
       pivot_type = NODE;
     }
     ++nit;
@@ -90,7 +90,7 @@ std::pair< uint32, Uint64 > Make_Area_Statement::detect_pivot(const Set& pivot)
   {
     if (wit->second.size() > 0)
     {
-      pivot_id = Uint64(wit->second.front().id.val());
+      pivot_id = Global_Id_Type(wit->second.front().id.val());
       pivot_type = WAY;
     }
     ++wit;
@@ -101,7 +101,7 @@ std::pair< uint32, Uint64 > Make_Area_Statement::detect_pivot(const Set& pivot)
   {
     if (rit->second.size() > 0)
     {
-      pivot_id = Uint64(rit->second.front().id.val());
+      pivot_id = Global_Id_Type(rit->second.front().id.val());
       pivot_type = RELATION;
     }
     ++rit;
@@ -304,7 +304,7 @@ void Make_Area_Statement::execute(Resource_Manager& rman)
     transfer_output(rman, into);
     return;
   }
-  std::pair< uint32, Uint64 > pivot_pair(detect_pivot(*pivot_set));
+  std::pair< uint32, Node::Id_Type > pivot_pair(detect_pivot(*pivot_set));
   int pivot_type(pivot_pair.first);
   uint32 pivot_id(pivot_pair.second.val());
 

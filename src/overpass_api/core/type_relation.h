@@ -31,11 +31,11 @@
 
 struct Relation_Entry
 {
-  typedef Uint64 Ref_Type;
+  typedef Global_Id_Type Ref_Type;
 
   Relation_Entry() noexcept : ref(0ull), type(0), role(0) {}
 
-  Uint64 ref;
+  Global_Id_Type ref;
   uint32 type;
   uint32 role;
   const static uint32 NODE = 1;
