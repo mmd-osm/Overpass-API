@@ -65,14 +65,6 @@ void Output_XML::display_error(const std::string& text)
 
 void Output_XML::print_global_bbox(const Bbox_Double& bbox)
 {
-  /*
-  std::cout<<"  <bounds"
-      " minlat=\""<<std::fixed<<std::setprecision(7)<<bbox.south<<"\""
-      " minlon=\""<<std::fixed<<std::setprecision(7)<<bbox.west<<"\""
-      " maxlat=\""<<std::fixed<<std::setprecision(7)<<bbox.north<<"\""
-      " maxlon=\""<<std::fixed<<std::setprecision(7)<<bbox.east<<"\""
-      "/>\n\n";
-  */
   std::cout<< fmt::format(R"(  <bounds minlat="{:.7f}" minlon="{:.7f}" maxlat="{:.7f}" maxlon="{:.7f}"/>{})", bbox.south, bbox.west, bbox.north, bbox.east, "\n\n");
 }
 
@@ -170,14 +162,6 @@ void print_bounds(const Opaque_Geometry& geometry, Output_Mode mode, bool& inner
       std::cout<<">\n";
       inner_tags_printed = true;
     }
-    /*
-    std::cout<<"    <bounds"
-        " minlat=\""<<std::fixed<<std::setprecision(7)<<geometry.south()<<"\""
-        " minlon=\""<<std::fixed<<std::setprecision(7)<<geometry.west()<<"\""
-        " maxlat=\""<<std::fixed<<std::setprecision(7)<<geometry.north()<<"\""
-        " maxlon=\""<<std::fixed<<std::setprecision(7)<<geometry.east()<<"\""
-        "/>\n";
-    */
     std::cout<< fmt::format(R"(    <bounds minlat="{:.7f}" minlon="{:.7f}" maxlat="{:.7f}" maxlon="{:.7f}"/>{})",
                                    geometry.south(), geometry.west(), geometry.north(), geometry.east(), "\n");
   }
@@ -301,13 +285,6 @@ void print_members(const Way_Skeleton& skel, const Opaque_Geometry& geometry,
     }
     for (uint i = 0; i < skel.nds().size(); ++i)
     {
-/*
-      std::cout<<"    <nd ref=\""<<skel.nds()[i].val()<<"\"";
-      if (geometry.has_faithful_way_geometry() && geometry.way_pos_is_valid(i))
-        std::cout<<" lat=\""<<std::fixed<<std::setprecision(7)<<geometry.way_pos_lat(i)
-            <<"\" lon=\""<<std::fixed<<std::setprecision(7)<<geometry.way_pos_lon(i)<<'\"';
-      std::cout<<"/>\n";
-*/
       if (geometry.has_faithful_way_geometry() && geometry.way_pos_is_valid(i)) {
 
         std::cout<< fmt::format(R"(    <nd ref="{}" lat="{:.7f}" lon="{:.7f}"/>{})",
@@ -342,8 +319,6 @@ void print_members(const Relation_Skeleton& skel, const Opaque_Geometry& geometr
       if (skel.members()[i].type == Relation_Entry::NODE)
       {
 	if (geometry.has_faithful_relation_geometry() && geometry.relation_pos_is_valid(i))
-//          std::cout<<" lat=\""<<std::fixed<<std::setprecision(7)<<geometry.relation_pos_lat(i)
-//              <<"\" lon=\""<<std::fixed<<std::setprecision(7)<<geometry.relation_pos_lon(i)<<'\"';
 	  std::cout<< fmt::format(R"( lat="{:.7f}" lon="{:.7f}")", geometry.relation_pos_lat(i), geometry.relation_pos_lon(i));
 
         std::cout<<"/>\n";
@@ -366,8 +341,6 @@ void print_members(const Relation_Skeleton& skel, const Opaque_Geometry& geometr
 	    for (uint j = 0; j < geometry.relation_way_size(i); ++j)
 	    {
 	      if (geometry.relation_pos_is_valid(i, j))
-//                  std::cout<<"      <nd lat=\""<<std::fixed<<std::setprecision(7)<<geometry.relation_pos_lat(i, j)
-//                      <<"\" lon=\""<<std::fixed<<std::setprecision(7)<<geometry.relation_pos_lon(i, j)<<"\"/>\n";
 	          std::cout<< fmt::format(R"(      <nd lat="{:.7f}" lon="{:.7f}"/>{})",
 	                                  geometry.relation_pos_lat(i, j), geometry.relation_pos_lon(i, j), "\n");
               else
@@ -396,8 +369,6 @@ void print_node(const Node_Skeleton& skel,
     std::cout<<" id=\""<<skel.id.val()<<'\"';
   if ((mode.mode & (Output_Mode::COORDS | Output_Mode::GEOMETRY | Output_Mode::BOUNDS | Output_Mode::CENTER))
       && geometry.has_center())
-//    std::cout<<" lat=\""<<std::fixed<<std::setprecision(7)<<geometry.center_lat()
-//        <<"\" lon=\""<<std::fixed<<std::setprecision(7)<<geometry.center_lon()<<'\"';
       std::cout<< fmt::format(R"( lat="{:.7f}" lon="{:.7f}")", geometry.center_lat(), geometry.center_lon());
 
   if ((mode.mode & (Output_Mode::VERSION | Output_Mode::META)) && meta && users)
