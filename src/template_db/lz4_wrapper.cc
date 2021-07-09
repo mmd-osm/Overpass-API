@@ -50,7 +50,7 @@ int LZ4_Deflate::compress(const void* in, int in_size, void* out, int out_buffer
 {
 #ifdef HAVE_LZ4
 
-   int ret = LZ4_compress_limitedOutput((const char*) in, (char *) out + 4, in_size, out_buffer_size - 4);
+   int ret = LZ4_compress_default((const char*) in, (char *) out + 4, in_size, out_buffer_size - 4);
 
    if (ret == 0 || ret > in_size)
    { // compression failed, or result size increased during compression
