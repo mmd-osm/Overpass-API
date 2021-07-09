@@ -168,7 +168,7 @@ std::vector< std::vector< Quad_Coord > > Relation_Geometry_Store::get_geometry
   {
     if (it->type == Relation_Entry::NODE)
     {
-      const Node_Base* node = binary_search_for_id(nodes, it->ref);
+      const Node_Base* node = binary_search_for_id(nodes, Node::Id_Type(it->ref.val()));
       if (node == 0 || !matches_bbox(node->index, node->ll_lower_))
         result.push_back(std::vector< Quad_Coord >(1, Quad_Coord(0u, 0u)));
       else
