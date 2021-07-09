@@ -188,10 +188,7 @@ void print_bounds(const Opaque_Geometry& geometry, Output_Mode mode, bool& inner
       std::cout<<">\n";
       inner_tags_printed = true;
     }
-    std::cout<<"    <center"
-        " lat=\""<<std::fixed<<std::setprecision(7)<<geometry.center_lat()<<"\""
-        " lon=\""<<std::fixed<<std::setprecision(7)<<geometry.center_lon()<<"\""
-        "/>\n";
+    std::cout<< fmt::format(R"(    <center lat="{:.7f}" lon="{:.7f}"/>{})", geometry.center_lat(), geometry.center_lon(), "\n");
   }
 }
 
