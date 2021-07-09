@@ -804,7 +804,7 @@ void filter_relations_expensive(const std::vector< std::pair< Uint32_Index, cons
         if (nit->type == Relation_Entry::NODE)
         {
           const std::pair< Uint32_Index, const Node_Skeleton* >* second_nd =
-              binary_search_for_pair_id(node_members_by_id, nit->ref);
+              binary_search_for_pair_id(node_members_by_id, Node::Id_Type(nit->ref.val()));
           if (second_nd)
           {
             local_into.push_back(*iit);

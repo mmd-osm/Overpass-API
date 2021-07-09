@@ -334,7 +334,7 @@ void serialize(Archive & archive,
 
 template<class Archive>
 void serialize(Archive & archive,
-               Change_Entry<Uint64> & m)
+               Change_Entry<Node::Id_Type> & m)
 {
   archive(cereal::make_nvp("old_idx",m.old_idx),
           cereal::make_nvp("new_idx",m.new_idx),

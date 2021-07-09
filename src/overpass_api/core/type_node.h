@@ -109,7 +109,7 @@ struct Node_Skeleton
   Node_Skeleton() noexcept : id(0ull) {}
 
   Node_Skeleton(const void* data) noexcept
-    : id(*(Id_Type*)data), ll_lower(*(uint32*)((uint8*)data+8)) {}
+    : id(data), ll_lower(*(uint32*)((uint8*)data + Id_Type::max_size_of())) {}
 
   Node_Skeleton(const Node& node) noexcept
   : id(node.id), ll_lower(node.ll_lower_) {}
@@ -122,18 +122,18 @@ struct Node_Skeleton
 
   uint32 size_of() const noexcept
   {
-    return 12;
+    return 4 + Id_Type::max_size_of();
   }
 
   static uint32 size_of(const void* data) noexcept
   {
-    return 12;
+    return 4 + Id_Type::max_size_of();
   }
 
   void to_data(void* data) const noexcept
   {
-    *(Id_Type*)data = id.val();
-    *(uint32*)((uint8*)data+8) = ll_lower;
+    id.to_data(data);
+    *(uint32*)((uint8*)data + Id_Type::max_size_of()) = ll_lower;
   }
 
   bool operator<(const Node_Skeleton& a) const noexcept
@@ -158,7 +158,7 @@ struct Node_Skeleton_Id_Functor {
 
   Id_Type operator()(const void* data) const
    {
-     return *(Id_Type*)data;
+     return Id_Type(data);
    }
 };
 
@@ -170,7 +170,7 @@ struct Node_Skeleton_ll_lower_Functor {
 
   uint32 operator()(const void* data) const
    {
-     return (*(uint32*)((uint8*)data+8));
+     return (*(uint32*)((uint8*)data + Id_Type::max_size_of()));
    }
 };
 

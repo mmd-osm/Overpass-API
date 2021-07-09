@@ -263,7 +263,7 @@ struct Uint64
   Uint64(const void* data) noexcept : value(*(uint64*)data) {}
 
   uint32 size_of() const noexcept { return 8; }
-  static uint32 max_size_of() noexcept { return 8; }
+  static const uint32 max_size_of() noexcept { return 8; }
   static uint32 size_of(const void* data) noexcept { return 8; }
 
   void to_data(void* data) const noexcept

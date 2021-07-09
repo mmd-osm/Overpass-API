@@ -42,7 +42,7 @@ class Query_Constraint
     virtual Query_Filter_Strategy delivers_data(Resource_Manager& rman) = 0;
 
     virtual bool collect_nodes(Resource_Manager& rman, Set& into,
-			 const std::vector< Uint64 >& ids, bool invert_ids) { return false; }
+			 const std::vector< Node::Id_Type >& ids, bool invert_ids) { return false; }
     virtual bool collect(Resource_Manager& rman, Set& into,
 			 int type, const std::vector< Uint32_Index >& ids, bool invert_ids) { return false; }
 

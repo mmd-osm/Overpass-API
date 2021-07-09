@@ -495,31 +495,31 @@ struct OSM_Element_Metadata_Skeleton
       changeset(0), user_id(0) {}
 
   OSM_Element_Metadata_Skeleton(const void* data)
-    : ref(*(Id_Type*)data)
+    : ref(data)
   {
-    version = *(uint32*)((int8*)data + sizeof(Id_Type));
-    timestamp = (*(uint64*)((int8*)data + sizeof(Id_Type) + 4) & 0xffffffffffull);
-    changeset = *(uint32*)((int8*)data + sizeof(Id_Type) + 9);
-    user_id = *(uint32*)((int8*)data + sizeof(Id_Type) + 13);
+    version = *(uint32*)((int8*)data + Id_Type::max_size_of());
+    timestamp = (*(uint64*)((int8*)data + Id_Type::max_size_of() + 4) & 0xffffffffffull);
+    changeset = *(uint32*)((int8*)data + Id_Type::max_size_of() + 9);
+    user_id = *(uint32*)((int8*)data + Id_Type::max_size_of() + 13);
   }
 
   uint32 size_of() const
   {
-    return 17 + sizeof(Id_Type);
+    return 17 + Id_Type::max_size_of();
   }
 
   static uint32 size_of(void* data)
   {
-    return 17 + sizeof(Id_Type);
+    return 17 + Id_Type::max_size_of();
   }
 
   void to_data(void* data) const
   {
-    *(Id_Type*)data = ref;
-    *(uint32*)((int8*)data + sizeof(Id_Type)) = version;
-    *(uint64*)((int8*)data + sizeof(Id_Type) + 4) = timestamp;
-    *(uint32*)((int8*)data + sizeof(Id_Type) + 9) = changeset;
-    *(uint32*)((int8*)data + sizeof(Id_Type) + 13) = user_id;
+    ref.to_data(data);
+    *(uint32*)((int8*)data + Id_Type::max_size_of()) = version;
+    *(uint64*)((int8*)data + Id_Type::max_size_of() + 4) = timestamp;
+    *(uint32*)((int8*)data + Id_Type::max_size_of() + 9) = changeset;
+    *(uint32*)((int8*)data + Id_Type::max_size_of() + 13) = user_id;
   }
 
   bool operator<(const OSM_Element_Metadata_Skeleton& a) const
@@ -548,7 +548,7 @@ struct Metadata_Timestamp_Functor {
 
   uint64 operator()(const void* data) const
    {
-     uint64 _timestamp((*(uint64*)((int8*)data + sizeof(Id_Type) + 4) & 0xffffffffffull));
+     uint64 _timestamp((*(uint64*)((int8*)data + Id_Type::max_size_of() + 4) & 0xffffffffffull));
      return _timestamp;
    }
 };
@@ -574,7 +574,7 @@ struct Metadata_Reference_Functor {
 
   Id_Type operator()(const void* data) const
    {
-     return *(Id_Type*)data;
+     return Id_Type(data);
    }
 };
 
@@ -586,7 +586,7 @@ struct Metadata_Changeset_Functor {
 
   uint32 operator()(const void* data) const
    {
-     return *(uint32*)((int8*)data + sizeof(Id_Type) + 9);
+     return *(uint32*)((int8*)data + Id_Type::max_size_of() + 9);
    }
 };
 
@@ -651,7 +651,7 @@ struct Change_Entry
   Id_Type elem_id;
 
   Change_Entry(void* data)
-    : old_idx((uint8*)data), new_idx((uint8*)data + 4), elem_id(Id_Type((uint8*)data + 8)) {}
+    : old_idx((uint8*)data), new_idx((uint8*)data + 4), elem_id((uint8*)data + 8) {}
 
   uint32 size_of() const
   {
@@ -700,7 +700,7 @@ struct Change_Entry_Id_Functor {
 
   Id_Type operator()(const void* data) const
    {
-    return *(Id_Type*)((uint8*)data + 8);
+    return Id_Type((uint8*)data + 8);
    }
 };
 

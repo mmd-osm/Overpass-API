@@ -28,7 +28,7 @@ class Item_Constraint final : public Query_Constraint
     Query_Filter_Strategy delivers_data(Resource_Manager& rman) { return prefer_ranges; }
 
     bool collect_nodes(Resource_Manager& rman, Set& into,
-		 const std::vector< Uint64 >& ids, bool invert_ids);
+		 const std::vector< Node::Id_Type >& ids, bool invert_ids);
     bool collect(Resource_Manager& rman, Set& into, int type,
 		 const std::vector< Uint32_Index >& ids, bool invert_ids);
     bool collect(Resource_Manager& rman, Set& into);
@@ -81,7 +81,7 @@ void collect_elements(const std::map< TIndex, std::vector< TObject > >& from,
 
 
 bool Item_Constraint::collect_nodes(Resource_Manager& rman, Set& into,
-				    const std::vector< Uint64 >& ids, bool invert_ids)
+				    const std::vector< Node::Id_Type >& ids, bool invert_ids)
 {
   const Set* input = rman.get_set(item->get_input_name());
   if (input)

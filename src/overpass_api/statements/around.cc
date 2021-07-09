@@ -1166,7 +1166,7 @@ struct Relation_Member_Collection
     sort(way_members_by_id.begin(), way_members_by_id.end(), order_by_way_id);
   }
 
-  const std::pair< Uint32_Index, const Node_Skeleton* >* get_node_by_id(Uint64 id) const
+  const std::pair< Uint32_Index, const Node_Skeleton* >* get_node_by_id(Node::Id_Type id) const
   {
     const std::pair< Uint32_Index, const Node_Skeleton* >* node =
         binary_search_for_pair_id(node_members_by_id, id);

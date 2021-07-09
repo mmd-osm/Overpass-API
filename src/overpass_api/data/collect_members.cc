@@ -1194,7 +1194,7 @@ void collect_ways
      const std::vector< int >* pos,
      std::map< Uint31_Index, std::vector< Way_Skeleton > >& result)
 {
-  std::vector< Uint64 > ids = extract_children_ids< Uint32_Index, Node_Skeleton, Uint64 >(nodes);
+  std::vector< Node::Id_Type > ids = extract_children_ids< Uint32_Index, Node_Skeleton, Node::Id_Type >(nodes);
   rman.health_check(stmt);
   std::set< Uint31_Index > req = extract_parent_indices(nodes);
   rman.health_check(stmt);
@@ -1211,7 +1211,7 @@ void collect_ways
      std::map< Uint31_Index, std::vector< Way_Skeleton > >& result,
      const std::vector< Way::Id_Type >& ids, bool invert_ids)
 {
-  std::vector< Uint64 > children_ids = extract_children_ids< Uint32_Index, Node_Skeleton, Uint64 >(nodes);
+  std::vector< Node::Id_Type > children_ids = extract_children_ids< Uint32_Index, Node_Skeleton, Node::Id_Type >(nodes);
   rman.health_check(stmt);
   std::set< Uint31_Index > req = extract_parent_indices(nodes);
   rman.health_check(stmt);
@@ -1240,18 +1240,18 @@ void collect_ways
      std::map< Uint31_Index, std::vector< Way_Skeleton > >& result,
      std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >& attic_result)
 {
-  std::vector< Uint64 > current_ids = extract_children_ids< Uint32_Index, Node_Skeleton, Uint64 >(nodes);
+  std::vector< Node::Id_Type > current_ids = extract_children_ids< Uint32_Index, Node_Skeleton, Node::Id_Type >(nodes);
   rman.health_check(stmt);
   std::set< Uint31_Index > req = extract_parent_indices(nodes);
   rman.health_check(stmt);
 
-  std::vector< Uint64 > attic_ids = extract_children_ids< Uint32_Index, Attic< Node_Skeleton >, Uint64 >
+  std::vector< Node::Id_Type > attic_ids = extract_children_ids< Uint32_Index, Attic< Node_Skeleton >, Node::Id_Type >
       (attic_nodes);
   rman.health_check(stmt);
   std::set< Uint31_Index > attic_req = extract_parent_indices(attic_nodes);
   rman.health_check(stmt);
 
-  std::vector< Uint64 > ids;
+  std::vector< Node::Id_Type > ids;
   std::set_union(current_ids.begin(), current_ids.end(), attic_ids.begin(), attic_ids.end(),
                  std::back_inserter(ids));
   for (std::set< Uint31_Index >::const_iterator it = attic_req.begin(); it != attic_req.end(); ++it)
@@ -1271,18 +1271,18 @@ void collect_ways
      std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >& attic_result,
      const std::vector< Way::Id_Type >& ids, bool invert_ids)
 {
-  std::vector< Uint64 > current_ids = extract_children_ids< Uint32_Index, Node_Skeleton, Uint64 >(nodes);
+  std::vector< Node::Id_Type > current_ids = extract_children_ids< Uint32_Index, Node_Skeleton, Node::Id_Type >(nodes);
   rman.health_check(stmt);
   std::set< Uint31_Index > req = extract_parent_indices(nodes);
   rman.health_check(stmt);
 
-  std::vector< Uint64 > attic_ids = extract_children_ids< Uint32_Index, Attic< Node_Skeleton >, Uint64 >
+  std::vector< Node::Id_Type > attic_ids = extract_children_ids< Uint32_Index, Attic< Node_Skeleton >, Node::Id_Type >
       (attic_nodes);
   rman.health_check(stmt);
   std::set< Uint31_Index > attic_req = extract_parent_indices(attic_nodes);
   rman.health_check(stmt);
 
-  std::vector< Uint64 > children_ids;
+  std::vector< Node::Id_Type > children_ids;
   std::set_union(current_ids.begin(), current_ids.end(), attic_ids.begin(), attic_ids.end(),
                  std::back_inserter(children_ids));
   for (std::set< Uint31_Index >::const_iterator it = attic_req.begin(); it != attic_req.end(); ++it)
