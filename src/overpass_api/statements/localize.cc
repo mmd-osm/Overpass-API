@@ -16,6 +16,8 @@
  * along with Overpass_API.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+
 #include "../data/bbox_filter.h"
 #include "../data/tag_store.h"
 #include "../data/utils.h"
@@ -847,3 +849,5 @@ void Localize_Statement::execute(Resource_Manager& rman)
   transfer_output(rman, into);
   rman.health_check(*this);
 }
+
+*/

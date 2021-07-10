@@ -16,17 +16,18 @@
  * along with Overpass_API.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #ifndef DE__OSM3S___OVERPASS_API__STATEMENTS__MAKE_H
 #define DE__OSM3S___OVERPASS_API__STATEMENTS__MAKE_H
 
-
+/*
 #include "set_prop.h"
 #include "statement.h"
 
 #include <map>
 #include <string>
 #include <vector>
-
+*/
 
 /* === The statement <em>local</em> ===
 
@@ -56,7 +57,7 @@ where <Type> is empty, "ll", or "llb". You can also specify other input and/or o
 The first set is the input set,
 the second set is the output set.
 */
-
+/*
 class Localize_Statement final : public Output_Statement
 {
 public:
@@ -108,3 +109,4 @@ private:
 
 
 #endif
+*/
