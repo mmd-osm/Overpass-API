@@ -36,10 +36,8 @@ bin_script_openlayers =
 cgi_bin_openlayers =
 cgi_bin_script_openlayers = cgi-bin/convert
 
-bin_public_transport = bin/sketch_route_svg bin/draw_route_svg bin/bbox_brim_query bin/uncgi bin/escape_xml
-bin_script_public_transport =
-cgi_bin_public_transport =
-cgi_bin_script_public_transport = cgi-bin/draw-line cgi-bin/sketch-line cgi-bin/sketch-options cgi-bin/sketch-route
+bin_public_transport = bin/uncgi bin/escape_xml
+
 
 bin_convenience =
 bin_script_convenience = bin/fetch_osc_and_apply.sh bin/init_osm3s.sh bin/run_osm3s_minutely.sh
@@ -64,7 +62,6 @@ dist_bin_SCRIPTS = \
   ${bin_script_augmented_diffs} \
   ${bin_script_xapi_layer} \
   ${bin_script_openlayers} \
-  ${bin_script_public_transport} \
   ${bin_script_convenience}
   
 
@@ -76,7 +73,6 @@ cgibin_PROGRAMS = \
   ${cgi_bin_augmented_diffs} \
   ${cgi_bin_xapi_layer} \
   ${cgi_bin_openlayers} \
-  ${cgi_bin_public_transport} \
   ${cgi_bin_convenience}
 
 dist_cgibin_SCRIPTS = \
@@ -86,7 +82,6 @@ dist_cgibin_SCRIPTS = \
   ${cgi_bin_script_augmented_diffs} \
   ${cgi_bin_script_xapi_layer} \
   ${cgi_bin_script_openlayers} \
-  ${cgi_bin_script_public_transport} \
   ${cgi_bin_script_convenience}
 
 templatesdir = ${prefix}/templates
@@ -220,18 +215,12 @@ cgi_bin_timestamp_LDADD = libdispatcherclient.la libsettings.la
 
 escape_xml_cc = expat/escape_xml.cc
 
-bin_sketch_route_svg_SOURCES = ${escape_xml_cc} pt_diagrams/sketch-route-svg.cc pt_diagrams/processed_input.cc
-bin_sketch_route_svg_LDADD = libexpatwrapper.la
-bin_draw_route_svg_SOURCES = ${escape_xml_cc} pt_diagrams/read_input.cc pt_diagrams/topographic.cc
-bin_draw_route_svg_LDADD = libexpatwrapper.la
 bin_uncgi_SOURCES = pt_diagrams/uncgi.cc
 bin_uncgi_LDADD =
 bin_tocgi_SOURCES = pt_diagrams/tocgi.cc
 bin_tocgi_LDADD =
 bin_escape_xml_SOURCES = expat/escape_xml.cc expat/escape_xml_main.cc
 bin_escape_xml_LDADD =
-bin_bbox_brim_query_SOURCES = pt_diagrams/bbox-brim-query.cc
-bin_bbox_brim_query_LDADD = libexpatwrapper.la
 bin_translate_xapi_SOURCES = expat/translate_xapi.cc expat/escape_xml.cc
 bin_translate_xapi_LDADD = 
 
@@ -347,9 +336,6 @@ nobase_dist_HEADERS = \
   overpass_api/statements/unary_operators.h\
   overpass_api/statements/union.h\
   overpass_api/statements/user.h\
-  pt_diagrams/processed_input.h\
-  pt_diagrams/read_input.h\
-  pt_diagrams/test_output.h\
   template_db/block_backend.h\
   template_db/dispatcher_client.h\
   template_db/dispatcher.h\
@@ -376,7 +362,6 @@ EXTRA_DIST = \
   html/open_layers_popup.html\
   html/output_formats.html\
   html/overpass.js\
-  html/public_transport.html\
   html/query_form.html\
   html/technical_overview.html\
   rules/areas.osm3s\
