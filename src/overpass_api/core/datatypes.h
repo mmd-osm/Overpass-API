@@ -508,7 +508,7 @@ struct OSM_Element_Metadata_Skeleton
     return 17 + Id_Type::max_size_of();
   }
 
-  static uint32 size_of(void* data)
+  static uint32 size_of(const void* data)
   {
     return 17 + Id_Type::max_size_of();
   }
