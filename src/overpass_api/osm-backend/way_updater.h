@@ -84,7 +84,7 @@ struct Way_Updater
       new_data.data.push_back(Data_By_Id< Way_Skeleton >::Entry
           (Uint31_Index(0xff), Way_Skeleton(way.id, std::move(way.nds)),
            std::move(way.tags),
-           std::move(OSM_Element_Metadata_Skeleton< Way_Skeleton::Id_Type >(way.id))));
+           OSM_Element_Metadata_Skeleton< Way_Skeleton::Id_Type >(way.id)));
 
     if (meta)
       user_by_id[meta->user_id] = meta->user_name;
