@@ -130,7 +130,7 @@ void load(Archive & archive,
     uint32 v;
     uint64 ts;
     archive( v, ts );
-    m = std::move(Attic<Uint32_Index>(v, ts));
+    m = Attic<Uint32_Index>(v, ts);
 }
 
 template<class Archive>
@@ -148,7 +148,7 @@ void load(Archive & archive,
     uint64 v;
     uint64 ts;
     archive( v, ts );
-    m = std::move(Attic<Uint64>(v, ts));
+    m = Attic<Uint64>(v, ts);
 }
 
 
@@ -167,7 +167,7 @@ void load(Archive & archive,
     uint64 v;
     uint64 ts;
     archive( v, ts );
-    m = std::move(Attic<Uint40>(v, ts));
+    m = Attic<Uint40>(v, ts);
 }
 
 
@@ -237,7 +237,7 @@ void load(Archive & archive,
 {
   std::string s;
   archive( s );
-  m = std::move(String_Object(s));
+  m = String_Object(s);
 }
 
 
@@ -280,7 +280,7 @@ void load(Archive & archive,
 {
   uint64 val;
   archive( val );
-  m = std::move(Uint64(val));
+  m = Uint64(val);
 }
 
 
@@ -298,7 +298,7 @@ void load(Archive & archive,
 {
   uint64 val;
   archive( val );
-  m = std::move(Uint40(val));
+  m = Uint40(val);
 }
 
 template<class Archive>
@@ -314,7 +314,7 @@ void load(Archive & archive,
 {
   uint32 v;
   archive( v );
-  m = std::move(Uint32_Index(v));
+  m = Uint32_Index(v);
 }
 
 template<class Archive>
@@ -330,7 +330,7 @@ void load(Archive & archive,
 {
   uint32 v;
   archive( v );
-  m = std::move(Uint31_Index(v));
+  m = Uint31_Index(v);
 }
 
 template<class Archive>
