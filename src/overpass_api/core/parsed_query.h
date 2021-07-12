@@ -60,9 +60,9 @@ public:
 
     char const* use_nodes_tagged_c = std::getenv("OVERPASS_USE_NODES_TAGGED");
     if (use_nodes_tagged_c != nullptr) {
-      if (use_nodes_tagged_c == "1" || use_nodes_tagged_c == "true")
+      if (std::strcmp(use_nodes_tagged_c, "1") == 0 || std::strcmp(use_nodes_tagged_c, "true") == 0)
         use_nodes_tagged = true;
-      else if (use_nodes_tagged_c == "0" || use_nodes_tagged_c == "false")
+      else if (std::strcmp(use_nodes_tagged_c, "0") == 0 || std::strcmp(use_nodes_tagged_c, "false") == 0)
         use_nodes_tagged = false;
     }
   }
