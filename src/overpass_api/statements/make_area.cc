@@ -292,6 +292,35 @@ void add_south_pole_line
   area_blocks[(::ll_upper(10000000, 1800000000) & 0xffffff00) ^ 0x40000000].push_back(Area_Block(id, coors));
 }
 
+/*
+ * Tag_Index_Local_Range_Idx_Assessor replaces the default Range_Idx_Assessor in order to avoid
+ * expensive instantiation of Tag_Index_Local with its key and value string members.
+ * In case of make_area, the index field is the only field which relevant for comparison.
+ *
+ */
+
+template< typename Index, typename Iterator >
+struct Tag_Index_Local_Range_Idx_Assessor
+{
+  Tag_Index_Local_Range_Idx_Assessor(const Iterator& index_it_, const Iterator& index_end_)
+      : index_it(index_it_), index_end(index_end_) {}
+
+  bool is_relevant(Handle < Index > & handle)
+  {
+    uint32 idx = handle.get_index();
+
+    while (index_it != index_end && !(idx < index_it->second.index))
+      ++index_it;
+    return index_it != index_end && !(idx < index_it->first.index) && idx < index_it->second.index;
+  }
+
+private:
+  Iterator index_it;
+  Iterator index_end;
+};
+
+
+
 
 void Make_Area_Statement::execute(Resource_Manager& rman)
 {
@@ -335,12 +364,20 @@ void Make_Area_Statement::execute(Resource_Manager& rman)
     file_prop = osm_base_settings().WAY_TAGS_LOCAL;
   else if (pivot_type == RELATION)
     file_prop = osm_base_settings().RELATION_TAGS_LOCAL;
-  Block_Backend< Tag_Index_Local, Uint32_Index > items_db
-      (rman.get_transaction()->data_index(file_prop));
-  Block_Backend< Tag_Index_Local, Uint32_Index >::Range_Iterator
+
+  using Block_Backend_Custom = Block_Backend< Tag_Index_Local,
+                                              Uint32_Index,
+                                              Block_Backend<Tag_Index_Local, Uint32_Index>::default_iterator,
+                                              Tag_Index_Local_Range_Idx_Assessor< Tag_Index_Local, Default_Range_Iterator< Tag_Index_Local > >,
+                                              Block_Backend<Tag_Index_Local, Uint32_Index>::default_descrete_assessor >;
+
+  Block_Backend_Custom items_db(rman.get_transaction()->data_index(file_prop));
+
+  Block_Backend_Custom::Range_Iterator
       tag_it(items_db.range_begin
         (Default_Range_Iterator< Tag_Index_Local >(range_set.begin()),
          Default_Range_Iterator< Tag_Index_Local >(range_set.end())));
+
   for (; !(tag_it == items_db.range_end()); ++tag_it)
   {
     if (tag_it.handle().get_val() == pivot_id)
