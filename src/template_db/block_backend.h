@@ -52,15 +52,18 @@ template< typename Object >
 struct Idx_Handle
 {
   Idx_Handle()
-      : obj(0), ptr_to_raw(0) {}
+      : obj(nullptr), ptr_to_raw(nullptr) {}
   ~Idx_Handle()
   {
     delete obj;
   }
   void set_ptr(uint8* ptr)
   {
-    delete obj;
-    obj = 0;
+    if (obj != nullptr) {
+      delete obj;
+      obj = nullptr;
+    }
+
     ptr_to_raw = ptr;
   }
   const Object& object() const
@@ -75,7 +78,7 @@ struct Idx_Handle
   }
 
   Idx_Handle(const Idx_Handle& rhs)
-      : obj(0), ptr_to_raw(rhs.ptr_to_raw) {}
+      : obj(nullptr), ptr_to_raw(rhs.ptr_to_raw) {}
   Idx_Handle& operator=(const Idx_Handle& rhs)
   {
     set_ptr(rhs.ptr_to_raw);
@@ -191,9 +194,12 @@ Block_Backend_Basic_Iterator< Index, Object, Idx_Assessor, File_Handle >::
 {
   increment_block();
 
+  Handle< Index > cur_idx_handle;
+  cur_idx_handle.set_ptr(idx_ptr());
+
   if (idx_block_offset == 0)
     obj_offset = 0;
-  else if (idx_assessor.is_relevant(idx_ptr()))
+  else if (idx_assessor.is_relevant(cur_idx_handle))
     obj_offset = idx_block_offset + 4 + Index::size_of(idx_ptr());
   else
     obj_offset = next_idx_block_offset();
@@ -260,13 +266,16 @@ Block_Backend_Basic_Iterator< Index, Object, Idx_Assessor, File_Handle >&
 template< typename Index, typename Object, typename Idx_Assessor, typename File_Handle >
 void Block_Backend_Basic_Iterator< Index, Object, Idx_Assessor, File_Handle >::increment_idx()
 {
+  Handle< Index > cur_idx_handle;
+
   do
   {
     idx_block_offset = next_idx_block_offset();
     if (idx_block_offset >= total_payload_size())
       increment_block();
+    cur_idx_handle.set_ptr(idx_ptr());
   }
-  while (idx_block_offset > 0 && !idx_assessor.is_relevant(idx_ptr()));
+  while (idx_block_offset > 0 && !idx_assessor.is_relevant(cur_idx_handle));
 
   if (idx_block_offset == 0)
     obj_offset = 0;
@@ -325,7 +334,8 @@ struct Default_Range_Iterator final : std::set< std::pair< Index, Index > >::con
 
 struct Flat_Idx_Assessor
 {
-  bool is_relevant(uint8*)
+  template< typename Index >
+  bool is_relevant(Handle < Index > & handle)
   {
     return true;
   }
@@ -360,9 +370,9 @@ private:
 };
 
 
-template< typename Index, typename Object, typename Iterator >
+template< typename Index, typename Object, typename Iterator, typename Assessor = Flat_Idx_Assessor >
 struct Block_Backend_Flat_Iterator final
-    : Block_Backend_Basic_Iterator< Index, Object, Flat_Idx_Assessor,
+    : Block_Backend_Basic_Iterator< Index, Object, Assessor,
         Flat_File_Handle< File_Blocks< Index, Iterator, Default_Range_Iterator< Index > >,
             typename File_Blocks< Index, Iterator, Default_Range_Iterator< Index > >::Flat_Iterator > >
 {
@@ -370,11 +380,11 @@ struct Block_Backend_Flat_Iterator final
   typedef Flat_File_Handle< File_Blocks_, typename File_Blocks_::Flat_Iterator > File_Handle_;
 
   Block_Backend_Flat_Iterator(File_Blocks_& file_blocks, uint32 block_size, bool is_end = false)
-      : Block_Backend_Basic_Iterator< Index, Object, Flat_Idx_Assessor, File_Handle_ >(
+      : Block_Backend_Basic_Iterator< Index, Object, Assessor, File_Handle_ >(
           block_size, File_Handle_(file_blocks, is_end), Flat_Idx_Assessor()) {}
 
   Block_Backend_Flat_Iterator(const Block_Backend_Flat_Iterator& rhs)
-      : Block_Backend_Basic_Iterator< Index, Object, Flat_Idx_Assessor, File_Handle_ >(rhs) {}
+      : Block_Backend_Basic_Iterator< Index, Object, Assessor, File_Handle_ >(rhs) {}
 
   typedef Index index_type;
   typedef Object object_type;
@@ -390,9 +400,9 @@ struct Discrete_Idx_Assessor
   Discrete_Idx_Assessor(const Iterator& index_it_, const Iterator& index_end_)
       : index_it(index_it_), index_end(index_end_) {}
 
-  bool is_relevant(uint8* ptr)
+  bool is_relevant(Handle < Index > & handle)
   {
-    Index idx((void*)ptr);
+    Index idx(handle.get_ptr_to_raw());
     while (index_it != index_end && *index_it < idx)
       ++index_it;
     return index_it != index_end && *index_it == idx;
@@ -431,9 +441,9 @@ private:
 };
 
 
-template< typename Index, typename Object, typename Iterator >
+template< typename Index, typename Object, typename Iterator, typename Assessor = Discrete_Idx_Assessor< Index, Iterator > >
 struct Block_Backend_Discrete_Iterator final
-    : Block_Backend_Basic_Iterator< Index, Object, Discrete_Idx_Assessor< Index, Iterator >,
+    : Block_Backend_Basic_Iterator< Index, Object, Assessor,
           Discrete_File_Handle< File_Blocks< Index, Iterator, Default_Range_Iterator< Index > >,
               typename File_Blocks< Index, Iterator, Default_Range_Iterator< Index > >::Discrete_Iterator > >
 {
@@ -442,17 +452,17 @@ struct Block_Backend_Discrete_Iterator final
 
   Block_Backend_Discrete_Iterator
       (File_Blocks_& file_blocks, const Iterator& index_it, const Iterator& index_end, uint32 block_size)
-      : Block_Backend_Basic_Iterator< Index, Object, Discrete_Idx_Assessor< Index, Iterator >, File_Handle_ >(
+      : Block_Backend_Basic_Iterator< Index, Object, Assessor, File_Handle_ >(
           block_size, File_Handle_(file_blocks, file_blocks.discrete_begin(index_it, index_end)),
-          Discrete_Idx_Assessor< Index, Iterator >(index_it, index_end)) {}
+          Assessor(index_it, index_end)) {}
 
   Block_Backend_Discrete_Iterator(File_Blocks_& file_blocks, uint32 block_size)
-      : Block_Backend_Basic_Iterator< Index, Object, Discrete_Idx_Assessor< Index, Iterator >, File_Handle_ >(
+      : Block_Backend_Basic_Iterator< Index, Object, Assessor, File_Handle_ >(
           block_size, File_Handle_(file_blocks, file_blocks.discrete_end()),
-          Discrete_Idx_Assessor< Index, Iterator >(Iterator(), Iterator())) {}
+          Assessor(Iterator(), Iterator())) {}
 
   Block_Backend_Discrete_Iterator(const Block_Backend_Discrete_Iterator& it)
-    : Block_Backend_Basic_Iterator< Index, Object, Discrete_Idx_Assessor< Index, Iterator >, File_Handle_ >(it) {}
+    : Block_Backend_Basic_Iterator< Index, Object, Assessor, File_Handle_ >(it) {}
 
   typedef Index index_type;
   typedef Object object_type;
@@ -468,9 +478,9 @@ struct Range_Idx_Assessor
   Range_Idx_Assessor(const Iterator& index_it_, const Iterator& index_end_)
       : index_it(index_it_), index_end(index_end_) {}
 
-  bool is_relevant(uint8* ptr)
+  bool is_relevant(Handle < Index > & handle)
   {
-    Index idx((void*)ptr);
+    Index idx(handle.get_ptr_to_raw());
     while (index_it != index_end && !(idx < index_it.upper_bound()))
       ++index_it;
     return index_it != index_end && !(idx < index_it.lower_bound()) && idx < index_it.upper_bound();
@@ -509,9 +519,9 @@ private:
 };
 
 
-template< typename Index, typename Object, typename Iterator >
+template< typename Index, typename Object, typename Iterator, typename Assessor = Range_Idx_Assessor < Index, Default_Range_Iterator< Index > > >
 struct Block_Backend_Range_Iterator final
-    : Block_Backend_Basic_Iterator< Index, Object, Range_Idx_Assessor< Index, Default_Range_Iterator< Index > >,
+    : Block_Backend_Basic_Iterator< Index, Object, Assessor,
         Range_File_Handle< File_Blocks< Index, Iterator, Default_Range_Iterator< Index > >,
             typename File_Blocks< Index, Iterator, Default_Range_Iterator< Index > >::Range_Iterator > >
 {
@@ -523,25 +533,24 @@ struct Block_Backend_Range_Iterator final
       const Default_Range_Iterator< Index >& index_it, const Default_Range_Iterator< Index >& index_end,
       uint32 block_size)
       : Block_Backend_Basic_Iterator< Index, Object,
-          Range_Idx_Assessor< Index, Default_Range_Iterator< Index > >, File_Handle_ >(
+          Assessor, File_Handle_ >(
           block_size, File_Handle_(file_blocks, file_blocks.range_begin(index_it, index_end)),
-          Range_Idx_Assessor< Index, Default_Range_Iterator< Index > >(index_it, index_end)) {}
+          Assessor(index_it, index_end)) {}
 
   Block_Backend_Range_Iterator(File_Blocks_& file_blocks, uint32 block_size)
       : Block_Backend_Basic_Iterator< Index, Object,
-          Range_Idx_Assessor< Index, Default_Range_Iterator< Index > >, File_Handle_ >(
+          Assessor, File_Handle_ >(
           block_size, File_Handle_(file_blocks, file_blocks.range_end()),
-          Range_Idx_Assessor< Index, Default_Range_Iterator< Index > >(
+          Assessor(
               Default_Range_Iterator< Index >(), Default_Range_Iterator< Index >())) {}
 
   Block_Backend_Range_Iterator(const Block_Backend_Range_Iterator& it)
     : Block_Backend_Basic_Iterator< Index, Object,
-        Range_Idx_Assessor< Index, Default_Range_Iterator< Index > >, File_Handle_ >(it) {}
+        Assessor, File_Handle_ >(it) {}
 
   typedef Index index_type;
   typedef Object object_type;
 };
-
 
 //-----------------------------------------------------------------------------
 
@@ -570,12 +579,19 @@ public:
 };
 
 
-template< class TIndex, class TObject, class TIterator = typename std::set< TIndex >::const_iterator >
+template< class TIndex, class TObject, class TIterator = typename std::set< TIndex >::const_iterator,
+          class TRangeAssessor = Range_Idx_Assessor < TIndex, Default_Range_Iterator< TIndex > >,
+          class TDiscreteAssessor = Discrete_Idx_Assessor< TIndex, TIterator >
+          >
 struct Block_Backend
 {
+    using default_iterator = typename std::set< TIndex >::const_iterator;
+    using default_range_assessor = Range_Idx_Assessor < TIndex, Default_Range_Iterator< TIndex > >;
+    using default_descrete_assessor = Discrete_Idx_Assessor< TIndex, TIterator >;
+
     typedef Block_Backend_Flat_Iterator< TIndex, TObject, TIterator > Flat_Iterator;
-    typedef Block_Backend_Discrete_Iterator< TIndex, TObject, TIterator > Discrete_Iterator;
-    typedef Block_Backend_Range_Iterator< TIndex, TObject, TIterator > Range_Iterator;
+    typedef Block_Backend_Discrete_Iterator< TIndex, TObject, TIterator, TDiscreteAssessor > Discrete_Iterator;
+    typedef Block_Backend_Range_Iterator< TIndex, TObject, TIterator, TRangeAssessor> Range_Iterator;
 
     typedef File_Blocks< TIndex, TIterator, Default_Range_Iterator< TIndex > > File_Blocks_;
 
@@ -673,8 +689,8 @@ struct Block_Backend
 };
 
 
-template< class TIndex, class TObject, class TIterator >
-Block_Backend< TIndex, TObject, TIterator >::Block_Backend(File_Blocks_Index_Base* index_)
+template< class TIndex, class TObject, class TIterator, class TRangeAssessor, class TDiscreteAssessor >
+Block_Backend< TIndex, TObject, TIterator, TRangeAssessor, TDiscreteAssessor >::Block_Backend(File_Blocks_Index_Base* index_)
   : file_blocks(index_),
     block_size(((File_Blocks_Index< TIndex >*)index_)->get_block_size()
         * ((File_Blocks_Index< TIndex >*)index_)->get_compression_factor()),
@@ -686,17 +702,17 @@ Block_Backend< TIndex, TObject, TIterator >::Block_Backend(File_Blocks_Index_Bas
   range_end_it = new Range_Iterator(file_blocks, block_size);
 }
 
-template< class TIndex, class TObject, class TIterator >
-Block_Backend< TIndex, TObject, TIterator >::~Block_Backend()
+template< class TIndex, class TObject, class TIterator, class TRangeAssessor, class TDiscreteAssessor >
+Block_Backend< TIndex, TObject, TIterator, TRangeAssessor, TDiscreteAssessor >::~Block_Backend()
 {
   delete flat_end_it;
   delete discrete_end_it;
   delete range_end_it;
 }
 
-template< class TIndex, class TObject, class TIterator >
+template< class TIndex, class TObject, class TIterator, class TRangeAssessor, class TDiscreteAssessor >
 template< class Update_Logger >
-void Block_Backend< TIndex, TObject, TIterator >::update
+void Block_Backend< TIndex, TObject, TIterator, TRangeAssessor, TDiscreteAssessor >::update
     (const std::map< TIndex, std::set< TObject > >& to_delete,
      const std::map< TIndex, std::set< TObject > >& to_insert,
      Update_Logger& update_logger)
@@ -723,8 +739,8 @@ void Block_Backend< TIndex, TObject, TIterator >::update
   }
 }
 
-template< class TIndex, class TObject, class TIterator >
-void Block_Backend< TIndex, TObject, TIterator >::calc_split_idxs
+template< class TIndex, class TObject, class TIterator, class TRangeAssessor, class TDiscreteAssessor >
+void Block_Backend< TIndex, TObject, TIterator, TRangeAssessor, TDiscreteAssessor >::calc_split_idxs
     (std::vector< TIndex >& split,
      const std::vector< uint32 >& sizes,
      typename std::set< TIndex >::const_iterator it,
@@ -855,8 +871,8 @@ void Block_Backend< TIndex, TObject, TIterator >::calc_split_idxs
 }
 
 
-template< class Index, class Object, class Iterator >
-void Block_Backend< Index, Object, Iterator >::flush_if_necessary_and_write_obj(
+template< class Index, class Object, class Iterator, class TRangeAssessor, class TDiscreteAssessor >
+void Block_Backend< Index, Object, Iterator, TRangeAssessor, TDiscreteAssessor >::flush_if_necessary_and_write_obj(
     uint64* start_ptr, uint8*& insert_ptr, typename File_Blocks_::Write_Iterator& file_it,
     const Index& idx, const Object& obj)
 {
@@ -906,8 +922,8 @@ void Block_Backend< Index, Object, Iterator >::flush_if_necessary_and_write_obj(
 }
 
 
-template< class TIndex, class TObject, class TIterator >
-void Block_Backend< TIndex, TObject, TIterator >::create_from_scratch
+template< class TIndex, class TObject, class TIterator, class TRangeAssessor, class TDiscreteAssessor >
+void Block_Backend< TIndex, TObject, TIterator, TRangeAssessor, TDiscreteAssessor  >::create_from_scratch
     (typename File_Blocks_::Write_Iterator& file_it,
      const std::map< TIndex, std::set< TObject > >& to_insert)
 {
@@ -1015,9 +1031,9 @@ void Block_Backend< TIndex, TObject, TIterator >::create_from_scratch
 }
 
 
-template< class TIndex, class TObject, class TIterator >
+template< class TIndex, class TObject, class TIterator, class TRangeAssessor, class TDiscreteAssessor >
 template< class Update_Logger >
-void Block_Backend< TIndex, TObject, TIterator >::update_group
+void Block_Backend< TIndex, TObject, TIterator, TRangeAssessor, TDiscreteAssessor  >::update_group
     (typename File_Blocks_::Write_Iterator& file_it,
      const std::map< TIndex, std::set< TObject > >& to_delete,
      const std::map< TIndex, std::set< TObject > >& to_insert,
@@ -1241,8 +1257,8 @@ void Block_Backend< TIndex, TObject, TIterator >::update_group
 }
 
 
-template< class TIndex, class TObject, class TIterator >
-void Block_Backend< TIndex, TObject, TIterator >::flush_or_delete_block(
+template< class TIndex, class TObject, class TIterator, class TRangeAssessor, class TDiscreteAssessor >
+void Block_Backend< TIndex, TObject, TIterator, TRangeAssessor, TDiscreteAssessor  >::flush_or_delete_block(
     uint64* start_ptr, uint bytes_written, typename File_Blocks_::Write_Iterator& file_it, uint32 idx_size)
 {
   if (bytes_written > 8 + idx_size)
@@ -1257,9 +1273,9 @@ void Block_Backend< TIndex, TObject, TIterator >::flush_or_delete_block(
 }
 
 
-template< class TIndex, class TObject, class TIterator >
+template< class TIndex, class TObject, class TIterator, class TRangeAssessor, class TDiscreteAssessor >
 template< class Update_Logger >
-void Block_Backend< TIndex, TObject, TIterator >::copy_and_delete_on_the_fly(
+void Block_Backend< TIndex, TObject, TIterator, TRangeAssessor, TDiscreteAssessor >::copy_and_delete_on_the_fly(
     uint64* source_start_ptr, uint64* dest_start_ptr,
     typename File_Blocks_::Write_Iterator& file_it, uint32 idx_size,
     const std::map< TIndex, std::set< TObject > >& to_delete,
@@ -1305,8 +1321,8 @@ void Block_Backend< TIndex, TObject, TIterator >::copy_and_delete_on_the_fly(
 }
 
 
-template< class TIndex, class TObject, class TIterator >
-bool Block_Backend< TIndex, TObject, TIterator >::read_block_or_blocks(
+template< class TIndex, class TObject, class TIterator, class TRangeAssessor, class TDiscreteAssessor >
+bool Block_Backend< TIndex, TObject, TIterator, TRangeAssessor, TDiscreteAssessor >::read_block_or_blocks(
     typename File_Blocks_::Write_Iterator& file_it, Void64_Pointer< uint64 >& source, uint32& buffer_size)
 {
   file_blocks.read_block(file_it, source.ptr);
@@ -1334,9 +1350,9 @@ bool Block_Backend< TIndex, TObject, TIterator >::read_block_or_blocks(
 }
 
 
-template< class TIndex, class TObject, class TIterator >
+template< class TIndex, class TObject, class TIterator, class TRangeAssessor, class TDiscreteAssessor >
 template< class Update_Logger >
-uint32 Block_Backend< TIndex, TObject, TIterator >::skip_deleted_objects(
+uint32 Block_Backend< TIndex, TObject, TIterator, TRangeAssessor, TDiscreteAssessor >::skip_deleted_objects(
     uint64* source_start_ptr, uint64* dest_start_ptr,
     const std::set< TObject >& objs_to_delete, uint32 idx_size,
     Update_Logger& update_logger, const TIndex& idx)
@@ -1390,9 +1406,9 @@ void append_insertables(
 }
 
 
-template< class TIndex, class TObject, class TIterator >
+template< class TIndex, class TObject, class TIterator, class TRangeAssessor, class TDiscreteAssessor>
 template< class Update_Logger >
-void Block_Backend< TIndex, TObject, TIterator >::update_segments
+void Block_Backend< TIndex, TObject, TIterator, TRangeAssessor, TDiscreteAssessor >::update_segments
       (typename File_Blocks_::Write_Iterator& file_it,
        const std::map< TIndex, std::set< TObject > >& to_delete,
        const std::map< TIndex, std::set< TObject > >& to_insert,
