@@ -44,6 +44,7 @@
 #include "../../template_db/random_file.h"
 #include "../../template_db/transaction.h"
 #include "../../template_db/dispatcher.h"
+#include "../../template_db/block_backend_updater.h"
 #include "../frontend/console_output.h"
 #include "../core/settings.h"
 #include "../frontend/output.h"

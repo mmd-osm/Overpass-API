@@ -26,6 +26,7 @@
 #include <vector>
 
 #include "../../template_db/block_backend.h"
+#include "../../template_db/block_backend_updater.h"
 #include "../../template_db/transaction.h"
 #include "../core/datatypes.h"
 #include "../core/settings.h"
