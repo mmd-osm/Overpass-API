@@ -644,7 +644,7 @@ void update_elements
      const std::map< Index, std::set< Object > >& new_objects,
      Transaction& transaction, const File_Properties& file_properties)
 {
-  Block_Backend< Index, Object > db(transaction.data_index(&file_properties));
+  Block_Backend_Updater< Index, Object > db(transaction.data_index(&file_properties));
   db.update(attic_objects, new_objects);
 }
 

@@ -55,7 +55,7 @@ int main(int argc, char* args[])
     Block_Backend< Tag_Index_Local, Node_Skeleton::Id_Type >::Flat_Iterator it_tags(db_tags.flat_begin());
 
     Nonsynced_Transaction target_transaction(true, false, db_dir, "");
-    Block_Backend< Uint31_Index, Node_Skeleton > db_tagged(target_transaction.data_index(osm_base_settings().NODES_TAGGED));
+    Block_Backend_Updater< Uint31_Index, Node_Skeleton > db_tagged(target_transaction.data_index(osm_base_settings().NODES_TAGGED));
 
     int elems = 0;
 

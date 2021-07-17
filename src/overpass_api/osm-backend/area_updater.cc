@@ -121,7 +121,7 @@ void Area_Updater::update_members
       it(areas_to_insert.begin()); it != areas_to_insert.end(); ++it)
     locations_to_insert[it->second].insert(Area_Skeleton(it->first));
 
-  Block_Backend< Uint31_Index, Area_Skeleton > area_locations
+  Block_Backend_Updater< Uint31_Index, Area_Skeleton > area_locations
       (transaction->data_index(area_settings().AREAS));
   area_locations.update(locations_to_delete, locations_to_insert);
 
@@ -134,7 +134,7 @@ void Area_Updater::update_members
       blocks_to_insert[it->first].insert(*it2);
   }
 
-  Block_Backend< Uint31_Index, Area_Block > area_blocks_db
+  Block_Backend_Updater< Uint31_Index, Area_Block > area_blocks_db
       (transaction->data_index(area_settings().AREA_BLOCKS));
   area_blocks_db.update(blocks_to_delete, blocks_to_insert);
 }
@@ -329,7 +329,7 @@ void Area_Updater::update_area_tags_local
     }
   }
 
-  Block_Backend< Tag_Index_Local, Uint32_Index > areas_db
+  Block_Backend_Updater< Tag_Index_Local, Uint32_Index > areas_db
       (transaction->data_index(area_settings().AREA_TAGS_LOCAL));
   areas_db.update(db_to_delete, db_to_insert);
 }
@@ -373,7 +373,7 @@ void Area_Updater::update_area_tags_global
     }
   }
 
-  Block_Backend< Tag_Index_Global, Uint32_Index > areas_db
+  Block_Backend_Updater< Tag_Index_Global, Uint32_Index > areas_db
       (transaction->data_index(area_settings().AREA_TAGS_GLOBAL));
   areas_db.update(db_to_delete, db_to_insert);
 }

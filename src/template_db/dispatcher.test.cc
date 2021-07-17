@@ -432,7 +432,7 @@ void put_elem(uint32 idx, uint32 val, const Test_File& tf,
   try
   {
     Nonsynced_Transaction transaction(true, true, db_dir, "");
-    Block_Backend< IntIndex, IntObject > db_backend
+    Block_Backend_Updater< IntIndex, IntObject > db_backend
         (transaction.data_index(&tf));
     db_backend.update(to_delete, to_insert);
   }

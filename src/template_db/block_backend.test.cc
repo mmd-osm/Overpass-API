@@ -273,7 +273,7 @@ void fill_db
   {
     Nonsynced_Transaction transaction(true, false, BASE_DIRECTORY, "");
     Test_File tf;
-    Block_Backend< IntIndex, IntObject > db_backend(transaction.data_index(&tf));
+    Block_Backend_Updater< IntIndex, IntObject > db_backend(transaction.data_index(&tf));
     db_backend.update(to_delete, to_insert);
   }
   catch (File_Error& e)

@@ -414,7 +414,7 @@ void import_bin(Transaction& transaction, const File_Properties* fp) {
 
   cereal::BinaryInputArchive iarchive(std::cin);
 
-  Block_Backend< Index, Object > db(transaction.data_index(fp));
+  Block_Backend_Updater< Index, Object > db(transaction.data_index(fp));
 
   uint64 total_objcount = 0;
   uint64 export_total_objcount = 0;

@@ -1429,7 +1429,7 @@ void Relation_Updater::flush_roles()
       max_role_id = it->second + 1;
   }
 
-  Block_Backend< Uint32_Index, String_Object > roles_db
+  Block_Backend_Updater< Uint32_Index, String_Object > roles_db
       (transaction->data_index(osm_base_settings().RELATION_ROLES));
   roles_db.update(db_to_delete, db_to_insert);
   max_written_role_id = max_role_id;

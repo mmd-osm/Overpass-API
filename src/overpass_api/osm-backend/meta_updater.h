@@ -277,7 +277,7 @@ void merge_files
 
 	  if (++item_count > 4*1024*1024)
 	  {
-	    Block_Backend< TIndex, TObject > into_db
+	    Block_Backend_Updater< TIndex, TObject > into_db
 	        (into_transaction.data_index(&file_prop));
 	    into_db.update(db_to_delete, db_to_insert);
 	    db_to_insert.clear();
@@ -289,7 +289,7 @@ void merge_files
       }
     }
 
-    Block_Backend< TIndex, TObject > into_db
+    Block_Backend_Updater< TIndex, TObject > into_db
         (into_transaction.data_index(&file_prop));
     into_db.update(db_to_delete, db_to_insert);
   }

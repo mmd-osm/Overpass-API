@@ -56,7 +56,7 @@ void process_user_data(Transaction& transaction, std::map< uint32, std::string >
     }
     user_by_id.clear();
 
-    Block_Backend< Uint32_Index, User_Data > user_db
+    Block_Backend_Updater< Uint32_Index, User_Data > user_db
         (transaction.data_index(meta_settings().USER_DATA));
     user_db.update(db_to_delete, db_to_insert);
   }
@@ -81,7 +81,7 @@ void process_user_data(Transaction& transaction, std::map< uint32, std::string >
 	ins.insert(Uint31_Index(*it2));
     }
 
-    Block_Backend< Uint32_Index, Uint31_Index > user_db
+    Block_Backend_Updater< Uint32_Index, Uint31_Index > user_db
         (transaction.data_index(meta_settings().USER_INDICES));
     user_db.update(db_to_delete, db_to_insert);
   }
