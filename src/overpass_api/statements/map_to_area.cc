@@ -118,8 +118,8 @@ void collect_elems_flat(Resource_Manager& rman,
 
   Block_Backend< Uint31_Index, Area_Skeleton > elems_db
       (rman.get_transaction()->data_index(area_settings().AREAS));
-  for (Block_Backend< Uint31_Index, Area_Skeleton >::Flat_Iterator
-      it = elems_db.flat_begin(); !(it == elems_db.flat_end()); ++it)
+
+  for (const auto & it : elems_db.as_flat())
   {
     if (!(it.handle().id() < (*lower).val()) && it.handle().id() < ((*upper).val() + 1) &&
         binary_search(ids.begin(), ids.end(), it.handle().id()))

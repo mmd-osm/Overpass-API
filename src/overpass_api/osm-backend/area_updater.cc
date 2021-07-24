@@ -89,9 +89,8 @@ void Area_Updater::update_area_ids
   // process the areas themselves
   Block_Backend< Uint31_Index, Area_Skeleton > area_locations_db
       (transaction->data_index(area_settings().AREAS));
-  for (Block_Backend< Uint31_Index, Area_Skeleton >::Flat_Iterator
-      it(area_locations_db.flat_begin());
-      !(it == area_locations_db.flat_end()); ++it)
+
+  for (const auto & it : area_locations_db.as_flat())
   {
     if (ids_to_modify.find(it.handle().id()) != ids_to_modify.end())
     {
@@ -104,9 +103,8 @@ void Area_Updater::update_area_ids
 
   Block_Backend< Uint31_Index, Area_Block > area_blocks_db
       (transaction->data_index(area_settings().AREA_BLOCKS));
-  for (Block_Backend< Uint31_Index, Area_Block >::Discrete_Iterator
-      it(area_blocks_db.discrete_begin(blocks_req.begin(), blocks_req.end()));
-      !(it == area_blocks_db.discrete_end()); ++it)
+
+  for (const auto & it : area_blocks_db.as_discrete(blocks_req))
   {
     if (ids_to_modify.find(it.object().id) != ids_to_modify.end())
       blocks_to_delete[it.index()].insert(it.object());
@@ -176,11 +174,8 @@ void Area_Updater::prepare_delete_tags
   Tag_Index_Local current_index;
   Tag_Entry< uint32 > tag_entry;
   current_index.index = 0xffffffff;
-  for (Block_Backend< Tag_Index_Local, Uint32_Index >::Range_Iterator
-      it(areas_db.range_begin
-          (Default_Range_Iterator< Tag_Index_Local >(range_set.begin()),
-          Default_Range_Iterator< Tag_Index_Local >(range_set.end())));
-      !(it == areas_db.range_end()); ++it)
+
+  for (const auto & it : areas_db.as_range(range_set))
   {
     if (!(current_index == it.index()))
     {
@@ -256,11 +251,8 @@ void Area_Updater::prepare_tags
   Tag_Index_Local current_index;
   Tag_Entry< uint32 > tag_entry;
   current_index.index = 0xffffffff;
-  for (Block_Backend< Tag_Index_Local, Uint32_Index >::Range_Iterator
-      it(areas_db.range_begin
-          (Default_Range_Iterator< Tag_Index_Local >(range_set.begin()),
-          Default_Range_Iterator< Tag_Index_Local >(range_set.end())));
-      !(it == areas_db.range_end()); ++it)
+
+  for (const auto & it : areas_db.as_range(range_set))
   {
     if (!(current_index == it.index()))
     {

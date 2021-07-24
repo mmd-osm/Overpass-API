@@ -89,11 +89,8 @@ void create_timeline_entries(uint64 ref, uint32 version, Statement* stmt, Resour
     Block_Backend< Index, OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >,
         typename std::vector< Index >::const_iterator > current_meta_db
         (rman.get_transaction()->data_index(current_meta_file_properties< Skeleton >()));
-    for (typename Block_Backend< Index, OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >,
-        typename std::vector< Index >::const_iterator >::Discrete_Iterator
-        it = current_meta_db.discrete_begin(req.begin(), req.end());
-        !(it == current_meta_db.discrete_end()); ++it)
-    {
+
+    for (const auto & it : current_meta_db.as_discrete(req)) {
       if (it.handle().get_ref() == ref)
         metas.push_back(it.object());
     }
@@ -102,11 +99,8 @@ void create_timeline_entries(uint64 ref, uint32 version, Statement* stmt, Resour
     Block_Backend< Index, OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >,
         typename std::vector< Index >::const_iterator > attic_meta_db
         (rman.get_transaction()->data_index(attic_meta_file_properties< Skeleton >()));
-    for (typename Block_Backend< Index, OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >,
-        typename std::vector< Index >::const_iterator >::Discrete_Iterator
-        it = attic_meta_db.discrete_begin(req.begin(), req.end());
-        !(it == attic_meta_db.discrete_end()); ++it)
-    {
+
+    for (const auto & it : attic_meta_db.as_discrete(req)) {
       if (it.handle().get_ref() == ref)
         metas.push_back(it.object());
     }

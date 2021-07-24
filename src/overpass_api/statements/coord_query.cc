@@ -243,9 +243,8 @@ void Coord_Query_Statement::execute(Resource_Manager& rman)
 
   Block_Backend< Uint31_Index, Area_Block > area_blocks_db
       (rman.get_area_transaction()->data_index(area_settings().AREA_BLOCKS));
-  for (Block_Backend< Uint31_Index, Area_Block >::Discrete_Iterator
-      it(area_blocks_db.discrete_begin(req.begin(), req.end()));
-      !(it == area_blocks_db.discrete_end()); ++it)
+
+  for (const auto & it : area_blocks_db.as_discrete(req))
   {
     if (!(it.index() == last_idx))
     {
@@ -313,9 +312,7 @@ void Coord_Query_Statement::execute(Resource_Manager& rman)
   sort(idx_req.begin(), idx_req.end());
   Block_Backend< Uint31_Index, Area_Skeleton, std::vector< Uint31_Index >::const_iterator > area_locations_db
       (rman.get_area_transaction()->data_index(area_settings().AREAS));
-  for (Block_Backend< Uint31_Index, Area_Skeleton, std::vector< Uint31_Index >::const_iterator >::Discrete_Iterator
-      it = area_locations_db.discrete_begin(idx_req.begin(), idx_req.end());
-      !(it == area_locations_db.discrete_end()); ++it)
+  for (const auto & it : area_locations_db.as_discrete(idx_req))
   {
     if (areas_found.find(it.handle().id()) != areas_found.end())
       into.areas[it.index()].push_back(it.object());

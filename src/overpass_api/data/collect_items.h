@@ -446,9 +446,8 @@ void collect_items_discrete(const Statement* stmt, Resource_Manager& rman,
 
   Block_Backend< Index, Object, typename Container::const_iterator > db
       (rman.get_transaction()->data_index(&file_properties));
-  for (typename Block_Backend< Index, Object, typename Container
-      ::const_iterator >::Discrete_Iterator
-      it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
+
+  for (const auto & it : db.as_discrete(req))
   {
     if (++count >= 256*1024)
     {
@@ -479,9 +478,8 @@ void collect_items_discrete(Transaction& transaction,
 {
   Block_Backend< Index, Object, typename Container::const_iterator > db
       (transaction.data_index(&file_properties));
-  for (typename Block_Backend< Index, Object, typename Container
-      ::const_iterator >::Discrete_Iterator
-      it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
+
+  for (const auto & it : db.as_discrete(req))
   {
     if (predicate.match(it.handle()))
       it.handle().add_element(result[it.index()]);
@@ -569,10 +567,9 @@ bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
   Block_Backend< Index, Object > db
       (rman.get_transaction()->data_index(&file_properties));
       
-  Shortened_Idx< Index, Container > shortened(req, cur_idx);      
-  for (typename Block_Backend< Index, Object >::Range_Iterator
-      it(db.range_begin(shortened.begin(), shortened.end()));
-	   !(it == db.range_end()); ++it)
+  Shortened_Idx< Index, Container > shortened(req, cur_idx);
+
+  for (const auto & it : db.as_range(shortened))
   {
     if (too_much_data && !(cur_idx == it.index()))
     {
@@ -618,10 +615,9 @@ bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
   Block_Backend< Index, Object > db
       (rman.get_transaction()->data_index(&file_properties));
       
-  Shortened_Idx< Index, Container > shortened(req, cur_idx);            
-  for (typename Block_Backend< Index, Object >::Range_Iterator
-      it(db.range_begin(shortened.begin(), shortened.end()));
-           !(it == db.range_end()); ++it)
+  Shortened_Idx< Index, Container > shortened(req, cur_idx);
+
+  for (const auto & it : db.as_range(shortened))
   {
     if (too_much_data && !(cur_idx == it.index()))
     {
@@ -681,8 +677,8 @@ void collect_items_flat(const Statement& stmt, Resource_Manager& rman,
 
   Block_Backend< Index, Object > db
       (rman.get_transaction()->data_index(&file_properties));
-  for (typename Block_Backend< Index, Object >::Flat_Iterator
-      it(db.flat_begin()); !(it == db.flat_end()); ++it)
+
+  for (const auto & it : db.as_flat())
   {
     if (++count >= 256*1024)
     {
@@ -755,9 +751,8 @@ std::vector< Index > get_indexes_
 
     Block_Backend< typename Skeleton::Id_Type, Index > idx_list_db
         (rman.get_transaction()->data_index(attic_idx_list_properties< Skeleton >()));
-    for (typename Block_Backend< typename Skeleton::Id_Type, Index >::Discrete_Iterator
-        it(idx_list_db.discrete_begin(idx_list_ids.begin(), idx_list_ids.end()));
-        !(it == idx_list_db.discrete_end()); ++it)
+
+    for (const auto & it : idx_list_db.as_discrete(idx_list_ids))
       result.push_back(it.object());
 
     std::sort(result.begin(), result.end());

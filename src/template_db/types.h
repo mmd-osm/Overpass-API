@@ -144,7 +144,7 @@ public:
   explicit Void_Pointer(int block_size) { ptr = block_size > 0 ? (T*)malloc(block_size) : 0; }
   ~Void_Pointer() { clear(); }
 
-  void clear()
+  inline void clear()
   {
     if (ptr)
       free(ptr);

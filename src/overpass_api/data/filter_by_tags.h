@@ -94,8 +94,8 @@ std::set< std::pair< Tag_Index_Global, Tag_Index_Global > > get_regk_req
 
   Block_Backend< Uint32_Index, String_Object > db
       (rman.get_transaction()->data_index(key_file_properties< Skeleton >()));
-  for (Block_Backend< Uint32_Index, String_Object >::Flat_Iterator
-       it(db.flat_begin()); !(it == db.flat_end()); ++it)
+
+  for (const auto & it : db.as_flat())
   {
     if (key->matches(it.object().val()))
     {
@@ -136,15 +136,11 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kv(
   std::map< Id_Type, std::pair< uint64, Uint31_Index > > timestamp_per_id;
   std::set< Tag_Index_Global > tag_req = get_kv_req(kvit->first, kvit->second);
 
-  for (typename Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > >::Discrete_Iterator
-      it2(tags_db.discrete_begin(tag_req.begin(), tag_req.end()));
-      !(it2 == tags_db.discrete_end()); ++it2) {
+  for (const auto & it2 : tags_db.as_discrete(tag_req)) {
     timestamp_per_id[it2.handle().id()] = std::make_pair(NOW, it2.handle().get_idx());
   }
 
-  for (typename Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >::Discrete_Iterator
-      it2(attic_tags_db.discrete_begin(tag_req.begin(), tag_req.end()));
-      !(it2 == attic_tags_db.discrete_end()); ++it2)
+  for (const auto & it2 : attic_tags_db.as_discrete(tag_req))
   {
     auto current_timestamp = it2.handle().get_timestamp();
 
@@ -158,10 +154,7 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kv(
 
   std::set< std::pair< Tag_Index_Global, Tag_Index_Global > > range_req = get_k_req(kvit->first);
 
-  for (typename Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >::Range_Iterator
-      it2(attic_tags_db.range_begin(Default_Range_Iterator< Tag_Index_Global >(range_req.begin()),
-          Default_Range_Iterator< Tag_Index_Global >(range_req.end())));
-      !(it2 == attic_tags_db.range_end()); ++it2)
+  for (const auto & it2 : attic_tags_db.as_range(range_req))
   {
     auto current_timestamp = it2.handle().get_timestamp();
 
@@ -194,18 +187,15 @@ std::vector< std::pair< Id_Type, Uint31_Index > > collect_attic_kv2(
 
   std::vector< std::pair < Id_Type, Uint31_Index > > ts_now;
 
-  for (typename Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > >::Discrete_Iterator
-      it2(tags_db.discrete_begin(tag_req.begin(), tag_req.end()));
-      !(it2 == tags_db.discrete_end()); ++it2) {
-    ts_now.emplace_back(std::pair<Id_Type, Uint31_Index >(it2.handle().id(), it2.handle().get_idx()));
+
+  for (const auto & it2 : tags_db.as_discrete(tag_req)) {
+    ts_now.emplace_back(it2.handle().id(), it2.handle().get_idx());
   }
 
   std::sort(ts_now.begin(), ts_now.end());
   ts_now.erase(std::unique(ts_now.begin(), ts_now.end()), ts_now.end());
 
-  for (typename Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >::Discrete_Iterator
-      it2(attic_tags_db.discrete_begin(tag_req.begin(), tag_req.end()));
-      !(it2 == attic_tags_db.discrete_end()); ++it2)
+  for (const auto & it2 : attic_tags_db.as_discrete(tag_req))
   {
     auto current_timestamp = it2.handle().get_timestamp();
 
@@ -227,10 +217,7 @@ std::vector< std::pair< Id_Type, Uint31_Index > > collect_attic_kv2(
 
   std::set< std::pair< Tag_Index_Global, Tag_Index_Global > > range_req = get_k_req(kvit->first);
 
-  for (typename Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >::Range_Iterator
-      it2(attic_tags_db.range_begin(Default_Range_Iterator< Tag_Index_Global >(range_req.begin()),
-          Default_Range_Iterator< Tag_Index_Global >(range_req.end())));
-      !(it2 == attic_tags_db.range_end()); ++it2)
+  for (const auto & it2 : attic_tags_db.as_range(range_req))
   {
     auto current_timestamp = it2.handle().get_timestamp();
 
@@ -287,18 +274,10 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_k(
   std::map< Id_Type, std::pair< uint64, Uint31_Index > > timestamp_per_id;
   std::set< std::pair< Tag_Index_Global, Tag_Index_Global > > range_req = get_k_req(*kit);
 
-  for (typename Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > >::Range_Iterator
-      it2(tags_db.range_begin
-        (Default_Range_Iterator< Tag_Index_Global >(range_req.begin()),
-      Default_Range_Iterator< Tag_Index_Global >(range_req.end())));
-      !(it2 == tags_db.range_end()); ++it2)
+  for (const auto & it2 : tags_db.as_range(range_req))
     timestamp_per_id[it2.handle().id()] = std::make_pair(NOW, it2.handle().get_idx());
 
-  for (typename Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >::Range_Iterator
-      it2(attic_tags_db.range_begin
-        (Default_Range_Iterator< Tag_Index_Global >(range_req.begin()),
-      Default_Range_Iterator< Tag_Index_Global >(range_req.end())));
-      !(it2 == attic_tags_db.range_end()); ++it2)
+  for (const auto & it2 : attic_tags_db.as_range(range_req))
   {
     auto current_timestamp = it2.handle().get_timestamp();
 
@@ -310,10 +289,7 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_k(
     }
   }
 
-  for (typename Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >::Range_Iterator
-      it2(attic_tags_db.range_begin(Default_Range_Iterator< Tag_Index_Global >(range_req.begin()),
-          Default_Range_Iterator< Tag_Index_Global >(range_req.end())));
-      !(it2 == attic_tags_db.range_end()); ++it2)
+  for (const auto & it2 : attic_tags_db.as_range(range_req))
   {
     auto current_timestamp = it2.handle().get_timestamp();
 
@@ -350,22 +326,14 @@ std::vector< std::pair < Id_Type, Uint31_Index > > collect_attic_k2(
 
   const std::set< std::pair< Tag_Index_Global, Tag_Index_Global > > range_req = get_k_req(*kit);
 
-  for (typename Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > >::Range_Iterator
-      it2(tags_db.range_begin
-        (Default_Range_Iterator< Tag_Index_Global >(range_req.begin()),
-      Default_Range_Iterator< Tag_Index_Global >(range_req.end())));
-      !(it2 == tags_db.range_end()); ++it2) {
-    ts_now.emplace_back(std::pair<Id_Type, Uint31_Index>(it2.handle().id(), it2.handle().get_idx()));
+  for (const auto & it2 : tags_db.as_range(range_req)) {
+    ts_now.emplace_back(it2.handle().id(), it2.handle().get_idx());
   }
 
   std::sort(ts_now.begin(), ts_now.end());
   ts_now.erase(std::unique(ts_now.begin(), ts_now.end()), ts_now.end());
 
-  for (typename Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >::Range_Iterator
-      it2(attic_tags_db.range_begin
-        (Default_Range_Iterator< Tag_Index_Global >(range_req.begin()),
-      Default_Range_Iterator< Tag_Index_Global >(range_req.end())));
-      !(it2 == attic_tags_db.range_end()); ++it2)
+  for (const auto & it2 : attic_tags_db.as_range(range_req))
   {
     const auto current_timestamp = it2.handle().get_timestamp();
 
@@ -385,10 +353,7 @@ std::vector< std::pair < Id_Type, Uint31_Index > > collect_attic_k2(
     }
   }
 
-  for (typename Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >::Range_Iterator
-      it2(attic_tags_db.range_begin(Default_Range_Iterator< Tag_Index_Global >(range_req.begin()),
-          Default_Range_Iterator< Tag_Index_Global >(range_req.end())));
-      !(it2 == attic_tags_db.range_end()); ++it2)
+  for (const auto & it2 : attic_tags_db.as_range(range_req))
   {
     const auto current_timestamp = it2.handle().get_timestamp();
 
@@ -442,21 +407,13 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kregv(
   std::map< Id_Type, std::pair< uint64, Uint31_Index > > timestamp_per_id;
   std::set< std::pair< Tag_Index_Global, Tag_Index_Global > > range_req = get_k_req(krit->first);
 
-  for (typename Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > >::Range_Iterator
-      it2(tags_db.range_begin
-        (Default_Range_Iterator< Tag_Index_Global >(range_req.begin()),
-      Default_Range_Iterator< Tag_Index_Global >(range_req.end())));
-      !(it2 == tags_db.range_end()); ++it2)
+  for (const auto & it2 : tags_db.as_range(range_req))
   {
     if (krit->second->matches(it2.index().value))
       timestamp_per_id[it2.handle().id()] = std::make_pair(NOW, it2.handle().get_idx());
   }
 
-  for (typename Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >::Range_Iterator
-      it2(attic_tags_db.range_begin
-        (Default_Range_Iterator< Tag_Index_Global >(range_req.begin()),
-      Default_Range_Iterator< Tag_Index_Global >(range_req.end())));
-      !(it2 == attic_tags_db.range_end()); ++it2)
+  for (const auto & it2 : attic_tags_db.as_range(range_req))
   {
     auto current_timestamp = it2.handle().get_timestamp();
 
@@ -469,12 +426,8 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kregv(
     }
   }
 
-  for (typename Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >::Range_Iterator
-      it2(attic_tags_db.range_begin(Default_Range_Iterator< Tag_Index_Global >(range_req.begin()),
-          Default_Range_Iterator< Tag_Index_Global >(range_req.end())));
-      !(it2 == attic_tags_db.range_end()); ++it2)
+  for (const auto & it2 : attic_tags_db.as_range(range_req))
   {
-
     auto current_timestamp = it2.handle().get_timestamp();
 
     if (current_timestamp > timestamp)
@@ -506,24 +459,16 @@ std::vector< std::pair < Id_Type, Uint31_Index > > collect_attic_kregv2(
 
   const std::set< std::pair< Tag_Index_Global, Tag_Index_Global > > range_req = get_k_req(krit->first);
 
-  for (typename Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > >::Range_Iterator
-      it2(tags_db.range_begin
-        (Default_Range_Iterator< Tag_Index_Global >(range_req.begin()),
-      Default_Range_Iterator< Tag_Index_Global >(range_req.end())));
-      !(it2 == tags_db.range_end()); ++it2)
+  for (const auto & it2 : tags_db.as_range(range_req))
   {
     if (krit->second->matches(it2.index().value))
-      ts_now.emplace_back(std::pair<Id_Type, Uint31_Index>(it2.handle().id(), it2.handle().get_idx()));
+      ts_now.emplace_back(it2.handle().id(), it2.handle().get_idx());
   }
 
   std::sort(ts_now.begin(), ts_now.end());
   ts_now.erase(std::unique(ts_now.begin(), ts_now.end()), ts_now.end());
 
-  for (typename Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >::Range_Iterator
-      it2(attic_tags_db.range_begin
-        (Default_Range_Iterator< Tag_Index_Global >(range_req.begin()),
-      Default_Range_Iterator< Tag_Index_Global >(range_req.end())));
-      !(it2 == attic_tags_db.range_end()); ++it2)
+  for (const auto & it2 : attic_tags_db.as_range(range_req))
   {
     const auto current_timestamp = it2.handle().get_timestamp();
 
@@ -544,12 +489,8 @@ std::vector< std::pair < Id_Type, Uint31_Index > > collect_attic_kregv2(
     }
   }
 
-  for (typename Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >::Range_Iterator
-      it2(attic_tags_db.range_begin(Default_Range_Iterator< Tag_Index_Global >(range_req.begin()),
-          Default_Range_Iterator< Tag_Index_Global >(range_req.end())));
-      !(it2 == attic_tags_db.range_end()); ++it2)
+  for (const auto & it2 : attic_tags_db.as_range(range_req))
   {
-
     auto current_timestamp = it2.handle().get_timestamp();
 
     if (current_timestamp > timestamp)
@@ -568,7 +509,6 @@ std::vector< std::pair < Id_Type, Uint31_Index > > collect_attic_kregv2(
         if (it_now->first == it2.handle().id() && current_timestamp < NOW)
           it_now->second = DELETED;
       }
-
     }
   }
 
@@ -607,11 +547,8 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_regkregv(
 
   std::string last_key = void_tag_value();
   bool matches = false;
-  for (typename Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > >::Range_Iterator
-      it2(tags_db.range_begin
-        (Default_Range_Iterator< Tag_Index_Global >(range_req.begin()),
-      Default_Range_Iterator< Tag_Index_Global >(range_req.end())));
-      !(it2 == tags_db.range_end()); ++it2)
+
+  for (const auto & it2 : tags_db.as_range(range_req))
   {
     if (!it2.index_handle().has_key(last_key))
     {
@@ -624,8 +561,8 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_regkregv(
 
   last_key = void_tag_value();
   matches = false;
-  for (typename Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >::Flat_Iterator
-      it2(attic_tags_db.flat_begin()); !(it2 == attic_tags_db.flat_end()); ++it2)
+
+  for (const auto & it2 : attic_tags_db.as_flat())
   {
     if (!it2.index_handle().has_key(last_key))
     {
@@ -648,8 +585,8 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_regkregv(
 
   last_key = void_tag_value();
   matches = false;
-  for (typename Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >::Flat_Iterator
-      it2(attic_tags_db.flat_begin()); !(it2 == attic_tags_db.flat_end()); ++it2)
+
+  for (const auto & it2 : attic_tags_db.as_flat())
   {
     if (!it2.index_handle().has_key(last_key))
     {

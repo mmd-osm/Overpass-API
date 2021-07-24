@@ -124,25 +124,6 @@ struct Block_Backend_Basic_Iterator
 
   Block_Backend_Basic_Iterator& operator++();
 
-  const Index& index()
-  {
-    return idx_cache.object();
-  }
-  const Object& object()
-  {
-    return obj_cache.object();
-  }
-
-  const Handle< Index >& index_handle()
-  {
-    return idx_cache;
-  }
-
-  const Handle< Object >& handle()
-  { 
-    return obj_cache;
-  }
-
   bool is_end() const
   {
     return obj_offset == 0 || idx_block_offset == 0;
@@ -152,6 +133,65 @@ struct Block_Backend_Basic_Iterator
   {
     return obj_offset == rhs.obj_offset && file_handle == rhs.file_handle;
   }
+
+  bool operator!=(const Block_Backend_Basic_Iterator& rhs) const {
+    return !(operator==(rhs));
+  }
+
+  const Index& index() const
+  {
+    return idx_cache.object();
+  }
+
+  const Object& object() const
+  {
+    return obj_cache.object();
+  }
+
+  const Handle< Index >& index_handle() const
+  {
+    return idx_cache;
+  }
+
+  const Handle< Object >& handle() const
+  {
+    return obj_cache;
+  }
+
+  struct Block_Backend_Element
+  {
+    Block_Backend_Element(Block_Backend_Basic_Iterator<Index, Object, Idx_Assessor, File_Handle> & _ref) : ref(_ref) {};
+
+
+    const Index& index() const
+    {
+      return ref.index();
+    }
+
+    const Object& object() const
+    {
+      return ref.object();
+    }
+
+    const Handle< Index >& index_handle() const
+    {
+      return ref.index_handle();
+    }
+
+    const Handle< Object >& handle() const
+    {
+      return ref.handle();
+    }
+
+    private:
+      const Block_Backend_Basic_Iterator<Index, Object, Idx_Assessor, File_Handle> & ref;
+  };
+
+  Block_Backend_Element operator*() {
+    return Block_Backend_Element(*this);
+  }
+
+
 
 private:
   uint32 block_size;
@@ -585,6 +625,28 @@ struct Block_Backend
          Default_Range_Iterator< TIndex > end)
         { return Range_Iterator(file_blocks, begin, end, block_size); }
     const Range_Iterator& range_end() const { return *range_end_it; }
+
+
+    template <class TIter>
+    struct Adapter {
+
+      Adapter(TIter&& b, const TIter& e) : b(std::move(b)), e(e) {};
+
+      TIter begin() const { return b; }
+      TIter end() const { return e; }
+
+      private:
+       TIter b;
+       TIter e;
+    };
+
+    Adapter<Flat_Iterator> as_flat() { return Adapter<Flat_Iterator> (flat_begin(), flat_end()); }
+
+    template <class TContainer>
+    Adapter<Range_Iterator> as_range(TContainer& s) { return Adapter<Range_Iterator> (range_begin(s.begin(), s.end()), range_end()); }
+
+    template <class TContainer>
+    Adapter<Discrete_Iterator> as_discrete(TContainer& s) { return Adapter<Discrete_Iterator>(discrete_begin(s.begin(), s.end()), discrete_end()); }
 
     uint read_count() const { return file_blocks.read_count(); }
     void reset_read_count() const { file_blocks.reset_read_count(); }

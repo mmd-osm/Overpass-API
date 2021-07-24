@@ -305,9 +305,8 @@ void Area_Query_Statement::fill_ranges(Resource_Manager& rman)
 {
   Block_Backend< Uint31_Index, Area_Skeleton > area_locations_db
       (rman.get_area_transaction()->data_index(area_settings().AREAS));
-  for (Block_Backend< Uint31_Index, Area_Skeleton >::Flat_Iterator
-      it(area_locations_db.flat_begin());
-      !(it == area_locations_db.flat_end()); ++it)
+
+  for (const auto & it : area_locations_db.as_flat())
   {
     if (binary_search(area_id.begin(), area_id.end(), it.handle().id()))
     {

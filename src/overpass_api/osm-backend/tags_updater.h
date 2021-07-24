@@ -257,11 +257,8 @@ void prepare_tags
   Tag_Index_Local current_index;
   Tag_Entry< typename TObject::Id_Type > tag_entry;
   current_index.index = 0xffffffff;
-  for (Block_Backend< Tag_Index_Local, Uint32_Index >::Range_Iterator
-    it(elems_db.range_begin
-    (Default_Range_Iterator< Tag_Index_Local >(range_set.begin()),
-     Default_Range_Iterator< Tag_Index_Local >(range_set.end())));
-     !(it == elems_db.range_end()); ++it)
+
+  for (const auto & it : elems_db.as_range(range_set))
   {
     if (!(current_index == it.index()))
     {

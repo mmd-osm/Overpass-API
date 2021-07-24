@@ -142,10 +142,8 @@ std::vector< typename Skeleton::Id_Type > collect_changed_elements
 
   Block_Backend< Timestamp, Change_Entry< typename Skeleton::Id_Type > > changelog_db
       (rman.get_transaction()->data_index(changelog_file_properties< Skeleton >()));
-  for (typename Block_Backend< Timestamp, Change_Entry< typename Skeleton::Id_Type > >::Range_Iterator
-      it = changelog_db.range_begin(Default_Range_Iterator< Timestamp >(range.begin()),
-            Default_Range_Iterator< Timestamp >(range.end()));
-      !(it == changelog_db.range_end()); ++it)
+
+  for (const auto & it : changelog_db.as_range(range))
   {
     if (relevant(it.handle().id()))
       ids.push_back(it.handle().id());
@@ -168,10 +166,8 @@ IdSetHybrid<typename Skeleton::Id_Type::Id_Type> collect_changed_elements_fast
 
   Block_Backend< Timestamp, Change_Entry< typename Skeleton::Id_Type > > changelog_db
       (rman.get_transaction()->data_index(changelog_file_properties< Skeleton >()));
-  for (typename Block_Backend< Timestamp, Change_Entry< typename Skeleton::Id_Type > >::Range_Iterator
-      it = changelog_db.range_begin(Default_Range_Iterator< Timestamp >(range.begin()),
-            Default_Range_Iterator< Timestamp >(range.end()));
-      !(it == changelog_db.range_end()); ++it)
+
+  for (const auto & it : changelog_db.as_range(range))
   {
     if (relevant(it.handle().id()))
       ids.set(it.handle().id().val());
@@ -314,10 +310,8 @@ std::vector< typename Skeleton::Id_Type > filter_ids_by_changeset(
     Block_Backend< Index, OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >,
         typename std::vector< Index >::const_iterator > current_meta_db
         (rman.get_transaction()->data_index(current_meta_file_properties< Skeleton >()));
-    for (typename Block_Backend< Index, OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >,
-        typename std::vector< Index >::const_iterator >::Discrete_Iterator
-        it = current_meta_db.discrete_begin(req.begin(), req.end());
-        !(it == current_meta_db.discrete_end()); ++it)
+
+    for (const auto & it : current_meta_db.as_discrete(req))
     {
       auto current_changeset = it.handle().get_changeset();
 
@@ -332,10 +326,8 @@ std::vector< typename Skeleton::Id_Type > filter_ids_by_changeset(
     Block_Backend< Index, OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >,
         typename std::vector< Index >::const_iterator > attic_meta_db
         (rman.get_transaction()->data_index(attic_meta_file_properties< Skeleton >()));
-    for (typename Block_Backend< Index, OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >,
-        typename std::vector< Index >::const_iterator >::Discrete_Iterator
-        it = attic_meta_db.discrete_begin(req.begin(), req.end());
-        !(it == attic_meta_db.discrete_end()); ++it)
+
+    for (const auto & it : attic_meta_db.as_discrete(req))
     {
       auto current_changeset = it.handle().get_changeset();
 

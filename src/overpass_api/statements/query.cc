@@ -647,9 +647,8 @@ IdSetHybrid<typename Id_Type::Id_Type> Query_Statement::collect_non_ids_hybrid
     if (timestamp == NOW)
     {
       std::set< Tag_Index_Global > tag_req = get_kv_req(knvit->first, knvit->second);
-      for (typename Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > >::Discrete_Iterator
-          it2(tags_db.discrete_begin(tag_req.begin(), tag_req.end()));
-          !(it2 == tags_db.discrete_end()); ++it2)
+
+      for (const auto & it2 : tags_db.as_discrete(tag_req))
         new_ids.set(it2.handle().id().val());
     }
     else
@@ -671,12 +670,8 @@ IdSetHybrid<typename Id_Type::Id_Type> Query_Statement::collect_non_ids_hybrid
     if (timestamp == NOW)
     {
       std::set< std::pair< Tag_Index_Global, Tag_Index_Global > > range_req = get_k_req(knrit->first);
-      for (typename Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > >::Range_Iterator
-          it2(tags_db.range_begin
-          (Default_Range_Iterator< Tag_Index_Global >(range_req.begin()),
-           Default_Range_Iterator< Tag_Index_Global >(range_req.end())));
-          !(it2 == tags_db.range_end()); ++it2)
-      {
+
+      for (const auto & it2 : tags_db.as_range(range_req)) {
         if (knrit->second->matches(it2.index().value))
           new_ids.set(it2.handle().id().val());
       }
@@ -723,9 +718,8 @@ std::vector< Id_Type > Query_Statement::collect_non_ids
     if (timestamp == NOW)
     {
       std::set< Tag_Index_Global > tag_req = get_kv_req(knvit->first, knvit->second);
-      for (typename Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > >::Discrete_Iterator
-          it2(tags_db.discrete_begin(tag_req.begin(), tag_req.end()));
-          !(it2 == tags_db.discrete_end()); ++it2)
+
+      for (const auto & it2 : tags_db.as_discrete(tag_req))
         new_ids.push_back(it2.handle().id());
     }
     else
@@ -747,11 +741,8 @@ std::vector< Id_Type > Query_Statement::collect_non_ids
     if (timestamp == NOW)
     {
       std::set< std::pair< Tag_Index_Global, Tag_Index_Global > > range_req = get_k_req(knrit->first);
-      for (typename Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > >::Range_Iterator
-          it2(tags_db.range_begin
-          (Default_Range_Iterator< Tag_Index_Global >(range_req.begin()),
-           Default_Range_Iterator< Tag_Index_Global >(range_req.end())));
-          !(it2 == tags_db.range_end()); ++it2)
+
+      for (const auto & it2 : tags_db.as_range(range_req))
       {
         if (knrit->second->matches(it2.index().value))
           new_ids.push_back(it2.handle().id());
@@ -793,12 +784,8 @@ std::vector< Id_Type > Query_Statement::collect_non_ids
       knvit != key_nvalues.end(); ++knvit)
   {
     std::set< std::pair< Tag_Index_Global, Tag_Index_Global > > range_req = get_k_req(knvit->first);
-    for (typename Block_Backend< Tag_Index_Global, Id_Type >::Range_Iterator
-        it2(tags_db.range_begin
-        (Default_Range_Iterator< Tag_Index_Global >(range_req.begin()),
-         Default_Range_Iterator< Tag_Index_Global >(range_req.end())));
-        !(it2 == tags_db.range_end()); ++it2)
-    {
+
+    for (const auto & it2 : tags_db.as_range(range_req)) {
       if (it2.index().value == knvit->second)
         new_ids.push_back(it2.object());
     }
@@ -811,12 +798,8 @@ std::vector< Id_Type > Query_Statement::collect_non_ids
       knrit != key_nregexes.end(); ++knrit)
   {
     std::set< std::pair< Tag_Index_Global, Tag_Index_Global > > range_req = get_k_req(knrit->first);
-    for (typename Block_Backend< Tag_Index_Global, Id_Type >::Range_Iterator
-        it2(tags_db.range_begin
-        (Default_Range_Iterator< Tag_Index_Global >(range_req.begin()),
-         Default_Range_Iterator< Tag_Index_Global >(range_req.end())));
-        !(it2 == tags_db.range_end()); ++it2)
-    {
+
+    for (const auto & it2 : tags_db.as_range(range_req)) {
       if (it2.index().value != void_tag_value() && knrit->second->matches(it2.index().value))
         new_ids.push_back(it2.object());
     }

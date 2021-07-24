@@ -47,8 +47,7 @@ void Key_Storage::flush_keys(Transaction& transaction)
 void Key_Storage::load_keys(Transaction& transaction)
 {
   Block_Backend< Uint32_Index, String_Object > keys_db(transaction.data_index(file_properties));
-  for (Block_Backend< Uint32_Index, String_Object >::Flat_Iterator
-      it = keys_db.flat_begin(); !(it == keys_db.flat_end()); ++it)
+  for (const auto & it : keys_db.as_flat())
   {
     key_ids[it.object().val()] = it.index().val();
     if (max_key_id <= it.index().val())

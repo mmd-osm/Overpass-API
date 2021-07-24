@@ -283,11 +283,8 @@ void filter_attic_elements
 
     Block_Backend< Index, Attic< typename Skeleton::Id_Type >, typename std::vector< Index >::const_iterator >
         undeleted_db(rman.get_transaction()->data_index(attic_undeleted_file_properties< Skeleton >()));
-    for (typename Block_Backend< Index, Attic< typename Skeleton::Id_Type >,
-            typename std::vector< Index >::const_iterator >
-        ::Discrete_Iterator
-        it = undeleted_db.discrete_begin(idx_set.begin(), idx_set.end());
-        !(it == undeleted_db.discrete_end()); ++it)
+
+    for (const auto & it : undeleted_db.as_discrete(idx_set))
     {
       auto current_timestamp = it.handle().get_timestamp();
 
@@ -355,11 +352,8 @@ void filter_attic_elements
             typename std::vector< Index >::const_iterator >
         attic_meta_db(rman.get_transaction()->data_index
           (attic_meta_file_properties< Skeleton >()));
-    for (typename Block_Backend< Index, OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >,
-            typename std::vector< Index >::const_iterator >
-        ::Discrete_Iterator
-        it = attic_meta_db.discrete_begin(idx_set.begin(), idx_set.end());
-        !(it == attic_meta_db.discrete_end()); ++it)
+
+    for (const auto & it : attic_meta_db.as_discrete(idx_set))
     {
       std::map< typename Skeleton::Id_Type, std::pair< uint64, uint64 > >& entry =
           timestamp_by_id_by_idx[it.index_handle().id()];
@@ -384,11 +378,7 @@ void filter_attic_elements
         meta_db(rman.get_transaction()->data_index
           (current_meta_file_properties< Skeleton >()));
 
-    for (typename Block_Backend< Index, OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >,
-            typename std::vector< Index >::const_iterator >
-        ::Discrete_Iterator
-        it = meta_db.discrete_begin(idx_set.begin(), idx_set.end());
-        !(it == meta_db.discrete_end()); ++it)
+    for (const auto & it : meta_db.as_discrete(idx_set))
     {
       std::map< typename Skeleton::Id_Type, std::pair< uint64, uint64 > >& entry
           = timestamp_by_id_by_idx[it.index_handle().id()];
