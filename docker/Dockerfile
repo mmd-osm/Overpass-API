@@ -39,7 +39,7 @@ RUN cd build && \
     cp -R test-bin/ bin/ cgi-bin/ ../src && \
     export PATH=$PATH:/root/overpass/bin:/root/overpass/cgi-bin:/root/overpass/test-bin && \
     cd ../osm-3s_testing && \
-    ../src/test-bin/run_testsuite.sh 2000 notimes
+    ../src/test-bin/run_testsuite.sh 200 notimes
 
 
 
