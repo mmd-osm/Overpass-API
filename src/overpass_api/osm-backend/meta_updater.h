@@ -128,7 +128,7 @@ void process_meta_data
   process_meta_data(file_blocks_index, meta_to_insert, ids_to_modify,
 		    to_delete, db_to_delete, db_to_insert);
 
-  Block_Backend< Uint31_Index, OSM_Element_Metadata_Skeleton< Id_Type > > user_db
+  Block_Backend_Updater< Uint31_Index, OSM_Element_Metadata_Skeleton< Id_Type > > user_db
       (&file_blocks_index);
   user_db.update(db_to_delete, db_to_insert);
 }
