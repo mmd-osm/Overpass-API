@@ -58,9 +58,7 @@ void collect_elems(Resource_Manager& rman, const File_Properties& prop,
       req.insert(random.get(it->val()));
   }
   Block_Backend< TIndex, TObject > elems_db(rman.get_transaction()->data_index(&prop));
-  for (typename Block_Backend< TIndex, TObject >::Discrete_Iterator
-      it(elems_db.discrete_begin(req.begin(), req.end()));
-      !(it == elems_db.discrete_end()); ++it)
+  for (const auto & it : elems_db.as_discrete(req))
   {
     if (binary_search(ids.begin(), ids.end(), it.handle().id()))
       elems[it.index()].push_back(it.object());

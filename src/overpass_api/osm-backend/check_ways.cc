@@ -127,8 +127,7 @@ int main(int argc, char* args[])
 
       Block_Backend< Tag_Index_Local, Attic< Way_Skeleton::Id_Type > > db
           (transaction.data_index(attic_settings().WAY_TAGS_LOCAL));
-      for (Block_Backend< Tag_Index_Local, Attic< Way_Skeleton::Id_Type > >::Flat_Iterator
-          it(db.flat_begin()); !(it == db.flat_end()); ++it)
+      for (const auto & it : db.as_flat())
       {
         if (!(last_index == it.index().index) || last_key != it.index().key)
         {
@@ -168,8 +167,7 @@ int main(int argc, char* args[])
 
       Block_Backend< Tag_Index_Local, Attic< Relation_Skeleton::Id_Type > > db
           (transaction.data_index(attic_settings().RELATION_TAGS_LOCAL));
-      for (Block_Backend< Tag_Index_Local, Attic< Relation_Skeleton::Id_Type > >::Flat_Iterator
-          it(db.flat_begin()); !(it == db.flat_end()); ++it)
+      for (const auto & it : db.as_flat())
       {
         if (!(last_index == it.index().index) || last_key != it.index().key)
         {

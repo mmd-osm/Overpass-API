@@ -59,8 +59,7 @@ void Relation_Updater::load_roles()
 
   Block_Backend< Uint32_Index, String_Object > roles_db
       (transaction->data_index(osm_base_settings().RELATION_ROLES));
-  for (Block_Backend< Uint32_Index, String_Object >::Flat_Iterator
-      it(roles_db.flat_begin()); !(it == roles_db.flat_end()); ++it)
+  for (const auto & it : roles_db.as_flat())
   {
     role_ids[it.object().val()] = it.index().val();
     if (max_role_id <= it.index().val())

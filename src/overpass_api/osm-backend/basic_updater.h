@@ -182,8 +182,7 @@ std::map< Uint31_Index, std::set< Element_Skeleton > > get_existing_skeletons
   Idx_Agnostic_Compare< typename Element_Skeleton::Id_Type > comp;
 
   Block_Backend< Uint31_Index, Element_Skeleton > db(transaction.data_index(&file_properties));
-  for (typename Block_Backend< Uint31_Index, Element_Skeleton >::Discrete_Iterator
-      it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
+  for (const auto & it : db.as_discrete(req))
   {
     if (binary_search(ids_with_position.begin(), ids_with_position.end(),
         std::make_pair(it.handle().id(), 0), comp))
@@ -253,8 +252,7 @@ std::map< typename Element_Skeleton::Id_Type, std::pair< Index, Attic< Element_S
   Idx_Agnostic_Compare< typename Element_Skeleton::Id_Type > comp;
 
   Block_Backend< Uint31_Index, Attic< Element_Skeleton_Delta > > db(transaction.data_index(&skel_file_properties));
-  for (typename Block_Backend< Uint31_Index, Attic< Element_Skeleton_Delta > >::Discrete_Iterator
-      it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
+  for (const auto & it : db.as_discrete(req))
   {
     if (binary_search(ids_with_position.begin(), ids_with_position.end(),
         std::make_pair(it.handle().id(), 0), comp))
@@ -271,8 +269,7 @@ std::map< typename Element_Skeleton::Id_Type, std::pair< Index, Attic< Element_S
 
   Block_Backend< Uint31_Index, Attic< typename Element_Skeleton::Id_Type > >
       undelete_db(transaction.data_index(&undelete_file_properties));
-  for (typename Block_Backend< Uint31_Index, Attic< typename Element_Skeleton::Id_Type > >::Discrete_Iterator
-      it(undelete_db.discrete_begin(req.begin(), req.end())); !(it == undelete_db.discrete_end()); ++it)
+  for (const auto & it : undelete_db.as_discrete(req))
   {
     if (binary_search(ids_with_position.begin(), ids_with_position.end(),
         std::pair< typename Element_Skeleton::Id_Type, Uint31_Index >(it.object(), 0u), comp))
@@ -307,8 +304,7 @@ std::map< Uint31_Index, std::set< Element_Skeleton > > get_existing_meta
   Idx_Agnostic_Compare< typename Element_Skeleton::Id_Type > comp;
 
   Block_Backend< Uint31_Index, Element_Skeleton > db(transaction.data_index(&file_properties));
-  for (typename Block_Backend< Uint31_Index, Element_Skeleton >::Discrete_Iterator
-      it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
+  for (const auto & it : db.as_discrete(req))
   {
     if (binary_search(ids_with_position.begin(), ids_with_position.end(),
         std::make_pair(it.handle().get_ref(), 0), comp))
@@ -674,8 +670,7 @@ std::map< Id_Type, std::set< Uint31_Index > > get_existing_idx_lists
   }
 
   Block_Backend< Id_Type, Uint31_Index > db(transaction.data_index(&file_properties));
-  for (typename Block_Backend< Id_Type, Uint31_Index >::Discrete_Iterator
-      it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
+  for (const auto & it : db.as_discrete(req))
     result[it.index()].insert(it.object());
 
   return result;
