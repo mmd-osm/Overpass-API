@@ -7,14 +7,18 @@ RUN apt-get update -qq && \
     apt-get install -y g++ git make autoconf automake ca-certificates libtool \
        libfcgi-dev libxml2-dev zlib1g-dev \
        expat libexpat1-dev liblz4-dev libbz2-dev libicu-dev \
-       libfmt-dev libpcre2-dev libcereal-dev libtcmalloc-minimal4 \
+       libfmt-dev libpcre2-dev libcereal-dev libgoogle-perftools-dev \
       --no-install-recommends && \
     update-ca-certificates && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone --recurse-submodules https://github.com/mmd-osm/Overpass-API.git overpass
+RUN git clone --depth 1 https://github.com/mmd-osm/Overpass-API.git overpass && \
+    cd overpass && \
+    git submodule init && \
+    git submodule update && \
+    cd ..
 
 WORKDIR /overpass
 
@@ -31,7 +35,7 @@ RUN cd src/ && \
     mkdir -p build
    
 RUN cd build && \
-   ../src/configure CXXFLAGS="-D_FORTIFY_SOURCE=2 -fexceptions -fpie -Wl,-pie -fpic -shared -fstack-protector-strong -Wl,--no-as-needed -pipe -Wl,-z,defs -Wl,-z,now -Wl,-z,relro -fno-omit-frame-pointer -flto -fwhole-program  -O2" LDFLAGS="-flto -fwhole-program -lfmt" --prefix=/root/overpass --enable-lz4 --enable-fastcgi --enable-tests
+   ../src/configure CXXFLAGS="-D_FORTIFY_SOURCE=2 -fexceptions -fpie -Wl,-pie -fpic -shared -fstack-protector-strong -Wl,--no-as-needed -pipe -Wl,-z,defs -Wl,-z,now -Wl,-z,relro -fno-omit-frame-pointer -flto -fwhole-program  -O2" LDFLAGS="-ltcmalloc -flto -fwhole-program -lfmt" --prefix=/root/overpass --enable-lz4 --enable-fastcgi --enable-tests
 
 RUN cd build && \
     make V=0 -j3 && \
@@ -42,4 +46,19 @@ RUN cd build && \
     ../src/test-bin/run_testsuite.sh 200 notimes
 
 
+FROM ubuntu:20.04
 
+RUN apt-get update -qq && \
+    apt-get install -y \
+       libfcgi-bin zlib1g expat libicu66 liblz4-1 libpcre2-8-0 libgoogle-perftools4 \
+       --no-install-recommends && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+    
+
+COPY --from=builder /root/overpass/ /opt/overpass
+
+RUN groupadd -g 62000 overpass && \
+    useradd -g 62000 -l -M -s /bin/false -u 62000 overpass
+
+USER overpass
