@@ -53,10 +53,11 @@ RUN apt-get update -qq && \
        libfcgi-bin zlib1g expat libicu66 liblz4-1 libpcre2-8-0 libgoogle-perftools4 \
        --no-install-recommends && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-    
+    rm -rf /var/lib/apt/lists/*  
 
-COPY --from=builder /root/overpass/ /opt/overpass
+COPY --from=builder /root/overpass/bin /opt/overpass/bin
+COPY --from=builder /root/overpass/cgi-bin /opt/overpass/cgi-bin
+COPY --from=builder /root/overpass/templates /opt/overpass/templates
 
 RUN groupadd -g 62000 overpass && \
     useradd -g 62000 -l -M -s /bin/false -u 62000 overpass

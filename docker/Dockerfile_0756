@@ -1,0 +1,41 @@
+# vim:set ft=dockerfile:
+FROM ubuntu:20.04 AS builder
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update -qq && \
+    apt-get install -y g++ git make autoconf automake ca-certificates libtool \
+       libxml2-dev zlib1g-dev \
+       expat libexpat1-dev liblz4-dev libbz2-dev \
+       libfmt-dev libcereal-dev  \
+      --no-install-recommends && \
+    update-ca-certificates && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+
+RUN git clone --depth 1 https://github.com/mmd-osm/Overpass-API.git overpass && \
+    tar xfz overpass/upstream/osm-3s_v0.7.56.9.patched.tar.gz && \
+    cd ..
+
+WORKDIR /osm-3s_v0.7.56.9/
+   
+RUN ./configure CXXFLAGS="-O2"  --prefix=/root/overpass --enable-lz4 && \
+    make V=0 -j3 && \
+    make install
+
+FROM ubuntu:20.04
+
+RUN apt-get update -qq && \
+    apt-get install -y \
+       zlib1g expat \
+       --no-install-recommends && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+    
+COPY --from=builder /root/overpass/ /opt/overpass
+
+RUN groupadd -g 62000 overpass && \
+    useradd -g 62000 -l -M -s /bin/false -u 62000 overpass
+
+USER overpass
