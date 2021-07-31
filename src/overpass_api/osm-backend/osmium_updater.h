@@ -44,7 +44,7 @@ class Osmium_Updater
     ~Osmium_Updater();
 
     void finish_updater();
-    void parse_file_completely(FILE* in);
+    void parse_file_completely(FILE* in, const std::string& input_format);
     void parse_multiple_files(const std::string& source_dir, const std::vector< std::string >& source_file_names);
     
   private:

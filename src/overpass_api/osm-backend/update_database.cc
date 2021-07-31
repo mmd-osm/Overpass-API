@@ -51,6 +51,7 @@ int main(int argc, char* argv[])
   unsigned int parallel_processes = 1;
   bool use_osmium = false;
   bool initial_load = false;   // input is sorted planet file (skip
+  std::string input_format = "osm.pbf";
 
   int argpos(1);
   while (argpos < argc)
@@ -125,6 +126,8 @@ int main(int argc, char* argv[])
 #ifdef HAVE_LIBOSMIUM
     else if (!(strncmp(argv[argpos], "--use-osmium", 12)))
       use_osmium = true;
+    else if (!(strncmp(argv[argpos], "--input-format=", 15)))
+      input_format = std::string(argv[argpos]).substr(15);
 #endif
     else
     {
@@ -160,7 +163,7 @@ int main(int argc, char* argv[])
 #ifdef HAVE_LIBOSMIUM
         Osmium_Updater osmium_updater(get_verbatim_callback(), data_version, meta, flush_limit, parallel_processes, initial_load);
         //reading the main document
-        osmium_updater.parse_file_completely(stdin);
+        osmium_updater.parse_file_completely(stdin, input_format);
 #endif
       }
 
@@ -178,7 +181,7 @@ int main(int argc, char* argv[])
 #ifdef HAVE_LIBOSMIUM
         Osmium_Updater osmium_updater(get_verbatim_callback(), db_dir, data_version, meta, flush_limit, parallel_processes, initial_load);
         //reading the main document
-        osmium_updater.parse_file_completely(stdin);
+        osmium_updater.parse_file_completely(stdin, input_format);
 #endif
       }
     }

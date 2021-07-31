@@ -296,11 +296,11 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
   }
 };
 
-void Osmium_Updater::parse_file_completely(FILE* in) {
+void Osmium_Updater::parse_file_completely(FILE* in, const std::string& input_format) {
 
   this->callback_->parser_started();
 
-  osmium::io::File infile("-", "osm.pbf");
+  osmium::io::File infile("-", input_format);
 
   osmium::io::Reader reader(infile);
 
