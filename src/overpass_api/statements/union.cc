@@ -69,6 +69,7 @@ bool Union_Statement::union_item_statements(Resource_Manager& rman)
    *
    * Prerequisites:
    * - All union statements must be item statements
+   * - Item statements may not copy their result to a named outputset (e.g. .set -> .another_set; is not supported)
    * - Only first union statement may be optionally ._;  (otherwise inputset ._ gets overwritten inside union)
    * - get_result_name() may not be "._" (otherwise data gets overwritten inside union)
    * - get_result_name() must appear at least once in item statements
@@ -78,6 +79,11 @@ bool Union_Statement::union_item_statements(Resource_Manager& rman)
    * - ignore item statements where inputsets matches get_result_name()
    * - copy item inputset over via indexed_set_union(target.nodes, source->nodes);
    * - skip all other copying operations
+   *
+   * In addition, the following pattern has very experimental support:
+   *
+   *  ( make_area [.pivot]; .result;)->.result;
+   *
    */
 
 
@@ -88,8 +94,16 @@ bool Union_Statement::union_item_statements(Resource_Manager& rman)
 
   for (auto s : substatements) {
 
-    if (s->get_name() != "item")
+    if (!(s->get_name() == "item" ||
+         (s->get_name() == "make-area" && s == substatements.front())))
       return false;
+
+    // reject .item -> .output; statements
+    if (s->get_name() == "item" &&
+        s->dump_compact_ql("").find("->.") != std::string::npos)
+      return false;
+
+    // TODO: make-area doesn't have proper dump_ql_in_query implementation, method returns an empty string only!
 
     const auto input_name = s->dump_ql_in_query("").replace(0, 1, "");   // avoid dynamic casts to Item_Statement!
 
