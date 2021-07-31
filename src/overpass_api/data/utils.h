@@ -153,7 +153,8 @@ template< typename Index, typename Object >
 void sort_second(std::map< Index, std::vector< Object > >& items)
 {
   for (typename std::map< Index, std::vector< Object > >::iterator it = items.begin(); it != items.end(); ++it)
-    std::sort(it->second.begin(), it->second.end());
+    if (!std::is_sorted(it->second.begin(), it->second.end()))
+      std::sort(it->second.begin(), it->second.end());
 }
 
 
