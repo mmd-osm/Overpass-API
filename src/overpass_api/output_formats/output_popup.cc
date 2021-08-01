@@ -23,6 +23,13 @@
 #include <cmath>
 #include <fstream>
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#undef VERSION
+#endif
+
+#ifdef HAVE_POPUP_OUTPUT
+
 
 bool Tag_Filter::matches(const std::vector< std::pair< std::string, std::string > >* tags) const
 {
@@ -314,3 +321,5 @@ void Output_Popup::print_item(const Derived_Skeleton& skel,
 {
   // Intentionally empty
 }
+
+#endif

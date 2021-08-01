@@ -28,6 +28,13 @@
 #include <string>
 #include <vector>
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#undef VERSION
+#endif
+
+#ifdef HAVE_POPUP_OUTPUT
+
 
 class Tag_Filter
 {
@@ -145,5 +152,6 @@ private:
   std::vector< Category_Filter* > categories;
 };
 
+#endif
 
 #endif

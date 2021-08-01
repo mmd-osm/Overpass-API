@@ -24,6 +24,13 @@
 #include <fstream>
 
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#undef VERSION
+#endif
+
+#ifdef HAVE_CUSTOM_OUTPUT
+
 bool Output_Custom::write_http_headers()
 {
   return false;
@@ -730,3 +737,5 @@ void Output_Custom::print_item(const Derived_Skeleton& skel,
 {
   // Intentionally empty
 }
+
+#endif

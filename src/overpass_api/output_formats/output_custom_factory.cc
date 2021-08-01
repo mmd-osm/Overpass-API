@@ -20,6 +20,14 @@
 #include "output_custom.h"
 
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#undef VERSION
+#endif
+
+#ifdef HAVE_CUSTOM_OUTPUT
+
+
 class Output_Custom_Generator : public Output_Handler_Parser
 {
 public:
@@ -57,3 +65,5 @@ Output_Handler* Output_Custom_Generator::new_output_handler(const std::map< std:
   return new Output_Custom(redirect_it == input_params.end() || redirect_it->second != "no",
       template_name, url);
 }
+
+#endif

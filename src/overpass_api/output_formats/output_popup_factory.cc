@@ -21,6 +21,13 @@
 #include "../statements/osm_script.h"
 #include "output_popup.h"
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#undef VERSION
+#endif
+
+#ifdef HAVE_POPUP_OUTPUT
+
 
 class Output_Popup_Generator : public Output_Handler_Parser
 {
@@ -111,3 +118,5 @@ Output_Handler* Output_Popup_Generator::new_output_handler(const std::map< std::
   else
     return 0;
 }
+
+#endif

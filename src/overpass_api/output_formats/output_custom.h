@@ -27,6 +27,12 @@
 #include <string>
 #include <vector>
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#undef VERSION
+#endif
+
+#ifdef HAVE_CUSTOM_OUTPUT
 
 class Output_Custom : public Output_Handler
 {
@@ -106,5 +112,6 @@ private:
   std::string output;
 };
 
+#endif
 
 #endif

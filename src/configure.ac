@@ -132,6 +132,10 @@ AC_DEFINE(HAVE_ICU, 1, [Define if you have ICU library])
 AC_DEFINE(HAVE_PCRE, 1, [Define if you have PCRE library])
 AC_DEFINE(HAVE_OPENMP, 1, [Define if you have OpenMP])
 
+# Some unused output formats are no longer compiled in by default
+#AC_DEFINE(HAVE_CUSTOM_OUTPUT, 1, [Define if you want to have out:custom])
+#AC_DEFINE(HAVE_POPUP_OUTPUT, 1, [Define if you want to have out:popup])
+
 # Regular expression libs ICU
 ICU_LIBS=""
 ICU_LIBS="-licuuc -licui18n"
