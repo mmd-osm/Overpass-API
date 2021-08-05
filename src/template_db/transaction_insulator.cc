@@ -128,6 +128,22 @@ void Transaction_Insulator::copy_shadows_to_mains()
   }
 }
 
+void Transaction_Insulator::rename_shadows_to_mains()
+{
+  for (std::vector< File_Properties* >::const_iterator it(controlled_files.begin());
+      it != controlled_files.end(); ++it)
+  {
+      rename_file(db_dir() + (*it)->get_file_name_trunk() + (*it)->get_data_suffix()
+                + (*it)->get_index_suffix() + (*it)->get_shadow_suffix(),
+                db_dir() + (*it)->get_file_name_trunk() + (*it)->get_data_suffix()
+                + (*it)->get_index_suffix());
+      rename_file(db_dir() + (*it)->get_file_name_trunk() + (*it)->get_id_suffix()
+                + (*it)->get_index_suffix() + (*it)->get_shadow_suffix(),
+                db_dir() + (*it)->get_file_name_trunk() + (*it)->get_id_suffix()
+                + (*it)->get_index_suffix());
+  }
+}
+
 
 void Transaction_Insulator::copy_mains_to_shadows()
 {

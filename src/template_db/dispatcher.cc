@@ -569,7 +569,7 @@ Dispatcher::Dispatcher
 
   if (file_exists(shadow_name))
   {
-    transaction_insulator.copy_shadows_to_mains();
+    transaction_insulator.rename_shadows_to_mains();
     remove(shadow_name.c_str());
   }
   transaction_insulator.remove_shadows();
@@ -649,7 +649,7 @@ void Dispatcher::write_commit(pid_t pid)
   {
     Raw_File shadow_file(shadow_name, O_RDWR|O_CREAT|O_EXCL, S_666, "write_commit:1");
 
-    transaction_insulator.copy_shadows_to_mains();
+    transaction_insulator.rename_shadows_to_mains();
   }
   catch (const File_Error &e)
   {

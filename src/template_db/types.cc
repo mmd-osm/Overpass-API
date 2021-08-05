@@ -41,6 +41,17 @@ void copy_file(const std::string& source, const std::string& dest)
   }
 }
 
+void rename_file(const std::string& source, const std::string& dest)
+{
+  if (!file_exists(source))
+    return;
+
+  int result = std::rename(source.c_str(), dest.c_str());
+  if (result != 0) {
+     throw File_Error(errno, source,  "Dispatcher:7");
+  }
+}
+
 
 int& global_read_counter()
 {
