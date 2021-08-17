@@ -369,13 +369,12 @@ void export_bin(Transaction& transaction, const File_Properties* fp) {
   uint64 total_objcount = 0;
 
   try {
-
-    for (auto it(db.flat_begin()), prev = it.index(); !(it == db.flat_end()); ++it)
+    for (const auto & it : db.as_flat())
     {
       Index idx_ = it.index();
       Object obj_ = it.object();
 
-      if (/* !(prev == idx_) && */ objcount >= 1000000) {
+      if (objcount >= 1000000) {
         if (!res.empty()) {
           for (auto const & t : res)
             total_objcount += t.second.size();
@@ -384,7 +383,6 @@ void export_bin(Transaction& transaction, const File_Properties* fp) {
         }
         objcount = 0;
         res.clear();
-        prev = idx_;
       }
 
       res[idx_].insert(obj_);
