@@ -428,15 +428,15 @@ class Around_Constraint final : public Query_Constraint
   public:
     Around_Constraint(Around_Statement& around_) : around(&around_), ranges_used(false) {}
 
-    Query_Filter_Strategy delivers_data(Resource_Manager& rman)
+    Query_Filter_Strategy delivers_data(Resource_Manager& rman) override
     { return (around->get_radius() < 2000) ? prefer_ranges : ids_useful; }
 
     bool get_ranges
-        (Resource_Manager& rman, std::set< std::pair< Uint32_Index, Uint32_Index > >& ranges);
+        (Resource_Manager& rman, std::set< std::pair< Uint32_Index, Uint32_Index > >& ranges) override;
     bool get_ranges
-        (Resource_Manager& rman, std::set< std::pair< Uint31_Index, Uint31_Index > >& ranges);
-    void filter(Resource_Manager& rman, Set& into);
-    void filter(const Statement& query, Resource_Manager& rman, Set& into);
+        (Resource_Manager& rman, std::set< std::pair< Uint31_Index, Uint31_Index > >& ranges) override;
+    void filter(Resource_Manager& rman, Set& into) override;
+    void filter(const Statement& query, Resource_Manager& rman, Set& into) override;
     virtual ~Around_Constraint() {}
   private:
     std::ostream& print_constraint( std::ostream &os ) const override {

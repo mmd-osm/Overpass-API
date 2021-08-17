@@ -37,15 +37,15 @@
 class Polygon_Constraint final : public Query_Constraint
 {
   public:
-    Query_Filter_Strategy delivers_data(Resource_Manager& rman);
+    Query_Filter_Strategy delivers_data(Resource_Manager& rman) override;
 
     Polygon_Constraint(Polygon_Query_Statement& polygon_) : polygon(&polygon_) {}
     bool get_ranges
-        (Resource_Manager& rman, std::set< std::pair< Uint32_Index, Uint32_Index > >& ranges);
+        (Resource_Manager& rman, std::set< std::pair< Uint32_Index, Uint32_Index > >& ranges) override;
     bool get_ranges
-        (Resource_Manager& rman, std::set< std::pair< Uint31_Index, Uint31_Index > >& ranges);
-    void filter(Resource_Manager& rman, Set& into);
-    void filter(const Statement& query, Resource_Manager& rman, Set& into);
+        (Resource_Manager& rman, std::set< std::pair< Uint31_Index, Uint31_Index > >& ranges) override;
+    void filter(Resource_Manager& rman, Set& into) override;
+    void filter(const Statement& query, Resource_Manager& rman, Set& into) override;
     virtual ~Polygon_Constraint() {}
   private:
     std::ostream& print_constraint( std::ostream &os ) const override {

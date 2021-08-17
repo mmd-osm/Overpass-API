@@ -53,11 +53,11 @@ class User_Constraint final : public Query_Constraint
   public:
     User_Constraint(User_Statement& user_) : user(&user_) {}
 
-    Query_Filter_Strategy delivers_data(Resource_Manager& rman) { return ids_required; }
+    Query_Filter_Strategy delivers_data(Resource_Manager& rman) override { return ids_required; }
 
-    bool get_ranges(Resource_Manager& rman, std::set< std::pair< Uint31_Index, Uint31_Index > >& ranges);
-    bool get_ranges(Resource_Manager& rman, std::set< std::pair< Uint32_Index, Uint32_Index > >& ranges);
-    void filter(const Statement& query, Resource_Manager& rman, Set& into);
+    bool get_ranges(Resource_Manager& rman, std::set< std::pair< Uint31_Index, Uint31_Index > >& ranges) override;
+    bool get_ranges(Resource_Manager& rman, std::set< std::pair< Uint32_Index, Uint32_Index > >& ranges) override;
+    void filter(const Statement& query, Resource_Manager& rman, Set& into) override;
     virtual ~User_Constraint() {}
   private:
     std::ostream& print_constraint( std::ostream &os ) const override {

@@ -115,23 +115,23 @@ class Id_Query_Constraint final : public Query_Constraint
   public:
     Id_Query_Constraint(Id_Query_Statement& stmt_) : stmt(&stmt_) {}
 
-    Query_Filter_Strategy delivers_data(Resource_Manager& rman) { return prefer_ranges; }
+    Query_Filter_Strategy delivers_data(Resource_Manager& rman) override { return prefer_ranges; }
 
     bool get_ranges
-        (Resource_Manager& rman, std::set< std::pair< Uint32_Index, Uint32_Index > >& ranges);
+        (Resource_Manager& rman, std::set< std::pair< Uint32_Index, Uint32_Index > >& ranges) override;
     bool get_ranges
-        (Resource_Manager& rman, std::set< std::pair< Uint31_Index, Uint31_Index > >& ranges);
+        (Resource_Manager& rman, std::set< std::pair< Uint31_Index, Uint31_Index > >& ranges) override;
 
     bool get_node_ids
-        (Resource_Manager& rman, std::vector< Node_Skeleton::Id_Type >& ids);
+        (Resource_Manager& rman, std::vector< Node_Skeleton::Id_Type >& ids) override;
     bool get_way_ids
-        (Resource_Manager& rman, std::vector< Way_Skeleton::Id_Type >& ids);
+        (Resource_Manager& rman, std::vector< Way_Skeleton::Id_Type >& ids) override;
     bool get_relation_ids
-        (Resource_Manager& rman, std::vector< Relation_Skeleton::Id_Type >& ids);
+        (Resource_Manager& rman, std::vector< Relation_Skeleton::Id_Type >& ids) override;
     bool get_area_ids
-        (Resource_Manager& rman, std::vector< Area_Skeleton::Id_Type >& ids);
+        (Resource_Manager& rman, std::vector< Area_Skeleton::Id_Type >& ids) override;
 
-    void filter(Resource_Manager& rman, Set& into);
+    void filter(Resource_Manager& rman, Set& into) override;
     virtual ~Id_Query_Constraint() {}
   private:
     std::ostream& print_constraint( std::ostream &os ) const override {

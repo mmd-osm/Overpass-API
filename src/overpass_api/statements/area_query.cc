@@ -40,17 +40,17 @@ class Area_Constraint final : public Query_Constraint
   public:
     Area_Constraint(Area_Query_Statement& area_) : area(&area_) {}
 
-    Query_Filter_Strategy delivers_data(Resource_Manager& rman);
+    Query_Filter_Strategy delivers_data(Resource_Manager& rman) override;
 
     bool get_ranges
-        (Resource_Manager& rman, std::set< std::pair< Uint32_Index, Uint32_Index > >& ranges);
+        (Resource_Manager& rman, std::set< std::pair< Uint32_Index, Uint32_Index > >& ranges) override;
     bool get_ranges
-        (Resource_Manager& rman, std::set< std::pair< Uint31_Index, Uint31_Index > >& ranges);
-    void filter(Resource_Manager& rman, Set& into);
-    void filter(const Statement& query, Resource_Manager& rman, Set& into);
+        (Resource_Manager& rman, std::set< std::pair< Uint31_Index, Uint31_Index > >& ranges) override;
+    void filter(Resource_Manager& rman, Set& into) override;
+    void filter(const Statement& query, Resource_Manager& rman, Set& into) override;
     virtual ~Area_Constraint() {}
   private:
-    virtual std::ostream& print_constraint( std::ostream &os ) const {
+    virtual std::ostream& print_constraint( std::ostream &os ) const override {
         return os << (area != nullptr ? area->dump_ql_in_query("") : "area");
     }
 

@@ -25,14 +25,14 @@ class Item_Constraint final : public Query_Constraint
   public:
     Item_Constraint(Item_Statement& item_) : item(&item_) {}
 
-    Query_Filter_Strategy delivers_data(Resource_Manager& rman) { return prefer_ranges; }
+    Query_Filter_Strategy delivers_data(Resource_Manager& rman) override { return prefer_ranges; }
 
     bool collect_nodes(Resource_Manager& rman, Set& into,
-		 const std::vector< Node::Id_Type >& ids, bool invert_ids);
+		 const std::vector< Node::Id_Type >& ids, bool invert_ids) override;
     bool collect(Resource_Manager& rman, Set& into, int type,
-		 const std::vector< Uint32_Index >& ids, bool invert_ids);
-    bool collect(Resource_Manager& rman, Set& into);
-    void filter(Resource_Manager& rman, Set& into);
+		 const std::vector< Uint32_Index >& ids, bool invert_ids) override;
+    bool collect(Resource_Manager& rman, Set& into) override;
+    void filter(Resource_Manager& rman, Set& into) override;
     virtual ~Item_Constraint() {}
   private:
     std::ostream& print_constraint( std::ostream &os ) const override {

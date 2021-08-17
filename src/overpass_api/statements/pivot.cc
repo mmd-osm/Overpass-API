@@ -144,18 +144,18 @@ class Pivot_Constraint final : public Query_Constraint
   public:
     Pivot_Constraint(Pivot_Statement& stmt_) : stmt(&stmt_) {}
 
-    Query_Filter_Strategy delivers_data(Resource_Manager& rman) { return prefer_ranges; }
+    Query_Filter_Strategy delivers_data(Resource_Manager& rman) override { return prefer_ranges; }
 
-    virtual bool get_data(const Statement& query, Resource_Manager& rman, Set& into,
+    bool get_data(const Statement& query, Resource_Manager& rman, Set& into,
                           const std::set< std::pair< Uint32_Index, Uint32_Index > >& ranges,
                           const std::vector< Node::Id_Type >& ids,
-                          bool invert_ids);
-    virtual bool get_data(const Statement& query, Resource_Manager& rman, Set& into,
+                          bool invert_ids) override;
+    bool get_data(const Statement& query, Resource_Manager& rman, Set& into,
                           const std::set< std::pair< Uint31_Index, Uint31_Index > >& ranges,
                           int type,
                           const std::vector< Uint32_Index >& ids,
-                          bool invert_ids);
-    void filter(Resource_Manager& rman, Set& into);
+                          bool invert_ids) override;
+    void filter(Resource_Manager& rman, Set& into) override;
     virtual ~Pivot_Constraint() {}
   private:
     std::ostream& print_constraint( std::ostream &os ) const override {
