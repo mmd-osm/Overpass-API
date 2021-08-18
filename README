@@ -1,3 +1,230 @@
-Please see
-http://wiki.osm.org/wiki/Overpass_API
-for the language documentation.
+# Experimental Overpass API branch
+
+(draft version, incomplete)
+
+## Overview
+    
+* Performance optimized experimental Overpass API branch _0.7.59_mmd_
+* Based on 0.7.56 - _oversized_backend_objects_ branch
+
+### :tada: New features
+
+* PBF/OPL format output: setting `[out:pbf]` and `[out:opl]`
+* ICU regular expressions: setting `[regexp:ICU]` 
+* PCRE2 (+JIT) regular expression engine: setting `[regexp:PCREJIT]`
+* Ad-hoc area creation on any closed way/relation
+
+
+<details>
+<summary>Example query for ad-hoc area creation (click to open)</summary>
+
+
+```
+way[landuse=residential]({{bbox}});
+
+foreach ->.pivot {
+  ( 
+    .pivot;
+    node(w.pivot);
+  );
+
+  ( make_area [.pivot]; .result;)->.result;
+}
+
+rel[type=multipolygon][landuse=residential]({{bbox}});
+foreach ->.pivot {
+  ( 
+    way(r.pivot);
+    node(w);
+  );
+  ( make_area [.pivot]; .result;)->.result;
+}
+
+foreach .result -> .area {
+
+  way[building](area.area);
+
+  if(count(ways) == 0) {
+    way(pivot.area);
+    out geom meta;
+    rel(pivot.area);
+    out geom meta;
+  }
+}
+```
+</details>
+
+* Dockerfile to facilitate building 0.7.59_mmd and 0.7.56 binaries
+
+* PBF support for `update_from_dir` and `update_database` now allows direct processing of planet and diff pbf files. Currently, this feature needs to be enabled by using parameter `--use-osmium`. Assuming the correct file format is provided using the `-f` input file format parameter, formats supported by libosmium can be imported.
+    
+* map_demo: alternative implementation for API 0.6 /map call for very large areas with > 100 million nodes. Returns PBF file format.
+    
+* Improved dispatcher process security for use in multi-user environments ([upstream issue 247](https://github.com/drolbr/Overpass-API/issues/247))
+* Improved dispatcher signal handling for SIGTERM and SIGINT, same behavior as `--terminate` command line parameter
+    
+* Environment parameters:
+    
+    * OVERPASS_MAX_TIMEOUT: global override for maximium permitted `[timeout:...]` value.
+    * OVERPASS_FCGI_MAX_REQUESTS: number of FastCGI requests before `interpreter` process is being terminated (when idle)
+    * OVERPASS_FCGI_MAX_ELAPSED_TIME: maximum time after which FastCGI process is being terminated (when idle)
+    * OVERPASS_REGEXP_ENGINE: default regexp engine to use if none is specified in Overpass QL settings. POSIX, ICU, PCREJIT
+
+
+### :bug: Bugfixes
+
+* Reject unsupported area filter for areas (`area(area)`)
+* Reject empty poly statement (`(poly)`)
+* Print error messages in CSV output mode. Errors can be detected as empty line followed by the error message.
+* Fix replication scripts apply_osc_to_db.sh and fetch_osc.sh which now handle the global state.txt file correctly.
+* Fix Timestamp constructor may trigger segmentation fault ([upstream issue 625](https://github.com/drolbr/Overpass-API/issues/625))
+* Fix Change_Entry comparison operator bug ([upstream issue 623](https://github.com/drolbr/Overpass-API/issues/623))
+* Avoid accumulating area_blocks in foreach loop ([upstream issue 568](https://github.com/drolbr/Overpass-API/issues/568))
+* Fixed some memory leaks in test classes
+
+
+
+### :boom: Incompatible database format changes
+
+* Use of 40 bit node ids instead of 64 bit.
+LZ4 can no longer compress 40 bit node ids, resulting in a slightly worse compression ratio (average 69% before --> 75% fixed now)
+* Way nodes stored as varint using protozero (original idea: https://github.com/drolbr/Overpass-API/pull/250)
+
+Two conversion tools are available for easy conversion from the official database file format to the custom one.
+
+* Conversion tool to convert 0.7.56 clone database into 0.7.59_mmd format (runtime ~3h)
+* Conversion tool to created tagged nodes table absent in 0.7.56 database
+
+
+### :hourglass: Performance
+
+(List does not include some rather technical changes)
+
+* FastCGI support: avoid starting a new `interpreter` binary for each request, thereby enabling further caching options ([upstream pull request 383](https://github.com/drolbr/Overpass-API/pull/383))
+* Index and username caching: further taking advantage of FastCGI, database indices and usernames are only updated once per minute, and can be reused for many queries.
+* epoll based dispatcher processing for better scalability. This replaces round robin based unix domain socket polling with 10ms..100ms time intervals.
+* Hybrid array/bitmap container for better memory efficiency of large query statements (subset of features found in roaring bitmaps, https://arxiv.org/pdf/1603.06549.pdf)
+* Avoid object instantiation to access node/way/rel properties wherever possible in template backend using CRTP and C++11 move semantics
+* Attic: speed up object reconstruction, avoid expensive copying of objects
+* Parallel processing support for update_from_dir/update_database. New parameter `--parallel=n`, where n denotes the max. number of parallel processes
+* `around`: bbox based pruning. Calculate bounding box for each way and avoid O(n^2) great circle distance calculations, if bounding boxes don't intersect. Furthermode avoid exsessive object allocations by replacing vector by tuple.
+* Area caching, use of memoization to avoid expensive calculation
+
+* Lazy way geometry store loading for "out qt" to reduce memory consumption, also in attic mode. In addition avoid recalculation of loop invariants in Way_Geoemetry_Store.
+* Lazy (if: ) filter evaluation to short circuit boolean expression evaluation.
+* Changeset based (changed: ) filtering to process huge changesets in Achavi. Additional caching in `changed` to avoid recalculation of already available results.
+
+Example syntax for changeset 46503970: (syntax is subject to change)
+
+```
+[adiff:"2017-03-01T20:28:34Z","2017-03-01T20:28:42Z"];
+(node(changed!46503970);way(bn);way(changed!46503970);relation(changed!46503970););out meta geom qt;
+```
+
+* Separate nodes table for fast lookup of tagged nodes. This way only ~3% of all nodes need to be processed for tag node queries.
+* union statement optimization to avoid unnessary copying of so called "stack frames". Speeds up typically used `(._; .result;)->.result;` statements inside foreach loops.
+* Use lz4 compression by default for bin and map files
+* LZ4: fallback to uncompressed input, if result size increases during compression
+* Using fmt library to print fixed decimal values
+* Reduce memory consumption for attic tag queries (collect_attic_kregv and al.)
+* Expensive health check: use linear complexity approach in collect_items_range and similar functions.
+* Use of SharedDataPointer to reduce cost of copying large objects (ways, relations, areas, etc.)
+
+
+
+
+### Removed features
+
+* `[out:custom]` and `[out:popup]` output modes
+* Public transport diagrams
+
+
+### Performance characteristics
+
+* Full attic database creation 4-5 days (currently: > 24 days)
+* Full area creation: 2h 15min
+* Full day simulation w/ 1.2mio queries: about 950 queries/minute per CPU (roughly 6-7x speedup)
+* Dispatcher process can handle 5000-7000 requests/s.
+
+
+## Requirements
+
+## Installation
+
+### Clone source code
+
+```
+git clone https://github.com/mmd-osm/Overpass-API.git
+cd Overpass-API
+git checkout test759
+git submodule update --init
+```
+
+### Install dependencies
+
+```
+sudo apt-get update -qq || true
+sudo apt-get install -y expat libexpat1-dev liblz4-dev libfcgi-dev zlib1g-dev libbz2-dev libicu-dev libfmt-dev libpcre2-dev
+```
+
+### Compiling and installing binaries
+
+```
+pushd src/
+chmod u+x test-bin/*.sh
+autoscan
+aclocal
+autoheader
+libtoolize
+automake --add-missing
+autoconf
+popd
+mkdir -p build
+cd build
+../src/configure CXXFLAGS="-Werror=implicit-function-declaration  -D_FORTIFY_SOURCE=2 -fexceptions -fpie -Wl,-pie -fpic -shared -fstack-protector-strong -Wl,--no-as-needed -pipe -Wl,-z,defs -Wl,-z,now -Wl,-z,relro -fno-omit-frame-pointer -flto -fwhole-program -lfmt -O2" LDFLAGS="-flto -fwhole-program -lpcre2-8" --prefix=$EXEC_DIR --enable-lz4 --enable-fastcgi --enable-tests
+make V=0 -j3
+make install
+```
+
+### supervisord config
+
+/etc/supervisor/conf.d/overpass.conf 
+
+```
+[fcgi-program:interpreter]
+socket=unix:///var/run/interpreter.socket
+socket_owner=www-data
+socket_mode=0660
+environment=
+    OVERPASS_FCGI_MAX_REQUESTS=10000,
+    OVERPASS_FCGI_MAX_ELAPSED_TIME=900,
+    OVERPASS_REGEXP_ENGINE="PCREJIT"
+command=/home/user/osm3s/fcgi-bin/interpreter
+numprocs=6
+priority=999
+process_name=%(program_name)s_%(process_num)02d
+user=www-data
+autorestart=true
+autostart=true
+startsecs=1
+startretries=3
+stopsignal=QUIT
+stopwaitsecs=10
+redirect_stderr=true
+stdout_logfile=/var/log/interpreter.log
+stdout_logfile_maxbytes=10MB
+```
+
+### Apache config
+
+
+Depends on mod_proxy_fcgi
+
+Forward calls to /api/interpreter to local socket managed by supervisord.
+
+```
+         ProxyPass /api/interpreter unix:///var/run/interpreter.socket|fcgi://localhost/api/interpreter
+```         
+
+## Acknowledgements
+
