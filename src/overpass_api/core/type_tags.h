@@ -379,7 +379,7 @@ struct Tag_Index_Global_Has_Value_Functor {
 
   inline bool operator()(const void* data) const
    {
-     char* k = ((int8*)data + 4);
+     // char* k = ((int8*)data + 4);
      int key_len = *(uint16*)data;
 
      char* v = ((int8*)data + 4 + key_len);
