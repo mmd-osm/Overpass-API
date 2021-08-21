@@ -252,7 +252,7 @@ template < class Object >
 class Trivial_Predicate
 {
   public:
-    Trivial_Predicate() {}
+    Trivial_Predicate() = default;
     bool match(const Object& obj) const { return true; }
     bool match(const Handle< Object >& h) const { return true; }
     bool match(const Handle< Attic< Object > >& h) const { return true; }

@@ -151,14 +151,11 @@ struct Way_Skeleton_Handle_Methods;
 class Way_Skeleton_Data final : public SharedData
 {
 public:
-  Way_Skeleton_Data() { }
+  Way_Skeleton_Data() = default;
 
-  Way_Skeleton_Data(const Way_Skeleton_Data &other)
-     : SharedData(other),
-       nds(other.nds),
-       geometry(other.geometry) {}
+  Way_Skeleton_Data(const Way_Skeleton_Data &other) = default;
 
-  ~Way_Skeleton_Data() {}
+  ~Way_Skeleton_Data() = default;
 
   std::vector< Node::Id_Type > nds;
   std::vector< Quad_Coord > geometry;
@@ -268,7 +265,7 @@ private:
 
 template <typename Id_Type >
 struct Way_Skeleton_Id_Functor {
-  Way_Skeleton_Id_Functor() {};
+  Way_Skeleton_Id_Functor() = default;
 
   using reference_type = Way_Skeleton;
 
@@ -280,7 +277,7 @@ struct Way_Skeleton_Id_Functor {
 
 template <typename Id_Type >
 struct Way_Skeleton_Element_Functor {
-  Way_Skeleton_Element_Functor() {};
+  Way_Skeleton_Element_Functor() = default;
 
   using reference_type = Way_Skeleton;
 
@@ -586,7 +583,7 @@ struct Way_Delta
 
 template <typename Id_Type >
 struct Way_Delta_Id_Functor {
-  Way_Delta_Id_Functor() {};
+  Way_Delta_Id_Functor() = default;
 
   using reference_type = Way_Delta;
 

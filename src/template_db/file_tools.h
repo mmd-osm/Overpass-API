@@ -55,7 +55,7 @@ class Connection_Per_Pid_Map
 public:
   typedef uint pid_t;
 
-  Connection_Per_Pid_Map() {}
+  Connection_Per_Pid_Map() = default;
 
   Blocking_Client_Socket* get(pid_t pid);
   void set(pid_t pid, Blocking_Client_Socket* socket);

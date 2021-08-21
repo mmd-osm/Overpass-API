@@ -90,7 +90,7 @@ public:
   std::string get_name() const override { return "eval-is-closed"; }
   std::string get_result_name() const override { return ""; }
   void execute(Resource_Manager& rman) override {}
-  ~Evaluator_Is_Closed() override {}
+  ~Evaluator_Is_Closed() override = default;
 
   Requested_Context request_context() const override { return Requested_Context().add_usage(Set_Usage::SKELETON); }
 
@@ -112,7 +112,7 @@ Its syntax is:
 
 struct Geometry_Geometry_Task final : Eval_Geometry_Task
 {
-  Geometry_Geometry_Task() {}
+  Geometry_Geometry_Task() = default;
 
   Opaque_Geometry* eval() const override { return 0; }
 
@@ -156,7 +156,7 @@ public:
   std::string get_name() const override { return "eval-geometry"; }
   std::string get_result_name() const override { return ""; }
   void execute(Resource_Manager& rman) override {}
-  ~Evaluator_Geometry() override {}
+  ~Evaluator_Geometry() override = default;
 
   Requested_Context request_context() const override { return Requested_Context().add_usage(Set_Usage::GEOMETRY); }
 
@@ -183,7 +183,7 @@ Its syntax is:
 
 struct Length_Eval_Task final : public Eval_Task
 {
-  Length_Eval_Task() {}
+  Length_Eval_Task() = default;
 
   std::string eval(const std::string* key) const override { return ""; }
 
@@ -227,7 +227,7 @@ public:
   std::string get_name() const override { return "eval-length"; }
   std::string get_result_name() const override { return ""; }
   void execute(Resource_Manager& rman) override {}
-  ~Evaluator_Length() override {}
+  ~Evaluator_Length() override = default;
 
   Requested_Context request_context() const override { return Requested_Context().add_usage(Set_Usage::GEOMETRY); }
 
@@ -254,7 +254,7 @@ resp.
 
 struct Latitude_Eval_Task final : public Eval_Task
 {
-  Latitude_Eval_Task() {}
+  Latitude_Eval_Task() = default;
 
   std::string eval(const std::string* key) const override { return ""; }
 
@@ -306,7 +306,7 @@ public:
   std::string get_name() const override { return "eval-lat"; }
   std::string get_result_name() const override { return ""; }
   void execute(Resource_Manager& rman) override {}
-  ~Evaluator_Latitude() override {}
+  ~Evaluator_Latitude() override = default;
 
   Requested_Context request_context() const override { return Requested_Context().add_usage(Set_Usage::GEOMETRY); }
 
@@ -318,7 +318,7 @@ public:
 
 struct Longitude_Eval_Task final : public Eval_Task
 {
-  Longitude_Eval_Task() {}
+  Longitude_Eval_Task() = default;
 
   std::string eval(const std::string* key) const override { return ""; }
 
@@ -370,7 +370,7 @@ public:
   std::string get_name() const override { return "eval-lon"; }
   std::string get_result_name() const override { return ""; }
   void execute(Resource_Manager& rman) override {}
-  ~Evaluator_Longitude() override {}
+  ~Evaluator_Longitude() override = default;
 
   Requested_Context request_context() const override { return Requested_Context().add_usage(Set_Usage::GEOMETRY); }
 

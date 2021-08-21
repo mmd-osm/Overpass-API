@@ -31,7 +31,7 @@
 
 struct User_Data_Cache
 {
-  User_Data_Cache()  {}
+  User_Data_Cache()  = default;
   const std::map< uint32, std::string >& users(Transaction& transaction);
 };
 

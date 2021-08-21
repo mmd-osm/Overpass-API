@@ -77,7 +77,7 @@ struct File_Properties_Exception
 struct File_Blocks_Index_Base
 {
   virtual bool empty() const = 0;
-  virtual ~File_Blocks_Index_Base() {}
+  virtual ~File_Blocks_Index_Base() = default;
 
   static const int USE_DEFAULT = -1;
   static const int NO_COMPRESSION = 0;

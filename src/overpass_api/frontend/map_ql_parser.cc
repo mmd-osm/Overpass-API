@@ -518,7 +518,7 @@ TStatement* parse_foreach(typename TStatement::Factory& stmt_factory, Parsed_Que
 
 struct For_Stmt_Return_Type_Checker : Statement::Return_Type_Checker
 {
-  For_Stmt_Return_Type_Checker() {}
+  For_Stmt_Return_Type_Checker() = default;
 
   bool eval_required() const override { return true; }
   bool matches(Statement::Eval_Return_Type eval_type) const override
@@ -842,7 +842,7 @@ TStatement* parse_output(typename TStatement::Factory& stmt_factory,
 
 struct No_Return_Type_Checker : Statement::Return_Type_Checker
 {
-  No_Return_Type_Checker() {}
+  No_Return_Type_Checker() = default;
 
   bool eval_required() const override { return false; }
   bool matches(Statement::Eval_Return_Type eval_type) const override { return false; }

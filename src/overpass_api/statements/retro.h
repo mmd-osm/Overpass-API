@@ -60,7 +60,7 @@ public:
   std::string get_name() const override { return "retro"; }
   std::string get_result_name() const override { return ""; }
   void execute(Resource_Manager& rman) override;
-  ~Retro_Statement() override {}
+  ~Retro_Statement() override = default;
 
   static Generic_Statement_Maker< Retro_Statement > statement_maker;
 

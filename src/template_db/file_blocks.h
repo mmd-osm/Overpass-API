@@ -69,7 +69,7 @@ struct File_Blocks_Flat_Iterator final : File_Blocks_Basic_Iterator< TIndex >
   File_Blocks_Flat_Iterator(const File_Blocks_Flat_Iterator& a)
     : File_Blocks_Basic_Iterator< TIndex >(a) {}
 
-  ~File_Blocks_Flat_Iterator() {}
+  ~File_Blocks_Flat_Iterator() = default;
 
   const File_Blocks_Flat_Iterator& operator=
       (const File_Blocks_Flat_Iterator& a);
@@ -101,7 +101,7 @@ struct File_Blocks_Discrete_Iterator final : File_Blocks_Basic_Iterator< TIndex 
       index_lower(a.index_lower), index_upper(a.index_upper),
       index_end(a.index_end) {}
 
-  ~File_Blocks_Discrete_Iterator() {}
+  ~File_Blocks_Discrete_Iterator() = default;
 
   const File_Blocks_Discrete_Iterator& operator=
       (const File_Blocks_Discrete_Iterator& a);
@@ -144,7 +144,7 @@ struct File_Blocks_Range_Iterator final : File_Blocks_Basic_Iterator< TIndex >
       index_it(a.index_it), index_end(a.index_end),
       index_equals_last_index(false), new_index_search_needed(true) {}
 
-  ~File_Blocks_Range_Iterator() {}
+  ~File_Blocks_Range_Iterator() = default;
 
   const File_Blocks_Range_Iterator& operator=
       (const File_Blocks_Range_Iterator& a);
@@ -186,7 +186,7 @@ struct File_Blocks_Write_Iterator
       index_end(a.index_end), is_empty(a.is_empty), segments_mode(a.segments_mode),
       block_begin(a.block_begin), block_it(a.block_it), block_end(a.block_end) {}
 
-  ~File_Blocks_Write_Iterator() {}
+  ~File_Blocks_Write_Iterator() = default;
 
   bool is_end() const { return block_it == block_end && !is_empty; }
   int block_type() const;
@@ -240,7 +240,7 @@ private:
 
 public:
   File_Blocks(File_Blocks_Index_Base* index);
-  ~File_Blocks() {}
+  ~File_Blocks() = default;
 
   Flat_Iterator flat_begin();
   Flat_Iterator flat_end();

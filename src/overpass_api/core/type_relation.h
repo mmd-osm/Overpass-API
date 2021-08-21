@@ -55,8 +55,8 @@ struct Relation
 {
   typedef Uint32_Index Id_Type;
 
-  Id_Type id;
-  uint32 index;
+  Id_Type id{};
+  uint32 index{};
   std::vector< Relation_Entry > members;
   std::vector< Uint31_Index > node_idxs;
   std::vector< Uint31_Index > way_idxs;
@@ -105,15 +105,11 @@ struct Relation_Skeleton_Handle_Methods;
 class Relation_Skeleton_Data final : public SharedData
 {
 public:
-  Relation_Skeleton_Data() { }
+  Relation_Skeleton_Data() = default;
 
-  Relation_Skeleton_Data(const Relation_Skeleton_Data &other)
-     : SharedData(other),
-       members(other.members),
-       node_idxs(other.node_idxs),
-       way_idxs(other.way_idxs) {}
+  Relation_Skeleton_Data(const Relation_Skeleton_Data &other) = default;
 
-  ~Relation_Skeleton_Data() {}
+  ~Relation_Skeleton_Data() = default;
 
   std::vector< Relation_Entry > members;
   std::vector< Uint31_Index > node_idxs;
@@ -242,7 +238,7 @@ private:
 
 template <typename Id_Type >
 struct Relation_Skeleton_Id_Functor {
-  Relation_Skeleton_Id_Functor() {};
+  Relation_Skeleton_Id_Functor() = default;
 
   using reference_type = Relation_Skeleton;
 
@@ -254,7 +250,7 @@ struct Relation_Skeleton_Id_Functor {
 
 template <typename Id_Type >
 struct Relation_Skeleton_Element_Functor {
-  Relation_Skeleton_Element_Functor() {};
+  Relation_Skeleton_Element_Functor() = default;
 
   using reference_type = Relation_Skeleton;
 
@@ -617,7 +613,7 @@ struct Relation_Delta
 
 template <typename Id_Type >
 struct Relation_Delta_Id_Functor {
-  Relation_Delta_Id_Functor() {};
+  Relation_Delta_Id_Functor() = default;
 
   using reference_type = Relation_Delta;
 

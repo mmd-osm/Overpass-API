@@ -68,7 +68,7 @@ struct Output_Sorter_Kv
   std::vector< std::string > output_per_index;
   std::pair< std::string, std::string > last_index;
 
-  Output_Sorter_Kv() {}
+  Output_Sorter_Kv() = default;
 
   void sort_and_output_if_index_changed(const std::pair< std::string, std::string >& index)
   {

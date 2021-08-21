@@ -153,7 +153,7 @@ public:
                    Parsed_Query& global_settings);
   std::string get_result_name() const override { return ""; }
   void execute(Resource_Manager& rman) override {}
-  ~Evaluator_Per_Member() override {}
+  ~Evaluator_Per_Member() override = default;
 
   Requested_Context request_context() const override
   { return (rhs ? rhs->request_context() : Requested_Context()).add_usage(Set_Usage::SKELETON); }
@@ -207,7 +207,7 @@ public:
                    Parsed_Query& global_settings);
   std::string get_result_name() const override { return ""; }
   void execute(Resource_Manager& rman) override {}
-  ~Evaluator_Per_Vertex() override {}
+  ~Evaluator_Per_Vertex() override = default;
 
   Requested_Context request_context() const override
   { return (rhs ? rhs->request_context() : Requested_Context()).add_usage(Set_Usage::SKELETON); }
@@ -266,7 +266,7 @@ public:
   std::string get_name() const override { return "eval-pos"; }
   std::string get_result_name() const override { return ""; }
   void execute(Resource_Manager& rman) override {}
-  ~Evaluator_Pos() override {}
+  ~Evaluator_Pos() override = default;
 
   Requested_Context request_context() const override { return Requested_Context().add_usage(Set_Usage::SKELETON); }
 
@@ -323,7 +323,7 @@ public:
   std::string get_name() const override { return "eval-membertype"; }
   std::string get_result_name() const override { return ""; }
   void execute(Resource_Manager& rman) override {}
-  ~Evaluator_Membertype() override {}
+  ~Evaluator_Membertype() override = default;
 
   Requested_Context request_context() const override { return Requested_Context().add_usage(Set_Usage::SKELETON); }
 
@@ -367,7 +367,7 @@ public:
   std::string get_name() const override { return "eval-ref"; }
   std::string get_result_name() const override { return ""; }
   void execute(Resource_Manager& rman) override {}
-  ~Evaluator_Ref() override {}
+  ~Evaluator_Ref() override = default;
 
   Requested_Context request_context() const override { return Requested_Context().add_usage(Set_Usage::SKELETON); }
 
@@ -425,7 +425,7 @@ public:
   std::string get_name() const override { return "eval-role"; }
   std::string get_result_name() const override { return ""; }
   void execute(Resource_Manager& rman) override {}
-  ~Evaluator_Role() override {}
+  ~Evaluator_Role() override = default;
 
   Requested_Context request_context() const override
   { return Requested_Context().add_usage(Set_Usage::SKELETON).add_role_names(); }
@@ -487,7 +487,7 @@ public:
   std::string get_name() const override { return "eval-angle"; }
   std::string get_result_name() const override { return ""; }
   void execute(Resource_Manager& rman) override {}
-  ~Evaluator_Angle() override {}
+  ~Evaluator_Angle() override = default;
 
   Requested_Context request_context() const override
   { return Requested_Context().add_usage(Set_Usage::GEOMETRY); }

@@ -49,7 +49,7 @@ struct Dispatcher_Logger
   virtual void hangup(pid_t pid) = 0;
   virtual void purge(pid_t pid) = 0;
 
-  virtual ~Dispatcher_Logger() {};
+  virtual ~Dispatcher_Logger() = default;
 };
 
 

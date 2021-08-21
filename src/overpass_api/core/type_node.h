@@ -152,7 +152,7 @@ struct Node_Skeleton
 
 template <typename Id_Type >
 struct Node_Skeleton_Id_Functor {
-  Node_Skeleton_Id_Functor() {};
+  Node_Skeleton_Id_Functor() = default;
 
   using reference_type = Node_Skeleton;
 
@@ -164,7 +164,7 @@ struct Node_Skeleton_Id_Functor {
 
 template <typename Id_Type >
 struct Node_Skeleton_ll_lower_Functor {
-  Node_Skeleton_ll_lower_Functor() {};
+  Node_Skeleton_ll_lower_Functor() = default;
 
   using reference_type = Node_Skeleton;
 
@@ -176,7 +176,7 @@ struct Node_Skeleton_ll_lower_Functor {
 
 template <typename Id_Type >
 struct Node_Skeleton_Element_Functor {
-  Node_Skeleton_Element_Functor() {};
+  Node_Skeleton_Element_Functor() = default;
 
   using reference_type = Node_Skeleton;
 

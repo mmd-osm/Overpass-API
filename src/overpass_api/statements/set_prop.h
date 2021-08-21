@@ -36,7 +36,7 @@ struct Set_Prop_Task
 {
   enum Mode { single_key, set_id, set_geometry, generic };
 
-  virtual ~Set_Prop_Task() {}
+  virtual ~Set_Prop_Task() = default;
 
   virtual void process(Derived_Structure& result, bool& id_set) const = 0;
 

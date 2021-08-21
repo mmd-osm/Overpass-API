@@ -42,7 +42,7 @@ void Ternary_Evaluator::add_statement(Statement* statement, std::string text)
 
 struct Any_Return_Type_Checker : Statement::Return_Type_Checker
 {
-  Any_Return_Type_Checker() {}
+  Any_Return_Type_Checker() = default;
 
   bool eval_required() const override { return true; }
   bool matches(Statement::Eval_Return_Type eval_type) const override { return true; }

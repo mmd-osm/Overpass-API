@@ -69,7 +69,7 @@ public:
   std::string get_name() const override { return "if"; }
   std::string get_result_name() const override { return ""; }
   void execute(Resource_Manager& rman) override;
-  ~If_Statement() override {}
+  ~If_Statement() override = default;
 
   struct Statement_Maker : public Generic_Statement_Maker< If_Statement >
   {

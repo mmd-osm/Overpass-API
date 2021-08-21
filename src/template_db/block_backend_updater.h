@@ -150,9 +150,7 @@ Block_Backend_Updater< TIndex, TObject, TIterator >::Block_Backend_Updater(File_
 
 template< class TIndex, class TObject, class TIterator >
 Block_Backend_Updater< TIndex, TObject, TIterator >::~Block_Backend_Updater()
-{
-
-}
+= default;
 
 
 template< class TIndex, class TObject, class TIterator >

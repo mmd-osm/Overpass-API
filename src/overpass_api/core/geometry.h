@@ -75,7 +75,7 @@ public:
 class Opaque_Geometry
 {
 public:
-  virtual ~Opaque_Geometry() {}
+  virtual ~Opaque_Geometry() = default;
   virtual Opaque_Geometry* clone() const = 0;
 
   virtual bool has_center() const = 0;
@@ -125,7 +125,7 @@ public:
 class Null_Geometry final : public Opaque_Geometry
 {
 public:
-  Null_Geometry() {}
+  Null_Geometry() = default;
   Opaque_Geometry* clone() const override { return new Null_Geometry(); }
 
   bool has_center() const override { return false; }

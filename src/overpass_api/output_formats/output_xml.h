@@ -39,7 +39,7 @@ struct Csv_Settings
 class Output_XML : public Output_Handler
 {
 public:
-  Output_XML() {}
+  Output_XML() = default;
 
   bool write_http_headers() override;
   void write_payload_header(const std::string& db_dir,

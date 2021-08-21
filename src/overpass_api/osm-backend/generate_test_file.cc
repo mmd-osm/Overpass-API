@@ -40,7 +40,7 @@ struct V : public std::vector< T >
 
 struct Data_Modifier
 {
-  virtual ~Data_Modifier() {}
+  virtual ~Data_Modifier() = default;
 
   virtual bool admit_node(uint id) const = 0;
   virtual bool admit_node_skeleton(uint id) const = 0;

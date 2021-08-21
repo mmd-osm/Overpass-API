@@ -35,7 +35,7 @@ class Foreach_Statement : public Statement
     std::string get_name() const override { return "foreach"; }
     std::string get_result_name() const override { return output; }
     void execute(Resource_Manager& rman) override;
-    ~Foreach_Statement() override {}
+    ~Foreach_Statement() override = default;
 
     static Generic_Statement_Maker< Foreach_Statement > statement_maker;
 

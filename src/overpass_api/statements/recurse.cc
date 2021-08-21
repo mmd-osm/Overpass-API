@@ -1027,7 +1027,7 @@ class Recurse_Constraint final : public Query_Constraint
                           bool invert_ids) override;
     void filter(Resource_Manager& rman, Set& into) override;
     void filter(const Statement& query, Resource_Manager& rman, Set& into) override;
-    ~Recurse_Constraint() override {}
+    ~Recurse_Constraint() override = default;
   private:
     std::ostream& print_constraint( std::ostream &os ) const override {
       return os << (stmt != nullptr ? stmt->dump_ql_in_query("") : "recurse");

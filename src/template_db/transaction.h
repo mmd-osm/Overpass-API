@@ -60,7 +60,7 @@ private:
 class Transaction
 {
   public:
-    virtual ~Transaction() {}
+    virtual ~Transaction() = default;
     virtual File_Blocks_Index_Base* data_index(const File_Properties*) = 0;
     virtual Random_File_Index* random_index(const File_Properties*) = 0;
     virtual std::string get_db_dir() const = 0;

@@ -225,7 +225,7 @@ They only make sense in the context of a single element.
 
 struct Eval_Task
 {
-  virtual ~Eval_Task() {}
+  virtual ~Eval_Task() = default;
 
   virtual std::string eval(const std::string* key) const = 0;
 
@@ -270,7 +270,7 @@ private:
 
 struct Eval_Container_Task
 {
-  virtual ~Eval_Container_Task() {}
+  virtual ~Eval_Container_Task() = default;
 
   virtual std::vector< std::string > eval(const std::string* key) const = 0;
 
@@ -303,7 +303,7 @@ struct Eval_Container_Task
 
 struct Eval_Geometry_Task
 {
-  virtual ~Eval_Geometry_Task() {}
+  virtual ~Eval_Geometry_Task() = default;
 
   virtual Opaque_Geometry* eval() const = 0;
 

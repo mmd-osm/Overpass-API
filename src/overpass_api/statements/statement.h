@@ -94,7 +94,7 @@ class Query_Constraint
     // to minimize the number of elements that need to be processed.
     virtual void filter(const Statement& query, Resource_Manager& rman, Set& into) {}
 
-    virtual ~Query_Constraint() {}
+    virtual ~Query_Constraint() = default;
     friend std::ostream & operator<<(std::ostream &os, const Query_Constraint& p);
 
   private:
@@ -125,7 +125,7 @@ class Statement
       virtual bool eval_required() const = 0;
       virtual bool matches(Eval_Return_Type eval_type) const = 0;
       virtual std::string expectation() const = 0;
-      virtual ~Return_Type_Checker() {}
+      virtual ~Return_Type_Checker() = default;
     };
 
     struct Single_Return_Type_Checker : Return_Type_Checker
@@ -135,7 +135,7 @@ class Statement
       bool eval_required() const override { return true; }
       bool matches(Eval_Return_Type eval_type) const override { return eval_type == expected; }
       std::string expectation() const override { return eval_to_string(expected); }
-      ~Single_Return_Type_Checker() override {}
+      ~Single_Return_Type_Checker() override = default;
 
     private:
       Eval_Return_Type expected;
@@ -163,7 +163,7 @@ class Statement
     {
       virtual Statement* create_statement
           (int line_number, const std::map< std::string, std::string >& attributes, Parsed_Query& global_settings) = 0;
-      virtual ~Statement_Maker() {}
+      virtual ~Statement_Maker() = default;
     };
 
     struct Criterion_Maker
@@ -172,14 +172,14 @@ class Statement
       virtual Statement* create_criterion(const Token_Node_Ptr& tree_it,
           const std::string& type, const std::string& into,
           Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output) = 0;
-      virtual ~Criterion_Maker() {}
+      virtual ~Criterion_Maker() = default;
     };
 
     struct Evaluator_Maker
     {
       virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
           Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output) = 0;
-      virtual ~Evaluator_Maker() {}
+      virtual ~Evaluator_Maker() = default;
     };
 
     static std::map< std::string, Statement_Maker* >& maker_by_name();
@@ -199,7 +199,7 @@ class Statement
     // object.
     virtual Query_Constraint* get_query_constraint() { return 0; }
 
-    virtual ~Statement() {}
+    virtual ~Statement() = default;
 
     int get_progress() const { return progress; }
     int get_line_number() const { return line_number; }
@@ -267,7 +267,7 @@ class Generic_Statement_Maker : public Statement::Statement_Maker
     }
 
     Generic_Statement_Maker(const std::string& name) { Statement::maker_by_name()[name] = this; }
-    ~Generic_Statement_Maker() override {}
+    ~Generic_Statement_Maker() override = default;
 };
 
 

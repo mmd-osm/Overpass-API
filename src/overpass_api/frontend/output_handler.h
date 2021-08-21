@@ -111,7 +111,7 @@ public:
 
   virtual std::string dump_config() const { return ""; }
 
-  virtual ~Output_Handler() {}
+  virtual ~Output_Handler() = default;
 };
 
 

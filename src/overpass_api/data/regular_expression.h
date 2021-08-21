@@ -77,7 +77,7 @@ class Regular_Expression
       prev_result = false;
     }
 
-    virtual ~Regular_Expression() { };
+    virtual ~Regular_Expression() = default;
 
     virtual bool matches(const std::string& line) const = 0;
 

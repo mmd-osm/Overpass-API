@@ -90,7 +90,7 @@ class For_Statement : public Statement
     std::string get_name() const override { return "for"; }
     std::string get_result_name() const override { return output; }
     void execute(Resource_Manager& rman) override;
-    ~For_Statement() override {}
+    ~For_Statement() override = default;
 
     static Generic_Statement_Maker< For_Statement > statement_maker;
 

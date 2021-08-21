@@ -68,7 +68,7 @@ typedef std::list< IntIndex >::const_iterator IntIterator;
 
 struct IntRangeIterator : std::list< std::pair< IntIndex, IntIndex > >::const_iterator
 {
-  IntRangeIterator() {}
+  IntRangeIterator() = default;
 
   IntRangeIterator
     (const std::list< std::pair< IntIndex, IntIndex > >::const_iterator it)

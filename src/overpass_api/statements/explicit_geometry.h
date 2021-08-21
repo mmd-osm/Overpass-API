@@ -112,7 +112,7 @@ public:
   std::string get_result_name() const override { return ""; }
   void add_statement(Statement* statement, std::string text) override;
   void execute(Resource_Manager& rman) override {}
-  ~Evaluator_Point() override {}
+  ~Evaluator_Point() override = default;
 
   Requested_Context request_context() const override;
 
@@ -217,7 +217,7 @@ public:
   std::string get_result_name() const override { return ""; }
   void add_statement(Statement* statement, std::string text) override;
   void execute(Resource_Manager& rman) override {}
-  ~Evaluator_Linestring() override {}
+  ~Evaluator_Linestring() override = default;
 
   Requested_Context request_context() const override;
 
@@ -331,7 +331,7 @@ public:
   std::string get_result_name() const override { return ""; }
   void add_statement(Statement* statement, std::string text) override;
   void execute(Resource_Manager& rman) override {}
-  ~Evaluator_Polygon() override {}
+  ~Evaluator_Polygon() override = default;
 
   Requested_Context request_context() const override;
 

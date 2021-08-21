@@ -72,7 +72,7 @@ class Evaluator_Pair_Operator : public Evaluator
 {
 public:
   Evaluator_Pair_Operator(int line_number_);
-  ~Evaluator_Pair_Operator() override {}
+  ~Evaluator_Pair_Operator() override = default;
 
   void add_statement(Statement* statement, std::string text) override;
   void execute(Resource_Manager& rman) override {}

@@ -44,9 +44,7 @@ Make_Statement::Make_Statement
 }
 
 
-Make_Statement::~Make_Statement()
-{
-}
+Make_Statement::~Make_Statement() = default;
 
 
 void Make_Statement::add_statement(Statement* statement, std::string text)

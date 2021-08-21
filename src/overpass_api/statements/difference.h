@@ -33,7 +33,7 @@ class Difference_Statement final : public Output_Statement
     void add_statement(Statement* statement, std::string text) override;
     std::string get_name() const override { return "difference"; }
     void execute(Resource_Manager& rman) override;
-    ~Difference_Statement() override {}
+    ~Difference_Statement() override = default;
 
     static Generic_Statement_Maker< Difference_Statement > statement_maker;
 

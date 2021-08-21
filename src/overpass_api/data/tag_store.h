@@ -67,7 +67,7 @@ class Tag_Store< Uint31_Index, Derived_Structure >
 {
 public:
   Tag_Store(Transaction& transaction) {}
-  Tag_Store() {}
+  Tag_Store() = default;
 
   void prefetch_all(const std::map< Uint31_Index, std::vector< Derived_Structure > >& elems) {}
   void prefetch_chunk(const std::map< Uint31_Index, std::vector< Derived_Structure > >& elems,

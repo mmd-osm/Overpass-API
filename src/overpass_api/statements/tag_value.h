@@ -68,7 +68,7 @@ public:
   std::string get_name() const override { return "eval-fixed"; }
   std::string get_result_name() const override { return ""; }
   void execute(Resource_Manager& rman) override {}
-  ~Evaluator_Fixed() override {}
+  ~Evaluator_Fixed() override = default;
 
   Requested_Context request_context() const override { return Requested_Context(); }
 
@@ -150,7 +150,7 @@ public:
   std::string get_name() const override { return "eval-id"; }
   std::string get_result_name() const override { return ""; }
   void execute(Resource_Manager& rman) override {}
-  ~Evaluator_Id() override {}
+  ~Evaluator_Id() override = default;
 
   Requested_Context request_context() const override { return Requested_Context().add_usage(Set_Usage::SKELETON); }
 
@@ -201,7 +201,7 @@ public:
   std::string get_name() const override { return "eval-type"; }
   std::string get_result_name() const override { return ""; }
   void execute(Resource_Manager& rman) override {}
-  ~Evaluator_Type() override {}
+  ~Evaluator_Type() override = default;
 
   Requested_Context request_context() const override { return Requested_Context().add_usage(Set_Usage::SKELETON); }
 
@@ -296,7 +296,7 @@ public:
   std::string get_name() const override { return "eval-value"; }
   std::string get_result_name() const override { return ""; }
   void execute(Resource_Manager& rman) override {}
-  ~Evaluator_Value() override {}
+  ~Evaluator_Value() override = default;
 
   Requested_Context request_context() const override;
 
@@ -366,7 +366,7 @@ public:
   std::string get_name() const override { return "eval-is-tag"; }
   std::string get_result_name() const override { return ""; }
   void execute(Resource_Manager& rman) override {}
-  ~Evaluator_Is_Tag() override {}
+  ~Evaluator_Is_Tag() override = default;
 
   Requested_Context request_context() const override { return Requested_Context().add_usage(Set_Usage::TAGS); }
 
@@ -428,7 +428,7 @@ public:
   std::string get_name() const override { return "eval-generic"; }
   std::string get_result_name() const override { return ""; }
   void execute(Resource_Manager& rman) override {}
-  ~Evaluator_Generic() override {}
+  ~Evaluator_Generic() override = default;
 
   Requested_Context request_context() const override { return Requested_Context().add_usage(Set_Usage::TAGS); }
 
@@ -502,7 +502,7 @@ public:
   std::string get_name() const override { return "eval-all-keys"; }
   std::string get_result_name() const override { return ""; }
   void execute(Resource_Manager& rman) override {}
-  ~Evaluator_All_Keys() override {}
+  ~Evaluator_All_Keys() override = default;
 
   Requested_Context request_context() const override { return Requested_Context().add_usage(Set_Usage::TAGS); }
 
@@ -549,7 +549,7 @@ Its syntax is:
 
 struct Version_Eval_Task final : public Eval_Task
 {
-  Version_Eval_Task() {}
+  Version_Eval_Task() = default;
 
   std::string eval(const std::string* key) const override { return ""; }
 
@@ -593,7 +593,7 @@ public:
   std::string get_name() const override { return "eval-version"; }
   std::string get_result_name() const override { return ""; }
   void execute(Resource_Manager& rman) override {}
-  ~Evaluator_Version() override {}
+  ~Evaluator_Version() override = default;
 
   Requested_Context request_context() const override { return Requested_Context().add_usage(Set_Usage::META); }
 
@@ -605,7 +605,7 @@ public:
 
 struct Timestamp_Eval_Task final : public Eval_Task
 {
-  Timestamp_Eval_Task() {}
+  Timestamp_Eval_Task() = default;
 
   std::string eval(const std::string* key) const override { return ""; }
 
@@ -649,7 +649,7 @@ public:
   std::string get_name() const override { return "eval-timestamp"; }
   std::string get_result_name() const override { return ""; }
   void execute(Resource_Manager& rman) override {}
-  ~Evaluator_Timestamp() override {}
+  ~Evaluator_Timestamp() override = default;
 
   Requested_Context request_context() const override { return Requested_Context().add_usage(Set_Usage::META); }
 
@@ -661,7 +661,7 @@ public:
 
 struct Changeset_Eval_Task final : public Eval_Task
 {
-  Changeset_Eval_Task() {}
+  Changeset_Eval_Task() = default;
 
   std::string eval(const std::string* key) const override { return ""; }
 
@@ -705,7 +705,7 @@ public:
   std::string get_name() const override { return "eval-changeset"; }
   std::string get_result_name() const override { return ""; }
   void execute(Resource_Manager& rman) override {}
-  ~Evaluator_Changeset() override {}
+  ~Evaluator_Changeset() override = default;
 
   Requested_Context request_context() const override { return Requested_Context().add_usage(Set_Usage::META); }
 
@@ -717,7 +717,7 @@ public:
 
 struct Uid_Eval_Task final : public Eval_Task
 {
-  Uid_Eval_Task() {}
+  Uid_Eval_Task() = default;
 
   std::string eval(const std::string* key) const override { return ""; }
 
@@ -761,7 +761,7 @@ public:
   std::string get_name() const override { return "eval-uid"; }
   std::string get_result_name() const override { return ""; }
   void execute(Resource_Manager& rman) override {}
-  ~Evaluator_Uid() override {}
+  ~Evaluator_Uid() override = default;
 
   Requested_Context request_context() const override { return Requested_Context().add_usage(Set_Usage::META); }
 
@@ -773,7 +773,7 @@ public:
 
 struct User_Eval_Task final : public Eval_Task
 {
-  User_Eval_Task() {}
+  User_Eval_Task() = default;
 
   std::string eval(const std::string* key) const override { return ""; }
 
@@ -817,7 +817,7 @@ public:
   std::string get_name() const override { return "eval-user"; }
   std::string get_result_name() const override { return ""; }
   void execute(Resource_Manager& rman) override {}
-  ~Evaluator_User() override {}
+  ~Evaluator_User() override = default;
 
   Requested_Context request_context() const override
   { return Requested_Context().add_usage(Set_Usage::META).add_user_names(); }
@@ -907,7 +907,7 @@ public:
   std::string get_name() const override { return "eval-prop-count"; }
   std::string get_result_name() const override { return ""; }
   void execute(Resource_Manager& rman) override {}
-  ~Evaluator_Properties_Count() override {}
+  ~Evaluator_Properties_Count() override = default;
 
   Requested_Context request_context() const override;
 

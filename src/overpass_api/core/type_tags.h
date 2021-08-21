@@ -53,7 +53,7 @@ struct Tag_Index_Local
   std::string key;
   std::string value;
 
-  Tag_Index_Local() {}
+  Tag_Index_Local() = default;
 
   template< typename Id_Type >
   Tag_Index_Local(const Tag_Entry< Id_Type >& entry)
@@ -130,7 +130,7 @@ inline std::ostream & operator<<(std::ostream &os, const Tag_Index_Local& p)
 
 
 struct Tag_Index_Local_Index_Functor {
-  Tag_Index_Local_Index_Functor() {};
+  Tag_Index_Local_Index_Functor() = default;
 
   using reference_type = Tag_Index_Local;
 
@@ -141,7 +141,7 @@ struct Tag_Index_Local_Index_Functor {
 };
 
 struct Tag_Index_Local_Element_Functor {
-  Tag_Index_Local_Element_Functor() {};
+  Tag_Index_Local_Element_Functor() = default;
 
   using reference_type = Tag_Index_Local;
 
@@ -292,7 +292,7 @@ struct Tag_Index_Global
   std::string key;
   std::string value;
 
-  Tag_Index_Global() {}
+  Tag_Index_Global() = default;
 
   Tag_Index_Global(const void* data)
   {
@@ -419,7 +419,7 @@ struct Tag_Object_Global
   Uint31_Index idx;
   Id_Type id;
 
-  Tag_Object_Global() {}
+  Tag_Object_Global() = default;
 
   Tag_Object_Global(Id_Type id_, Uint31_Index idx_) : idx(idx_), id(id_) {}
 
@@ -471,7 +471,7 @@ struct Tag_Object_Global
 
 template <typename Id_Type >
 struct Tag_Object_Global_Id_Functor {
-  Tag_Object_Global_Id_Functor() {};
+  Tag_Object_Global_Id_Functor() = default;
 
   using reference_type = Tag_Object_Global< Id_Type >;
 
@@ -484,7 +484,7 @@ struct Tag_Object_Global_Id_Functor {
 
 template <typename Id_Type >
 struct Tag_Object_Global_Idx_Functor {
-  Tag_Object_Global_Idx_Functor() {};
+  Tag_Object_Global_Idx_Functor() = default;
 
   using reference_type = Tag_Object_Global< Id_Type >;
 

@@ -48,7 +48,7 @@ class Area_Constraint final : public Query_Constraint
         (Resource_Manager& rman, std::set< std::pair< Uint31_Index, Uint31_Index > >& ranges) override;
     void filter(Resource_Manager& rman, Set& into) override;
     void filter(const Statement& query, Resource_Manager& rman, Set& into) override;
-    ~Area_Constraint() override {}
+    ~Area_Constraint() override = default;
   private:
     std::ostream& print_constraint( std::ostream &os ) const override {
         return os << (area != nullptr ? area->dump_ql_in_query("") : "area");

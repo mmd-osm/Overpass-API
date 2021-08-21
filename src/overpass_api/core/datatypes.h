@@ -237,7 +237,7 @@ private:
 template< typename Pointer >
 struct Owning_Array
 {
-  Owning_Array() {}
+  Owning_Array() = default;
   ~Owning_Array()
   {
     for (typename std::vector< Pointer >::iterator it = content.begin(); it != content.end(); ++it)
@@ -378,7 +378,7 @@ struct Error_Output
 class Area_Usage_Listener
 {
   public:
-    virtual ~Area_Usage_Listener() {}
+    virtual ~Area_Usage_Listener() = default;
     virtual void flush() = 0;
 };
 
@@ -543,7 +543,7 @@ struct OSM_Element_Metadata_Skeleton
 
 template <typename Id_Type >
 struct Metadata_Timestamp_Functor {
-  Metadata_Timestamp_Functor() {};
+  Metadata_Timestamp_Functor() = default;
 
   using reference_type = OSM_Element_Metadata_Skeleton<Id_Type>;
 
@@ -556,7 +556,7 @@ struct Metadata_Timestamp_Functor {
 
 template <typename Id_Type >
 struct Metadata_Element_Functor {
-  Metadata_Element_Functor() {};
+  Metadata_Element_Functor() = default;
 
   using reference_type = OSM_Element_Metadata_Skeleton<Id_Type>;
 
@@ -569,7 +569,7 @@ struct Metadata_Element_Functor {
 
 template <typename Id_Type >
 struct Metadata_Reference_Functor {
-  Metadata_Reference_Functor() {};
+  Metadata_Reference_Functor() = default;
 
   using reference_type = OSM_Element_Metadata_Skeleton<Id_Type>;
 
@@ -581,7 +581,7 @@ struct Metadata_Reference_Functor {
 
 template <typename Id_Type >
 struct Metadata_Changeset_Functor {
-  Metadata_Changeset_Functor() {};
+  Metadata_Changeset_Functor() = default;
 
   using reference_type = OSM_Element_Metadata_Skeleton<Id_Type>;
 
@@ -695,7 +695,7 @@ struct Change_Entry
 
 template <typename Id_Type >
 struct Change_Entry_Id_Functor {
-  Change_Entry_Id_Functor() {};
+  Change_Entry_Id_Functor() = default;
 
   using reference_type = Change_Entry< Id_Type >;
 

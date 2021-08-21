@@ -37,7 +37,7 @@ struct Value_Aggregator
 
   virtual void update_value(const std::string& value) = 0;
   virtual std::string get_value() = 0;
-  virtual ~Value_Aggregator() {}
+  virtual ~Value_Aggregator() = default;
 };
 
 
@@ -45,7 +45,7 @@ struct Geometry_Aggregator
 {
   virtual void consume_value(Opaque_Geometry* geom) = 0;
   virtual Opaque_Geometry* move_value() = 0;
-  virtual ~Geometry_Aggregator() {}
+  virtual ~Geometry_Aggregator() = default;
 };
 
 
@@ -412,7 +412,7 @@ public:
   std::string get_name() const override { return "eval-set-count"; }
   std::string get_result_name() const override { return ""; }
   void execute(Resource_Manager& rman) override {}
-  ~Evaluator_Set_Count() override {}
+  ~Evaluator_Set_Count() override = default;
 
   Requested_Context request_context() const override;
 

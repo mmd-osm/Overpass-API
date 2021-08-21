@@ -219,11 +219,11 @@ struct Area
 
 struct Area_Location
 {
-  uint32 id;
+  uint32 id = 0;
   std::vector< uint32 > used_indices;
   std::vector< std::pair< std::string, std::string > > tags;
 
-  Area_Location() {}
+  Area_Location() = default;
 
   Area_Location(uint32 id_, const std::vector< uint32 >& used_indices_)
   : id(id_), used_indices(used_indices_) {}
@@ -253,16 +253,13 @@ struct Area_Skeleton_Handle_Methods;
 class Area_Skeleton_Data final : public SharedData
 {
 public:
-  Area_Skeleton_Data() { }
+  Area_Skeleton_Data() = default;
 
-  Area_Skeleton_Data(const Area_Skeleton_Data &other)
-     : SharedData(other),
-       used_indices(other.used_indices) {}
+  Area_Skeleton_Data(const Area_Skeleton_Data &other) = default;
 
-  ~Area_Skeleton_Data() {}
+  ~Area_Skeleton_Data() = default;
 
   std::vector< uint32 > used_indices;
-
 };
 
 struct Area_Skeleton
@@ -335,7 +332,7 @@ private:
 
 template <typename Id_Type >
 struct Area_Skeleton_Id_Functor {
-  Area_Skeleton_Id_Functor() {};
+  Area_Skeleton_Id_Functor() = default;
 
   using reference_type = Area_Skeleton;
 
@@ -360,13 +357,13 @@ struct Area_Block_Handle_Methods;
 class Area_Block_Data final : public SharedData
 {
 public:
-  Area_Block_Data() { }
+  Area_Block_Data() = default;
 
   Area_Block_Data(const Area_Block_Data &other)
      : SharedData(other),
        coors(other.coors) {}
 
-  ~Area_Block_Data() {}
+  ~Area_Block_Data() = default;
 
   std::vector< uint64 > coors;
 
@@ -463,7 +460,7 @@ struct Area_Block
 
 template <typename Id_Type >
 struct Area_Block_Id_Functor {
-  Area_Block_Id_Functor() {};
+  Area_Block_Id_Functor() = default;
 
   using reference_type = Area_Block;
 

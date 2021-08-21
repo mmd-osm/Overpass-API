@@ -33,7 +33,7 @@ class Output_Handler_Parser
 {
 public:
   // You can inherit from this class
-  virtual ~Output_Handler_Parser() {}
+  virtual ~Output_Handler_Parser() = default;
 
   // You need to provide a name token for each subclass
   Output_Handler_Parser(const std::string& format_name);

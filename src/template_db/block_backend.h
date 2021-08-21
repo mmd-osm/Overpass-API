@@ -362,7 +362,7 @@ struct Default_Range_Iterator final : std::set< std::pair< Index, Index > >::con
       (const typename std::set< std::pair< Index, Index > >::const_iterator it)
   : std::set< std::pair< Index, Index > >::const_iterator(it) {}
 
-  Default_Range_Iterator() {}
+  Default_Range_Iterator() = default;
 
   const Index& lower_bound() const { return (*this)->first; }
   const Index& upper_bound() const { return (*this)->second; }

@@ -100,7 +100,7 @@ public:
   void add_statement(Statement* statement, std::string text) override;
   std::string get_name() const override { return "complete"; }
   void execute(Resource_Manager& rman) override;
-  ~Complete_Statement() override {}
+  ~Complete_Statement() override = default;
 
   static Generic_Statement_Maker< Complete_Statement > statement_maker;
 

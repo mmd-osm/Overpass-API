@@ -42,9 +42,9 @@ LZ4_Deflate::Error::Error(int error_code_)
 {}
 
 
-LZ4_Deflate::LZ4_Deflate() { }
+LZ4_Deflate::LZ4_Deflate() = default;
 
-LZ4_Deflate::~LZ4_Deflate() { }
+LZ4_Deflate::~LZ4_Deflate() = default;
 
 int LZ4_Deflate::compress(const void* in, int in_size, void* out, int out_buffer_size)
 {
@@ -79,9 +79,9 @@ LZ4_Inflate::Error::Error(int error_code_)
 {}
 
 
-LZ4_Inflate::LZ4_Inflate() { }
+LZ4_Inflate::LZ4_Inflate() = default;
 
-LZ4_Inflate::~LZ4_Inflate() { }
+LZ4_Inflate::~LZ4_Inflate() = default;
 
 
 int LZ4_Inflate::decompress(const void* in, int in_size, void* out, int out_buffer_size)

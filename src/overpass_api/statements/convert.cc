@@ -47,9 +47,7 @@ Convert_Statement::Convert_Statement
 }
 
 
-Convert_Statement::~Convert_Statement()
-{
-}
+Convert_Statement::~Convert_Statement() = default;
 
 
 void Convert_Statement::add_statement(Statement* statement, std::string text)

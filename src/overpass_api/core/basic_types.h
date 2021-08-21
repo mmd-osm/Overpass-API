@@ -123,7 +123,7 @@ inline std::ostream & operator<<(std::ostream &os, const Uint32_Index& p)
 
 
 struct Uint32_Index_Val_Functor {
-  Uint32_Index_Val_Functor() {};
+  Uint32_Index_Val_Functor() = default;
 
   using reference_type = Uint32_Index;
 
@@ -135,7 +135,7 @@ struct Uint32_Index_Val_Functor {
 
 template <typename Id_Type >
 struct Uint32_Id_Functor {
-  Uint32_Id_Functor() {};
+  Uint32_Id_Functor() = default;
 
   using reference_type = Uint32_Index;
 
@@ -217,7 +217,7 @@ inline Uint31_Index inc(Uint31_Index idx) noexcept
 }
 
 struct Uint31_Index_Val_Functor {
-  Uint31_Index_Val_Functor() {};
+  Uint31_Index_Val_Functor() = default;
 
   using reference_type = Uint31_Index;
 
@@ -229,7 +229,7 @@ struct Uint31_Index_Val_Functor {
 
 template <typename Id_Type >
 struct Uint31_Id_Functor {
-  Uint31_Id_Functor() {};
+  Uint31_Id_Functor() = default;
 
   using reference_type = Uint31_Index;
 
@@ -325,7 +325,7 @@ inline std::ostream & operator<<(std::ostream &os, const Uint64& p)
 
 template <typename Id_Type >
 struct Uint64_Id_Functor {
-  Uint64_Id_Functor() {};
+  Uint64_Id_Functor() = default;
 
   using reference_type = Uint64;
 
@@ -419,7 +419,7 @@ inline std::ostream & operator<<(std::ostream &os, const Uint40& p)
 
 template <typename Id_Type >
 struct Uint40_Id_Functor {
-  Uint40_Id_Functor() {};
+  Uint40_Id_Functor() = default;
 
   using reference_type = Uint40;
 
@@ -517,7 +517,7 @@ struct Attic : public Element_Skeleton
 
 template< typename Element_Skeleton >
 struct Attic_Timestamp_Functor {
-  Attic_Timestamp_Functor() {};
+  Attic_Timestamp_Functor() = default;
 
   using reference_type = Attic< Element_Skeleton >;
 

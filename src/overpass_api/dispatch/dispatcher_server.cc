@@ -31,7 +31,7 @@ struct Default_Dispatcher_Logger : public Dispatcher_Logger
 {
   Default_Dispatcher_Logger(Logger& logger_) : logger(&logger_) {}
 
-  ~Default_Dispatcher_Logger() override {}
+  ~Default_Dispatcher_Logger() override = default;
 
   void write_start(pid_t pid, const std::vector< pid_t >& registered) override;
   void write_rollback(pid_t pid) override;
@@ -143,7 +143,7 @@ struct Quiet_Dispatcher_Logger : public Dispatcher_Logger
 {
 
   Quiet_Dispatcher_Logger(Logger& logger_) : logger(&logger_) {}
-  ~Quiet_Dispatcher_Logger() override {}
+  ~Quiet_Dispatcher_Logger() override = default;
 
   void write_start(pid_t pid, const std::vector< pid_t >& registered) override {}
   void write_rollback(pid_t pid) override  {}

@@ -28,7 +28,7 @@
 class Output_Timestamp : public Output_Handler
 {
 public:
-  Output_Timestamp() {}
+  Output_Timestamp() = default;
 
   bool write_http_headers() override;
   void write_payload_header(const std::string& db_dir,

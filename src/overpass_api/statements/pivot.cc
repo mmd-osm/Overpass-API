@@ -156,7 +156,7 @@ class Pivot_Constraint final : public Query_Constraint
                           const std::vector< Uint32_Index >& ids,
                           bool invert_ids) override;
     void filter(Resource_Manager& rman, Set& into) override;
-    ~Pivot_Constraint() override {}
+    ~Pivot_Constraint() override = default;
   private:
     std::ostream& print_constraint( std::ostream &os ) const override {
       return os << (stmt != nullptr ? stmt->dump_ql_in_query("") : "pivot");

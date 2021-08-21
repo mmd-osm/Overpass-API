@@ -33,7 +33,7 @@ class Item_Constraint final : public Query_Constraint
 		 const std::vector< Uint32_Index >& ids, bool invert_ids) override;
     bool collect(Resource_Manager& rman, Set& into) override;
     void filter(Resource_Manager& rman, Set& into) override;
-    ~Item_Constraint() override {}
+    ~Item_Constraint() override = default;
   private:
     std::ostream& print_constraint( std::ostream &os ) const override {
       return os <<  (item != nullptr ? item->dump_ql_in_query("") : "item");
