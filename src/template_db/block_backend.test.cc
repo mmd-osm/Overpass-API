@@ -178,75 +178,75 @@ struct Test_File : File_Properties
     return BASE_DIRECTORY;
   }
 
-  const std::string& get_file_name_trunk() const
+  const std::string& get_file_name_trunk() const override
   {
     static std::string result("testfile");
     return result;
   }
 
-  const std::string& get_index_suffix() const
+  const std::string& get_index_suffix() const override
   {
     return INDEX_SUFFIX;
   }
 
-  const std::string& get_data_suffix() const
+  const std::string& get_data_suffix() const override
   {
     return DATA_SUFFIX;
   }
 
-  const std::string& get_id_suffix() const
+  const std::string& get_id_suffix() const override
   {
     static std::string result("");
     return result;
   }
 
-  const std::string& get_shadow_suffix() const
+  const std::string& get_shadow_suffix() const override
   {
     static std::string result(".shadow");
     return result;
   }
 
-  uint32 get_block_size() const
+  uint32 get_block_size() const override
   {
     return 512;
   }
 
-  uint32 get_compression_factor() const
+  uint32 get_compression_factor() const override
   {
     return 1;
   }
 
-  uint32 get_compression_method() const
+  uint32 get_compression_method() const override
   {
     return 0;
   }
 
-  uint32 get_map_compression_method() const
+  uint32 get_map_compression_method() const override
   {
     return File_Blocks_Index< IntIndex >::NO_COMPRESSION;
   }
 
-  uint32 get_map_block_size() const
+  uint32 get_map_block_size() const override
   {
     return 16;
   }
 
-  uint32 get_map_compression_factor() const
+  uint32 get_map_compression_factor() const override
   {
     return 1;
   }
 
-  std::vector< bool > get_data_footprint(const std::string& db_dir) const
+  std::vector< bool > get_data_footprint(const std::string& db_dir) const override
   {
     return std::vector< bool >();
   }
 
-  std::vector< bool > get_map_footprint(const std::string& db_dir) const
+  std::vector< bool > get_map_footprint(const std::string& db_dir) const override
   {
     return std::vector< bool >();
   }
 
-  uint32 id_max_size_of() const
+  uint32 id_max_size_of() const override
   {
     throw std::string();
     return 0;
@@ -254,7 +254,7 @@ struct Test_File : File_Properties
 
   File_Blocks_Index_Base* new_data_index
       (bool writeable, bool use_shadow, const std::string& db_dir, const std::string& file_name_extension)
-      const
+      const override
   {
     return new File_Blocks_Index< IntIndex >
         (*this, writeable, use_shadow, db_dir, file_name_extension);

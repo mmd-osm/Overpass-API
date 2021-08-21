@@ -53,7 +53,7 @@ struct Area_Updater : public Area_Usage_Listener
   Area_Updater(Transaction& transaction_);
   Area_Updater(std::string db_dir_);
 
-  ~Area_Updater() { flush(); }
+  ~Area_Updater() override { flush(); }
 
   void set_id_deleted(uint32 id) { ids_to_modify.insert(id); }
   void set_area
@@ -63,7 +63,7 @@ struct Area_Updater : public Area_Usage_Listener
   void set_area(const Uint31_Index& index, const Area_Location& area);
   void add_blocks(const std::map< Uint31_Index, std::vector< Area_Block > >& area_blocks_);
   void commit();
-  virtual void flush();
+  void flush() override;
 
 private:
   Transaction* transaction;

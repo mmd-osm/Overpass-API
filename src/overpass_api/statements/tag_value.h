@@ -53,27 +53,27 @@ public:
 
   struct Evaluator_Maker : public Statement::Evaluator_Maker
   {
-    virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
-        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
+    Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
+        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output) override;
     Evaluator_Maker() { Statement::maker_by_token()[""].push_back(this); }
   };
   static Evaluator_Maker evaluator_maker;
 
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-fixed v=\"" + escape_xml(value) + "\"/>\n"; }
-  virtual std::string dump_compact_ql(const std::string&) const;
+  std::string dump_compact_ql(const std::string&) const override;
 
   Evaluator_Fixed(int line_number_, const std::map< std::string, std::string >& input_attributes,
                    Parsed_Query& global_settings);
-  virtual std::string get_name() const { return "eval-fixed"; }
-  virtual std::string get_result_name() const { return ""; }
-  virtual void execute(Resource_Manager& rman) {}
-  virtual ~Evaluator_Fixed() {}
+  std::string get_name() const override { return "eval-fixed"; }
+  std::string get_result_name() const override { return ""; }
+  void execute(Resource_Manager& rman) override {}
+  ~Evaluator_Fixed() override {}
 
-  virtual Requested_Context request_context() const { return Requested_Context(); }
+  Requested_Context request_context() const override { return Requested_Context(); }
 
-  virtual Statement::Eval_Return_Type return_type() const { return Statement::string; };
-  virtual Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key)
+  Statement::Eval_Return_Type return_type() const override { return Statement::string; };
+  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override
   { return new Const_Eval_Task(value); }
 
 private:
@@ -109,23 +109,23 @@ resp.
 
 struct Id_Eval_Task final : public Eval_Task
 {
-  virtual std::string eval(const std::string* key) const { return ""; }
+  std::string eval(const std::string* key) const override { return ""; }
 
-  virtual std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
       { return data.object ? to_string(data.object->id.val()) : ""; }
-  virtual std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
       { return data.object ? to_string(data.object->id.val()) : ""; }
-  virtual std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
       { return data.object ? to_string(data.object->id.val()) : ""; }
-  virtual std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
       { return data.object ? to_string(data.object->id.val()) : ""; }
-  virtual std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
       { return data.object ? to_string(data.object->id.val()) : ""; }
-  virtual std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
       { return data.object ? to_string(data.object->id.val()) : ""; }
-  virtual std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
       { return data.object ? to_string(data.object->id.val()) : ""; }
-  virtual std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
       { return data.object ? to_string(data.object->id.val()) : ""; }
 };
 
@@ -141,43 +141,43 @@ public:
   static Element_Function_Maker< Evaluator_Id > evaluator_maker;
 
   static std::string stmt_func_name() { return "id"; }
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-id/>\n"; }
-  virtual std::string dump_compact_ql(const std::string&) const { return "id()"; }
+  std::string dump_compact_ql(const std::string&) const override { return "id()"; }
 
   Evaluator_Id(int line_number_, const std::map< std::string, std::string >& input_attributes,
                    Parsed_Query& global_settings);
-  virtual std::string get_name() const { return "eval-id"; }
-  virtual std::string get_result_name() const { return ""; }
-  virtual void execute(Resource_Manager& rman) {}
-  virtual ~Evaluator_Id() {}
+  std::string get_name() const override { return "eval-id"; }
+  std::string get_result_name() const override { return ""; }
+  void execute(Resource_Manager& rman) override {}
+  ~Evaluator_Id() override {}
 
-  virtual Requested_Context request_context() const { return Requested_Context().add_usage(Set_Usage::SKELETON); }
+  Requested_Context request_context() const override { return Requested_Context().add_usage(Set_Usage::SKELETON); }
 
-  virtual Statement::Eval_Return_Type return_type() const { return Statement::string; };
-  virtual Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) { return new Id_Eval_Task(); }
+  Statement::Eval_Return_Type return_type() const override { return Statement::string; };
+  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override { return new Id_Eval_Task(); }
 };
 
 
 struct Type_Eval_Task final : public Eval_Task
 {
-  virtual std::string eval(const std::string* key) const { return ""; }
+  std::string eval(const std::string* key) const override { return ""; }
 
-  virtual std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
       { return "node"; }
-  virtual std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
       { return "node"; }
-  virtual std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
       { return "way"; }
-  virtual std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
       { return "way"; }
-  virtual std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
       { return "relation"; }
-  virtual std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
       { return "relation"; }
-  virtual std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
       { return "area"; }
-  virtual std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
       { return data.object ? data.object->type_name : ""; }
 };
 
@@ -193,20 +193,20 @@ public:
   static Element_Function_Maker< Evaluator_Type > evaluator_maker;
 
   static std::string stmt_func_name() { return "type"; }
-  virtual std::string dump_xml(const std::string& indent) const { return indent + "<eval-type/>\n"; }
-  virtual std::string dump_compact_ql(const std::string&) const { return "type()"; }
+  std::string dump_xml(const std::string& indent) const override { return indent + "<eval-type/>\n"; }
+  std::string dump_compact_ql(const std::string&) const override { return "type()"; }
 
   Evaluator_Type(int line_number_, const std::map< std::string, std::string >& input_attributes,
                    Parsed_Query& global_settings);
-  virtual std::string get_name() const { return "eval-type"; }
-  virtual std::string get_result_name() const { return ""; }
-  virtual void execute(Resource_Manager& rman) {}
-  virtual ~Evaluator_Type() {}
+  std::string get_name() const override { return "eval-type"; }
+  std::string get_result_name() const override { return ""; }
+  void execute(Resource_Manager& rman) override {}
+  ~Evaluator_Type() override {}
 
-  virtual Requested_Context request_context() const { return Requested_Context().add_usage(Set_Usage::SKELETON); }
+  Requested_Context request_context() const override { return Requested_Context().add_usage(Set_Usage::SKELETON); }
 
-  virtual Statement::Eval_Return_Type return_type() const { return Statement::string; };
-  virtual Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key)
+  Statement::Eval_Return_Type return_type() const override { return Statement::string; };
+  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override
   { return new Type_Eval_Task(); }
 };
 
@@ -246,18 +246,18 @@ std::string find_value(const std::vector< std::pair< std::string, std::string > 
 struct Value_Eval_Task final : public Eval_Task
 {
   Value_Eval_Task(Eval_Task* rhs_) : rhs(rhs_) {}
-  ~Value_Eval_Task() { delete rhs; }
+  ~Value_Eval_Task() override { delete rhs; }
 
-  virtual std::string eval(const std::string* key) const;
+  std::string eval(const std::string* key) const override;
 
-  virtual std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const;
+  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override;
 
 private:
   Eval_Task* rhs;
@@ -275,33 +275,33 @@ public:
 
   struct Evaluator_Maker : public Statement::Evaluator_Maker
   {
-    virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
-        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
+    Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
+        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output) override;
     Evaluator_Maker() { Statement::maker_by_token()["["].push_back(this); }
   };
   static Evaluator_Maker evaluator_maker;
 
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   {
     return indent + "<eval-value>\n"
         + (rhs ? rhs->dump_xml(indent + "  ") : "")
         + indent + "</eval-value>\n";
   }
-  virtual std::string dump_compact_ql(const std::string&) const
+  std::string dump_compact_ql(const std::string&) const override
   { return std::string("t[\"") + (rhs ? rhs->dump_compact_ql("") : "") + "\"]"; }
 
   Evaluator_Value(int line_number_, const std::map< std::string, std::string >& input_attributes,
                    Parsed_Query& global_settings);
-  virtual void add_statement(Statement* statement, std::string text);
-  virtual std::string get_name() const { return "eval-value"; }
-  virtual std::string get_result_name() const { return ""; }
-  virtual void execute(Resource_Manager& rman) {}
-  virtual ~Evaluator_Value() {}
+  void add_statement(Statement* statement, std::string text) override;
+  std::string get_name() const override { return "eval-value"; }
+  std::string get_result_name() const override { return ""; }
+  void execute(Resource_Manager& rman) override {}
+  ~Evaluator_Value() override {}
 
-  virtual Requested_Context request_context() const;
+  Requested_Context request_context() const override;
 
-  virtual Statement::Eval_Return_Type return_type() const { return Statement::string; };
-  virtual Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* target_key);
+  Statement::Eval_Return_Type return_type() const override { return Statement::string; };
+  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* target_key) override;
 
 private:
   Evaluator* rhs;
@@ -315,23 +315,23 @@ struct Is_Tag_Eval_Task final : public Eval_Task
 {
   Is_Tag_Eval_Task(const std::string& key_) : key(key_) {}
 
-  virtual std::string eval(const std::string* key) const { return ""; }
+  std::string eval(const std::string* key) const override { return ""; }
 
-  virtual std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
       { return exists_value(data.tags, this->key); }
-  virtual std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
       { return exists_value(data.tags, this->key); }
-  virtual std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
       { return exists_value(data.tags, this->key); }
-  virtual std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
       { return exists_value(data.tags, this->key); }
-  virtual std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
       { return exists_value(data.tags, this->key); }
-  virtual std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
       { return exists_value(data.tags, this->key); }
-  virtual std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
       { return exists_value(data.tags, this->key); }
-  virtual std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
       { return exists_value(data.tags, this->key); }
 
 private:
@@ -350,28 +350,28 @@ public:
 
   struct Evaluator_Maker : public Statement::Evaluator_Maker
   {
-    virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
-        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
+    Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
+        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output) override;
     Evaluator_Maker() { Statement::maker_by_func_name()["is_tag"].push_back(this); }
   };
   static Evaluator_Maker evaluator_maker;
 
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-is-tag k=\"" + escape_xml(key) + "\"/>\n"; }
-  virtual std::string dump_compact_ql(const std::string&) const
+  std::string dump_compact_ql(const std::string&) const override
   { return std::string("is_tag(\"") + escape_cstr(key) + "\")"; }
 
   Evaluator_Is_Tag(int line_number_, const std::map< std::string, std::string >& input_attributes,
                    Parsed_Query& global_settings);
-  virtual std::string get_name() const { return "eval-is-tag"; }
-  virtual std::string get_result_name() const { return ""; }
-  virtual void execute(Resource_Manager& rman) {}
-  virtual ~Evaluator_Is_Tag() {}
+  std::string get_name() const override { return "eval-is-tag"; }
+  std::string get_result_name() const override { return ""; }
+  void execute(Resource_Manager& rman) override {}
+  ~Evaluator_Is_Tag() override {}
 
-  virtual Requested_Context request_context() const { return Requested_Context().add_usage(Set_Usage::TAGS); }
+  Requested_Context request_context() const override { return Requested_Context().add_usage(Set_Usage::TAGS); }
 
-  virtual Statement::Eval_Return_Type return_type() const { return Statement::string; };
-  virtual Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* target_key)
+  Statement::Eval_Return_Type return_type() const override { return Statement::string; };
+  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* target_key) override
   { return new Is_Tag_Eval_Task(key); }
 
 private:
@@ -381,23 +381,23 @@ private:
 
 struct Generic_Eval_Task final : public Eval_Task
 {
-  virtual std::string eval(const std::string* key) const { return ""; }
+  std::string eval(const std::string* key) const override { return ""; }
 
-  virtual std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
       { return key ? find_value(data.tags, *key) : ""; }
-  virtual std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
       { return key ? find_value(data.tags, *key) : ""; }
-  virtual std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
       { return key ? find_value(data.tags, *key) : ""; }
-  virtual std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
       { return key ? find_value(data.tags, *key) : ""; }
-  virtual std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
       { return key ? find_value(data.tags, *key) : ""; }
-  virtual std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
       { return key ? find_value(data.tags, *key) : ""; }
-  virtual std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
       { return key ? find_value(data.tags, *key) : ""; }
-  virtual std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
       { return key ? find_value(data.tags, *key) : ""; }
 };
 
@@ -413,27 +413,27 @@ public:
 
   struct Evaluator_Maker : public Statement::Evaluator_Maker
   {
-    virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
-        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
+    Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
+        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output) override;
     Evaluator_Maker() { Statement::maker_by_token()["::"].push_back(this); }
   };
   static Evaluator_Maker evaluator_maker;
 
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-generic/>\n"; }
-  virtual std::string dump_compact_ql(const std::string&) const { return "::"; }
+  std::string dump_compact_ql(const std::string&) const override { return "::"; }
 
   Evaluator_Generic(int line_number_, const std::map< std::string, std::string >& input_attributes,
                    Parsed_Query& global_settings);
-  virtual std::string get_name() const { return "eval-generic"; }
-  virtual std::string get_result_name() const { return ""; }
-  virtual void execute(Resource_Manager& rman) {}
-  virtual ~Evaluator_Generic() {}
+  std::string get_name() const override { return "eval-generic"; }
+  std::string get_result_name() const override { return ""; }
+  void execute(Resource_Manager& rman) override {}
+  ~Evaluator_Generic() override {}
 
-  virtual Requested_Context request_context() const { return Requested_Context().add_usage(Set_Usage::TAGS); }
+  Requested_Context request_context() const override { return Requested_Context().add_usage(Set_Usage::TAGS); }
 
-  virtual Statement::Eval_Return_Type return_type() const { return Statement::string; };
-  virtual Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key)
+  Statement::Eval_Return_Type return_type() const override { return Statement::string; };
+  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override
   { return new Generic_Eval_Task(); }
 };
 
@@ -453,31 +453,31 @@ std::vector< std::string > all_keys(const std::vector< std::pair< std::string, s
 
 struct All_Keys_Eval_Task final : public Eval_Container_Task
 {
-  virtual std::vector< std::string > eval(const std::string* key) const { return std::vector< std::string >(); }
+  std::vector< std::string > eval(const std::string* key) const override { return std::vector< std::string >(); }
 
-  virtual std::vector< std::string > eval(
-      const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
+  std::vector< std::string > eval(
+      const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
       { return all_keys(data.tags); }
-  virtual std::vector< std::string > eval(
-      const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
+  std::vector< std::string > eval(
+      const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
       { return all_keys(data.tags); }
-  virtual std::vector< std::string > eval(
-      const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
+  std::vector< std::string > eval(
+      const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
       { return all_keys(data.tags); }
-  virtual std::vector< std::string > eval(
-      const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
+  std::vector< std::string > eval(
+      const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
       { return all_keys(data.tags); }
-  virtual std::vector< std::string > eval(
-      const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
+  std::vector< std::string > eval(
+      const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
       { return all_keys(data.tags); }
-  virtual std::vector< std::string > eval(
-      const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
+  std::vector< std::string > eval(
+      const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
       { return all_keys(data.tags); }
-  virtual std::vector< std::string > eval(
-      const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
+  std::vector< std::string > eval(
+      const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
       { return all_keys(data.tags); }
-  virtual std::vector< std::string > eval(
-      const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
+  std::vector< std::string > eval(
+      const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
       { return all_keys(data.tags); }
 };
 
@@ -493,22 +493,22 @@ public:
   static Element_Function_Maker< Evaluator_All_Keys > evaluator_maker;
 
   static std::string stmt_func_name() { return "keys"; }
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-all-keys/>\n"; }
-  virtual std::string dump_compact_ql(const std::string&) const { return "keys()"; }
+  std::string dump_compact_ql(const std::string&) const override { return "keys()"; }
 
   Evaluator_All_Keys(int line_number_, const std::map< std::string, std::string >& input_attributes,
                    Parsed_Query& global_settings);
-  virtual std::string get_name() const { return "eval-all-keys"; }
-  virtual std::string get_result_name() const { return ""; }
-  virtual void execute(Resource_Manager& rman) {}
-  virtual ~Evaluator_All_Keys() {}
+  std::string get_name() const override { return "eval-all-keys"; }
+  std::string get_result_name() const override { return ""; }
+  void execute(Resource_Manager& rman) override {}
+  ~Evaluator_All_Keys() override {}
 
-  virtual Requested_Context request_context() const { return Requested_Context().add_usage(Set_Usage::TAGS); }
+  Requested_Context request_context() const override { return Requested_Context().add_usage(Set_Usage::TAGS); }
 
-  virtual Statement::Eval_Return_Type return_type() const { return Statement::container; };
-  virtual Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* target_key) { return 0; }
-  virtual Eval_Container_Task* get_container_task(Prepare_Task_Context& context, const std::string* key)
+  Statement::Eval_Return_Type return_type() const override { return Statement::container; };
+  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* target_key) override { return 0; }
+  Eval_Container_Task* get_container_task(Prepare_Task_Context& context, const std::string* key) override
   { return new All_Keys_Eval_Task(); }
 
 private:
@@ -551,23 +551,23 @@ struct Version_Eval_Task final : public Eval_Task
 {
   Version_Eval_Task() {}
 
-  virtual std::string eval(const std::string* key) const { return ""; }
+  std::string eval(const std::string* key) const override { return ""; }
 
-  virtual std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->version) : ""; }
-  virtual std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->version) : ""; }
-  virtual std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->version) : ""; }
-  virtual std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->version) : ""; }
-  virtual std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->version) : ""; }
-  virtual std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->version) : ""; }
-  virtual std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->version) : ""; }
-  virtual std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->version) : ""; }
 };
 
@@ -583,22 +583,22 @@ public:
   static Element_Function_Maker< Evaluator_Version > evaluator_maker;
 
   static std::string stmt_func_name() { return "version"; }
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-version/>\n"; }
-  virtual std::string dump_compact_ql(const std::string&) const
+  std::string dump_compact_ql(const std::string&) const override
   { return "version(\"\")"; }
 
   Evaluator_Version(int line_number_, const std::map< std::string, std::string >& input_attributes,
                    Parsed_Query& global_settings);
-  virtual std::string get_name() const { return "eval-version"; }
-  virtual std::string get_result_name() const { return ""; }
-  virtual void execute(Resource_Manager& rman) {}
-  virtual ~Evaluator_Version() {}
+  std::string get_name() const override { return "eval-version"; }
+  std::string get_result_name() const override { return ""; }
+  void execute(Resource_Manager& rman) override {}
+  ~Evaluator_Version() override {}
 
-  virtual Requested_Context request_context() const { return Requested_Context().add_usage(Set_Usage::META); }
+  Requested_Context request_context() const override { return Requested_Context().add_usage(Set_Usage::META); }
 
-  virtual Statement::Eval_Return_Type return_type() const { return Statement::string; };
-  virtual Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key)
+  Statement::Eval_Return_Type return_type() const override { return Statement::string; };
+  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override
   { return new Version_Eval_Task(); }
 };
 
@@ -607,23 +607,23 @@ struct Timestamp_Eval_Task final : public Eval_Task
 {
   Timestamp_Eval_Task() {}
 
-  virtual std::string eval(const std::string* key) const { return ""; }
+  std::string eval(const std::string* key) const override { return ""; }
 
-  virtual std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
       { return data.meta ? Timestamp(data.meta->timestamp).str() : ""; }
-  virtual std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
       { return data.meta ? Timestamp(data.meta->timestamp).str() : ""; }
-  virtual std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
       { return data.meta ? Timestamp(data.meta->timestamp).str() : ""; }
-  virtual std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
       { return data.meta ? Timestamp(data.meta->timestamp).str() : ""; }
-  virtual std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
       { return data.meta ? Timestamp(data.meta->timestamp).str() : ""; }
-  virtual std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
       { return data.meta ? Timestamp(data.meta->timestamp).str() : ""; }
-  virtual std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
       { return data.meta ? Timestamp(data.meta->timestamp).str() : ""; }
-  virtual std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
       { return data.meta ? Timestamp(data.meta->timestamp).str() : ""; }
 };
 
@@ -639,22 +639,22 @@ public:
   static Element_Function_Maker< Evaluator_Timestamp > evaluator_maker;
 
   static std::string stmt_func_name() { return "timestamp"; }
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-timestamp/>\n"; }
-  virtual std::string dump_compact_ql(const std::string&) const
+  std::string dump_compact_ql(const std::string&) const override
   { return "timestamp(\"\")"; }
 
   Evaluator_Timestamp(int line_number_, const std::map< std::string, std::string >& input_attributes,
                    Parsed_Query& global_settings);
-  virtual std::string get_name() const { return "eval-timestamp"; }
-  virtual std::string get_result_name() const { return ""; }
-  virtual void execute(Resource_Manager& rman) {}
-  virtual ~Evaluator_Timestamp() {}
+  std::string get_name() const override { return "eval-timestamp"; }
+  std::string get_result_name() const override { return ""; }
+  void execute(Resource_Manager& rman) override {}
+  ~Evaluator_Timestamp() override {}
 
-  virtual Requested_Context request_context() const { return Requested_Context().add_usage(Set_Usage::META); }
+  Requested_Context request_context() const override { return Requested_Context().add_usage(Set_Usage::META); }
 
-  virtual Statement::Eval_Return_Type return_type() const { return Statement::string; };
-  virtual Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key)
+  Statement::Eval_Return_Type return_type() const override { return Statement::string; };
+  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override
   { return new Timestamp_Eval_Task(); }
 };
 
@@ -663,23 +663,23 @@ struct Changeset_Eval_Task final : public Eval_Task
 {
   Changeset_Eval_Task() {}
 
-  virtual std::string eval(const std::string* key) const { return ""; }
+  std::string eval(const std::string* key) const override { return ""; }
 
-  virtual std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->changeset) : ""; }
-  virtual std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->changeset) : ""; }
-  virtual std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->changeset) : ""; }
-  virtual std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->changeset) : ""; }
-  virtual std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->changeset) : ""; }
-  virtual std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->changeset) : ""; }
-  virtual std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->changeset) : ""; }
-  virtual std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->changeset) : ""; }
 };
 
@@ -695,22 +695,22 @@ public:
   static Element_Function_Maker< Evaluator_Changeset > evaluator_maker;
 
   static std::string stmt_func_name() { return "changeset"; }
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-changeset/>\n"; }
-  virtual std::string dump_compact_ql(const std::string&) const
+  std::string dump_compact_ql(const std::string&) const override
   { return "changeset(\"\")"; }
 
   Evaluator_Changeset(int line_number_, const std::map< std::string, std::string >& input_attributes,
                    Parsed_Query& global_settings);
-  virtual std::string get_name() const { return "eval-changeset"; }
-  virtual std::string get_result_name() const { return ""; }
-  virtual void execute(Resource_Manager& rman) {}
-  virtual ~Evaluator_Changeset() {}
+  std::string get_name() const override { return "eval-changeset"; }
+  std::string get_result_name() const override { return ""; }
+  void execute(Resource_Manager& rman) override {}
+  ~Evaluator_Changeset() override {}
 
-  virtual Requested_Context request_context() const { return Requested_Context().add_usage(Set_Usage::META); }
+  Requested_Context request_context() const override { return Requested_Context().add_usage(Set_Usage::META); }
 
-  virtual Statement::Eval_Return_Type return_type() const { return Statement::string; };
-  virtual Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key)
+  Statement::Eval_Return_Type return_type() const override { return Statement::string; };
+  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override
   { return new Changeset_Eval_Task(); }
 };
 
@@ -719,23 +719,23 @@ struct Uid_Eval_Task final : public Eval_Task
 {
   Uid_Eval_Task() {}
 
-  virtual std::string eval(const std::string* key) const { return ""; }
+  std::string eval(const std::string* key) const override { return ""; }
 
-  virtual std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->user_id) : ""; }
-  virtual std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->user_id) : ""; }
-  virtual std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->user_id) : ""; }
-  virtual std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->user_id) : ""; }
-  virtual std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->user_id) : ""; }
-  virtual std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->user_id) : ""; }
-  virtual std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->user_id) : ""; }
-  virtual std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->user_id) : ""; }
 };
 
@@ -751,22 +751,22 @@ public:
   static Element_Function_Maker< Evaluator_Uid > evaluator_maker;
 
   static std::string stmt_func_name() { return "uid"; }
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-uid/>\n"; }
-  virtual std::string dump_compact_ql(const std::string&) const
+  std::string dump_compact_ql(const std::string&) const override
   { return "uid(\"\")"; }
 
   Evaluator_Uid(int line_number_, const std::map< std::string, std::string >& input_attributes,
                    Parsed_Query& global_settings);
-  virtual std::string get_name() const { return "eval-uid"; }
-  virtual std::string get_result_name() const { return ""; }
-  virtual void execute(Resource_Manager& rman) {}
-  virtual ~Evaluator_Uid() {}
+  std::string get_name() const override { return "eval-uid"; }
+  std::string get_result_name() const override { return ""; }
+  void execute(Resource_Manager& rman) override {}
+  ~Evaluator_Uid() override {}
 
-  virtual Requested_Context request_context() const { return Requested_Context().add_usage(Set_Usage::META); }
+  Requested_Context request_context() const override { return Requested_Context().add_usage(Set_Usage::META); }
 
-  virtual Statement::Eval_Return_Type return_type() const { return Statement::string; };
-  virtual Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key)
+  Statement::Eval_Return_Type return_type() const override { return Statement::string; };
+  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override
   { return new Uid_Eval_Task(); }
 };
 
@@ -775,23 +775,23 @@ struct User_Eval_Task final : public Eval_Task
 {
   User_Eval_Task() {}
 
-  virtual std::string eval(const std::string* key) const { return ""; }
+  std::string eval(const std::string* key) const override { return ""; }
 
-  virtual std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
       { return data.user_name ? *data.user_name : ""; }
-  virtual std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
       { return data.user_name ? *data.user_name : ""; }
-  virtual std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
       { return data.user_name ? *data.user_name : ""; }
-  virtual std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
       { return data.user_name ? *data.user_name : ""; }
-  virtual std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
       { return data.user_name ? *data.user_name : ""; }
-  virtual std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
       { return data.user_name ? *data.user_name : ""; }
-  virtual std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
       { return data.user_name ? *data.user_name : ""; }
-  virtual std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
       { return data.user_name ? *data.user_name : ""; }
 };
 
@@ -807,23 +807,23 @@ public:
   static Element_Function_Maker< Evaluator_User > evaluator_maker;
 
   static std::string stmt_func_name() { return "user"; }
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-user/>\n"; }
-  virtual std::string dump_compact_ql(const std::string&) const
+  std::string dump_compact_ql(const std::string&) const override
   { return "user(\"\")"; }
 
   Evaluator_User(int line_number_, const std::map< std::string, std::string >& input_attributes,
                    Parsed_Query& global_settings);
-  virtual std::string get_name() const { return "eval-user"; }
-  virtual std::string get_result_name() const { return ""; }
-  virtual void execute(Resource_Manager& rman) {}
-  virtual ~Evaluator_User() {}
+  std::string get_name() const override { return "eval-user"; }
+  std::string get_result_name() const override { return ""; }
+  void execute(Resource_Manager& rman) override {}
+  ~Evaluator_User() override {}
 
-  virtual Requested_Context request_context() const
+  Requested_Context request_context() const override
   { return Requested_Context().add_usage(Set_Usage::META).add_user_names(); }
 
-  virtual Statement::Eval_Return_Type return_type() const { return Statement::string; };
-  virtual Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key)
+  Statement::Eval_Return_Type return_type() const override { return Statement::string; };
+  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override
   { return new User_Eval_Task(); }
 };
 
@@ -872,8 +872,8 @@ public:
 
   struct Evaluator_Maker : public Statement::Evaluator_Maker
   {
-    virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
-        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
+    Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
+        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output) override;
     Evaluator_Maker()
     {
       Statement::maker_by_func_name()["count_tags"].push_back(this);
@@ -885,7 +885,7 @@ public:
   };
   static Evaluator_Maker evaluator_maker;
 
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   {
     return indent + "<eval-prop-count type=\"" + to_string(to_count) + "\""
         + (to_count == by_role || to_count == distinct_by_role ?
@@ -893,7 +893,7 @@ public:
         + (type_to_count != all ?
             std::string(" members_type=\"") + to_string(type_to_count) + "\"" : std::string("")) + "/>\n";
   }
-  virtual std::string dump_compact_ql(const std::string&) const
+  std::string dump_compact_ql(const std::string&) const override
   {
     return std::string("count_") + to_string(to_count) + "("
         + (to_count == by_role || to_count == distinct_by_role ?
@@ -904,15 +904,15 @@ public:
 
   Evaluator_Properties_Count(int line_number_, const std::map< std::string, std::string >& input_attributes,
                    Parsed_Query& global_settings);
-  virtual std::string get_name() const { return "eval-prop-count"; }
-  virtual std::string get_result_name() const { return ""; }
-  virtual void execute(Resource_Manager& rman) {}
-  virtual ~Evaluator_Properties_Count() {}
+  std::string get_name() const override { return "eval-prop-count"; }
+  std::string get_result_name() const override { return ""; }
+  void execute(Resource_Manager& rman) override {}
+  ~Evaluator_Properties_Count() override {}
 
-  virtual Requested_Context request_context() const;
+  Requested_Context request_context() const override;
 
-  virtual Statement::Eval_Return_Type return_type() const { return Statement::string; };
-  virtual Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key);
+  Statement::Eval_Return_Type return_type() const override { return Statement::string; };
+  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override;
 
 private:
   Objects to_count;
@@ -928,16 +928,16 @@ struct Prop_Count_Eval_Task final : public Eval_Task
       uint32 role_id_ = std::numeric_limits< uint32 >::max())
       : to_count(to_count_), type_to_count(type_to_count_), role_id(role_id_) {}
 
-  virtual std::string eval(const std::string* key) const { return "0"; }
+  std::string eval(const std::string* key) const override { return "0"; }
 
-  virtual std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const;
+  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override;
 
 private:
   Evaluator_Properties_Count::Objects to_count;

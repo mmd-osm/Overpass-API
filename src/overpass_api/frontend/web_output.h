@@ -37,24 +37,24 @@ struct Web_Output : public Error_Output
     } catch (...) {}
   }
 
-  virtual void add_encoding_error(const std::string& error);
-  virtual void add_parse_error(const std::string& error, int line_number);
-  virtual void add_static_error(const std::string& error, int line_number);
+  void add_encoding_error(const std::string& error) override;
+  void add_parse_error(const std::string& error, int line_number) override;
+  void add_static_error(const std::string& error, int line_number) override;
 
-  virtual void add_encoding_remark(const std::string& error);
-  virtual void add_parse_remark(const std::string& error, int line_number);
-  virtual void add_static_remark(const std::string& error, int line_number);
+  void add_encoding_remark(const std::string& error) override;
+  void add_parse_remark(const std::string& error, int line_number) override;
+  void add_static_remark(const std::string& error, int line_number) override;
 
-  virtual void runtime_error(const std::string& error);
-  virtual void runtime_remark(const std::string& error);
+  void runtime_error(const std::string& error) override;
+  void runtime_remark(const std::string& error) override;
 
-  virtual void display_statement_progress
+  void display_statement_progress
       (uint timer, const std::string& name, int progress, int line_number,
-       const std::vector< std::pair< uint, uint > >& stack) {}
+       const std::vector< std::pair< uint, uint > >& stack) override {}
 
-  virtual bool display_encoding_errors() { return encoding_errors; }
-  virtual bool display_parse_errors() { return parse_errors; }
-  virtual bool display_static_errors() { return static_errors; }
+  bool display_encoding_errors() override { return encoding_errors; }
+  bool display_parse_errors() override { return parse_errors; }
+  bool display_static_errors() override { return static_errors; }
 
   void enforce_header(uint write_mime);
   void write_html_header

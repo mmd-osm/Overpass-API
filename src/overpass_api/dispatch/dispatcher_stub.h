@@ -59,7 +59,7 @@ class Dispatcher_Stub : public Watchdog_Callback
                     Index_Cache* ic);
 
     // Called once per minute from the resource manager
-    virtual void ping() const;
+    void ping() const override;
 
     ~Dispatcher_Stub();
 

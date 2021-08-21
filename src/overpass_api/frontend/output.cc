@@ -25,27 +25,27 @@
 class Verbose_Osm_Backend_Callback : public Osm_Backend_Callback
 {
   public:
-    virtual void update_started() { std::cerr<<"Flushing to database ."; }
-    virtual void compute_indexes_finished() { std::cerr<<'.'; }
-    virtual void update_ids_finished() { std::cerr<<'.'; }
-    virtual void update_coords_finished() { std::cerr<<'.'; }
-    virtual void prepare_delete_tags_finished() { std::cerr<<'.'; }
-    virtual void tags_local_finished() { std::cerr<<'.'; }
-    virtual void tags_global_finished() { std::cerr<<'.'; }
-    virtual void flush_roles_finished() { std::cerr<<'.'; }
-    virtual void update_finished() { std::cerr<<" done.\n"; }
-    virtual void partial_started() { std::cerr<<"Reorganizing the database ..."; }
-    virtual void partial_finished() { std::cerr<<" done.\n"; }
+    void update_started() override { std::cerr<<"Flushing to database ."; }
+    void compute_indexes_finished() override { std::cerr<<'.'; }
+    void update_ids_finished() override { std::cerr<<'.'; }
+    void update_coords_finished() override { std::cerr<<'.'; }
+    void prepare_delete_tags_finished() override { std::cerr<<'.'; }
+    void tags_local_finished() override { std::cerr<<'.'; }
+    void tags_global_finished() override { std::cerr<<'.'; }
+    void flush_roles_finished() override { std::cerr<<'.'; }
+    void update_finished() override { std::cerr<<" done.\n"; }
+    void partial_started() override { std::cerr<<"Reorganizing the database ..."; }
+    void partial_finished() override { std::cerr<<" done.\n"; }
 
-    virtual void parser_started() { std::cerr<<"Reading XML file ..."; }
-    virtual void node_elapsed(Node::Id_Type id) { std::cerr<<" elapsed node "<<id.val()<<". "; }
-    virtual void nodes_finished() { std::cerr<<" finished reading nodes. "; }
-    virtual void way_elapsed(Way::Id_Type id) { std::cerr<<" elapsed way "<<id.val()<<". "; }
-    virtual void ways_finished() { std::cerr<<" finished reading ways. "; }
-    virtual void relation_elapsed(Relation::Id_Type id) { std::cerr<<" elapsed relation "<<id.val()<<". "; }
-    virtual void relations_finished() { std::cerr<<" finished reading relations. "; }
+    void parser_started() override { std::cerr<<"Reading XML file ..."; }
+    void node_elapsed(Node::Id_Type id) override { std::cerr<<" elapsed node "<<id.val()<<". "; }
+    void nodes_finished() override { std::cerr<<" finished reading nodes. "; }
+    void way_elapsed(Way::Id_Type id) override { std::cerr<<" elapsed way "<<id.val()<<". "; }
+    void ways_finished() override { std::cerr<<" finished reading ways. "; }
+    void relation_elapsed(Relation::Id_Type id) override { std::cerr<<" elapsed relation "<<id.val()<<". "; }
+    void relations_finished() override { std::cerr<<" finished reading relations. "; }
 
-    virtual void parser_succeeded() { std::cerr<<"Update complete.\n"; }
+    void parser_succeeded() override { std::cerr<<"Update complete.\n"; }
 };
 
 
@@ -58,27 +58,27 @@ Osm_Backend_Callback* get_verbatim_callback()
 class Quiet_Osm_Backend_Callback : public Osm_Backend_Callback
 {
   public:
-    virtual void update_started() {}
-    virtual void compute_indexes_finished() {}
-    virtual void update_ids_finished() {}
-    virtual void update_coords_finished() {}
-    virtual void prepare_delete_tags_finished() {}
-    virtual void tags_local_finished() {}
-    virtual void tags_global_finished() {}
-    virtual void flush_roles_finished() {}
-    virtual void update_finished() {}
-    virtual void partial_started() {}
-    virtual void partial_finished() {}
+    void update_started() override {}
+    void compute_indexes_finished() override {}
+    void update_ids_finished() override {}
+    void update_coords_finished() override {}
+    void prepare_delete_tags_finished() override {}
+    void tags_local_finished() override {}
+    void tags_global_finished() override {}
+    void flush_roles_finished() override {}
+    void update_finished() override {}
+    void partial_started() override {}
+    void partial_finished() override {}
 
-    virtual void parser_started() {}
-    virtual void node_elapsed(Node::Id_Type id) {}
-    virtual void nodes_finished() {}
-    virtual void way_elapsed(Way::Id_Type id) {}
-    virtual void ways_finished() {}
-    virtual void relation_elapsed(Relation::Id_Type id) {}
-    virtual void relations_finished() {}
+    void parser_started() override {}
+    void node_elapsed(Node::Id_Type id) override {}
+    void nodes_finished() override {}
+    void way_elapsed(Way::Id_Type id) override {}
+    void ways_finished() override {}
+    void relation_elapsed(Relation::Id_Type id) override {}
+    void relations_finished() override {}
 
-    virtual void parser_succeeded() {}
+    void parser_succeeded() override {}
 };
 
 

@@ -52,25 +52,25 @@ struct Data_Modifier
 
 struct Accept_All_Tags : public Data_Modifier
 {
-  virtual bool admit_node_skeleton(uint id) const { return true; }
-  virtual bool admit_node_tags(uint id) const { return true; }
-  virtual bool admit_way_skeleton(uint id) const { return true; }
-  virtual bool admit_way_tags(uint id) const { return true; }
-  virtual bool admit_relation_skeleton(uint id) const { return true; }
-  virtual bool admit_relation_tags(uint id) const { return true; }
+  bool admit_node_skeleton(uint id) const override { return true; }
+  bool admit_node_tags(uint id) const override { return true; }
+  bool admit_way_skeleton(uint id) const override { return true; }
+  bool admit_way_tags(uint id) const override { return true; }
+  bool admit_relation_skeleton(uint id) const override { return true; }
+  bool admit_relation_tags(uint id) const override { return true; }
 };
 
 struct Accept_All : public Accept_All_Tags
 {
-  virtual bool admit_node(uint id) const { return true; }
-  virtual bool admit_node_skeleton(uint id) const { return true; }
-  virtual bool admit_node_tags(uint id) const { return true; }
-  virtual bool admit_way(uint id) const { return true; }
-  virtual bool admit_way_skeleton(uint id) const { return true; }
-  virtual bool admit_way_tags(uint id) const { return true; }
-  virtual bool admit_relation(uint id) const { return true; }
-  virtual bool admit_relation_skeleton(uint id) const { return true; }
-  virtual bool admit_relation_tags(uint id) const { return true; }
+  bool admit_node(uint id) const override { return true; }
+  bool admit_node_skeleton(uint id) const override { return true; }
+  bool admit_node_tags(uint id) const override { return true; }
+  bool admit_way(uint id) const override { return true; }
+  bool admit_way_skeleton(uint id) const override { return true; }
+  bool admit_way_tags(uint id) const override { return true; }
+  bool admit_relation(uint id) const override { return true; }
+  bool admit_relation_skeleton(uint id) const override { return true; }
+  bool admit_relation_tags(uint id) const override { return true; }
 };
 
 std::vector< std::pair< std::string, std::string > > collect_tags(std::string prefix, uint id)

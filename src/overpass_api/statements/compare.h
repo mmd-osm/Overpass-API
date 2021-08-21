@@ -87,14 +87,14 @@ class Compare_Statement final : public Output_Statement
 public:
   Compare_Statement(int line_number_, const std::map< std::string, std::string >& attributes,
                      Parsed_Query& global_settings);
-  virtual ~Compare_Statement();
-  virtual std::string get_name() const { return "compare"; }
-  virtual void add_statement(Statement* statement, std::string text);
-  virtual void execute(Resource_Manager& rman);
+  ~Compare_Statement() override;
+  std::string get_name() const override { return "compare"; }
+  void add_statement(Statement* statement, std::string text) override;
+  void execute(Resource_Manager& rman) override;
 
   static Generic_Statement_Maker< Compare_Statement > statement_maker;
 
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   {
     std::string result = indent + "<compare"
       + (input != "_" ? std::string(" from=\"") + input + "\"" : "")
@@ -113,7 +113,7 @@ public:
     return result + "/>\n";
   }
 
-  virtual std::string dump_compact_ql(const std::string& indent) const
+  std::string dump_compact_ql(const std::string& indent) const override
   {
     std::string result = (input != "_" ? std::string(".") + input + " " : "")
         + "compare" + dump_ql_result_name()
@@ -132,7 +132,7 @@ public:
     return result;
   }
 
-  virtual std::string dump_pretty_ql(const std::string& indent) const
+  std::string dump_pretty_ql(const std::string& indent) const override
   {
     std::string result = (input != "_" ? std::string(".") + input + " " : "")
         + "compare" + dump_ql_result_name()

@@ -54,28 +54,28 @@ struct Ternary_Eval_Task final : public Eval_Task
 {
   Ternary_Eval_Task(Eval_Task* condition_, Eval_Task* lhs_, Eval_Task* rhs_)
       : condition(condition_), lhs(lhs_), rhs(rhs_) {}
-  ~Ternary_Eval_Task()
+  ~Ternary_Eval_Task() override
   {
     delete condition;
     delete lhs;
     delete rhs;
   }
 
-  virtual std::string eval(const std::string* key) const;
+  std::string eval(const std::string* key) const override;
 
-  virtual std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const;
+  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override;
 
-  virtual std::string eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const;
-  virtual std::string eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const;
-  virtual std::string eval(uint pos, const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const;
-  virtual std::string eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const;
+  std::string eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override;
+  std::string eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override;
+  std::string eval(uint pos, const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override;
+  std::string eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override;
 
 private:
   Eval_Task* condition;
@@ -88,23 +88,23 @@ struct Ternary_Eval_Geometry_Task final : public Eval_Geometry_Task
 {
   Ternary_Eval_Geometry_Task(Eval_Task* condition_, Eval_Geometry_Task* lhs_, Eval_Geometry_Task* rhs_)
       : condition(condition_), lhs(lhs_), rhs(rhs_) {}
-  ~Ternary_Eval_Geometry_Task()
+  ~Ternary_Eval_Geometry_Task() override
   {
     delete condition;
     delete lhs;
     delete rhs;
   }
 
-  virtual Opaque_Geometry* eval() const;
+  Opaque_Geometry* eval() const override;
 
-  virtual Opaque_Geometry* eval(const Element_With_Context< Node_Skeleton >& data) const;
-  virtual Opaque_Geometry* eval(const Element_With_Context< Attic< Node_Skeleton > >& data) const;
-  virtual Opaque_Geometry* eval(const Element_With_Context< Way_Skeleton >& data) const;
-  virtual Opaque_Geometry* eval(const Element_With_Context< Attic< Way_Skeleton > >& data) const;
-  virtual Opaque_Geometry* eval(const Element_With_Context< Relation_Skeleton >& data) const;
-  virtual Opaque_Geometry* eval(const Element_With_Context< Attic< Relation_Skeleton > >& data) const;
-  virtual Opaque_Geometry* eval(const Element_With_Context< Area_Skeleton >& data) const;
-  virtual Opaque_Geometry* eval(const Element_With_Context< Derived_Skeleton >& data) const;
+  Opaque_Geometry* eval(const Element_With_Context< Node_Skeleton >& data) const override;
+  Opaque_Geometry* eval(const Element_With_Context< Attic< Node_Skeleton > >& data) const override;
+  Opaque_Geometry* eval(const Element_With_Context< Way_Skeleton >& data) const override;
+  Opaque_Geometry* eval(const Element_With_Context< Attic< Way_Skeleton > >& data) const override;
+  Opaque_Geometry* eval(const Element_With_Context< Relation_Skeleton >& data) const override;
+  Opaque_Geometry* eval(const Element_With_Context< Attic< Relation_Skeleton > >& data) const override;
+  Opaque_Geometry* eval(const Element_With_Context< Area_Skeleton >& data) const override;
+  Opaque_Geometry* eval(const Element_With_Context< Derived_Skeleton >& data) const override;
 
 private:
   Eval_Task* condition;
@@ -128,22 +128,22 @@ struct Ternary_Evaluator final : public Evaluator
     eval_attributes_array(stmt_name(), attributes, input_attributes);
   }
 
-  virtual void add_statement(Statement* statement, std::string text);
-  virtual void execute(Resource_Manager& rman) {}
-  virtual std::string get_result_name() const { return ""; }
+  void add_statement(Statement* statement, std::string text) override;
+  void execute(Resource_Manager& rman) override {}
+  std::string get_result_name() const override { return ""; }
 
-  virtual Requested_Context request_context() const;
+  Requested_Context request_context() const override;
 
-  virtual Statement::Eval_Return_Type return_type() const { return return_type_; };
-  virtual Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key);
-  virtual Eval_Geometry_Task* get_geometry_task(Prepare_Task_Context& context);
+  Statement::Eval_Return_Type return_type() const override { return return_type_; };
+  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override;
+  Eval_Geometry_Task* get_geometry_task(Prepare_Task_Context& context) override;
 
   static bool applicable_by_subtree_structure(const Token_Node_Ptr& tree_it)
   { return tree_it->lhs && tree_it->rhs; }
   static void add_substatements(Statement* result, const std::string& operator_name, const Token_Node_Ptr& tree_it,
       Statement::QL_Context tree_context, Statement::Factory& stmt_factory, Error_Output* error_output);
 
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   {
     return indent + "<" + stmt_name() + ">\n"
         + (condition ? condition->dump_xml(indent + "  ") : "")
@@ -152,7 +152,7 @@ struct Ternary_Evaluator final : public Evaluator
         + indent + "</" + stmt_name() + ">\n";
   }
 
-  virtual std::string dump_compact_ql(const std::string&) const
+  std::string dump_compact_ql(const std::string&) const override
   {
     return (condition ?
             (condition->get_operator_priority() < get_operator_priority() ?
@@ -170,8 +170,8 @@ struct Ternary_Evaluator final : public Evaluator
                 : rhs->dump_compact_ql("")) : "");
   }
 
-  virtual std::string get_name() const { return stmt_name(); }
-  virtual int get_operator_priority() const { return operator_priority(stmt_operator(), false); }
+  std::string get_name() const override { return stmt_name(); }
+  int get_operator_priority() const override { return operator_priority(stmt_operator(), false); }
 
 private:
   Evaluator* condition;

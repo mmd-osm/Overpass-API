@@ -34,7 +34,7 @@ class Filter_Constraint final : public Query_Constraint
     bool get_ranges(Resource_Manager& rman, std::set< std::pair< Uint31_Index, Uint31_Index > >& ranges) override { return false; }
     void filter(Resource_Manager& rman, Set& into) override {}
     void filter(const Statement& query, Resource_Manager& rman, Set& into) override;
-    virtual ~Filter_Constraint() {}
+    ~Filter_Constraint() override {}
   private:
     std::ostream& print_constraint( std::ostream &os ) const override {
       return os << (stmt != nullptr ? stmt->dump_ql_in_query("") : "filter");

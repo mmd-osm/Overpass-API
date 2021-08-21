@@ -30,14 +30,14 @@ class Difference_Statement final : public Output_Statement
   public:
     Difference_Statement(int line_number_, const std::map< std::string, std::string >& input_attributes,
                          Parsed_Query& global_settings);
-    virtual void add_statement(Statement* statement, std::string text);
-    virtual std::string get_name() const { return "difference"; }
-    virtual void execute(Resource_Manager& rman);
-    virtual ~Difference_Statement() {}
+    void add_statement(Statement* statement, std::string text) override;
+    std::string get_name() const override { return "difference"; }
+    void execute(Resource_Manager& rman) override;
+    ~Difference_Statement() override {}
 
     static Generic_Statement_Maker< Difference_Statement > statement_maker;
 
-    virtual std::string dump_xml(const std::string& indent) const
+    std::string dump_xml(const std::string& indent) const override
     {
       std::string result = indent + "<difference" + dump_xml_result_name() + ">\n";
 
@@ -47,7 +47,7 @@ class Difference_Statement final : public Output_Statement
       return result + indent + "</difference>\n";
     }
 
-    virtual std::string dump_compact_ql(const std::string& indent) const
+    std::string dump_compact_ql(const std::string& indent) const override
     {
       std::string result = "(";
 
@@ -63,7 +63,7 @@ class Difference_Statement final : public Output_Statement
       return result + dump_ql_result_name() + ";";
     }
 
-    virtual std::string dump_pretty_ql(const std::string& indent) const
+    std::string dump_pretty_ql(const std::string& indent) const override
     {
       std::string result = indent + "(";
 

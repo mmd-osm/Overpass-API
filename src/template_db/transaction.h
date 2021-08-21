@@ -81,17 +81,17 @@ class Nonsynced_Transaction : public Transaction
            const std::string& db_dir, const std::string& file_name_extension,
            Index_Cache* ic);
 
-    virtual ~Nonsynced_Transaction();
+    ~Nonsynced_Transaction() override;
 
-    File_Blocks_Index_Base* data_index(const File_Properties*);
-    Random_File_Index* random_index(const File_Properties*);
+    File_Blocks_Index_Base* data_index(const File_Properties*) override;
+    Random_File_Index* random_index(const File_Properties*) override;
 
     void flush();
     void flush_outdated_index_cache();
-    std::string get_db_dir() const { return db_dir; }
+    std::string get_db_dir() const override { return db_dir; }
 
-    std::string get_replicate_id() const { return replicate_id; }
-    void set_replicate_id(std::string replicate_id_) { replicate_id = replicate_id_; };
+    std::string get_replicate_id() const override { return replicate_id; }
+    void set_replicate_id(std::string replicate_id_) override { replicate_id = replicate_id_; };
     
   private:
     std::map< const File_Properties*, File_Blocks_Index_Base* >

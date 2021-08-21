@@ -519,10 +519,10 @@ struct For_Stmt_Return_Type_Checker : Statement::Return_Type_Checker
 {
   For_Stmt_Return_Type_Checker() {}
 
-  virtual bool eval_required() const { return true; }
-  virtual bool matches(Statement::Eval_Return_Type eval_type) const
+  bool eval_required() const override { return true; }
+  bool matches(Statement::Eval_Return_Type eval_type) const override
   { return eval_type == Statement::string || eval_type == Statement::container; }
-  virtual std::string expectation() const
+  std::string expectation() const override
   { return Statement::eval_to_string(Statement::string) + " or " + Statement::eval_to_string(Statement::container); }
 };
 
@@ -843,9 +843,9 @@ struct No_Return_Type_Checker : Statement::Return_Type_Checker
 {
   No_Return_Type_Checker() {}
 
-  virtual bool eval_required() const { return false; }
-  virtual bool matches(Statement::Eval_Return_Type eval_type) const { return false; }
-  virtual std::string expectation() const { return Statement::eval_to_string(Statement::non_evaluator); }
+  bool eval_required() const override { return false; }
+  bool matches(Statement::Eval_Return_Type eval_type) const override { return false; }
+  std::string expectation() const override { return Statement::eval_to_string(Statement::non_evaluator); }
 };
 
 

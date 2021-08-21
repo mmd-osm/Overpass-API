@@ -261,7 +261,7 @@ struct Const_Eval_Task final : public Eval_Task
 {
   Const_Eval_Task(const std::string& value_) : value(value_) {}
 
-  virtual std::string eval(const std::string* key) const { return value; }
+  std::string eval(const std::string* key) const override { return value; }
 
 private:
   std::string value;
@@ -330,7 +330,7 @@ struct Const_Eval_Geometry_Task final : public Eval_Geometry_Task
 {
   Const_Eval_Geometry_Task(Opaque_Geometry* geometry_) : geometry(geometry_) {}
 
-  virtual Opaque_Geometry* eval() const { return geometry ? geometry->clone() : 0; }
+  Opaque_Geometry* eval() const override { return geometry ? geometry->clone() : 0; }
 
 private:
   Owner< Opaque_Geometry > geometry;
@@ -348,7 +348,7 @@ struct Evaluator : public Statement
   virtual Eval_Geometry_Task* get_geometry_task(Prepare_Task_Context& context) { return 0; }
   virtual Statement::Eval_Return_Type return_type() const = 0;
 
-  virtual std::string dump_pretty_ql(const std::string& indent) const { return dump_compact_ql(indent); }
+  std::string dump_pretty_ql(const std::string& indent) const override { return dump_compact_ql(indent); }
   virtual int get_operator_priority() const { return std::numeric_limits< int >::max(); }
 };
 
@@ -356,8 +356,8 @@ struct Evaluator : public Statement
 template< typename Evaluator_ >
 struct Element_Function_Maker final : public Statement::Evaluator_Maker
 {
-  virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
-      Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output)
+  Statement* create_evaluator(const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
+      Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output) override
   {
     if (!tree_it.assert_is_function(error_output) || !tree_it.assert_has_input_set(error_output, false)
         || !tree_it.assert_has_arguments(error_output, false)
@@ -373,8 +373,8 @@ struct Element_Function_Maker final : public Statement::Evaluator_Maker
 template< typename Evaluator_ >
 struct Member_Function_Maker final : public Statement::Evaluator_Maker
 {
-  virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
-      Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output)
+  Statement* create_evaluator(const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
+      Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output) override
   {
     if (!tree_it.assert_is_function(error_output) || !tree_it.assert_has_input_set(error_output, false)
         || !tree_it.assert_has_arguments(error_output, false)
@@ -397,8 +397,8 @@ struct Operator_Stmt_Maker final : public Generic_Statement_Maker< Evaluator_ >
 template< typename Evaluator_ >
 struct Operator_Eval_Maker final : public Statement::Evaluator_Maker
 {
-  virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
-      Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output)
+  Statement* create_evaluator(const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
+      Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output) override
   {
     if (tree_context != Statement::evaluator_expected && tree_context != Statement::elem_eval_possible
         && tree_context != Statement::member_eval_possible)

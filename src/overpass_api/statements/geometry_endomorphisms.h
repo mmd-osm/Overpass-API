@@ -50,8 +50,8 @@ struct Geometry_Endom_Statement_Maker : public Generic_Statement_Maker< Evaluato
 template< typename Evaluator_ >
 struct Geometry_Endom_Evaluator_Maker : public Statement::Evaluator_Maker
 {
-  virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
-      Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output)
+  Statement* create_evaluator(const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
+      Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output) override
   {
     if (!tree_it.assert_is_function(error_output) || !tree_it.assert_has_input_set(error_output, false)
         || !tree_it.assert_has_arguments(error_output, true))
@@ -89,19 +89,19 @@ struct Evaluator_Geometry_Endom_Syntax : public Evaluator_Geometry_Unary_Functio
     eval_attributes_array(Evaluator_::stmt_name(), attributes, input_attributes);
   }
 
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   {
     return indent + "<" + Evaluator_::stmt_name() + ">\n"
         + (rhs ? rhs->dump_xml(indent + "  ") : "")
         + indent + "</" + Evaluator_::stmt_name() + ">\n";
   }
 
-  virtual std::string dump_compact_ql(const std::string&) const
+  std::string dump_compact_ql(const std::string&) const override
   {
     return Evaluator_::stmt_func_name() + "(" + (rhs ? rhs->dump_compact_ql("") : "") + ")";
   }
 
-  virtual std::string get_name() const { return Evaluator_::stmt_name(); }
+  std::string get_name() const override { return Evaluator_::stmt_name(); }
 };
 
 
@@ -128,7 +128,7 @@ public:
   Evaluator_Center(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_Geometry_Endom_Syntax< Evaluator_Center >(line_number_, input_attributes) {}
 
-  virtual Opaque_Geometry* process(Opaque_Geometry* geom) const;
+  Opaque_Geometry* process(Opaque_Geometry* geom) const override;
 };
 
 
@@ -158,7 +158,7 @@ public:
   Evaluator_Trace(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_Geometry_Endom_Syntax< Evaluator_Trace >(line_number_, input_attributes) {}
 
-  virtual Opaque_Geometry* process(Opaque_Geometry* geom) const;
+  Opaque_Geometry* process(Opaque_Geometry* geom) const override;
 };
 
 
@@ -185,7 +185,7 @@ public:
   Evaluator_Hull(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_Geometry_Endom_Syntax< Evaluator_Hull >(line_number_, input_attributes) {}
 
-  virtual Opaque_Geometry* process(Opaque_Geometry* geom) const;
+  Opaque_Geometry* process(Opaque_Geometry* geom) const override;
 };
 
 

@@ -52,7 +52,7 @@ class Newer_Constraint final : public Query_Constraint
     Query_Filter_Strategy delivers_data(Resource_Manager& rman) override { return ids_required; }
 
     void filter(const Statement& query, Resource_Manager& rman, Set& into) override;
-    virtual ~Newer_Constraint() {}
+    ~Newer_Constraint() override {}
   private:
     std::ostream& print_constraint( std::ostream &os ) const override{
       return os << "(newer:\"" << Timestamp(timestamp).str() << "\")";

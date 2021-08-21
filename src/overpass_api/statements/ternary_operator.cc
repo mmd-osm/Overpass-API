@@ -44,9 +44,9 @@ struct Any_Return_Type_Checker : Statement::Return_Type_Checker
 {
   Any_Return_Type_Checker() {}
 
-  virtual bool eval_required() const { return true; }
-  virtual bool matches(Statement::Eval_Return_Type eval_type) const { return true; }
-  virtual std::string expectation() const { return "any nonempty type"; }
+  bool eval_required() const override { return true; }
+  bool matches(Statement::Eval_Return_Type eval_type) const override { return true; }
+  std::string expectation() const override { return "any nonempty type"; }
 };
 
 

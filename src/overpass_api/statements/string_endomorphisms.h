@@ -50,8 +50,8 @@ struct String_Endom_Statement_Maker final : public Generic_Statement_Maker< Eval
 template< typename Evaluator_ >
 struct String_Endom_Evaluator_Maker final : public Statement::Evaluator_Maker
 {
-  virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
-      Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output)
+  Statement* create_evaluator(const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
+      Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output) override
   {
     if (!tree_it.assert_is_function(error_output) || !tree_it.assert_has_input_set(error_output, false)
         || !tree_it.assert_has_arguments(error_output, true))
@@ -89,19 +89,19 @@ struct Evaluator_String_Endom_Syntax : public Evaluator_Unary_Function
     eval_attributes_array(Evaluator_::stmt_name(), attributes, input_attributes);
   }
 
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   {
     return indent + "<" + Evaluator_::stmt_name() + ">\n"
         + (rhs ? rhs->dump_xml(indent + "  ") : "")
         + indent + "</" + Evaluator_::stmt_name() + ">\n";
   }
 
-  virtual std::string dump_compact_ql(const std::string&) const
+  std::string dump_compact_ql(const std::string&) const override
   {
     return Evaluator_::stmt_func_name() + "(" + (rhs ? rhs->dump_compact_ql("") : "") + ")";
   }
 
-  virtual std::string get_name() const { return Evaluator_::stmt_name(); }
+  std::string get_name() const override { return Evaluator_::stmt_name(); }
 };
 
 
@@ -140,7 +140,7 @@ public:
   Evaluator_Number(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_String_Endom_Syntax< Evaluator_Number >(line_number_, input_attributes) {}
 
-  virtual std::string process(const std::string& rhs_result) const;
+  std::string process(const std::string& rhs_result) const override;
 };
 
 
@@ -155,7 +155,7 @@ public:
   Evaluator_Is_Num(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_String_Endom_Syntax< Evaluator_Is_Num >(line_number_, input_attributes) {}
 
-  virtual std::string process(const std::string& rhs_result) const;
+  std::string process(const std::string& rhs_result) const override;
 };
 
 
@@ -170,7 +170,7 @@ public:
   Evaluator_Suffix(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_String_Endom_Syntax< Evaluator_Suffix >(line_number_, input_attributes) {}
 
-  virtual std::string process(const std::string& rhs_result) const;
+  std::string process(const std::string& rhs_result) const override;
 };
 
 
@@ -215,7 +215,7 @@ public:
   Evaluator_Date(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_String_Endom_Syntax< Evaluator_Date >(line_number_, input_attributes) {}
 
-  virtual std::string process(const std::string& rhs_result) const;
+  std::string process(const std::string& rhs_result) const override;
 };
 
 
@@ -230,7 +230,7 @@ public:
   Evaluator_Is_Date(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_String_Endom_Syntax< Evaluator_Is_Date >(line_number_, input_attributes) {}
 
-  virtual std::string process(const std::string& rhs_result) const;
+  std::string process(const std::string& rhs_result) const override;
 };
 
 

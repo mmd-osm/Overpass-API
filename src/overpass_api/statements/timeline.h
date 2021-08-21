@@ -62,8 +62,8 @@ class Timeline_Statement final : public Output_Statement
 public:
   Timeline_Statement(int line_number_, const std::map< std::string, std::string >& attributes,
                      Parsed_Query& global_settings);
-  virtual std::string get_name() const { return "timeline"; }
-  virtual void execute(Resource_Manager& rman);
+  std::string get_name() const override { return "timeline"; }
+  void execute(Resource_Manager& rman) override;
 
   static Generic_Statement_Maker< Timeline_Statement > statement_maker;
 
@@ -77,7 +77,7 @@ public:
     return "relation";
   }
 
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   {
     std::string result = indent + "<timeline" + std::string(" type=\"") + to_string(type) + "\""
         " ref=\"" + ::to_string(ref) + "\"";
@@ -87,7 +87,7 @@ public:
     return result + dump_xml_result_name() + "/>\n";
   }
 
-  virtual std::string dump_compact_ql(const std::string& indent) const
+  std::string dump_compact_ql(const std::string& indent) const override
   {
     std::string result = "timeline(" + to_string(type) + "," + ::to_string(ref);
     if (version)
@@ -96,7 +96,7 @@ public:
     return result + ")" + dump_ql_result_name() + ";";
   }
 
-  virtual std::string dump_pretty_ql(const std::string& indent) const
+  std::string dump_pretty_ql(const std::string& indent) const override
   {
     std::string result = indent + "timeline(" + to_string(type) + ", " + ::to_string(ref);
     if (version)

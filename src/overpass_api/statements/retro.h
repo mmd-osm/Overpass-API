@@ -56,15 +56,15 @@ class Retro_Statement : public Statement
 public:
   Retro_Statement(int line_number_, const std::map< std::string, std::string >& attributes,
                      Parsed_Query& global_settings);
-  virtual void add_statement(Statement* statement, std::string text);
-  virtual std::string get_name() const { return "retro"; }
-  virtual std::string get_result_name() const { return ""; }
-  virtual void execute(Resource_Manager& rman);
-  virtual ~Retro_Statement() {}
+  void add_statement(Statement* statement, std::string text) override;
+  std::string get_name() const override { return "retro"; }
+  std::string get_result_name() const override { return ""; }
+  void execute(Resource_Manager& rman) override;
+  ~Retro_Statement() override {}
 
   static Generic_Statement_Maker< Retro_Statement > statement_maker;
 
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   {
     std::string result = indent + "<retro>\n"
           + (timestamp ? timestamp->dump_xml(indent + "  ") : "");
@@ -75,7 +75,7 @@ public:
     return result + indent + "</retro>\n";
   }
 
-  virtual std::string dump_compact_ql(const std::string& indent) const
+  std::string dump_compact_ql(const std::string& indent) const override
   {
     std::string result = indent + "retro("
         + (timestamp ? timestamp->dump_compact_ql("") : "")
@@ -88,7 +88,7 @@ public:
     return result;
   }
 
-  virtual std::string dump_pretty_ql(const std::string& indent) const
+  std::string dump_pretty_ql(const std::string& indent) const override
   {
     std::string result = indent + "retro ("
         + (timestamp ? timestamp->dump_pretty_ql("") : "")

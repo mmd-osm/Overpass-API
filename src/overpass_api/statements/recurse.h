@@ -34,9 +34,9 @@ class Recurse_Statement final : public Output_Statement
   public:
     Recurse_Statement(int line_number_, const std::map< std::string, std::string >& input_attributes,
                       Parsed_Query& global_settings);
-    virtual std::string get_name() const { return "recurse"; }
-    virtual void execute(Resource_Manager& rman);
-    virtual ~Recurse_Statement();
+    std::string get_name() const override { return "recurse"; }
+    void execute(Resource_Manager& rman) override;
+    ~Recurse_Statement() override;
 
     struct Statement_Maker : public Generic_Statement_Maker< Recurse_Statement >
     {
@@ -46,10 +46,10 @@ class Recurse_Statement final : public Output_Statement
 
     struct Criterion_Maker_1 : public Statement::Criterion_Maker
     {
-      virtual bool can_standalone(const std::string& type) { return type != "nwr"; }
-      virtual Statement* create_criterion(const Token_Node_Ptr& tree_it,
+      bool can_standalone(const std::string& type) override { return type != "nwr"; }
+      Statement* create_criterion(const Token_Node_Ptr& tree_it,
           const std::string& type, const std::string& into,
-          Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
+          Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output) override;
       Criterion_Maker_1()
       {
         Statement::maker_by_ql_criterion()["w"] = this;
@@ -63,10 +63,10 @@ class Recurse_Statement final : public Output_Statement
 
     struct Criterion_Maker_2 : public Statement::Criterion_Maker
     {
-      virtual bool can_standalone(const std::string& type) { return false; }
-      virtual Statement* create_criterion(const Token_Node_Ptr& tree_it,
+      bool can_standalone(const std::string& type) override { return false; }
+      Statement* create_criterion(const Token_Node_Ptr& tree_it,
           const std::string& type, const std::string& into,
-          Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
+          Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output) override;
       Criterion_Maker_2()
       {
         Statement::maker_by_ql_criterion()["<"] = this;
@@ -77,7 +77,7 @@ class Recurse_Statement final : public Output_Statement
     };
     static Criterion_Maker_2 criterion_maker_2;
 
-    virtual Query_Constraint* get_query_constraint();
+    Query_Constraint* get_query_constraint() override;
     unsigned int get_type() const { return type; }
     std::string get_input() const { return input; }
 
@@ -87,7 +87,7 @@ class Recurse_Statement final : public Output_Statement
     static std::string to_xml_representation(int type);
     static std::string to_ql_representation(int type);
 
-    virtual std::string dump_xml(const std::string& indent) const
+    std::string dump_xml(const std::string& indent) const override
     {
       return indent + "<recurse"
           + (input != "_" ? std::string(" from=\"") + input + "\"" : "")
@@ -98,7 +98,7 @@ class Recurse_Statement final : public Output_Statement
           + dump_xml_result_name() + "/>\n";
     }
 
-    virtual std::string dump_ql_in_query(const std::string&) const
+    std::string dump_ql_in_query(const std::string&) const override
     {
       return std::string("(") + to_ql_representation(type)
           + (input != "_" ? std::string(".") + input : "")
@@ -108,7 +108,7 @@ class Recurse_Statement final : public Output_Statement
           + ")";
     }
 
-    virtual std::string dump_compact_ql(const std::string&) const
+    std::string dump_compact_ql(const std::string&) const override
     {
       std::string target_type = to_target_type(type);
       if (target_type != "")
@@ -122,7 +122,7 @@ class Recurse_Statement final : public Output_Statement
         return (input != "_" ? std::string(".") + input + " " : "")
             + to_ql_representation(type) + dump_ql_result_name() + ";";
     }
-    virtual std::string dump_pretty_ql(const std::string& indent) const { return indent + dump_compact_ql(indent); }
+    std::string dump_pretty_ql(const std::string& indent) const override { return indent + dump_compact_ql(indent); }
 
     const std::vector< int >* get_pos() const { return pos.empty() ? 0 : &pos; }
 

@@ -31,20 +31,20 @@ struct Default_Dispatcher_Logger : public Dispatcher_Logger
 {
   Default_Dispatcher_Logger(Logger& logger_) : logger(&logger_) {}
 
-  virtual ~Default_Dispatcher_Logger() {}
+  ~Default_Dispatcher_Logger() override {}
 
-  void write_start(pid_t pid, const std::vector< pid_t >& registered);
-  void write_rollback(pid_t pid);
-  void write_commit(pid_t pid);
-  void request_read_and_idx(pid_t pid, uint32 max_allowed_time, uint64 max_allowed_space);
-  void read_idx_finished(pid_t pid);
-  void prolongate(pid_t pid);
-  void idle_counter(uint32 idle_count);
-  void read_finished(pid_t pid);
-  void query_my_status(pid_t pid);
-  void read_aborted(pid_t pid);
-  void hangup(pid_t pid);
-  void purge(pid_t pid);
+  void write_start(pid_t pid, const std::vector< pid_t >& registered) override;
+  void write_rollback(pid_t pid) override;
+  void write_commit(pid_t pid) override;
+  void request_read_and_idx(pid_t pid, uint32 max_allowed_time, uint64 max_allowed_space) override;
+  void read_idx_finished(pid_t pid) override;
+  void prolongate(pid_t pid) override;
+  void idle_counter(uint32 idle_count) override;
+  void read_finished(pid_t pid) override;
+  void query_my_status(pid_t pid) override;
+  void read_aborted(pid_t pid) override;
+  void hangup(pid_t pid) override;
+  void purge(pid_t pid) override;
 
   private:
     Logger* logger;
@@ -143,20 +143,20 @@ struct Quiet_Dispatcher_Logger : public Dispatcher_Logger
 {
 
   Quiet_Dispatcher_Logger(Logger& logger_) : logger(&logger_) {}
-  virtual ~Quiet_Dispatcher_Logger() {}
+  ~Quiet_Dispatcher_Logger() override {}
 
-  void write_start(pid_t pid, const std::vector< pid_t >& registered) {}
-  void write_rollback(pid_t pid)  {}
-  void write_commit(pid_t pid) {}
-  void request_read_and_idx(pid_t pid, uint32 max_allowed_time, uint64 max_allowed_space) {}
-  void read_idx_finished(pid_t pid) {}
-  void prolongate(pid_t pid) {}
-  void idle_counter(uint32 idle_count) {}
-  void read_finished(pid_t pid) {}
-  void query_my_status(pid_t pid) {}
-  void read_aborted(pid_t pid){ }
-  void hangup(pid_t pid) {}
-  void purge(pid_t pid) {}
+  void write_start(pid_t pid, const std::vector< pid_t >& registered) override {}
+  void write_rollback(pid_t pid) override  {}
+  void write_commit(pid_t pid) override {}
+  void request_read_and_idx(pid_t pid, uint32 max_allowed_time, uint64 max_allowed_space) override {}
+  void read_idx_finished(pid_t pid) override {}
+  void prolongate(pid_t pid) override {}
+  void idle_counter(uint32 idle_count) override {}
+  void read_finished(pid_t pid) override {}
+  void query_my_status(pid_t pid) override {}
+  void read_aborted(pid_t pid) override{ }
+  void hangup(pid_t pid) override {}
+  void purge(pid_t pid) override {}
 
   private:
     Logger* logger;

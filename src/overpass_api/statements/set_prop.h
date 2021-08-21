@@ -62,26 +62,26 @@ struct Set_Prop_Task
 struct Set_Prop_Plain_Task : public Set_Prop_Task
 {
   Set_Prop_Plain_Task(Eval_Task* rhs_, const std::string& key_, Mode mode_) : rhs(rhs_), key(key_), mode(mode_) {}
-  virtual ~Set_Prop_Plain_Task() { delete rhs; }
+  ~Set_Prop_Plain_Task() override { delete rhs; }
 
-  virtual void process(Derived_Structure& result, bool& id_set) const;
+  void process(Derived_Structure& result, bool& id_set) const override;
 
-  virtual void process(const Element_With_Context< Node_Skeleton >& data,
-    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const;
-  virtual void process(const Element_With_Context< Attic< Node_Skeleton > >& data,
-    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const;
-  virtual void process(const Element_With_Context< Way_Skeleton >& data,
-    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const;
-  virtual void process(const Element_With_Context< Attic< Way_Skeleton > >& data,
-    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const;
-  virtual void process(const Element_With_Context< Relation_Skeleton>& data,
-    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const;
-  virtual void process(const Element_With_Context< Attic< Relation_Skeleton > >& data,
-    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const;
-  virtual void process(const Element_With_Context< Area_Skeleton >& data,
-    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const;
-  virtual void process(const Element_With_Context< Derived_Skeleton >& data,
-    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const;
+  void process(const Element_With_Context< Node_Skeleton >& data,
+    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const override;
+  void process(const Element_With_Context< Attic< Node_Skeleton > >& data,
+    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const override;
+  void process(const Element_With_Context< Way_Skeleton >& data,
+    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const override;
+  void process(const Element_With_Context< Attic< Way_Skeleton > >& data,
+    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const override;
+  void process(const Element_With_Context< Relation_Skeleton>& data,
+    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const override;
+  void process(const Element_With_Context< Attic< Relation_Skeleton > >& data,
+    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const override;
+  void process(const Element_With_Context< Area_Skeleton >& data,
+    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const override;
+  void process(const Element_With_Context< Derived_Skeleton >& data,
+    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const override;
 
 private:
   Set_Prop_Plain_Task(const Set_Prop_Plain_Task&);
@@ -95,24 +95,24 @@ private:
 
 struct Set_Prop_Generic_Task : public Set_Prop_Task
 {
-  virtual void process(Derived_Structure& result, bool& id_set) const;
+  void process(Derived_Structure& result, bool& id_set) const override;
 
-  virtual void process(const Element_With_Context< Node_Skeleton >& data,
-    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const;
-  virtual void process(const Element_With_Context< Attic< Node_Skeleton > >& data,
-    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const;
-  virtual void process(const Element_With_Context< Way_Skeleton >& data,
-    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const;
-  virtual void process(const Element_With_Context< Attic< Way_Skeleton > >& data,
-    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const;
-  virtual void process(const Element_With_Context< Relation_Skeleton>& data,
-    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const;
-  virtual void process(const Element_With_Context< Attic< Relation_Skeleton > >& data,
-    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const;
-  virtual void process(const Element_With_Context< Area_Skeleton >& data,
-    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const;
-  virtual void process(const Element_With_Context< Derived_Skeleton >& data,
-    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const;
+  void process(const Element_With_Context< Node_Skeleton >& data,
+    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const override;
+  void process(const Element_With_Context< Attic< Node_Skeleton > >& data,
+    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const override;
+  void process(const Element_With_Context< Way_Skeleton >& data,
+    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const override;
+  void process(const Element_With_Context< Attic< Way_Skeleton > >& data,
+    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const override;
+  void process(const Element_With_Context< Relation_Skeleton>& data,
+    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const override;
+  void process(const Element_With_Context< Attic< Relation_Skeleton > >& data,
+    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const override;
+  void process(const Element_With_Context< Area_Skeleton >& data,
+    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const override;
+  void process(const Element_With_Context< Derived_Skeleton >& data,
+    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const override;
 
   void add_key(const std::string& key, Eval_Task* task);
 
@@ -125,26 +125,26 @@ private:
 struct Set_Prop_Geometry_Task : public Set_Prop_Task
 {
   Set_Prop_Geometry_Task(Eval_Geometry_Task* rhs_) : rhs(rhs_) {}
-  virtual ~Set_Prop_Geometry_Task() { delete rhs; }
+  ~Set_Prop_Geometry_Task() override { delete rhs; }
 
-  virtual void process(Derived_Structure& result, bool& id_set) const;
+  void process(Derived_Structure& result, bool& id_set) const override;
 
-  virtual void process(const Element_With_Context< Node_Skeleton >& data,
-    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const;
-  virtual void process(const Element_With_Context< Attic< Node_Skeleton > >& data,
-    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const;
-  virtual void process(const Element_With_Context< Way_Skeleton >& data,
-    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const;
-  virtual void process(const Element_With_Context< Attic< Way_Skeleton > >& data,
-    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const;
-  virtual void process(const Element_With_Context< Relation_Skeleton>& data,
-    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const;
-  virtual void process(const Element_With_Context< Attic< Relation_Skeleton > >& data,
-    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const;
-  virtual void process(const Element_With_Context< Area_Skeleton >& data,
-    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const;
-  virtual void process(const Element_With_Context< Derived_Skeleton >& data,
-    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const;
+  void process(const Element_With_Context< Node_Skeleton >& data,
+    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const override;
+  void process(const Element_With_Context< Attic< Node_Skeleton > >& data,
+    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const override;
+  void process(const Element_With_Context< Way_Skeleton >& data,
+    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const override;
+  void process(const Element_With_Context< Attic< Way_Skeleton > >& data,
+    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const override;
+  void process(const Element_With_Context< Relation_Skeleton>& data,
+    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const override;
+  void process(const Element_With_Context< Attic< Relation_Skeleton > >& data,
+    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const override;
+  void process(const Element_With_Context< Area_Skeleton >& data,
+    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const override;
+  void process(const Element_With_Context< Derived_Skeleton >& data,
+    const std::vector< std::string >& declared_keys, Derived_Structure& result, bool& id_set) const override;
 
 private:
   Set_Prop_Geometry_Task(const Set_Prop_Plain_Task&);
@@ -165,8 +165,8 @@ public:
 
   struct Evaluator_Maker : public Statement::Evaluator_Maker
   {
-    virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
-        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
+    Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
+        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output) override;
     Evaluator_Maker()
     {
       Statement::maker_by_token()["="].push_back(this);
@@ -175,17 +175,17 @@ public:
   };
   static Evaluator_Maker evaluator_maker;
 
-  virtual std::string dump_xml(const std::string& indent) const;
-  virtual std::string dump_compact_ql(const std::string&) const;
-  virtual std::string dump_pretty_ql(const std::string&) const { return dump_compact_ql(""); }
+  std::string dump_xml(const std::string& indent) const override;
+  std::string dump_compact_ql(const std::string&) const override;
+  std::string dump_pretty_ql(const std::string&) const override { return dump_compact_ql(""); }
 
   Set_Prop_Statement(int line_number_, const std::map< std::string, std::string >& input_attributes,
                    Parsed_Query& global_settings);
-  virtual std::string get_name() const { return "set-prop"; }
-  virtual std::string get_result_name() const { return ""; }
-  virtual void add_statement(Statement* statement, std::string text);
-  virtual void execute(Resource_Manager& rman) {}
-  virtual ~Set_Prop_Statement() { delete key; }
+  std::string get_name() const override { return "set-prop"; }
+  std::string get_result_name() const override { return ""; }
+  void add_statement(Statement* statement, std::string text) override;
+  void execute(Resource_Manager& rman) override {}
+  ~Set_Prop_Statement() override { delete key; }
 
   virtual Requested_Context request_context() const;
 

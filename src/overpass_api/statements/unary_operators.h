@@ -81,14 +81,14 @@ struct Evaluator_Prefix_Operator_Syntax : public Evaluator_Prefix_Operator
     eval_attributes_array(Evaluator_::stmt_name(), attributes, input_attributes);
   }
 
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   {
     return indent + "<" + Evaluator_::stmt_name() + ">\n"
         + (rhs ? rhs->dump_xml(indent + "  ") : "")
         + indent + "</" + Evaluator_::stmt_name() + ">\n";
   }
 
-  virtual std::string dump_compact_ql(const std::string&) const
+  std::string dump_compact_ql(const std::string&) const override
   {
     if (!rhs)
       return Evaluator_::stmt_operator();
@@ -97,8 +97,8 @@ struct Evaluator_Prefix_Operator_Syntax : public Evaluator_Prefix_Operator
     return Evaluator_::stmt_operator() + rhs->dump_compact_ql("");
   }
 
-  virtual std::string get_name() const { return Evaluator_::stmt_name(); }
-  virtual int get_operator_priority() const { return operator_priority(Evaluator_::stmt_operator(), true); }
+  std::string get_name() const override { return Evaluator_::stmt_name(); }
+  int get_operator_priority() const override { return operator_priority(Evaluator_::stmt_operator(), true); }
 };
 
 
@@ -127,7 +127,7 @@ public:
   Evaluator_Not(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_Prefix_Operator_Syntax< Evaluator_Not >(line_number_, input_attributes) {}
 
-  virtual std::string process(const std::string& rhs_result) const;
+  std::string process(const std::string& rhs_result) const override;
 };
 
 
@@ -155,7 +155,7 @@ public:
   Evaluator_Negate(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_Prefix_Operator_Syntax< Evaluator_Negate >(line_number_, input_attributes) {}
 
-  virtual std::string process(const std::string& rhs_result) const;
+  std::string process(const std::string& rhs_result) const override;
 };
 
 

@@ -62,15 +62,15 @@ class Convert_Statement final : public Output_Statement
 public:
   Convert_Statement(int line_number_, const std::map< std::string, std::string >& attributes,
                    Parsed_Query& global_settings);
-  virtual std::string get_name() const { return "convert"; }
-  virtual void add_statement(Statement* statement, std::string text);
-  virtual void execute(Resource_Manager& rman);
-  virtual ~Convert_Statement();
+  std::string get_name() const override { return "convert"; }
+  void add_statement(Statement* statement, std::string text) override;
+  void execute(Resource_Manager& rman) override;
+  ~Convert_Statement() override;
   static Generic_Statement_Maker< Convert_Statement > statement_maker;
 
   std::string get_source_name() const { return input; }
 
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   {
     std::string result = indent + "<convert"
           + (input != "_" ? " from=\"" + input + "\"" : "")
@@ -84,7 +84,7 @@ public:
     return result + "</convert>\n";
   }
 
-  virtual std::string dump_compact_ql(const std::string& indent) const
+  std::string dump_compact_ql(const std::string& indent) const override
   {
     std::string result = indent + (input == "_" ? "" : "." + input + " ")
         + "convert " + type;
@@ -99,7 +99,7 @@ public:
     return result + dump_ql_result_name() + ";";
   }
 
-  virtual std::string dump_pretty_ql(const std::string& indent) const
+  std::string dump_pretty_ql(const std::string& indent) const override
   {
     std::string result = indent + (input == "_" ? "" : "." + input + " ")
         + "convert " + type;

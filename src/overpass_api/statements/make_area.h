@@ -39,9 +39,9 @@ class Make_Area_Statement final : public Output_Statement
   public:
     Make_Area_Statement(int line_number_, const std::map< std::string, std::string >& attributes,
                         Parsed_Query& global_settings);
-    virtual std::string get_name() const { return "make-area"; }
-    virtual void execute(Resource_Manager& rman);
-    virtual ~Make_Area_Statement() {
+    std::string get_name() const override { return "make-area"; }
+    void execute(Resource_Manager& rman) override;
+    ~Make_Area_Statement() override {
       if (make_area_stmt_ref_counter_ > 0)
         --make_area_stmt_ref_counter_;
     }

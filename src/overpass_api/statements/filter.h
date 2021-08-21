@@ -52,10 +52,10 @@ class Filter_Statement final : public Output_Statement
   public:
     Filter_Statement(int line_number_, const std::map< std::string, std::string >& attributes,
                          Parsed_Query& global_settings);
-    virtual std::string get_name() const { return "filter"; }
-    virtual void add_statement(Statement* statement, std::string text);
-    virtual void execute(Resource_Manager& rman);
-    virtual ~Filter_Statement();
+    std::string get_name() const override { return "filter"; }
+    void add_statement(Statement* statement, std::string text) override;
+    void execute(Resource_Manager& rman) override;
+    ~Filter_Statement() override;
 
     struct Statement_Maker : public Generic_Statement_Maker< Filter_Statement >
     {
@@ -65,30 +65,30 @@ class Filter_Statement final : public Output_Statement
 
     struct Criterion_Maker : public Statement::Criterion_Maker
     {
-      virtual bool can_standalone(const std::string& type) { return false; }
-      virtual Statement* create_criterion(const Token_Node_Ptr& tree_it,
+      bool can_standalone(const std::string& type) override { return false; }
+      Statement* create_criterion(const Token_Node_Ptr& tree_it,
           const std::string& type, const std::string& into,
-          Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
+          Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output) override;
       Criterion_Maker() { Statement::maker_by_ql_criterion()["if"] = this; }
     };
     static Criterion_Maker criterion_maker;
 
-    virtual Query_Constraint* get_query_constraint();
+    Query_Constraint* get_query_constraint() override;
 
     Evaluator* get_criterion() { return criterion; }
 
-    virtual std::string dump_xml(const std::string& indent) const
+    std::string dump_xml(const std::string& indent) const override
     {
       return indent + "<filter>\n"
           + (criterion ? criterion->dump_xml(indent + "  ") : "")
           + indent + "</filter>\n";
     }
 
-    virtual std::string dump_compact_ql(const std::string&) const
+    std::string dump_compact_ql(const std::string&) const override
     {
       return std::string("(if:") + (criterion ? criterion->dump_compact_ql("") : "") + ")";
     }
-    virtual std::string dump_pretty_ql(const std::string& indent) const { return dump_compact_ql(indent); }
+    std::string dump_pretty_ql(const std::string& indent) const override { return dump_compact_ql(indent); }
 
   private:
     std::vector< Query_Constraint* > constraints;

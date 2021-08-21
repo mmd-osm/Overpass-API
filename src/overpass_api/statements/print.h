@@ -76,10 +76,10 @@ class Print_Statement : public Statement
 {
   public:
     Print_Statement(int line_number_, const std::map< std::string, std::string >& attributes, Parsed_Query& global_settings);
-    virtual std::string get_name() const { return "print"; }
-    virtual std::string get_result_name() const { return ""; }
-    virtual void execute(Resource_Manager& rman);
-    virtual ~Print_Statement();
+    std::string get_name() const override { return "print"; }
+    std::string get_result_name() const override { return ""; }
+    void execute(Resource_Manager& rman) override;
+    ~Print_Statement() override;
 
     static Generic_Statement_Maker< Print_Statement > statement_maker;
 
@@ -155,7 +155,7 @@ class Print_Statement : public Statement
       return (mode & Output_Mode::ID) ? "" : " noids";
     }
 
-    virtual std::string dump_xml(const std::string& indent) const
+    std::string dump_xml(const std::string& indent) const override
     {
       return indent + "<print"
           + (input != "_" ? std::string(" from=\"") + input + "\"" : "")
@@ -171,8 +171,8 @@ class Print_Statement : public Statement
           + "/>\n";
     }
 
-    virtual std::string dump_compact_ql(const std::string& indent) const { return dump_subquery_map_ql(indent, false); }
-    virtual std::string dump_pretty_ql(const std::string& indent) const { return dump_subquery_map_ql(indent, true); }
+    std::string dump_compact_ql(const std::string& indent) const override { return dump_subquery_map_ql(indent, false); }
+    std::string dump_pretty_ql(const std::string& indent) const override { return dump_subquery_map_ql(indent, true); }
 
     std::string dump_subquery_map_ql(const std::string& indent, bool pretty) const
     {

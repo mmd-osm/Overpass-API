@@ -73,9 +73,9 @@ class Around_Statement final : public Output_Statement
   public:
     Around_Statement(int line_number_, const std::map< std::string, std::string >& attributes,
                      Parsed_Query& global_settings);
-    virtual std::string get_name() const { return "around"; }
-    virtual void execute(Resource_Manager& rman);
-    virtual ~Around_Statement();
+    std::string get_name() const override { return "around"; }
+    void execute(Resource_Manager& rman) override;
+    ~Around_Statement() override;
 
     struct Statement_Maker : public Generic_Statement_Maker< Around_Statement >
     {
@@ -85,15 +85,15 @@ class Around_Statement final : public Output_Statement
 
     struct Criterion_Maker : public Statement::Criterion_Maker
     {
-      virtual bool can_standalone(const std::string& type) { return type == "node"; }
-      virtual Statement* create_criterion(const Token_Node_Ptr& tree_it,
+      bool can_standalone(const std::string& type) override { return type == "node"; }
+      Statement* create_criterion(const Token_Node_Ptr& tree_it,
           const std::string& type, const std::string& into,
-          Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
+          Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output) override;
       Criterion_Maker() { Statement::maker_by_ql_criterion()["around"] = this; }
     };
     static Criterion_Maker criterion_maker;
 
-    virtual Query_Constraint* get_query_constraint();
+    Query_Constraint* get_query_constraint() override;
 
     std::string get_source_name() const { return input; }
 
@@ -118,7 +118,7 @@ class Around_Statement final : public Output_Statement
     bool matches_bboxes(double lat, double lon) const;
     bool matches_bboxes(const Prepared_BBox&) const;
 
-    virtual std::string dump_xml(const std::string& indent) const
+    std::string dump_xml(const std::string& indent) const override
     {
       std::string result = indent + "<around"
           + (input != "_" ? std::string(" from=\"") + input + "\"" : "")
@@ -136,11 +136,11 @@ class Around_Statement final : public Output_Statement
       return result + dump_xml_result_name() + "/>\n";
     }
 
-    virtual std::string dump_compact_ql(const std::string&) const
+    std::string dump_compact_ql(const std::string&) const override
     {
       return "node" + dump_ql_in_query("") + dump_ql_result_name() + ";";
     }
-    virtual std::string dump_ql_in_query(const std::string&) const
+    std::string dump_ql_in_query(const std::string&) const override
     {
       std::string result = std::string("(around")
           + (input != "_" ? std::string(".") + input : "")
@@ -149,7 +149,7 @@ class Around_Statement final : public Output_Statement
         result += "," + to_string(it->lat) + "," + to_string(it->lon);
       return result + ")";
     }
-    virtual std::string dump_pretty_ql(const std::string& indent) const { return indent + dump_compact_ql(indent); }
+    std::string dump_pretty_ql(const std::string& indent) const override { return indent + dump_compact_ql(indent); }
 
   private:
     std::string input;

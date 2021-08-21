@@ -65,11 +65,11 @@ class If_Statement final : public Statement
 public:
   If_Statement(int line_number_, const std::map< std::string, std::string >& attributes,
                      Parsed_Query& global_settings);
-  virtual void add_statement(Statement* statement, std::string text);
-  virtual std::string get_name() const { return "if"; }
-  virtual std::string get_result_name() const { return ""; }
-  virtual void execute(Resource_Manager& rman);
-  virtual ~If_Statement() {}
+  void add_statement(Statement* statement, std::string text) override;
+  std::string get_name() const override { return "if"; }
+  std::string get_result_name() const override { return ""; }
+  void execute(Resource_Manager& rman) override;
+  ~If_Statement() override {}
 
   struct Statement_Maker : public Generic_Statement_Maker< If_Statement >
   {
@@ -77,7 +77,7 @@ public:
   };
   static Statement_Maker statement_maker;
 
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   {
     std::string result = indent + "<if>\n"
           + (criterion ? criterion->dump_xml(indent + "  ") : "");
@@ -96,7 +96,7 @@ public:
     return result + indent + "</if>\n";
   }
 
-  virtual std::string dump_compact_ql(const std::string& indent) const
+  std::string dump_compact_ql(const std::string& indent) const override
   {
     std::string result = indent + "if(" + (criterion ? criterion->dump_compact_ql("") : "") + "){";
 
@@ -115,7 +115,7 @@ public:
     return result;
   }
 
-  virtual std::string dump_pretty_ql(const std::string& indent) const
+  std::string dump_pretty_ql(const std::string& indent) const override
   {
     std::string result = indent + "if (" + (criterion ? criterion->dump_compact_ql("") : "") + ")\n"
         + indent + "{";
@@ -148,9 +148,9 @@ class Else_Statement final : public Statement
 public:
   Else_Statement(int line_number_, const std::map< std::string, std::string >& attributes,
                      Parsed_Query& global_settings) : Statement(line_number_) {}
-  virtual std::string get_name() const { return "else"; }
-  virtual std::string get_result_name() const { return ""; }
-  virtual void execute(Resource_Manager& rman) {}
+  std::string get_name() const override { return "else"; }
+  std::string get_result_name() const override { return ""; }
+  void execute(Resource_Manager& rman) override {}
 
   struct Statement_Maker : public Generic_Statement_Maker< Else_Statement >
   {
@@ -158,9 +158,9 @@ public:
   };
   static Statement_Maker statement_maker;
 
-  virtual std::string dump_xml(const std::string& indent) const { return indent + "<else/>\n"; }
-  virtual std::string dump_compact_ql(const std::string& indent) const { return "else\n"; }
-  virtual std::string dump_pretty_ql(const std::string& indent) const { return indent + "else\n"; }
+  std::string dump_xml(const std::string& indent) const override { return indent + "<else/>\n"; }
+  std::string dump_compact_ql(const std::string& indent) const override { return "else\n"; }
+  std::string dump_pretty_ql(const std::string& indent) const override { return indent + "else\n"; }
 };
 
 

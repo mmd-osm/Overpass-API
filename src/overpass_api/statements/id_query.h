@@ -31,9 +31,9 @@ class Id_Query_Statement final : public Output_Statement
   public:
     Id_Query_Statement(int line_number_, const std::map< std::string, std::string >& attributes,
                        Parsed_Query& global_settings);
-    virtual std::string get_name() const { return "id-query"; }
-    virtual void execute(Resource_Manager& rman);
-    virtual ~Id_Query_Statement();
+    std::string get_name() const override { return "id-query"; }
+    void execute(Resource_Manager& rman) override;
+    ~Id_Query_Statement() override;
 
     struct Statement_Maker : public Generic_Statement_Maker< Id_Query_Statement >
     {
@@ -43,16 +43,16 @@ class Id_Query_Statement final : public Output_Statement
 
     struct Criterion_Maker : public Statement::Criterion_Maker
     {
-      virtual bool can_standalone(const std::string& type)
+      bool can_standalone(const std::string& type) override
       { return type == "node" || type == "way" || type == "relation"; }
-      virtual Statement* create_criterion(const Token_Node_Ptr& tree_it,
+      Statement* create_criterion(const Token_Node_Ptr& tree_it,
           const std::string& type, const std::string& into,
-          Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
+          Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output) override;
       Criterion_Maker() { Statement::maker_by_ql_criterion()["id"] = this; }
     };
     static Criterion_Maker criterion_maker;
 
-    virtual Query_Constraint* get_query_constraint();
+    Query_Constraint* get_query_constraint() override;
 
     const std::vector< uint64 >& get_refs() { return refs; }
     int get_type() const { return type; }
@@ -73,7 +73,7 @@ class Id_Query_Statement final : public Output_Statement
       return "";
     }
 
-    virtual std::string dump_xml(const std::string& indent) const
+    std::string dump_xml(const std::string& indent) const override
     {
       std::string result = indent + "<id-query" + std::string(" type=\"") + to_string(type) + "\"";
       if (!refs.empty())
@@ -84,12 +84,12 @@ class Id_Query_Statement final : public Output_Statement
       return result + dump_xml_result_name() + "/>\n";
     }
 
-    virtual std::string dump_compact_ql(const std::string&) const
+    std::string dump_compact_ql(const std::string&) const override
     {
       return to_string(type) + dump_ql_in_query("") + dump_ql_result_name() + ";";
     }
-    virtual std::string dump_pretty_ql(const std::string& indent) const { return indent + dump_compact_ql(indent); }
-    virtual std::string dump_ql_in_query(const std::string& indent) const
+    std::string dump_pretty_ql(const std::string& indent) const override { return indent + dump_compact_ql(indent); }
+    std::string dump_ql_in_query(const std::string& indent) const override
     {
       std::vector< uint64 >::const_iterator it = refs.begin();
 

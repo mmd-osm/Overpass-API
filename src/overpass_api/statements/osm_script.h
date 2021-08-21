@@ -33,10 +33,10 @@ class Osm_Script_Statement : public Statement
   public:
     Osm_Script_Statement(int line_number_, const std::map< std::string, std::string >& input_attributes,
                          Parsed_Query& global_settings);
-    virtual void add_statement(Statement* statement, std::string text);
-    virtual std::string get_name() const { return "osm-script"; }
-    virtual std::string get_result_name() const { return ""; }
-    virtual void execute(Resource_Manager& rman);
+    void add_statement(Statement* statement, std::string text) override;
+    std::string get_name() const override { return "osm-script"; }
+    std::string get_result_name() const override { return ""; }
+    void execute(Resource_Manager& rman) override;
 
     static Generic_Statement_Maker< Osm_Script_Statement > statement_maker;
 

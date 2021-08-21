@@ -437,7 +437,7 @@ class Around_Constraint final : public Query_Constraint
         (Resource_Manager& rman, std::set< std::pair< Uint31_Index, Uint31_Index > >& ranges) override;
     void filter(Resource_Manager& rman, Set& into) override;
     void filter(const Statement& query, Resource_Manager& rman, Set& into) override;
-    virtual ~Around_Constraint() {}
+    ~Around_Constraint() override {}
   private:
     std::ostream& print_constraint( std::ostream &os ) const override {
       return os << (around != nullptr ? around->dump_ql_in_query("") : "around");

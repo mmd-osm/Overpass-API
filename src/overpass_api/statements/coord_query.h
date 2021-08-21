@@ -31,9 +31,9 @@ class Coord_Query_Statement final : public Output_Statement
   public:
     Coord_Query_Statement(int line_number_, const std::map< std::string, std::string >& attributes,
                           Parsed_Query& global_settings);
-    virtual std::string get_name() const { return "coord-query"; }
-    virtual void execute(Resource_Manager& rman);
-    virtual ~Coord_Query_Statement()
+    std::string get_name() const override { return "coord-query"; }
+    void execute(Resource_Manager& rman) override;
+    ~Coord_Query_Statement() override
     {
       if (coord_stmt_ref_counter_ > 0)
         --coord_stmt_ref_counter_;
@@ -58,7 +58,7 @@ class Coord_Query_Statement final : public Output_Statement
 
     static bool is_used() { return coord_stmt_ref_counter_ > 0; }
 
-    virtual std::string dump_xml(const std::string& indent) const
+    std::string dump_xml(const std::string& indent) const override
     {
       return indent + "<coord-query"
           + (input != "_" ? std::string(" from=\"") + input + "\"" : "")
@@ -67,7 +67,7 @@ class Coord_Query_Statement final : public Output_Statement
           + dump_xml_result_name() + "/>\n";
     }
 
-    virtual std::string dump_compact_ql(const std::string&) const
+    std::string dump_compact_ql(const std::string&) const override
     {
       return (input != "_" ? std::string(".") + input + " " : "")
           + "is_in"
@@ -75,7 +75,7 @@ class Coord_Query_Statement final : public Output_Statement
           + (lon != 200. ? std::string(",") + to_string(lon) : "")
           + (lat != 100. ? ")" : "") + dump_ql_result_name() + ";";
     }
-    virtual std::string dump_pretty_ql(const std::string& indent) const { return indent + dump_compact_ql(indent); }
+    std::string dump_pretty_ql(const std::string& indent) const override { return indent + dump_compact_ql(indent); }
 
   private:
     std::string input;

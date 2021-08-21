@@ -30,13 +30,13 @@ class Evaluator_Unary_Function : public Evaluator
 {
 public:
   Evaluator_Unary_Function(int line_number_);
-  virtual void add_statement(Statement* statement, std::string text);
-  virtual void execute(Resource_Manager& rman) {}
-  virtual std::string get_result_name() const { return ""; }
+  void add_statement(Statement* statement, std::string text) override;
+  void execute(Resource_Manager& rman) override {}
+  std::string get_result_name() const override { return ""; }
 
-  virtual Requested_Context request_context() const;
-  virtual Statement::Eval_Return_Type return_type() const { return Statement::string; };
-  virtual Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key);
+  Requested_Context request_context() const override;
+  Statement::Eval_Return_Type return_type() const override { return Statement::string; };
+  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override;
 
   virtual std::string process(const std::string& rhs_result) const = 0;
 
@@ -48,23 +48,23 @@ protected:
 struct Unary_Eval_Task : public Eval_Task
 {
   Unary_Eval_Task(Eval_Task* rhs_, Evaluator_Unary_Function* evaluator_) : rhs(rhs_), evaluator(evaluator_) {}
-  ~Unary_Eval_Task() { delete rhs; }
+  ~Unary_Eval_Task() override { delete rhs; }
 
-  virtual std::string eval(const std::string* key) const;
+  std::string eval(const std::string* key) const override;
 
-  virtual std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const;
+  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override;
 
-  virtual std::string eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const;
-  virtual std::string eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const;
-  virtual std::string eval(uint pos, const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const;
-  virtual std::string eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const;
+  std::string eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override;
+  std::string eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override;
+  std::string eval(uint pos, const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override;
+  std::string eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override;
 
 private:
   Eval_Task* rhs;
@@ -76,14 +76,14 @@ class Evaluator_Geometry_Unary_Function : public Evaluator
 {
 public:
   Evaluator_Geometry_Unary_Function(int line_number_);
-  virtual void add_statement(Statement* statement, std::string text);
-  virtual void execute(Resource_Manager& rman) {}
-  virtual std::string get_result_name() const { return ""; }
+  void add_statement(Statement* statement, std::string text) override;
+  void execute(Resource_Manager& rman) override {}
+  std::string get_result_name() const override { return ""; }
 
-  virtual Requested_Context request_context() const;
-  virtual Statement::Eval_Return_Type return_type() const { return Statement::geometry; };
-  virtual Eval_Geometry_Task* get_geometry_task(Prepare_Task_Context& context);
-  virtual Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) { return 0; }
+  Requested_Context request_context() const override;
+  Statement::Eval_Return_Type return_type() const override { return Statement::geometry; };
+  Eval_Geometry_Task* get_geometry_task(Prepare_Task_Context& context) override;
+  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override { return 0; }
 
   virtual Opaque_Geometry* process(Opaque_Geometry* geom) const = 0;
 
@@ -96,18 +96,18 @@ struct Unary_Geometry_Eval_Task : public Eval_Geometry_Task
 {
   Unary_Geometry_Eval_Task(Eval_Geometry_Task* rhs_, Evaluator_Geometry_Unary_Function* evaluator_)
       : rhs(rhs_), evaluator(evaluator_) {}
-  ~Unary_Geometry_Eval_Task() { delete rhs; }
+  ~Unary_Geometry_Eval_Task() override { delete rhs; }
 
-  virtual Opaque_Geometry* eval() const;
+  Opaque_Geometry* eval() const override;
 
-  virtual Opaque_Geometry* eval(const Element_With_Context< Node_Skeleton >& data) const;
-  virtual Opaque_Geometry* eval(const Element_With_Context< Attic< Node_Skeleton > >& data) const;
-  virtual Opaque_Geometry* eval(const Element_With_Context< Way_Skeleton >& data) const;
-  virtual Opaque_Geometry* eval(const Element_With_Context< Attic< Way_Skeleton > >& data) const;
-  virtual Opaque_Geometry* eval(const Element_With_Context< Relation_Skeleton >& data) const;
-  virtual Opaque_Geometry* eval(const Element_With_Context< Attic< Relation_Skeleton > >& data) const;
-  virtual Opaque_Geometry* eval(const Element_With_Context< Area_Skeleton >& data) const;
-  virtual Opaque_Geometry* eval(const Element_With_Context< Derived_Skeleton >& data) const;
+  Opaque_Geometry* eval(const Element_With_Context< Node_Skeleton >& data) const override;
+  Opaque_Geometry* eval(const Element_With_Context< Attic< Node_Skeleton > >& data) const override;
+  Opaque_Geometry* eval(const Element_With_Context< Way_Skeleton >& data) const override;
+  Opaque_Geometry* eval(const Element_With_Context< Attic< Way_Skeleton > >& data) const override;
+  Opaque_Geometry* eval(const Element_With_Context< Relation_Skeleton >& data) const override;
+  Opaque_Geometry* eval(const Element_With_Context< Attic< Relation_Skeleton > >& data) const override;
+  Opaque_Geometry* eval(const Element_With_Context< Area_Skeleton >& data) const override;
+  Opaque_Geometry* eval(const Element_With_Context< Derived_Skeleton >& data) const override;
 
 private:
   Eval_Geometry_Task* rhs;
@@ -119,13 +119,13 @@ class Evaluator_Binary_Function : public Evaluator
 {
 public:
   Evaluator_Binary_Function(int line_number_);
-  virtual void add_statement(Statement* statement, std::string text);
-  virtual void execute(Resource_Manager& rman) {}
-  virtual std::string get_result_name() const { return ""; }
+  void add_statement(Statement* statement, std::string text) override;
+  void execute(Resource_Manager& rman) override {}
+  std::string get_result_name() const override { return ""; }
 
-  virtual Requested_Context request_context() const;
-  virtual Statement::Eval_Return_Type return_type() const { return Statement::string; };
-  virtual Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key);
+  Requested_Context request_context() const override;
+  Statement::Eval_Return_Type return_type() const override { return Statement::string; };
+  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override;
 
   virtual std::string process(const std::string& first_result, const std::string& second_result) const = 0;
   static bool needs_an_element_to_eval() { return false; }
@@ -140,27 +140,27 @@ struct Binary_Func_Eval_Task : public Eval_Task
 {
   Binary_Func_Eval_Task(Eval_Task* first_, Eval_Task* second_, Evaluator_Binary_Function* evaluator_)
       : first(first_), second(second_), evaluator(evaluator_) {}
-  ~Binary_Func_Eval_Task()
+  ~Binary_Func_Eval_Task() override
   {
     delete first;
     delete second;
   }
 
-  virtual std::string eval(const std::string* key) const;
+  std::string eval(const std::string* key) const override;
 
-  virtual std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const;
+  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override;
 
-  virtual std::string eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const;
-  virtual std::string eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const;
-  virtual std::string eval(uint pos, const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const;
-  virtual std::string eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const;
+  std::string eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override;
+  std::string eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override;
+  std::string eval(uint pos, const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override;
+  std::string eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override;
 
 private:
   Eval_Task* first;

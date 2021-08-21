@@ -50,23 +50,23 @@ The syntax is
 
 struct Is_Closed_Eval_Task final : public Eval_Task
 {
-  virtual std::string eval(const std::string* key) const { return ""; }
+  std::string eval(const std::string* key) const override { return ""; }
 
-  virtual std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
       { return "NaW"; }
-  virtual std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
       { return "NaW"; }
-  virtual std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
       { return !data.object->nds().empty() && data.object->nds().front() == data.object->nds().back() ? "1" : "0"; }
-  virtual std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
       { return !data.object->nds().empty() && data.object->nds().front() == data.object->nds().back() ? "1" : "0"; }
-  virtual std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
       { return "NaW"; }
-  virtual std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
       { return "NaW"; }
-  virtual std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
       { return "NaW"; }
-  virtual std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
       { return "NaW"; }
 };
 
@@ -82,20 +82,20 @@ public:
   static Element_Function_Maker< Evaluator_Is_Closed > evaluator_maker;
 
   static std::string stmt_func_name() { return "is_closed"; }
-  virtual std::string dump_xml(const std::string& indent) const { return indent + "<eval-is-closed/>\n"; }
-  virtual std::string dump_compact_ql(const std::string&) const { return "is_closed()"; }
+  std::string dump_xml(const std::string& indent) const override { return indent + "<eval-is-closed/>\n"; }
+  std::string dump_compact_ql(const std::string&) const override { return "is_closed()"; }
 
   Evaluator_Is_Closed(int line_number_, const std::map< std::string, std::string >& input_attributes,
                    Parsed_Query& global_settings);
-  virtual std::string get_name() const { return "eval-is-closed"; }
-  virtual std::string get_result_name() const { return ""; }
-  virtual void execute(Resource_Manager& rman) {}
-  virtual ~Evaluator_Is_Closed() {}
+  std::string get_name() const override { return "eval-is-closed"; }
+  std::string get_result_name() const override { return ""; }
+  void execute(Resource_Manager& rman) override {}
+  ~Evaluator_Is_Closed() override {}
 
-  virtual Requested_Context request_context() const { return Requested_Context().add_usage(Set_Usage::SKELETON); }
+  Requested_Context request_context() const override { return Requested_Context().add_usage(Set_Usage::SKELETON); }
 
-  virtual Statement::Eval_Return_Type return_type() const { return Statement::string; };
-  virtual Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key)
+  Statement::Eval_Return_Type return_type() const override { return Statement::string; };
+  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override
   { return new Is_Closed_Eval_Task(); }
 };
 
@@ -114,23 +114,23 @@ struct Geometry_Geometry_Task final : Eval_Geometry_Task
 {
   Geometry_Geometry_Task() {}
 
-  virtual Opaque_Geometry* eval() const { return 0; }
+  Opaque_Geometry* eval() const override { return 0; }
 
-  virtual Opaque_Geometry* eval(const Element_With_Context< Node_Skeleton >& data) const
+  Opaque_Geometry* eval(const Element_With_Context< Node_Skeleton >& data) const override
       { return data.geometry ? data.geometry->clone() : new Null_Geometry(); }
-  virtual Opaque_Geometry* eval(const Element_With_Context< Attic< Node_Skeleton > >& data) const
+  Opaque_Geometry* eval(const Element_With_Context< Attic< Node_Skeleton > >& data) const override
       { return data.geometry ? data.geometry->clone() : new Null_Geometry(); }
-  virtual Opaque_Geometry* eval(const Element_With_Context< Way_Skeleton >& data) const
+  Opaque_Geometry* eval(const Element_With_Context< Way_Skeleton >& data) const override
       { return data.geometry ? data.geometry->clone() : new Null_Geometry(); }
-  virtual Opaque_Geometry* eval(const Element_With_Context< Attic< Way_Skeleton > >& data) const
+  Opaque_Geometry* eval(const Element_With_Context< Attic< Way_Skeleton > >& data) const override
       { return data.geometry ? data.geometry->clone() : new Null_Geometry(); }
-  virtual Opaque_Geometry* eval(const Element_With_Context< Relation_Skeleton >& data) const
+  Opaque_Geometry* eval(const Element_With_Context< Relation_Skeleton >& data) const override
       { return data.geometry ? data.geometry->clone() : new Null_Geometry(); }
-  virtual Opaque_Geometry* eval(const Element_With_Context< Attic< Relation_Skeleton > >& data) const
+  Opaque_Geometry* eval(const Element_With_Context< Attic< Relation_Skeleton > >& data) const override
       { return data.geometry ? data.geometry->clone() : new Null_Geometry(); }
-  virtual Opaque_Geometry* eval(const Element_With_Context< Area_Skeleton >& data) const
+  Opaque_Geometry* eval(const Element_With_Context< Area_Skeleton >& data) const override
       { return data.geometry ? data.geometry->clone() : new Null_Geometry(); }
-  virtual Opaque_Geometry* eval(const Element_With_Context< Derived_Skeleton >& data) const
+  Opaque_Geometry* eval(const Element_With_Context< Derived_Skeleton >& data) const override
       { return data.geometry ? data.geometry->clone() : new Null_Geometry(); }
 };
 
@@ -146,24 +146,24 @@ public:
   static Element_Function_Maker< Evaluator_Geometry > evaluator_maker;
 
   static std::string stmt_func_name() { return "geom"; }
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-geometry/>\n"; }
-  virtual std::string dump_compact_ql(const std::string&) const
+  std::string dump_compact_ql(const std::string&) const override
   { return "geom(\"\")"; }
 
   Evaluator_Geometry(int line_number_, const std::map< std::string, std::string >& input_attributes,
                    Parsed_Query& global_settings);
-  virtual std::string get_name() const { return "eval-geometry"; }
-  virtual std::string get_result_name() const { return ""; }
-  virtual void execute(Resource_Manager& rman) {}
-  virtual ~Evaluator_Geometry() {}
+  std::string get_name() const override { return "eval-geometry"; }
+  std::string get_result_name() const override { return ""; }
+  void execute(Resource_Manager& rman) override {}
+  ~Evaluator_Geometry() override {}
 
-  virtual Requested_Context request_context() const { return Requested_Context().add_usage(Set_Usage::GEOMETRY); }
+  Requested_Context request_context() const override { return Requested_Context().add_usage(Set_Usage::GEOMETRY); }
 
-  virtual Statement::Eval_Return_Type return_type() const { return Statement::geometry; };
-  virtual Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key)
+  Statement::Eval_Return_Type return_type() const override { return Statement::geometry; };
+  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override
   { return new Const_Eval_Task("<Opaque_Geometry>"); }
-  virtual Eval_Geometry_Task* get_geometry_task(Prepare_Task_Context& context)
+  Eval_Geometry_Task* get_geometry_task(Prepare_Task_Context& context) override
   { return new Geometry_Geometry_Task(); }
   virtual bool returns_geometry() const { return true; }
 };
@@ -185,23 +185,23 @@ struct Length_Eval_Task final : public Eval_Task
 {
   Length_Eval_Task() {}
 
-  virtual std::string eval(const std::string* key) const { return ""; }
+  std::string eval(const std::string* key) const override { return ""; }
 
-  virtual std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
       { return "0"; }
-  virtual std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
       { return "0"; }
-  virtual std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
       { return data.geometry ? fixed_to_string(length(*data.geometry), 3) : "0"; }
-  virtual std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
       { return data.geometry ? fixed_to_string(length(*data.geometry), 3) : "0"; }
-  virtual std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
       { return data.geometry ? fixed_to_string(length(*data.geometry), 3) : "0"; }
-  virtual std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
       { return data.geometry ? fixed_to_string(length(*data.geometry), 3) : "0"; }
-  virtual std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
       { return "0"; }
-  virtual std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
       { return "0"; }
 };
 
@@ -217,22 +217,22 @@ public:
   static Element_Function_Maker< Evaluator_Length > evaluator_maker;
 
   static std::string stmt_func_name() { return "length"; }
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-length/>\n"; }
-  virtual std::string dump_compact_ql(const std::string&) const
+  std::string dump_compact_ql(const std::string&) const override
   { return "length()"; }
 
   Evaluator_Length(int line_number_, const std::map< std::string, std::string >& input_attributes,
                    Parsed_Query& global_settings);
-  virtual std::string get_name() const { return "eval-length"; }
-  virtual std::string get_result_name() const { return ""; }
-  virtual void execute(Resource_Manager& rman) {}
-  virtual ~Evaluator_Length() {}
+  std::string get_name() const override { return "eval-length"; }
+  std::string get_result_name() const override { return ""; }
+  void execute(Resource_Manager& rman) override {}
+  ~Evaluator_Length() override {}
 
-  virtual Requested_Context request_context() const { return Requested_Context().add_usage(Set_Usage::GEOMETRY); }
+  Requested_Context request_context() const override { return Requested_Context().add_usage(Set_Usage::GEOMETRY); }
 
-  virtual Statement::Eval_Return_Type return_type() const { return Statement::string; };
-  virtual Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key)
+  Statement::Eval_Return_Type return_type() const override { return Statement::string; };
+  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override
   { return new Length_Eval_Task(); }
 };
 
@@ -256,30 +256,30 @@ struct Latitude_Eval_Task final : public Eval_Task
 {
   Latitude_Eval_Task() {}
 
-  virtual std::string eval(const std::string* key) const { return ""; }
+  std::string eval(const std::string* key) const override { return ""; }
 
-  virtual std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
       { return data.geometry &&
           data.geometry->has_center() ? fixed_to_string(data.geometry->center_lat(), 7) : "NaN"; }
-  virtual std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
       { return data.geometry &&
           data.geometry->has_center() ? fixed_to_string(data.geometry->center_lat(), 7) : "NaN"; }
-  virtual std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
       { return data.geometry &&
           data.geometry->has_center() ? fixed_to_string(data.geometry->center_lat(), 7) : "NaN"; }
-  virtual std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
       { return data.geometry &&
           data.geometry->has_center() ? fixed_to_string(data.geometry->center_lat(), 7) : "NaN"; }
-  virtual std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
       { return data.geometry &&
           data.geometry->has_center() ? fixed_to_string(data.geometry->center_lat(), 7) : "NaN"; }
-  virtual std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
       { return data.geometry &&
           data.geometry->has_center() ? fixed_to_string(data.geometry->center_lat(), 7) : "NaN"; }
-  virtual std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
       { return data.geometry &&
           data.geometry->has_center() ? fixed_to_string(data.geometry->center_lat(), 7) : "NaN"; }
-  virtual std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
       { return data.geometry &&
           data.geometry->has_center() ? fixed_to_string(data.geometry->center_lat(), 7) : "NaN"; }
 };
@@ -296,22 +296,22 @@ public:
   static Element_Function_Maker< Evaluator_Latitude > evaluator_maker;
 
   static std::string stmt_func_name() { return "lat"; }
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-lat/>\n"; }
-  virtual std::string dump_compact_ql(const std::string&) const
+  std::string dump_compact_ql(const std::string&) const override
   { return "lat()"; }
 
   Evaluator_Latitude(int line_number_, const std::map< std::string, std::string >& input_attributes,
                    Parsed_Query& global_settings);
-  virtual std::string get_name() const { return "eval-lat"; }
-  virtual std::string get_result_name() const { return ""; }
-  virtual void execute(Resource_Manager& rman) {}
-  virtual ~Evaluator_Latitude() {}
+  std::string get_name() const override { return "eval-lat"; }
+  std::string get_result_name() const override { return ""; }
+  void execute(Resource_Manager& rman) override {}
+  ~Evaluator_Latitude() override {}
 
-  virtual Requested_Context request_context() const { return Requested_Context().add_usage(Set_Usage::GEOMETRY); }
+  Requested_Context request_context() const override { return Requested_Context().add_usage(Set_Usage::GEOMETRY); }
 
-  virtual Statement::Eval_Return_Type return_type() const { return Statement::string; };
-  virtual Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key)
+  Statement::Eval_Return_Type return_type() const override { return Statement::string; };
+  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override
   { return new Latitude_Eval_Task(); }
 };
 
@@ -320,30 +320,30 @@ struct Longitude_Eval_Task final : public Eval_Task
 {
   Longitude_Eval_Task() {}
 
-  virtual std::string eval(const std::string* key) const { return ""; }
+  std::string eval(const std::string* key) const override { return ""; }
 
-  virtual std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
       { return data.geometry &&
           data.geometry->has_center() ? fixed_to_string(data.geometry->center_lon(), 7) : "NaN"; }
-  virtual std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
       { return data.geometry &&
           data.geometry->has_center() ? fixed_to_string(data.geometry->center_lon(), 7) : "NaN"; }
-  virtual std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
       { return data.geometry &&
           data.geometry->has_center() ? fixed_to_string(data.geometry->center_lon(), 7) : "NaN"; }
-  virtual std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
       { return data.geometry &&
           data.geometry->has_center() ? fixed_to_string(data.geometry->center_lon(), 7) : "NaN"; }
-  virtual std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
       { return data.geometry &&
           data.geometry->has_center() ? fixed_to_string(data.geometry->center_lon(), 7) : "NaN"; }
-  virtual std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
       { return data.geometry &&
           data.geometry->has_center() ? fixed_to_string(data.geometry->center_lon(), 7) : "NaN"; }
-  virtual std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
       { return data.geometry &&
           data.geometry->has_center() ? fixed_to_string(data.geometry->center_lon(), 7) : "NaN"; }
-  virtual std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
+  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
       { return data.geometry &&
           data.geometry->has_center() ? fixed_to_string(data.geometry->center_lon(), 7) : "NaN"; }
 };
@@ -360,22 +360,22 @@ public:
   static Element_Function_Maker< Evaluator_Longitude > evaluator_maker;
 
   static std::string stmt_func_name() { return "lon"; }
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-lon/>\n"; }
-  virtual std::string dump_compact_ql(const std::string&) const
+  std::string dump_compact_ql(const std::string&) const override
   { return "lon()"; }
 
   Evaluator_Longitude(int line_number_, const std::map< std::string, std::string >& input_attributes,
                    Parsed_Query& global_settings);
-  virtual std::string get_name() const { return "eval-lon"; }
-  virtual std::string get_result_name() const { return ""; }
-  virtual void execute(Resource_Manager& rman) {}
-  virtual ~Evaluator_Longitude() {}
+  std::string get_name() const override { return "eval-lon"; }
+  std::string get_result_name() const override { return ""; }
+  void execute(Resource_Manager& rman) override {}
+  ~Evaluator_Longitude() override {}
 
-  virtual Requested_Context request_context() const { return Requested_Context().add_usage(Set_Usage::GEOMETRY); }
+  Requested_Context request_context() const override { return Requested_Context().add_usage(Set_Usage::GEOMETRY); }
 
-  virtual Statement::Eval_Return_Type return_type() const { return Statement::string; };
-  virtual Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key)
+  Statement::Eval_Return_Type return_type() const override { return Statement::string; };
+  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override
   { return new Longitude_Eval_Task(); }
 };
 

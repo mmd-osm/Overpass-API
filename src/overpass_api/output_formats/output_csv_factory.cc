@@ -28,7 +28,7 @@ public:
   Output_CSV_Generator() : Output_Handler_Parser("csv") {}
 
   Output_Handler* new_output_handler(const std::map< std::string, std::string >& input_params,
-      Tokenizer_Wrapper* token, Error_Output* error_output);
+      Tokenizer_Wrapper* token, Error_Output* error_output) override;
 
   static Output_CSV_Generator singleton;
 };

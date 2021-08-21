@@ -58,7 +58,7 @@ class User_Constraint final : public Query_Constraint
     bool get_ranges(Resource_Manager& rman, std::set< std::pair< Uint31_Index, Uint31_Index > >& ranges) override;
     bool get_ranges(Resource_Manager& rman, std::set< std::pair< Uint32_Index, Uint32_Index > >& ranges) override;
     void filter(const Statement& query, Resource_Manager& rman, Set& into) override;
-    virtual ~User_Constraint() {}
+    ~User_Constraint() override {}
   private:
     std::ostream& print_constraint( std::ostream &os ) const override {
       return os << (user != nullptr ? user->dump_ql_in_query("") : "user");

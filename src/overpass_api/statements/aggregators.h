@@ -63,13 +63,13 @@ struct Evaluator_Aggregator : public Evaluator
   Evaluator_Aggregator(const std::string& func_name,
       int line_number_, const std::map< std::string, std::string >& input_attributes,
       Parsed_Query& global_settings);
-  virtual void add_statement(Statement* statement, std::string text);
-  virtual void execute(Resource_Manager& rman) {}
+  void add_statement(Statement* statement, std::string text) override;
+  void execute(Resource_Manager& rman) override {}
 
-  virtual Requested_Context request_context() const;
+  Requested_Context request_context() const override;
 
-  virtual Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key);
-  virtual Eval_Geometry_Task* get_geometry_task(Prepare_Task_Context& context);
+  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override;
+  Eval_Geometry_Task* get_geometry_task(Prepare_Task_Context& context) override;
 
   virtual Value_Aggregator* get_aggregator() = 0;
   virtual Geometry_Aggregator* get_geometry_aggregator() = 0;
@@ -93,9 +93,9 @@ struct Aggregator_Statement_Maker final : public Generic_Statement_Maker< Evalua
 template< typename Evaluator_ >
 struct Aggregator_Evaluator_Maker final : Statement::Evaluator_Maker
 {
-  virtual Statement* create_evaluator(
+  Statement* create_evaluator(
       const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
-      Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output)
+      Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output) override
   {
     std::map< std::string, std::string > attributes;
     bool input_set = false;
@@ -132,14 +132,14 @@ struct Evaluator_Aggregator_Syntax : public Evaluator_Aggregator
       Parsed_Query& global_settings)
       : Evaluator_Aggregator(Evaluator_::stmt_name(), line_number_, input_attributes, global_settings) {}
 
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   {
     return indent + "<" + Evaluator_::stmt_name() + " from=\"" + input + "\">\n"
         + (rhs ? rhs->dump_xml(indent + "  ") : "")
         + indent + "</" + Evaluator_::stmt_name() + ">\n";
   }
 
-  virtual std::string dump_compact_ql(const std::string&) const
+  std::string dump_compact_ql(const std::string&) const override
   {
     return (input != "_" ? input + "." : "")
         + Evaluator_::stmt_func_name() + "("
@@ -147,9 +147,9 @@ struct Evaluator_Aggregator_Syntax : public Evaluator_Aggregator
         + ")";
   }
 
-  virtual Statement::Eval_Return_Type return_type() const { return Evaluator_::argument_type(); };
-  virtual std::string get_name() const { return Evaluator_::stmt_name(); }
-  virtual std::string get_result_name() const { return ""; }
+  Statement::Eval_Return_Type return_type() const override { return Evaluator_::argument_type(); };
+  std::string get_name() const override { return Evaluator_::stmt_name(); }
+  std::string get_result_name() const override { return ""; }
 };
 
 
@@ -193,12 +193,12 @@ public:
 
   struct Aggregator : Value_Aggregator
   {
-    virtual void update_value(const std::string& value);
-    virtual std::string get_value() { return agg_value; }
+    void update_value(const std::string& value) override;
+    std::string get_value() override { return agg_value; }
     std::string agg_value;
   };
-  virtual Value_Aggregator* get_aggregator() { return new Aggregator(); }
-  virtual Geometry_Aggregator* get_geometry_aggregator() { return 0; }
+  Value_Aggregator* get_aggregator() override { return new Aggregator(); }
+  Geometry_Aggregator* get_geometry_aggregator() override { return 0; }
 };
 
 
@@ -217,12 +217,12 @@ public:
 
   struct Aggregator : Value_Aggregator
   {
-    virtual void update_value(const std::string& value);
-    virtual std::string get_value();
+    void update_value(const std::string& value) override;
+    std::string get_value() override;
     std::set< std::string > values;
   };
-  virtual Value_Aggregator* get_aggregator() { return new Aggregator(); }
-  virtual Geometry_Aggregator* get_geometry_aggregator() { return 0; }
+  Value_Aggregator* get_aggregator() override { return new Aggregator(); }
+  Geometry_Aggregator* get_geometry_aggregator() override { return 0; }
 };
 
 
@@ -269,15 +269,15 @@ public:
   {
     Aggregator() : relevant_type(type_void), result_l(std::numeric_limits< int64 >::max()),
         result_d(std::numeric_limits< double >::max()) {}
-    virtual void update_value(const std::string& value);
-    virtual std::string get_value();
+    void update_value(const std::string& value) override;
+    std::string get_value() override;
     Type_Indicator relevant_type;
     int64 result_l;
     double result_d;
     std::string result_s;
   };
-  virtual Value_Aggregator* get_aggregator() { return new Aggregator(); }
-  virtual Geometry_Aggregator* get_geometry_aggregator() { return 0; }
+  Value_Aggregator* get_aggregator() override { return new Aggregator(); }
+  Geometry_Aggregator* get_geometry_aggregator() override { return 0; }
 };
 
 
@@ -298,15 +298,15 @@ public:
   {
     Aggregator() : relevant_type(type_void), result_l(std::numeric_limits< int64 >::min()),
         result_d(-std::numeric_limits< double >::max()) {}
-    virtual void update_value(const std::string& value);
-    virtual std::string get_value();
+    void update_value(const std::string& value) override;
+    std::string get_value() override;
     Type_Indicator relevant_type;
     int64 result_l;
     double result_d;
     std::string result_s;
   };
-  virtual Value_Aggregator* get_aggregator() { return new Aggregator(); }
-  virtual Geometry_Aggregator* get_geometry_aggregator() { return 0; }
+  Value_Aggregator* get_aggregator() override { return new Aggregator(); }
+  Geometry_Aggregator* get_geometry_aggregator() override { return 0; }
 };
 
 
@@ -341,14 +341,14 @@ public:
   struct Aggregator : Value_Aggregator
   {
     Aggregator() : relevant_type(type_int64), result_l(0), result_d(0) {}
-    virtual void update_value(const std::string& value);
-    virtual std::string get_value();
+    void update_value(const std::string& value) override;
+    std::string get_value() override;
     Type_Indicator relevant_type;
     int64 result_l;
     double result_d;
   };
-  virtual Value_Aggregator* get_aggregator() { return new Aggregator(); }
-  virtual Geometry_Aggregator* get_geometry_aggregator() { return 0; }
+  Value_Aggregator* get_aggregator() override { return new Aggregator(); }
+  Geometry_Aggregator* get_geometry_aggregator() override { return 0; }
 };
 
 
@@ -396,28 +396,28 @@ public:
 
   struct Evaluator_Maker : public Statement::Evaluator_Maker
   {
-    virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
-        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
+    Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
+        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output) override;
     Evaluator_Maker() { Statement::maker_by_func_name()["count"].push_back(this); }
   };
   static Evaluator_Maker evaluator_maker;
 
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-set-count from=\"" + input + "\" type=\"" + to_string(to_count) + "\"/>\n"; }
-  virtual std::string dump_compact_ql(const std::string&) const
+  std::string dump_compact_ql(const std::string&) const override
   { return (input != "_" ? input + "." : "") + "count(" + to_string(to_count) + ")"; }
 
   Evaluator_Set_Count(int line_number_, const std::map< std::string, std::string >& input_attributes,
                    Parsed_Query& global_settings);
-  virtual std::string get_name() const { return "eval-set-count"; }
-  virtual std::string get_result_name() const { return ""; }
-  virtual void execute(Resource_Manager& rman) {}
-  virtual ~Evaluator_Set_Count() {}
+  std::string get_name() const override { return "eval-set-count"; }
+  std::string get_result_name() const override { return ""; }
+  void execute(Resource_Manager& rman) override {}
+  ~Evaluator_Set_Count() override {}
 
-  virtual Requested_Context request_context() const;
+  Requested_Context request_context() const override;
 
-  virtual Statement::Eval_Return_Type return_type() const { return Statement::string; };
-  virtual Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key);
+  Statement::Eval_Return_Type return_type() const override { return Statement::string; };
+  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override;
 
 private:
   std::string input;
@@ -458,12 +458,12 @@ public:
   struct Aggregator : Geometry_Aggregator
   {
     Aggregator() : result(0) {}
-    virtual void consume_value(Opaque_Geometry* geom);
-    virtual Opaque_Geometry* move_value();
+    void consume_value(Opaque_Geometry* geom) override;
+    Opaque_Geometry* move_value() override;
     Compound_Geometry* result;
   };
-  virtual Value_Aggregator* get_aggregator() { return 0; }
-  virtual Geometry_Aggregator* get_geometry_aggregator() { return new Aggregator(); }
+  Value_Aggregator* get_aggregator() override { return 0; }
+  Geometry_Aggregator* get_geometry_aggregator() override { return new Aggregator(); }
 };
 
 

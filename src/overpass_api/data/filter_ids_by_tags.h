@@ -184,9 +184,9 @@ public:
       const std::vector< Id_Type >& old_ids)
       : key_(key), value_(value), conditions_(conditions), old_ids_(&old_ids) {}
 
-  bool notify_key(const std::string& key) { return key == key_; }
+  bool notify_key(const std::string& key) override { return key == key_; }
 
-  bool value_relevant(const std::string& value) const
+  bool value_relevant(const std::string& value) const override
   {
     bool valid = value_.empty() || value_ == value;
     for (std::vector< Regular_Expression* >::const_iterator it = conditions_.begin(); valid && it != conditions_.end();
@@ -195,7 +195,7 @@ public:
     return valid;
   }
 
-  void eval_id(Id_Type id, uint64 timestamp, bool value_relevant)
+  void eval_id(Id_Type id, uint64 timestamp, bool value_relevant) override
   {
     if (std::binary_search(old_ids_->begin(), old_ids_->end(), id))
     {
@@ -210,7 +210,7 @@ public:
     }
   }
 
-  void filter_ids(std::vector< Id_Type >& new_ids)
+  void filter_ids(std::vector< Id_Type >& new_ids) override
   {
     std::vector< Id_Type > result;
     for (typename std::vector< Id_Type >::const_iterator it = new_ids.begin(); it != new_ids.end(); ++it)
@@ -241,18 +241,18 @@ public:
       const std::vector< Id_Type >& old_ids)
       : key_(key), value_(value), old_ids_(&old_ids) {}
 
-  bool notify_key(const std::string& key)
+  bool notify_key(const std::string& key) override
   {
     commit_ids();
     return key_->matches(key);
   }
 
-  bool value_relevant(const std::string& value) const
+  bool value_relevant(const std::string& value) const override
   {
     return value != void_tag_value() && value_->matches(value);
   }
 
-  void eval_id(Id_Type id, uint64 timestamp, bool value_relevant)
+  void eval_id(Id_Type id, uint64 timestamp, bool value_relevant) override
   {
     if (std::binary_search(old_ids_->begin(), old_ids_->end(), id))
     {
@@ -264,7 +264,7 @@ public:
     }
   }
 
-  void filter_ids(std::vector< Id_Type >& new_ids)
+  void filter_ids(std::vector< Id_Type >& new_ids) override
   {
     commit_ids();
 

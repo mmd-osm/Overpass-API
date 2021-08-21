@@ -76,11 +76,11 @@ class Query_Statement final : public Output_Statement
   public:
     Query_Statement(int line_number_, const std::map< std::string, std::string >& input_attributes,
                     Parsed_Query& global_settings);
-    virtual ~Query_Statement();
+    ~Query_Statement() override;
 
-    virtual void add_statement(Statement* statement, std::string text);
-    virtual std::string get_name() const { return "query"; }
-    virtual void execute(Resource_Manager& rman);
+    void add_statement(Statement* statement, std::string text) override;
+    std::string get_name() const override { return "query"; }
+    void execute(Resource_Manager& rman) override;
 
     static Generic_Statement_Maker< Query_Statement > statement_maker;
 
@@ -110,7 +110,7 @@ class Query_Statement final : public Output_Statement
       return "area";
     }
 
-    virtual std::string dump_xml(const std::string& indent) const
+    std::string dump_xml(const std::string& indent) const override
     {
       std::string result = indent + "<query" + dump_xml_result_name() + " type=\"" + to_string(type) + "\">\n";
 
@@ -120,8 +120,8 @@ class Query_Statement final : public Output_Statement
       return result + indent + "</query>\n";
     }
 
-    virtual std::string dump_compact_ql(const std::string& indent) const { return dump_subquery_map_ql(indent, false); }
-    virtual std::string dump_pretty_ql(const std::string& indent) const { return dump_subquery_map_ql(indent, true); }
+    std::string dump_compact_ql(const std::string& indent) const override { return dump_subquery_map_ql(indent, false); }
+    std::string dump_pretty_ql(const std::string& indent) const override { return dump_subquery_map_ql(indent, true); }
 
     std::string dump_subquery_map_ql(const std::string& indent, bool pretty) const
     {
@@ -247,10 +247,10 @@ class Has_Kv_Statement : public Statement
   public:
     Has_Kv_Statement(int line_number_, const std::map< std::string, std::string >& input_attributes,
                      Parsed_Query& global_settings);
-    virtual std::string get_name() const { return "has-kv"; }
-    virtual std::string get_result_name() const { return ""; }
-    virtual void execute(Resource_Manager& rman) {}
-    virtual ~Has_Kv_Statement();
+    std::string get_name() const override { return "has-kv"; }
+    std::string get_result_name() const override { return ""; }
+    void execute(Resource_Manager& rman) override {}
+    ~Has_Kv_Statement() override;
 
     static Generic_Statement_Maker< Has_Kv_Statement > statement_maker;
 
@@ -260,7 +260,7 @@ class Has_Kv_Statement : public Statement
     Regular_Expression* get_regex() { return regex; }
     bool get_straight() const { return straight; }
 
-    virtual std::string dump_xml(const std::string& indent) const
+    std::string dump_xml(const std::string& indent) const override
     {
       return indent + "<has-kv"
           + (key != "" ? (key_regex ? std::string(" regk=\"") : std::string(" k=\"")) + escape_xml(key) + "\"" : "")
@@ -270,7 +270,7 @@ class Has_Kv_Statement : public Statement
           + "/>\n";
     }
 
-    virtual std::string dump_compact_ql(const std::string&) const
+    std::string dump_compact_ql(const std::string&) const override
     {
       return std::string("[")
           + (key_regex ? "~\"" : "\"") + escape_cstr(key) + "\""
@@ -278,7 +278,7 @@ class Has_Kv_Statement : public Statement
           + (case_sensitive ? "" : ",i")
           + "]";
     }
-    virtual std::string dump_pretty_ql(const std::string& indent) const { return dump_compact_ql(indent); }
+    std::string dump_pretty_ql(const std::string& indent) const override { return dump_compact_ql(indent); }
 
   private:
     std::string key, value;

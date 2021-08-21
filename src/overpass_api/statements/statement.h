@@ -131,10 +131,10 @@ class Statement
     {
       Single_Return_Type_Checker(Eval_Return_Type expected_) : expected(expected_) {}
 
-      virtual bool eval_required() const { return true; }
-      virtual bool matches(Eval_Return_Type eval_type) const { return eval_type == expected; }
-      virtual std::string expectation() const { return eval_to_string(expected); }
-      virtual ~Single_Return_Type_Checker() {}
+      bool eval_required() const override { return true; }
+      bool matches(Eval_Return_Type eval_type) const override { return eval_type == expected; }
+      std::string expectation() const override { return eval_to_string(expected); }
+      ~Single_Return_Type_Checker() override {}
 
     private:
       Eval_Return_Type expected;
@@ -259,14 +259,14 @@ template< class TStatement >
 class Generic_Statement_Maker : public Statement::Statement_Maker
 {
   public:
-    virtual Statement* create_statement
-        (int line_number, const std::map< std::string, std::string >& attributes, Parsed_Query& global_settings)
+    Statement* create_statement
+        (int line_number, const std::map< std::string, std::string >& attributes, Parsed_Query& global_settings) override
     {
       return new TStatement(line_number, attributes, global_settings);
     }
 
     Generic_Statement_Maker(const std::string& name) { Statement::maker_by_name()[name] = this; }
-    virtual ~Generic_Statement_Maker() {}
+    ~Generic_Statement_Maker() override {}
 };
 
 
@@ -275,7 +275,7 @@ class Output_Statement : public Statement
   public:
     Output_Statement(int line_number) : Statement(line_number), output("_") {}
 
-    virtual std::string get_result_name() const { return output; }
+    std::string get_result_name() const override { return output; }
 
     std::string dump_ql_result_name() const { return output != "_" ? std::string("->.") + output : ""; }
     std::string dump_xml_result_name() const { return output != "_" ? std::string(" into=\"") + output + "\"" : ""; }

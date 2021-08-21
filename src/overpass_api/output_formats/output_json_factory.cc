@@ -26,7 +26,7 @@ public:
   Output_JSON_Generator() : Output_Handler_Parser("json") {}
 
   Output_Handler* new_output_handler(const std::map< std::string, std::string >& input_params,
-      Tokenizer_Wrapper* token, Error_Output* error_output);
+      Tokenizer_Wrapper* token, Error_Output* error_output) override;
 
   static Output_JSON_Generator singleton;
 };

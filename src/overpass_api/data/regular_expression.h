@@ -115,13 +115,13 @@ class Regular_Expression_POSIX : public Regular_Expression
       }
     }
     
-    ~Regular_Expression_POSIX()
+    ~Regular_Expression_POSIX() override
     {
       if (strategy == Strategy::call_library)
         regfree(&preg);
     }
 
-    inline bool matches(const std::string& line) const
+    inline bool matches(const std::string& line) const override
     {
       if (strategy == Strategy::match_anything)
         return true;

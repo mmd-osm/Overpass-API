@@ -97,14 +97,14 @@ class Complete_Statement final : public Output_Statement
 public:
   Complete_Statement(int line_number_, const std::map< std::string, std::string >& attributes,
                      Parsed_Query& global_settings);
-  virtual void add_statement(Statement* statement, std::string text);
-  virtual std::string get_name() const { return "complete"; }
-  virtual void execute(Resource_Manager& rman);
-  virtual ~Complete_Statement() {}
+  void add_statement(Statement* statement, std::string text) override;
+  std::string get_name() const override { return "complete"; }
+  void execute(Resource_Manager& rman) override;
+  ~Complete_Statement() override {}
 
   static Generic_Statement_Maker< Complete_Statement > statement_maker;
 
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   {
     std::string result = indent + "<complete"
         + (input != "_" ? " from=\"" + input + "\"" : "")
@@ -117,7 +117,7 @@ public:
     return result + indent + "</complete>\n";
   }
 
-  virtual std::string dump_compact_ql(const std::string& indent) const
+  std::string dump_compact_ql(const std::string& indent) const override
   {
     std::string result = indent + "complete"
         + (max_loop_num != 4096 ? "(" + to_string(max_loop_num) + ")" : "")
@@ -131,7 +131,7 @@ public:
     return result;
   }
 
-  virtual std::string dump_pretty_ql(const std::string& indent) const
+  std::string dump_pretty_ql(const std::string& indent) const override
   {
     std::string result = indent + "complete"
         + (max_loop_num != 4096 ? "(" + to_string(max_loop_num) + ")" : "")

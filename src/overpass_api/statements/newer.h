@@ -33,10 +33,10 @@ class Newer_Statement : public Statement
 public:
   Newer_Statement(int line_number_, const std::map< std::string, std::string >& input_attributes,
                     Parsed_Query& global_settings);
-  virtual std::string get_name() const { return "newer"; }
-  virtual std::string get_result_name() const { return ""; }
-  virtual void execute(Resource_Manager& rman);
-  virtual ~Newer_Statement();
+  std::string get_name() const override { return "newer"; }
+  std::string get_result_name() const override { return ""; }
+  void execute(Resource_Manager& rman) override;
+  ~Newer_Statement() override;
 
   struct Statement_Maker : public Generic_Statement_Maker< Newer_Statement >
   {
@@ -46,36 +46,36 @@ public:
 
   struct Criterion_Maker : public Statement::Criterion_Maker
   {
-    virtual bool can_standalone(const std::string& type) { return false; }
-    virtual Statement* create_criterion(const Token_Node_Ptr& tree_it,
+    bool can_standalone(const std::string& type) override { return false; }
+    Statement* create_criterion(const Token_Node_Ptr& tree_it,
         const std::string& type, const std::string& into,
-        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
+        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output) override;
     Criterion_Maker() { Statement::maker_by_ql_criterion()["newer"] = this; }
   };
   static Criterion_Maker criterion_maker;
 
-  virtual Query_Constraint* get_query_constraint();
+  Query_Constraint* get_query_constraint() override;
 
   uint64 get_timestamp() const { return than_timestamp; }
 
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   {
     return indent + "<newer"
         + (than_timestamp != NOW ? std::string(" than=\"") + iso_string(than_timestamp) + "\"" : "")
         + "/>\n";
   }
 
-  virtual std::string dump_compact_ql(const std::string&) const
+  std::string dump_compact_ql(const std::string&) const override
   {
     return "all" + dump_ql_in_query("") + ";";
   }
-  virtual std::string dump_ql_in_query(const std::string&) const
+  std::string dump_ql_in_query(const std::string&) const override
   {
     return std::string("(newer:")
         + (than_timestamp != NOW ? std::string("\"") + iso_string(than_timestamp) + "\"" : "")
         + ")";
   }
-  virtual std::string dump_pretty_ql(const std::string& indent) const { return indent + dump_compact_ql(indent); }
+  std::string dump_pretty_ql(const std::string& indent) const override { return indent + dump_compact_ql(indent); }
 
 private:
   uint64 than_timestamp;

@@ -31,15 +31,15 @@ class Foreach_Statement : public Statement
   public:
     Foreach_Statement(int line_number_, const std::map< std::string, std::string >& attributes,
                       Parsed_Query& global_settings);
-    virtual void add_statement(Statement* statement, std::string text);
-    virtual std::string get_name() const { return "foreach"; }
-    virtual std::string get_result_name() const { return output; }
-    virtual void execute(Resource_Manager& rman);
-    virtual ~Foreach_Statement() {}
+    void add_statement(Statement* statement, std::string text) override;
+    std::string get_name() const override { return "foreach"; }
+    std::string get_result_name() const override { return output; }
+    void execute(Resource_Manager& rman) override;
+    ~Foreach_Statement() override {}
 
     static Generic_Statement_Maker< Foreach_Statement > statement_maker;
 
-    virtual std::string dump_xml(const std::string& indent) const
+    std::string dump_xml(const std::string& indent) const override
     {
       std::string result = indent + "<foreach"
           + (input != "_" ? " from=\"" + input + "\"" : "")
@@ -51,7 +51,7 @@ class Foreach_Statement : public Statement
       return result + indent + "</foreach>\n";
     }
 
-    virtual std::string dump_compact_ql(const std::string& indent) const
+    std::string dump_compact_ql(const std::string& indent) const override
     {
       std::string result = indent + "foreach"
           + (input != "_" ? "." + input : "") + (output != "_" ? "->." + output : "") + "{";
@@ -63,7 +63,7 @@ class Foreach_Statement : public Statement
       return result;
     }
 
-    virtual std::string dump_pretty_ql(const std::string& indent) const
+    std::string dump_pretty_ql(const std::string& indent) const override
     {
       std::string result = indent + "foreach"
           + (input != "_" ? "." + input : "") + (output != "_" ? "->." + output : "") + "{";

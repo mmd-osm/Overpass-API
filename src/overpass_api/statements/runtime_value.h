@@ -54,8 +54,8 @@ public:
 
   struct Evaluator_Maker : public Statement::Evaluator_Maker
   {
-    virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
-        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
+    Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
+        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output) override;
     Evaluator_Maker() { Statement::maker_by_token()["."].push_back(this); }
   };
   static Evaluator_Maker evaluator_maker;
@@ -63,29 +63,29 @@ public:
   Evaluator_Set_Key(int line_number_, const std::map< std::string, std::string >& input_attributes,
       Parsed_Query& global_settings);// : Evaluator(line_number_) {}
 
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   {
     return indent + "<eval-set-key from=\"" + input + "\" key=\"" + escape_xml(key) + "\"/>\n";
   }
 
-  virtual std::string dump_compact_ql(const std::string&) const
+  std::string dump_compact_ql(const std::string&) const override
   {
     return input + "." + key;
   }
 
-  virtual Statement::Eval_Return_Type return_type() const { return Statement::string; };
-  virtual std::string get_name() const { return "eval-set-key"; }
-  virtual std::string get_result_name() const { return ""; }
+  Statement::Eval_Return_Type return_type() const override { return Statement::string; };
+  std::string get_name() const override { return "eval-set-key"; }
+  std::string get_result_name() const override { return ""; }
 
-  virtual void execute(Resource_Manager& rman) {}
+  void execute(Resource_Manager& rman) override {}
 
-  virtual Requested_Context request_context() const
+  Requested_Context request_context() const override
   {
     return Requested_Context().add_usage(input, Set_Usage::SET_KEY_VALUES);
   }
 
-  virtual Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string*);
-  virtual Eval_Geometry_Task* get_geometry_task(Prepare_Task_Context& context) { return 0; }
+  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string*) override;
+  Eval_Geometry_Task* get_geometry_task(Prepare_Task_Context& context) override { return 0; }
 
 private:
   std::string input;

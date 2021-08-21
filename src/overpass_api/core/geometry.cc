@@ -1286,8 +1286,8 @@ struct RHR_Polygon_Area_Oracle : Area_Oracle
       const std::map< uint32, std::vector< unsigned int > >& segments_per_idx_)
       : all_segments(&all_segments_), segments_per_idx(&segments_per_idx_) {}
 
-  virtual void build_area(bool sw_corner_inside, int32 value, bool* se_corner_inside, bool* nw_corner_inside);
-  virtual Area_Oracle::point_status get_point_status(int32 value, double lat, double lon);
+  void build_area(bool sw_corner_inside, int32 value, bool* se_corner_inside, bool* nw_corner_inside) override;
+  Area_Oracle::point_status get_point_status(int32 value, double lat, double lon) override;
 
 private:
   const std::vector< Point_Double >* all_segments;

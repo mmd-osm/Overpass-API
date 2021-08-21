@@ -72,16 +72,16 @@ class Evaluator_Pair_Operator : public Evaluator
 {
 public:
   Evaluator_Pair_Operator(int line_number_);
-  virtual ~Evaluator_Pair_Operator() {}
+  ~Evaluator_Pair_Operator() override {}
 
-  virtual void add_statement(Statement* statement, std::string text);
-  virtual void execute(Resource_Manager& rman) {}
-  virtual std::string get_result_name() const { return ""; }
+  void add_statement(Statement* statement, std::string text) override;
+  void execute(Resource_Manager& rman) override {}
+  std::string get_result_name() const override { return ""; }
 
-  virtual Requested_Context request_context() const;
+  Requested_Context request_context() const override;
 
-  virtual Statement::Eval_Return_Type return_type() const { return Statement::string; };
-  virtual Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key);
+  Statement::Eval_Return_Type return_type() const override { return Statement::string; };
+  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override;
 
   virtual std::string process(const std::string& lhs_result, const std::string& rhs_result) const = 0;
 
@@ -104,27 +104,27 @@ struct Binary_Eval_Task : public Eval_Task
 {
   Binary_Eval_Task(Eval_Task* lhs_, Eval_Task* rhs_, Evaluator_Pair_Operator* evaluator_)
       : lhs(lhs_), rhs(rhs_), evaluator(evaluator_) {}
-  ~Binary_Eval_Task()
+  ~Binary_Eval_Task() override
   {
     delete lhs;
     delete rhs;
   }
 
-  virtual std::string eval(const std::string* key) const;
+  std::string eval(const std::string* key) const override;
 
-  virtual std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const;
-  virtual std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const;
+  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override;
+  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override;
 
-  virtual std::string eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const;
-  virtual std::string eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const;
-  virtual std::string eval(uint pos, const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const;
-  virtual std::string eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const;
+  std::string eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override;
+  std::string eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override;
+  std::string eval(uint pos, const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override;
+  std::string eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override;
 
 private:
   Eval_Task* lhs;
@@ -143,7 +143,7 @@ struct Evaluator_Pair_Operator_Syntax : public Evaluator_Pair_Operator
     eval_attributes_array(Evaluator_::stmt_name(), attributes, input_attributes);
   }
 
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   {
     return indent + "<" + Evaluator_::stmt_name() + ">\n"
         + (lhs ? lhs->dump_xml(indent + "  ") : "")
@@ -151,7 +151,7 @@ struct Evaluator_Pair_Operator_Syntax : public Evaluator_Pair_Operator
         + indent + "</" + Evaluator_::stmt_name() + ">\n";
   }
 
-  virtual std::string dump_compact_ql(const std::string&) const
+  std::string dump_compact_ql(const std::string&) const override
   {
     return (lhs ?
         (lhs->get_operator_priority() < get_operator_priority() ? std::string("(") + lhs->dump_compact_ql("") + ")"
@@ -162,8 +162,8 @@ struct Evaluator_Pair_Operator_Syntax : public Evaluator_Pair_Operator
         : rhs->dump_compact_ql("")) : "");
   }
 
-  virtual std::string get_name() const { return Evaluator_::stmt_name(); }
-  virtual int get_operator_priority() const { return operator_priority(Evaluator_::stmt_operator(), false); }
+  std::string get_name() const override { return Evaluator_::stmt_name(); }
+  int get_operator_priority() const override { return operator_priority(Evaluator_::stmt_operator(), false); }
 };
 
 
@@ -193,9 +193,9 @@ struct Evaluator_Or final : public Evaluator_Pair_Operator_Syntax< Evaluator_Or 
   Evaluator_Or(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_Pair_Operator_Syntax< Evaluator_Or >(line_number_, input_attributes) {}
 
-  virtual std::string process(const std::string& lhs_result, const std::string& rhs_result) const;
+  std::string process(const std::string& lhs_result, const std::string& rhs_result) const override;
 
-  virtual inline std::string process(TransientFunction<std::string()> lhs, TransientFunction<std::string()> rhs) const;
+  inline std::string process(TransientFunction<std::string()> lhs, TransientFunction<std::string()> rhs) const override;
 
 };
 
@@ -226,9 +226,9 @@ struct Evaluator_And final : public Evaluator_Pair_Operator_Syntax< Evaluator_An
   Evaluator_And(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_Pair_Operator_Syntax< Evaluator_And >(line_number_, input_attributes) {}
 
-  virtual std::string process(const std::string& lhs_result, const std::string& rhs_result) const;
+  std::string process(const std::string& lhs_result, const std::string& rhs_result) const override;
 
-  virtual inline std::string process(TransientFunction<std::string()> lhs, TransientFunction<std::string()> rhs) const;
+  inline std::string process(TransientFunction<std::string()> lhs, TransientFunction<std::string()> rhs) const override;
 };
 
 
@@ -263,7 +263,7 @@ struct Evaluator_Equal final : public Evaluator_Pair_Operator_Syntax< Evaluator_
   Evaluator_Equal(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_Pair_Operator_Syntax< Evaluator_Equal >(line_number_, input_attributes) {}
 
-  virtual std::string process(const std::string& lhs_result, const std::string& rhs_result) const;
+  std::string process(const std::string& lhs_result, const std::string& rhs_result) const override;
 };
 
 
@@ -277,7 +277,7 @@ struct Evaluator_Not_Equal final : public Evaluator_Pair_Operator_Syntax< Evalua
   Evaluator_Not_Equal(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_Pair_Operator_Syntax< Evaluator_Not_Equal >(line_number_, input_attributes) {}
 
-  virtual std::string process(const std::string& lhs_result, const std::string& rhs_result) const;
+  std::string process(const std::string& lhs_result, const std::string& rhs_result) const override;
 };
 
 
@@ -312,7 +312,7 @@ struct Evaluator_Less final : public Evaluator_Pair_Operator_Syntax< Evaluator_L
   Evaluator_Less(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_Pair_Operator_Syntax< Evaluator_Less >(line_number_, input_attributes) {}
 
-  virtual std::string process(const std::string& lhs_result, const std::string& rhs_result) const;
+  std::string process(const std::string& lhs_result, const std::string& rhs_result) const override;
 };
 
 
@@ -326,7 +326,7 @@ struct Evaluator_Less_Equal final : public Evaluator_Pair_Operator_Syntax< Evalu
   Evaluator_Less_Equal(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_Pair_Operator_Syntax< Evaluator_Less_Equal >(line_number_, input_attributes) {}
 
-  virtual std::string process(const std::string& lhs_result, const std::string& rhs_result) const;
+  std::string process(const std::string& lhs_result, const std::string& rhs_result) const override;
 };
 
 
@@ -340,7 +340,7 @@ struct Evaluator_Greater final : public Evaluator_Pair_Operator_Syntax< Evaluato
   Evaluator_Greater(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_Pair_Operator_Syntax< Evaluator_Greater >(line_number_, input_attributes) {}
 
-  virtual std::string process(const std::string& lhs_result, const std::string& rhs_result) const;
+  std::string process(const std::string& lhs_result, const std::string& rhs_result) const override;
 };
 
 
@@ -354,7 +354,7 @@ struct Evaluator_Greater_Equal final : public Evaluator_Pair_Operator_Syntax< Ev
   Evaluator_Greater_Equal(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_Pair_Operator_Syntax< Evaluator_Greater_Equal >(line_number_, input_attributes) {}
 
-  virtual std::string process(const std::string& lhs_result, const std::string& rhs_result) const;
+  std::string process(const std::string& lhs_result, const std::string& rhs_result) const override;
 };
 
 
@@ -388,7 +388,7 @@ struct Evaluator_Plus final : public Evaluator_Pair_Operator_Syntax< Evaluator_P
   Evaluator_Plus(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_Pair_Operator_Syntax< Evaluator_Plus >(line_number_, input_attributes) {}
 
-  virtual std::string process(const std::string& lhs_result, const std::string& rhs_result) const;
+  std::string process(const std::string& lhs_result, const std::string& rhs_result) const override;
 };
 
 
@@ -402,7 +402,7 @@ struct Evaluator_Minus final : public Evaluator_Pair_Operator_Syntax< Evaluator_
   Evaluator_Minus(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_Pair_Operator_Syntax< Evaluator_Minus >(line_number_, input_attributes) {}
 
-  virtual std::string process(const std::string& lhs_result, const std::string& rhs_result) const;
+  std::string process(const std::string& lhs_result, const std::string& rhs_result) const override;
 };
 
 
@@ -433,7 +433,7 @@ struct Evaluator_Times final : public Evaluator_Pair_Operator_Syntax< Evaluator_
   Evaluator_Times(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_Pair_Operator_Syntax< Evaluator_Times >(line_number_, input_attributes) {}
 
-  virtual std::string process(const std::string& lhs_result, const std::string& rhs_result) const;
+  std::string process(const std::string& lhs_result, const std::string& rhs_result) const override;
 };
 
 
@@ -447,7 +447,7 @@ struct Evaluator_Divided final : public Evaluator_Pair_Operator_Syntax< Evaluato
   Evaluator_Divided(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_Pair_Operator_Syntax< Evaluator_Divided >(line_number_, input_attributes) {}
 
-  virtual std::string process(const std::string& lhs_result, const std::string& rhs_result) const;
+  std::string process(const std::string& lhs_result, const std::string& rhs_result) const override;
 };
 
 
@@ -464,7 +464,7 @@ struct Evaluator_Modulo final : public Evaluator_Pair_Operator_Syntax< Evaluator
   Evaluator_Modulo(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_Pair_Operator_Syntax< Evaluator_Modulo >(line_number_, input_attributes) {}
 
-  virtual std::string process(const std::string& lhs_result, const std::string& rhs_result) const;
+  std::string process(const std::string& lhs_result, const std::string& rhs_result) const override;
 };
 
 

@@ -59,7 +59,7 @@ public:
 	      bool writeable, bool use_shadow,
 	      const std::string& db_dir, const std::string& file_name_extension,
               int compression_method_ = USE_DEFAULT);
-  virtual ~File_Blocks_Index();
+  ~File_Blocks_Index() override;
   bool writeable() const { return (empty_index_file_name != ""); }
   const std::string& file_name_extension() const { return file_name_extension_; }
 
@@ -67,7 +67,7 @@ public:
   uint64 get_block_size() const { return block_size_; }
   uint32 get_compression_factor() const { return compression_factor; }
   uint32 get_compression_method() const { return compression_method; }
-  virtual bool empty() const { return file_size == 0; }
+  bool empty() const override { return file_size == 0; }
 
   std::list< File_Block_Index_Entry< TIndex > >& get_block_list()
   {

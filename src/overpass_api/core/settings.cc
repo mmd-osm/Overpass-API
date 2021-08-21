@@ -44,39 +44,39 @@ struct OSM_File_Properties : public File_Properties
 		      uint32 map_block_size_)
     : file_base_name(file_base_name_), block_size(block_size_), map_block_size(map_block_size_) {}
 
-  const std::string& get_file_name_trunk() const { return file_base_name; }
+  const std::string& get_file_name_trunk() const override { return file_base_name; }
 
-  const std::string& get_index_suffix() const { return basic_settings().INDEX_SUFFIX; }
-  const std::string& get_data_suffix() const { return basic_settings().DATA_SUFFIX; }
-  const std::string& get_id_suffix() const { return basic_settings().ID_SUFFIX; }
-  const std::string& get_shadow_suffix() const { return basic_settings().SHADOW_SUFFIX; }
+  const std::string& get_index_suffix() const override { return basic_settings().INDEX_SUFFIX; }
+  const std::string& get_data_suffix() const override { return basic_settings().DATA_SUFFIX; }
+  const std::string& get_id_suffix() const override { return basic_settings().ID_SUFFIX; }
+  const std::string& get_shadow_suffix() const override { return basic_settings().SHADOW_SUFFIX; }
 
-  uint32 get_block_size() const { return block_size/8; }
-  uint32 get_compression_factor() const { return 8; }
-  uint32 get_compression_method() const { return basic_settings().compression_method; }
-  uint32 get_map_block_size() const { return map_block_size/8; }
-  uint32 get_map_compression_factor() const { return 8; }
-  uint32 get_map_compression_method() const { return basic_settings().map_compression_method; }
+  uint32 get_block_size() const override { return block_size/8; }
+  uint32 get_compression_factor() const override { return 8; }
+  uint32 get_compression_method() const override { return basic_settings().compression_method; }
+  uint32 get_map_block_size() const override { return map_block_size/8; }
+  uint32 get_map_compression_factor() const override { return 8; }
+  uint32 get_map_compression_method() const override { return basic_settings().map_compression_method; }
 
-  std::vector< bool > get_data_footprint(const std::string& db_dir) const
+  std::vector< bool > get_data_footprint(const std::string& db_dir) const override
   {
     std::vector< bool > temp = get_data_index_footprint< TVal >(*this, db_dir);
     return temp;
   }
 
-  std::vector< bool > get_map_footprint(const std::string& db_dir) const
+  std::vector< bool > get_map_footprint(const std::string& db_dir) const override
   {
     return get_map_index_footprint(*this, db_dir);
   }
 
-  uint32 id_max_size_of() const
+  uint32 id_max_size_of() const override
   {
     return TVal::max_size_of();
   }
 
   File_Blocks_Index_Base* new_data_index
       (bool writeable, bool use_shadow, const std::string& db_dir, const std::string& file_name_extension)
-      const
+      const override
   {
     return new File_Blocks_Index< TVal >
         (*this, writeable, use_shadow, db_dir, file_name_extension);

@@ -43,29 +43,29 @@ struct Eval_Point_Geometry_Task final : Eval_Geometry_Task
 {
   Eval_Point_Geometry_Task(Eval_Task* lat_, Eval_Task* lon_) : lat(lat_), lon(lon_) {}
 
-  virtual ~Eval_Point_Geometry_Task()
+  ~Eval_Point_Geometry_Task() override
   {
     delete lat;
     delete lon;
   }
 
-  virtual Opaque_Geometry* eval() const { return make_point(lat->eval(0), lon->eval(0)); }
+  Opaque_Geometry* eval() const override { return make_point(lat->eval(0), lon->eval(0)); }
 
-  virtual Opaque_Geometry* eval(const Element_With_Context< Node_Skeleton >& data) const
+  Opaque_Geometry* eval(const Element_With_Context< Node_Skeleton >& data) const override
       { return make_point(lat->eval(data, 0), lon->eval(data, 0)); }
-  virtual Opaque_Geometry* eval(const Element_With_Context< Attic< Node_Skeleton > >& data) const
+  Opaque_Geometry* eval(const Element_With_Context< Attic< Node_Skeleton > >& data) const override
       { return make_point(lat->eval(data, 0), lon->eval(data, 0)); }
-  virtual Opaque_Geometry* eval(const Element_With_Context< Way_Skeleton >& data) const
+  Opaque_Geometry* eval(const Element_With_Context< Way_Skeleton >& data) const override
       { return make_point(lat->eval(data, 0), lon->eval(data, 0)); }
-  virtual Opaque_Geometry* eval(const Element_With_Context< Attic< Way_Skeleton > >& data) const
+  Opaque_Geometry* eval(const Element_With_Context< Attic< Way_Skeleton > >& data) const override
       { return make_point(lat->eval(data, 0), lon->eval(data, 0)); }
-  virtual Opaque_Geometry* eval(const Element_With_Context< Relation_Skeleton >& data) const
+  Opaque_Geometry* eval(const Element_With_Context< Relation_Skeleton >& data) const override
       { return make_point(lat->eval(data, 0), lon->eval(data, 0)); }
-  virtual Opaque_Geometry* eval(const Element_With_Context< Attic< Relation_Skeleton > >& data) const
+  Opaque_Geometry* eval(const Element_With_Context< Attic< Relation_Skeleton > >& data) const override
       { return make_point(lat->eval(data, 0), lon->eval(data, 0)); }
-  virtual Opaque_Geometry* eval(const Element_With_Context< Area_Skeleton >& data) const
+  Opaque_Geometry* eval(const Element_With_Context< Area_Skeleton >& data) const override
       { return make_point(lat->eval(data, 0), lon->eval(data, 0)); }
-  virtual Opaque_Geometry* eval(const Element_With_Context< Derived_Skeleton >& data) const
+  Opaque_Geometry* eval(const Element_With_Context< Derived_Skeleton >& data) const override
       { return make_point(lat->eval(data, 0), lon->eval(data, 0)); }
 
   static Opaque_Geometry* make_point(const std::string& lat, const std::string& lon);
@@ -87,20 +87,20 @@ public:
 
   struct Evaluator_Maker : public Statement::Evaluator_Maker
   {
-    virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
-        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
+    Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
+        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output) override;
     Evaluator_Maker() { Statement::maker_by_func_name()["pt"].push_back(this); }
   };
   static Evaluator_Maker evaluator_maker;
 
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   {
     return indent + "<eval-point>\n"
         + (lat ? lat->dump_xml(indent + "  ") : "")
         + (lon ? lon->dump_xml(indent + "  ") : "")
         + indent + "</eval-point>\n";
   }
-  virtual std::string dump_compact_ql(const std::string&) const
+  std::string dump_compact_ql(const std::string&) const override
   {
     return std::string("pt(") + (lat ? lat->dump_compact_ql("") : "") + ","
         + (lon ? lon->dump_compact_ql("") : "") + ")";
@@ -108,18 +108,18 @@ public:
 
   Evaluator_Point(int line_number_, const std::map< std::string, std::string >& input_attributes,
                    Parsed_Query& global_settings);
-  virtual std::string get_name() const { return "eval-point"; }
-  virtual std::string get_result_name() const { return ""; }
-  virtual void add_statement(Statement* statement, std::string text);
-  virtual void execute(Resource_Manager& rman) {}
-  virtual ~Evaluator_Point() {}
+  std::string get_name() const override { return "eval-point"; }
+  std::string get_result_name() const override { return ""; }
+  void add_statement(Statement* statement, std::string text) override;
+  void execute(Resource_Manager& rman) override {}
+  ~Evaluator_Point() override {}
 
-  virtual Requested_Context request_context() const;
+  Requested_Context request_context() const override;
 
-  virtual Statement::Eval_Return_Type return_type() const { return Statement::geometry; }
-  virtual Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key)
+  Statement::Eval_Return_Type return_type() const override { return Statement::geometry; }
+  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override
   { return new Const_Eval_Task("<Point_Geometry>"); }
-  virtual Eval_Geometry_Task* get_geometry_task(Prepare_Task_Context& context)
+  Eval_Geometry_Task* get_geometry_task(Prepare_Task_Context& context) override
   { return new Eval_Point_Geometry_Task(lat->get_string_task(context, 0), lon->get_string_task(context, 0)); }
   virtual bool returns_geometry() const { return true; }
 
@@ -144,29 +144,29 @@ struct Eval_Linestring_Geometry_Task final : Eval_Geometry_Task
 {
   Eval_Linestring_Geometry_Task(std::vector< Eval_Geometry_Task* >& points_) : points(points_) {}
 
-  virtual ~Eval_Linestring_Geometry_Task()
+  ~Eval_Linestring_Geometry_Task() override
   {
     for (std::vector< Eval_Geometry_Task* >::iterator it = points.begin(); it != points.end(); ++it)
       delete *it;
   }
 
-  virtual Opaque_Geometry* eval() const { return make_linestring(points); }
+  Opaque_Geometry* eval() const override { return make_linestring(points); }
 
-  virtual Opaque_Geometry* eval(const Element_With_Context< Node_Skeleton >& data) const
+  Opaque_Geometry* eval(const Element_With_Context< Node_Skeleton >& data) const override
       { return make_linestring(points, data); }
-  virtual Opaque_Geometry* eval(const Element_With_Context< Attic< Node_Skeleton > >& data) const
+  Opaque_Geometry* eval(const Element_With_Context< Attic< Node_Skeleton > >& data) const override
       { return make_linestring(points, data); }
-  virtual Opaque_Geometry* eval(const Element_With_Context< Way_Skeleton >& data) const
+  Opaque_Geometry* eval(const Element_With_Context< Way_Skeleton >& data) const override
       { return make_linestring(points, data); }
-  virtual Opaque_Geometry* eval(const Element_With_Context< Attic< Way_Skeleton > >& data) const
+  Opaque_Geometry* eval(const Element_With_Context< Attic< Way_Skeleton > >& data) const override
       { return make_linestring(points, data); }
-  virtual Opaque_Geometry* eval(const Element_With_Context< Relation_Skeleton >& data) const
+  Opaque_Geometry* eval(const Element_With_Context< Relation_Skeleton >& data) const override
       { return make_linestring(points, data); }
-  virtual Opaque_Geometry* eval(const Element_With_Context< Attic< Relation_Skeleton > >& data) const
+  Opaque_Geometry* eval(const Element_With_Context< Attic< Relation_Skeleton > >& data) const override
       { return make_linestring(points, data); }
-  virtual Opaque_Geometry* eval(const Element_With_Context< Area_Skeleton >& data) const
+  Opaque_Geometry* eval(const Element_With_Context< Area_Skeleton >& data) const override
       { return make_linestring(points, data); }
-  virtual Opaque_Geometry* eval(const Element_With_Context< Derived_Skeleton >& data) const
+  Opaque_Geometry* eval(const Element_With_Context< Derived_Skeleton >& data) const override
       { return make_linestring(points, data); }
 
   static Opaque_Geometry* make_linestring(const std::vector< Eval_Geometry_Task* >& points);
@@ -190,20 +190,20 @@ public:
 
   struct Evaluator_Maker : public Statement::Evaluator_Maker
   {
-    virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
-        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
+    Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
+        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output) override;
     Evaluator_Maker() { Statement::maker_by_func_name()["lstr"].push_back(this); }
   };
   static Evaluator_Maker evaluator_maker;
 
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   {
     std::string result = indent + "<eval-linestring>\n";
     for (std::vector< Evaluator* >::const_iterator it = points.begin(); it != points.end(); ++it)
       result += (*it)->dump_xml(indent + "  ");
     return result + indent + "</eval-linestring>\n";
   }
-  virtual std::string dump_compact_ql(const std::string&) const
+  std::string dump_compact_ql(const std::string&) const override
   {
     std::string result = std::string("lstr(");
     for (std::vector< Evaluator* >::const_iterator it = points.begin(); it != points.end(); ++it)
@@ -213,18 +213,18 @@ public:
 
   Evaluator_Linestring(int line_number_, const std::map< std::string, std::string >& input_attributes,
                    Parsed_Query& global_settings);
-  virtual std::string get_name() const { return "eval-linestring"; }
-  virtual std::string get_result_name() const { return ""; }
-  virtual void add_statement(Statement* statement, std::string text);
-  virtual void execute(Resource_Manager& rman) {}
-  virtual ~Evaluator_Linestring() {}
+  std::string get_name() const override { return "eval-linestring"; }
+  std::string get_result_name() const override { return ""; }
+  void add_statement(Statement* statement, std::string text) override;
+  void execute(Resource_Manager& rman) override {}
+  ~Evaluator_Linestring() override {}
 
-  virtual Requested_Context request_context() const;
+  Requested_Context request_context() const override;
 
-  virtual Statement::Eval_Return_Type return_type() const { return Statement::geometry; }
-  virtual Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key)
+  Statement::Eval_Return_Type return_type() const override { return Statement::geometry; }
+  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override
   { return new Const_Eval_Task("<Linestring_Geometry>"); }
-  virtual Eval_Geometry_Task* get_geometry_task(Prepare_Task_Context& context)
+  Eval_Geometry_Task* get_geometry_task(Prepare_Task_Context& context) override
   {
     std::vector< Eval_Geometry_Task* > tasks;
     for (std::vector< Evaluator* >::const_iterator it = points.begin(); it != points.end(); ++it)
@@ -258,29 +258,29 @@ struct Eval_Polygon_Geometry_Task final : Eval_Geometry_Task
 {
   Eval_Polygon_Geometry_Task(std::vector< Eval_Geometry_Task* >& linestrings_) : linestrings(linestrings_) {}
 
-  virtual ~Eval_Polygon_Geometry_Task()
+  ~Eval_Polygon_Geometry_Task() override
   {
     for (std::vector< Eval_Geometry_Task* >::iterator it = linestrings.begin(); it != linestrings.end(); ++it)
       delete *it;
   }
 
-  virtual Opaque_Geometry* eval() const { return make_polygon(linestrings); }
+  Opaque_Geometry* eval() const override { return make_polygon(linestrings); }
 
-  virtual Opaque_Geometry* eval(const Element_With_Context< Node_Skeleton >& data) const
+  Opaque_Geometry* eval(const Element_With_Context< Node_Skeleton >& data) const override
       { return make_polygon(linestrings, data); }
-  virtual Opaque_Geometry* eval(const Element_With_Context< Attic< Node_Skeleton > >& data) const
+  Opaque_Geometry* eval(const Element_With_Context< Attic< Node_Skeleton > >& data) const override
       { return make_polygon(linestrings, data); }
-  virtual Opaque_Geometry* eval(const Element_With_Context< Way_Skeleton >& data) const
+  Opaque_Geometry* eval(const Element_With_Context< Way_Skeleton >& data) const override
       { return make_polygon(linestrings, data); }
-  virtual Opaque_Geometry* eval(const Element_With_Context< Attic< Way_Skeleton > >& data) const
+  Opaque_Geometry* eval(const Element_With_Context< Attic< Way_Skeleton > >& data) const override
       { return make_polygon(linestrings, data); }
-  virtual Opaque_Geometry* eval(const Element_With_Context< Relation_Skeleton >& data) const
+  Opaque_Geometry* eval(const Element_With_Context< Relation_Skeleton >& data) const override
       { return make_polygon(linestrings, data); }
-  virtual Opaque_Geometry* eval(const Element_With_Context< Attic< Relation_Skeleton > >& data) const
+  Opaque_Geometry* eval(const Element_With_Context< Attic< Relation_Skeleton > >& data) const override
       { return make_polygon(linestrings, data); }
-  virtual Opaque_Geometry* eval(const Element_With_Context< Area_Skeleton >& data) const
+  Opaque_Geometry* eval(const Element_With_Context< Area_Skeleton >& data) const override
       { return make_polygon(linestrings, data); }
-  virtual Opaque_Geometry* eval(const Element_With_Context< Derived_Skeleton >& data) const
+  Opaque_Geometry* eval(const Element_With_Context< Derived_Skeleton >& data) const override
       { return make_polygon(linestrings, data); }
 
   static Opaque_Geometry* make_polygon(const std::vector< Eval_Geometry_Task* >& linestrings);
@@ -304,20 +304,20 @@ public:
 
   struct Evaluator_Maker : public Statement::Evaluator_Maker
   {
-    virtual Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
-        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output);
+    Statement* create_evaluator(const Token_Node_Ptr& tree_it, QL_Context tree_context,
+        Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output) override;
     Evaluator_Maker() { Statement::maker_by_func_name()["poly"].push_back(this); }
   };
   static Evaluator_Maker evaluator_maker;
 
-  virtual std::string dump_xml(const std::string& indent) const
+  std::string dump_xml(const std::string& indent) const override
   {
     std::string result = indent + "<eval-polygon>\n";
     for (std::vector< Evaluator* >::const_iterator it = linestrings.begin(); it != linestrings.end(); ++it)
       result += (*it)->dump_xml(indent + "  ");
     return result + indent + "</eval-polygon>\n";
   }
-  virtual std::string dump_compact_ql(const std::string&) const
+  std::string dump_compact_ql(const std::string&) const override
   {
     std::string result = std::string("poly(");
     for (std::vector< Evaluator* >::const_iterator it = linestrings.begin(); it != linestrings.end(); ++it)
@@ -327,18 +327,18 @@ public:
 
   Evaluator_Polygon(int line_number_, const std::map< std::string, std::string >& input_attributes,
                    Parsed_Query& global_settings);
-  virtual std::string get_name() const { return "eval-polygon"; }
-  virtual std::string get_result_name() const { return ""; }
-  virtual void add_statement(Statement* statement, std::string text);
-  virtual void execute(Resource_Manager& rman) {}
-  virtual ~Evaluator_Polygon() {}
+  std::string get_name() const override { return "eval-polygon"; }
+  std::string get_result_name() const override { return ""; }
+  void add_statement(Statement* statement, std::string text) override;
+  void execute(Resource_Manager& rman) override {}
+  ~Evaluator_Polygon() override {}
 
-  virtual Requested_Context request_context() const;
+  Requested_Context request_context() const override;
 
-  virtual Statement::Eval_Return_Type return_type() const { return Statement::geometry; }
-  virtual Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key)
+  Statement::Eval_Return_Type return_type() const override { return Statement::geometry; }
+  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override
   { return new Const_Eval_Task("<Polygon_Geometry>"); }
-  virtual Eval_Geometry_Task* get_geometry_task(Prepare_Task_Context& context)
+  Eval_Geometry_Task* get_geometry_task(Prepare_Task_Context& context) override
   {
     std::vector< Eval_Geometry_Task* > tasks;
     for (std::vector< Evaluator* >::const_iterator it = linestrings.begin(); it != linestrings.end(); ++it)
