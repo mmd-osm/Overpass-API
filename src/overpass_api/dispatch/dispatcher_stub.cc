@@ -37,6 +37,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <sys/time.h>
@@ -128,14 +129,14 @@ void signalHandler_terminate_process(int signum) {
 Dispatcher_Stub::Dispatcher_Stub
     (std::string db_dir_, Error_Output* error_output_, std::string xml_raw, meta_modes meta_, int area_level,
      uint32 max_allowed_time, uint64 max_allowed_space, Parsed_Query& global_settings)
-:  Dispatcher_Stub(db_dir_, error_output_, xml_raw, meta_, area_level,
+:  Dispatcher_Stub(std::move(db_dir_), error_output_, std::move(xml_raw), meta_, area_level,
     max_allowed_time, max_allowed_space, global_settings, nullptr) {}
 
 
 Dispatcher_Stub::Dispatcher_Stub
-    (std::string db_dir_, Error_Output* error_output_, std::string xml_raw, meta_modes meta_, int area_level,
+    (std::string db_dir_, Error_Output* error_output_, const std::string& xml_raw, meta_modes meta_, int area_level,
      uint32 max_allowed_time, uint64 max_allowed_space, Parsed_Query& global_settings, Index_Cache* ic)
-    : db_dir(db_dir_), error_output(error_output_),
+    : db_dir(std::move(db_dir_)), error_output(error_output_),
       dispatcher_client(0), area_dispatcher_client(0),
       transaction(0), area_transaction(0), rman(0), meta(meta_), client_token(0)
 {

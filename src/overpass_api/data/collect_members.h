@@ -777,8 +777,8 @@ std::vector< std::pair< Index, const Skeleton* > > order_attic_by_id
 
 
 template< typename Relation_Skeleton >
-void filter_relations_expensive(const std::vector< std::pair< Uint32_Index, const Node_Skeleton* > > node_members_by_id,
-				const std::vector< std::pair< Uint31_Index, const Way_Skeleton* > > way_members_by_id,
+void filter_relations_expensive(const std::vector< std::pair< Uint32_Index, const Node_Skeleton* > >& node_members_by_id,
+				const std::vector< std::pair< Uint31_Index, const Way_Skeleton* > >& way_members_by_id,
 				std::map< Uint31_Index, std::vector< Relation_Skeleton > >& relations)
 {
   for (typename std::map< Uint31_Index, std::vector< Relation_Skeleton > >::iterator it = relations.begin();

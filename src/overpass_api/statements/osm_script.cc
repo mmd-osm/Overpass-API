@@ -113,13 +113,13 @@ Osm_Script_Statement::Osm_Script_Statement
     std::map< std::string, std::string > bbox_attributes;
 
     std::string& bbox_s = attributes["bbox"];
-    std::string::size_type pos = bbox_s.find(",");
+    std::string::size_type pos = bbox_s.find(',');
     std::string::size_type from = 0;
     if (pos != std::string::npos)
     {
       bbox_attributes["s"] = bbox_s.substr(0, pos);
       from = pos + 1;
-      pos = bbox_s.find(",", from);
+      pos = bbox_s.find(',', from);
     }
     else
     {
@@ -131,7 +131,7 @@ Osm_Script_Statement::Osm_Script_Statement
     {
       bbox_attributes["w"] = bbox_s.substr(from, pos-from);
       from = pos + 1;
-      pos = bbox_s.find(",", from);
+      pos = bbox_s.find(',', from);
     }
     else
     {

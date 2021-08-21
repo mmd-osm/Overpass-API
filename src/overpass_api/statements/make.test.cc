@@ -49,7 +49,7 @@ Statement* add_fixed_stmt(const std::string& value, Statement* parent, Statement
 
 
 void attribute_test(Parsed_Query& global_settings, Transaction& transaction,
-    std::string into, std::string type)
+    const std::string& into, const std::string& type)
 {
   Resource_Manager rman(transaction, &global_settings);
 
@@ -64,7 +64,7 @@ void attribute_test(Parsed_Query& global_settings, Transaction& transaction,
 
 
 void plain_value_test(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, std::string key1, std::string value1, std::string key2 = "", std::string value2 = "")
+    const std::string& type, const std::string& key1, const std::string& value1, const std::string& key2 = "", const std::string& value2 = "")
 {
   Resource_Manager rman(transaction, &global_settings);
   Statement_Container stmt_cont(global_settings);
@@ -86,7 +86,7 @@ void plain_value_test(Parsed_Query& global_settings, Transaction& transaction,
 
 
 void count_test(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, std::string from, uint64 ref, uint64 global_node_offset)
+    const std::string& type, const std::string& from, uint64 ref, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
   Statement_Container stmt_cont(global_settings);
@@ -173,7 +173,7 @@ void count_test(Parsed_Query& global_settings, Transaction& transaction,
 
 template< typename Evaluator_Pair >
 void pair_test(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, std::string key, std::string value1, std::string value2)
+    const std::string& type, const std::string& key, const std::string& value1, const std::string& value2)
 {
   Resource_Manager rman(transaction, &global_settings);
   Statement_Container stmt_cont(global_settings);
@@ -191,7 +191,7 @@ void pair_test(Parsed_Query& global_settings, Transaction& transaction,
 
 
 void triple_test(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, std::string key, std::string condition, std::string value1, std::string value2)
+    const std::string& type, const std::string& key, const std::string& condition, const std::string& value1, const std::string& value2)
 {
   Resource_Manager rman(transaction, &global_settings);
   Statement_Container stmt_cont(global_settings);
@@ -211,7 +211,7 @@ void triple_test(Parsed_Query& global_settings, Transaction& transaction,
 
 template< typename Evaluator_Prefix >
 void prefix_test(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, std::string key, std::string value)
+    const std::string& type, const std::string& key, const std::string& value)
 {
   Resource_Manager rman(transaction, &global_settings);
   Statement_Container stmt_cont(global_settings);
@@ -228,7 +228,7 @@ void prefix_test(Parsed_Query& global_settings, Transaction& transaction,
 
 
 void prepare_value_test(Parsed_Query& global_settings, Resource_Manager& rman,
-    std::string from, uint64 ref1, uint64 ref2, uint64 global_node_offset)
+    const std::string& from, uint64 ref1, uint64 ref2, uint64 global_node_offset)
 {
   Statement_Container stmt_cont(global_settings);
   Union_Statement union_(0, (from == "" ? Attr() : Attr()("into", from)).kvs(), global_settings);
@@ -248,7 +248,7 @@ void prepare_value_test(Parsed_Query& global_settings, Resource_Manager& rman,
 
 
 void union_value_test(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, std::string from, uint64 ref, uint64 global_node_offset)
+    const std::string& type, const std::string& from, uint64 ref, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
   prepare_value_test(global_settings, rman, from, ref, ref, global_node_offset);
@@ -286,7 +286,7 @@ void union_value_test(Parsed_Query& global_settings, Transaction& transaction,
 
 
 void min_value_test(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, std::string from, uint64 ref1, uint64 ref2, uint64 global_node_offset)
+    const std::string& type, const std::string& from, uint64 ref1, uint64 ref2, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
   prepare_value_test(global_settings, rman, from, ref1, ref2, global_node_offset);
@@ -324,7 +324,7 @@ void min_value_test(Parsed_Query& global_settings, Transaction& transaction,
 
 
 void max_value_test(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, std::string from, uint64 ref1, uint64 ref2, uint64 global_node_offset)
+    const std::string& type, const std::string& from, uint64 ref1, uint64 ref2, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
   prepare_value_test(global_settings, rman, from, ref1, ref2, global_node_offset);
@@ -362,7 +362,7 @@ void max_value_test(Parsed_Query& global_settings, Transaction& transaction,
 
 
 void set_value_test(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, std::string from, uint64 ref1, uint64 ref2, uint64 global_node_offset)
+    const std::string& type, const std::string& from, uint64 ref1, uint64 ref2, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
   prepare_value_test(global_settings, rman, from, ref1, ref2, global_node_offset);
@@ -400,7 +400,7 @@ void set_value_test(Parsed_Query& global_settings, Transaction& transaction,
 
 
 void generic_key_test(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, std::string from, uint64 ref1, uint64 ref2,
+    const std::string& type, const std::string& from, uint64 ref1, uint64 ref2,
     bool set_value_const, bool exclude_a_key,
     uint64 global_node_offset)
 {
@@ -432,7 +432,7 @@ void generic_key_test(Parsed_Query& global_settings, Transaction& transaction,
 
 
 void value_id_type_test(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, std::string from, uint64 ref, uint64 global_node_offset)
+    const std::string& type, const std::string& from, uint64 ref, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
   prepare_value_test(global_settings, rman, from, ref, ref+1, global_node_offset);
@@ -465,7 +465,7 @@ void value_id_type_test(Parsed_Query& global_settings, Transaction& transaction,
 
 
 void number_test(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, uint64 global_node_offset)
+    const std::string& type, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
   Statement_Container stmt_cont(global_settings);
@@ -514,7 +514,7 @@ void number_test(Parsed_Query& global_settings, Transaction& transaction,
 
 
 void date_test(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, uint64 global_node_offset)
+    const std::string& type, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
   Statement_Container stmt_cont(global_settings);
@@ -563,7 +563,7 @@ void date_test(Parsed_Query& global_settings, Transaction& transaction,
 
 
 void suffix_test(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, uint64 global_node_offset)
+    const std::string& type, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
   Statement_Container stmt_cont(global_settings);
@@ -612,7 +612,7 @@ void suffix_test(Parsed_Query& global_settings, Transaction& transaction,
 
 
 void lrs_test(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, uint64 global_node_offset)
+    const std::string& type, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
   Statement_Container stmt_cont(global_settings);
@@ -920,7 +920,7 @@ void lrs_test(Parsed_Query& global_settings, Transaction& transaction,
 
 
 void key_id_test(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, std::string from, uint64 ref, uint64 global_node_offset)
+    const std::string& type, const std::string& from, uint64 ref, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
   Statement_Container stmt_cont(global_settings);
@@ -948,7 +948,7 @@ void key_id_test(Parsed_Query& global_settings, Transaction& transaction,
 
 
 void make_point_test(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, uint64 ref, const std::string& lat, const std::string& lon, uint64 global_node_offset)
+    const std::string& type, uint64 ref, const std::string& lat, const std::string& lon, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
   prepare_value_test(global_settings, rman, "_", ref, ref, global_node_offset);
@@ -987,7 +987,7 @@ void add_point(const std::string& lat, const std::string& lon,
 
 
 void make_linestring_test(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, uint64 ref, uint num_points, uint64 global_node_offset)
+    const std::string& type, uint64 ref, uint num_points, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
   prepare_value_test(global_settings, rman, "_", ref, ref, global_node_offset);
@@ -1021,7 +1021,7 @@ void make_linestring_test(Parsed_Query& global_settings, Transaction& transactio
 
 
 void make_polygon_test(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, uint64 ref, uint num_points, uint64 global_node_offset)
+    const std::string& type, uint64 ref, uint num_points, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
   prepare_value_test(global_settings, rman, "_", ref, ref, global_node_offset);
@@ -1070,7 +1070,7 @@ void make_polygon_test(Parsed_Query& global_settings, Transaction& transaction,
 
 
 void make_polygon_date_line_test(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, uint64 global_node_offset)
+    const std::string& type, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
   Statement_Container stmt_cont(global_settings);
@@ -1091,7 +1091,7 @@ void make_polygon_date_line_test(Parsed_Query& global_settings, Transaction& tra
 
 
 void make_polygon_intersection_test_1(Parsed_Query& global_settings,
-    std::string type, Resource_Manager& rman, Statement_Container& stmt_cont,
+    const std::string& type, Resource_Manager& rman, Statement_Container& stmt_cont,
     const std::string& lat_1, const std::string& lon_1,
     const std::string& lat_2, const std::string& lon_2,
     const std::string& lat_3, const std::string& lon_3,
@@ -1121,7 +1121,7 @@ void make_polygon_intersection_test_1(Parsed_Query& global_settings,
 
 void make_polygon_intersection_test_2(Parsed_Query& global_settings,
     const std::string& lon_1, const std::string& lon_2, const std::string& lon_3, const std::string& lon_4,
-    std::string type, Resource_Manager& rman, Statement_Container& stmt_cont)
+    const std::string& type, Resource_Manager& rman, Statement_Container& stmt_cont)
 {
   Make_Statement stmt(0, Attr()("type", type).kvs(), global_settings);
 
@@ -1144,7 +1144,7 @@ void make_polygon_intersection_test_2(Parsed_Query& global_settings,
 
 
 void make_polygon_intersection_test_1(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, uint64 global_node_offset)
+    const std::string& type, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
   Statement_Container stmt_cont(global_settings);
@@ -1242,7 +1242,7 @@ void make_polygon_intersection_test_1(Parsed_Query& global_settings, Transaction
 
 
 void make_polygon_intersection_test_2(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, uint64 global_node_offset)
+    const std::string& type, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
   Statement_Container stmt_cont(global_settings);
@@ -1299,7 +1299,7 @@ void make_polygon_intersection_test_2(Parsed_Query& global_settings, Transaction
 
 
 void gcat_test(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, uint64 global_node_offset)
+    const std::string& type, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
   prepare_value_test(global_settings, rman, "_", 8, 14, global_node_offset);
@@ -1335,7 +1335,7 @@ void gcat_test(Parsed_Query& global_settings, Transaction& transaction,
 
 
 void center_test(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, double base_lat, double base_lon_1, double base_lon_2, uint64 global_node_offset)
+    const std::string& type, double base_lat, double base_lon_1, double base_lon_2, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
   Statement_Container stmt_cont(global_settings);
@@ -1356,7 +1356,7 @@ void center_test(Parsed_Query& global_settings, Transaction& transaction,
 
 
 void trace_test_1(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, bool multiple, bool same, uint64 global_node_offset)
+    const std::string& type, bool multiple, bool same, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
 
@@ -1398,7 +1398,7 @@ void trace_test_1(Parsed_Query& global_settings, Transaction& transaction,
 
 
 void trace_test_2(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, bool multiple, bool reversed, uint64 global_node_offset)
+    const std::string& type, bool multiple, bool reversed, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
 
@@ -1457,7 +1457,7 @@ void trace_test_2(Parsed_Query& global_settings, Transaction& transaction,
 
 
 void hull_test_1(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, uint test_level, uint64 global_node_offset)
+    const std::string& type, uint test_level, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
 
@@ -1562,7 +1562,7 @@ void hull_test_1(Parsed_Query& global_settings, Transaction& transaction,
 
 
 void hull_test_2(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, uint test_level, uint64 global_node_offset)
+    const std::string& type, uint test_level, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
 
@@ -1601,7 +1601,7 @@ void hull_test_2(Parsed_Query& global_settings, Transaction& transaction,
 
 
 void triple_geom_test(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, std::string key, std::string condition)
+    const std::string& type, const std::string& key, const std::string& condition)
 {
   Resource_Manager rman(transaction, &global_settings);
   Statement_Container stmt_cont(global_settings);

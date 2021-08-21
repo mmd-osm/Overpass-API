@@ -45,7 +45,8 @@ inline void process_package(std::vector< std::function< void() > >& f, const int
 
   const int procs = (f.size() < parallel_processes ? f.size() : parallel_processes);
 
-  for (int i = 0; i < procs; i++)
+  futures.reserve(procs);
+for (int i = 0; i < procs; i++)
   {
     futures.push_back(
         std::async(std::launch::async, [&]

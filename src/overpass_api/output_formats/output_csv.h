@@ -25,6 +25,7 @@
 #include "../frontend/output_handler.h"
 
 #include <string>
+#include <utility>
 #include <vector>
 
 
@@ -39,7 +40,7 @@ struct Csv_Settings
 class Output_CSV : public Output_Handler
 {
 public:
-  Output_CSV(Csv_Settings csv_settings_) : csv_settings(csv_settings_) {}
+  Output_CSV(Csv_Settings csv_settings_) : csv_settings(std::move(csv_settings_)) {}
 
   bool write_http_headers() override;
   void write_payload_header(const std::string& db_dir,

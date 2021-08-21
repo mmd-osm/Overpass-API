@@ -27,7 +27,7 @@
 #include "testing_tools.h"
 
 
-Resource_Manager& perform_id_query(Resource_Manager& rman, std::string type, uint64 id)
+Resource_Manager& perform_id_query(Resource_Manager& rman, const std::string& type, uint64 id)
 {
   Parsed_Query global_settings;
   global_settings.set_output_handler(Output_Handler_Parser::get_format_parser("xml"), 0, 0);
@@ -40,7 +40,7 @@ Resource_Manager& perform_id_query(Resource_Manager& rman, std::string type, uin
 }
 
 Resource_Manager& fill_loop_set
-    (Resource_Manager& rman, std::string set_name, uint pattern_size, uint64 global_node_offset,
+    (Resource_Manager& rman, const std::string& set_name, uint pattern_size, uint64 global_node_offset,
      Transaction& transaction)
 {
   uint way_id_offset = (2*(pattern_size/2+1)*(pattern_size/2-1) + pattern_size/2);

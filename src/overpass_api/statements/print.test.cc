@@ -25,7 +25,7 @@
 #include "print.h"
 
 
-Resource_Manager& perform_id_query(Resource_Manager& rman, std::string type, uint64 id)
+Resource_Manager& perform_id_query(Resource_Manager& rman, const std::string& type, uint64 id)
 {
   std::ostringstream buf("");
   buf<<id;

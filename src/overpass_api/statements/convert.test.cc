@@ -16,6 +16,8 @@
  * along with Overpass_API.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <utility>
+
 #include "../data/utils.h"
 #include "aggregators.h"
 #include "binary_operators.h"
@@ -34,7 +36,7 @@
 
 
 void prepare_value_test(Parsed_Query& global_settings, Resource_Manager& rman,
-    std::string from, uint64 ref1, uint64 ref2, std::string derived_num, uint64 global_node_offset)
+    const std::string& from, uint64 ref1, uint64 ref2, const std::string& derived_num, uint64 global_node_offset)
 {
   Union_Statement union_(0, (from == "_" ? Attr() : Attr()("into", from)).kvs(), global_settings);
 
@@ -65,7 +67,7 @@ void prepare_value_test(Parsed_Query& global_settings, Resource_Manager& rman,
 
 
 void prepare_relation_test(Parsed_Query& global_settings, Resource_Manager& rman,
-    std::string from, uint64 ref1, uint64 ref2, uint64 ref3, uint64 ref4)
+    const std::string& from, uint64 ref1, uint64 ref2, uint64 ref3, uint64 ref4)
 {
   Union_Statement union_(0, (from == "_" ? Attr() : Attr()("into", from)).kvs(), global_settings);
 
@@ -83,10 +85,10 @@ void prepare_relation_test(Parsed_Query& global_settings, Resource_Manager& rman
 
 
 void just_copy_test(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, std::string from, uint64 ref1, uint64 ref2, std::string derived_num, uint64 global_node_offset)
+    const std::string& type, const std::string& from, uint64 ref1, uint64 ref2, std::string derived_num, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
-  prepare_value_test(global_settings, rman, from, ref1, ref2, derived_num, global_node_offset);
+  prepare_value_test(global_settings, rman, from, ref1, ref2, std::move(derived_num), global_node_offset);
 
   Convert_Statement stmt(0, Attr()("from", from)("type", type).kvs(), global_settings);
 
@@ -101,7 +103,7 @@ void just_copy_test(Parsed_Query& global_settings, Transaction& transaction,
 
 
 void into_test(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, std::string into, uint64 global_node_offset)
+    const std::string& type, const std::string& into, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
   prepare_value_test(global_settings, rman, "_", 7, 14, "1000", global_node_offset);
@@ -119,10 +121,10 @@ void into_test(Parsed_Query& global_settings, Transaction& transaction,
 
 
 void tag_manipulation_test(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, std::string from, uint64 ref1, uint64 ref2, std::string derived_num, uint64 global_node_offset)
+    const std::string& type, const std::string& from, uint64 ref1, uint64 ref2, std::string derived_num, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
-  prepare_value_test(global_settings, rman, from, ref1, ref2, derived_num, global_node_offset);
+  prepare_value_test(global_settings, rman, from, ref1, ref2, std::move(derived_num), global_node_offset);
 
   Convert_Statement stmt(0, Attr()("from", from)("type", type).kvs(), global_settings);
 
@@ -147,7 +149,7 @@ void tag_manipulation_test(Parsed_Query& global_settings, Transaction& transacti
 
 
 void count_test(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, std::string from, uint64 ref, uint64 global_node_offset)
+    const std::string& type, const std::string& from, uint64 ref, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
 
@@ -258,7 +260,7 @@ void count_test(Parsed_Query& global_settings, Transaction& transaction,
 
 
 void is_tag_test(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, uint64 global_node_offset)
+    const std::string& type, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
   prepare_value_test(global_settings, rman, "_", 7, 14, "1000", global_node_offset);
@@ -288,7 +290,7 @@ void is_tag_test(Parsed_Query& global_settings, Transaction& transaction,
 
 
 void lat_lon_test(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, uint64 global_node_offset)
+    const std::string& type, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
   prepare_value_test(global_settings, rman, "_", 7, 14, "1000", global_node_offset);
@@ -335,7 +337,7 @@ void lat_lon_test(Parsed_Query& global_settings, Transaction& transaction,
 
 
 void per_member_test(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, uint64 global_node_offset)
+    const std::string& type, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
   prepare_value_test(global_settings, rman, "_", 10, 10, "1000", global_node_offset);
@@ -408,7 +410,7 @@ void per_member_test(Parsed_Query& global_settings, Transaction& transaction,
 
 
 void geom_test(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, uint64 global_node_offset)
+    const std::string& type, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
   prepare_value_test(global_settings, rman, "_", 8, 14, "1000", global_node_offset);
@@ -426,7 +428,7 @@ void geom_test(Parsed_Query& global_settings, Transaction& transaction,
 
 
 void trace_test_1(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, uint64 global_node_offset)
+    const std::string& type, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
   prepare_value_test(global_settings, rman, "_", 2, 3, "1000", global_node_offset);
@@ -446,7 +448,7 @@ void trace_test_1(Parsed_Query& global_settings, Transaction& transaction,
 
 
 void trace_test_2(Parsed_Query& global_settings, Transaction& transaction,
-    std::string type, uint64 global_node_offset)
+    const std::string& type, uint64 global_node_offset)
 {
   Resource_Manager rman(transaction, &global_settings);
   prepare_relation_test(global_settings, rman, "_", 2, 6, 9, 10);

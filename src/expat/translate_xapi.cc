@@ -212,7 +212,7 @@ void print_out(const InputAnalyzer& analyzer)
     std::cout<<"out;";
 }
 
-void process_nodes(std::string input, bool force_meta = false)
+void process_nodes(const std::string& input, bool force_meta = false)
 {
   InputAnalyzer analyzer(input, force_meta);
   if (analyzer.timeout != 0)
@@ -228,7 +228,7 @@ void process_nodes(std::string input, bool force_meta = false)
   print_out(analyzer);
 }
 
-void process_ways(std::string input, bool force_meta = false)
+void process_ways(const std::string& input, bool force_meta = false)
 {
   InputAnalyzer analyzer(input, force_meta);
   if (analyzer.timeout != 0)
@@ -246,7 +246,7 @@ void process_ways(std::string input, bool force_meta = false)
   print_out(analyzer);
 }
 
-void process_relations(std::string input, bool force_meta = false)
+void process_relations(const std::string& input, bool force_meta = false)
 {
   InputAnalyzer analyzer(input, force_meta);
   if (analyzer.timeout != 0)
@@ -262,7 +262,7 @@ void process_relations(std::string input, bool force_meta = false)
   print_out(analyzer);
 }
 
-void process_nwr(std::string input, bool force_meta = false)
+void process_nwr(const std::string& input, bool force_meta = false)
 {
   InputAnalyzer analyzer(input, force_meta);
   if (analyzer.timeout != 0)

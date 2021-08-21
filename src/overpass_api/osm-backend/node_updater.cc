@@ -30,6 +30,7 @@
 #include <functional>
 #include <map>
 #include <set>
+#include <utility>
 #include <vector>
 
 #include <cstdio>
@@ -433,7 +434,7 @@ Node_Updater::Node_Updater(Transaction& transaction_, meta_modes meta_, unsigned
 Node_Updater::Node_Updater(std::string db_dir_, meta_modes meta_, unsigned int parallel_processes_, bool initial_load_)
   : update_counter(0), transaction(0),
     external_transaction(false), partial_possible(meta_ == only_data || meta_ == keep_meta),
-    db_dir(db_dir_), meta(meta_), keys(*osm_base_settings().NODE_KEYS),
+    db_dir(std::move(db_dir_)), meta(meta_), keys(*osm_base_settings().NODE_KEYS),
     parallel_processes(parallel_processes_), initial_load(initial_load_)
 {
   partial_possible = !file_exists
@@ -834,7 +835,7 @@ void Node_Updater::update_node_ids
 }
 
 
-void Node_Updater::merge_files(const std::vector< std::string >& froms, std::string into)
+void Node_Updater::merge_files(const std::vector< std::string >& froms, const std::string& into)
 {
   Transaction_Collection from_transactions(false, false, db_dir, froms);
   Nonsynced_Transaction into_transaction(true, false, db_dir, into);

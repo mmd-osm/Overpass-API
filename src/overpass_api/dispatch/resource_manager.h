@@ -157,7 +157,7 @@ public:
 
   Parsed_Query& get_global_settings() const { return *global_settings; }
 
-  void log_and_display_error(std::string message);
+  void log_and_display_error(const std::string& message);
 
   bool health_check(const Statement& stmt, uint32 extra_time = 0, uint64 extra_space = 0);
 

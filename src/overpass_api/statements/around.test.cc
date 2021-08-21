@@ -33,7 +33,7 @@
 
 
 
-void perform_around_print(uint pattern_size, std::string radius, uint64 global_node_offset,
+void perform_around_print(uint pattern_size, const std::string& radius, uint64 global_node_offset,
 			  Transaction& transaction)
 {
   Parsed_Query global_settings;
@@ -53,7 +53,7 @@ void perform_around_print(uint pattern_size, std::string radius, uint64 global_n
 }
 
 
-void perform_coord_print(uint pattern_size, std::string radius, uint64 global_node_offset,
+void perform_coord_print(uint pattern_size, const std::string& radius, uint64 global_node_offset,
                           Transaction& transaction)
 {
   Parsed_Query global_settings;
@@ -80,7 +80,7 @@ void perform_coord_print(uint pattern_size, std::string radius, uint64 global_no
 }
 
 
-void perform_polyline_print(uint pattern_size, std::string polyline,
+void perform_polyline_print(uint pattern_size, const std::string& polyline,
     uint64 global_node_offset, Transaction& transaction)
 {
   Parsed_Query global_settings;
@@ -102,7 +102,7 @@ void perform_polyline_print(uint pattern_size, std::string polyline,
 
 
 void perform_polyline_in_query_print(uint pattern_size,
-    std::string radius, std::string type, std::string polyline,
+    const std::string& radius, const std::string& type, const std::string& polyline,
     uint64 global_node_offset, Transaction& transaction)
 {
   Parsed_Query global_settings;

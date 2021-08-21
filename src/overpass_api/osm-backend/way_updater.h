@@ -127,7 +127,7 @@ private:
 
   Key_Storage keys;
 
-  void merge_files(const std::vector< std::string >& froms, std::string into);
+  void merge_files(const std::vector< std::string >& froms, const std::string& into);
 
   unsigned int parallel_processes;
   bool initial_load;

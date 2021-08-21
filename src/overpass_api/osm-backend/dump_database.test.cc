@@ -21,6 +21,7 @@
 #include <iostream>
 #include <list>
 #include <sstream>
+#include <utility>
 
 #include <stdio.h>
 #include <sys/types.h>
@@ -44,7 +45,7 @@ struct Ofstream_Collection
   std::string postfix;
 
   Ofstream_Collection(std::string prefix_, std::string postfix_)
-  : prefix(prefix_), postfix(postfix_) {}
+  : prefix(std::move(prefix_)), postfix(std::move(postfix_)) {}
 
   std::ofstream* get(uint32 i)
   {

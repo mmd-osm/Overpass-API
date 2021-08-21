@@ -20,6 +20,8 @@
 #define DE__OSM3S___OVERPASS_API__CORE__PARSED_QUERY_H
 
 
+#include <utility>
+
 #include "../frontend/output_handler.h"
 #include "../frontend/output_handler_parser.h"
 #include "geometry.h"
@@ -82,7 +84,7 @@ public:
 
   Derived_Skeleton::Id_Type dispense_derived_id() { return ++last_dispensed_id; }
 
-  void set_regexp_engine(std::string regexp_engine_) { regexp_engine = regexp_engine_; }
+  void set_regexp_engine(std::string regexp_engine_) { regexp_engine = std::move(regexp_engine_); }
   std::string get_regexp_engine() { return regexp_engine; }
   std::string get_default_regexp_engine() { return default_regexp_engine; }
   std::string get_default_timeout() { return default_timeout; }

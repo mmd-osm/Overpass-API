@@ -573,8 +573,8 @@ void filter_ways_expensive(const Around_Statement& around,
 
 template< typename Relation_Skeleton >
 void filter_relations_expensive(const Around_Statement& around,
-                                const std::vector< std::pair< Uint32_Index, const Node_Skeleton* > > node_members_by_id,
-                                const std::vector< std::pair< Uint31_Index, const Way_Skeleton* > > way_members_by_id,
+                                const std::vector< std::pair< Uint32_Index, const Node_Skeleton* > >& node_members_by_id,
+                                const std::vector< std::pair< Uint31_Index, const Way_Skeleton* > >& way_members_by_id,
                                 const Way_Geometry_Store& way_geometries,
                                 std::map< Uint31_Index, std::vector< Relation_Skeleton > >& relations)
 {
@@ -814,17 +814,17 @@ Around_Statement::Around_Statement
 
     std::string& polystring = attributes["polyline"];
     std::string::size_type from = 0;
-    std::string::size_type to = polystring.find(",");
+    std::string::size_type to = polystring.find(',');
     while (to != std::string::npos)
     {
       double lat = atof(polystring.substr(from, to).c_str());
       from = to+1;
-      to = polystring.find(",", from);
+      to = polystring.find(',', from);
       if (to != std::string::npos)
       {
         points.push_back(Point_Double(lat, atof(polystring.substr(from, to).c_str())));
         from = to+1;
-        to = polystring.find(",", from);
+        to = polystring.find(',', from);
       }
       else
         points.push_back(Point_Double(lat, atof(polystring.substr(from).c_str())));

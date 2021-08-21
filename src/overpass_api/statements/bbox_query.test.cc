@@ -26,7 +26,7 @@
 #include "print.h"
 
 
-void perform_bbox_print(std::string south, std::string north, std::string west, std::string east,
+void perform_bbox_print(const std::string& south, const std::string& north, const std::string& west, const std::string& east,
 			Transaction& transaction)
 {
   Parsed_Query global_settings;

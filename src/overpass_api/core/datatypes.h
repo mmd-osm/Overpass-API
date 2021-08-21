@@ -27,6 +27,7 @@
 #include <set>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "basic_types.h"
@@ -44,7 +45,7 @@ struct String_Object
 
   String_Object() = default;
 
-  String_Object(std::string s) : value(s) {}
+  String_Object(std::string s) : value(std::move(s)) {}
 
   String_Object(void* data) : value()
   {

@@ -18,6 +18,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <utility>
 #include "../../template_db/block_backend.h"
 #include "../core/settings.h"
 #include "../output_formats/output_xml.h"
@@ -26,7 +27,7 @@
 #include "recurse.h"
 
 
-Resource_Manager& perform_id_query(Resource_Manager& rman, std::string type, uint64 id)
+Resource_Manager& perform_id_query(Resource_Manager& rman, const std::string& type, uint64 id)
 {
   std::ostringstream buf("");
   buf<<id;
@@ -51,7 +52,7 @@ Resource_Manager& perform_multi_id_query(Resource_Manager& rman, std::string typ
   Parsed_Query global_settings;
 
   std::map< std::string, std::string > attributes;
-  attributes["type"] = type;
+  attributes["type"] = std::move(type);
   if (!ids.empty())
     attributes["ref"] = to_string(ids[0]);
   for (uint i = 1; i < ids.size(); ++i)

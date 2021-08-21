@@ -24,6 +24,7 @@
 
 #include <map>
 #include <string>
+#include <utility>
 #include <vector>
 
 
@@ -50,10 +51,10 @@ class Statement_Dump
 
     Statement_Dump(std::string name, const std::map< std::string, std::string >& attributes_, int line_number_,
         Statement* stmt = 0)
-        : name_(name), attributes(attributes_), line_number(line_number_), non_dump_stmt(stmt) {}
+        : name_(std::move(name)), attributes(attributes_), line_number(line_number_), non_dump_stmt(stmt) {}
     ~Statement_Dump();
 
-    void add_statement(Statement_Dump* statement, std::string text);
+    void add_statement(Statement_Dump* statement, const std::string& text);
     std::string dump_xml() const;
     std::string dump_pretty_map_ql(Statement::Factory& stmt_factory);
     std::string dump_compact_map_ql(Statement::Factory& stmt_factory);
@@ -62,7 +63,7 @@ class Statement_Dump
     const std::string& name() const { return name_; }
     std::string attribute(const std::string& key) const;
 
-    void add_final_text(std::string text) {}
+    void add_final_text(const std::string& text) {}
 
     Statement* create_non_dump_stmt(Statement::Factory& stmt_factory);
 

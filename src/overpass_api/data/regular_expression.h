@@ -383,7 +383,7 @@ class Regular_Expression_Factory
 
 public:
 
-  static Regular_Expression* get_regexp_engine(const std::string engine, const std::string& regex, bool case_sensitive )
+  static Regular_Expression* get_regexp_engine(const std::string& engine, const std::string& regex, bool case_sensitive )
   {
     if (engine == "ICU") {
 #ifdef HAVE_ICU

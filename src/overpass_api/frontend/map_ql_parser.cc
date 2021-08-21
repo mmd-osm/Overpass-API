@@ -34,6 +34,7 @@
 #include <queue>
 #include <set>
 #include <sstream>
+#include <utility>
 #include <vector>
 
 
@@ -161,7 +162,7 @@ TStatement* create_union_statement(typename TStatement::Factory& stmt_factory,
 				   std::string into, uint line_nr)
 {
   std::map< std::string, std::string > attr;
-  attr["into"] = into;
+  attr["into"] = std::move(into);
   return stmt_factory.create_statement("union", line_nr, attr);
 }
 
@@ -170,7 +171,7 @@ TStatement* create_difference_statement(typename TStatement::Factory& stmt_facto
                                    std::string into, uint line_nr)
 {
   std::map< std::string, std::string > attr;
-  attr["into"] = into;
+  attr["into"] = std::move(into);
   return stmt_factory.create_statement("difference", line_nr, attr);
 }
 
@@ -179,21 +180,21 @@ TStatement* create_for_statement(typename TStatement::Factory& stmt_factory,
 				     std::string stmt_name, std::string from, std::string into, uint line_nr)
 {
   std::map< std::string, std::string > attr;
-  attr["from"] = from;
-  attr["into"] = into;
+  attr["from"] = std::move(from);
+  attr["into"] = std::move(into);
   return stmt_factory.create_statement(stmt_name, line_nr, attr);
 }
 
 
 template< class TStatement >
 TStatement* create_make_statement(typename TStatement::Factory& stmt_factory,
-    std::string strategy, std::string from, std::string into, std::string type, uint line_nr)
+    std::string strategy, const std::string& from, std::string into, std::string type, uint line_nr)
 {
   std::map< std::string, std::string > attr;
   if (from != "")
     attr["from"] = from;
-  attr["into"] = into;
-  attr["type"] = type;
+  attr["into"] = std::move(into);
+  attr["type"] = std::move(type);
   return stmt_factory.create_statement(strategy, line_nr, attr);
 }
 
@@ -203,9 +204,9 @@ TStatement* create_complete_statement(typename TStatement::Factory& stmt_factory
     std::string maxnum, std::string from, std::string into, uint line_nr)
 {
   std::map< std::string, std::string > attr;
-  attr["maxnum"] = maxnum;
-  attr["from"] = from;
-  attr["into"] = into;
+  attr["maxnum"] = std::move(maxnum);
+  attr["from"] = std::move(from);
+  attr["into"] = std::move(into);
   return stmt_factory.create_statement("complete", line_nr, attr);
 }
 
@@ -214,9 +215,9 @@ TStatement* create_make_area_statement(typename TStatement::Factory& stmt_factor
     std::string from, std::string into, std::string pivot, uint line_nr)
 {
   std::map< std::string, std::string > attr;
-  attr["from"] = from;
-  attr["into"] = into;
-  attr["pivot"] = pivot;
+  attr["from"] = std::move(from);
+  attr["into"] = std::move(into);
+  attr["pivot"] = std::move(pivot);
   return stmt_factory.create_statement("make-area", line_nr, attr);
 }
 
@@ -252,16 +253,16 @@ TStatement* create_print_statement(typename TStatement::Factory& stmt_factory,
                                   uint line_nr)
 {
   std::map< std::string, std::string > attr;
-  attr["from"] = from;
-  attr["mode"] = mode;
-  attr["order"] = order;
-  attr["limit"] = limit;
-  attr["geometry"] = geometry;
-  attr["ids"] = show_ids;
-  attr["s"] = south;
-  attr["n"] = north;
-  attr["w"] = west;
-  attr["e"] = east;
+  attr["from"] = std::move(from);
+  attr["mode"] = std::move(mode);
+  attr["order"] = std::move(order);
+  attr["limit"] = std::move(limit);
+  attr["geometry"] = std::move(geometry);
+  attr["ids"] = std::move(show_ids);
+  attr["s"] = std::move(south);
+  attr["n"] = std::move(north);
+  attr["w"] = std::move(west);
+  attr["e"] = std::move(east);
   return stmt_factory.create_statement("print", line_nr, attr);
 }
 
@@ -295,8 +296,8 @@ TStatement* create_query_statement(typename TStatement::Factory& stmt_factory,
     std::string type, std::string into, uint line_nr)
 {
   std::map< std::string, std::string > attr;
-  attr["type"] = type;
-  attr["into"] = into;
+  attr["type"] = std::move(type);
+  attr["into"] = std::move(into);
   return stmt_factory.create_statement("query", line_nr, attr);
 }
 
@@ -306,7 +307,7 @@ typedef enum { haskv_plain, haskv_regex, haskv_icase } haskv_type;
 
 template< class TStatement >
 TStatement* create_has_kv_statement(typename TStatement::Factory& stmt_factory,
-    std::string key, std::string value, haskv_type regex, haskv_type key_regex, bool straight, uint line_nr)
+    const std::string& key, const std::string& value, haskv_type regex, haskv_type key_regex, bool straight, uint line_nr)
 {
   std::map< std::string, std::string > attr;
 
@@ -335,61 +336,61 @@ TStatement* create_item_statement(typename TStatement::Factory& stmt_factory,
     std::string from, std::string into, uint line_nr)
 {
   std::map< std::string, std::string > attr;
-  attr["from"] = from;
-  attr["into"] = into;
+  attr["from"] = std::move(from);
+  attr["into"] = std::move(into);
   return stmt_factory.create_statement("item", line_nr, attr);
 }
 
 
 template< class TStatement >
 TStatement* create_recurse_statement(typename TStatement::Factory& stmt_factory,
-     std::string type, std::string from, std::string into, uint line_nr)
+     std::string type, const std::string& from, std::string into, uint line_nr)
 {
   std::map< std::string, std::string > attr;
   attr["from"] = (from == "" ? "_" : from);
-  attr["into"] = into;
-  attr["type"] = type;
+  attr["into"] = std::move(into);
+  attr["type"] = std::move(type);
   return stmt_factory.create_statement("recurse", line_nr, attr);
 }
 
 
 template< class TStatement >
 TStatement* create_coord_query_statement(typename TStatement::Factory& stmt_factory,
-    std::string lat, std::string lon, std::string from, std::string into, uint line_nr)
+    std::string lat, std::string lon, const std::string& from, std::string into, uint line_nr)
 {
   std::map< std::string, std::string > attr;
   attr["from"] = (from == "" ? "_" : from);
-  attr["into"] = into;
-  attr["lat"] = lat;
-  attr["lon"] = lon;
+  attr["into"] = std::move(into);
+  attr["lat"] = std::move(lat);
+  attr["lon"] = std::move(lon);
   return stmt_factory.create_statement("coord-query", line_nr, attr);
 }
 
 
 template< class TStatement >
 TStatement* create_map_to_area_statement(typename TStatement::Factory& stmt_factory,
-    std::string from, std::string into, uint line_nr)
+    const std::string& from, std::string into, uint line_nr)
 {
   std::map< std::string, std::string > attr;
   attr["from"] = (from == "" ? "_" : from);
-  attr["into"] = into;
+  attr["into"] = std::move(into);
   return stmt_factory.create_statement("map-to-area", line_nr, attr);
 }
 
 
 template< class TStatement >
 TStatement* create_localize_statement(typename TStatement::Factory& stmt_factory,
-    std::string type, std::string from, std::string into,
+    std::string type, const std::string& from, std::string into,
     std::string south, std::string north, std::string west, std::string east, uint line_nr)
 {
   std::map< std::string, std::string > attr;
   attr["from"] = (from == "" ? "_" : from);
-  attr["into"] = into;
-  attr["type"] = type;
-  attr["s"] = south;
-  attr["n"] = north;
-  attr["w"] = west;
-  attr["e"] = east;
+  attr["into"] = std::move(into);
+  attr["type"] = std::move(type);
+  attr["s"] = std::move(south);
+  attr["n"] = std::move(north);
+  attr["w"] = std::move(west);
+  attr["e"] = std::move(east);
   return stmt_factory.create_statement("localize", line_nr, attr);
 }
 
@@ -954,7 +955,7 @@ struct Statement_Text
 {
   Statement_Text(std::string statement_ = "",
 		 std::pair< uint, uint > line_col_ = std::make_pair(0, 0))
-    : statement(statement_), line_col(line_col_) {}
+    : statement(std::move(statement_)), line_col(line_col_) {}
 
   std::string statement;
   std::pair< uint, uint > line_col;
@@ -965,7 +966,7 @@ template< class TStatement >
 TStatement* create_query_substatement
     (typename TStatement::Factory& stmt_factory,
      Tokenizer_Wrapper& token, Error_Output* error_output,
-     const Statement_Text& clause, std::string type, std::string from, std::string into)
+     const Statement_Text& clause, const std::string& type, const std::string& from, const std::string& into)
 {
   if (clause.statement == "has-kv")
     return create_has_kv_statement< TStatement >

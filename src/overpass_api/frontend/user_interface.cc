@@ -209,12 +209,12 @@ std::map< std::string, std::string > get_xml_cgi(
 
       std::vector< std::string > coords;
       std::string::size_type pos = 0;
-      std::string::size_type newpos = lonlat.find(",");
+      std::string::size_type newpos = lonlat.find(',');
       while (newpos != std::string::npos)
       {
 	coords.push_back(lonlat.substr(pos, newpos - pos));
 	pos = newpos + 1;
-	newpos = lonlat.find(",", pos);
+	newpos = lonlat.find(',', pos);
       }
       coords.push_back(lonlat.substr(pos));
 
@@ -270,12 +270,12 @@ std::string probe_client_identifier()
 }
 
 
-uint32 parse_ipv4_address(const std::string ip_addr)
+uint32 parse_ipv4_address(const std::string& ip_addr)
 {
   if (ip_addr == "")
     return 0;
 
-  std::string::size_type pos = ip_addr.find(".");
+  std::string::size_type pos = ip_addr.find('.');
   std::string::size_type old_pos = 0;
   uint32 client_token = 0;
 
@@ -285,7 +285,7 @@ uint32 parse_ipv4_address(const std::string ip_addr)
     client_token = (client_token<<8 |
       atoll(ip_addr.substr(old_pos, pos - old_pos).c_str()));
     old_pos = pos + 1;
-    pos = ip_addr.find(".", old_pos);
+    pos = ip_addr.find('.', old_pos);
   }
   client_token = (client_token<<8 | atoll(ip_addr.substr(old_pos).c_str()));
 
@@ -312,31 +312,31 @@ int decode_hex(std::string representation)
 }
 
 
-std::vector< uint16 > parse_short_ipv6_address(std::string ip_addr)
+std::vector< uint16 > parse_short_ipv6_address(const std::string& ip_addr)
 {
   std::vector< uint16 > ipv6_address;
 
   // Try shortened IPv6 address format
   std::string::size_type upper_end = ip_addr.find("::");
-  std::string::size_type pos = ip_addr.find(":");
+  std::string::size_type pos = ip_addr.find(':');
   std::string::size_type old_pos = 0;
 
   while (pos < upper_end)
   {
     ipv6_address.push_back(decode_hex(ip_addr.substr(old_pos, pos - old_pos).c_str()));
     old_pos = pos + 1;
-    pos = ip_addr.find(":", old_pos);
+    pos = ip_addr.find(':', old_pos);
   }
   ipv6_address.push_back(decode_hex(ip_addr.substr(old_pos, upper_end - old_pos).c_str()));
 
   std::vector< uint16 > lower_ipv6_address;
   old_pos = upper_end + 2;
-  pos = ip_addr.find(":", old_pos);
+  pos = ip_addr.find(':', old_pos);
   while (pos != std::string::npos)
   {
     lower_ipv6_address.push_back(decode_hex(ip_addr.substr(old_pos, pos - old_pos).c_str()));
     old_pos = pos + 1;
-    pos = ip_addr.find(":", old_pos);
+    pos = ip_addr.find(':', old_pos);
   }
   lower_ipv6_address.push_back(decode_hex(ip_addr.substr(old_pos).c_str()));
 
@@ -348,18 +348,18 @@ std::vector< uint16 > parse_short_ipv6_address(std::string ip_addr)
 }
 
 
-std::vector< uint16 > parse_full_ipv6_address(std::string ip_addr)
+std::vector< uint16 > parse_full_ipv6_address(const std::string& ip_addr)
 {
   std::vector< uint16 > ipv6_address;
 
-  std::string::size_type pos = ip_addr.find(":");
+  std::string::size_type pos = ip_addr.find(':');
   std::string::size_type old_pos = 0;
 
   while (pos != std::string::npos)
   {
       ipv6_address.push_back(decode_hex(ip_addr.substr(old_pos, pos - old_pos).c_str()));
       old_pos = pos + 1;
-      pos = ip_addr.find(":", old_pos);
+      pos = ip_addr.find(':', old_pos);
   }
 
   ipv6_address.resize(8, 0);
@@ -374,7 +374,7 @@ uint32 probe_client_token()
   if (ip_addr == "")
     return 0;
 
-  if (ip_addr.find(".") != std::string::npos)
+  if (ip_addr.find('.') != std::string::npos)
     return parse_ipv4_address(ip_addr);
 
   std::vector< uint16 > ipv6_address = (ip_addr.find("::") == std::string::npos ?

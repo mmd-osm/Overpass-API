@@ -535,7 +535,7 @@ Osm_Updater::Osm_Updater(Osm_Backend_Callback* callback_, const std::string& dat
 }
 
 Osm_Updater::Osm_Updater
-    (Osm_Backend_Callback* callback_, std::string db_dir, const std::string& data_version_,
+    (Osm_Backend_Callback* callback_, const std::string& db_dir, const std::string& data_version_,
      meta_modes meta_, unsigned int flush_limit_, unsigned int parallel_processes_)
   : transaction(0), dispatcher_client(0), db_dir_(db_dir), meta(meta_),
     parallel_processes(parallel_processes_)

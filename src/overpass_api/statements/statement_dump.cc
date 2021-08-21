@@ -22,6 +22,7 @@
 
 #include <map>
 #include <string>
+#include <utility>
 #include <vector>
 
 
@@ -33,7 +34,7 @@ Statement_Dump::~Statement_Dump()
 }
 
 
-void Statement_Dump::add_statement(Statement_Dump* statement, std::string text)
+void Statement_Dump::add_statement(Statement_Dump* statement, const std::string& text)
 {
   substatements.push_back(statement);
 }
@@ -324,7 +325,7 @@ std::string Statement_Dump::dump_pretty_map_ql(Statement::Factory& stmt_factory)
 Statement_Dump* Statement_Dump::Factory::create_statement
     (std::string element, int line_number, const std::map< std::string, std::string >& attributes)
 {
-  return new Statement_Dump(element, attributes, line_number);
+  return new Statement_Dump(std::move(element), attributes, line_number);
 }
 
 

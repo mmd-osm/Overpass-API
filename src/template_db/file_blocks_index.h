@@ -131,7 +131,7 @@ public:
 
 template< class TIndex >
 std::vector< bool > get_data_index_footprint(const File_Properties& file_prop,
-					std::string db_dir);
+					const std::string& db_dir);
 
 /** Implementation File_Blocks_Index: ---------------------------------------*/
 
@@ -393,7 +393,7 @@ File_Blocks_Index< TIndex >::~File_Blocks_Index()
 
 template< class TIndex >
 std::vector< bool > get_data_index_footprint
-    (const File_Properties& file_prop, std::string db_dir)
+    (const File_Properties& file_prop, const std::string& db_dir)
 {
   File_Blocks_Index< TIndex > index(file_prop, false, false, db_dir, "");
 

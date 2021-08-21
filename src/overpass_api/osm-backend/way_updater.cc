@@ -20,6 +20,7 @@
 #include <functional>
 #include <map>
 #include <set>
+#include <utility>
 #include <vector>
 
 #include <sys/stat.h>
@@ -47,7 +48,7 @@ Way_Updater::Way_Updater(Transaction& transaction_, meta_modes meta_, unsigned i
 
 Way_Updater::Way_Updater(std::string db_dir_, meta_modes meta_, unsigned int parallel_processes_, bool initial_load_)
   : update_counter(0), transaction(0),
-    external_transaction(false), partial_possible(true), db_dir(db_dir_), meta(meta_),
+    external_transaction(false), partial_possible(true), db_dir(std::move(db_dir_)), meta(meta_),
     keys(*osm_base_settings().WAY_KEYS), parallel_processes(parallel_processes_),
     initial_load(initial_load_)
 {
@@ -1187,7 +1188,7 @@ void Way_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_stop
 }
 
 
-void Way_Updater::merge_files(const std::vector< std::string >& froms, std::string into)
+void Way_Updater::merge_files(const std::vector< std::string >& froms, const std::string& into)
 {
   Transaction_Collection from_transactions(false, false, db_dir, froms);
   Nonsynced_Transaction into_transaction(true, false, db_dir, into);

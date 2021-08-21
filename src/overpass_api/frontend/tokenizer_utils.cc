@@ -20,7 +20,7 @@
 
 
 std::string get_text_token(Tokenizer_Wrapper& token, Error_Output* error_output,
-		      std::string type_of_token)
+		      const std::string& type_of_token)
 {
   std::string result = "";
   bool result_valid = true;
@@ -70,7 +70,7 @@ std::string get_text_token(Tokenizer_Wrapper& token, Error_Output* error_output,
 
 
 std::string get_identifier_token(Tokenizer_Wrapper& token, Error_Output* error_output,
-		      std::string type_of_token)
+		      const std::string& type_of_token)
 {
   std::string result = "";
   bool result_valid = true;
@@ -107,7 +107,7 @@ void process_after(Tokenizer_Wrapper& token, Error_Output* error_output, bool af
 
 
 void clear_until_after(Tokenizer_Wrapper& token, Error_Output* error_output,
-		       std::string target_1, bool after)
+		       const std::string& target_1, bool after)
 {
   if (*token != target_1)
   {
@@ -123,7 +123,7 @@ void clear_until_after(Tokenizer_Wrapper& token, Error_Output* error_output,
 
 
 void clear_until_after(Tokenizer_Wrapper& token, Error_Output* error_output,
-		       std::string target_1, std::string target_2, bool after)
+		       const std::string& target_1, const std::string& target_2, bool after)
 {
   if (*token != target_1 && *token != target_2)
   {
@@ -140,7 +140,7 @@ void clear_until_after(Tokenizer_Wrapper& token, Error_Output* error_output,
 
 
 void clear_until_after(Tokenizer_Wrapper& token, Error_Output* error_output,
-		       std::string target_1, std::string target_2, std::string target_3, bool after)
+		       const std::string& target_1, const std::string& target_2, const std::string& target_3, bool after)
 {
   if (*token != target_1 && *token != target_2 && *token != target_3)
   {
@@ -157,7 +157,7 @@ void clear_until_after(Tokenizer_Wrapper& token, Error_Output* error_output,
 
 
 void clear_until_after(Tokenizer_Wrapper& token, Error_Output* error_output,
-		       std::string target_1, std::string target_2, std::string target_3, std::string target_4,
+		       const std::string& target_1, const std::string& target_2, const std::string& target_3, const std::string& target_4,
 		       bool after)
 {
   if (*token != target_1 && *token != target_2 && *token != target_3 && *token != target_4)
@@ -177,8 +177,8 @@ void clear_until_after(Tokenizer_Wrapper& token, Error_Output* error_output,
 
 
 void clear_until_after(Tokenizer_Wrapper& token, Error_Output* error_output,
-		       std::string target_1, std::string target_2, std::string target_3, std::string target_4,
-		       std::string target_5, bool after)
+		       const std::string& target_1, const std::string& target_2, const std::string& target_3, const std::string& target_4,
+		       const std::string& target_5, bool after)
 {
   if (*token != target_1 && *token != target_2 && *token != target_3
       && *token != target_4 && *token != target_5)

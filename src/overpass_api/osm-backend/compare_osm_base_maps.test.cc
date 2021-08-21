@@ -63,7 +63,7 @@ void clear_nodes_to_map(std::vector< std::pair< uint32, Uint32_Index > >& id_to_
   id_to_idx.clear();
 }
 
-void dump_nodes(std::string db_dir)
+void dump_nodes(const std::string& db_dir)
 {
   std::vector< std::pair< uint32, Uint32_Index > > id_to_idx;
 
@@ -109,7 +109,7 @@ void clear_ways_to_map(std::vector< std::pair< uint32, Uint31_Index > >& id_to_i
   id_to_idx.clear();
 }
 
-void dump_ways(std::string db_dir)
+void dump_ways(const std::string& db_dir)
 {
   std::vector< std::pair< uint32, Uint31_Index > > id_to_idx;
 
@@ -155,7 +155,7 @@ void clear_relations_to_map(std::vector< std::pair< uint32, Uint31_Index > >& id
   id_to_idx.clear();
 }
 
-void dump_relations(std::string db_dir)
+void dump_relations(const std::string& db_dir)
 {
   std::vector< std::pair< uint32, Uint31_Index > > id_to_idx;
 

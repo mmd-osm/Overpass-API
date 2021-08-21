@@ -22,6 +22,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "basic_types.h"
@@ -59,7 +60,7 @@ struct Tag_Index_Local
       : index(entry.index), key(entry.key), value(entry.value) {}
 
   Tag_Index_Local(Uint31_Index index_, std::string key_, std::string value_)
-      : index(index_.val() & 0x7fffff00), key(key_), value(value_) {}
+      : index(index_.val() & 0x7fffff00), key(std::move(key_)), value(std::move(value_)) {}
 
   Tag_Index_Local(const void* data)
   {

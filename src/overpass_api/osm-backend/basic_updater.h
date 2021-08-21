@@ -23,6 +23,7 @@
 #include <map>
 #include <mutex>
 #include <set>
+#include <utility>
 #include <vector>
 
 #include "../../template_db/block_backend.h"
@@ -49,7 +50,7 @@ struct Data_By_Id
         OSM_Element_Metadata_Skeleton< typename Element_Skeleton::Id_Type > meta_,
         Tag_Container tags_
             = Tag_Container())
-        : idx(idx_), elem(elem_), meta(meta_), tags(tags_) {}
+        : idx(idx_), elem(elem_), meta(meta_), tags(std::move(tags_)) {}
 
     Entry(Uint31_Index idx_, Element_Skeleton && elem_,
         Tag_Container && tags_,

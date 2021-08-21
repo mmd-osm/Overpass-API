@@ -30,7 +30,7 @@
 
 template< class TIndex >
 void clone_bin_file(const File_Properties& src_file_prop, const File_Properties& dest_file_prop,
-		    Transaction& transaction, std::string dest_db_dir, const Clone_Settings& clone_settings)
+		    Transaction& transaction, const std::string& dest_db_dir, const Clone_Settings& clone_settings)
 
 {
   try
@@ -86,7 +86,7 @@ void clone_bin_file(const File_Properties& src_file_prop, const File_Properties&
 
 
 template< typename Key, typename TIndex >
-void clone_map_file(const File_Properties& file_prop, Transaction& transaction, std::string dest_db_dir, Clone_Settings clone_settings)
+void clone_map_file(const File_Properties& file_prop, Transaction& transaction, const std::string& dest_db_dir, Clone_Settings clone_settings)
 {
   try
   {

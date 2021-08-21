@@ -69,12 +69,12 @@ class SProxy
     std::map< std::string, std::string > attributes;
 };
 
-void perform_print(Resource_Manager& rman, std::string from = "_")
+void perform_print(Resource_Manager& rman, const std::string& from = "_")
 {
   SProxy< Print_Statement >()("order", "id")("from", from).stmt().execute(rman);
 }
 
-void perform_query(std::string type, std::string key, std::string value, std::string db_dir)
+void perform_query(const std::string& type, const std::string& key, const std::string& value, const std::string& db_dir)
 {
   try
   {
@@ -125,8 +125,8 @@ void perform_query(std::string type, std::string key, std::string value, std::st
 }
 
 void perform_query
-    (std::string type, std::string key1, std::string value1, std::string key2, std::string value2,
-     std::string db_dir)
+    (const std::string& type, const std::string& key1, const std::string& value1, const std::string& key2, const std::string& value2,
+     const std::string& db_dir)
 {
   try
   {
@@ -209,8 +209,8 @@ void perform_query
 }
 
 void perform_query
-    (std::string type, std::string key1, std::string value1, std::string key2, std::string value2,
-     std::string key3, std::string value3, std::string db_dir)
+    (const std::string& type, const std::string& key1, const std::string& value1, const std::string& key2, const std::string& value2,
+     const std::string& key3, const std::string& value3, const std::string& db_dir)
 {
   try
   {
@@ -276,10 +276,10 @@ void perform_query
 }
 
 void perform_regex_query
-    (std::string type, std::string key, std::string value, std::string key2, std::string regex2, bool straight2,
-     std::string key3, std::string regex3, bool straight3,
-     std::string key4, std::string value4, bool straight4,
-     std::string key5, std::string value5, bool straight5, std::string db_dir)
+    (const std::string& type, const std::string& key, const std::string& value, const std::string& key2, const std::string& regex2, bool straight2,
+     const std::string& key3, const std::string& regex3, bool straight3,
+     const std::string& key4, const std::string& value4, bool straight4,
+     const std::string& key5, const std::string& value5, bool straight5, const std::string& db_dir)
 {
   try
   {
@@ -322,9 +322,9 @@ void perform_regex_query
 
 
 void perform_key_regex_query
-    (std::string type, std::string key, std::string value,
-     std::string key2, std::string regval2, bool straight2,
-     std::string key3, std::string regval3, bool straight3, std::string db_dir)
+    (const std::string& type, const std::string& key, const std::string& value,
+     const std::string& key2, const std::string& regval2, bool straight2,
+     const std::string& key3, const std::string& regval3, bool straight3, const std::string& db_dir)
 {
   try
   {
@@ -359,7 +359,7 @@ void perform_key_regex_query
 
 
 void perform_query_with_around
-    (std::string id_type, std::string type, std::string key1, std::string value1, std::string db_dir, uint pattern_size,
+    (const std::string& id_type, const std::string& type, const std::string& key1, const std::string& value1, const std::string& db_dir, uint pattern_size,
      uint64 global_node_offset, bool big_radius = false)
 {
   std::string radius = "200.1";
@@ -506,7 +506,7 @@ void perform_query_with_around
 
 
 void perform_query_with_around
-    (std::string type, std::string key1, std::string value1, std::string db_dir, uint pattern_size, bool big_radius = false)
+    (const std::string& type, const std::string& key1, const std::string& value1, const std::string& db_dir, uint pattern_size, bool big_radius = false)
 {
   std::string radius = "200.1";
   if (type == "way")
@@ -587,8 +587,8 @@ void perform_query_with_around
 
 
 void perform_query_with_bbox
-    (std::string type, std::string key1, std::string value1,
-     std::string south, std::string north, std::string west, std::string east, std::string db_dir)
+    (const std::string& type, const std::string& key1, const std::string& value1,
+     const std::string& south, const std::string& north, const std::string& west, const std::string& east, const std::string& db_dir)
 {
   try
   {
@@ -644,8 +644,8 @@ void perform_query_with_bbox
 
 
 void perform_filter_with_bbox
-    (std::string type, std::string key1, std::string value1,
-     std::string south, std::string north, std::string west, std::string east, std::string db_dir,
+    (const std::string& type, const std::string& key1, const std::string& value1,
+     const std::string& south, const std::string& north, const std::string& west, const std::string& east, const std::string& db_dir,
      uint32 max_allowed_time = 0, uint64 max_allowed_space = 0)
 {
   try
@@ -687,7 +687,7 @@ void perform_filter_with_bbox
 
 
 void perform_filter_with_key
-    (std::string type, std::string key1, std::string value1, std::string key2, std::string db_dir)
+    (const std::string& type, const std::string& key1, const std::string& value1, const std::string& key2, const std::string& db_dir)
 {
   try
   {
@@ -723,7 +723,7 @@ void perform_filter_with_key
 
 
 void perform_filter_from_previous_element
-    (std::string type, uint64 start_id, std::string key1, std::string key2, std::string from_set, std::string db_dir)
+    (const std::string& type, uint64 start_id, const std::string& key1, const std::string& key2, const std::string& from_set, const std::string& db_dir)
 {
   try
   {
@@ -814,9 +814,9 @@ void perform_filter_from_previous_element
 
 
 void perform_multi_query_with_bbox
-    (std::string type, std::string key1, std::string value1, std::string key2, std::string value2, std::string key3, std::string value3,
+    (const std::string& type, const std::string& key1, const std::string& value1, const std::string& key2, const std::string& value2, const std::string& key3, const std::string& value3,
      int regex, bool straight2,
-     double south, double north, double west, double east, std::string db_dir)
+     double south, double north, double west, double east, const std::string& db_dir)
 {
   try
   {
@@ -889,9 +889,9 @@ void perform_multi_query_with_bbox
 
 
 void perform_query_with_recurse
-    (std::string query_type, std::string recurse_type, std::string key1, std::string value1,
+    (const std::string& query_type, const std::string& recurse_type, const std::string& key1, const std::string& value1,
      double south, double north, double west, double east, bool double_recurse,
-     int pattern_size, uint64 global_node_offset, std::string db_dir)
+     int pattern_size, uint64 global_node_offset, const std::string& db_dir)
 {
   try
   {
@@ -998,8 +998,8 @@ void perform_query_with_recurse
 
 
 void perform_query_with_role_recurse
-    (std::string recurse_type, std::string role, std::string key1, std::string value1,
-     int pattern_size, uint64 global_node_offset, std::string db_dir)
+    (const std::string& recurse_type, const std::string& role, const std::string& key1, const std::string& value1,
+     int pattern_size, uint64 global_node_offset, const std::string& db_dir)
 {
   std::string query_type = "relation";
   if (recurse_type == "relation-node")
@@ -1064,9 +1064,9 @@ void perform_query_with_role_recurse
 
 
 void perform_query_with_id_query
-    (std::string query_type, std::string key1, std::string value1,
+    (const std::string& query_type, const std::string& key1, const std::string& value1,
      double south, double north, double west, double east, bool double_id_query,
-     int pattern_size, uint64 global_node_offset, std::string db_dir)
+     int pattern_size, uint64 global_node_offset, const std::string& db_dir)
 {
   try
   {
@@ -1116,7 +1116,7 @@ void perform_query_with_id_query
 
 
 void perform_query_with_two_ids_query(
-    std::string query_type, uint64 global_node_offset, std::string db_dir)
+    const std::string& query_type, uint64 global_node_offset, const std::string& db_dir)
 {
   try
   {

@@ -20,6 +20,7 @@
 #include <iostream>
 #include <map>
 #include <set>
+#include <utility>
 #include <vector>
 
 #include "../../template_db/block_backend.h"
@@ -38,7 +39,7 @@ Area_Updater::Area_Updater(Transaction& transaction_)
 
 Area_Updater::Area_Updater(std::string db_dir_)
   : transaction(0), external_transaction(false),
-    db_dir(db_dir_), total_area_blocks_count(0)
+    db_dir(std::move(db_dir_)), total_area_blocks_count(0)
 {}
 
 void Area_Updater::add_blocks

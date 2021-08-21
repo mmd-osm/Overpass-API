@@ -27,6 +27,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <utility>
 
 
 //-----------------------------------------------------------------------------
@@ -123,7 +124,7 @@ std::string ID_SUFFIX(".map");
 
 struct Test_File : File_Properties
 {
-  Test_File(std::string basename_) : basename(basename_), basedir(BASE_DIRECTORY) {}
+  Test_File(std::string basename_) : basename(std::move(basename_)), basedir(BASE_DIRECTORY) {}
 
   const std::string& get_basedir() const
   {

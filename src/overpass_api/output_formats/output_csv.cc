@@ -143,7 +143,7 @@ template< >
 void print_meta< int >(const std::string& keyfield,
     const int& meta, const std::map< uint32, std::string >* users) {}
 
-std::string get_count_tag(const std::vector< std::pair< std::string, std::string> >* tags, std::string tag)
+std::string get_count_tag(const std::vector< std::pair< std::string, std::string> >* tags, const std::string& tag)
 {
   if (tags)
     for (std::vector< std::pair< std::string, std::string> >::const_iterator it_tags = tags->begin();

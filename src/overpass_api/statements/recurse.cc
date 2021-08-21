@@ -2460,7 +2460,7 @@ Recurse_Statement::Recurse_Statement
     else
     {
       std::string::size_type startpos = 0;
-      std::string::size_type endpos = attributes["pos"].find(",");
+      std::string::size_type endpos = attributes["pos"].find(',');
       while (endpos != std::string::npos)
       {
         pos.push_back(atoll(&attributes["pos"][startpos]));
@@ -2470,7 +2470,7 @@ Recurse_Statement::Recurse_Statement
                   attributes["pos"].substr(startpos,endpos-startpos) : attributes["pos"].substr(startpos))
               + "' in positions list.");
         startpos = endpos + 1;
-        endpos = attributes["pos"].find(",", startpos);
+        endpos = attributes["pos"].find(',', startpos);
       }
       pos.push_back(atoll(&attributes["pos"][startpos]));
       if (pos.back() == 0)

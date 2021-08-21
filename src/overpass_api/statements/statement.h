@@ -21,6 +21,7 @@
 
 #include <map>
 #include <set>
+#include <utility>
 #include <vector>
 
 #include "../core/datatypes.h"
@@ -146,7 +147,7 @@ class Statement
 
       ~Factory();
 
-      Statement* create_statement(std::string element, int line_number,
+      Statement* create_statement(const std::string& element, int line_number,
           const std::map< std::string, std::string >& attributes);
       Statement* create_evaluator(
           const Token_Node_Ptr& tree_it, QL_Context tree_context, const Statement::Return_Type_Checker& eval_type);
@@ -222,8 +223,8 @@ class Statement
       error_output = error_output_;
     }
 
-    void runtime_error(std::string error) const;
-    void runtime_remark(std::string error) const;
+    void runtime_error(const std::string& error) const;
+    void runtime_remark(const std::string& error) const;
 
     const static int NODE = 1;
     const static int WAY = 2;
@@ -240,13 +241,13 @@ class Statement
 
   protected:
     void eval_attributes_array
-        (std::string element, std::map< std::string, std::string >& attributes,
+        (const std::string& element, std::map< std::string, std::string >& attributes,
 	 const std::map< std::string, std::string >& input);
-    void assure_no_text(std::string text, std::string name);
-    void substatement_error(std::string parent, Statement* child);
+    void assure_no_text(std::string text, const std::string& name);
+    void substatement_error(const std::string& parent, Statement* child);
 
-    void add_static_error(std::string error);
-    void add_static_remark(std::string remark);
+    void add_static_error(const std::string& error);
+    void add_static_remark(const std::string& remark);
 
     void set_progress(int progress_) { progress = progress_; }
 };
@@ -281,7 +282,7 @@ class Output_Statement : public Statement
     std::string dump_xml_result_name() const { return output != "_" ? std::string(" into=\"") + output + "\"" : ""; }
 
   protected:
-    void set_output(std::string output_) { output = output_; }
+    void set_output(std::string output_) { output = std::move(output_); }
 
     void transfer_output(Resource_Manager& rman, Set& into) const;
     void transfer_output(Resource_Manager& rman, Diff_Set& into) const;

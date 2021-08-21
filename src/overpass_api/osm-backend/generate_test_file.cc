@@ -3063,7 +3063,7 @@ private:
 };
 
 
-std::vector< std::pair< std::string, std::string > > collect_tags(std::string prefix, uint id)
+std::vector< std::pair< std::string, std::string > > collect_tags(const std::string& prefix, uint id)
 {
   std::vector< std::pair< std::string, std::string > > tags;
   if (id < 100)

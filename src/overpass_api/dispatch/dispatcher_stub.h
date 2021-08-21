@@ -53,7 +53,7 @@ class Dispatcher_Stub : public Watchdog_Callback
 		    meta_modes meta_, int area_level,
 		    uint32 max_allowed_time, uint64 max_allowed_space, Parsed_Query& global_settings_);
     
-    Dispatcher_Stub(std::string db_dir_, Error_Output* error_output_, std::string xml_raw,
+    Dispatcher_Stub(std::string db_dir_, Error_Output* error_output_, const std::string& xml_raw,
                     meta_modes meta_, int area_level,
                     uint32 max_allowed_time, uint64 max_allowed_space, Parsed_Query& global_settings_,
                     Index_Cache* ic);

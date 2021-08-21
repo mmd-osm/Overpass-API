@@ -24,6 +24,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <utility>
 
 
 std::map< std::string, Statement::Statement_Maker* >& Statement::maker_by_name()
@@ -54,7 +55,7 @@ std::map< std::string, std::vector< Statement::Evaluator_Maker* > >& Statement::
 }
 
 
-void Statement::eval_attributes_array(std::string element, std::map< std::string, std::string >& attributes,
+void Statement::eval_attributes_array(const std::string& element, std::map< std::string, std::string >& attributes,
 				      const std::map< std::string, std::string >& input)
 {
   for (std::map< std::string, std::string >::const_iterator it = input.begin(); it != input.end(); ++it)
@@ -71,7 +72,7 @@ void Statement::eval_attributes_array(std::string element, std::map< std::string
   }
 }
 
-void Statement::assure_no_text(std::string text, std::string name)
+void Statement::assure_no_text(std::string text, const std::string& name)
 {
   for (unsigned int i(0); i < text.size(); ++i)
   {
@@ -85,7 +86,7 @@ void Statement::assure_no_text(std::string text, std::string name)
   }
 }
 
-void Statement::substatement_error(std::string parent, Statement* child)
+void Statement::substatement_error(const std::string& parent, Statement* child)
 {
   std::ostringstream temp;
   temp<<"Element \""<<child->get_name()<<"\" cannot be subelement of element \""<<parent<<"\".";
@@ -94,13 +95,13 @@ void Statement::substatement_error(std::string parent, Statement* child)
 
 void Statement::add_statement(Statement* statement, std::string text)
 {
-  assure_no_text(text, this->get_name());
+  assure_no_text(std::move(text), this->get_name());
   substatement_error(get_name(), statement);
 }
 
 void Statement::add_final_text(std::string text)
 {
-  assure_no_text(text, this->get_name());
+  assure_no_text(std::move(text), this->get_name());
 }
 
 void Statement::display_full()
@@ -123,7 +124,7 @@ Statement::Factory::~Factory()
 
 
 Statement* Statement::Factory::create_statement
-    (std::string element, int line_number, const std::map< std::string, std::string >& attributes)
+    (const std::string& element, int line_number, const std::map< std::string, std::string >& attributes)
 {
   Statement* statement = 0;
 
@@ -343,28 +344,28 @@ Statement* Statement::Factory::create_criterion(const Token_Node_Ptr& tree_it,
 Error_Output* Statement::error_output = 0;
 
 
-void Statement::add_static_error(std::string error)
+void Statement::add_static_error(const std::string& error)
 {
   if (error_output)
     error_output->add_static_error(error, line_number);
 }
 
 
-void Statement::add_static_remark(std::string remark)
+void Statement::add_static_remark(const std::string& remark)
 {
   if (error_output)
     error_output->add_static_remark(remark, line_number);
 }
 
 
-void Statement::runtime_error(std::string error) const
+void Statement::runtime_error(const std::string& error) const
 {
   if (error_output)
     error_output->runtime_error(error);
 }
 
 
-void Statement::runtime_remark(std::string error) const
+void Statement::runtime_remark(const std::string& error) const
 {
   if (error_output)
     error_output->runtime_remark(error);

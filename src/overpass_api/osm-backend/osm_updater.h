@@ -35,7 +35,7 @@ class Osm_Updater
   public:
     Osm_Updater(Osm_Backend_Callback* callback_, const std::string& data_version,
 		meta_modes meta, unsigned int flush_limit, unsigned int parallel_processes);
-    Osm_Updater(Osm_Backend_Callback* callback_, std::string db_dir, const std::string& data_version,
+    Osm_Updater(Osm_Backend_Callback* callback_, const std::string& db_dir, const std::string& data_version,
 		meta_modes meta, unsigned int flush_limit, unsigned int parallel_processes);
     ~Osm_Updater();
 

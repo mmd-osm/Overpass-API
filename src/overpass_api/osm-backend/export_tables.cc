@@ -371,8 +371,8 @@ void export_bin(Transaction& transaction, const File_Properties* fp) {
   try {
     for (const auto & it : db.as_flat())
     {
-      Index idx_ = it.index();
-      Object obj_ = it.object();
+      const Index& idx_ = it.index();
+      const Object& obj_ = it.object();
 
       if (objcount >= 1000000) {
         if (!res.empty()) {

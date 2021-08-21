@@ -28,28 +28,28 @@
 
 
 std::string get_text_token(Tokenizer_Wrapper& token, Error_Output* error_output,
-		      std::string type_of_token);
+		      const std::string& type_of_token);
 std::string get_identifier_token(Tokenizer_Wrapper& token, Error_Output* error_output,
-		      std::string type_of_token);
+		      const std::string& type_of_token);
 
 void process_after(Tokenizer_Wrapper& token, Error_Output* error_output, bool after);
 
 void clear_until_after(Tokenizer_Wrapper& token, Error_Output* error_output,
-		       std::string target_1, bool after = true);
+		       const std::string& target_1, bool after = true);
 
 void clear_until_after(Tokenizer_Wrapper& token, Error_Output* error_output,
-		       std::string target_1, std::string target_2, bool after = true);
+		       const std::string& target_1, const std::string& target_2, bool after = true);
 
 void clear_until_after(Tokenizer_Wrapper& token, Error_Output* error_output,
-		       std::string target_1, std::string target_2, std::string target_3, bool after = true);
+		       const std::string& target_1, const std::string& target_2, const std::string& target_3, bool after = true);
 
 void clear_until_after(Tokenizer_Wrapper& token, Error_Output* error_output,
-		       std::string target_1, std::string target_2, std::string target_3, std::string target_4,
+		       const std::string& target_1, const std::string& target_2, const std::string& target_3, const std::string& target_4,
 		       bool after = true);
 
 void clear_until_after(Tokenizer_Wrapper& token, Error_Output* error_output,
-		       std::string target_1, std::string target_2, std::string target_3, std::string target_4,
-		       std::string target_5, bool after = true);
+		       const std::string& target_1, const std::string& target_2, const std::string& target_3, const std::string& target_4,
+		       const std::string& target_5, bool after = true);
 
 
 struct Token_Node

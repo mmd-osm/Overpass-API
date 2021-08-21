@@ -96,7 +96,7 @@ public:
 
 
 inline std::vector< bool > get_map_index_footprint
-    (const File_Properties& file_prop, std::string db_dir, bool use_shadow);
+    (const File_Properties& file_prop, const std::string& db_dir, bool use_shadow);
 
 
 /** Implementation Random_File_Index: ---------------------------------------*/
@@ -334,7 +334,7 @@ inline Random_File_Index::~Random_File_Index()
 
 
 inline std::vector< bool > get_map_index_footprint
-    (const File_Properties& file_prop, std::string db_dir, bool use_shadow = false)
+    (const File_Properties& file_prop, const std::string& db_dir, bool use_shadow = false)
 {
   Random_File_Index index(file_prop, false, use_shadow, db_dir, "");
 

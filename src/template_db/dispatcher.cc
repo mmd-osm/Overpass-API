@@ -509,10 +509,10 @@ void Global_Resource_Planner::purge(Connection_Per_Pid_Map& connection_per_pid)
 
 
 Dispatcher::Dispatcher
-    (std::string dispatcher_share_name_,
-     std::string index_share_name,
-     std::string shadow_name_,
-     std::string db_dir_,
+    (const std::string& dispatcher_share_name_,
+     const std::string& index_share_name,
+     const std::string& shadow_name_,
+     const std::string& db_dir_,
      uint max_num_reading_processes_, uint purge_timeout_,
      uint64 total_available_space_,
      uint64 total_available_time_units_,

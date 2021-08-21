@@ -149,8 +149,8 @@ void filter_ways_expensive(const Bbox_Filter& filter, const Way_Geometry_Store& 
 
 template< typename Relation_Skeleton >
 void filter_relations_expensive(const Bbox_Filter& filter,
-    const std::vector< std::pair< Uint32_Index, const Node_Skeleton* > > node_members_by_id,
-    const std::vector< std::pair< Uint31_Index, const Way_Skeleton* > > way_members_by_id,
+    const std::vector< std::pair< Uint32_Index, const Node_Skeleton* > >& node_members_by_id,
+    const std::vector< std::pair< Uint31_Index, const Way_Skeleton* > >& way_members_by_id,
     const Way_Geometry_Store& way_geometries,
     std::map< Uint31_Index, std::vector< Relation_Skeleton > >& relations)
 {

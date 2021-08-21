@@ -29,7 +29,7 @@
 
 
 
-void perform_polygon_print(std::string bounds, Transaction& transaction)
+void perform_polygon_print(const std::string& bounds, Transaction& transaction)
 {
   try
   {
@@ -59,7 +59,7 @@ void perform_polygon_print(std::string bounds, Transaction& transaction)
 }
 
 
-void perform_query_polygon_print(std::string bounds, std::string type, Transaction& transaction)
+void perform_query_polygon_print(const std::string& bounds, const std::string& type, Transaction& transaction)
 {
   try
   {

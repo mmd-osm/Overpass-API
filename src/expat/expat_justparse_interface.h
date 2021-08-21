@@ -20,6 +20,7 @@
 #define DE__OSM3S___EXPAT__EXPAT_JUSTPARSE_INTERFACE_H
 
 #include <string>
+#include <utility>
 
 #include <string.h>
 #include <stdio.h>
@@ -43,7 +44,7 @@ typedef unsigned int uint;
 
 struct Parse_Error
 {
-  Parse_Error(std::string s) : message(s) {}
+  Parse_Error(std::string s) : message(std::move(s)) {}
   std::string message;
 };
 

@@ -73,7 +73,7 @@ struct Accept_All : public Accept_All_Tags
   bool admit_relation_tags(uint id) const override { return true; }
 };
 
-std::vector< std::pair< std::string, std::string > > collect_tags(std::string prefix, uint id)
+std::vector< std::pair< std::string, std::string > > collect_tags(const std::string& prefix, uint id)
 {
   std::vector< std::pair< std::string, std::string > > tags;
   if (id < 100)
