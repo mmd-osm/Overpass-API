@@ -183,7 +183,7 @@ struct Uint31_Index_Handle_Methods;
 
 struct Uint31_Index : Uint32_Index
 {
-  Uint31_Index() noexcept : Uint32_Index() {}
+  Uint31_Index() noexcept {}
   Uint31_Index(uint32 i) noexcept : Uint32_Index(i) {}
   Uint31_Index(void* data) noexcept : Uint32_Index(*(uint32*)data) {}
 

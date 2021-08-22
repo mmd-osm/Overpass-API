@@ -61,7 +61,7 @@ struct Node : public Node_Base
 {
   std::vector< std::pair< std::string, std::string > > tags;
 
-  Node() noexcept : Node_Base() {}
+  Node() noexcept {}
 
   Node(Id_Type id_, double lat, double lon) noexcept : Node_Base(id_, lat, lon) {}
 

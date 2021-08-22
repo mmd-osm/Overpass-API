@@ -47,7 +47,7 @@ struct String_Object
 
   String_Object(std::string s) : value(std::move(s)) {}
 
-  String_Object(void* data) : value()
+  String_Object(void* data)
   {
     value = std::string(((int8*)data + 2), *(uint16*)data);
   }
