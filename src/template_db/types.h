@@ -134,6 +134,7 @@ class Raw_File
 
 
 /** Simple RAII class to keep a pointer to some memory on the heap. */
+/*
 template < class T >
 class Void_Pointer
 {
@@ -160,7 +161,7 @@ public:
 
   T* ptr;
 };
-
+*/
 
 
 /** Simple RAII class to keep a pointer to some memory on the heap. Enforces 64 bit alignment. */

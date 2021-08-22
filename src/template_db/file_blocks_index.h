@@ -71,7 +71,7 @@ public:
 
   std::list< File_Block_Index_Entry< TIndex > >& get_block_list()
   {
-    if (index_buf.ptr)
+    if (!index_buf.empty())
       init_blocks();
     if (block_list.empty() && !block_array.empty())
       block_list.assign(block_array.begin(), block_array.end());
@@ -79,7 +79,7 @@ public:
   }
   const std::vector< File_Block_Index_Entry< TIndex > >& get_blocks()
   {
-    if (index_buf.ptr)
+    if (!index_buf.empty())
       init_blocks();
     if (block_array.empty() && !block_list.empty())
       block_array.assign(block_list.begin(), block_list.end());
@@ -108,7 +108,7 @@ private:
   std::string empty_index_file_name;
   std::string data_file_name;
   std::string file_name_extension_;
-  Void_Pointer< uint8 > index_buf;
+  std::vector< uint8 > index_buf;
   uint64 file_size;
   uint32 index_size;
   std::vector< File_Block_Index_Entry< TIndex > > block_array;
@@ -177,7 +177,7 @@ File_Blocks_Index< TIndex >::File_Blocks_Index
     // read index file
     index_size = source_file.size("File_Blocks_Index::File_Blocks_Index::4");
     index_buf.resize(index_size);
-    source_file.read(index_buf.ptr, index_size, "File_Blocks_Index::File_Blocks_Index::5");
+    source_file.read(index_buf.data(), index_size, "File_Blocks_Index::File_Blocks_Index::5");
   }
   catch (File_Error e)
   {
@@ -196,19 +196,19 @@ File_Blocks_Index< TIndex >::File_Blocks_Index
 template< class TIndex >
 void File_Blocks_Index< TIndex >::init_structure_params()
 {
-  if (index_buf.ptr)
+  if (!index_buf.empty())
   {
     if (file_name_extension_ != ".legacy")
     {
-      if (*(int32*)index_buf.ptr != FILE_FORMAT_VERSION)
+      if (*(int32*)index_buf.data() != FILE_FORMAT_VERSION)
 	throw File_Error(0, index_file_name, "File_Blocks_Index: Unsupported index file format version");
-      block_size_ = 1ull<<*(uint8*)(index_buf.ptr + 4);
+      block_size_ = 1ull<<*(uint8*)(index_buf.data() + 4);
       if (!block_size_)
         throw File_Error(0, index_file_name, "File_Blocks_Index: Illegal block size");
-      compression_factor = 1u<<*(uint8*)(index_buf.ptr + 5);
+      compression_factor = 1u<<*(uint8*)(index_buf.data() + 5);
       if (!compression_factor || compression_factor > block_size_)
         throw File_Error(0, index_file_name, "File_Blocks_Index: Illegal compression factor");
-      compression_method = *(uint16*)(index_buf.ptr + 6);
+      compression_method = *(uint16*)(index_buf.data() + 6);
     }
     if (file_size % block_size_)
       throw File_Error(0, index_file_name, "File_Blocks_Index: Data file size does not match block size");
@@ -220,7 +220,7 @@ void File_Blocks_Index< TIndex >::init_structure_params()
 template< class TIndex >
 void File_Blocks_Index< TIndex >::init_blocks()
 {
-  if (index_buf.ptr)
+  if (!index_buf.empty())
   {
     if (file_name_extension_ == ".legacy")
       // We support this way the old format although it has no version marker.
@@ -228,19 +228,19 @@ void File_Blocks_Index< TIndex >::init_blocks()
       uint32 pos = 0;
       while (pos < index_size)
       {
-        TIndex index(index_buf.ptr+pos);
+        TIndex index(index_buf.data() + pos);
         File_Block_Index_Entry< TIndex >
             entry(index,
-	    *(uint32*)(index_buf.ptr + (pos + TIndex::size_of(index_buf.ptr+pos))),
+	    *(uint32*)(index_buf.data() + (pos + TIndex::size_of(index_buf.data() + pos))),
 	    1, //block size is always 1 in the legacy format
-	    *(uint32*)(index_buf.ptr + (pos + TIndex::size_of(index_buf.ptr+pos) + 4)));
+	    *(uint32*)(index_buf.data() + (pos + TIndex::size_of(index_buf.data() + pos) + 4)));
         if (writeable())
           block_list.push_back(entry);
         else
           block_array.push_back(entry);
         if (entry.pos >= block_count)
 	  throw File_Error(0, index_file_name, "File_Blocks_Index: bad pos in index file");
-        pos += TIndex::size_of(index_buf.ptr+pos) + 8;
+        pos += TIndex::size_of(index_buf.data() + pos) + 8;
       }
     }
     else if (index_size > 0)
@@ -248,12 +248,12 @@ void File_Blocks_Index< TIndex >::init_blocks()
       uint32 pos = 8;
       while (pos < index_size)
       {
-        TIndex index(index_buf.ptr + pos + 12);
+        TIndex index(index_buf.data() + pos + 12);
         File_Block_Index_Entry< TIndex >
             entry(index,
-	    *(uint32*)(index_buf.ptr + pos),
-	    *(uint32*)(index_buf.ptr + pos + 4),
-	    *(uint32*)(index_buf.ptr + pos + 8));
+	    *(uint32*)(index_buf.data() + pos),
+	    *(uint32*)(index_buf.data() + pos + 4),
+	    *(uint32*)(index_buf.data() + pos + 8));
         if (writeable())
           block_list.push_back(entry);
         else
@@ -263,7 +263,7 @@ void File_Blocks_Index< TIndex >::init_blocks()
         if (entry.pos + entry.size > block_count)
           throw File_Error(0, index_file_name, "File_Blocks_Index: bad size in index file");
         pos += 12;
-        pos += TIndex::size_of(index_buf.ptr + pos);
+        pos += TIndex::size_of(index_buf.data() + pos);
       }
     }
 
@@ -275,7 +275,7 @@ void File_Blocks_Index< TIndex >::init_blocks()
 template< class TIndex >
 void File_Blocks_Index< TIndex >::init_void_blocks()
 {
-  if (index_buf.ptr)
+  if (!index_buf.empty())
     init_blocks();
 
   bool empty_index_file_used = false;
@@ -285,11 +285,11 @@ void File_Blocks_Index< TIndex >::init_void_blocks()
     {
       Raw_File void_blocks_file(empty_index_file_name, O_RDONLY, S_666, "");
       uint32 void_index_size = void_blocks_file.size("File_Blocks_Index::File_Blocks_Index::6");
-      Void_Pointer< uint8 > index_buf(void_index_size);
-      void_blocks_file.read(index_buf.ptr, void_index_size,
+      std::vector< uint8 > index_buf(void_index_size);
+      void_blocks_file.read(index_buf.data(), void_index_size,
 			      "File_Blocks_Index::File_Blocks_Index::7");
       for (uint32 i = 0; i < void_index_size/8; ++i)
-        void_blocks.push_back(*(std::pair< uint32, uint32 >*)(index_buf.ptr + 8*i));
+        void_blocks.push_back(*(std::pair< uint32, uint32 >*)(index_buf.data() + 8*i));
       empty_index_file_used = true;
     }
     catch (File_Error e) {}
@@ -345,23 +345,23 @@ File_Blocks_Index< TIndex >::~File_Blocks_Index()
       it(block_list.begin()); it != block_list.end(); ++it)
     index_size += 12 + it->index.size_of();
 
-  Void_Pointer< uint8 > index_buf(index_size);
+  std::vector< uint8 > index_buf(index_size);
 
-  *(uint32*)index_buf.ptr = FILE_FORMAT_VERSION;
-  *(uint8*)(index_buf.ptr + 4) = shift_log(block_size_);
-  *(uint8*)(index_buf.ptr + 5) = shift_log(compression_factor);
-  *(uint16*)(index_buf.ptr + 6) = compression_method;
+  *(uint32*)index_buf.data() = FILE_FORMAT_VERSION;
+  *(uint8*)(index_buf.data() + 4) = shift_log(block_size_);
+  *(uint8*)(index_buf.data() + 5) = shift_log(compression_factor);
+  *(uint16*)(index_buf.data() + 6) = compression_method;
 
   for (typename std::list< File_Block_Index_Entry< TIndex > >::const_iterator
       it(block_list.begin()); it != block_list.end(); ++it)
   {
-    *(uint32*)(index_buf.ptr+pos) = it->pos;
+    *(uint32*)(index_buf.data()+pos) = it->pos;
     pos += 4;
-    *(uint32*)(index_buf.ptr+pos) = it->size;
+    *(uint32*)(index_buf.data()+pos) = it->size;
     pos += 4;
-    *(uint32*)(index_buf.ptr+pos) = it->max_keysize;
+    *(uint32*)(index_buf.data()+pos) = it->max_keysize;
     pos += 4;
-    it->index.to_data(index_buf.ptr+pos);
+    it->index.to_data(index_buf.data()+pos);
     pos += it->index.size_of();
   }
 
@@ -370,11 +370,11 @@ File_Blocks_Index< TIndex >::~File_Blocks_Index()
 
   if (index_size < dest_file.size("File_Blocks_Index::~File_Blocks_Index::2"))
     dest_file.resize(index_size, "File_Blocks_Index::~File_Blocks_Index::3");
-  dest_file.write(index_buf.ptr, index_size, "File_Blocks_Index::~File_Blocks_Index::4");
+  dest_file.write(index_buf.data(), index_size, "File_Blocks_Index::~File_Blocks_Index::4");
 
   // Write void blocks
-  Void_Pointer< uint8 > void_index_buf(void_blocks.size() * 8);
-  std::pair< uint32, uint32 >* it_ptr = (std::pair< uint32, uint32 >*)(void_index_buf.ptr);
+  std::vector< uint8 > void_index_buf(void_blocks.size() * 8);
+  std::pair< uint32, uint32 >* it_ptr = (std::pair< uint32, uint32 >*)(void_index_buf.data());
   for (std::vector< std::pair< uint32, uint32 > >::const_iterator it(void_blocks.begin());
       it != void_blocks.end(); ++it)
     *(it_ptr++) = *it;
@@ -383,7 +383,7 @@ File_Blocks_Index< TIndex >::~File_Blocks_Index()
   {
     Raw_File void_file(empty_index_file_name, O_RDWR|O_TRUNC, S_666,
 		       "File_Blocks_Index::~File_Blocks_Index::5");
-    void_file.write(void_index_buf.ptr, void_blocks.size()*sizeof(uint32),
+    void_file.write(void_index_buf.data(), void_blocks.size()*sizeof(uint32),
 		    "File_Blocks_Index::~File_Blocks_Index::6");
   }
   catch (File_Error e) {}

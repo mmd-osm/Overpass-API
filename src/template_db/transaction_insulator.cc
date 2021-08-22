@@ -233,11 +233,19 @@ std::set< pid_t > Transaction_Insulator::registered_pids() const
   return registered;
 }
 
+namespace {
 
-void write_to_index_empty_file_data(const std::vector< bool >& footprint, const std::string& filename)
+// Calculate space efficient format for "false" entries in footprint
+//
+// see get_data_index_footprint:
+// - start with footprint set to true
+// - for each entry in the footprint vector, set "pair.first" elements to false, starting at offset "pair.second"
+
+std::vector< std::pair< uint32, uint32 > > condense_footprint(
+    const std::vector< bool > &footprint)
 {
-  Void_Pointer< std::pair< uint32, uint32 > > buffer(footprint.size() * 8);
-  std::pair< uint32, uint32 >* pos = buffer.ptr;
+  std::vector< std::pair< uint32, uint32 > > buffer;
+  buffer.reserve(footprint.size());
   uint32 last_start = 0;
   for (uint32 i = 0; i < footprint.size(); ++i)
   {
@@ -245,52 +253,38 @@ void write_to_index_empty_file_data(const std::vector< bool >& footprint, const 
     {
       if (last_start < i)
       {
-	*pos = std::make_pair(i - last_start, last_start);
-	++pos;
+        buffer.emplace_back(i - last_start, last_start);
       }
-      last_start = i+1;
+      last_start = i + 1;
     }
   }
   if (last_start < footprint.size())
   {
-    *pos = std::make_pair(footprint.size() - last_start, last_start);
-    ++pos;
+    buffer.emplace_back(footprint.size() - last_start, last_start);
   }
+  return buffer;
+}
+
+void write_to_index_empty_file_data(const std::vector< bool >& footprint, const std::string& filename)
+{
+  auto buffer = condense_footprint(footprint);
 
   Raw_File file(filename, O_RDWR|O_CREAT|O_TRUNC,
 		S_666, "write_to_index_empty_file_data:1");
-  file.write((uint8*)buffer.ptr, ((uint8*)pos) - ((uint8*)buffer.ptr), "Dispatcher:26");
+  file.write((uint8*)buffer.data(), buffer.size() * 8, "Dispatcher:26");
 }
 
 
 void write_to_index_empty_file_ids(const std::vector< bool >& footprint, const std::string& filename)
 {
-  Void_Pointer< std::pair< uint32, uint32 > > buffer(footprint.size() * 8);
-  std::pair< uint32, uint32 >* pos = buffer.ptr;
-  uint32 last_start = 0;
-  for (uint32 i = 0; i < footprint.size(); ++i)
-  {
-    if (footprint[i])
-    {
-      if (last_start < i)
-      {
-	*pos = std::make_pair(i - last_start, last_start);
-	++pos;
-      }
-      last_start = i+1;
-    }
-  }
-  if (last_start < footprint.size())
-  {
-    *pos = std::make_pair(footprint.size() - last_start, last_start);
-    ++pos;
-  }
+  auto buffer = condense_footprint(footprint);
 
   Raw_File file(filename, O_RDWR|O_CREAT|O_TRUNC,
 		S_666, "write_to_index_empty_file_ids:1");
-  file.write((uint8*)buffer.ptr, ((uint8*)pos) - ((uint8*)buffer.ptr), "Dispatcher:36");
+  file.write((uint8*)buffer.data(), buffer.size() * 8, "Dispatcher:36");
 }
 
+}
 
 void Transaction_Insulator::write_index_of_empty_blocks()
 {

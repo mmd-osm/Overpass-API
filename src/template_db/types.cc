@@ -33,11 +33,11 @@ void copy_file(const std::string& source, const std::string& dest)
   Raw_File dest_file(dest, O_RDWR|O_CREAT, S_666, "Dispatcher:3");
   dest_file.resize(size, "Dispatcher:4");
 
-  Void_Pointer< uint8 > buf(64*1024);
+  std::vector< uint8 > buf(64*1024);
   while (size > 0)
   {
-    size = read(source_file.fd(), buf.ptr, 64*1024);
-    dest_file.write(buf.ptr, size, "Dispatcher:5");
+    size = read(source_file.fd(), buf.data(), 64*1024);
+    dest_file.write(buf.data(), size, "Dispatcher:5");
   }
 }
 
