@@ -199,7 +199,7 @@ void Block_Backend_Updater< TIndex, TObject, TIterator >::calc_split_idxs
 
   // calc minimal splitting points
   uint64 cur_size(0), sum_size(0);
-  if (sizes.size() > 0)
+  if (!sizes.empty())
     cur_size = sizes[sizes.size() - 1];
   for (int i(sizes.size()-2); i >= 0; --i)
   {
@@ -214,9 +214,9 @@ void Block_Backend_Updater< TIndex, TObject, TIterator >::calc_split_idxs
   std::vector< uint64 > oversize_splits;
   // find oversized blocks and force splits there
   sum_size = 0;
-  if (sizes.size() > 0)
+  if (!sizes.empty())
     sum_size = sizes[0];
-  bool split_after((sizes.size() > 0) && (sizes[0] > block_size - 4));
+  bool split_after((!sizes.empty()) && (sizes[0] > block_size - 4));
   for (uint i(1); i < sizes.size(); ++i)
   {
     if (sizes[i] > block_size - 4)

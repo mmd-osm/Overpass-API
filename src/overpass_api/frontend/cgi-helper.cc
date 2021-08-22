@@ -128,7 +128,7 @@ std::map< std::string, std::string > decode_cgi_to_plain(const std::string& raw)
   }
   while (pos < raw.size());
 
-  if (result["data"] == "")
+  if (result["data"].empty())
     result["data"] = raw;
 
   return result;

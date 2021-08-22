@@ -422,7 +422,7 @@ void new_current_tagged_skeletons
       continue;
 
     // ignore entries without tags
-    if (it->tags.size() == 0)
+    if (it->tags.empty())
       continue;
 
     const Uint31_Index* idx = binary_pair_search(existing_map_positions, it->elem.id);

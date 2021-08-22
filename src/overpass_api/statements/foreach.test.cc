@@ -105,7 +105,7 @@ int main(int argc, char* args[])
 
   try
   {
-    if ((test_to_execute == "") || (test_to_execute == "1"))
+    if ((test_to_execute.empty()) || (test_to_execute == "1"))
     {
       Nonsynced_Transaction transaction(false, false, args[3], "");
       Resource_Manager rman(transaction, &global_settings);
@@ -115,7 +115,7 @@ int main(int argc, char* args[])
       stmt_cont.add_stmt(new Print_Statement(0, Attr().kvs(), global_settings), &stmt);
       stmt.execute(rman);
     }
-    if ((test_to_execute == "") || (test_to_execute == "2"))
+    if ((test_to_execute.empty()) || (test_to_execute == "2"))
     {
       Nonsynced_Transaction transaction(false, false, args[3], "");
       Resource_Manager rman(transaction, &global_settings);
@@ -124,7 +124,7 @@ int main(int argc, char* args[])
       Foreach_Statement(0, Attr().kvs(), global_settings).execute(rman);
       Print_Statement(0, Attr().kvs(), global_settings).execute(rman);
     }
-    if ((test_to_execute == "") || (test_to_execute == "3"))
+    if ((test_to_execute.empty()) || (test_to_execute == "3"))
     {
       Nonsynced_Transaction transaction(false, false, args[3], "");
       Resource_Manager rman(transaction, &global_settings);
@@ -134,7 +134,7 @@ int main(int argc, char* args[])
       stmt_cont.add_stmt(new Print_Statement(0, Attr()("from", "B").kvs(), global_settings), &stmt);
       stmt.execute(rman);
     }
-    if ((test_to_execute == "") || (test_to_execute == "4"))
+    if ((test_to_execute.empty()) || (test_to_execute == "4"))
     {
       Nonsynced_Transaction transaction(false, false, args[3], "");
       Resource_Manager rman(transaction, &global_settings);

@@ -59,7 +59,7 @@ Timeline_Statement::Timeline_Statement
 
   version = atoll(attributes["version"].c_str());
 
-  if (version == 0 && attributes["version"] != "")
+  if (version == 0 && !attributes["version"].empty())
     add_static_error("For the attribute \"version\" of the element \"timeline\""
         " the only allowed values are positive integers.");
 }

@@ -93,7 +93,7 @@ bool Print_Control::print_allowed(uint id, int variant) const
     }
   }
 
-  if (timestamp != "")
+  if (!timestamp.empty())
   {
     std::ostringstream buf;
     buf<<"20"<<std::setw(2)<<std::setfill('0')<<(variant % 10)
@@ -126,7 +126,7 @@ void create_node(uint id, double lat, double lon,
   if (more_tags && id % 100 == 0)
     tags += "    <tag k=\"@id\" v=\"some_value\"/>\n";
 
-  if (tags == "")
+  if (tags.empty())
     std::cout<<"/>\n";
   else
     std::cout<<">\n"<<tags<<"  </node>\n";

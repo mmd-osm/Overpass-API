@@ -150,13 +150,13 @@ int main(int argc, char* args[])
   "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
   "<osm>\n";
 
-  if ((test_to_execute == "") || (test_to_execute == "1"))
+  if ((test_to_execute.empty()) || (test_to_execute == "1"))
     perform_around_print(pattern_size, "20.01", global_node_offset, transaction);
-  if ((test_to_execute == "") || (test_to_execute == "2"))
+  if ((test_to_execute.empty()) || (test_to_execute == "2"))
     perform_around_print(pattern_size, "200.1", global_node_offset, transaction);
-  if ((test_to_execute == "") || (test_to_execute == "3"))
+  if ((test_to_execute.empty()) || (test_to_execute == "3"))
     perform_around_print(pattern_size, "2001", global_node_offset, transaction);
-  if ((test_to_execute == "") || (test_to_execute == "4"))
+  if ((test_to_execute.empty()) || (test_to_execute == "4"))
   {
     Resource_Manager rman(transaction, &global_settings);
     Id_Query_Statement(0, Attr()("type", "node")("into", "foo")("ref", to_string(
@@ -164,7 +164,7 @@ int main(int argc, char* args[])
     Around_Statement(0, Attr()("radius", "200.1")("from", "foo").kvs(), global_settings).execute(rman);
     Print_Statement(0, Attr()("order", "id").kvs(), global_settings).execute(rman);
   }
-  if ((test_to_execute == "") || (test_to_execute == "5"))
+  if ((test_to_execute.empty()) || (test_to_execute == "5"))
   {
     Resource_Manager rman(transaction, &global_settings);
     Id_Query_Statement(0, Attr()("type", "node")("ref", to_string(
@@ -172,7 +172,7 @@ int main(int argc, char* args[])
     Around_Statement(0, Attr()("radius", "200.1")("into", "foo").kvs(), global_settings).execute(rman);
     Print_Statement(0, Attr()("order", "id")("from", "foo").kvs(), global_settings).execute(rman);
   }
-  if ((test_to_execute == "") || (test_to_execute == "6"))
+  if ((test_to_execute.empty()) || (test_to_execute == "6"))
   {
     Resource_Manager rman(transaction, &global_settings);
     Statement_Container stmt_cont(global_settings);
@@ -188,33 +188,33 @@ int main(int argc, char* args[])
     Print_Statement(0, Attr()("order", "id").kvs(), global_settings).execute(rman);
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "7"))
+  if ((test_to_execute.empty()) || (test_to_execute == "7"))
     perform_coord_print(pattern_size, "20.01", global_node_offset, transaction);
-  if ((test_to_execute == "") || (test_to_execute == "8"))
+  if ((test_to_execute.empty()) || (test_to_execute == "8"))
     perform_coord_print(pattern_size, "200.1", global_node_offset, transaction);
-  if ((test_to_execute == "") || (test_to_execute == "9"))
+  if ((test_to_execute.empty()) || (test_to_execute == "9"))
     perform_coord_print(pattern_size, "2001", global_node_offset, transaction);
-  if ((test_to_execute == "") || (test_to_execute == "10"))
+  if ((test_to_execute.empty()) || (test_to_execute == "10"))
     perform_polyline_print(pattern_size, "51.1,6.9,50.9,7.1", global_node_offset, transaction);
-  if ((test_to_execute == "") || (test_to_execute == "11"))
+  if ((test_to_execute.empty()) || (test_to_execute == "11"))
     perform_polyline_print(pattern_size, "51.,7.,50.9,6.9", global_node_offset, transaction);
-  if ((test_to_execute == "") || (test_to_execute == "12"))
+  if ((test_to_execute.empty()) || (test_to_execute == "12"))
     perform_polyline_print(pattern_size, "50.95,6.9,51.,7.,50.9,6.95", global_node_offset, transaction);
-  if ((test_to_execute == "") || (test_to_execute == "13"))
+  if ((test_to_execute.empty()) || (test_to_execute == "13"))
     perform_polyline_print(pattern_size, "50.9,6.9,51.,7.", global_node_offset, transaction);
-  if ((test_to_execute == "") || (test_to_execute == "14"))
+  if ((test_to_execute.empty()) || (test_to_execute == "14"))
     perform_polyline_print(pattern_size, "51.1,6.9,50.9,7.1,50.8,7.1,50.7,7.05", global_node_offset, transaction);
-  if ((test_to_execute == "") || (test_to_execute == "15"))
+  if ((test_to_execute.empty()) || (test_to_execute == "15"))
     perform_polyline_print(pattern_size, "51.1,6.8,51.1,6.9,50.9,7.1,50.8,7.1", global_node_offset, transaction);
-  if ((test_to_execute == "") || (test_to_execute == "16"))
+  if ((test_to_execute.empty()) || (test_to_execute == "16"))
     perform_polyline_print(pattern_size, "51.05,6.7,51.1,6.8,51.1,6.9,50.9,7.1", global_node_offset, transaction);
-  if ((test_to_execute == "") || (test_to_execute == "17"))
+  if ((test_to_execute.empty()) || (test_to_execute == "17"))
     perform_polyline_in_query_print(pattern_size, to_string(200000./pattern_size), "way", "51.1,6.9,50.9,7.1",
         global_node_offset, transaction);
-  if ((test_to_execute == "") || (test_to_execute == "18"))
+  if ((test_to_execute.empty()) || (test_to_execute == "18"))
     perform_polyline_in_query_print(pattern_size, to_string(200000./pattern_size), "relation", "51.1,6.9,50.9,7.1",
         global_node_offset, transaction);
-  if ((test_to_execute == "") || (test_to_execute == "19"))
+  if ((test_to_execute.empty()) || (test_to_execute == "19"))
     perform_polyline_in_query_print(pattern_size, "0.", "way",
         to_string(51.+1./pattern_size) + "," + to_string(7.+1./pattern_size) + ","
         + to_string(51.+2./pattern_size) + "," + to_string(7.+1./pattern_size),

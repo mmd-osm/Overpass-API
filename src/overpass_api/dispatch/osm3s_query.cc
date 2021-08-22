@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
     if (!(strncmp(argv[argpos], "--db-dir=", 9)))
     {
       db_dir = ((std::string)argv[argpos]).substr(9);
-      if ((db_dir.size() > 0) && (db_dir[db_dir.size()-1] != '/'))
+      if ((!db_dir.empty()) && (db_dir[db_dir.size()-1] != '/'))
 	db_dir += '/';
     }
     else if (!(strcmp(argv[argpos], "--quiet")))
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
     else if (!(strncmp(argv[argpos], "--clone=", 8)))
     {
       clone_db_dir = ((std::string)argv[argpos]).substr(8);
-      if ((clone_db_dir.size() > 0) && (clone_db_dir[clone_db_dir.size()-1] != '/'))
+      if ((!clone_db_dir.empty()) && (clone_db_dir[clone_db_dir.size()-1] != '/'))
 	clone_db_dir += '/';
     }
     else if (!(strncmp(argv[argpos], "--request=", 10)))
@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
   try
   {
     Parsed_Query global_settings;
-    if (clone_db_dir != "")
+    if (!clone_db_dir.empty())
     {
       // open read transaction and log this.
       area_level = determine_area_level(error_output, area_level);

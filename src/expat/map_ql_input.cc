@@ -290,7 +290,7 @@ class Tokenizer
 
   public:
     Tokenizer(In& in_);
-    bool good() { return (buffer != "" || in.good()); }
+    bool good() { return (!buffer.empty() || in.good()); }
     void get(std::string& s);
 
     // The line and the column of the next token to read.
@@ -384,7 +384,7 @@ void pop_front(std::string& s, std::string& buffer, unsigned int num_bytes)
 template< class In >
 inline void Tokenizer< In >::get(std::string& s)
 {
-  if (buffer == "")
+  if (buffer.empty())
     return;
 
   if (isalpha(buffer[0]) || buffer[0] == '_')

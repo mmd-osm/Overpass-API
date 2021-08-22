@@ -41,7 +41,7 @@ Convert_Statement::Convert_Statement
 
   input = attributes["from"];
 
-  if (attributes["type"] == "")
+  if (attributes["type"].empty())
     add_static_error("The attribute type must be set to a nonempty string.");
   type = attributes["type"];
 }

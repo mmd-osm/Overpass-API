@@ -213,7 +213,7 @@ int main(int argc, char* args[])
   if (argc > 1)
     test_to_execute = args[1];
 
-  if ((test_to_execute == "") || (test_to_execute == "1"))
+  if ((test_to_execute.empty()) || (test_to_execute == "1"))
     std::cout<<"** Test the behaviour for an empty file\n";
   int data_fd = open64
       ((BASE_DIRECTORY + Test_File().get_file_name_trunk() + Test_File().get_id_suffix()).c_str(),
@@ -224,10 +224,10 @@ int main(int argc, char* args[])
           + Test_File().get_index_suffix()).c_str(),
        O_WRONLY|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
   close(index_fd);
-  if ((test_to_execute == "") || (test_to_execute == "1"))
+  if ((test_to_execute.empty()) || (test_to_execute == "1"))
     read_test();
 
-  if ((test_to_execute == "") || (test_to_execute == "2"))
+  if ((test_to_execute.empty()) || (test_to_execute == "2"))
     std::cout<<"** Test the behaviour for a file with two entries - part 1\n";
   try
   {
@@ -246,10 +246,10 @@ int main(int argc, char* args[])
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "2"))
+  if ((test_to_execute.empty()) || (test_to_execute == "2"))
     read_test();
 
-  if ((test_to_execute == "") || (test_to_execute == "3"))
+  if ((test_to_execute.empty()) || (test_to_execute == "3"))
     std::cout<<"** Add at the end\n";
   try
   {
@@ -265,10 +265,10 @@ int main(int argc, char* args[])
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "3"))
+  if ((test_to_execute.empty()) || (test_to_execute == "3"))
     read_test();
 
-  if ((test_to_execute == "") || (test_to_execute == "4"))
+  if ((test_to_execute.empty()) || (test_to_execute == "4"))
     std::cout<<"** Overwrite an existing block\n";
   try
   {
@@ -284,10 +284,10 @@ int main(int argc, char* args[])
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "4"))
+  if ((test_to_execute.empty()) || (test_to_execute == "4"))
     read_test();
 
-  if ((test_to_execute == "") || (test_to_execute == "5"))
+  if ((test_to_execute.empty()) || (test_to_execute == "5"))
     std::cout<<"** Write a second block\n";
   try
   {
@@ -303,10 +303,10 @@ int main(int argc, char* args[])
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "5"))
+  if ((test_to_execute.empty()) || (test_to_execute == "5"))
     read_test();
 
-  if ((test_to_execute == "") || (test_to_execute == "6"))
+  if ((test_to_execute.empty()) || (test_to_execute == "6"))
     std::cout<<"** Write several blocks at once.\n";
   try
   {
@@ -324,10 +324,10 @@ int main(int argc, char* args[])
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "6"))
+  if ((test_to_execute.empty()) || (test_to_execute == "6"))
     read_test();
 
-  if ((test_to_execute == "") || (test_to_execute == "7"))
+  if ((test_to_execute.empty()) || (test_to_execute == "7"))
     std::cout<<"** Leave a gap.\n";
   try
   {
@@ -343,10 +343,10 @@ int main(int argc, char* args[])
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "7"))
+  if ((test_to_execute.empty()) || (test_to_execute == "7"))
     read_test();
 
-  if ((test_to_execute == "") || (test_to_execute == "8"))
+  if ((test_to_execute.empty()) || (test_to_execute == "8"))
     std::cout<<"** Fill the gap.\n";
   try
   {
@@ -362,7 +362,7 @@ int main(int argc, char* args[])
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "8"))
+  if ((test_to_execute.empty()) || (test_to_execute == "8"))
     read_test();
 
   remove((BASE_DIRECTORY + Test_File().get_file_name_trunk()

@@ -127,7 +127,7 @@ Set_Prop_Statement::Set_Prop_Statement
 
   if (attributes["keytype"] == "tag")
   {
-    if (attributes["k"] != "")
+    if (!attributes["k"].empty())
       key = new std::string(attributes["k"]);
     else
       add_static_error("For the statement \"set-prop\" in mode \"keytype\"=\"tag\", "

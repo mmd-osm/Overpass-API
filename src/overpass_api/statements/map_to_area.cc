@@ -110,7 +110,7 @@ void collect_elems_flat(Resource_Manager& rman,
            const std::vector< Area_Skeleton::Id_Type >& ids,
            std::map< Uint31_Index, std::vector< Area_Skeleton > >& elems)
 {
-  if (ids.size() == 0)
+  if (ids.empty())
     return;
 
   std::vector<Area_Skeleton::Id_Type>::const_iterator lower = min_element(ids.begin(), ids.end());

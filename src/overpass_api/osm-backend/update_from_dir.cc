@@ -107,13 +107,13 @@ int main(int argc, char* argv[])
     if (!(strncmp(argv[argpos], "--db-dir=", 9)))
     {
       db_dir = ((std::string)argv[argpos]).substr(9);
-      if ((db_dir.size() > 0) && (db_dir[db_dir.size()-1] != '/'))
+      if ((!db_dir.empty()) && (db_dir[db_dir.size()-1] != '/'))
 	db_dir += '/';
     }
     else if (!(strncmp(argv[argpos], "--osc-dir=", 10)))
     {
       source_dir = ((std::string)argv[argpos]).substr(10);
-      if ((source_dir.size() > 0) && (source_dir[source_dir.size()-1] != '/'))
+      if ((!source_dir.empty()) && (source_dir[source_dir.size()-1] != '/'))
 	source_dir += '/';
     }
     else if (!(strncmp(argv[argpos], "--version=", 10)))
@@ -175,7 +175,7 @@ int main(int argc, char* argv[])
 
   try
   {
-    if (db_dir == "")
+    if (db_dir.empty())
     {
       if (!use_osmium)
       {

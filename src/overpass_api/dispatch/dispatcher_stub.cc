@@ -152,7 +152,7 @@ Dispatcher_Stub::Dispatcher_Stub
     }
   }
 
-  if (db_dir == "")
+  if (db_dir.empty())
   {
     client_token = probe_client_token();
     dispatcher_client = new Dispatcher_Client(osm_base_settings().shared_name);

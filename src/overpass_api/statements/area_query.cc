@@ -261,7 +261,7 @@ Area_Query_Statement::Area_Query_Statement
   input = attributes["from"];
   set_output(attributes["into"]);
   submitted_id = atoll(attributes["ref"].c_str());
-  if (submitted_id <= 0 && attributes["ref"] != "")
+  if (submitted_id <= 0 && !attributes["ref"].empty())
   {
     std::ostringstream temp;
     temp<<"For the attribute \"ref\" of the element \"area-query\""

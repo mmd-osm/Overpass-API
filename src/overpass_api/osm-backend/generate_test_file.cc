@@ -3904,7 +3904,7 @@ int main(int argc, char* args[])
       modifier = new Accept_All;
     else if (std::string(args[2]) == "diff_compare")
       modifier = new Accept_All_But_5(pattern_size);
-    else if (std::string(args[2]) == "")
+    else if (std::string(args[2]).empty())
       modifier = new Accept_All;
     else
       // return an empty osm file otherwise

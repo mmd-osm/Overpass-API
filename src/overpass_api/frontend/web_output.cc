@@ -135,7 +135,7 @@ void Web_Output::write_html_header
 
   if (write_mime)
   {
-    if (allow_headers != "")
+    if (!allow_headers.empty())
       std::cout<<"Access-Control-Allow-Headers: "<<allow_headers<<'\n';
     if (has_origin)
       std::cout<<"Access-Control-Allow-Origin: *\n"
@@ -162,7 +162,7 @@ void Web_Output::write_payload_header
 
   if (write_mime)
   {
-    if (allow_headers != "")
+    if (!allow_headers.empty())
       std::cout<<"Access-Control-Allow-Headers: "<<allow_headers<<'\n';
     if (has_origin)
       std::cout<<"Access-Control-Allow-Origin: *\n"

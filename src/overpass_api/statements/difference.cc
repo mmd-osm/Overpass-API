@@ -58,7 +58,7 @@ void Difference_Statement::add_statement(Statement* statement, std::string text)
     add_static_error(temp.str());
   }
 
-  if (statement->get_result_name() != "")
+  if (!statement->get_result_name().empty())
     substatements.push_back(statement);
   else
     substatement_error(get_name(), statement);

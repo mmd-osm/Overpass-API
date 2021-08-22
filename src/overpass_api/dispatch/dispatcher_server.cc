@@ -215,7 +215,7 @@ int main(int argc, char* argv[])
     if (!(strncmp(argv[argpos], "--db-dir=", 9)))
     {
       db_dir = ((std::string)argv[argpos]).substr(9);
-      if ((db_dir.size() > 0) && (db_dir[db_dir.size()-1] != '/'))
+      if ((!db_dir.empty()) && (db_dir[db_dir.size()-1] != '/'))
 	db_dir += '/';
     }
     else if (std::string("--quiet") == argv[argpos])
@@ -395,7 +395,7 @@ int main(int argc, char* argv[])
     }
     return 0;
   }
-  else if (db_dir == "" && (max_allowed_space > 0 || max_allowed_time_units > 0 || rate_limit > -1))
+  else if (db_dir.empty() && (max_allowed_space > 0 || max_allowed_time_units > 0 || rate_limit > -1))
   {
     try
     {

@@ -82,7 +82,7 @@ int main(int argc, char* args[])
   "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
   "<osm>\n";
 
-  if ((test_to_execute == "") || (test_to_execute == "1"))
+  if ((test_to_execute.empty()) || (test_to_execute == "1"))
   {
     // An empty complete must copy the input set to the output set
 
@@ -112,7 +112,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "2"))
+  if ((test_to_execute.empty()) || (test_to_execute == "2"))
   {
     // An empty complete with equal input and output shall do nothing
 
@@ -142,7 +142,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "3"))
+  if ((test_to_execute.empty()) || (test_to_execute == "3"))
   {
     // A complete statement with empty loop result shall copy the input set to the output set
 
@@ -178,7 +178,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "4"))
+  if ((test_to_execute.empty()) || (test_to_execute == "4"))
   {
     // A complete statement with empty loop result shall copy the input set to the output set
 
@@ -214,7 +214,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "5"))
+  if ((test_to_execute.empty()) || (test_to_execute == "5"))
   {
     // A complete statement with loop result equal to input shall copy the input set to the output set
 
@@ -264,7 +264,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "6"))
+  if ((test_to_execute.empty()) || (test_to_execute == "6"))
   {
     // A complete statement with equal input and output set name shall keep the original input as output both inside and after the loop
 
@@ -304,7 +304,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "7"))
+  if ((test_to_execute.empty()) || (test_to_execute == "7"))
   {
     // Collect with multiple but limited rounds of growth
 

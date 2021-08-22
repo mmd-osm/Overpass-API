@@ -39,7 +39,7 @@ void Output_XML::write_payload_header
   "<note>The data included in this document is from www.openstreetmap.org. "
   "The data is made available under ODbL.</note>\n";
   std::cout<<"<meta osm_base=\""<<timestamp<<'\"';
-  if (area_timestamp != "")
+  if (!area_timestamp.empty())
     std::cout<<" areas=\""<<area_timestamp<<"\"";
   std::cout<<"/>\n\n";
 }

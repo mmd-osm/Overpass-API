@@ -72,7 +72,7 @@ void millisleep(uint32 milliseconds)
 Unix_Socket::Unix_Socket(const std::string& socket_name, uint max_num_reading_processes_)
   : socket_descriptor(-1), max_num_reading_processes(max_num_reading_processes_)
 {
-  if (socket_name != "")
+  if (!socket_name.empty())
     open(socket_name);
 }
 

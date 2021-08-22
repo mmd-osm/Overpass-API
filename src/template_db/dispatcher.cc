@@ -850,7 +850,7 @@ void Dispatcher::standby_loop(uint64 milliseconds)
         else if (command == PURGE)
         {
           std::vector< uint32 > arguments = connection_per_pid.get(client_pid)->get_arguments(1);
-          if (arguments.size() < 1)
+          if (arguments.empty())
             continue;
           uint32 target_pid = arguments[0];
 
@@ -866,7 +866,7 @@ void Dispatcher::standby_loop(uint64 milliseconds)
         else if (command == QUERY_BY_TOKEN)
         {
           std::vector< uint32 > arguments = connection_per_pid.get(client_pid)->get_arguments(1);
-          if (arguments.size() < 1)
+          if (arguments.empty())
             continue;
           uint32 target_token = arguments[0];
 
@@ -887,7 +887,7 @@ void Dispatcher::standby_loop(uint64 milliseconds)
             continue;
 
           std::vector< uint32 > arguments = connection->get_arguments(1);
-          if (arguments.size() < 1)
+          if (arguments.empty())
             continue;
           uint32 client_token = arguments[0];
 

@@ -164,7 +164,7 @@ int main(int argc, char *argv[])
     if (!(strncmp(argv[argpos], "--db-dir=", 9)))
     {
       db_dir = ((std::string)argv[argpos]).substr(9);
-      if ((db_dir.size() > 0) && (db_dir[db_dir.size()-1] != '/'))
+      if ((!db_dir.empty()) && (db_dir[db_dir.size()-1] != '/'))
 	db_dir += '/';
     }
     else if (!(strcmp(argv[argpos], "--quiet")))

@@ -33,7 +33,7 @@ bool Output_JSON::write_http_headers()
 void Output_JSON::write_payload_header
     (const std::string& db_dir, const std::string& timestamp, const std::string& area_timestamp)
 {
-  if (padding != "")
+  if (!padding.empty())
     std::cout<<padding<<"(";
 
   std::cout<<"{\n"
@@ -42,7 +42,7 @@ void Output_JSON::write_payload_header
             <<basic_settings().source_hash.substr(0, 8)<<"\",\n"
         "  \"osm3s\": {\n"
 	"    \"timestamp_osm_base\": \""<<timestamp<<"\",\n";
-  if (area_timestamp != "")
+  if (!area_timestamp.empty())
     std::cout<<"    \"timestamp_areas_base\": \""<<area_timestamp<<"\",\n";
   std::cout<<"    \"copyright\": \"The data included in this document is from www.openstreetmap.org."
 	" The data is made available under ODbL.\"\n"
@@ -53,8 +53,8 @@ void Output_JSON::write_payload_header
 
 void Output_JSON::write_footer()
 {
-  std::cout<<"\n\n  ]"<<(messages != "" ? ",\n\"remark\": \"" + escape_cstr(messages) + "\"" : "")
-      <<"\n}"<<(padding != "" ? ");\n" : "\n");
+  std::cout<<"\n\n  ]"<<(!messages.empty() ? ",\n\"remark\": \"" + escape_cstr(messages) + "\"" : "")
+      <<"\n}"<<(!padding.empty() ? ");\n" : "\n");
 }
 
 

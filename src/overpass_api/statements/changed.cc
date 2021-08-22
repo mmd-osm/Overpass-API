@@ -525,7 +525,7 @@ Changed_Statement::Changed_Statement
 
   filter_changeset = 0;
   const auto changeset = attributes["changeset"];
-  if (changeset != "") {
+  if (!changeset.empty()) {
     filter_changeset = atol(changeset.c_str());
     if (filter_changeset <= 0) {
       add_static_error("The attribute \"changeset\" must be a positive number");

@@ -457,7 +457,7 @@ int main(int argc, char* args[])
   if (argc > 1)
     test_to_execute = args[1];
 
-  if ((test_to_execute == "") || (test_to_execute == "1"))
+  if ((test_to_execute.empty()) || (test_to_execute == "1"))
   {
     try
     {
@@ -483,7 +483,7 @@ int main(int argc, char* args[])
     }
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "2"))
+  if ((test_to_execute.empty()) || (test_to_execute == "2"))
   {
     Test_File test_file_1("Test_File_1");
     Test_File test_file_2("Test_File_2");
@@ -504,7 +504,7 @@ int main(int argc, char* args[])
 			  5, 180, 1024*1024*1024,  1024*1024, file_properties);
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "3"))
+  if ((test_to_execute.empty()) || (test_to_execute == "3"))
   {
     Test_File test_file("Test_File");
 
@@ -515,7 +515,7 @@ int main(int argc, char* args[])
 			  5, 180, 1024*1024*1024,  1024*1024, file_properties);
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "4"))
+  if ((test_to_execute.empty()) || (test_to_execute == "4"))
   {
     Test_File test_file("Test_File");
 
@@ -536,7 +536,7 @@ int main(int argc, char* args[])
     remove("Test_File.map.idx.shadow");
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "5"))
+  if ((test_to_execute.empty()) || (test_to_execute == "5"))
   {
     Test_File test_file("Test_File");
 
@@ -566,7 +566,7 @@ int main(int argc, char* args[])
     remove("Test_File.map.idx.shadow");
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "6"))
+  if ((test_to_execute.empty()) || (test_to_execute == "6"))
   {
     Test_File test_file("Test_File");
 
@@ -588,7 +588,7 @@ int main(int argc, char* args[])
     remove("Test_File.map.idx");
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "7"))
+  if ((test_to_execute.empty()) || (test_to_execute == "7"))
   {
     Test_File test_file("Test_File");
 
@@ -618,7 +618,7 @@ int main(int argc, char* args[])
     remove("Test_File.map.idx");
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "8"))
+  if ((test_to_execute.empty()) || (test_to_execute == "8"))
   {
     Test_File test_file("Test_File");
 
@@ -656,7 +656,7 @@ int main(int argc, char* args[])
     remove("Test_File.map.idx");
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "9"))
+  if ((test_to_execute.empty()) || (test_to_execute == "9"))
   {
     Test_File test_file("Test_File");
 
@@ -673,7 +673,7 @@ int main(int argc, char* args[])
     remove("Test_File.bin.idx");
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "10"))
+  if ((test_to_execute.empty()) || (test_to_execute == "10"))
   {
     Test_File test_file("Test_File");
 
@@ -693,7 +693,7 @@ int main(int argc, char* args[])
     remove("Test_File.bin.idx");
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "11"))
+  if ((test_to_execute.empty()) || (test_to_execute == "11"))
   {
     Test_File test_file("Test_File");
 
@@ -716,7 +716,7 @@ int main(int argc, char* args[])
     remove("Test_File.bin.idx");
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "12"))
+  if ((test_to_execute.empty()) || (test_to_execute == "12"))
   {
     Test_File test_file("Test_File");
 
@@ -746,7 +746,7 @@ int main(int argc, char* args[])
     remove("Test_File.map.idx");
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "13"))
+  if ((test_to_execute.empty()) || (test_to_execute == "13"))
   {
     Test_File test_file("Test_File");
 
@@ -794,7 +794,7 @@ int main(int argc, char* args[])
     remove("Test_File.map.idx");
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "14"))
+  if ((test_to_execute.empty()) || (test_to_execute == "14"))
   {
     Test_File test_file("Test_File");
 
@@ -827,7 +827,7 @@ int main(int argc, char* args[])
     remove("Test_File.bin.idx");
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "15"))
+  if ((test_to_execute.empty()) || (test_to_execute == "15"))
   {
     Test_File test_file("Test_File");
 
@@ -868,7 +868,7 @@ int main(int argc, char* args[])
     remove("Test_File.map.idx");
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "16"))
+  if ((test_to_execute.empty()) || (test_to_execute == "16"))
   {
     Test_File test_file("Test_File");
 
@@ -894,7 +894,7 @@ int main(int argc, char* args[])
     remove("Test_File.bin.idx");
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "17"))
+  if ((test_to_execute.empty()) || (test_to_execute == "17"))
   {
     Test_File test_file("Test_File");
 
@@ -943,7 +943,7 @@ int main(int argc, char* args[])
     remove("Test_File.map.idx");
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "18"))
+  if ((test_to_execute.empty()) || (test_to_execute == "18"))
   {
     Test_File test_file("Test_File");
 
@@ -972,7 +972,7 @@ int main(int argc, char* args[])
     remove("Test_File.bin.idx");
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "19"))
+  if ((test_to_execute.empty()) || (test_to_execute == "19"))
   {
     Test_File test_file("Test_File");
 
@@ -991,7 +991,7 @@ int main(int argc, char* args[])
     }
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "20"))
+  if ((test_to_execute.empty()) || (test_to_execute == "20"))
   {
     Test_File test_file("Test_File");
 
@@ -1038,7 +1038,7 @@ int main(int argc, char* args[])
     }
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "21"))
+  if ((test_to_execute.empty()) || (test_to_execute == "21"))
   {
     std::vector< File_Properties* > file_properties;
     // Try to start a sceond dispatcher instance. This shall fail with
@@ -1056,7 +1056,7 @@ int main(int argc, char* args[])
     }
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "22"))
+  if ((test_to_execute.empty()) || (test_to_execute == "22"))
   {
     Test_File test_file("Test_File");
 
@@ -1112,7 +1112,7 @@ int main(int argc, char* args[])
     }
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "23"))
+  if ((test_to_execute.empty()) || (test_to_execute == "23"))
   {
     Test_File test_file("Test_File");
 
@@ -1168,7 +1168,7 @@ int main(int argc, char* args[])
     }
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "24"))
+  if ((test_to_execute.empty()) || (test_to_execute == "24"))
   {
     Test_File test_file("Test_File");
 
@@ -1259,7 +1259,7 @@ int main(int argc, char* args[])
     }
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "25r"))
+  if ((test_to_execute.empty()) || (test_to_execute == "25r"))
   {
     Test_File test_file("Test_File");
 
@@ -1303,7 +1303,7 @@ int main(int argc, char* args[])
     }
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "25w"))
+  if ((test_to_execute.empty()) || (test_to_execute == "25w"))
   {
     Test_File test_file("Test_File");
 
@@ -1343,7 +1343,7 @@ int main(int argc, char* args[])
     }
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "26r"))
+  if ((test_to_execute.empty()) || (test_to_execute == "26r"))
   {
     Test_File test_file("Test_File");
 
@@ -1394,7 +1394,7 @@ int main(int argc, char* args[])
     }
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "26w"))
+  if ((test_to_execute.empty()) || (test_to_execute == "26w"))
   {
     Test_File test_file("Test_File");
 
@@ -1450,7 +1450,7 @@ int main(int argc, char* args[])
     }
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "27r"))
+  if ((test_to_execute.empty()) || (test_to_execute == "27r"))
   {
     Test_File test_file("Test_File");
 
@@ -1501,7 +1501,7 @@ int main(int argc, char* args[])
     }
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "27w"))
+  if ((test_to_execute.empty()) || (test_to_execute == "27w"))
   {
     Test_File test_file("Test_File");
 

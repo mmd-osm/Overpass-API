@@ -165,7 +165,7 @@ Bbox_Query_Statement::Bbox_Query_Statement
 
   set_output(attributes["into"]);
   south = atof(attributes["s"].c_str());
-  if ((south < -90.0) || (south > 90.0) || (attributes["s"] == ""))
+  if ((south < -90.0) || (south > 90.0) || (attributes["s"].empty()))
   {
     std::ostringstream temp;
     temp<<"For the attribute \"s\" of the element \"bbox-query\""
@@ -173,7 +173,7 @@ Bbox_Query_Statement::Bbox_Query_Statement
     add_static_error(temp.str());
   }
   north = atof(attributes["n"].c_str());
-  if ((north < -90.0) || (north > 90.0) || (attributes["n"] == ""))
+  if ((north < -90.0) || (north > 90.0) || (attributes["n"].empty()))
   {
     std::ostringstream temp;
     temp<<"For the attribute \"n\" of the element \"bbox-query\""
@@ -188,7 +188,7 @@ Bbox_Query_Statement::Bbox_Query_Statement
     add_static_error(temp.str());
   }
   west = atof(attributes["w"].c_str());
-  if ((west < -180.0) || (west > 180.0) || (attributes["w"] == ""))
+  if ((west < -180.0) || (west > 180.0) || (attributes["w"].empty()))
   {
     std::ostringstream temp;
     temp<<"For the attribute \"w\" of the element \"bbox-query\""
@@ -196,7 +196,7 @@ Bbox_Query_Statement::Bbox_Query_Statement
     add_static_error(temp.str());
   }
   east = atof(attributes["e"].c_str());
-  if ((east < -180.0) || (east > 180.0) || (attributes["e"] == ""))
+  if ((east < -180.0) || (east > 180.0) || (attributes["e"].empty()))
   {
     std::ostringstream temp;
     temp<<"For the attribute \"e\" of the element \"bbox-query\""

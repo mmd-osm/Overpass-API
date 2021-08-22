@@ -63,10 +63,10 @@ void write_html_header
     std::cout<<
     "<p>The data included in this document is from www.openstreetmap.org. "
     "The data is made available under ODbL.</p>\n";
-    if (timestamp != "")
+    if (!timestamp.empty())
     {
       std::cout<<"<p>Data included until: "<<timestamp;
-      if (area_timestamp != "")
+      if (!area_timestamp.empty())
         std::cout<<"<br/>Areas based on data until: "<<area_timestamp;
       std::cout<<"</p>\n";
     }

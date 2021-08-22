@@ -106,7 +106,7 @@ void Query_Statement::add_statement(Statement* statement, std::string text)
   {
     substatements.push_back(statement);
 
-    if (has_kv->get_value() != "")
+    if (!has_kv->get_value().empty())
     {
       if (has_kv->get_straight())
         key_values.push_back(std::make_pair< std::string, std::string >
@@ -2254,16 +2254,16 @@ Has_Kv_Statement::Has_Kv_Statement
     case_sensitive = true;
   }
 
-  if (attributes["regk"] != "")
+  if (!attributes["regk"].empty())
   {
-    if (key != "")
+    if (!key.empty())
     {
       std::ostringstream temp("");
       temp<<"In the element \"has-kv\" only one of the attributes \"k\" and \"regk\""
             " can be nonempty.";
       add_static_error(temp.str());
     }
-    if (value != "")
+    if (!value.empty())
     {
       std::ostringstream temp("");
       temp<<"In the element \"has-kv\" the attribute \"regk\" must be combined with \"regv\".";
@@ -2281,9 +2281,9 @@ Has_Kv_Statement::Has_Kv_Statement
     }
   }
 
-  if (attributes["regv"] != "")
+  if (!attributes["regv"].empty())
   {
-    if (value != "")
+    if (!value.empty())
     {
       std::ostringstream temp("");
       temp<<"In the element \"has-kv\" only one of the attributes \"v\" and \"regv\""

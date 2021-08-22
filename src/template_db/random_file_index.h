@@ -52,7 +52,7 @@ public:
 	      const std::string& db_dir, const std::string& file_name_extension,
               int compression_method_ = File_Blocks_Index_Base::USE_DEFAULT);
   ~Random_File_Index();
-  bool writeable() const { return (empty_index_file_name != ""); }
+  bool writeable() const { return (!empty_index_file_name.empty()); }
   const std::string& file_name_extension() const { return file_name_extension_; }
 
   std::string get_map_file_name() const { return map_file_name; }
@@ -225,7 +225,7 @@ inline Random_File_Index::Random_File_Index
       throw e;
   }
 
-  if (empty_index_file_name != "")
+  if (!empty_index_file_name.empty())
     init_void_blocks();
 }
 
@@ -243,7 +243,7 @@ inline void Random_File_Index::init_void_blocks()
   }
 
   bool empty_index_file_used = false;
-  if (empty_index_file_name != "")
+  if (!empty_index_file_name.empty())
   {
     try
     {
@@ -284,7 +284,7 @@ inline void Random_File_Index::init_void_blocks()
 
 inline Random_File_Index::~Random_File_Index()
 {
-  if (empty_index_file_name == "")
+  if (empty_index_file_name.empty())
     return;
 
   // Keep space for file version and size information

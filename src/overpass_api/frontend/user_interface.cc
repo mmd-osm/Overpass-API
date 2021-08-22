@@ -203,7 +203,7 @@ std::map< std::string, std::string > get_xml_cgi(
     std::string jsonp = decoded["jsonp"];
     input = decoded["data"];
 
-    if (decoded["bbox"] != "")
+    if (!decoded["bbox"].empty())
     {
       const std::string& lonlat = decoded["bbox"];
 
@@ -272,7 +272,7 @@ std::string probe_client_identifier()
 
 uint32 parse_ipv4_address(const std::string& ip_addr)
 {
-  if (ip_addr == "")
+  if (ip_addr.empty())
     return 0;
 
   std::string::size_type pos = ip_addr.find('.');
@@ -371,7 +371,7 @@ std::vector< uint16 > parse_full_ipv6_address(const std::string& ip_addr)
 uint32 probe_client_token()
 {
   std::string ip_addr = probe_client_identifier();
-  if (ip_addr == "")
+  if (ip_addr.empty())
     return 0;
 
   if (ip_addr.find('.') != std::string::npos)

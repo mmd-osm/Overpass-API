@@ -233,7 +233,7 @@ User_Statement::User_Statement
   std::string user_name = attributes["name"];
   uint32 user_id = atoll(attributes["uid"].c_str());
 
-  if (user_name != "")
+  if (!user_name.empty())
     user_names.insert(user_name);
 
   if (user_id != 0)
@@ -244,7 +244,7 @@ User_Statement::User_Statement
   {
     if (it->first.find("name_") == 0)
     {
-      if (it->second != "")
+      if (!it->second.empty())
         user_names.insert(it->second);
     }
     if (it->first.find("uid_") == 0)
@@ -364,7 +364,7 @@ void User_Statement::execute(Resource_Manager& rman)
 
   if (rman.get_desired_timestamp() == NOW)
   {
-    if ((result_type == "") || (result_type == "node") || (result_type == "nwr"))
+    if ((result_type.empty()) || (result_type == "node") || (result_type == "nwr"))
     {
       std::set< std::pair< Uint32_Index, Uint32_Index > > ranges;
       constraint.get_ranges(rman, ranges);
@@ -384,7 +384,7 @@ void User_Statement::execute(Resource_Manager& rman)
           });
     }
 
-    if ((result_type == "") || (result_type == "way") || (result_type == "nwr"))
+    if ((result_type.empty()) || (result_type == "way") || (result_type == "nwr"))
     {
       std::set< std::pair< Uint31_Index, Uint31_Index > > ranges;
       constraint.get_ranges(rman, ranges);
@@ -404,7 +404,7 @@ void User_Statement::execute(Resource_Manager& rman)
           });
     }
 
-    if ((result_type == "") || (result_type == "relation") || (result_type == "nwr"))
+    if ((result_type.empty()) || (result_type == "relation") || (result_type == "nwr"))
     {
       std::set< std::pair< Uint31_Index, Uint31_Index > > ranges;
       constraint.get_ranges(rman, ranges);
@@ -427,7 +427,7 @@ void User_Statement::execute(Resource_Manager& rman)
   else
   {
 
-    if ((result_type == "") || (result_type == "node") || (result_type == "nwr"))
+    if ((result_type.empty()) || (result_type == "node") || (result_type == "nwr"))
     {
       std::set< std::pair< Uint32_Index, Uint32_Index > > ranges;
       constraint.get_ranges(rman, ranges);
@@ -438,7 +438,7 @@ void User_Statement::execute(Resource_Manager& rman)
       filter_attic_elements(rman, rman.get_desired_timestamp(), into.nodes, into.attic_nodes);
     }
 
-    if ((result_type == "") || (result_type == "way") || (result_type == "nwr"))
+    if ((result_type.empty()) || (result_type == "way") || (result_type == "nwr"))
     {
       std::set< std::pair< Uint31_Index, Uint31_Index > > ranges;
       constraint.get_ranges(rman, ranges);
@@ -449,7 +449,7 @@ void User_Statement::execute(Resource_Manager& rman)
       filter_attic_elements(rman, rman.get_desired_timestamp(), into.ways, into.attic_ways);
     }
 
-    if ((result_type == "") || (result_type == "relation") || (result_type == "nwr"))
+    if ((result_type.empty()) || (result_type == "relation") || (result_type == "nwr"))
     {
       std::set< std::pair< Uint31_Index, Uint31_Index > > ranges;
       constraint.get_ranges(rman, ranges);

@@ -25,7 +25,7 @@ std::string get_text_token(Tokenizer_Wrapper& token, Error_Output* error_output,
   std::string result = "";
   bool result_valid = true;
 
-  if (!token.good() || (*token).size() == 0)
+  if (!token.good() || (*token).empty())
     result_valid = false;
   else if ((*token)[0] == '"' || (*token)[0] == '\'')
   {
@@ -75,7 +75,7 @@ std::string get_identifier_token(Tokenizer_Wrapper& token, Error_Output* error_o
   std::string result = "";
   bool result_valid = true;
 
-  if (!token.good() || (*token).size() == 0)
+  if (!token.good() || (*token).empty())
     result_valid = false;
   else if (isalpha((*token)[0]) || (*token)[0] == '_')
     result = *token;

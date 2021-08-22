@@ -69,7 +69,7 @@ int main(int argc, char* args[])
   "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
   "<osm>\n";
 
-  if ((test_to_execute == "") || (test_to_execute == "1"))
+  if ((test_to_execute.empty()) || (test_to_execute == "1"))
   {
     try
     {
@@ -114,7 +114,7 @@ int main(int argc, char* args[])
           <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "2"))
+  if ((test_to_execute.empty()) || (test_to_execute == "2"))
   {
     try
     {
@@ -159,7 +159,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "3"))
+  if ((test_to_execute.empty()) || (test_to_execute == "3"))
   {
     try
     {
@@ -204,7 +204,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "4"))
+  if ((test_to_execute.empty()) || (test_to_execute == "4"))
   {
     try
     {
@@ -248,7 +248,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "5"))
+  if ((test_to_execute.empty()) || (test_to_execute == "5"))
   {
     try
     {

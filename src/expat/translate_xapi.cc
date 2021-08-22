@@ -169,11 +169,11 @@ InputAnalyzer::InputAnalyzer(const std::string& input_, bool force_meta)
 
 void print_meta_filter(const InputAnalyzer& analyzer)
 {
-  if (analyzer.user != "")
+  if (!analyzer.user.empty())
     std::cout<<"(user:\""<<escape_xml(analyzer.user)<<"\")";
   if (analyzer.uid != 0)
     std::cout<<"(uid:"<<analyzer.uid<<")";
-  if (analyzer.newer != "")
+  if (!analyzer.newer.empty())
     std::cout<<"(newer:\""<<escape_xml(analyzer.newer)<<"\")";
 }
 

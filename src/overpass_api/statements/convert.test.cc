@@ -59,7 +59,7 @@ void prepare_value_test(Parsed_Query& global_settings, Resource_Manager& rman,
   Evaluator_Fixed stmt500(0, Attr()("v", derived_num).kvs(), global_settings);
   stmt50.add_statement(&stmt500, "");
 
-  if (derived_num != "")
+  if (!derived_num.empty())
     union_.add_statement(&stmt5, "");
 
   union_.execute(rman);
@@ -488,35 +488,35 @@ int main(int argc, char* args[])
     "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
     "<osm>\n";
 
-    if ((test_to_execute == "") || (test_to_execute == "1"))
+    if ((test_to_execute.empty()) || (test_to_execute == "1"))
       just_copy_test(global_settings, transaction, "just-copy", "_", 7, 14, "1000", global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "2"))
+    if ((test_to_execute.empty()) || (test_to_execute == "2"))
       just_copy_test(global_settings, transaction, "just-copy", "_", 0, 0, "", global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "3"))
+    if ((test_to_execute.empty()) || (test_to_execute == "3"))
       just_copy_test(global_settings, transaction, "just-copy", "some_set", 7, 14, "1000", global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "4"))
+    if ((test_to_execute.empty()) || (test_to_execute == "4"))
       into_test(global_settings, transaction, "into", "_", global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "5"))
+    if ((test_to_execute.empty()) || (test_to_execute == "5"))
       into_test(global_settings, transaction, "into", "some_set", global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "6"))
+    if ((test_to_execute.empty()) || (test_to_execute == "6"))
       tag_manipulation_test(global_settings, transaction, "rewrite", "some_set", 7, 14, "1000", global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "7"))
+    if ((test_to_execute.empty()) || (test_to_execute == "7"))
       count_test(global_settings, transaction, "count-from-default", "_", 1, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "8"))
+    if ((test_to_execute.empty()) || (test_to_execute == "8"))
       is_tag_test(global_settings, transaction, "is-tag", global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "9"))
+    if ((test_to_execute.empty()) || (test_to_execute == "9"))
       count_test(global_settings, transaction, "count-from-default", "_", 2, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "10"))
+    if ((test_to_execute.empty()) || (test_to_execute == "10"))
       count_test(global_settings, transaction, "count-from-default", "_", 10, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "11"))
+    if ((test_to_execute.empty()) || (test_to_execute == "11"))
       geom_test(global_settings, transaction, "geometry", global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "12"))
+    if ((test_to_execute.empty()) || (test_to_execute == "12"))
       trace_test_1(global_settings, transaction, "trace", global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "13"))
+    if ((test_to_execute.empty()) || (test_to_execute == "13"))
       trace_test_2(global_settings, transaction, "trace", global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "14"))
+    if ((test_to_execute.empty()) || (test_to_execute == "14"))
       lat_lon_test(global_settings, transaction, "lat-lon", global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "15"))
+    if ((test_to_execute.empty()) || (test_to_execute == "15"))
       per_member_test(global_settings, transaction, "per-member", global_node_offset);
 
     std::cout<<"</osm>\n";

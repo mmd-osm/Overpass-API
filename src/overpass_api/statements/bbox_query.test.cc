@@ -77,26 +77,26 @@ int main(int argc, char* args[])
   "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
   "<osm>\n";
 
-  if ((test_to_execute == "") || (test_to_execute == "1"))
+  if ((test_to_execute.empty()) || (test_to_execute == "1"))
     perform_bbox_print("-10.0", "8.0", "-15.0", "9.0", transaction);
-  if ((test_to_execute == "") || (test_to_execute == "2"))
+  if ((test_to_execute.empty()) || (test_to_execute == "2"))
     perform_bbox_print("-10.0", "-1.0", "-15.0", "-3.0", transaction);
-  if ((test_to_execute == "") || (test_to_execute == "3"))
+  if ((test_to_execute.empty()) || (test_to_execute == "3"))
     perform_bbox_print("-10.0", "-1.0", "93.0", "105.0", transaction);
-  if ((test_to_execute == "") || (test_to_execute == "4"))
+  if ((test_to_execute.empty()) || (test_to_execute == "4"))
     perform_bbox_print("-10.0", "-1.0", "93.0", "-3.0", transaction);
-  if ((test_to_execute == "") || (test_to_execute == "5"))
+  if ((test_to_execute.empty()) || (test_to_execute == "5"))
     perform_bbox_print("-10.0", "-1.0", "-15.0", "-15.0", transaction);
-  if ((test_to_execute == "") || (test_to_execute == "6"))
+  if ((test_to_execute.empty()) || (test_to_execute == "6"))
   {
     double lon_offset = (105.0-(-15.0))/pattern_size/2;
     std::ostringstream west_ss;
     west_ss<<std::fixed<<std::setprecision(7)<<(-15.0 + lon_offset);
     perform_bbox_print("-10.0", "-1.0", west_ss.str(), west_ss.str(), transaction);
   }
-  if ((test_to_execute == "") || (test_to_execute == "7"))
+  if ((test_to_execute.empty()) || (test_to_execute == "7"))
     perform_bbox_print("-10.0", "-10.0", "-15.0", "-3.0", transaction);
-  if ((test_to_execute == "") || (test_to_execute == "8"))
+  if ((test_to_execute.empty()) || (test_to_execute == "8"))
   {
     double lat_offset = (80.0-(-10.0))/pattern_size/2;
     std::ostringstream south_ss;

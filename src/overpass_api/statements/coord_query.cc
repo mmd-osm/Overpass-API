@@ -57,10 +57,10 @@ Coord_Query_Statement::Coord_Query_Statement
 
   lat = 100.0;
   lon = 200.0;
-  if (attributes["lat"] != "" || attributes["lon"] != "")
+  if (!attributes["lat"].empty() || !attributes["lon"].empty())
   {
     lat = atof(attributes["lat"].c_str());
-    if ((lat < -90.0) || (lat > 90.0) || (attributes["lat"] == ""))
+    if ((lat < -90.0) || (lat > 90.0) || (attributes["lat"].empty()))
     {
       std::ostringstream temp;
       temp<<"For the attribute \"lat\" of the element \"coord-query\""
@@ -69,7 +69,7 @@ Coord_Query_Statement::Coord_Query_Statement
     }
 
     lon = atof(attributes["lon"].c_str());
-    if ((lon < -180.0) || (lon > 180.0) || (attributes["lon"] == ""))
+    if ((lon < -180.0) || (lon > 180.0) || (attributes["lon"].empty()))
     {
       std::ostringstream temp;
       temp<<"For the attribute \"lon\" of the element \"coord-query\""

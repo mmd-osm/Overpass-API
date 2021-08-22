@@ -74,7 +74,7 @@ void plain_value_test(Parsed_Query& global_settings, Transaction& transaction,
   Statement* subs = add_prop_stmt(key1, &stmt, stmt_cont);
   add_fixed_stmt(value1, subs, stmt_cont);
 
-  if (key2 != "")
+  if (!key2.empty())
   {
     subs = add_prop_stmt(key2, &stmt, stmt_cont);
     add_fixed_stmt(value2, subs, stmt_cont);
@@ -92,7 +92,7 @@ void count_test(Parsed_Query& global_settings, Transaction& transaction,
   Statement_Container stmt_cont(global_settings);
 
   {
-    Union_Statement union_(0, (from == "" ? Attr() : Attr()("into", from)).kvs(), global_settings);
+    Union_Statement union_(0, (from.empty() ? Attr() : Attr()("into", from)).kvs(), global_settings);
 
     Id_Query_Statement stmt1(0, Attr()("type", "node")("ref", to_string(ref + global_node_offset)).kvs(),
                              global_settings);
@@ -114,54 +114,54 @@ void count_test(Parsed_Query& global_settings, Transaction& transaction,
 
   Statement* subs = add_prop_stmt("nodes", &stmt, stmt_cont);
   subs = stmt_cont.add_stmt(new Evaluator_Set_Count(0,
-      (from == "" ? Attr() : Attr()("from", from))("type", "nodes").kvs(),
+      (from.empty() ? Attr() : Attr()("from", from))("type", "nodes").kvs(),
       global_settings), subs);
 
   subs = add_prop_stmt("ways", &stmt, stmt_cont);
   subs = stmt_cont.add_stmt(new Evaluator_Set_Count(0,
-      (from == "" ? Attr() : Attr()("from", from))("type", "ways").kvs(),
+      (from.empty() ? Attr() : Attr()("from", from))("type", "ways").kvs(),
       global_settings), subs);
 
   subs = add_prop_stmt("relations", &stmt, stmt_cont);
   subs = stmt_cont.add_stmt(new Evaluator_Set_Count(0,
-      (from == "" ? Attr() : Attr()("from", from))("type", "relations").kvs(),
+      (from.empty() ? Attr() : Attr()("from", from))("type", "relations").kvs(),
       global_settings), subs);
 
   subs = add_prop_stmt("deriveds", &stmt, stmt_cont);
   subs = stmt_cont.add_stmt(new Evaluator_Set_Count(0,
-      (from == "" ? Attr() : Attr()("from", from))("type", "deriveds").kvs(),
+      (from.empty() ? Attr() : Attr()("from", from))("type", "deriveds").kvs(),
       global_settings), subs);
 
   subs = add_prop_stmt("nwr", &stmt, stmt_cont);
   subs = stmt_cont.add_stmt(new Evaluator_Set_Count(0,
-      (from == "" ? Attr() : Attr()("from", from))("type", "nwr").kvs(),
+      (from.empty() ? Attr() : Attr()("from", from))("type", "nwr").kvs(),
       global_settings), subs);
 
   subs = add_prop_stmt("nw", &stmt, stmt_cont);
   subs = stmt_cont.add_stmt(new Evaluator_Set_Count(0,
-      (from == "" ? Attr() : Attr()("from", from))("type", "nw").kvs(),
+      (from.empty() ? Attr() : Attr()("from", from))("type", "nw").kvs(),
       global_settings), subs);
 
   subs = add_prop_stmt("wr", &stmt, stmt_cont);
   subs = stmt_cont.add_stmt(new Evaluator_Set_Count(0,
-      (from == "" ? Attr() : Attr()("from", from))("type", "wr").kvs(),
+      (from.empty() ? Attr() : Attr()("from", from))("type", "wr").kvs(),
       global_settings), subs);
 
   subs = add_prop_stmt("nr", &stmt, stmt_cont);
   subs = stmt_cont.add_stmt(new Evaluator_Set_Count(0,
-      (from == "" ? Attr() : Attr()("from", from))("type", "nr").kvs(),
+      (from.empty() ? Attr() : Attr()("from", from))("type", "nr").kvs(),
       global_settings), subs);
 
   subs = add_prop_stmt("tags", &stmt, stmt_cont);
   subs = stmt_cont.add_stmt(new Evaluator_Sum_Value(0,
-      (from == "" ? Attr() : Attr()("from", from)).kvs(),
+      (from.empty() ? Attr() : Attr()("from", from)).kvs(),
       global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Properties_Count(0, Attr()("type", "tags").kvs(), global_settings),
                             subs);
 
   subs = add_prop_stmt("members", &stmt, stmt_cont);
   subs = stmt_cont.add_stmt(new Evaluator_Sum_Value(0,
-      (from == "" ? Attr() : Attr()("from", from)).kvs(),
+      (from.empty() ? Attr() : Attr()("from", from)).kvs(),
       global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Properties_Count(0, Attr()("type", "members").kvs(), global_settings),
                             subs);
@@ -231,7 +231,7 @@ void prepare_value_test(Parsed_Query& global_settings, Resource_Manager& rman,
     const std::string& from, uint64 ref1, uint64 ref2, uint64 global_node_offset)
 {
   Statement_Container stmt_cont(global_settings);
-  Union_Statement union_(0, (from == "" ? Attr() : Attr()("into", from)).kvs(), global_settings);
+  Union_Statement union_(0, (from.empty() ? Attr() : Attr()("into", from)).kvs(), global_settings);
 
   stmt_cont.add_stmt(new Id_Query_Statement(0,
       Attr()("type", "node")("ref", to_string(ref1 + global_node_offset)).kvs(), global_settings), &union_);
@@ -258,25 +258,25 @@ void union_value_test(Parsed_Query& global_settings, Transaction& transaction,
 
   Statement* subs = add_prop_stmt("node_key", &stmt, stmt_cont);
   subs = stmt_cont.add_stmt(new Evaluator_Union_Value(0,
-      (from == "" ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
+      (from.empty() ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Value(0, Attr().kvs(), global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Fixed(0, Attr()("v", "node_key").kvs(), global_settings), subs);
 
   subs = add_prop_stmt("way_key", &stmt, stmt_cont);
   subs = stmt_cont.add_stmt(new Evaluator_Union_Value(0,
-      (from == "" ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
+      (from.empty() ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Value(0, Attr().kvs(), global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Fixed(0, Attr()("v", "way_key").kvs(), global_settings), subs);
 
   subs = add_prop_stmt("relation_key", &stmt, stmt_cont);
   subs = stmt_cont.add_stmt(new Evaluator_Union_Value(0,
-      (from == "" ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
+      (from.empty() ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Value(0, Attr().kvs(), global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Fixed(0, Attr()("v", "relation_key").kvs(), global_settings), subs);
 
   subs = add_prop_stmt("unused_key", &stmt, stmt_cont);
   subs = stmt_cont.add_stmt(new Evaluator_Union_Value(0,
-      (from == "" ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
+      (from.empty() ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Value(0, Attr().kvs(), global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Fixed(0, Attr()("v", "unused_key").kvs(), global_settings), subs);
 
@@ -296,25 +296,25 @@ void min_value_test(Parsed_Query& global_settings, Transaction& transaction,
 
   Statement* subs = add_prop_stmt("node_key_7", &stmt, stmt_cont);
   subs = stmt_cont.add_stmt(new Evaluator_Min_Value(0,
-      (from == "" ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
+      (from.empty() ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Value(0, Attr().kvs(), global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Fixed(0, Attr()("v", "node_key_7").kvs(), global_settings), subs);
 
   subs = add_prop_stmt("way_key_7", &stmt, stmt_cont);
   subs = stmt_cont.add_stmt(new Evaluator_Min_Value(0,
-      (from == "" ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
+      (from.empty() ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Value(0, Attr().kvs(), global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Fixed(0, Attr()("v", "way_key_7").kvs(), global_settings), subs);
 
   subs = add_prop_stmt("relation_key_7", &stmt, stmt_cont);
   subs = stmt_cont.add_stmt(new Evaluator_Min_Value(0,
-      (from == "" ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
+      (from.empty() ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Value(0, Attr().kvs(), global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Fixed(0, Attr()("v", "relation_key_7").kvs(), global_settings), subs);
 
   subs = add_prop_stmt("unused_key_7", &stmt, stmt_cont);
   subs = stmt_cont.add_stmt(new Evaluator_Min_Value(0,
-      (from == "" ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
+      (from.empty() ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Value(0, Attr().kvs(), global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Fixed(0, Attr()("v", "unused_key_7").kvs(), global_settings), subs);
 
@@ -334,25 +334,25 @@ void max_value_test(Parsed_Query& global_settings, Transaction& transaction,
 
   Statement* subs = add_prop_stmt("node_key_7", &stmt, stmt_cont);
   subs = stmt_cont.add_stmt(new Evaluator_Max_Value(0,
-      (from == "" ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
+      (from.empty() ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Value(0, Attr().kvs(), global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Fixed(0, Attr()("v", "node_key_7").kvs(), global_settings), subs);
 
   subs = add_prop_stmt("way_key_7", &stmt, stmt_cont);
   subs = stmt_cont.add_stmt(new Evaluator_Max_Value(0,
-      (from == "" ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
+      (from.empty() ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Value(0, Attr().kvs(), global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Fixed(0, Attr()("v", "way_key_7").kvs(), global_settings), subs);
 
   subs = add_prop_stmt("relation_key_7", &stmt, stmt_cont);
   subs = stmt_cont.add_stmt(new Evaluator_Max_Value(0,
-      (from == "" ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
+      (from.empty() ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Value(0, Attr().kvs(), global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Fixed(0, Attr()("v", "relation_key_7").kvs(), global_settings), subs);
 
   subs = add_prop_stmt("unused_key_7", &stmt, stmt_cont);
   subs = stmt_cont.add_stmt(new Evaluator_Max_Value(0,
-      (from == "" ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
+      (from.empty() ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Value(0, Attr().kvs(), global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Fixed(0, Attr()("v", "unused_key_7").kvs(), global_settings), subs);
 
@@ -372,25 +372,25 @@ void set_value_test(Parsed_Query& global_settings, Transaction& transaction,
 
   Statement* subs = add_prop_stmt("node_key_7", &stmt, stmt_cont);
   subs = stmt_cont.add_stmt(new Evaluator_Set_Value(0,
-      (from == "" ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
+      (from.empty() ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Value(0, Attr().kvs(), global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Fixed(0, Attr()("v", "node_key_7").kvs(), global_settings), subs);
 
   subs = add_prop_stmt("way_key_7", &stmt, stmt_cont);
   subs = stmt_cont.add_stmt(new Evaluator_Set_Value(0,
-      (from == "" ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
+      (from.empty() ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Value(0, Attr().kvs(), global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Fixed(0, Attr()("v", "way_key_7").kvs(), global_settings), subs);
 
   subs = add_prop_stmt("relation_key_7", &stmt, stmt_cont);
   subs = stmt_cont.add_stmt(new Evaluator_Set_Value(0,
-      (from == "" ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
+      (from.empty() ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Value(0, Attr().kvs(), global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Fixed(0, Attr()("v", "relation_key_7").kvs(), global_settings), subs);
 
   subs = add_prop_stmt("unused_key_7", &stmt, stmt_cont);
   subs = stmt_cont.add_stmt(new Evaluator_Set_Value(0,
-      (from == "" ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
+      (from.empty() ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Value(0, Attr().kvs(), global_settings), subs);
   subs = stmt_cont.add_stmt(new Evaluator_Fixed(0, Attr()("v", "unused_key_7").kvs(), global_settings), subs);
 
@@ -418,7 +418,7 @@ void generic_key_test(Parsed_Query& global_settings, Transaction& transaction,
   else
   {
     subs = stmt_cont.add_stmt(new Evaluator_Set_Value(0,
-        (from == "" ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
+        (from.empty() ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
     subs = stmt_cont.add_stmt(new Evaluator_Generic(0, Attr().kvs(), global_settings), subs);
   }
 
@@ -935,7 +935,7 @@ void key_id_test(Parsed_Query& global_settings, Transaction& transaction,
   if (ref > 0)
   {
     subs = stmt_cont.add_stmt(new Evaluator_Max_Value(0,
-        (from == "" ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
+        (from.empty() ? Attr() : Attr()("from", from)).kvs(), global_settings), subs);
     stmt_cont.add_stmt(new Evaluator_Id(0, Attr().kvs(), global_settings), subs);
   }
   else
@@ -1641,271 +1641,271 @@ int main(int argc, char* args[])
     "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
     "<osm>\n";
 
-    if ((test_to_execute == "") || (test_to_execute == "1"))
+    if ((test_to_execute.empty()) || (test_to_execute == "1"))
       attribute_test(global_settings, transaction, "_", "one");
-    if ((test_to_execute == "") || (test_to_execute == "2"))
+    if ((test_to_execute.empty()) || (test_to_execute == "2"))
       attribute_test(global_settings, transaction, "_", "two");
-    if ((test_to_execute == "") || (test_to_execute == "3"))
+    if ((test_to_execute.empty()) || (test_to_execute == "3"))
       attribute_test(global_settings, transaction, "target", "into_target");
-    if ((test_to_execute == "") || (test_to_execute == "4"))
+    if ((test_to_execute.empty()) || (test_to_execute == "4"))
       plain_value_test(global_settings, transaction, "with-tags", "single", "value");
-    if ((test_to_execute == "") || (test_to_execute == "5"))
+    if ((test_to_execute.empty()) || (test_to_execute == "5"))
       plain_value_test(global_settings, transaction, "with-tags", "not", "in", "alphabetic", "order");
-    if ((test_to_execute == "") || (test_to_execute == "6"))
+    if ((test_to_execute.empty()) || (test_to_execute == "6"))
       count_test(global_settings, transaction, "count-from-default", "_", 1, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "7"))
+    if ((test_to_execute.empty()) || (test_to_execute == "7"))
       count_test(global_settings, transaction, "count-from-default", "_", 0, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "8"))
+    if ((test_to_execute.empty()) || (test_to_execute == "8"))
       count_test(global_settings, transaction, "count-from-foo", "foo", 1, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "9"))
+    if ((test_to_execute.empty()) || (test_to_execute == "9"))
       pair_test< Evaluator_And >(global_settings, transaction, "test-and", "and", "1", "0");
-    if ((test_to_execute == "") || (test_to_execute == "10"))
+    if ((test_to_execute.empty()) || (test_to_execute == "10"))
       pair_test< Evaluator_And >(global_settings, transaction, "test-and", "and", "0", "1");
-    if ((test_to_execute == "") || (test_to_execute == "11"))
+    if ((test_to_execute.empty()) || (test_to_execute == "11"))
       pair_test< Evaluator_And >(global_settings, transaction, "test-and", "and", "false", "false");
-    if ((test_to_execute == "") || (test_to_execute == "12"))
+    if ((test_to_execute.empty()) || (test_to_execute == "12"))
       pair_test< Evaluator_And >(global_settings, transaction, "test-and", "and", "true", "");
-    if ((test_to_execute == "") || (test_to_execute == "13"))
+    if ((test_to_execute.empty()) || (test_to_execute == "13"))
       pair_test< Evaluator_Or >(global_settings, transaction, "test-or", "or", "1", "0");
-    if ((test_to_execute == "") || (test_to_execute == "14"))
+    if ((test_to_execute.empty()) || (test_to_execute == "14"))
       pair_test< Evaluator_Or >(global_settings, transaction, "test-or", "or", "0", "1");
-    if ((test_to_execute == "") || (test_to_execute == "15"))
+    if ((test_to_execute.empty()) || (test_to_execute == "15"))
       pair_test< Evaluator_Or >(global_settings, transaction, "test-or", "or", "true", "true");
-    if ((test_to_execute == "") || (test_to_execute == "16"))
+    if ((test_to_execute.empty()) || (test_to_execute == "16"))
       pair_test< Evaluator_Or >(global_settings, transaction, "test-or", "or", "", "");
-    if ((test_to_execute == "") || (test_to_execute == "17"))
+    if ((test_to_execute.empty()) || (test_to_execute == "17"))
       prefix_test< Evaluator_Not >(global_settings, transaction, "test-not", "not", "0");
-    if ((test_to_execute == "") || (test_to_execute == "18"))
+    if ((test_to_execute.empty()) || (test_to_execute == "18"))
       prefix_test< Evaluator_Not >(global_settings, transaction, "test-not", "not", "1");
-    if ((test_to_execute == "") || (test_to_execute == "19"))
+    if ((test_to_execute.empty()) || (test_to_execute == "19"))
       prefix_test< Evaluator_Not >(global_settings, transaction, "test-not", "not", "false");
-    if ((test_to_execute == "") || (test_to_execute == "20"))
+    if ((test_to_execute.empty()) || (test_to_execute == "20"))
       prefix_test< Evaluator_Not >(global_settings, transaction, "test-not", "not", "");
-    if ((test_to_execute == "") || (test_to_execute == "21"))
+    if ((test_to_execute.empty()) || (test_to_execute == "21"))
       pair_test< Evaluator_Equal >(global_settings, transaction, "test-equal", "equal", "9.5", "9.50");
-    if ((test_to_execute == "") || (test_to_execute == "22"))
+    if ((test_to_execute.empty()) || (test_to_execute == "22"))
       pair_test< Evaluator_Equal >(global_settings, transaction, "test-equal", "equal", "99", "099");
-    if ((test_to_execute == "") || (test_to_execute == "23"))
+    if ((test_to_execute.empty()) || (test_to_execute == "23"))
       pair_test< Evaluator_Equal >(global_settings, transaction, "test-equal", "equal", "nine", "nine");
-    if ((test_to_execute == "") || (test_to_execute == "24"))
+    if ((test_to_execute.empty()) || (test_to_execute == "24"))
       pair_test< Evaluator_Equal >(global_settings, transaction, "test-equal", "equal", "nine", "nine ");
-    if ((test_to_execute == "") || (test_to_execute == "25"))
+    if ((test_to_execute.empty()) || (test_to_execute == "25"))
       pair_test< Evaluator_Equal >(global_settings, transaction, "test-equal", "equal", "99", "99 ");
-    if ((test_to_execute == "") || (test_to_execute == "26"))
+    if ((test_to_execute.empty()) || (test_to_execute == "26"))
       pair_test< Evaluator_Less >(global_settings, transaction, "test-less", "less", "9.5", "10");
-    if ((test_to_execute == "") || (test_to_execute == "27"))
+    if ((test_to_execute.empty()) || (test_to_execute == "27"))
       pair_test< Evaluator_Less >(global_settings, transaction, "test-less", "less", "9", "10.1");
-    if ((test_to_execute == "") || (test_to_execute == "28"))
+    if ((test_to_execute.empty()) || (test_to_execute == "28"))
       pair_test< Evaluator_Less >(global_settings, transaction, "test-less", "less", "9", "10");
-    if ((test_to_execute == "") || (test_to_execute == "29"))
+    if ((test_to_execute.empty()) || (test_to_execute == "29"))
       pair_test< Evaluator_Less >(global_settings, transaction, "test-less", "less", "10", "9");
-    if ((test_to_execute == "") || (test_to_execute == "30"))
+    if ((test_to_execute.empty()) || (test_to_execute == "30"))
       pair_test< Evaluator_Less >(global_settings, transaction, "test-less", "less", "a", "b");
-    if ((test_to_execute == "") || (test_to_execute == "31"))
+    if ((test_to_execute.empty()) || (test_to_execute == "31"))
       pair_test< Evaluator_Less >(global_settings, transaction, "test-less", "less", "b", "a");
-    if ((test_to_execute == "") || (test_to_execute == "32"))
+    if ((test_to_execute.empty()) || (test_to_execute == "32"))
       pair_test< Evaluator_Less >(global_settings, transaction, "test-less", "less", "1", "a");
-    if ((test_to_execute == "") || (test_to_execute == "33"))
+    if ((test_to_execute.empty()) || (test_to_execute == "33"))
       pair_test< Evaluator_Less >(global_settings, transaction, "test-less", "less", " ", "1");
-    if ((test_to_execute == "") || (test_to_execute == "34"))
+    if ((test_to_execute.empty()) || (test_to_execute == "34"))
       pair_test< Evaluator_Less_Equal >(global_settings, transaction, "test-less-equal", "less-equal", "a", "a.0");
-    if ((test_to_execute == "") || (test_to_execute == "35"))
+    if ((test_to_execute.empty()) || (test_to_execute == "35"))
       pair_test< Evaluator_Less_Equal >(global_settings, transaction, "test-less-equal", "less-equal", "a.0", "a");
-    if ((test_to_execute == "") || (test_to_execute == "36"))
+    if ((test_to_execute.empty()) || (test_to_execute == "36"))
       pair_test< Evaluator_Less_Equal >(global_settings, transaction, "test-less-equal", "less-equal", "a", "a");
-    if ((test_to_execute == "") || (test_to_execute == "37"))
+    if ((test_to_execute.empty()) || (test_to_execute == "37"))
       pair_test< Evaluator_Less_Equal >(global_settings, transaction, "test-less-equal", "less-equal", "9.0", "9");
-    if ((test_to_execute == "") || (test_to_execute == "38"))
+    if ((test_to_execute.empty()) || (test_to_execute == "38"))
       pair_test< Evaluator_Less_Equal >(global_settings, transaction, "test-less-equal", "less-equal", "9.1", "9");
-    if ((test_to_execute == "") || (test_to_execute == "39"))
+    if ((test_to_execute.empty()) || (test_to_execute == "39"))
       pair_test< Evaluator_Less_Equal >(global_settings, transaction, "test-less-equal", "less-equal", "9", "10");
-    if ((test_to_execute == "") || (test_to_execute == "40"))
+    if ((test_to_execute.empty()) || (test_to_execute == "40"))
       pair_test< Evaluator_Greater >(global_settings, transaction, "test-greater", "greater", "a", "a.0");
-    if ((test_to_execute == "") || (test_to_execute == "41"))
+    if ((test_to_execute.empty()) || (test_to_execute == "41"))
       pair_test< Evaluator_Greater >(global_settings, transaction, "test-greater", "greater", "a.0", "a");
-    if ((test_to_execute == "") || (test_to_execute == "42"))
+    if ((test_to_execute.empty()) || (test_to_execute == "42"))
       pair_test< Evaluator_Greater >(global_settings, transaction, "test-greater", "greater", "a", "a");
-    if ((test_to_execute == "") || (test_to_execute == "43"))
+    if ((test_to_execute.empty()) || (test_to_execute == "43"))
       pair_test< Evaluator_Greater >(global_settings, transaction, "test-greater", "greater", "9", "10");
-    if ((test_to_execute == "") || (test_to_execute == "44"))
+    if ((test_to_execute.empty()) || (test_to_execute == "44"))
       pair_test< Evaluator_Greater >(global_settings, transaction, "test-greater", "greater", "9.0", "9");
-    if ((test_to_execute == "") || (test_to_execute == "45"))
+    if ((test_to_execute.empty()) || (test_to_execute == "45"))
       pair_test< Evaluator_Greater >(global_settings, transaction, "test-greater", "greater", "10", "9");
-    if ((test_to_execute == "") || (test_to_execute == "46"))
+    if ((test_to_execute.empty()) || (test_to_execute == "46"))
       pair_test< Evaluator_Greater_Equal >(global_settings, transaction, "test-gr-equal", "greater-equal", "a", "a.0");
-    if ((test_to_execute == "") || (test_to_execute == "47"))
+    if ((test_to_execute.empty()) || (test_to_execute == "47"))
       pair_test< Evaluator_Greater_Equal >(global_settings, transaction, "test-gr-equal", "greater-equal", "a.0", "a");
-    if ((test_to_execute == "") || (test_to_execute == "48"))
+    if ((test_to_execute.empty()) || (test_to_execute == "48"))
       pair_test< Evaluator_Greater_Equal >(global_settings, transaction, "test-gr-equal", "greater-equal", "a", "a");
-    if ((test_to_execute == "") || (test_to_execute == "49"))
+    if ((test_to_execute.empty()) || (test_to_execute == "49"))
       pair_test< Evaluator_Greater_Equal >(global_settings, transaction, "test-gr-equal", "greater-equal", "9", "10");
-    if ((test_to_execute == "") || (test_to_execute == "50"))
+    if ((test_to_execute.empty()) || (test_to_execute == "50"))
       pair_test< Evaluator_Greater_Equal >(global_settings, transaction, "test-gr-equal", "greater-equal", "9.0", "9");
-    if ((test_to_execute == "") || (test_to_execute == "51"))
+    if ((test_to_execute.empty()) || (test_to_execute == "51"))
       pair_test< Evaluator_Greater_Equal >(global_settings, transaction, "test-gr-equal", "greater-equal", "10", "9");
-    if ((test_to_execute == "") || (test_to_execute == "52"))
+    if ((test_to_execute.empty()) || (test_to_execute == "52"))
       pair_test< Evaluator_Plus >(global_settings, transaction, "test-plus", "sum", "5.5", "3.5");
-    if ((test_to_execute == "") || (test_to_execute == "53"))
+    if ((test_to_execute.empty()) || (test_to_execute == "53"))
       pair_test< Evaluator_Plus >(global_settings, transaction, "test-plus", "sum", "1", "0 ");
-    if ((test_to_execute == "") || (test_to_execute == "54"))
+    if ((test_to_execute.empty()) || (test_to_execute == "54"))
       pair_test< Evaluator_Plus >(global_settings, transaction, "test-plus", "sum", " 1", "10");
-    if ((test_to_execute == "") || (test_to_execute == "55"))
+    if ((test_to_execute.empty()) || (test_to_execute == "55"))
       pair_test< Evaluator_Plus >(global_settings, transaction, "test-plus", "sum", " 1", "2_");
-    if ((test_to_execute == "") || (test_to_execute == "56"))
+    if ((test_to_execute.empty()) || (test_to_execute == "56"))
       pair_test< Evaluator_Plus >(global_settings, transaction, "test-plus", "sum", "100000000000000000", "1");
-    if ((test_to_execute == "") || (test_to_execute == "57"))
+    if ((test_to_execute.empty()) || (test_to_execute == "57"))
       pair_test< Evaluator_Times >(global_settings, transaction, "test-times", "product", "2", "6.5");
-    if ((test_to_execute == "") || (test_to_execute == "58"))
+    if ((test_to_execute.empty()) || (test_to_execute == "58"))
       pair_test< Evaluator_Times >(global_settings, transaction, "test-times", "product", "_2", "7");
-    if ((test_to_execute == "") || (test_to_execute == "59"))
+    if ((test_to_execute.empty()) || (test_to_execute == "59"))
       pair_test< Evaluator_Minus >(global_settings, transaction, "test-minus", "difference", "2", "5");
-    if ((test_to_execute == "") || (test_to_execute == "60"))
+    if ((test_to_execute.empty()) || (test_to_execute == "60"))
       pair_test< Evaluator_Minus >(global_settings, transaction, "test-minus", "difference", "_2", "5");
-    if ((test_to_execute == "") || (test_to_execute == "61"))
+    if ((test_to_execute.empty()) || (test_to_execute == "61"))
       pair_test< Evaluator_Minus >(global_settings, transaction, "test-minus", "difference", "100000000000000001", "100000000000000000");
-    if ((test_to_execute == "") || (test_to_execute == "62"))
+    if ((test_to_execute.empty()) || (test_to_execute == "62"))
       prefix_test< Evaluator_Negate >(global_settings, transaction, "test-minus", "negation", "3.14");
-    if ((test_to_execute == "") || (test_to_execute == "63"))
+    if ((test_to_execute.empty()) || (test_to_execute == "63"))
       prefix_test< Evaluator_Negate >(global_settings, transaction, "test-minus", "negation", "-3.");
-    if ((test_to_execute == "") || (test_to_execute == "64"))
+    if ((test_to_execute.empty()) || (test_to_execute == "64"))
       prefix_test< Evaluator_Negate >(global_settings, transaction, "test-minus", "negation", "100000000000000000");
-    if ((test_to_execute == "") || (test_to_execute == "65"))
+    if ((test_to_execute.empty()) || (test_to_execute == "65"))
       prefix_test< Evaluator_Negate >(global_settings, transaction, "test-minus", "negation", "one");
-    if ((test_to_execute == "") || (test_to_execute == "66"))
+    if ((test_to_execute.empty()) || (test_to_execute == "66"))
       pair_test< Evaluator_Divided >(global_settings, transaction, "test-divided", "quotient", "8", "9");
-    if ((test_to_execute == "") || (test_to_execute == "67"))
+    if ((test_to_execute.empty()) || (test_to_execute == "67"))
       pair_test< Evaluator_Divided >(global_settings, transaction, "test-divided", "quotient", "_8", "9");
-    if ((test_to_execute == "") || (test_to_execute == "68"))
+    if ((test_to_execute.empty()) || (test_to_execute == "68"))
       union_value_test(global_settings, transaction, "union-value", "_", 1, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "69"))
+    if ((test_to_execute.empty()) || (test_to_execute == "69"))
       union_value_test(global_settings, transaction, "union-value", "foo", 1, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "70"))
+    if ((test_to_execute.empty()) || (test_to_execute == "70"))
       min_value_test(global_settings, transaction, "min-value", "_", 7, 14, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "71"))
+    if ((test_to_execute.empty()) || (test_to_execute == "71"))
       min_value_test(global_settings, transaction, "min-value", "_", 7, 14, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "72"))
+    if ((test_to_execute.empty()) || (test_to_execute == "72"))
       max_value_test(global_settings, transaction, "max-value", "_", 7, 14, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "73"))
+    if ((test_to_execute.empty()) || (test_to_execute == "73"))
       max_value_test(global_settings, transaction, "max-value", "_", 7, 14, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "74"))
+    if ((test_to_execute.empty()) || (test_to_execute == "74"))
       set_value_test(global_settings, transaction, "value-set", "_", 7, 14, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "75"))
+    if ((test_to_execute.empty()) || (test_to_execute == "75"))
       set_value_test(global_settings, transaction, "value-set", "_", 7, 14, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "76"))
+    if ((test_to_execute.empty()) || (test_to_execute == "76"))
       value_id_type_test(global_settings, transaction, "id-and-type", "_", 1, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "77"))
+    if ((test_to_execute.empty()) || (test_to_execute == "77"))
       key_id_test(global_settings, transaction, "key-id", "_", 0, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "78"))
+    if ((test_to_execute.empty()) || (test_to_execute == "78"))
       key_id_test(global_settings, transaction, "key-id", "_", 1, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "79"))
+    if ((test_to_execute.empty()) || (test_to_execute == "79"))
       number_test(global_settings, transaction, "test-number", global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "80"))
+    if ((test_to_execute.empty()) || (test_to_execute == "80"))
       date_test(global_settings, transaction, "test-date", global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "81"))
+    if ((test_to_execute.empty()) || (test_to_execute == "81"))
       suffix_test(global_settings, transaction, "test-suffix", global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "82"))
+    if ((test_to_execute.empty()) || (test_to_execute == "82"))
       lrs_test(global_settings, transaction, "test-lrs", global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "83"))
+    if ((test_to_execute.empty()) || (test_to_execute == "83"))
       triple_test(global_settings, transaction, "test-ternary", "ternary", "1", "A", "B");
-    if ((test_to_execute == "") || (test_to_execute == "84"))
+    if ((test_to_execute.empty()) || (test_to_execute == "84"))
       triple_test(global_settings, transaction, "test-ternary", "ternary", "false", "A", "B");
-    if ((test_to_execute == "") || (test_to_execute == "85"))
+    if ((test_to_execute.empty()) || (test_to_execute == "85"))
       triple_test(global_settings, transaction, "test-ternary", "ternary", "0", "A", "B");
-    if ((test_to_execute == "") || (test_to_execute == "86"))
+    if ((test_to_execute.empty()) || (test_to_execute == "86"))
       triple_test(global_settings, transaction, "test-ternary", "ternary", "", "A", "B");
-    if ((test_to_execute == "") || (test_to_execute == "87"))
+    if ((test_to_execute.empty()) || (test_to_execute == "87"))
       generic_key_test(global_settings, transaction, "generic-key", "_", 7, 14, false, false, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "88"))
+    if ((test_to_execute.empty()) || (test_to_execute == "88"))
       generic_key_test(global_settings, transaction, "generic-key", "foo", 7, 14, false, false, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "89"))
+    if ((test_to_execute.empty()) || (test_to_execute == "89"))
       generic_key_test(global_settings, transaction, "generic-key", "_", 7, 14, false, true, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "90"))
+    if ((test_to_execute.empty()) || (test_to_execute == "90"))
       generic_key_test(global_settings, transaction, "generic-key", "_", 7, 14, true, false, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "91"))
+    if ((test_to_execute.empty()) || (test_to_execute == "91"))
       make_point_test(global_settings, transaction, "make-point", 7, "51.25", "7.15", global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "92"))
+    if ((test_to_execute.empty()) || (test_to_execute == "92"))
       make_point_test(global_settings, transaction, "make-point-invalid-north", 7, "91.25", "7.15",
           global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "93"))
+    if ((test_to_execute.empty()) || (test_to_execute == "93"))
       make_point_test(global_settings, transaction, "make-point-invalid-east", 7,  "51.25", "187.15",
           global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "94"))
+    if ((test_to_execute.empty()) || (test_to_execute == "94"))
       make_point_test(global_settings, transaction, "make-point-dependencies", 34, "51.25", "", global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "95"))
+    if ((test_to_execute.empty()) || (test_to_execute == "95"))
       make_linestring_test(global_settings, transaction, "make-linestring", 7, 0, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "96"))
+    if ((test_to_execute.empty()) || (test_to_execute == "96"))
       make_linestring_test(global_settings, transaction, "make-linestring", 7, 1, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "97"))
+    if ((test_to_execute.empty()) || (test_to_execute == "97"))
       make_linestring_test(global_settings, transaction, "make-linestring", 7, 2, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "98"))
+    if ((test_to_execute.empty()) || (test_to_execute == "98"))
       make_linestring_test(global_settings, transaction, "make-linestring", 7, 3, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "99"))
+    if ((test_to_execute.empty()) || (test_to_execute == "99"))
       make_linestring_test(global_settings, transaction, "make-linestring", 34, 4, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "100"))
+    if ((test_to_execute.empty()) || (test_to_execute == "100"))
       make_polygon_test(global_settings, transaction, "make-polygon", 7, 0, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "101"))
+    if ((test_to_execute.empty()) || (test_to_execute == "101"))
       make_polygon_test(global_settings, transaction, "make-polygon", 7, 1, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "102"))
+    if ((test_to_execute.empty()) || (test_to_execute == "102"))
       make_polygon_test(global_settings, transaction, "make-polygon", 7, 2, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "103"))
+    if ((test_to_execute.empty()) || (test_to_execute == "103"))
       make_polygon_test(global_settings, transaction, "make-polygon", 7, 3, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "104"))
+    if ((test_to_execute.empty()) || (test_to_execute == "104"))
       make_polygon_test(global_settings, transaction, "make-polygon", 34, 4, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "105"))
+    if ((test_to_execute.empty()) || (test_to_execute == "105"))
       make_polygon_test(global_settings, transaction, "make-polygon", 34, 5, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "106"))
+    if ((test_to_execute.empty()) || (test_to_execute == "106"))
       make_polygon_test(global_settings, transaction, "make-polygon", 34, 6, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "107"))
+    if ((test_to_execute.empty()) || (test_to_execute == "107"))
       make_polygon_date_line_test(global_settings, transaction, "make-polygon", global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "108"))
+    if ((test_to_execute.empty()) || (test_to_execute == "108"))
       make_polygon_intersection_test_1(global_settings, transaction, "make-polygon", global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "109"))
+    if ((test_to_execute.empty()) || (test_to_execute == "109"))
       make_polygon_intersection_test_2(global_settings, transaction, "make-polygon", global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "110"))
+    if ((test_to_execute.empty()) || (test_to_execute == "110"))
       gcat_test(global_settings, transaction, "geometry", global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "111"))
+    if ((test_to_execute.empty()) || (test_to_execute == "111"))
       center_test(global_settings, transaction, "center", 48, 11.01, 10.99, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "112"))
+    if ((test_to_execute.empty()) || (test_to_execute == "112"))
       center_test(global_settings, transaction, "center", 42, 179.99, -179.99, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "113"))
+    if ((test_to_execute.empty()) || (test_to_execute == "113"))
       trace_test_1(global_settings, transaction, "trace", false, false, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "114"))
+    if ((test_to_execute.empty()) || (test_to_execute == "114"))
       trace_test_1(global_settings, transaction, "trace", true, false, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "115"))
+    if ((test_to_execute.empty()) || (test_to_execute == "115"))
       trace_test_1(global_settings, transaction, "trace", true, true, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "116"))
+    if ((test_to_execute.empty()) || (test_to_execute == "116"))
       trace_test_2(global_settings, transaction, "trace", false, false, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "117"))
+    if ((test_to_execute.empty()) || (test_to_execute == "117"))
       trace_test_2(global_settings, transaction, "trace", true, false, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "118"))
+    if ((test_to_execute.empty()) || (test_to_execute == "118"))
       trace_test_2(global_settings, transaction, "trace", false, true, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "119"))
+    if ((test_to_execute.empty()) || (test_to_execute == "119"))
       hull_test_1(global_settings, transaction, "hull", 0, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "120"))
+    if ((test_to_execute.empty()) || (test_to_execute == "120"))
       hull_test_1(global_settings, transaction, "hull", 1, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "121"))
+    if ((test_to_execute.empty()) || (test_to_execute == "121"))
       hull_test_1(global_settings, transaction, "hull", 2, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "122"))
+    if ((test_to_execute.empty()) || (test_to_execute == "122"))
       hull_test_1(global_settings, transaction, "hull", 3, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "123"))
+    if ((test_to_execute.empty()) || (test_to_execute == "123"))
       hull_test_1(global_settings, transaction, "hull", 4, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "124"))
+    if ((test_to_execute.empty()) || (test_to_execute == "124"))
       hull_test_1(global_settings, transaction, "hull", 5, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "125"))
+    if ((test_to_execute.empty()) || (test_to_execute == "125"))
       hull_test_1(global_settings, transaction, "hull", 6, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "126"))
+    if ((test_to_execute.empty()) || (test_to_execute == "126"))
       hull_test_1(global_settings, transaction, "hull", 7, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "127"))
+    if ((test_to_execute.empty()) || (test_to_execute == "127"))
       hull_test_1(global_settings, transaction, "hull", 8, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "128"))
+    if ((test_to_execute.empty()) || (test_to_execute == "128"))
       hull_test_1(global_settings, transaction, "hull", 9, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "129"))
+    if ((test_to_execute.empty()) || (test_to_execute == "129"))
       hull_test_2(global_settings, transaction, "hull", 0, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "130"))
+    if ((test_to_execute.empty()) || (test_to_execute == "130"))
       hull_test_2(global_settings, transaction, "hull", 1, global_node_offset);
-    if ((test_to_execute == "") || (test_to_execute == "131"))
+    if ((test_to_execute.empty()) || (test_to_execute == "131"))
       triple_geom_test(global_settings, transaction, "test-ternary", "ternary-geom", "1");
-    if ((test_to_execute == "") || (test_to_execute == "132"))
+    if ((test_to_execute.empty()) || (test_to_execute == "132"))
       triple_geom_test(global_settings, transaction, "test-ternary", "ternary-geom", "0");
 
     std::cout<<"</osm>\n";

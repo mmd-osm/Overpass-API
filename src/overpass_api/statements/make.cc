@@ -37,7 +37,7 @@ Make_Statement::Make_Statement
 
   set_output(attributes["into"]);
 
-  if (attributes["type"] == "")
+  if (attributes["type"].empty())
     add_static_error("The attribute type must be set to a nonempty string.");
 
   type = attributes["type"];

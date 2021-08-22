@@ -92,7 +92,7 @@ class Recurse_Statement final : public Output_Statement
       return indent + "<recurse"
           + (input != "_" ? std::string(" from=\"") + input + "\"" : "")
           + " type=\"" + to_xml_representation(type) + "\""
-          + (role != "" ? std::string(" role=\"") + escape_xml(role) + "\"" : "")
+          + (!role.empty() ? std::string(" role=\"") + escape_xml(role) + "\"" : "")
           + (restrict_to_role ? " role-restricted=\"yes\"" : "")
           + dump_xml_pos_restrictions()
           + dump_xml_result_name() + "/>\n";
@@ -111,7 +111,7 @@ class Recurse_Statement final : public Output_Statement
     std::string dump_compact_ql(const std::string&) const override
     {
       std::string target_type = to_target_type(type);
-      if (target_type != "")
+      if (!target_type.empty())
         return target_type + "(" + to_ql_representation(type)
             + (input != "_" ? std::string(".") + input : "")
             + (restrict_to_role || !pos.empty() ? ":" : "")

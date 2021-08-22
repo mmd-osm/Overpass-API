@@ -781,7 +781,7 @@ Around_Statement::Around_Statement
   set_output(attributes["into"]);
 
   radius = atof(attributes["radius"].c_str());
-  if ((radius < 0.0) || (attributes["radius"] == ""))
+  if ((radius < 0.0) || (attributes["radius"].empty()))
   {
     std::ostringstream temp;
     temp<<"For the attribute \"radius\" of the element \"around\""
@@ -791,7 +791,7 @@ Around_Statement::Around_Statement
 
   double lat = 100.;
   double lon = 0;
-  if (attributes["lat"] != "")
+  if (!attributes["lat"].empty())
   {
     lat = atof(attributes["lat"].c_str());
     if ((lat < -90.0) || (lat > 90.0))
@@ -799,7 +799,7 @@ Around_Statement::Around_Statement
           " the only allowed values are floats between -90.0 and 90.0 or an empty value.");
   }
 
-  if (attributes["lon"] != "")
+  if (!attributes["lon"].empty())
   {
     lon = atof(attributes["lon"].c_str());
     if ((lon < -180.0) || (lon > 180.0))
@@ -807,9 +807,9 @@ Around_Statement::Around_Statement
           " the only allowed values are floats between -1800.0 and 180.0 or an empty value.");
   }
 
-  if (attributes["polyline"] != "")
+  if (!attributes["polyline"].empty())
   {
-    if (attributes["lat"] != "" || attributes["lon"] != "")
+    if (!attributes["lat"].empty() || !attributes["lon"].empty())
       add_static_error("In \"around\", the attribute \"polyline\" cannot be used if \"lat\" or \"lon\" are used.");
 
     std::string& polystring = attributes["polyline"];

@@ -123,7 +123,7 @@ int main(int argc, char* args[])
   "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
   "<osm>\n";
 
-  if ((test_to_execute == "") || (test_to_execute == "1"))
+  if ((test_to_execute.empty()) || (test_to_execute == "1"))
   {
     std::ostringstream bounds;
     bounds<<std::fixed<<std::setprecision(7)<<30.0 + 11*(20.0/2.0/pattern_size)<<' '
@@ -144,7 +144,7 @@ int main(int argc, char* args[])
           <<std::fixed<<std::setprecision(7)<<-120 + 11*(60.0/2.0/pattern_size)<<' ';
     perform_polygon_print(bounds.str(), transaction);
   }
-  if ((test_to_execute == "") || (test_to_execute == "2"))
+  if ((test_to_execute.empty()) || (test_to_execute == "2"))
   {
     std::ostringstream bounds;
     bounds<<std::fixed<<std::setprecision(7)<<50.0 - (20.0/2.0/pattern_size)<<' '
@@ -155,7 +155,7 @@ int main(int argc, char* args[])
           <<std::fixed<<std::setprecision(7)<<-120<<' ';
     perform_polygon_print(bounds.str(), transaction);
   }
-  if ((test_to_execute == "") || (test_to_execute == "3"))
+  if ((test_to_execute.empty()) || (test_to_execute == "3"))
   {
     std::ostringstream bounds;
     bounds<<std::fixed<<std::setprecision(7)<<30.0 + 11*(20.0/2.0/pattern_size)<<' '
@@ -176,7 +176,7 @@ int main(int argc, char* args[])
           <<std::fixed<<std::setprecision(7)<<-120 + 11*(60.0/2.0/pattern_size)<<' ';
     perform_query_polygon_print(bounds.str(), "node", transaction);
   }
-  if ((test_to_execute == "") || (test_to_execute == "4"))
+  if ((test_to_execute.empty()) || (test_to_execute == "4"))
   {
     std::ostringstream bounds;
     bounds<<std::fixed<<std::setprecision(7)<<-10.0<<' '
@@ -189,7 +189,7 @@ int main(int argc, char* args[])
           <<std::fixed<<std::setprecision(7)<<45.0<<' ';
     perform_query_polygon_print(bounds.str(), "way", transaction);
   }
-  if ((test_to_execute == "") || (test_to_execute == "5"))
+  if ((test_to_execute.empty()) || (test_to_execute == "5"))
   {
     std::ostringstream bounds;
     bounds<<std::fixed<<std::setprecision(7)<<-10.0<<' '

@@ -84,7 +84,7 @@ Osm_Script_Statement::Osm_Script_Statement
       add_static_error("Unknown output format: " + attributes["output"]);
     else
     {
-      if (attributes["output-config"] == "")
+      if (attributes["output-config"].empty())
         global_settings.set_output_handler(format_parser, 0, 0);
       else
       {
@@ -108,7 +108,7 @@ Osm_Script_Statement::Osm_Script_Statement
     add_static_error(temp.str());
   }
 
-  if (attributes["bbox"] != "")
+  if (!attributes["bbox"].empty())
   {
     std::map< std::string, std::string > bbox_attributes;
 
@@ -175,14 +175,14 @@ Osm_Script_Statement::Osm_Script_Statement
       global_settings.set_global_bbox(Bbox_Double(south, west, north, east));
   }
 
-  if (attributes["date"] != "")
+  if (!attributes["date"].empty())
   {
     desired_timestamp = Timestamp(attributes["date"]).timestamp;
     if (desired_timestamp == 0)
       add_static_error("The attribute \"date\" must be empty or contain a timestamp exactly in the form \"yyyy-mm-ddThh:mm:ssZ\".");
   }
 
-  if (attributes["from"] != "")
+  if (!attributes["from"].empty())
   {
     comparison_timestamp = Timestamp(attributes["from"]).timestamp;
     if (comparison_timestamp == 0)
@@ -191,9 +191,9 @@ Osm_Script_Statement::Osm_Script_Statement
       add_static_error("The selected output format does not support the diff or adiff mode.");
   }
 
-  if (attributes["augmented"] != "")
+  if (!attributes["augmented"].empty())
   {
-    if (attributes["augmented"] == "deletions" && attributes["from"] != "")
+    if (attributes["augmented"] == "deletions" && !attributes["from"].empty())
       add_deletion_information = true;
 
     if (attributes["augmented"] != "deletions")
@@ -202,7 +202,7 @@ Osm_Script_Statement::Osm_Script_Statement
       temp<<"The only allowed values for \"augmented\" are an empty value or \"deletions\".";
       add_static_error(temp.str());
     }
-    if (attributes["from"] == "")
+    if (attributes["from"].empty())
     {
       std::ostringstream temp;
       temp<<"The attribute \"augmented\" can only be set if the attribute \"from\" is set.";

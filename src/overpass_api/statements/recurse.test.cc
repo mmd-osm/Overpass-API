@@ -86,7 +86,7 @@ int main(int argc, char* args[])
   "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
   "<osm>\n";
 
-  if ((test_to_execute == "") || (test_to_execute == "1"))
+  if ((test_to_execute.empty()) || (test_to_execute == "1"))
   {
     try
     {
@@ -121,7 +121,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "2"))
+  if ((test_to_execute.empty()) || (test_to_execute == "2"))
   {
     try
     {
@@ -160,7 +160,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "3"))
+  if ((test_to_execute.empty()) || (test_to_execute == "3"))
   {
     try
     {
@@ -185,7 +185,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "4"))
+  if ((test_to_execute.empty()) || (test_to_execute == "4"))
   {
     try
     {
@@ -210,7 +210,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "5"))
+  if ((test_to_execute.empty()) || (test_to_execute == "5"))
   {
     try
     {
@@ -257,7 +257,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "6"))
+  if ((test_to_execute.empty()) || (test_to_execute == "6"))
   {
     try
     {
@@ -293,7 +293,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "7"))
+  if ((test_to_execute.empty()) || (test_to_execute == "7"))
   {
     try
     {
@@ -318,7 +318,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "8"))
+  if ((test_to_execute.empty()) || (test_to_execute == "8"))
   {
     try
     {
@@ -343,7 +343,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "9"))
+  if ((test_to_execute.empty()) || (test_to_execute == "9"))
   {
     try
     {
@@ -368,7 +368,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "10"))
+  if ((test_to_execute.empty()) || (test_to_execute == "10"))
   {
     try
     {
@@ -393,7 +393,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "11"))
+  if ((test_to_execute.empty()) || (test_to_execute == "11"))
   {
     try
     {
@@ -418,7 +418,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "12"))
+  if ((test_to_execute.empty()) || (test_to_execute == "12"))
   {
     try
     {
@@ -443,7 +443,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "13"))
+  if ((test_to_execute.empty()) || (test_to_execute == "13"))
   {
     try
     {
@@ -468,7 +468,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "14"))
+  if ((test_to_execute.empty()) || (test_to_execute == "14"))
   {
     try
     {
@@ -493,7 +493,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "15"))
+  if ((test_to_execute.empty()) || (test_to_execute == "15"))
   {
     try
     {
@@ -518,7 +518,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "16"))
+  if ((test_to_execute.empty()) || (test_to_execute == "16"))
   {
     try
     {
@@ -543,7 +543,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "17"))
+  if ((test_to_execute.empty()) || (test_to_execute == "17"))
   {
     try
     {
@@ -568,7 +568,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "18"))
+  if ((test_to_execute.empty()) || (test_to_execute == "18"))
   {
     try
     {
@@ -593,7 +593,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "19"))
+  if ((test_to_execute.empty()) || (test_to_execute == "19"))
   {
     try
     {
@@ -618,7 +618,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "20"))
+  if ((test_to_execute.empty()) || (test_to_execute == "20"))
   {
     try
     {
@@ -643,7 +643,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "21"))
+  if ((test_to_execute.empty()) || (test_to_execute == "21"))
   {
     try
     {
@@ -668,7 +668,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "22"))
+  if ((test_to_execute.empty()) || (test_to_execute == "22"))
   {
     try
     {
@@ -693,7 +693,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "23"))
+  if ((test_to_execute.empty()) || (test_to_execute == "23"))
   {
     try
     {
@@ -719,7 +719,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "24"))
+  if ((test_to_execute.empty()) || (test_to_execute == "24"))
   {
     try
     {
@@ -755,7 +755,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "25"))
+  if ((test_to_execute.empty()) || (test_to_execute == "25"))
   {
     try
     {
@@ -780,7 +780,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "26"))
+  if ((test_to_execute.empty()) || (test_to_execute == "26"))
   {
     try
     {
@@ -805,7 +805,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "27"))
+  if ((test_to_execute.empty()) || (test_to_execute == "27"))
   {
     try
     {
@@ -831,7 +831,7 @@ int main(int argc, char* args[])
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     }
   }
-  if ((test_to_execute == "") || (test_to_execute == "28"))
+  if ((test_to_execute.empty()) || (test_to_execute == "28"))
   {
     try
     {

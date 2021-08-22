@@ -60,7 +60,7 @@ std::string getcwd()
   }
   std::string result(buf);
   free(buf);
-  if ((result != "") && (result[result.size()-1] != '/'))
+  if ((!result.empty()) && (result[result.size()-1] != '/'))
     result += '/';
   return result;
 }

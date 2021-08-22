@@ -117,7 +117,7 @@ int main(int argc, char* args[])
   }
   std::string test_to_execute = args[1];
 
-  if ((test_to_execute == "1") || (test_to_execute == ""))
+  if ((test_to_execute == "1") || (test_to_execute.empty()))
   {
     std::cout<<"Test ll_upper:\n";
 
@@ -148,7 +148,7 @@ int main(int argc, char* args[])
     std::cout<<'\n';
   }
 
-  if ((test_to_execute == "2") || (test_to_execute == ""))
+  if ((test_to_execute == "2") || (test_to_execute.empty()))
   {
     std::cout<<"\nTest upper_ilat:\n";
 
@@ -181,7 +181,7 @@ int main(int argc, char* args[])
     std::cout<<'\n';
   }
 
-  if ((test_to_execute == "3") || (test_to_execute == ""))
+  if ((test_to_execute == "3") || (test_to_execute.empty()))
   {
     std::cout<<"\nTest calc_index with 1 entry:\n";
 
@@ -400,7 +400,7 @@ int main(int argc, char* args[])
     std::cout<<'\n';
   }
 
-  if ((test_to_execute == "4") || (test_to_execute == ""))
+  if ((test_to_execute == "4") || (test_to_execute.empty()))
   {
     std::cout<<"\nTest calc_node_children:\n";
 
@@ -462,7 +462,7 @@ int main(int argc, char* args[])
     }*/
   }
 
-  if ((test_to_execute == "5") || (test_to_execute == ""))
+  if ((test_to_execute == "5") || (test_to_execute.empty()))
   {
     std::cout<<"\nTest calc_children:\n";
 
@@ -499,7 +499,7 @@ int main(int argc, char* args[])
     }
   }
 
-  if ((test_to_execute == "6") || (test_to_execute == ""))
+  if ((test_to_execute == "6") || (test_to_execute.empty()))
   {
     std::cout<<"\nTest calc_parents:\n";
 
@@ -581,7 +581,7 @@ int main(int argc, char* args[])
     std::cout<<'\n';
   }
 
-  if ((test_to_execute == "7") || (test_to_execute == ""))
+  if ((test_to_execute == "7") || (test_to_execute.empty()))
   {
     std::cout<<"\nTest calc_parents(ranges):\n";
 

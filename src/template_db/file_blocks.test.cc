@@ -783,7 +783,7 @@ int main(int argc, char* args[])
        O_WRONLY|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
   close(index_fd);
 
-  if ((test_to_execute == "") || (test_to_execute == "info"))
+  if ((test_to_execute.empty()) || (test_to_execute == "info"))
   {
     Compressed_Test_File tf;
 
@@ -802,13 +802,13 @@ int main(int argc, char* args[])
       std::cout<<"Using lz4 compression for map files.\n";
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "1"))
+  if ((test_to_execute.empty()) || (test_to_execute == "1"))
   {
     std::cout<<"** Test the behaviour for an empty file\n";
     read_test();
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "2"))
+  if ((test_to_execute.empty()) || (test_to_execute == "2"))
     std::cout<<"** Test the behaviour for a file with one entry - part 1\n";
   try
   {
@@ -832,10 +832,10 @@ int main(int argc, char* args[])
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "2"))
+  if ((test_to_execute.empty()) || (test_to_execute == "2"))
     read_test();
 
-  if ((test_to_execute == "") || (test_to_execute == "3"))
+  if ((test_to_execute.empty()) || (test_to_execute == "3"))
     std::cout<<"** Test the behaviour for a file with one entry - part 2\n";
   try
   {
@@ -859,10 +859,10 @@ int main(int argc, char* args[])
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "3"))
+  if ((test_to_execute.empty()) || (test_to_execute == "3"))
     read_test();
 
-  if ((test_to_execute == "") || (test_to_execute == "4"))
+  if ((test_to_execute.empty()) || (test_to_execute == "4"))
     std::cout<<"** Test the behaviour for a file with three entries\n";
   try
   {
@@ -891,10 +891,10 @@ int main(int argc, char* args[])
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "4"))
+  if ((test_to_execute.empty()) || (test_to_execute == "4"))
     read_test();
 
-  if ((test_to_execute == "") || (test_to_execute == "5"))
+  if ((test_to_execute.empty()) || (test_to_execute == "5"))
     std::cout<<"** Test insertion everywhere\n";
   try
   {
@@ -945,10 +945,10 @@ int main(int argc, char* args[])
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "5"))
+  if ((test_to_execute.empty()) || (test_to_execute == "5"))
     read_test();
 
-  if ((test_to_execute == "") || (test_to_execute == "6"))
+  if ((test_to_execute.empty()) || (test_to_execute == "6"))
     std::cout<<"** Test to replace blocks\n";
   try
   {
@@ -995,10 +995,10 @@ int main(int argc, char* args[])
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "6"))
+  if ((test_to_execute.empty()) || (test_to_execute == "6"))
     read_test();
 
-  if ((test_to_execute == "") || (test_to_execute == "7"))
+  if ((test_to_execute.empty()) || (test_to_execute == "7"))
     std::cout<<"** Delete blocks in between\n";
   try
   {
@@ -1026,10 +1026,10 @@ int main(int argc, char* args[])
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "7"))
+  if ((test_to_execute.empty()) || (test_to_execute == "7"))
     read_test();
 
-  if ((test_to_execute == "") || (test_to_execute == "8"))
+  if ((test_to_execute.empty()) || (test_to_execute == "8"))
     std::cout<<"** Delete blocks at the begin and the end\n";
   try
   {
@@ -1055,10 +1055,10 @@ int main(int argc, char* args[])
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "8"))
+  if ((test_to_execute.empty()) || (test_to_execute == "8"))
     read_test();
 
-  if ((test_to_execute == "") || (test_to_execute == "9"))
+  if ((test_to_execute.empty()) || (test_to_execute == "9"))
     std::cout<<"** Test insertion again\n";
   try
   {
@@ -1093,10 +1093,10 @@ int main(int argc, char* args[])
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "9"))
+  if ((test_to_execute.empty()) || (test_to_execute == "9"))
     read_test();
 
-  if ((test_to_execute == "") || (test_to_execute == "10"))
+  if ((test_to_execute.empty()) || (test_to_execute == "10"))
     std::cout<<"** Delete everything\n";
   try
   {
@@ -1124,10 +1124,10 @@ int main(int argc, char* args[])
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "10"))
+  if ((test_to_execute.empty()) || (test_to_execute == "10"))
     read_test();
 
-  if ((test_to_execute == "") || (test_to_execute == "11"))
+  if ((test_to_execute.empty()) || (test_to_execute == "11"))
     std::cout<<"** Insert two series of segments\n";
   try
   {
@@ -1161,10 +1161,10 @@ int main(int argc, char* args[])
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "11"))
+  if ((test_to_execute.empty()) || (test_to_execute == "11"))
     read_test();
 
-  if ((test_to_execute == "") || (test_to_execute == "12"))
+  if ((test_to_execute.empty()) || (test_to_execute == "12"))
     std::cout<<"** Replace by other series of segments\n";
   try
   {
@@ -1229,10 +1229,10 @@ int main(int argc, char* args[])
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "12"))
+  if ((test_to_execute.empty()) || (test_to_execute == "12"))
     read_test();
 
-  if ((test_to_execute == "") || (test_to_execute == "13"))
+  if ((test_to_execute.empty()) || (test_to_execute == "13"))
     std::cout<<"** Test deleting file content\n";
   try
   {
@@ -1256,10 +1256,10 @@ int main(int argc, char* args[])
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "13"))
+  if ((test_to_execute.empty()) || (test_to_execute == "13"))
     read_test();
 
-  if ((test_to_execute == "") || (test_to_execute == "14"))
+  if ((test_to_execute.empty()) || (test_to_execute == "14"))
     std::cout<<"** Test one isolated oversized object\n";
   try
   {
@@ -1290,10 +1290,10 @@ int main(int argc, char* args[])
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "14"))
+  if ((test_to_execute.empty()) || (test_to_execute == "14"))
     read_test();
 
-  if ((test_to_execute == "") || (test_to_execute == "15"))
+  if ((test_to_execute.empty()) || (test_to_execute == "15"))
     std::cout<<"** Test one isolated oversized object plus one ordinary object\n";
   try
   {
@@ -1322,10 +1322,10 @@ int main(int argc, char* args[])
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "15"))
+  if ((test_to_execute.empty()) || (test_to_execute == "15"))
     read_test();
 
-  if ((test_to_execute == "") || (test_to_execute == "16"))
+  if ((test_to_execute.empty()) || (test_to_execute == "16"))
     std::cout<<"** Test one ordinary object plus one isolated oversized object\n";
   try
   {
@@ -1355,10 +1355,10 @@ int main(int argc, char* args[])
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "16"))
+  if ((test_to_execute.empty()) || (test_to_execute == "16"))
     read_test();
 
-  if ((test_to_execute == "") || (test_to_execute == "17"))
+  if ((test_to_execute.empty()) || (test_to_execute == "17"))
     std::cout<<"** Test deleting file content\n";
   try
   {
@@ -1408,7 +1408,7 @@ int main(int argc, char* args[])
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "17"))
+  if ((test_to_execute.empty()) || (test_to_execute == "17"))
     read_test();
 
   remove((BASE_DIRECTORY
@@ -1434,13 +1434,13 @@ int main(int argc, char* args[])
         + Variable_Block_Test_File().get_index_suffix()).c_str(),
        O_WRONLY|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
   close(index_fd);
-  if ((test_to_execute == "") || (test_to_execute == "18"))
+  if ((test_to_execute.empty()) || (test_to_execute == "18"))
   {
     std::cout<<"** Test the behaviour for an empty file\n";
     variable_block_read_test();
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "19"))
+  if ((test_to_execute.empty()) || (test_to_execute == "19"))
     std::cout<<"** Test the behaviour for a compressed file with one entry - part 1\n";
   try
   {
@@ -1466,10 +1466,10 @@ int main(int argc, char* args[])
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "19"))
+  if ((test_to_execute.empty()) || (test_to_execute == "19"))
     variable_block_read_test();
 
-  if ((test_to_execute == "") || (test_to_execute == "20"))
+  if ((test_to_execute.empty()) || (test_to_execute == "20"))
     std::cout<<"** Test the behaviour for a compressed file with multiple small entries\n";
   try
   {
@@ -1553,10 +1553,10 @@ int main(int argc, char* args[])
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "20"))
+  if ((test_to_execute.empty()) || (test_to_execute == "20"))
     variable_block_read_test();
 
-  if ((test_to_execute == "") || (test_to_execute == "21"))
+  if ((test_to_execute.empty()) || (test_to_execute == "21"))
     std::cout<<"** Test the behaviour for a compressed file with multiple deletions\n";
   try
   {
@@ -1589,10 +1589,10 @@ int main(int argc, char* args[])
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "21"))
+  if ((test_to_execute.empty()) || (test_to_execute == "21"))
     variable_block_read_test();
 
-  if ((test_to_execute == "") || (test_to_execute == "22"))
+  if ((test_to_execute.empty()) || (test_to_execute == "22"))
     std::cout<<"** Test the behaviour for the gap filling strategy - part 1\n";
   try
   {
@@ -1625,10 +1625,10 @@ int main(int argc, char* args[])
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "22"))
+  if ((test_to_execute.empty()) || (test_to_execute == "22"))
     variable_block_read_test();
 
-  if ((test_to_execute == "") || (test_to_execute == "23"))
+  if ((test_to_execute.empty()) || (test_to_execute == "23"))
     std::cout<<"** Test the behaviour for the gap filling strategy - part 2\n";
   try
   {
@@ -1661,10 +1661,10 @@ int main(int argc, char* args[])
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "23"))
+  if ((test_to_execute.empty()) || (test_to_execute == "23"))
     variable_block_read_test();
 
-  if ((test_to_execute == "") || (test_to_execute == "24"))
+  if ((test_to_execute.empty()) || (test_to_execute == "24"))
     std::cout<<"** Test the behaviour for the gap filling strategy - part 3\n";
   try
   {
@@ -1698,10 +1698,10 @@ int main(int argc, char* args[])
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "24"))
+  if ((test_to_execute.empty()) || (test_to_execute == "24"))
     variable_block_read_test();
 
-  if ((test_to_execute == "") || (test_to_execute == "25"))
+  if ((test_to_execute.empty()) || (test_to_execute == "25"))
     std::cout<<"** Test the behaviour for the gap filling strategy - part 4\n";
   try
   {
@@ -1736,10 +1736,10 @@ int main(int argc, char* args[])
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "25"))
+  if ((test_to_execute.empty()) || (test_to_execute == "25"))
     variable_block_read_test();
 
-  if ((test_to_execute == "") || (test_to_execute == "26"))
+  if ((test_to_execute.empty()) || (test_to_execute == "26"))
     std::cout<<"** Test the behaviour for the gap filling strategy - part 5\n";
   try
   {
@@ -1773,10 +1773,10 @@ int main(int argc, char* args[])
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "26"))
+  if ((test_to_execute.empty()) || (test_to_execute == "26"))
     variable_block_read_test();
 
-  if ((test_to_execute == "") || (test_to_execute == "27"))
+  if ((test_to_execute.empty()) || (test_to_execute == "27"))
     std::cout<<"** Test the behaviour for the gap filling strategy - part 6\n";
   try
   {
@@ -1811,10 +1811,10 @@ int main(int argc, char* args[])
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "27"))
+  if ((test_to_execute.empty()) || (test_to_execute == "27"))
     variable_block_read_test();
 
-  if ((test_to_execute == "") || (test_to_execute == "28"))
+  if ((test_to_execute.empty()) || (test_to_execute == "28"))
     std::cout<<"** Test the behaviour for the gap filling strategy - with replace block\n";
   try
   {
@@ -1848,7 +1848,7 @@ int main(int argc, char* args[])
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "28"))
+  if ((test_to_execute.empty()) || (test_to_execute == "28"))
     variable_block_read_test();
 
   remove((BASE_DIRECTORY
@@ -1874,13 +1874,13 @@ int main(int argc, char* args[])
         + Compressed_Test_File().get_index_suffix()).c_str(),
        O_WRONLY|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
   close(index_fd);
-  if ((test_to_execute == "") || (test_to_execute == "29"))
+  if ((test_to_execute.empty()) || (test_to_execute == "29"))
   {
     std::cout<<"** Test the behaviour for an empty file\n";
     compressed_read_test();
   }
 
-  if ((test_to_execute == "") || (test_to_execute == "30"))
+  if ((test_to_execute.empty()) || (test_to_execute == "30"))
     std::cout<<"** Test the behaviour for a compressed file with some entries\n";
   try
   {
@@ -1918,7 +1918,7 @@ int main(int argc, char* args[])
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
     std::cout<<"(This is unexpected)\n";
   }
-  if ((test_to_execute == "") || (test_to_execute == "30"))
+  if ((test_to_execute.empty()) || (test_to_execute == "30"))
     compressed_read_test();
 
   remove((BASE_DIRECTORY

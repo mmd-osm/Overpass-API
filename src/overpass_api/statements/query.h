@@ -149,7 +149,7 @@ class Query_Statement final : public Output_Statement
       if (indent == "(bbox)" && type != QUERY_AREA)
         result += "(bbox)";
 
-      return result + (pretty && proper_substatement_count > 1 && dump_ql_result_name() != "" ? "\n  " + indent : "")
+      return result + (pretty && proper_substatement_count > 1 && !dump_ql_result_name().empty() ? "\n  " + indent : "")
           + dump_ql_result_name() + ";";
     }
 
@@ -263,8 +263,8 @@ class Has_Kv_Statement : public Statement
     std::string dump_xml(const std::string& indent) const override
     {
       return indent + "<has-kv"
-          + (key != "" ? (key_regex ? std::string(" regk=\"") : std::string(" k=\"")) + escape_xml(key) + "\"" : "")
-          + (value != "" ? (regex ? std::string(" regv=\"") : std::string(" v=\"")) + escape_xml(value) + "\"" : "")
+          + (!key.empty() ? (key_regex ? std::string(" regk=\"") : std::string(" k=\"")) + escape_xml(key) + "\"" : "")
+          + (!value.empty() ? (regex ? std::string(" regv=\"") : std::string(" v=\"")) + escape_xml(value) + "\"" : "")
           + (straight ? "" : " modv=\"not\"")
           + (case_sensitive ? "" : " case=\"ignore\"")
           + "/>\n";
@@ -274,7 +274,7 @@ class Has_Kv_Statement : public Statement
     {
       return std::string("[")
           + (key_regex ? "~\"" : "\"") + escape_cstr(key) + "\""
-          + (value != "" ? std::string(straight ? "" : "!") + (regex ? "~\"" : "=\"") + escape_cstr(value) + "\"" : "")
+          + (!value.empty() ? std::string(straight ? "" : "!") + (regex ? "~\"" : "=\"") + escape_cstr(value) + "\"" : "")
           + (case_sensitive ? "" : ",i")
           + "]";
     }

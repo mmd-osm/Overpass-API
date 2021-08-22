@@ -293,7 +293,7 @@ int main(int argc, char* args[])
     if (!(strncmp(args[argpos], "--db-dir=", 9)))
     {
       db_dir = ((std::string)args[argpos]).substr(9);
-      if ((db_dir.size() > 0) && (db_dir[db_dir.size()-1] != '/'))
+      if ((!db_dir.empty()) && (db_dir[db_dir.size()-1] != '/'))
 	db_dir += '/';
     }
     else if (!(strncmp(args[argpos], "--pattern_size=", 15)))

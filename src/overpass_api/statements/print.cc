@@ -109,7 +109,7 @@ Print_Statement::Print_Statement
     add_static_error(temp.str());
   }
 
-  if (attributes["limit"] != "")
+  if (!attributes["limit"].empty())
     limit = atoll(attributes["limit"].c_str());
 
   if (attributes["geometry"] == "skeleton")
@@ -180,8 +180,8 @@ Print_Statement::Print_Statement
     <<" the only allowed values are floats between -180.0 and 180.0.";
     add_static_error(temp.str());
   }
-  if ((attributes["n"] == "") && (attributes["s"] == "") &&
-      (attributes["w"] == "") && (attributes["e"] == ""))
+  if ((attributes["n"].empty()) && (attributes["s"].empty()) &&
+      (attributes["w"].empty()) && (attributes["e"].empty()))
   {
     south = 1.0;
     north = 0.0;

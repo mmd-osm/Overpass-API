@@ -77,7 +77,7 @@ std::pair< uint32, Global_Id_Type > Make_Area_Statement::detect_pivot(const Set&
       nit(pivot.nodes.begin());
   while ((pivot_id.val() == 0) && (nit != pivot.nodes.end()))
   {
-    if (nit->second.size() > 0)
+    if (!nit->second.empty())
     {
       pivot_id = Global_Id_Type(nit->second.front().id.val());
       pivot_type = NODE;
@@ -88,7 +88,7 @@ std::pair< uint32, Global_Id_Type > Make_Area_Statement::detect_pivot(const Set&
       wit(pivot.ways.begin());
   while ((pivot_id.val() == 0) && (wit != pivot.ways.end()))
   {
-    if (wit->second.size() > 0)
+    if (!wit->second.empty())
     {
       pivot_id = Global_Id_Type(wit->second.front().id.val());
       pivot_type = WAY;
@@ -99,7 +99,7 @@ std::pair< uint32, Global_Id_Type > Make_Area_Statement::detect_pivot(const Set&
       rit(pivot.relations.begin());
   while ((pivot_id.val() == 0) && (rit != pivot.relations.end()))
   {
-    if (rit->second.size() > 0)
+    if (!rit->second.empty())
     {
       pivot_id = Global_Id_Type(rit->second.front().id.val());
       pivot_type = RELATION;
@@ -131,7 +131,7 @@ Node::Id_Type Make_Area_Statement::check_node_parity(const Set& pivot)
 	node_parity_control.erase(npp.first);
     }
   }
-  if (node_parity_control.size() > 0)
+  if (!node_parity_control.empty())
     return *(node_parity_control.begin());
   return Node::Id_Type(0ull);
 }

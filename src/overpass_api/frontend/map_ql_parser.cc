@@ -191,7 +191,7 @@ TStatement* create_make_statement(typename TStatement::Factory& stmt_factory,
     std::string strategy, const std::string& from, std::string into, std::string type, uint line_nr)
 {
   std::map< std::string, std::string > attr;
-  if (from != "")
+  if (!from.empty())
     attr["from"] = from;
   attr["into"] = std::move(into);
   attr["type"] = std::move(type);
@@ -285,7 +285,7 @@ TStatement* create_compare_statement(typename TStatement::Factory& stmt_factory,
     const std::string& from, const std::string& into)
 {
   std::map< std::string, std::string > attr;
-  attr["from"] = (from == "" ? "_" : from);
+  attr["from"] = (from.empty() ? "_" : from);
   attr["into"] = into;
   return stmt_factory.create_statement("compare", line_nr, attr);
 }
@@ -347,7 +347,7 @@ TStatement* create_recurse_statement(typename TStatement::Factory& stmt_factory,
      std::string type, const std::string& from, std::string into, uint line_nr)
 {
   std::map< std::string, std::string > attr;
-  attr["from"] = (from == "" ? "_" : from);
+  attr["from"] = (from.empty() ? "_" : from);
   attr["into"] = std::move(into);
   attr["type"] = std::move(type);
   return stmt_factory.create_statement("recurse", line_nr, attr);
@@ -359,7 +359,7 @@ TStatement* create_coord_query_statement(typename TStatement::Factory& stmt_fact
     std::string lat, std::string lon, const std::string& from, std::string into, uint line_nr)
 {
   std::map< std::string, std::string > attr;
-  attr["from"] = (from == "" ? "_" : from);
+  attr["from"] = (from.empty() ? "_" : from);
   attr["into"] = std::move(into);
   attr["lat"] = std::move(lat);
   attr["lon"] = std::move(lon);
@@ -372,7 +372,7 @@ TStatement* create_map_to_area_statement(typename TStatement::Factory& stmt_fact
     const std::string& from, std::string into, uint line_nr)
 {
   std::map< std::string, std::string > attr;
-  attr["from"] = (from == "" ? "_" : from);
+  attr["from"] = (from.empty() ? "_" : from);
   attr["into"] = std::move(into);
   return stmt_factory.create_statement("map-to-area", line_nr, attr);
 }
@@ -384,7 +384,7 @@ TStatement* create_localize_statement(typename TStatement::Factory& stmt_factory
     std::string south, std::string north, std::string west, std::string east, uint line_nr)
 {
   std::map< std::string, std::string > attr;
-  attr["from"] = (from == "" ? "_" : from);
+  attr["from"] = (from.empty() ? "_" : from);
   attr["into"] = std::move(into);
   attr["type"] = std::move(type);
   attr["s"] = std::move(south);
@@ -823,7 +823,7 @@ TStatement* parse_output(typename TStatement::Factory& stmt_factory,
     if (statement == 0)
     {
       statement = create_print_statement< TStatement >
-          (stmt_factory, from == "" ? "_" : from, mode, order, limit, geometry, show_ids,
+          (stmt_factory, from.empty() ? "_" : from, mode, order, limit, geometry, show_ids,
            south, north, west, east,
            token.line_col().first);
     }
@@ -971,23 +971,23 @@ TStatement* create_query_substatement
   if (clause.statement == "has-kv")
     return create_has_kv_statement< TStatement >
         (stmt_factory, clause.attributes[0], clause.attributes[1], haskv_plain, haskv_plain,
-	 (clause.attributes[2] == ""), clause.line_col.first);
+	 (clause.attributes[2].empty()), clause.line_col.first);
   else if (clause.statement == "has-kv_regex")
     return create_has_kv_statement< TStatement >
         (stmt_factory, clause.attributes[0], clause.attributes[1], haskv_regex, haskv_plain,
-	 (clause.attributes[2] == ""), clause.line_col.first);
+	 (clause.attributes[2].empty()), clause.line_col.first);
   else if (clause.statement == "has-kv_icase")
     return create_has_kv_statement< TStatement >
         (stmt_factory, clause.attributes[0], clause.attributes[1], haskv_icase, haskv_plain,
-	 (clause.attributes[2] == ""), clause.line_col.first);
+	 (clause.attributes[2].empty()), clause.line_col.first);
   else if (clause.statement == "has-kv_keyregex_icase")
     return create_has_kv_statement< TStatement >
         (stmt_factory, clause.attributes[0], clause.attributes[1], haskv_icase, haskv_regex,
-     (clause.attributes[2] == ""), clause.line_col.first);
+     (clause.attributes[2].empty()), clause.line_col.first);
   else if (clause.statement == "has-kv_keyregex")
     return create_has_kv_statement< TStatement >
         (stmt_factory, clause.attributes[0], clause.attributes[1], haskv_regex, haskv_regex,
-	 (clause.attributes[2] == ""), clause.line_col.first);
+	 (clause.attributes[2].empty()), clause.line_col.first);
   else if (clause.statement == "item")
     return create_item_statement< TStatement >
         (stmt_factory, clause.attributes[0], "_", clause.line_col.first);
@@ -1132,7 +1132,7 @@ TStatement* parse_query(typename TStatement::Factory& stmt_factory, Parsed_Query
 	  Statement_Text clause("has-kv", token.line_col());
 	  clause.attributes.push_back(key);
 	  clause.attributes.push_back(get_text_token(token, error_output, "Value"));
-	  if (clause.attributes.back() != "")
+	  if (!clause.attributes.back().empty())
 	  {
 	    clause.attributes.push_back(straight ? "" : "!");
 	    clauses.push_back(clause);
@@ -1206,7 +1206,7 @@ TStatement* parse_query(typename TStatement::Factory& stmt_factory, Parsed_Query
   TStatement* statement = 0;
   if (clauses.empty() && subtrees.empty())
   {
-    if (from == "")
+    if (from.empty())
     {
       if (parsed_query.get_global_bbox_limitation().valid())
       {
@@ -1218,7 +1218,7 @@ TStatement* parse_query(typename TStatement::Factory& stmt_factory, Parsed_Query
     }
     else
     {
-      if (type == "")
+      if (type.empty())
         statement = create_item_statement< TStatement >(stmt_factory, from, into, query_line_col.first);
       else
       {
@@ -1229,7 +1229,7 @@ TStatement* parse_query(typename TStatement::Factory& stmt_factory, Parsed_Query
       }
     }
   }
-  else if (clauses.size() == 1 && from == "" && subtrees.empty())
+  else if (clauses.size() == 1 && from.empty() && subtrees.empty())
   {
     if (clauses.front().statement == "has-kv"
        || clauses.front().statement == "has-kv_regex"
@@ -1250,7 +1250,7 @@ TStatement* parse_query(typename TStatement::Factory& stmt_factory, Parsed_Query
           (stmt_factory, token, error_output, clauses.front(), type, from, into);
     }
   }
-  else if (clauses.empty() && from == "" && subtrees.size() == 1)
+  else if (clauses.empty() && from.empty() && subtrees.size() == 1)
   {
     bool can_standalone = false;
     TStatement* filter = stmt_factory.create_criterion(
@@ -1272,7 +1272,7 @@ TStatement* parse_query(typename TStatement::Factory& stmt_factory, Parsed_Query
     if (!statement)
       return 0;
 
-    if (from != "")
+    if (!from.empty())
     {
       TStatement* substatement = create_item_statement< TStatement >
           (stmt_factory, from, "_", query_line_col.first);
@@ -1363,7 +1363,7 @@ TStatement* parse_statement(typename TStatement::Factory& stmt_factory, Parsed_Q
     return parse_compare< TStatement >(stmt_factory, parsed_query, token, from, error_output, depth);
 
   std::string type = "";
-  if (*token != "out" && from == "")
+  if (*token != "out" && from.empty())
   {
     type = *token;
     if (type == "rel")

@@ -73,7 +73,7 @@ std::string indent(const std::string& subresult)
     pos = next + 1;
     next = subresult.find('\n', pos);
   }
-  if (subresult.substr(pos) != "")
+  if (!subresult.substr(pos).empty())
     result += "  " + subresult.substr(pos);
 
   return result;
@@ -140,7 +140,7 @@ std::string Statement_Dump::dump_compact_map_ql(Statement::Factory& stmt_factory
       else if (it->first == "bbox")
 	result += "[bbox:" + it->second + "]";
     }
-    if (output_val != "")
+    if (!output_val.empty())
       result += "[out:" + output_val + output_config + "]";
 
     if (attributes.find("augmented") != attributes.end() &&
@@ -211,7 +211,7 @@ std::string Statement_Dump::dump_bbox_map_ql(Statement::Factory& stmt_factory)
       else if (it->first == "bbox")
 	result += "[bbox:" + it->second + "]";
     }
-    if (output_val != "")
+    if (!output_val.empty())
       result += "[out:" + output_val + output_config + "]";
 
     if (attributes.find("augmented") != attributes.end() &&
@@ -281,7 +281,7 @@ std::string Statement_Dump::dump_pretty_map_ql(Statement::Factory& stmt_factory)
       else if (it->first == "bbox")
 	result += "[bbox:" + it->second + "]\n";
     }
-    if (output_val != "")
+    if (!output_val.empty())
       result += "[out:" + output_val + output_config + "]\n";
 
     if (attributes.find("augmented") != attributes.end() &&
@@ -303,7 +303,7 @@ std::string Statement_Dump::dump_pretty_map_ql(Statement::Factory& stmt_factory)
     else if (attributes.find("date") != attributes.end())
       result += "[date:\"" + attributes.find("date")->second + "\"]\n";
 
-    if (result != "")
+    if (!result.empty())
       result += ";\n";
     for (std::vector< Statement_Dump* >::const_iterator it = substatements.begin();
         it != substatements.end(); ++it)

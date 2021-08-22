@@ -60,7 +60,7 @@ public:
 	      const std::string& db_dir, const std::string& file_name_extension,
               int compression_method_ = USE_DEFAULT);
   ~File_Blocks_Index() override;
-  bool writeable() const { return (empty_index_file_name != ""); }
+  bool writeable() const { return (!empty_index_file_name.empty()); }
   const std::string& file_name_extension() const { return file_name_extension_; }
 
   std::string get_data_file_name() const { return data_file_name; }
@@ -188,7 +188,7 @@ File_Blocks_Index< TIndex >::File_Blocks_Index
 
   init_structure_params();
 
-  if (empty_index_file_name != "")
+  if (!empty_index_file_name.empty())
     init_void_blocks();
 }
 
@@ -279,7 +279,7 @@ void File_Blocks_Index< TIndex >::init_void_blocks()
     init_blocks();
 
   bool empty_index_file_used = false;
-  if (empty_index_file_name != "")
+  if (!empty_index_file_name.empty())
   {
     try
     {

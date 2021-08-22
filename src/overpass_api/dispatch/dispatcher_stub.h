@@ -63,7 +63,7 @@ class Dispatcher_Stub : public Watchdog_Callback
 
     ~Dispatcher_Stub();
 
-    std::string get_db_dir() { return (db_dir == "" ? dispatcher_client->get_db_dir() : db_dir); }
+    std::string get_db_dir() { return (db_dir.empty() ? dispatcher_client->get_db_dir() : db_dir); }
     std::string get_timestamp() { return timestamp; }
     std::string get_area_timestamp() { return area_timestamp; }
     Resource_Manager& resource_manager() { return *rman; }
