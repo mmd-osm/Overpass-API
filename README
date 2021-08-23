@@ -86,8 +86,9 @@ foreach .result -> .area {
 
 ### :boom: Incompatible database format changes
 
-* Use of 40 bit node ids instead of 64 bit.
-LZ4 can no longer compress 40 bit node ids, resulting in a slightly worse compression ratio (average 69% before --> 75% fixed now)
+* Use of 40 bit node ids.
+    * Due to [upstream issue 465](https://github.com/drolbr/Overpass-API/issues/465), node ids were already limited to 42 bits before.
+    * LZ4 can no longer compress 40 bit node ids, resulting in a slightly worse compression ratio (average 69% before --> 75% fixed now).
 * Way nodes stored as varint using protozero (original idea: https://github.com/drolbr/Overpass-API/pull/250)
 
 Two conversion tools are available for easy conversion from the official database file format to the custom one.
@@ -107,10 +108,14 @@ Two conversion tools are available for easy conversion from the official databas
 * Avoid object instantiation to access node/way/rel properties wherever possible in template backend using CRTP and C++11 move semantics
 * Attic: speed up object reconstruction, avoid expensive copying of objects
 * Parallel processing support for update_from_dir/update_database. New parameter `--parallel=n`, where n denotes the max. number of parallel processes
-* `around`: bbox based pruning. Calculate bounding box for each way and avoid O(n^2) great circle distance calculations, if bounding boxes don't intersect. Furthermode avoid exsessive object allocations by replacing vector by tuple.
+* `around` statement:
+    * bbox based pruning. Calculate bounding box for each way and avoid O(n²) great circle distance calculations, if bounding boxes don't intersect. ([upstream issue 167](https://github.com/drolbr/Overpass-API/pull/167), > 120x spepedup).
+    * Avoid excessive object allocations by replacing vector by tuple.
+    * condense_ranges as standalone function: improve range expansion for global queries (example: https://overpass-turbo.eu/s/1azD -> 180x speedup).
 * Area caching, use of memoization to avoid expensive calculation
 
 * Lazy way geometry store loading for "out qt" to reduce memory consumption, also in attic mode. In addition avoid recalculation of loop invariants in Way_Geoemetry_Store.
+* Ignore bounding box if it covers the whole globe.
 * Lazy (if: ) filter evaluation to short circuit boolean expression evaluation.
 * Changeset based (changed: ) filtering to process huge changesets in Achavi. Additional caching in `changed` to avoid recalculation of already available results.
 
@@ -129,22 +134,30 @@ Example syntax for changeset 46503970: (syntax is subject to change)
 * Reduce memory consumption for attic tag queries (collect_attic_kregv and al.)
 * Expensive health check: use linear complexity approach in collect_items_range and similar functions.
 * Use of SharedDataPointer to reduce cost of copying large objects (ways, relations, areas, etc.)
+* Parallel clone generation (currently 4 processes hard coded)
 
 
 
-
-### Removed features
+### :x: Removed features
 
 * `[out:custom]` and `[out:popup]` output modes
-* Public transport diagrams
+* Public transport diagrams (sketch route tools)
+* local (localize)
+
+### :recycle: Cleanup
+
+* clang tidy: modernize/performance (see commit log for details)
+* Removed some old content in doc/
 
 
-### Performance characteristics
+### :zap: Performance characteristics
 
 * Full attic database creation 4-5 days (currently: > 24 days)
 * Full area creation: 2h 15min
 * Full day simulation w/ 1.2mio queries: about 950 queries/minute per CPU (roughly 6-7x speedup)
 * Dispatcher process can handle 5000-7000 requests/s.
+
+
 
 
 ## Requirements
