@@ -36,7 +36,7 @@ Evaluator_Aggregator::Evaluator_Aggregator
 
 void Evaluator_Aggregator::add_statement(Statement* statement, std::string text)
 {
-  Evaluator* tag_value_ = dynamic_cast< Evaluator* >(statement);
+  auto* tag_value_ = dynamic_cast< Evaluator* >(statement);
   if (!tag_value_)
     substatement_error(get_name(), statement);
   else if (!rhs)
@@ -51,10 +51,10 @@ void eval_elems(Value_Aggregator& aggregator, Eval_Task& task,
     const std::map< Index, std::vector< Maybe_Attic > >& elems, Set_With_Context& input_set,
     const std::string* key)
 {
-  for (typename std::map< Index, std::vector< Maybe_Attic > >::const_iterator idx_it = elems.begin();
+  for (auto idx_it = elems.begin();
       idx_it != elems.end(); ++idx_it)
   {
-    for (typename std::vector< Maybe_Attic >::const_iterator elem_it = idx_it->second.begin();
+    for (auto elem_it = idx_it->second.begin();
         elem_it != idx_it->second.end(); ++elem_it)
       aggregator.update_value(task.eval(input_set.get_context(idx_it->first, *elem_it), key));
   }
@@ -65,10 +65,10 @@ template< typename Index, typename Maybe_Attic >
 void eval_elems(Geometry_Aggregator& aggregator, Eval_Geometry_Task& task,
     const std::map< Index, std::vector< Maybe_Attic > >& elems, Set_With_Context& input_set)
 {
-  for (typename std::map< Index, std::vector< Maybe_Attic > >::const_iterator idx_it = elems.begin();
+  for (auto idx_it = elems.begin();
       idx_it != elems.end(); ++idx_it)
   {
-    for (typename std::vector< Maybe_Attic >::const_iterator elem_it = idx_it->second.begin();
+    for (auto elem_it = idx_it->second.begin();
         elem_it != idx_it->second.end(); ++elem_it)
       aggregator.consume_value(task.eval(input_set.get_context(idx_it->first, *elem_it)));
   }
@@ -356,7 +356,7 @@ void Evaluator_Set_Value::Aggregator::update_value(const std::string& value)
 std::string Evaluator_Set_Value::Aggregator::get_value()
 {
   std::string result;
-  std::set< std::string >::const_iterator it = values.begin();
+  auto it = values.begin();
   if (it != values.end())
   {
     result = *it;

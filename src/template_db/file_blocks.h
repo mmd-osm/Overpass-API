@@ -378,7 +378,7 @@ template< typename TIndex, typename TIterator >
 File_Blocks_Discrete_Iterator< TIndex, TIterator >&
 File_Blocks_Discrete_Iterator< TIndex, TIterator >::operator++()
 {
-  typename std::vector< File_Block_Index_Entry< TIndex > >::const_iterator it = this->block_it;
+  auto it = this->block_it;
   ++(this->block_it);
 
   if (this->block_it == this->block_end) {
@@ -409,7 +409,7 @@ void File_Blocks_Discrete_Iterator< TIndex, TIterator >::find_next_block()
       return;
     }
 
-    typename std::vector< File_Block_Index_Entry< TIndex > >::const_iterator next_block = this->block_it;
+    auto next_block = this->block_it;
     ++next_block;
 
     if (next_block == this->block_end)
@@ -539,8 +539,7 @@ void File_Blocks_Range_Iterator< TIndex, TRangeIterator >::find_next_block()
       this->new_index_search_needed = false;
     }
 
-    typename std::vector< File_Block_Index_Entry< TIndex > >::const_iterator
-    tmp_next_block(this->block_it);
+    auto tmp_next_block(this->block_it);
     ++tmp_next_block;
 
     if ((tmp_next_block != this->block_end) &&
@@ -552,8 +551,7 @@ void File_Blocks_Range_Iterator< TIndex, TRangeIterator >::find_next_block()
       }
     }
 
-    typename std::vector< File_Block_Index_Entry< TIndex > >::const_iterator
-         prev_result(this->block_it);
+    auto prev_result(this->block_it);
     if (prev_result != this->block_begin)
       --prev_result;
 
@@ -671,7 +669,7 @@ void File_Blocks_Write_Iterator< TIndex, TIterator >::insert_block(
 template< typename TIndex, typename TIterator >
 void File_Blocks_Write_Iterator< TIndex, TIterator >::erase_block(File_Blocks_Index< TIndex >& index)
 {
-  typename std::list< File_Block_Index_Entry< TIndex > >::iterator to_delete = block_it;
+  auto to_delete = block_it;
   operator++();
 
   index.drop_block_array();
@@ -982,8 +980,7 @@ uint32 File_Blocks< TIndex, TIterator, TRangeIterator >::allocate_block(uint32 d
     this->index->block_count += data_size;
   else
   {
-    std::vector< std::pair< uint32, uint32 > >::iterator pos_it
-        = std::lower_bound(this->index->get_void_blocks().begin(), this->index->get_void_blocks().end(),
+    auto pos_it = std::lower_bound(this->index->get_void_blocks().begin(), this->index->get_void_blocks().end(),
 			   std::make_pair(data_size, uint32(0)));
 
     if (pos_it != this->index->get_void_blocks().end() && pos_it->first == data_size)

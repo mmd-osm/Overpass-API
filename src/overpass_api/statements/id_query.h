@@ -91,7 +91,7 @@ class Id_Query_Statement final : public Output_Statement
     std::string dump_pretty_ql(const std::string& indent) const override { return indent + dump_compact_ql(indent); }
     std::string dump_ql_in_query(const std::string& indent) const override
     {
-      std::vector< uint64 >::const_iterator it = refs.begin();
+      auto it = refs.begin();
 
       std::string result = std::string("(") + (refs.size() > 1 ? "id:" : "");
 

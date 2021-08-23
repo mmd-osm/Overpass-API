@@ -73,8 +73,7 @@ std::pair< uint32, Global_Id_Type > Make_Area_Statement::detect_pivot(const Set&
 {
   uint32 pivot_type(0);
   Global_Id_Type pivot_id(0ull);
-  std::map< Uint32_Index, std::vector< Node_Skeleton > >::const_iterator
-      nit(pivot.nodes.begin());
+  auto nit(pivot.nodes.begin());
   while ((pivot_id.val() == 0) && (nit != pivot.nodes.end()))
   {
     if (!nit->second.empty())
@@ -84,8 +83,7 @@ std::pair< uint32, Global_Id_Type > Make_Area_Statement::detect_pivot(const Set&
     }
     ++nit;
   }
-  std::map< Uint31_Index, std::vector< Way_Skeleton > >::const_iterator
-      wit(pivot.ways.begin());
+  auto wit(pivot.ways.begin());
   while ((pivot_id.val() == 0) && (wit != pivot.ways.end()))
   {
     if (!wit->second.empty())
@@ -95,8 +93,7 @@ std::pair< uint32, Global_Id_Type > Make_Area_Statement::detect_pivot(const Set&
     }
     ++wit;
   }
-  std::map< Uint31_Index, std::vector< Relation_Skeleton > >::const_iterator
-      rit(pivot.relations.begin());
+  auto rit(pivot.relations.begin());
   while ((pivot_id.val() == 0) && (rit != pivot.relations.end()))
   {
     if (!rit->second.empty())
@@ -113,10 +110,9 @@ std::pair< uint32, Global_Id_Type > Make_Area_Statement::detect_pivot(const Set&
 Node::Id_Type Make_Area_Statement::check_node_parity(const Set& pivot)
 {
   std::set< Node::Id_Type > node_parity_control;
-  for (std::map< Uint31_Index, std::vector< Way_Skeleton > >::const_iterator
-    it(pivot.ways.begin()); it != pivot.ways.end(); ++it)
+  for (auto it(pivot.ways.begin()); it != pivot.ways.end(); ++it)
   {
-    for (std::vector< Way_Skeleton >::const_iterator it2(it->second.begin());
+    for (auto it2(it->second.begin());
     it2 != it->second.end(); ++it2)
     {
       if (it2->nds().size() < 2)
@@ -142,19 +138,17 @@ std::pair< Node::Id_Type, Uint32_Index > Make_Area_Statement::create_area_blocks
      uint32 id, const Set& pivot)
 {
   std::vector< Node_Base > nodes;
-  for (std::map< Uint32_Index, std::vector< Node_Skeleton > >::const_iterator
-      it(pivot.nodes.begin()); it != pivot.nodes.end(); ++it)
+  for (auto it(pivot.nodes.begin()); it != pivot.nodes.end(); ++it)
   {
-    for (std::vector< Node_Skeleton >::const_iterator it2(it->second.begin());
+    for (auto it2(it->second.begin());
         it2 != it->second.end(); ++it2)
       nodes.push_back(Node_Base(it2->id.val(), it->first.val(), it2->ll_lower));
   }
   sort(nodes.begin(), nodes.end(), Node_Comparator_By_Id());
 
-  for (std::map< Uint31_Index, std::vector< Way_Skeleton > >::const_iterator
-      it(pivot.ways.begin()); it != pivot.ways.end(); ++it)
+  for (auto it(pivot.ways.begin()); it != pivot.ways.end(); ++it)
   {
-    for (std::vector< Way_Skeleton >::const_iterator it2(it->second.begin());
+    for (auto it2(it->second.begin());
         it2 != it->second.end(); ++it2)
       wraps_around_date_line ^= add_way_to_area_blocks(make_geometry(*it2, nodes), id, areas);
   }
@@ -191,7 +185,7 @@ void Make_Area_Statement::add_segment_blocks
 
     std::set< int32 > lons;
 
-    for (std::vector< Area_Block >::const_iterator it2(it->second.begin());
+    for (auto it2(it->second.begin());
         it2 != it->second.end(); ++it2)
     {
       if (it2->coors().empty())
@@ -222,7 +216,7 @@ void Make_Area_Statement::add_segment_blocks
     uint32 northern_ll_upper(::ll_upper(lat, lon) ^ 0x40000000);
     // insert lons
     std::vector< Area_Block >& northern_block(area_blocks[northern_ll_upper]);
-    for (std::set< int32 >::const_iterator it2(lons.begin()); it2 != lons.end(); ++it2)
+    for (auto it2(lons.begin()); it2 != lons.end(); ++it2)
     {
       int32 from(*it2);
       ++it2;
@@ -449,7 +443,7 @@ void Make_Area_Statement::execute(Resource_Manager& rman)
 
   if (rman.area_updater())
   {
-    Area_Updater* area_updater = dynamic_cast< Area_Updater* >(rman.area_updater());
+    auto* area_updater = dynamic_cast< Area_Updater* >(rman.area_updater());
     area_updater->set_area(new_index, new_location);
     area_updater->add_blocks(area_blocks);
     area_updater->commit();
@@ -457,8 +451,7 @@ void Make_Area_Statement::execute(Resource_Manager& rman)
   else
   {
     // Ad-hoc per user area blocks are stored in memory (Inputset)
-    for (std::map< Uint31_Index, std::vector< Area_Block > >::iterator
-      it(area_blocks.begin()); it != area_blocks.end(); ++it)
+    for (auto it(area_blocks.begin()); it != area_blocks.end(); ++it)
       std::move(it->second.begin(), it->second.end(), std::back_inserter(into.area_blocks[it->first]));
   }
 

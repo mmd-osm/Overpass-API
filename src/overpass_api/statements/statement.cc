@@ -58,9 +58,9 @@ std::map< std::string, std::vector< Statement::Evaluator_Maker* > >& Statement::
 void Statement::eval_attributes_array(const std::string& element, std::map< std::string, std::string >& attributes,
 				      const std::map< std::string, std::string >& input)
 {
-  for (std::map< std::string, std::string >::const_iterator it = input.begin(); it != input.end(); ++it)
+  for (auto it = input.begin(); it != input.end(); ++it)
   {
-    std::map< std::string, std::string >::iterator ait(attributes.find(it->first));
+    auto ait(attributes.find(it->first));
     if (ait != attributes.end())
       ait->second = it->second;
     else
@@ -128,8 +128,7 @@ Statement* Statement::Factory::create_statement
 {
   Statement* statement = 0;
 
-  std::map< std::string, Statement::Statement_Maker* >::iterator maker_it =
-      Statement::maker_by_name().find(element);
+  auto maker_it = Statement::maker_by_name().find(element);
 
   if (maker_it != Statement::maker_by_name().end())
     statement = maker_it->second->create_statement(line_number, attributes, global_settings);
@@ -168,7 +167,7 @@ Statement* stmt_from_tree_node(const Token_Node_Ptr& tree_it,
 {
   Statement* statement = 0;
 
-  std::vector< Statement::Evaluator_Maker* >::const_iterator maker_it = makers.begin();
+  auto maker_it = makers.begin();
 
   while (!statement && maker_it != makers.end())
   {
@@ -193,7 +192,7 @@ Statement* stmt_from_tree_node(const Token_Node_Ptr& tree_it,
 
   if (statement && eval_type.eval_required())
   {
-    Evaluator* eval = dynamic_cast< Evaluator* >(statement);
+    auto* eval = dynamic_cast< Evaluator* >(statement);
     if (!eval)
     {
       if (error_output)
@@ -227,8 +226,7 @@ Statement* Statement::Factory::create_evaluator(
   {
     if (tree_it->lhs)
     {
-      std::map< std::string, std::vector< Statement::Evaluator_Maker* > >::iterator all_it =
-          Statement::maker_by_func_name().find(tree_it.lhs()->token);
+      auto all_it = Statement::maker_by_func_name().find(tree_it.lhs()->token);
       if (all_it != Statement::maker_by_func_name().end())
         statement = stmt_from_tree_node(tree_it, tree_context, eval_type,
             all_it->second, *this, global_settings, Statement::error_output);
@@ -248,8 +246,7 @@ Statement* Statement::Factory::create_evaluator(
   {
     if (tree_it->lhs && tree_it->rhs && tree_it.rhs()->token == "(" && tree_it.rhs()->lhs)
     {
-      std::map< std::string, std::vector< Statement::Evaluator_Maker* > >::iterator all_it =
-          Statement::maker_by_func_name().find(tree_it.rhs().lhs()->token);
+      auto all_it = Statement::maker_by_func_name().find(tree_it.rhs().lhs()->token);
       if (all_it != Statement::maker_by_func_name().end())
         statement = stmt_from_tree_node(tree_it, tree_context, eval_type,
             all_it->second, *this, global_settings, Statement::error_output);
@@ -259,8 +256,7 @@ Statement* Statement::Factory::create_evaluator(
     }
     else
     {
-      std::map< std::string, std::vector< Statement::Evaluator_Maker* > >::iterator all_it =
-          Statement::maker_by_token().find(tree_it->token);
+      auto all_it = Statement::maker_by_token().find(tree_it->token);
       if (all_it != Statement::maker_by_token().end())
         statement = stmt_from_tree_node(tree_it, tree_context, eval_type,
             all_it->second, *this, global_settings, Statement::error_output);
@@ -270,8 +266,7 @@ Statement* Statement::Factory::create_evaluator(
     error_output->add_parse_error("Evaluator expected, but empty token found.", tree_it->line_col.first);
   else
   {
-    std::map< std::string, std::vector< Statement::Evaluator_Maker* > >::iterator all_it =
-        Statement::maker_by_token().find(tree_it->token);
+    auto all_it = Statement::maker_by_token().find(tree_it->token);
     if (all_it != Statement::maker_by_token().end())
       statement = stmt_from_tree_node(tree_it, tree_context, eval_type,
           all_it->second, *this, global_settings, Statement::error_output);
@@ -325,7 +320,7 @@ Statement* Statement::Factory::create_criterion(const Token_Node_Ptr& tree_it,
           || (criterion_s[0] == '-' && criterion_s.size() > 1 && isdigit(criterion_s[1]))))
     criterion_s = (tree_it->token == "," ? "bbox" : "id");
 
-  std::map< std::string, Criterion_Maker* >::iterator it = Statement::maker_by_ql_criterion().find(criterion_s);
+  auto it = Statement::maker_by_ql_criterion().find(criterion_s);
   if (it != Statement::maker_by_ql_criterion().end() && it->second)
   {
     can_standalone = it->second->can_standalone(type);

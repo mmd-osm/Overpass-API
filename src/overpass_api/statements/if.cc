@@ -40,7 +40,7 @@ void If_Statement::add_statement(Statement* statement, std::string text)
 
   if (!criterion)
   {
-    Evaluator* tag_value = dynamic_cast< Evaluator* >(statement);
+    auto* tag_value = dynamic_cast< Evaluator* >(statement);
     if (tag_value)
       criterion = tag_value;
     else
@@ -74,12 +74,12 @@ void If_Statement::execute(Resource_Manager& rman)
 {
   if (criterion && evals_to_true(*criterion, *this, rman))
   {
-    for (std::vector< Statement* >::iterator it = substatements.begin(); it != substatements.end(); ++it)
+    for (auto it = substatements.begin(); it != substatements.end(); ++it)
       (*it)->execute(rman);
   }
   else
   {
-    for (std::vector< Statement* >::iterator it = else_statements.begin(); it != else_statements.end(); ++it)
+    for (auto it = else_statements.begin(); it != else_statements.end(); ++it)
       (*it)->execute(rman);
   }
 

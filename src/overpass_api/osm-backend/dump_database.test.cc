@@ -60,7 +60,7 @@ struct Ofstream_Collection
 
   ~Ofstream_Collection()
   {
-    for (std::vector< std::ofstream* >::iterator it(streams.begin());
+    for (auto it(streams.begin());
 	 it != streams.end(); ++it)
     {
       (*it)->close();

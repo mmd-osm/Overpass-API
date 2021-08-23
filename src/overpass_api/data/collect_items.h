@@ -211,12 +211,11 @@ void filter_items_by_timestamp(
     const std::vector< typename Object::Id_Type >& timestamp_by_id_current,
     std::vector< Object > & result)
 {
-    typename std::vector< Object >::iterator target_it = result.begin();
-    for (typename std::vector< Object >::iterator it2 = result.begin();
+    auto target_it = result.begin();
+    for (auto it2 = result.begin();
          it2 != result.end(); ++it2)
     {
-      typename std::vector< std::pair< typename Object::Id_Type, uint64 > >::const_iterator
-      tit_attic = std::lower_bound(timestamp_by_id_attic.begin(), timestamp_by_id_attic.end(),
+      auto tit_attic = std::lower_bound(timestamp_by_id_attic.begin(), timestamp_by_id_attic.end(),
           std::make_pair(it2->id, 0ull));
       if (tit_attic != timestamp_by_id_attic.end() && tit_attic->first == it2->id)
       {
@@ -726,8 +725,7 @@ std::vector< Index > get_indexes_
 
   Random_File< typename Skeleton::Id_Type, Index > current(rman.get_transaction()->random_index
       (current_skeleton_file_properties< Skeleton >()));
-  for (typename std::vector< typename Skeleton::Id_Type >::const_iterator
-      it = ids.begin(); it != ids.end(); ++it)
+  for (auto it = ids.begin(); it != ids.end(); ++it)
     result.push_back(current.get(it->val()));
 
   std::sort(result.begin(), result.end());
@@ -738,8 +736,7 @@ std::vector< Index > get_indexes_
     Random_File< typename Skeleton::Id_Type, Index > attic_random(rman.get_transaction()->random_index
         (attic_skeleton_file_properties< Skeleton >()));
     std::set< typename Skeleton::Id_Type > idx_list_ids;
-    for (typename std::vector< typename Skeleton::Id_Type >::const_iterator
-        it = ids.begin(); it != ids.end(); ++it)
+    for (auto it = ids.begin(); it != ids.end(); ++it)
     {
       if (attic_random.get(it->val()).val() == 0)
         ;

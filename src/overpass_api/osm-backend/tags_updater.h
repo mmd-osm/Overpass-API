@@ -170,8 +170,7 @@ void get_existing_tags
 {
   // make indices appropriately coarse
   std::map< uint32, std::set< Id_Type > > to_delete_coarse;
-  for (typename std::vector< std::pair< Id_Type, Uint31_Index > >::const_iterator
-      it = ids_with_position.begin(); it != ids_with_position.end(); ++it)
+  for (auto it = ids_with_position.begin(); it != ids_with_position.end(); ++it)
     to_delete_coarse[it->second.val() & 0x7fffff00].insert(it->first);
 
   // formulate range query
@@ -321,8 +320,7 @@ void update_tags_local
 	Tag_Index_Local index;
 	index.index = (*rit)->index & 0x7fffff00;
 
-	for (std::vector< std::pair< std::string, std::string > >::const_iterator
-	  it2((*rit)->tags.begin()); it2 != (*rit)->tags.end(); ++it2)
+	for (auto it2((*rit)->tags.begin()); it2 != (*rit)->tags.end(); ++it2)
 	{
 	  index.key = it2->first;
 	  index.value = it2->second;
@@ -344,8 +342,8 @@ void clear_common_values
     (std::map< Tag_Index_Local, std::set< Id_Type > >& attic_local_tags,
      std::map< Tag_Index_Local, std::set< Id_Type > >& new_local_tags)
 {
-  typename std::map< Tag_Index_Local, std::set< Id_Type > >::iterator old_it = attic_local_tags.begin();
-  typename std::map< Tag_Index_Local, std::set< Id_Type > >::iterator new_it = new_local_tags.begin();
+  auto old_it = attic_local_tags.begin();
+  auto new_it = new_local_tags.begin();
   while (old_it != attic_local_tags.end() && new_it != new_local_tags.end())
   {
     if (old_it->first < new_it->first)
@@ -354,8 +352,8 @@ void clear_common_values
       ++new_it;
     else
     {
-      typename std::set< Id_Type >::iterator old_sit = old_it->second.begin();
-      typename std::set< Id_Type >::iterator new_sit = new_it->second.begin();
+      auto old_sit = old_it->second.begin();
+      auto new_sit = new_it->second.begin();
       
       while (old_sit != old_it->second.end() && new_sit != new_it->second.end())
       {
@@ -365,11 +363,11 @@ void clear_common_values
           ++new_sit;
         else
         {
-          typename std::set< Id_Type >::iterator old_erase = old_sit;
+          auto old_erase = old_sit;
           ++old_sit;
           old_it->second.erase(old_erase);
           
-          typename std::set< Id_Type >::iterator new_erase = new_sit;
+          auto new_erase = new_sit;
           ++new_sit;
           new_it->second.erase(new_erase);
         }
@@ -377,7 +375,7 @@ void clear_common_values
       
       if (old_it->second.empty())
       {
-        typename std::map< Tag_Index_Local, std::set< Id_Type > >::iterator old_erase = old_it;
+        auto old_erase = old_it;
         ++old_it;
         attic_local_tags.erase(old_erase);
       }
@@ -386,7 +384,7 @@ void clear_common_values
       
       if (new_it->second.empty())
       {
-        typename std::map< Tag_Index_Local, std::set< Id_Type > >::iterator new_erase = new_it;
+        auto new_erase = new_it;
         ++new_it;
         new_local_tags.erase(new_erase);
       }

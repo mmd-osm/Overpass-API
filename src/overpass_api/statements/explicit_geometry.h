@@ -146,7 +146,7 @@ struct Eval_Linestring_Geometry_Task final : Eval_Geometry_Task
 
   ~Eval_Linestring_Geometry_Task() override
   {
-    for (std::vector< Eval_Geometry_Task* >::iterator it = points.begin(); it != points.end(); ++it)
+    for (auto it = points.begin(); it != points.end(); ++it)
       delete *it;
   }
 
@@ -199,14 +199,14 @@ public:
   std::string dump_xml(const std::string& indent) const override
   {
     std::string result = indent + "<eval-linestring>\n";
-    for (std::vector< Evaluator* >::const_iterator it = points.begin(); it != points.end(); ++it)
+    for (auto it = points.begin(); it != points.end(); ++it)
       result += (*it)->dump_xml(indent + "  ");
     return result + indent + "</eval-linestring>\n";
   }
   std::string dump_compact_ql(const std::string&) const override
   {
     std::string result = std::string("lstr(");
-    for (std::vector< Evaluator* >::const_iterator it = points.begin(); it != points.end(); ++it)
+    for (auto it = points.begin(); it != points.end(); ++it)
       result += (*it)->dump_compact_ql("");
     return result + ")";
   }
@@ -260,7 +260,7 @@ struct Eval_Polygon_Geometry_Task final : Eval_Geometry_Task
 
   ~Eval_Polygon_Geometry_Task() override
   {
-    for (std::vector< Eval_Geometry_Task* >::iterator it = linestrings.begin(); it != linestrings.end(); ++it)
+    for (auto it = linestrings.begin(); it != linestrings.end(); ++it)
       delete *it;
   }
 
@@ -313,14 +313,14 @@ public:
   std::string dump_xml(const std::string& indent) const override
   {
     std::string result = indent + "<eval-polygon>\n";
-    for (std::vector< Evaluator* >::const_iterator it = linestrings.begin(); it != linestrings.end(); ++it)
+    for (auto it = linestrings.begin(); it != linestrings.end(); ++it)
       result += (*it)->dump_xml(indent + "  ");
     return result + indent + "</eval-polygon>\n";
   }
   std::string dump_compact_ql(const std::string&) const override
   {
     std::string result = std::string("poly(");
-    for (std::vector< Evaluator* >::const_iterator it = linestrings.begin(); it != linestrings.end(); ++it)
+    for (auto it = linestrings.begin(); it != linestrings.end(); ++it)
       result += (*it)->dump_compact_ql("");
     return result + ")";
   }

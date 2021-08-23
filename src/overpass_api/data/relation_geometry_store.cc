@@ -48,7 +48,7 @@ Relation_Geometry_Store::Relation_Geometry_Store
       = relation_node_members(&query, rman, relations, north < south ? 0 : &node_ranges);
 
   // Order node ids by id.
-  for (std::map< Uint32_Index, std::vector< Node_Skeleton > >::iterator it = node_members.begin();
+  for (auto it = node_members.begin();
       it != node_members.end(); ++it)
   {
     for (std::vector< Node_Skeleton >::const_iterator iit = it->second.begin();
@@ -68,7 +68,7 @@ Relation_Geometry_Store::Relation_Geometry_Store
   way_geometry_store = new Way_Geometry_Store(way_members, query, rman);
 
   // Order way ids by id.
-  for (std::map< Uint31_Index, std::vector< Way_Skeleton > >::iterator it = way_members.begin();
+  for (auto it = way_members.begin();
       it != way_members.end(); ++it)
   {
     for (std::vector< Way_Skeleton >::const_iterator iit = it->second.begin();
@@ -104,14 +104,14 @@ Relation_Geometry_Store::Relation_Geometry_Store
           north < south ? 0 : &node_ranges);
 
   // Order node ids by id.
-  for (std::map< Uint32_Index, std::vector< Node_Skeleton > >::iterator it = nodes_by_idx.first.begin();
+  for (auto it = nodes_by_idx.first.begin();
       it != nodes_by_idx.first.end(); ++it)
   {
     for (std::vector< Node_Skeleton >::const_iterator iit = it->second.begin();
         iit != it->second.end(); ++iit)
       nodes.push_back(Node_Base(iit->id, it->first.val(), iit->ll_lower));
   }
-  for (std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > >::iterator it = nodes_by_idx.second.begin();
+  for (auto it = nodes_by_idx.second.begin();
       it != nodes_by_idx.second.end(); ++it)
   {
     for (std::vector< Attic< Node_Skeleton > >::const_iterator iit = it->second.begin();
@@ -136,7 +136,7 @@ Relation_Geometry_Store::Relation_Geometry_Store
 
   way_geometry_store = new Way_Geometry_Store(ways_by_idx, query, rman);
 
-  for (std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >::iterator it = ways_by_idx.begin();
+  for (auto it = ways_by_idx.begin();
       it != ways_by_idx.end(); ++it)
   {
     for (std::vector< Attic< Way_Skeleton > >::const_iterator iit = it->second.begin();
@@ -163,7 +163,7 @@ std::vector< std::vector< Quad_Coord > > Relation_Geometry_Store::get_geometry
     (const Relation_Skeleton& relation) const
 {
   std::vector< std::vector< Quad_Coord > > result;
-  for (std::vector< Relation_Entry >::const_iterator it = relation.members().begin();
+  for (auto it = relation.members().begin();
        it != relation.members().end(); ++it)
   {
     if (it->type == Relation_Entry::NODE)

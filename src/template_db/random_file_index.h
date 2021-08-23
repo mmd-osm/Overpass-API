@@ -315,7 +315,7 @@ inline Random_File_Index::~Random_File_Index()
 
   // Write void blocks
   std::vector< uint8 > void_index_buf(void_blocks.size() * 8);
-  std::pair< uint32, uint32 >* it_ptr = (std::pair< uint32, uint32 >*)(void_index_buf.data());
+  auto* it_ptr = (std::pair< uint32, uint32 >*)(void_index_buf.data());
   for (std::vector< std::pair< uint32, uint32 > >::const_iterator it(void_blocks.begin());
       it != void_blocks.end(); ++it)
     *(it_ptr++) = *it;

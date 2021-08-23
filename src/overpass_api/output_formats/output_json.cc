@@ -85,7 +85,7 @@ void print_meta_json(const OSM_Element_Metadata_Skeleton< Id_Type >& meta,
   std::cout<<",\n  \"timestamp\": \""<<iso_string(meta.timestamp)<<"\""
         ",\n  \"version\": "<<meta.version<<
 	",\n  \"changeset\": "<<meta.changeset;
-  std::map< uint32, std::string >::const_iterator it = users.find(meta.user_id);
+  auto it = users.find(meta.user_id);
   if (it != users.end())
     std::cout<<",\n  \"user\": \""<<escape_cstr(it->second)<<"\"";
   std::cout<<",\n  \"uid\": "<<meta.user_id;
@@ -96,7 +96,7 @@ void print_tags(const std::vector< std::pair< std::string, std::string > >* tags
 {
   if (tags != 0 && !tags->empty())
   {
-    std::vector< std::pair< std::string, std::string > >::const_iterator it = tags->begin();
+    auto it = tags->begin();
     std::cout<<",\n  \"tags\": {"
            "\n    \""<<escape_cstr(it->first)<<"\": \""<<escape_cstr(it->second)<<"\"";
     for (++it; it != tags->end(); ++it)
@@ -180,7 +180,7 @@ void Output_JSON::print_item(const Way_Skeleton& skel,
 
   if ((mode.mode & Output_Mode::NDS) != 0 && !skel.nds().empty())
   {
-    std::vector< Node::Id_Type >::const_iterator it = skel.nds().begin();
+    auto it = skel.nds().begin();
     std::cout<<",\n  \"nodes\": ["
            "\n    "<<it->val();
     for (++it; it != skel.nds().end(); ++it)
@@ -238,7 +238,7 @@ void Output_JSON::print_item(const Relation_Skeleton& skel,
     std::cout<<",\n  \"members\": [";
     for (uint i = 0; i < skel.members().size(); i++)
     {
-      std::map< uint32, std::string >::const_iterator rit = roles->find(skel.members()[i].role);
+      auto rit = roles->find(skel.members()[i].role);
       std::cout<< (i == 0 ? "" : ",");
       std::cout <<"\n    {"
             "\n      \"type\": \""<<member_type_name(skel.members()[i].type)<<
@@ -286,7 +286,7 @@ void print_geometry(const Opaque_Geometry& geometry, const std::string& indent)
 
     bool first_printed = true;
     const std::vector< Opaque_Geometry* >* components = geometry.get_components();
-    for (std::vector< Opaque_Geometry* >::const_iterator it = components->begin(); it != components->end(); ++it)
+    for (auto it = components->begin(); it != components->end(); ++it)
     {
       if (*it && (*it)->has_center())
       {
@@ -309,7 +309,7 @@ void print_geometry(const Opaque_Geometry& geometry, const std::string& indent)
         "\n"<<indent<<"  \"coordinates\": [";
 
     const std::vector< Point_Double >* line = geometry.get_line_geometry();
-    for (std::vector< Point_Double >::const_iterator it = line->begin(); it != line->end(); ++it)
+    for (auto it = line->begin(); it != line->end(); ++it)
       std::cout<<(it == line->begin() ? "" : ",")<<"\n"<<indent<<"    ["
           <<std::fixed<<std::setprecision(7)<<it->lon<<", "
           <<std::fixed<<std::setprecision(7)<<it->lat<<"]";
@@ -323,11 +323,11 @@ void print_geometry(const Opaque_Geometry& geometry, const std::string& indent)
         "\n"<<indent<<"  \"coordinates\": [";
 
     const std::vector< std::vector< Point_Double > >* linestrings = geometry.get_multiline_geometry();
-    for (std::vector< std::vector< Point_Double > >::const_iterator iti = linestrings->begin();
+    for (auto iti = linestrings->begin();
         iti != linestrings->end(); ++iti)
     {
       std::cout<<(iti == linestrings->begin() ? "" : ",")<<"\n"<<indent<<"    [";
-      for (std::vector< Point_Double >::const_iterator it = iti->begin(); it != iti->end(); ++it)
+      for (auto it = iti->begin(); it != iti->end(); ++it)
         std::cout<<(it == iti->begin() ? "" : ",")<<"\n"<<indent<<"      ["
             <<std::fixed<<std::setprecision(7)<<it->lon<<", "
             <<std::fixed<<std::setprecision(7)<<it->lat<<"]";

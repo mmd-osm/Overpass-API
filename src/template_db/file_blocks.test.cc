@@ -379,7 +379,7 @@ void read_loop(
   while (!it.is_end())
   {
     std::cout<<"Predicted size "<<blocks.answer_size(it);
-    uint8* data = (uint8*)(blocks.read_block(it));
+    auto* data = (uint8*)(blocks.read_block(it));
     uint32 max_keysize = *(uint32*)(data+sizeof(uint32));
     std::cout<<", real size "<<(*(uint32*)data)<<" bytes, "
     <<"first block size "<<max_keysize<<" bytes, "
@@ -456,7 +456,7 @@ void read_loop(
     std::cout<<"Predicted size "<<answer_size;
     if (answer_size > 0)
     {
-      uint8* data((uint8*)(blocks.read_block(it)));
+      auto* data((uint8*)(blocks.read_block(it)));
       std::cout<<", real size "<<(*(uint32*)data)<<" bytes, "
 	  <<"first block size "<<*(uint32*)(data+sizeof(uint32))<<" bytes, "
 	  <<"first index "<<*(uint32*)(data+2*sizeof(uint32));
@@ -496,7 +496,7 @@ void read_loop(
   while (!it.is_end())
   {
     std::cout<<"Predicted size "<<blocks.answer_size(it);
-    uint8* data((uint8*)(blocks.read_block(it)));
+    auto* data((uint8*)(blocks.read_block(it)));
     std::cout<<", real size "<<(*(uint32*)data)<<" bytes, "
     <<"first block size "<<*(uint32*)(data+sizeof(uint32))<<" bytes, "
     <<"first index "<<*(uint32*)(data+2*sizeof(uint32));
@@ -732,7 +732,7 @@ uint32 prepare_block(void* block, const std::list< IntIndex >& indices)
   }
 
   uint32 pos(sizeof(uint32));
-  for (std::list< IntIndex >::const_iterator it(indices.begin());
+  for (auto it(indices.begin());
       it != indices.end(); ++it)
   {
     if ((*it).val() + 12 > max_keysize)
@@ -1274,7 +1274,7 @@ int main(int argc, char* args[])
     File_Blocks_Write_Iterator< IntIndex, std::list< IntIndex >::const_iterator > it =
         blocks.write_begin(indices.begin(), indices.end());
 
-    uint64* buf = (uint64*)aligned_alloc(8, block_size);
+    auto* buf = (uint64*)aligned_alloc(8, block_size);
     uint32 max_keysize = prepare_large_block(
         buf, *indices.begin(), block_size, 2*block_size + block_size/2, 0);
     it = blocks.insert_block(it, buf, block_size, max_keysize, *indices.begin());
@@ -1311,7 +1311,7 @@ int main(int argc, char* args[])
     ++it;
     ++it;
     ++it;
-    uint64* buf = (uint64*)aligned_alloc(8, block_size);
+    auto* buf = (uint64*)aligned_alloc(8, block_size);
     uint32 max_keysize = prepare_block(buf, indices);
     blocks.insert_block(it, buf, max_keysize);
     free(buf);
@@ -1340,7 +1340,7 @@ int main(int argc, char* args[])
     File_Blocks_Write_Iterator< IntIndex, std::list< IntIndex >::const_iterator > it =
         blocks.write_begin(indices.begin(), indices.end());
 
-    uint64* buf = (uint64*)aligned_alloc(8, block_size);
+    auto* buf = (uint64*)aligned_alloc(8, block_size);
     uint32 max_keysize = prepare_large_block(buf, *indices.begin(), block_size, block_size-4, 0);
     it = blocks.insert_block(it, buf, block_size, max_keysize, *indices.begin());
     prepare_large_block(buf, *indices.begin(), block_size, block_size-3, 0);
@@ -1373,7 +1373,7 @@ int main(int argc, char* args[])
     File_Blocks_Write_Iterator< IntIndex, std::list< IntIndex >::const_iterator > it =
         blocks.write_begin(indices.begin(), indices.end());
 
-    uint64* buf = (uint64*)aligned_alloc(8, block_size);
+    auto* buf = (uint64*)aligned_alloc(8, block_size);
     uint32 max_keysize = prepare_large_block(
         buf, *indices.begin(), block_size, 2*block_size + block_size/2 + 20, 0);
     it = blocks.replace_block(it, buf, block_size, max_keysize, *indices.begin());

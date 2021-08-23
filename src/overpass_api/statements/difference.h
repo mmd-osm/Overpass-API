@@ -41,7 +41,7 @@ class Difference_Statement final : public Output_Statement
     {
       std::string result = indent + "<difference" + dump_xml_result_name() + ">\n";
 
-      for (std::vector< Statement* >::const_iterator it = substatements.begin(); it != substatements.end(); ++it)
+      for (auto it = substatements.begin(); it != substatements.end(); ++it)
         result += *it ? (*it)->dump_xml(indent + "  ") : "";
 
       return result + indent + "</difference>\n";
@@ -51,7 +51,7 @@ class Difference_Statement final : public Output_Statement
     {
       std::string result = "(";
 
-      std::vector< Statement* >::const_iterator it = substatements.begin();
+      auto it = substatements.begin();
       if (it != substatements.end())
       {
         result += (*it)->dump_compact_ql(indent);
@@ -67,7 +67,7 @@ class Difference_Statement final : public Output_Statement
     {
       std::string result = indent + "(";
 
-      std::vector< Statement* >::const_iterator it = substatements.begin();
+      auto it = substatements.begin();
       if (it != substatements.end())
       {
         result += "\n" + (*it)->dump_pretty_ql(indent + "  ");

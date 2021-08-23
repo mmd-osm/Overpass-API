@@ -85,8 +85,7 @@ void Console_Output::display_statement_progress
   if (!stack.empty())
   {
     std::cerr<<" Stack:";
-    for (std::vector< std::pair< uint, uint > >::const_iterator it(stack.begin());
-        it != stack.end(); ++it)
+    for (auto it(stack.begin()); it != stack.end(); ++it)
       std::cerr<<" "<<it->first<<" of "<<it->second;
   }
   std::cerr<<'\n';

@@ -69,7 +69,7 @@ void process_user_data(Transaction& transaction, std::map< uint32, std::string >
         it != idxs_by_user_id.end(); ++it)
     {
       std::set< Uint31_Index >& ins = db_to_delete[it->first];
-      for (std::vector< uint32 >::const_iterator it2 = it->second.begin();
+      for (auto it2 = it->second.begin();
           it2 != it->second.end(); ++it2)
 	ins.insert(Uint31_Index(*it2));
     }
@@ -77,7 +77,7 @@ void process_user_data(Transaction& transaction, std::map< uint32, std::string >
         it != idxs_by_user_id.end(); ++it)
     {
       std::set< Uint31_Index >& ins = db_to_insert[it->first];
-      for (std::vector< uint32 >::const_iterator it2 = it->second.begin();
+      for (auto it2 = it->second.begin();
           it2 != it->second.end(); ++it2)
 	ins.insert(Uint31_Index(*it2));
     }

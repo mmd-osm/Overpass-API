@@ -180,7 +180,7 @@ bool parse_and_validate
 	  else if (debug_level == parser_dump_pretty_map_ql)
 	    std::cout<<(*it)->dump_pretty_map_ql(stmt_factory);
 	}
-        for (std::vector< Statement_Dump* >::iterator it = statement_stack< Statement_Dump >().begin();
+        for (auto it = statement_stack< Statement_Dump >().begin();
             it != statement_stack< Statement_Dump >().end(); ++it)
           delete *it;
         stmt_dump_factory_global = 0;
@@ -224,7 +224,7 @@ bool parse_and_validate
     if (debug_level == parser_execute)
     {
       parse_and_validate_map_ql(stmt_factory, xml_raw, error_output, parsed_query);
-      Osm_Script_Statement* root =
+      auto* root =
           dynamic_cast< Osm_Script_Statement* >(get_statement_stack()->front());
       if (root)
 	root->set_factory(&stmt_factory);

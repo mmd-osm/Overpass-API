@@ -45,10 +45,9 @@ Map_To_Area_Statement::Map_To_Area_Statement
 std::vector< Area_Skeleton::Id_Type > get_area_ids_for_ways(const std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways)
 {
   std::vector<Area::Id_Type> area_ids;
-  for (std::map<Uint31_Index, std::vector<Way_Skeleton> >::const_iterator it =
-      ways.begin(); it != ways.end(); ++it)
+  for (auto it = ways.begin(); it != ways.end(); ++it)
   {
-    for (std::vector<Way_Skeleton>::const_iterator sit = it->second.begin();
+    for (auto sit = it->second.begin();
         sit != it->second.end(); ++sit)
     {
       area_ids.push_back(sit->id.val() + 2400000000u);
@@ -61,11 +60,9 @@ std::vector< Area_Skeleton::Id_Type > get_area_ids_for_ways(const std::map< Uint
 std::vector< Area_Skeleton::Id_Type > get_area_ids_for_attic_ways(const std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >& attic_ways)
 {
   std::vector<Area::Id_Type> area_ids;
-  for (std::map<Uint31_Index, std::vector<Attic<Way_Skeleton> > >::const_iterator it =
-      attic_ways.begin(); it != attic_ways.end(); ++it)
+  for (auto it = attic_ways.begin(); it != attic_ways.end(); ++it)
   {
-    for (std::vector<Attic<Way_Skeleton> >::const_iterator sit = it->second.begin();
-        sit != it->second.end(); ++sit)
+    for (auto sit = it->second.begin(); sit != it->second.end(); ++sit)
     {
       area_ids.push_back(sit->id.val() + 2400000000u);
     }
@@ -77,11 +74,9 @@ std::vector< Area_Skeleton::Id_Type > get_area_ids_for_attic_ways(const std::map
 std::vector< Area_Skeleton::Id_Type > get_area_ids_for_relations(const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& rels)
 {
   std::vector<Area::Id_Type> area_ids;
-  for (std::map<Uint31_Index, std::vector<Relation_Skeleton> >::const_iterator it =
-      rels.begin(); it != rels.end(); ++it)
+  for (auto it = rels.begin(); it != rels.end(); ++it)
   {
-    for (std::vector<Relation_Skeleton>::const_iterator sit = it->second.begin();
-        sit != it->second.end(); ++sit)
+    for (auto sit = it->second.begin(); sit != it->second.end(); ++sit)
     {
       area_ids.push_back(sit->id.val() + 3600000000u);
     }
@@ -93,11 +88,9 @@ std::vector< Area_Skeleton::Id_Type > get_area_ids_for_relations(const std::map<
 std::vector< Area_Skeleton::Id_Type > get_area_ids_for_attic_relations(const std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > >& attic_rels)
 {
   std::vector<Area::Id_Type> area_ids;
-  for (std::map<Uint31_Index, std::vector<Attic<Relation_Skeleton> > >::const_iterator it =
-      attic_rels.begin(); it != attic_rels.end(); ++it)
+  for (auto it = attic_rels.begin(); it != attic_rels.end(); ++it)
   {
-    for (std::vector<Attic<Relation_Skeleton> >::const_iterator sit =
-        it->second.begin(); sit != it->second.end(); ++sit)
+    for (auto sit = it->second.begin(); sit != it->second.end(); ++sit)
     {
       area_ids.push_back(sit->id.val() + 3600000000u);
     }
@@ -113,8 +106,8 @@ void collect_elems_flat(Resource_Manager& rman,
   if (ids.empty())
     return;
 
-  std::vector<Area_Skeleton::Id_Type>::const_iterator lower = min_element(ids.begin(), ids.end());
-  std::vector<Area_Skeleton::Id_Type>::const_iterator upper = max_element(ids.begin(), ids.end());
+  auto lower = min_element(ids.begin(), ids.end());
+  auto upper = max_element(ids.begin(), ids.end());
 
   Block_Backend< Uint31_Index, Area_Skeleton > elems_db
       (rman.get_transaction()->data_index(area_settings().AREAS));

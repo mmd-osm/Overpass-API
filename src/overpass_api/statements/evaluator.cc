@@ -64,7 +64,7 @@ bool assert_member_in_context(Error_Output* error_output,
 
 Requested_Context& Requested_Context::add_usage(const std::string& set_name, uint usage)
 {
-  for (std::vector< Set_Usage >::iterator it = set_usage.begin(); it != set_usage.end(); ++it)
+  for (auto it = set_usage.begin(); it != set_usage.end(); ++it)
   {
     if (it->set_name == set_name)
     {
@@ -101,9 +101,9 @@ Requested_Context& Requested_Context::add_user_names()
 
 void Requested_Context::add(const Requested_Context& rhs)
 {
-  for (std::vector< Set_Usage >::const_iterator rit = rhs.set_usage.begin(); rit != rhs.set_usage.end(); ++rit)
+  for (auto rit = rhs.set_usage.begin(); rit != rhs.set_usage.end(); ++rit)
   {
-    for (std::vector< Set_Usage >::iterator it = set_usage.begin(); it != set_usage.end(); ++it)
+    for (auto it = set_usage.begin(); it != set_usage.end(); ++it)
     {
       if (it->set_name == rit->set_name)
       {
@@ -254,20 +254,20 @@ Element_With_Context< Attic< Node_Skeleton > > Set_With_Context::get_context(
 Opaque_Geometry* new_opaque_geometry(const std::vector< Quad_Coord >& geometry)
 {
   bool is_complete = true;
-  for (std::vector< Quad_Coord >::const_iterator it = geometry.begin(); it != geometry.end(); ++it)
+  for (auto it = geometry.begin(); it != geometry.end(); ++it)
     is_complete &= (it->ll_upper != 0 || it->ll_lower != 0);
 
   if (is_complete)
   {
     std::vector< Point_Double > coords;
-    for (std::vector< Quad_Coord >::const_iterator it = geometry.begin(); it != geometry.end(); ++it)
+    for (auto it = geometry.begin(); it != geometry.end(); ++it)
       coords.push_back(Point_Double(::lat(it->ll_upper, it->ll_lower), ::lon(it->ll_upper, it->ll_lower)));
     return new Linestring_Geometry(coords);
   }
   else
   {
-    Partial_Way_Geometry* pw_geom = new Partial_Way_Geometry();
-    for (std::vector< Quad_Coord >::const_iterator it = geometry.begin(); it != geometry.end(); ++it)
+    auto* pw_geom = new Partial_Way_Geometry();
+    for (auto it = geometry.begin(); it != geometry.end(); ++it)
     {
       if (it->ll_upper != 0 || it->ll_lower != 0)
         pw_geom->add_point(Point_Double(::lat(it->ll_upper, it->ll_lower), ::lon(it->ll_upper, it->ll_lower)));
@@ -284,7 +284,7 @@ Opaque_Geometry* new_opaque_geometry(const std::vector< Quad_Coord >& geometry)
 Opaque_Geometry* new_opaque_geometry(const std::vector< std::vector< Quad_Coord > >& geometry)
 {
   bool is_complete = true;
-  for (std::vector< std::vector< Quad_Coord > >::const_iterator it = geometry.begin();
+  for (auto it = geometry.begin();
       it != geometry.end(); ++it)
   {
     if (it->empty())
@@ -293,16 +293,16 @@ Opaque_Geometry* new_opaque_geometry(const std::vector< std::vector< Quad_Coord 
       is_complete &= ((*it)[0].ll_upper != 0 || (*it)[0].ll_lower != 0);
     else
     {
-      for (std::vector< Quad_Coord >::const_iterator it2 = it->begin(); it2 != it->end(); ++it2)
+      for (auto it2 = it->begin(); it2 != it->end(); ++it2)
         is_complete &= (it2->ll_upper != 0 || it2->ll_lower != 0);
     }
   }
 
   if (is_complete)
   {
-    Compound_Geometry* cp_geom = new Compound_Geometry();
+    auto* cp_geom = new Compound_Geometry();
 
-    for (std::vector< std::vector< Quad_Coord > >::const_iterator it = geometry.begin();
+    for (auto it = geometry.begin();
         it != geometry.end(); ++it)
     {
       if (it->empty())
@@ -314,7 +314,7 @@ Opaque_Geometry* new_opaque_geometry(const std::vector< std::vector< Quad_Coord 
       else
       {
         std::vector< Point_Double > coords;
-        for (std::vector< Quad_Coord >::const_iterator it2 = it->begin(); it2 != it->end(); ++it2)
+        for (auto it2 = it->begin(); it2 != it->end(); ++it2)
           coords.push_back(Point_Double(
               ::lat(it2->ll_upper, it2->ll_lower),
               ::lon(it2->ll_upper, it2->ll_lower)));
@@ -327,9 +327,9 @@ Opaque_Geometry* new_opaque_geometry(const std::vector< std::vector< Quad_Coord 
   }
   else if (!geometry.empty())
   {
-    Partial_Relation_Geometry* pr_geom = new Partial_Relation_Geometry();
+    auto* pr_geom = new Partial_Relation_Geometry();
 
-    for (std::vector< std::vector< Quad_Coord > >::const_iterator it = geometry.begin();
+    for (auto it = geometry.begin();
         it != geometry.end(); ++it)
     {
       if (it->empty())
@@ -341,7 +341,7 @@ Opaque_Geometry* new_opaque_geometry(const std::vector< std::vector< Quad_Coord 
       else
       {
         pr_geom->start_way();
-        for (std::vector< Quad_Coord >::const_iterator it2 = it->begin(); it2 != it->end(); ++it2)
+        for (auto it2 = it->begin(); it2 != it->end(); ++it2)
         {
           if (it2->ll_upper != 0 || it2->ll_lower != 0)
             pr_geom->add_way_point(Point_Double(
@@ -448,7 +448,7 @@ Prepare_Task_Context::Prepare_Task_Context(
     const Requested_Context& requested, const Statement& stmt, Resource_Manager& rman)
     : contexts(requested.set_usage.size()), relation_member_roles_(0), users(0)
 {
-  for (std::vector< Set_Usage >::const_iterator it = requested.set_usage.begin(); it != requested.set_usage.end(); ++it)
+  for (auto it = requested.set_usage.begin(); it != requested.set_usage.end(); ++it)
   {
     Set_With_Context& context = contexts[std::distance(requested.set_usage.begin(), it)];
     context.name = it->set_name;
@@ -485,7 +485,7 @@ uint32 Prepare_Task_Context::get_role_id(const std::string& role) const
   if (!relation_member_roles_)
     return std::numeric_limits< uint32 >::max();
 
-  for (std::map< uint32, std::string >::const_iterator it = relation_member_roles_->begin();
+  for (auto it = relation_member_roles_->begin();
       it != relation_member_roles_->end(); ++it)
   {
     if (it->second == role)
@@ -499,7 +499,7 @@ const std::string* Prepare_Task_Context::get_user_name(uint32 user_id) const
 {
   if (!users)
     return 0;
-  std::map< uint32, std::string >::const_iterator it = users->find(user_id);
+  auto it = users->find(user_id);
   if (it == users->end())
     return 0;
   return &it->second;

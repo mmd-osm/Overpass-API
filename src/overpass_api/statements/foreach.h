@@ -45,7 +45,7 @@ class Foreach_Statement : public Statement
           + (input != "_" ? " from=\"" + input + "\"" : "")
           + (output != "_" ? " into=\"" + output + "\"" : "") + ">\n";
 
-      for (std::vector< Statement* >::const_iterator it = substatements.begin(); it != substatements.end(); ++it)
+      for (auto it = substatements.begin(); it != substatements.end(); ++it)
         result += *it ? (*it)->dump_xml(indent + "  ") : "";
 
       return result + indent + "</foreach>\n";
@@ -56,7 +56,7 @@ class Foreach_Statement : public Statement
       std::string result = indent + "foreach"
           + (input != "_" ? "." + input : "") + (output != "_" ? "->." + output : "") + "{";
 
-      for (std::vector< Statement* >::const_iterator it = substatements.begin(); it != substatements.end(); ++it)
+      for (auto it = substatements.begin(); it != substatements.end(); ++it)
         result += (*it)->dump_compact_ql(indent);
       result += "}";
 
@@ -68,7 +68,7 @@ class Foreach_Statement : public Statement
       std::string result = indent + "foreach"
           + (input != "_" ? "." + input : "") + (output != "_" ? "->." + output : "") + "{";
 
-      for (std::vector< Statement* >::const_iterator it = substatements.begin(); it != substatements.end(); ++it)
+      for (auto it = substatements.begin(); it != substatements.end(); ++it)
         result += "\n" + (*it)->dump_pretty_ql(indent + "  ");
       result += "\n}";
 

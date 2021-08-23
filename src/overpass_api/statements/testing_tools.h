@@ -48,7 +48,7 @@ struct Statement_Container
   Statement_Container(Parsed_Query& global_settings) : global_settings_(&global_settings) {}
   ~Statement_Container()
   {
-    for (std::vector< Statement* >::iterator it = cont.begin(); it != cont.end(); ++it)
+    for (auto it = cont.begin(); it != cont.end(); ++it)
       delete *it;
   }
 

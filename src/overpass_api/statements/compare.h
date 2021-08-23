@@ -105,7 +105,7 @@ public:
     if (criterion)
       result += criterion->dump_xml(indent + "  ");
 
-    for (std::vector< Statement* >::const_iterator it = substatements.begin(); it != substatements.end(); ++it)
+    for (auto it = substatements.begin(); it != substatements.end(); ++it)
       result += *it ? (*it)->dump_xml(indent + "  ") : "";
 
     if (criterion || !substatements.empty())
@@ -122,7 +122,7 @@ public:
     if (!substatements.empty())
     {
       result += "{";
-      for (std::vector< Statement* >::const_iterator it = substatements.begin(); it != substatements.end(); ++it)
+      for (auto it = substatements.begin(); it != substatements.end(); ++it)
         result += (*it)->dump_compact_ql(indent) + ";";
       result += "}";
     }
@@ -141,7 +141,7 @@ public:
     if (!substatements.empty())
     {
       result += indent + "{";
-      for (std::vector< Statement* >::const_iterator it = substatements.begin(); it != substatements.end(); ++it)
+      for (auto it = substatements.begin(); it != substatements.end(); ++it)
         result += "\n" + (*it)->dump_pretty_ql(indent + "  ") + ";";
       result += "\n" + indent + "}";
     }

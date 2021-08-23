@@ -80,7 +80,7 @@ class User_Statement final : public Output_Statement
       else
       {
         uint counter = 0;
-        for (std::set< Uint32_Index >::const_iterator it = user_ids.begin(); it != user_ids.end(); ++it)
+        for (auto it = user_ids.cbegin(); it != user_ids.cend(); ++it)
           result += " uid_" + to_string(++counter) + "=\"" + to_string(it->val()) + "\"";
       }
 
@@ -89,7 +89,7 @@ class User_Statement final : public Output_Statement
       else
       {
         uint counter = 0;
-        for (std::set< std::string >::const_iterator it = user_names.begin(); it != user_names.end(); ++it)
+        for (auto it = user_names.cbegin(); it != user_names.cend(); ++it)
           result += " name_" + to_string(++counter) + "=\"" + escape_xml(*it) + "\"";
       }
 
@@ -107,17 +107,17 @@ class User_Statement final : public Output_Statement
 
       if (!user_ids.empty())
       {
-        std::set< Uint32_Index >::const_iterator it = user_ids.begin();
+        auto it = user_ids.cbegin();
         result += to_string(it->val());
-        for (++it; it != user_ids.end(); ++it)
+        for (++it; it != user_ids.cend(); ++it)
           result += "," + to_string(it->val());
       }
 
       if (!user_names.empty())
       {
-        std::set< std::string >::const_iterator it = user_names.begin();
+        auto it = user_names.cbegin();
         result += "\"" + escape_cstr(*it) + "\"";
-        for (++it; it != user_names.end(); ++it)
+        for (++it; it != user_names.cend(); ++it)
           result += ",\"" + escape_cstr(*it) + "\"";
       }
 

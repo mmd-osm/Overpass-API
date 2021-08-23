@@ -75,7 +75,7 @@ void print_meta_xml(const OSM_Element_Metadata_Skeleton< Id_Type >& meta,
 {
   std::cout<<" version=\""<<meta.version<<"\" timestamp=\""<<iso_string(meta.timestamp)
       <<"\" changeset=\""<<meta.changeset<<"\" uid=\""<<meta.user_id<<"\"";
-  std::map< uint32, std::string >::const_iterator it = users.find(meta.user_id);
+  auto it = users.find(meta.user_id);
   if (it != users.end())
     std::cout<<" user=\""<<escape_xml(it->second)<<"\"";
 }
@@ -146,7 +146,7 @@ void print_tags(const std::vector< std::pair< std::string, std::string > >* tags
       std::cout<<">\n";
       inner_tags_printed = true;
     }
-    for (std::vector< std::pair< std::string, std::string > >::const_iterator it = tags->begin();
+    for (auto it = tags->begin();
 	 it != tags->end(); ++it)
       std::cout<<"    <tag k=\""<<escape_xml(it->first)<<"\" v=\""<<escape_xml(it->second)<<"\"/>\n";
   }
@@ -188,7 +188,7 @@ void print_geometry(const Opaque_Geometry& geometry, Output_Mode mode, bool& inn
       inner_tags_printed = true;
     }
     const std::vector< Opaque_Geometry* >* components = geometry.get_components();
-    for (std::vector< Opaque_Geometry* >::const_iterator it = components->begin(); it != components->end(); ++it)
+    for (auto it = components->begin(); it != components->end(); ++it)
     {
       if (*it)
       {
@@ -206,7 +206,7 @@ void print_geometry(const Opaque_Geometry& geometry, Output_Mode mode, bool& inn
       inner_tags_printed = true;
     }
     const std::vector< Point_Double >* line = geometry.get_line_geometry();
-    for (std::vector< Point_Double >::const_iterator it = line->begin(); it != line->end(); ++it)
+    for (auto it = line->begin(); it != line->end(); ++it)
       std::cout<<indent<<"<vertex"
           " lat=\""<<std::fixed<<std::setprecision(7)<<it->lat<<"\""
           " lon=\""<<std::fixed<<std::setprecision(7)<<it->lon<<"\""
@@ -220,11 +220,11 @@ void print_geometry(const Opaque_Geometry& geometry, Output_Mode mode, bool& inn
       inner_tags_printed = true;
     }
     const std::vector< std::vector< Point_Double > >* linestrings = geometry.get_multiline_geometry();
-    for (std::vector< std::vector< Point_Double > >::const_iterator iti = linestrings->begin();
+    for (auto iti = linestrings->begin();
         iti != linestrings->end(); ++iti)
     {
       std::cout<<indent<<"<linestring>\n";
-      for (std::vector< Point_Double >::const_iterator it = iti->begin(); it != iti->end(); ++it)
+      for (auto it = iti->begin(); it != iti->end(); ++it)
         std::cout<<indent<<"  <vertex"
             " lat=\""<<std::fixed<<std::setprecision(7)<<it->lat<<"\""
             " lon=\""<<std::fixed<<std::setprecision(7)<<it->lon<<"\""
@@ -311,7 +311,7 @@ void print_members(const Relation_Skeleton& skel, const Opaque_Geometry& geometr
     }
     for (uint i = 0; i < skel.members().size(); ++i)
     {
-      std::map< uint32, std::string >::const_iterator it = roles.find(skel.members()[i].role);
+      auto it = roles.find(skel.members()[i].role);
       std::cout<<"    <member type=\""<<member_type_name(skel.members()[i].type)
 	  <<"\" ref=\""<<skel.members()[i].ref.val()
 	  <<"\" role=\""<<escape_xml(it != roles.end() ? it->second : "???")<<"\"";

@@ -33,7 +33,7 @@ void filter_ids_by_tags
   std::string last_key, last_value;
   bool key_relevant = false;
   bool valid = false;
-  std::map< std::string, std::pair< std::string, std::vector< Regular_Expression* > > >::const_iterator key_it = keys.begin();
+  auto key_it = keys.begin();
 
   std::vector< Id_Type > old_ids;
   std::vector< uint64 > matched_by_key_regexes;
@@ -80,7 +80,7 @@ void filter_ids_by_tags
       if (key_relevant)
       {
 	valid = key_it->second.first.empty() || tag_it.index().value == key_it->second.first;
-	for (std::vector< Regular_Expression* >::const_iterator rit = key_it->second.second.begin();
+	for (auto rit = key_it->second.second.begin();
 	    valid && rit != key_it->second.second.end(); ++rit)
 	  valid &= (*rit)->matches(tag_it.index().value);
       }
@@ -129,7 +129,7 @@ void filter_ids_by_tags
     old_ids.swap(new_ids);
     new_ids.clear();
 
-    for (typename std::vector< Id_Type >::const_iterator it2 = it->begin(); it2 != it->end(); ++it2)
+    for (auto it2 = it->begin(); it2 != it->end(); ++it2)
     {
       if (std::binary_search(old_ids.begin(), old_ids.end(), *it2))
 	new_ids.push_back(*it2);
@@ -189,7 +189,7 @@ public:
   bool value_relevant(const std::string& value) const override
   {
     bool valid = value_.empty() || value_ == value;
-    for (std::vector< Regular_Expression* >::const_iterator it = conditions_.begin(); valid && it != conditions_.end();
+    for (auto it = conditions_.begin(); valid && it != conditions_.end();
         ++it)
       valid &= (*it)->matches(value);
     return valid;
@@ -339,21 +339,20 @@ void filter_ids_by_tags
    std::vector< Id_Type >& new_ids)
 {
   std::vector< Tag_Entry_Listener_Key_Regex< Id_Type > > tag_key_listeners;
-  for (std::vector< std::pair< Regular_Expression*, Regular_Expression* > >::const_iterator
-      it = key_regexes.begin(); it != key_regexes.end(); ++it)
+  for (auto it = key_regexes.begin(); it != key_regexes.end(); ++it)
     tag_key_listeners.push_back(Tag_Entry_Listener_Key_Regex< Id_Type >(it->first, it->second, new_ids));
 
   std::vector< Tag_Entry_Listener_Value_Regex< Id_Type > > tag_value_listeners;
-  for (std::map< std::string, std::pair< std::string, std::vector< Regular_Expression* > > >::const_iterator key_it = keys.begin();
+  for (auto key_it = keys.begin();
        key_it != keys.end(); ++key_it)
     tag_value_listeners.push_back(Tag_Entry_Listener_Value_Regex< Id_Type >(
         key_it->first, key_it->second.first, key_it->second.second, new_ids));
 
   std::vector< Tag_Entry_Listener< Id_Type >* > tag_listeners;
-  for (typename std::vector< Tag_Entry_Listener_Key_Regex< Id_Type > >::iterator it = tag_key_listeners.begin();
+  for (auto it = tag_key_listeners.begin();
        it != tag_key_listeners.end(); ++it)
     tag_listeners.push_back(&*it);
-  for (typename std::vector< Tag_Entry_Listener_Value_Regex< Id_Type > >::iterator it = tag_value_listeners.begin();
+  for (auto it = tag_value_listeners.begin();
        it != tag_value_listeners.end(); ++it)
     tag_listeners.push_back(&*it);
 

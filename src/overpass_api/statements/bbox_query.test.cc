@@ -40,13 +40,13 @@ void perform_bbox_print(const std::string& south, const std::string& north, cons
       const char* attributes[] =
           { "s", south.c_str(), "n", north.c_str(),
             "w", west.c_str(), "e", east.c_str(), 0 };
-      Bbox_Query_Statement* stmt1 = new Bbox_Query_Statement(0, convert_c_pairs(attributes), global_settings);
+      auto* stmt1 = new Bbox_Query_Statement(0, convert_c_pairs(attributes), global_settings);
       stmt1->execute(rman);
       delete stmt1;
     }
     {
       const char* attributes[] = { "mode", "body", "order", "id", 0 };
-      Print_Statement* stmt1 = new Print_Statement(0, convert_c_pairs(attributes), global_settings);
+      auto* stmt1 = new Print_Statement(0, convert_c_pairs(attributes), global_settings);
       stmt1->execute(rman);
       delete stmt1;
     }

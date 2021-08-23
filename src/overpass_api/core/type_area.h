@@ -301,7 +301,7 @@ struct Area_Skeleton
     *(Id_Type*)data = id.val();
     *((uint32*)data + 1) = d->used_indices.size();
     uint i(2);
-    for (std::vector< uint32 >::const_iterator it(d->used_indices.begin());
+    for (auto it(d->used_indices.begin());
     it != d->used_indices.end(); ++it)
     {
       *((uint32*)data + i) = *it;
@@ -440,7 +440,7 @@ struct Area_Block
     if (d->ilat_ilon_pairs.empty())
     {
       d->ilat_ilon_pairs.reserve(coors().size());
-      for (std::vector< uint64 >::const_iterator it = coors().begin(); it != coors().end(); ++it)
+      for (auto it = coors().begin(); it != coors().end(); ++it)
       {
         uint32 _lat = ::ilat((*it >> 32) & 0xff, *it & 0xffffffffull);
         int32 _lon = ::ilon((*it >> 32) & 0xff, *it & 0xffffffffull);

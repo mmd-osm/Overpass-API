@@ -240,7 +240,7 @@ struct Owning_Array
   Owning_Array() = default;
   ~Owning_Array()
   {
-    for (typename std::vector< Pointer >::iterator it = content.begin(); it != content.end(); ++it)
+    for (auto it = content.begin(); it != content.end(); ++it)
       delete *it;
   }
 

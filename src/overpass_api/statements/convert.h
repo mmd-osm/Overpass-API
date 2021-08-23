@@ -79,7 +79,7 @@ public:
       return result + "\"/>\n";
     result += "\">\n";
 
-    for (std::vector< Set_Prop_Statement* >::const_iterator it = evaluators.begin(); it != evaluators.end(); ++it)
+    for (auto it = evaluators.begin(); it != evaluators.end(); ++it)
       result += *it ? (*it)->dump_xml(indent + "  ") : "";
     return result + "</convert>\n";
   }
@@ -88,7 +88,7 @@ public:
   {
     std::string result = indent + (input == "_" ? "" : "." + input + " ")
         + "convert " + type;
-    std::vector< Set_Prop_Statement* >::const_iterator it = evaluators.begin();
+    auto it = evaluators.begin();
     if (it != evaluators.end())
     {
       result += " " + (*it ? (*it)->dump_compact_ql(indent + "  ") : "");
@@ -103,7 +103,7 @@ public:
   {
     std::string result = indent + (input == "_" ? "" : "." + input + " ")
         + "convert " + type;
-    std::vector< Set_Prop_Statement* >::const_iterator it = evaluators.begin();
+    auto it = evaluators.begin();
     if (it != evaluators.end())
     {
       result += "\n  " + indent + (*it ? (*it)->dump_pretty_ql(indent + "  ") : "");

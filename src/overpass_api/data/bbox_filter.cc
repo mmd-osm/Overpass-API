@@ -43,7 +43,7 @@ void filter_by_bbox(const Bbox_Double& bbox, std::map< Index, std::vector< Coord
   int32 west = ilon_(bbox.west);
   int32 east = ilon_(bbox.east);
 
-  for (typename std::map< Index, std::vector< Coord > >::iterator it = nodes.begin(); it != nodes.end(); ++it)
+  for (auto it = nodes.begin(); it != nodes.end(); ++it)
   {
     std::vector< Coord > local_into;
     for (typename std::vector< Coord >::const_iterator iit = it->second.begin();
@@ -64,7 +64,7 @@ void filter_by_bbox(const Bbox_Double& bbox, std::map< Index, std::vector< Coord
 void filter_deriveds_by_bbox(const Bbox_Double& bbox,
     std::map< Uint31_Index, std::vector< Derived_Structure > >& items)
 {
-  for (std::map< Uint31_Index, std::vector< Derived_Structure > >::iterator it_idx = items.begin();
+  for (auto it_idx = items.begin();
       it_idx != items.end(); ++it_idx)
   {
     std::vector< Derived_Structure > result;
@@ -105,7 +105,7 @@ void Bbox_Filter::filter(Set& into) const
 
 bool Bbox_Filter::matches(const std::vector< Quad_Coord >& way_geometry) const
 {
-  std::vector< Quad_Coord >::const_iterator nit = way_geometry.begin();
+  auto nit = way_geometry.begin();
   if (nit == way_geometry.end())
     return false;
 
@@ -132,7 +132,7 @@ void filter_ways_expensive(const Bbox_Filter& filter, const Way_Geometry_Store& 
   if (!filter.get_bbox().valid())
     return;
 
-  for (typename std::map< Uint31_Index, std::vector< Way_Skeleton > >::iterator it = ways.begin();
+  for (auto it = ways.begin();
       it != ways.end(); ++it)
   {
     std::vector< Way_Skeleton > local_into;
@@ -154,14 +154,14 @@ void filter_relations_expensive(const Bbox_Filter& filter,
     const Way_Geometry_Store& way_geometries,
     std::map< Uint31_Index, std::vector< Relation_Skeleton > >& relations)
 {
-  for (typename std::map< Uint31_Index, std::vector< Relation_Skeleton > >::iterator it = relations.begin();
+  for (auto it = relations.begin();
       it != relations.end(); ++it)
   {
     std::vector< Relation_Skeleton > local_into;
     for (typename std::vector< Relation_Skeleton >::const_iterator iit = it->second.begin();
         iit != it->second.end(); ++iit)
     {
-      for (std::vector< Relation_Entry >::const_iterator nit = iit->members().begin();
+      for (auto nit = iit->members().begin();
           nit != iit->members().end(); ++nit)
       {
         if (nit->type == Relation_Entry::NODE)

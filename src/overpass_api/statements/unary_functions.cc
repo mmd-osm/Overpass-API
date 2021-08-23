@@ -24,7 +24,7 @@ Evaluator_Unary_Function::Evaluator_Unary_Function(int line_number_) : Evaluator
 
 void Evaluator_Unary_Function::add_statement(Statement* statement, std::string text)
 {
-  Evaluator* tag_value_ = dynamic_cast< Evaluator* >(statement);
+  auto* tag_value_ = dynamic_cast< Evaluator* >(statement);
   if (!tag_value_)
     substatement_error(get_name(), statement);
   else if (!rhs)
@@ -136,7 +136,7 @@ Evaluator_Geometry_Unary_Function::Evaluator_Geometry_Unary_Function(int line_nu
 
 void Evaluator_Geometry_Unary_Function::add_statement(Statement* statement, std::string text)
 {
-  Evaluator* tag_value_ = dynamic_cast< Evaluator* >(statement);
+  auto* tag_value_ = dynamic_cast< Evaluator* >(statement);
   if (!tag_value_)
     substatement_error(get_name(), statement);
   else if (!rhs)
@@ -224,7 +224,7 @@ Evaluator_Binary_Function::Evaluator_Binary_Function(int line_number_) : Evaluat
 
 void Evaluator_Binary_Function::add_statement(Statement* statement, std::string text)
 {
-  Evaluator* tag_value_ = dynamic_cast< Evaluator* >(statement);
+  auto* tag_value_ = dynamic_cast< Evaluator* >(statement);
   if (!tag_value_)
     substatement_error(get_name(), statement);
   else if (!first)

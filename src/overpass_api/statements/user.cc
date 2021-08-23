@@ -81,7 +81,7 @@ void user_filter_map
   Meta_Collector< TIndex, typename TObject::Id_Type, User_Ids_Functor< typename TObject::Id_Type > > meta_collector
       (modify, *rman.get_transaction(), user_id_filter, file_properties);
 
-  for (typename std::map< TIndex, std::vector< TObject > >::iterator it = modify.begin();
+  for (auto it = modify.begin();
       it != modify.end(); ++it)
   {
     std::vector< TObject > local_into;
@@ -112,7 +112,7 @@ void user_filter_map_attic
   Meta_Collector< TIndex, typename TObject::Id_Type > attic_meta_collector
       (modify, *rman.get_transaction(), attic_file_properties);
 
-  for (typename std::map< TIndex, std::vector< TObject > >::iterator it = modify.begin();
+  for (auto it = modify.begin();
       it != modify.end(); ++it)
   {
     std::vector< TObject > local_into;
@@ -187,7 +187,7 @@ Statement* User_Statement::Criterion_Maker::create_criterion(const Token_Node_Pt
   std::string prefix;
   if (tree_it->lhs && tree_it.lhs()->token == "user")
   {
-    for (std::vector< std::string >::iterator it = users.begin(); it != users.end(); ++it)
+    for (auto it = users.begin(); it != users.end(); ++it)
       *it = decode_json(*it, error_output);
     prefix = "name";
   }
@@ -219,7 +219,7 @@ User_Statement::User_Statement
   attributes["name"] = "";
   attributes["type"] = "";
 
-  for (std::map<std::string, std::string>::const_iterator it = input_attributes.begin();
+  for (auto it = input_attributes.begin();
       it != input_attributes.end(); ++it)
   {
     if (it->first.find("name_") == 0 || it->first.find("uid_") == 0)
@@ -239,7 +239,7 @@ User_Statement::User_Statement
   if (user_id != 0)
     user_ids.insert(user_id);
 
-  for (std::map<std::string, std::string>::iterator it = attributes.begin();
+  for (auto it = attributes.begin();
       it != attributes.end(); ++it)
   {
     if (it->first.find("name_") == 0)

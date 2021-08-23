@@ -72,7 +72,7 @@ void Difference_Statement::execute(Resource_Manager& rman)
 
   rman.push_stack_frame();
 
-  std::vector< Statement* >::iterator it = substatements.begin();
+  auto it = substatements.begin();
   (*it)->execute(rman);
 
   rman.copy_inward((*it)->get_result_name(), get_result_name());

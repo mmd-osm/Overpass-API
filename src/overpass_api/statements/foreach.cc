@@ -84,18 +84,16 @@ template< typename Index, typename Object >
 void loop_over_elements(const std::map< Index, std::vector< Object > >& source, Resource_Manager& rman,
     std::vector< Statement* >& substatements, const std::string& input, const std::string& result_name)
 {
-  for (typename std::map< Index, std::vector< Object > >::const_iterator
-      it = source.begin(); it != source.end(); ++it)
+  for (auto it = source.begin(); it != source.end(); ++it)
   {
-    for (typename std::vector< Object >::const_iterator it2 = it->second.begin();
-        it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
       rman.count_loop();
       Set empty;
       add_to_set(empty, it->first, *it2);
       rman.swap_set(result_name, empty);
 
-      for (std::vector< Statement* >::iterator it = substatements.begin();
+      for (auto it = substatements.begin();
           it != substatements.end(); ++it)
 	(*it)->execute(rman);
     }
@@ -109,11 +107,9 @@ void loop_over_area_elements(const std::map< Index, std::vector< Area_Skeleton >
     Resource_Manager& rman,  std::vector< Statement* >& substatements,
     const std::string& input, const std::string& result_name)
 {
-  for (typename std::map< Index, std::vector< Area_Skeleton > >::const_iterator
-      it = source.begin(); it != source.end(); ++it)
+  for (auto it = source.begin(); it != source.end(); ++it)
   {
-    for (typename std::vector< Area_Skeleton >::const_iterator it2 = it->second.begin();
-        it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
       rman.count_loop();
       Set empty;
@@ -134,7 +130,7 @@ void loop_over_area_elements(const std::map< Index, std::vector< Area_Skeleton >
 
       rman.swap_set(result_name, empty);
 
-      for (std::vector< Statement* >::iterator it = substatements.begin();
+      for (auto it = substatements.begin();
           it != substatements.end(); ++it)
         (*it)->execute(rman);
     }

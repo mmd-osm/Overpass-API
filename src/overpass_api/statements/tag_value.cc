@@ -119,7 +119,7 @@ std::string find_value(const std::vector< std::pair< std::string, std::string > 
   if (!tags)
     return "";
 
-  for (std::vector< std::pair< std::string, std::string > >::const_iterator it = tags->begin();
+  for (auto it = tags->begin();
       it != tags->end(); ++it)
   {
     if (it->first == key)
@@ -182,7 +182,7 @@ Evaluator_Value::Evaluator_Value
 
 void Evaluator_Value::add_statement(Statement* statement, std::string text)
 {
-  Evaluator* tag_value_ = dynamic_cast< Evaluator* >(statement);
+  auto* tag_value_ = dynamic_cast< Evaluator* >(statement);
   if (!tag_value_)
     substatement_error(get_name(), statement);
   else if (!rhs)
@@ -269,7 +269,7 @@ std::string exists_value(const std::vector< std::pair< std::string, std::string 
   if (!tags)
     return "0";
 
-  for (std::vector< std::pair< std::string, std::string > >::const_iterator it = tags->begin();
+  for (auto it = tags->begin();
       it != tags->end(); ++it)
   {
     if (it->first == key)
@@ -332,7 +332,7 @@ std::vector< std::string > all_keys(const std::vector< std::pair< std::string, s
   if (!tags)
     return result;
 
-  for (std::vector< std::pair< std::string, std::string > >::const_iterator it = tags->begin();
+  for (auto it = tags->begin();
       it != tags->end(); ++it)
     result.push_back(it->first);
 
@@ -742,7 +742,7 @@ std::string Prop_Count_Eval_Task::eval(const Element_With_Context< Relation_Skel
       return to_string(data.object->members().size());
 
     uint counter = 0;
-    for (std::vector< Relation_Entry >::const_iterator it = data.object->members().begin(); it != data.object->members().end(); ++it)
+    for (auto it = data.object->members().begin(); it != data.object->members().end(); ++it)
     {
       if (matches_criterion(*it, to_count, type_to_count, role_id))
         ++counter;
@@ -790,7 +790,7 @@ std::string Prop_Count_Eval_Task::eval(const Element_With_Context< Attic< Relati
       return to_string(data.object->members().size());
 
     uint counter = 0;
-    for (std::vector< Relation_Entry >::const_iterator it = data.object->members().begin(); it != data.object->members().end(); ++it)
+    for (auto it = data.object->members().begin(); it != data.object->members().end(); ++it)
     {
       if (matches_criterion(*it, to_count, type_to_count, role_id))
         ++counter;

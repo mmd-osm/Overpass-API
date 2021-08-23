@@ -62,7 +62,7 @@ Eval_Task* Evaluator_Set_Key::get_string_task(Prepare_Task_Context& context, con
   std::string result;
   if (set_ && set_->set_key_values)
   {
-    std::map< std::string, std::string >::const_iterator it = set_->set_key_values->find(key);
+    auto it = set_->set_key_values->find(key);
     result = (it != set_->set_key_values->end() ? it->second : "");
   }
   return new Const_Eval_Task(result);

@@ -45,10 +45,9 @@ Area_Updater::Area_Updater(std::string db_dir_)
 void Area_Updater::add_blocks
     (const std::map< Uint31_Index, std::vector< Area_Block > >& area_blocks_)
 {
-  for (std::map< Uint31_Index, std::vector< Area_Block > >::const_iterator
-    it(area_blocks_.begin()); it != area_blocks_.end(); ++it)
+  for (auto it(area_blocks_.begin()); it != area_blocks_.end(); ++it)
   {
-    for (std::vector< Area_Block >::const_iterator it2(it->second.begin());
+    for (auto it2(it->second.begin());
     it2 != it->second.end(); ++it2)
     area_blocks[it->first].push_back(*it2);
     total_area_blocks_count += it->second.size();
@@ -95,7 +94,7 @@ void Area_Updater::update_area_ids
   {
     if (ids_to_modify.find(it.handle().id()) != ids_to_modify.end())
     {
-      for (std::vector< uint32 >::const_iterator it2(it.object().used_indices().begin());
+      for (auto it2(it.object().used_indices().begin());
           it2 != it.object().used_indices().end(); ++it2)
         blocks_req.insert(*it2);
       locations_to_delete[it.index().val()].insert(it.object());
@@ -129,7 +128,7 @@ void Area_Updater::update_members
   for (std::map< Uint31_Index, std::vector< Area_Block > >::const_iterator
       it(area_blocks.begin()); it != area_blocks.end(); ++it)
   {
-    for (std::vector< Area_Block >::const_iterator it2(it->second.begin());
+    for (auto it2(it->second.begin());
         it2 != it->second.end(); ++it2)
       blocks_to_insert[it->first].insert(*it2);
   }
@@ -145,11 +144,10 @@ void Area_Updater::prepare_delete_tags
 {
   // make indices appropriately coarse
   std::map< uint32, std::set< Area::Id_Type > > to_delete_coarse;
-  for (std::map< Uint31_Index, std::set< Area_Skeleton > >::const_iterator
-      it(to_delete.begin()); it != to_delete.end(); ++it)
+  for (auto it(to_delete.begin()); it != to_delete.end(); ++it)
   {
     std::set< Area::Id_Type >& handle(to_delete_coarse[it->first.val() & 0xffffff00]);
-    for (std::set< Area_Skeleton >::const_iterator it2(it->second.begin());
+    for (auto it2(it->second.begin());
         it2 != it->second.end(); ++it2)
       handle.insert(it2->id);
   }
@@ -222,11 +220,10 @@ void Area_Updater::prepare_tags
 {
   // make indices appropriately coarse
   std::map< uint32, std::set< uint32 > > to_delete_coarse;
-  for (std::map< uint32, std::vector< uint32 > >::const_iterator
-      it(to_delete.begin()); it != to_delete.end(); ++it)
+  for (auto it(to_delete.begin()); it != to_delete.end(); ++it)
   {
     std::set< uint32 >& handle(to_delete_coarse[it->first & 0xffffff00]);
-    for (std::vector< uint32 >::const_iterator it2(it->second.begin());
+    for (auto it2(it->second.begin());
         it2 != it->second.end(); ++it2)
       handle.insert(*it2);
   }
@@ -285,7 +282,7 @@ void Area_Updater::update_area_tags_local
   std::map< Tag_Index_Local, std::set< Uint32_Index > > db_to_delete;
   std::map< Tag_Index_Local, std::set< Uint32_Index > > db_to_insert;
 
-  for (std::vector< Tag_Entry< uint32 > >::const_iterator it(tags_to_delete.begin());
+  for (auto it(tags_to_delete.begin());
       it != tags_to_delete.end(); ++it)
   {
     Tag_Index_Local index;
@@ -294,7 +291,7 @@ void Area_Updater::update_area_tags_local
     index.value = it->value;
 
     std::set< Uint32_Index > area_ids;
-    for (std::vector< uint32 >::const_iterator it2(it->ids.begin());
+    for (auto it2(it->ids.begin());
         it2 != it->ids.end(); ++it2)
       area_ids.insert(*it2);
 
@@ -303,7 +300,7 @@ void Area_Updater::update_area_tags_local
 
   std::vector< std::pair< Area_Location, Uint31_Index > >::const_iterator
       rit(areas_to_insert.begin());
-  for (std::set< Area::Id_Type >::const_iterator it(ids_to_modify.begin());
+  for (auto it(ids_to_modify.begin());
       it != ids_to_modify.end(); ++it)
   {
     if ((rit != areas_to_insert.end()) && (*it == rit->first.id))
@@ -311,8 +308,7 @@ void Area_Updater::update_area_tags_local
       Tag_Index_Local index;
       index.index = rit->second.val() & 0xffffff00;
 
-      for (std::vector< std::pair< std::string, std::string > >::const_iterator
-	  it2(rit->first.tags.begin()); it2 != rit->first.tags.end(); ++it2)
+      for (auto it2(rit->first.tags.begin()); it2 != rit->first.tags.end(); ++it2)
       {
 	index.key = it2->first;
 	index.value = it2->second;
@@ -334,29 +330,28 @@ void Area_Updater::update_area_tags_global
   std::map< Tag_Index_Global, std::set< Uint32_Index > > db_to_delete;
   std::map< Tag_Index_Global, std::set< Uint32_Index > > db_to_insert;
 
-  for (std::vector< Tag_Entry< uint32 > >::const_iterator it(tags_to_delete.begin());
+  for (auto it(tags_to_delete.begin());
       it != tags_to_delete.end(); ++it)
   {
     Tag_Index_Global index;
     index.key = it->key;
     index.value = it->value;
 
-    for (std::vector< uint32 >::const_iterator it2(it->ids.begin());
+    for (auto it2(it->ids.begin());
         it2 != it->ids.end(); ++it2)
       db_to_delete[index].insert(*it2);
   }
 
   std::vector< std::pair< Area_Location, Uint31_Index > >::const_iterator
       rit(areas_to_insert.begin());
-  for (std::set< Area::Id_Type >::const_iterator it(ids_to_modify.begin());
+  for (auto it(ids_to_modify.begin());
       it != ids_to_modify.end(); ++it)
   {
     if ((rit != areas_to_insert.end()) && (*it == rit->first.id))
     {
       Tag_Index_Global index;
 
-      for (std::vector< std::pair< std::string, std::string > >::const_iterator
-	  it2(rit->first.tags.begin()); it2 != rit->first.tags.end(); ++it2)
+      for (auto it2(rit->first.tags.begin()); it2 != rit->first.tags.end(); ++it2)
       {
 	index.key = it2->first;
 	index.value = it2->second;

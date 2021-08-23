@@ -42,7 +42,7 @@ class Union_Statement final : public Output_Statement
     {
       std::string result = indent + "<union" + dump_xml_result_name() + ">\n";
 
-      for (std::vector< Statement* >::const_iterator it = substatements.begin(); it != substatements.end(); ++it)
+      for (auto it = substatements.begin(); it != substatements.end(); ++it)
         result += *it ? (*it)->dump_xml(indent + "  ") : "";
 
       return result + indent + "</union>\n";
@@ -52,7 +52,7 @@ class Union_Statement final : public Output_Statement
     {
       std::string result = indent + "(";
 
-      for (std::vector< Statement* >::const_iterator it = substatements.begin(); it != substatements.end(); ++it)
+      for (auto it = substatements.begin(); it != substatements.end(); ++it)
         result += (*it)->dump_compact_ql(indent);
       result += ")";
 
@@ -63,7 +63,7 @@ class Union_Statement final : public Output_Statement
     {
       std::string result = indent + "(";
 
-      for (std::vector< Statement* >::const_iterator it = substatements.begin(); it != substatements.end(); ++it)
+      for (auto it = substatements.begin(); it != substatements.end(); ++it)
         result += "\n" + (*it)->dump_pretty_ql(indent + "  ");
       result += "\n)";
 

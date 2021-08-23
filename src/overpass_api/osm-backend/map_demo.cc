@@ -78,7 +78,7 @@ inline std::set< std::pair< Uint32_Index, Uint32_Index > > calc_node_children_ra
 
   std::vector< std::pair< uint32, uint32 > > ranges;
 
-  for (std::set< uint32 >::const_iterator it = way_rel_idxs.begin();
+  for (auto it = way_rel_idxs.begin();
       it != way_rel_idxs.end(); ++it)
   {
     if (*it & 0x80000000)

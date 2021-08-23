@@ -89,7 +89,7 @@ void Dispatcher_Socket::look_for_a_new_connection(Connection_Per_Pid_Map& connec
   }
 
   // associate to a new connection the pid of the sender
-  for (std::vector< int >::iterator it = started_connections.begin();
+  for (auto it = started_connections.begin();
       it != started_connections.end(); ++it)
   {
     pid_t pid;
@@ -248,7 +248,7 @@ std::vector<unsigned int> Dispatcher_Socket::wait_for_clients(Connection_Per_Pid
 
 bool Global_Resource_Planner::is_active(pid_t pid) const
 {
-  for (std::vector< Reader_Entry >::const_iterator it = active.begin(); it != active.end(); ++it)
+  for (auto it = active.begin(); it != active.end(); ++it)
   {
     if (it->client_pid == pid)
       return true;
@@ -259,7 +259,7 @@ bool Global_Resource_Planner::is_active(pid_t pid) const
 
 int Global_Resource_Planner::probe(pid_t pid, uint32 client_token, uint32 time_units, uint64 max_space)
 {
-  std::map< uint32, std::vector< Pending_Client > >::iterator pending_it = pending.find(client_token);
+  auto pending_it = pending.find(client_token);
   Pending_Client* handle = 0;
   uint32 cur_time = time(0);
 
@@ -268,7 +268,7 @@ int Global_Resource_Planner::probe(pid_t pid, uint32 client_token, uint32 time_u
     if (pending_it == pending.end())
       pending_it = pending.insert(std::make_pair(client_token, std::vector< Pending_Client >())).first;
 
-    for (std::vector< Pending_Client >::iterator handle_it = pending_it->second.begin();
+    for (auto handle_it = pending_it->second.begin();
         handle_it != pending_it->second.end(); ++handle_it)
     {
       if (handle_it->pid == pid)
@@ -304,7 +304,7 @@ int Global_Resource_Planner::probe(pid_t pid, uint32 client_token, uint32 time_u
     }
 
     uint32 current_time = time(0);
-    for (std::vector< Quota_Entry >::iterator it = afterwards.begin(); it != afterwards.end(); )
+    for (auto it = afterwards.begin(); it != afterwards.end(); )
     {
       if (it->expiration_time < current_time)
       {
@@ -428,7 +428,7 @@ void Global_Resource_Planner::remove(pid_t pid)
 {
   bool was_active = false;
 
-  for (std::vector< Reader_Entry >::iterator it = active.begin(); it != active.end(); ++it)
+  for (auto it = active.begin(); it != active.end(); ++it)
   {
     if (it->client_pid == pid)
     {
@@ -440,11 +440,11 @@ void Global_Resource_Planner::remove(pid_t pid)
 
   if (!was_active)
   {
-    for (std::map< uint32, std::vector< Pending_Client > >::iterator pending_it = pending.begin();
+    for (auto pending_it = pending.begin();
         pending_it != pending.end(); )
     {
       bool found = false;
-      for (std::vector< Pending_Client >::iterator handle_it = pending_it->second.begin();
+      for (auto handle_it = pending_it->second.begin();
           handle_it != pending_it->second.end(); )
       {
         if (handle_it->pid == pid)
@@ -473,7 +473,7 @@ void Global_Resource_Planner::remove(pid_t pid)
 
 void Global_Resource_Planner::purge(Connection_Per_Pid_Map& connection_per_pid)
 {
-  for (std::vector< Reader_Entry >::iterator it = active.begin(); it != active.end(); )
+  for (auto it = active.begin(); it != active.end(); )
   {
     if (connection_per_pid.get(it->client_pid) == 0)
       remove_entry(it);
@@ -481,10 +481,10 @@ void Global_Resource_Planner::purge(Connection_Per_Pid_Map& connection_per_pid)
       ++it;
   }
 
-  for (std::map< uint32, std::vector< Pending_Client > >::iterator pending_it = pending.begin();
+  for (auto pending_it = pending.begin();
       pending_it != pending.end(); )
   {
-    for (std::vector< Pending_Client >::iterator handle_it = pending_it->second.begin();
+    for (auto handle_it = pending_it->second.begin();
         handle_it != pending_it->second.end(); )
     {
       if (connection_per_pid.get(handle_it->pid) == 0)
@@ -871,7 +871,7 @@ void Dispatcher::standby_loop(uint64 milliseconds)
           uint32 target_token = arguments[0];
 
           pid_t target_pid = 0;
-          for (std::vector< Reader_Entry >::const_iterator it = global_resource_planner.get_active().begin();
+          for (auto it = global_resource_planner.get_active().begin();
               it != global_resource_planner.get_active().end(); ++it)
           {
             if (it->client_token == target_token)
@@ -896,7 +896,7 @@ void Dispatcher::standby_loop(uint64 milliseconds)
 
           connection->send_data(global_resource_planner.get_rate_limit());
 
-          for (std::vector< Reader_Entry >::const_iterator it = global_resource_planner.get_active().begin();
+          for (auto it = global_resource_planner.get_active().begin();
               it != global_resource_planner.get_active().end(); ++it)
           {
             if (it->client_token != client_token)
@@ -916,7 +916,7 @@ void Dispatcher::standby_loop(uint64 milliseconds)
 
           connection->send_data(0);
 
-          for (std::vector< Quota_Entry >::const_iterator it = global_resource_planner.get_afterwards().begin();
+          for (auto it = global_resource_planner.get_afterwards().begin();
               it != global_resource_planner.get_afterwards().end(); ++it)
           {
             if (it->client_token == client_token)
@@ -982,7 +982,7 @@ void Dispatcher::output_status()
 
     std::set< ::pid_t > collected_pids = transaction_insulator.registered_pids();
 
-    for (std::vector< Reader_Entry >::const_iterator it = global_resource_planner.get_active().begin();
+    for (auto it = global_resource_planner.get_active().begin();
 	 it != global_resource_planner.get_active().end(); ++it)
     {
       if (processes_reading_idx.find(it->client_pid) != processes_reading_idx.end())
@@ -995,7 +995,7 @@ void Dispatcher::output_status()
       collected_pids.insert(it->client_pid);
     }
 
-    for (std::map< pid_t, Blocking_Client_Socket* >::const_iterator it = connection_per_pid.base_map().begin();
+    for (auto it = connection_per_pid.base_map().begin();
 	 it != connection_per_pid.base_map().end(); ++it)
     {
       if (processes_reading_idx.find(it->first) == processes_reading_idx.end()
@@ -1003,7 +1003,7 @@ void Dispatcher::output_status()
 	status<<"pending\t"<<it->first<<'\n';
     }
 
-    for (std::vector< Quota_Entry >::const_iterator it = global_resource_planner.get_afterwards().begin();
+    for (auto it = global_resource_planner.get_afterwards().begin();
 	 it != global_resource_planner.get_afterwards().end(); ++it)
     {
       status<<"quota\t"<<it->client_token<<' '<<it->expiration_time<<'\n';

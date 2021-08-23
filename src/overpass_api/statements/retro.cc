@@ -39,7 +39,7 @@ void Retro_Statement::add_statement(Statement* statement, std::string text)
 
   if (!timestamp)
   {
-    Evaluator* tag_value = dynamic_cast< Evaluator* >(statement);
+    auto* tag_value = dynamic_cast< Evaluator* >(statement);
     if (tag_value)
       timestamp = tag_value;
     else
@@ -77,7 +77,7 @@ void Retro_Statement::execute(Resource_Manager& rman)
   rman.push_stack_frame();
   rman.set_desired_timestamp(retro_timestamp);
 
-  for (std::vector< Statement* >::iterator it = substatements.begin(); it != substatements.end(); ++it)
+  for (auto it = substatements.begin(); it != substatements.end(); ++it)
     (*it)->execute(rman);
 
   rman.pop_stack_frame();

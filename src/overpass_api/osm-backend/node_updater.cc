@@ -63,12 +63,10 @@ void compute_new_attic_meta
      const std::vector< std::pair< typename Element_Skeleton::Id_Type, Uint31_Index > >& existing_map_positions,
      std::map< Uint31_Index, std::set< OSM_Element_Metadata_Skeleton< typename Element_Skeleton::Id_Type > > >& new_attic_meta)
 {
-  typename std::vector< typename Data_By_Id< Element_Skeleton >::Entry >::const_iterator next_it
-      = new_data.data.begin();
+  auto next_it = new_data.data.begin();
   Uint31_Index last_index(0u);
   typename Element_Skeleton::Id_Type last_id(0ull);
-  for (typename std::vector< typename Data_By_Id< Element_Skeleton >::Entry >::const_iterator
-      it = new_data.data.begin(); it != new_data.data.end(); ++it)
+  for (auto it = new_data.data.begin(); it != new_data.data.end(); ++it)
   {
     ++next_it;
 
@@ -117,11 +115,9 @@ void compute_new_attic_skeletons
      std::map< Uint31_Index, std::set< Attic< Element_Skeleton > > >& full_attic,
      std::map< typename Element_Skeleton::Id_Type, std::set< Uint31_Index > >& idx_lists)
 {
-  typename std::vector< typename Data_By_Id< Element_Skeleton >::Entry >::const_iterator next_it
-      = new_data.data.begin();
+  auto next_it = new_data.data.begin();
   typename Element_Skeleton::Id_Type last_id = typename Element_Skeleton::Id_Type(0ull);
-  for (typename std::vector< typename Data_By_Id< Element_Skeleton >::Entry >::const_iterator
-      it = new_data.data.begin(); it != new_data.data.end(); ++it)
+  for (auto it = new_data.data.begin(); it != new_data.data.end(); ++it)
   {
     ++next_it;
     if (next_it != new_data.data.end() && it->elem.id == next_it->elem.id)
@@ -144,14 +140,12 @@ void compute_new_attic_skeletons
       // No old data exists. So there is nothing to do here.
       continue;
 
-    typename std::map< Uint31_Index, std::set< Element_Skeleton > >::const_iterator it_attic_idx
-        = attic_skeletons.find(*idx);
+    auto it_attic_idx = attic_skeletons.find(*idx);
     if (it_attic_idx == attic_skeletons.end())
       // Something has gone wrong. Skip this object.
       continue;
 
-    typename std::set< Element_Skeleton >::iterator it_attic
-        = it_attic_idx->second.find(it->elem);
+    auto it_attic = it_attic_idx->second.find(it->elem);
     if (it_attic == it_attic_idx->second.end())
       // Something has gone wrong. Skip this object.
       continue;
@@ -160,8 +154,7 @@ void compute_new_attic_skeletons
       // We don't need to store a separate attic version
       continue;
 
-    typename std::map< Node_Skeleton::Id_Type, std::pair< Uint31_Index, Attic< Element_Skeleton > > >::const_iterator
-        it_attic_time = existing_attic_skeleton_timestamps.find(it->elem.id);
+    auto it_attic_time = existing_attic_skeleton_timestamps.find(it->elem.id);
     if (it_attic_time == existing_attic_skeleton_timestamps.end() ||
         it_attic_time->second.second.timestamp < it->meta.timestamp)
     {
@@ -184,21 +177,19 @@ std::map< Uint31_Index, std::set< Attic< typename Element_Skeleton::Id_Type > > 
   std::map< Uint31_Index, std::set< Attic< typename Element_Skeleton::Id_Type > > > result;
 
   typename Element_Skeleton::Id_Type last_id = typename Element_Skeleton::Id_Type(0ull);
-  for (typename std::vector< typename Data_By_Id< Element_Skeleton >::Entry >::const_iterator
-      it = new_data.data.begin(); it != new_data.data.end(); ++it)
+  for (auto it = new_data.data.begin(); it != new_data.data.end(); ++it)
   {
     if (last_id == it->elem.id)
     {
       // An earlier version exists also in new_data.
-      typename std::vector< typename Data_By_Id< Element_Skeleton >::Entry >::const_iterator last_it = it;
+      auto last_it = it;
       --last_it;
       if (!(last_it->idx == it->idx))
         result[it->idx].insert(Attic< typename Element_Skeleton::Id_Type >(it->elem.id, it->meta.timestamp));
     }
     else
     {
-      std::map< Node_Skeleton::Id_Type, std::set< Uint31_Index > >::const_iterator
-          attic_idx_it = existing_idx_lists.find(it->elem.id);
+      auto attic_idx_it = existing_idx_lists.find(it->elem.id);
       if (attic_idx_it != existing_idx_lists.end()
           && attic_idx_it->second.find(it->idx) != attic_idx_it->second.end())
       {
@@ -221,12 +212,10 @@ void compare_and_add_different_tags(Id_Type id, Uint31_Index idx,
     std::map< Tag_Index_Local, std::set< Id_Type > >& new_local_tags)
 {
   std::map< std::string, std::string > tags_by_key;
-  for (std::vector< std::pair< std::string, std::string > >::const_iterator it = comparison_tags.begin();
-       it != comparison_tags.end(); ++it)
+  for (auto it = comparison_tags.begin(); it != comparison_tags.end(); ++it)
     tags_by_key[it->first] = it->second;
 
-  for (std::vector< std::pair< std::string, std::string > >::const_iterator it = tags.begin();
-       it != tags.end(); ++it)
+  for (auto it = tags.begin(); it != tags.end(); ++it)
   {
     if (tags_by_key[it->first] != it->second)
       new_local_tags[Tag_Index_Local(idx.val() & 0x7fffff00, it->first, it->second)].insert(id);
@@ -249,11 +238,9 @@ std::map< Tag_Index_Local, std::set< Attic< Node_Skeleton::Id_Type > > >
   std::map< Node_Skeleton::Id_Type, std::map< std::string, std::string > > unmatched_tags;
   std::map< Node_Skeleton::Id_Type, Uint31_Index > idx_by_id;
 
-  std::vector< Data_By_Id< Node_Skeleton >::Entry >::const_iterator next_it
-      = new_data.data.begin();
+  auto next_it = new_data.data.begin();
   Node_Skeleton::Id_Type last_id(0ull);
-  for (std::vector< Data_By_Id< Node_Skeleton >::Entry >::const_iterator
-      it = new_data.data.begin(); it != new_data.data.end(); ++it)
+  for (auto it = new_data.data.begin(); it != new_data.data.end(); ++it)
   {
     ++next_it;
 
@@ -267,8 +254,7 @@ std::map< Tag_Index_Local, std::set< Attic< Node_Skeleton::Id_Type > > >
       const Uint31_Index* idx = binary_pair_search(existing_map_positions, it->elem.id);
       if (idx && !(it->idx == Uint31_Index(0u)) && (idx->val() & 0x7fffff00) == (it->idx.val() & 0x7fffff00))
       {
-        for (std::vector< std::pair< std::string, std::string > >::const_iterator tag_it = it->tags.begin();
-             tag_it != it->tags.end(); ++tag_it)
+        for (auto tag_it = it->tags.begin(); tag_it != it->tags.end(); ++tag_it)
           unmatched_tags[it->elem.id].insert(std::make_pair(tag_it->first, tag_it->second));
         idx_by_id.insert(std::make_pair(it->elem.id, it->idx.val() & 0x7fffff00));
       }
@@ -279,8 +265,7 @@ std::map< Tag_Index_Local, std::set< Attic< Node_Skeleton::Id_Type > > >
 	idx = binary_pair_search(existing_attic_map_positions, it->elem.id);
 	if (idx && !(it->idx == Uint31_Index(0u)))
 	{
-          for (std::vector< std::pair< std::string, std::string > >::const_iterator tag_it = it->tags.begin();
-               tag_it != it->tags.end(); ++tag_it)
+          for (auto tag_it = it->tags.begin(); tag_it != it->tags.end(); ++tag_it)
             result[Tag_Index_Local(it->idx.val() & 0x7fffff00, tag_it->first, void_tag_value())]
                 .insert(Attic< Node_Skeleton::Id_Type >(it->elem.id, it->meta.timestamp));
 	}
@@ -291,17 +276,15 @@ std::map< Tag_Index_Local, std::set< Attic< Node_Skeleton::Id_Type > > >
       // Compare to the tags of the preceeding version. For each unmatched tag of the new version,
       // add an explicitly void tag to the new_attic_local_tags
       std::set< std::string > old_keys;
-      std::vector< Data_By_Id< Node_Skeleton >::Entry >::const_iterator last_it = it;
+      auto last_it = it;
       --last_it;
       if ((it->idx.val() & 0x7fffff00) == (last_it->idx.val() & 0x7fffff00))
       {
-        for (std::vector< std::pair< std::string, std::string > >::const_iterator
-             tag_it = last_it->tags.begin(); tag_it != last_it->tags.end(); ++tag_it)
+        for (auto tag_it = last_it->tags.begin(); tag_it != last_it->tags.end(); ++tag_it)
           old_keys.insert(tag_it->first);
       }
 
-      for (std::vector< std::pair< std::string, std::string > >::const_iterator tag_it = it->tags.begin();
-           tag_it != it->tags.end(); ++tag_it)
+      for (auto tag_it = it->tags.begin(); tag_it != it->tags.end(); ++tag_it)
       {
         if (old_keys.find(tag_it->first) == old_keys.end())
           result[Tag_Index_Local(it->idx.val() & 0x7fffff00, tag_it->first, void_tag_value())]
@@ -331,12 +314,10 @@ std::map< Tag_Index_Local, std::set< Attic< Node_Skeleton::Id_Type > > >
 
   // Copy all attic local tags to the set of all new attic local tags
   // Leave out those that have an entry in unmatched tags, because these are unchanged
-  for (std::map< Tag_Index_Local, std::set< Node_Skeleton::Id_Type > >::const_iterator
-      it_idx = attic_local_tags.begin(); it_idx != attic_local_tags.end(); ++it_idx)
+  for (auto it_idx = attic_local_tags.begin(); it_idx != attic_local_tags.end(); ++it_idx)
   {
     std::set< Attic< Node_Skeleton::Id_Type > >& handle(result[it_idx->first]);
-    for (std::set< Node_Skeleton::Id_Type >::const_iterator
-        it = it_idx->second.begin(); it != it_idx->second.end(); ++it)
+    for (auto it = it_idx->second.begin(); it != it_idx->second.end(); ++it)
     {
       std::map< std::string, std::string >::const_iterator it_unmatched
           = unmatched_tags[*it].find(it_idx->first.key);
@@ -347,11 +328,9 @@ std::map< Tag_Index_Local, std::set< Attic< Node_Skeleton::Id_Type > > >
   }
 
   // Check which of the unmatched_keys are really unmatched.
-  for (std::map< Tag_Index_Local, std::set< Node_Skeleton::Id_Type > >::const_iterator
-      it_idx = attic_local_tags.begin(); it_idx != attic_local_tags.end(); ++it_idx)
+  for (auto it_idx = attic_local_tags.begin(); it_idx != attic_local_tags.end(); ++it_idx)
   {
-    for (std::set< Node_Skeleton::Id_Type >::const_iterator
-        it = it_idx->second.begin(); it != it_idx->second.end(); ++it)
+    for (auto it = it_idx->second.begin(); it != it_idx->second.end(); ++it)
       unmatched_tags[*it].erase(it_idx->first.key);
   }
 
@@ -359,8 +338,7 @@ std::map< Tag_Index_Local, std::set< Attic< Node_Skeleton::Id_Type > > >
   for (std::map< Node_Skeleton::Id_Type, std::map< std::string, std::string > >::const_iterator
       it_id = unmatched_tags.begin(); it_id != unmatched_tags.end(); ++it_id)
   {
-    for (std::map< std::string, std::string >::const_iterator it = it_id->second.begin();
-         it != it_id->second.end(); ++it)
+    for (auto it = it_id->second.begin(); it != it_id->second.end(); ++it)
       result[Tag_Index_Local(idx_by_id.find(it_id->first)->second.val(), it->first, void_tag_value())]
           .insert(Attic< Node_Skeleton::Id_Type >(it_id->first, timestamp_of[it_id->first]));
   }
@@ -379,11 +357,9 @@ std::map< Timestamp, std::set< Change_Entry< Node_Skeleton::Id_Type > > > comput
 {
   std::map< Timestamp, std::set< Change_Entry< Node_Skeleton::Id_Type > > > result;
 
-  std::vector< Data_By_Id< Node_Skeleton >::Entry >::const_iterator next_it
-      = new_data.data.begin();
+  auto next_it = new_data.data.begin();
   Node_Skeleton::Id_Type last_id = Node_Skeleton::Id_Type(0ull);
-  for (std::vector< Data_By_Id< Node_Skeleton >::Entry >::const_iterator
-      it = new_data.data.begin(); it != new_data.data.end(); ++it)
+  for (auto it = new_data.data.begin(); it != new_data.data.end(); ++it)
   {
     ++next_it;
     if (next_it != new_data.data.end() && it->elem.id == next_it->elem.id)
@@ -405,14 +381,12 @@ std::map< Timestamp, std::set< Change_Entry< Node_Skeleton::Id_Type > > > comput
       continue;
     }
 
-    std::map< Uint31_Index, std::set< Node_Skeleton > >::const_iterator it_attic_idx
-        = attic_skeletons.find(*idx);
+    auto it_attic_idx = attic_skeletons.find(*idx);
     if (it_attic_idx == attic_skeletons.end())
       // Something has gone wrong. Skip this object.
       continue;
 
-    std::set< Node_Skeleton >::iterator it_attic
-        = it_attic_idx->second.find(it->elem);
+    auto it_attic = it_attic_idx->second.find(it->elem);
     if (it_attic == it_attic_idx->second.end())
       // Something has gone wrong. Skip this object.
       continue;
@@ -819,7 +793,7 @@ void Node_Updater::update_node_ids
   __gnu_parallel::stable_sort
       (ids_to_modify.begin(), ids_to_modify.end(), pair_comparator_by_id);
 #endif
-  std::vector< std::pair< Node::Id_Type, bool > >::iterator modi_begin
+  auto modi_begin
       (unique(ids_to_modify.rbegin(), ids_to_modify.rend(), pair_equal_id).base());
   ids_to_modify.erase(ids_to_modify.begin(), modi_begin);
 

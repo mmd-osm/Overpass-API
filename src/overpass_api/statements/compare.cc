@@ -46,7 +46,7 @@ void Compare_Statement::add_statement(Statement* statement, std::string text)
 
   if (!criterion)
   {
-    Evaluator* tag_value = dynamic_cast< Evaluator* >(statement);
+    auto* tag_value = dynamic_cast< Evaluator* >(statement);
     if (tag_value)
     {
       criterion = tag_value;
@@ -99,7 +99,7 @@ void Compare_Statement::execute(Resource_Manager& rman)
       rman.push_stack_frame();
       rman.switch_diff_show_from(get_result_name());
 
-      for (std::vector< Statement* >::iterator it = substatements.begin(); it != substatements.end(); ++it)
+      for (auto it = substatements.begin(); it != substatements.end(); ++it)
         (*it)->execute(rman);
 
       rman.pop_stack_frame();
@@ -107,7 +107,7 @@ void Compare_Statement::execute(Resource_Manager& rman)
       rman.push_stack_frame();
       rman.switch_diff_show_to(get_result_name());
 
-      for (std::vector< Statement* >::iterator it = substatements.begin(); it != substatements.end(); ++it)
+      for (auto it = substatements.begin(); it != substatements.end(); ++it)
         (*it)->execute(rman);
 
       rman.pop_stack_frame();

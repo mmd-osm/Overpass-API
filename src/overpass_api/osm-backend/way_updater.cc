@@ -77,12 +77,10 @@ void compute_idx_and_geometry
   for (std::vector< Node_Skeleton::Id_Type >::const_iterator it = skeleton.nds().begin();
        it != skeleton.nds().end(); ++it)
   {
-    std::map< Node_Skeleton::Id_Type, std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > > >
-        ::const_iterator nit = nodes_by_id.find(*it);
+    auto nit = nodes_by_id.find(*it);
     if (nit != nodes_by_id.end() && !nit->second.empty())
     {
-      std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > >::const_iterator
-          it2 = nit->second.begin();
+      auto it2 = nit->second.begin();
       while (it2 != nit->second.end() && it2->second.timestamp < expiration_timestamp)
         ++it2;
       if (it2 != nit->second.end())
@@ -121,15 +119,13 @@ Way_Skeleton add_intermediate_versions
      std::map< Way_Skeleton::Id_Type, std::set< Uint31_Index > >& idx_lists)
 {
   std::vector< uint64 > relevant_timestamps;
-  for (std::vector< Node_Skeleton::Id_Type >::const_iterator it = skeleton.nds().begin();
+  for (auto it = skeleton.nds().begin();
        it != skeleton.nds().end(); ++it)
   {
-    std::map< Node_Skeleton::Id_Type, std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > > >
-        ::const_iterator nit = nodes_by_id.find(*it);
+    auto nit = nodes_by_id.find(*it);
     if (nit != nodes_by_id.end() && !nit->second.empty())
     {
-      for (std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > >::const_iterator
-          it2 = nit->second.begin(); it2 != nit->second.end(); ++it2)
+      for (auto it2 = nit->second.begin(); it2 != nit->second.end(); ++it2)
       {
         if (old_timestamp < it2->second.timestamp && it2->second.timestamp <= new_timestamp)
           relevant_timestamps.push_back(it2->second.timestamp);
@@ -218,15 +214,13 @@ void add_intermediate_changelog_entries
      std::map< Timestamp, std::set< Change_Entry< Way_Skeleton::Id_Type > > >& result)
 {
   std::vector< uint64 > relevant_timestamps;
-  for (std::vector< Node_Skeleton::Id_Type >::const_iterator it = skeleton.nds().begin();
+  for (auto it = skeleton.nds().begin();
        it != skeleton.nds().end(); ++it)
   {
-    std::map< Node_Skeleton::Id_Type, std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > > >
-        ::const_iterator nit = nodes_by_id.find(*it);
+    auto nit = nodes_by_id.find(*it);
     if (nit != nodes_by_id.end() && !nit->second.empty())
     {
-      for (std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > >::const_iterator
-          it2 = nit->second.begin(); it2 != nit->second.end(); ++it2)
+      for (auto it2 = nit->second.begin(); it2 != nit->second.end(); ++it2)
       {
         if (old_timestamp < it2->second.timestamp && it2->second.timestamp <= new_timestamp)
           relevant_timestamps.push_back(it2->second.timestamp);
@@ -324,11 +318,9 @@ void compute_new_attic_skeletons
          = collect_nodes_by_id(new_attic_node_skeletons, new_node_idx_by_id);
 
   // Create full_attic and idx_lists by going through new_data and filling the gaps
-  std::vector< Data_By_Id< Way_Skeleton >::Entry >::const_iterator next_it
-      = new_data.data.begin();
+  auto next_it = new_data.data.begin();
   Way_Skeleton::Id_Type last_id = Way_Skeleton::Id_Type(0u);
-  for (std::vector< Data_By_Id< Way_Skeleton >::Entry >::const_iterator
-      it = new_data.data.begin(); it != new_data.data.end(); ++it)
+  for (auto it = new_data.data.begin(); it != new_data.data.end(); ++it)
   {
     ++next_it;
     Uint31_Index it_idx = it->idx;
@@ -351,7 +343,7 @@ void compute_new_attic_skeletons
     if (last_id == it->elem.id)
     {
       // An earlier version exists also in new_data.
-      std::vector< Data_By_Id< Way_Skeleton >::Entry >::const_iterator last_it = it;
+      auto last_it = it;
       --last_it;
       if (last_it->idx == Uint31_Index(0u))
       {
@@ -385,20 +377,17 @@ void compute_new_attic_skeletons
       // No old data exists. So there is nothing to do here.
       continue;
 
-    std::map< Uint31_Index, std::set< Way_Skeleton > >::const_iterator it_attic_idx
-        = attic_skeletons.find(*idx);
+    auto it_attic_idx = attic_skeletons.find(*idx);
     if (it_attic_idx == attic_skeletons.end())
       // Something has gone wrong. Skip this object.
       continue;
 
-    std::set< Way_Skeleton >::iterator it_attic
-        = it_attic_idx->second.find(it->elem);
+    auto it_attic = it_attic_idx->second.find(it->elem);
     if (it_attic == it_attic_idx->second.end())
       // Something has gone wrong. Skip this object.
       continue;
 
-    std::map< Way_Skeleton::Id_Type, std::pair< Uint31_Index, Attic< Way_Delta > > >::const_iterator
-        it_attic_time = existing_attic_skeleton_timestamps.find(it->elem.id);
+    auto it_attic_time = existing_attic_skeleton_timestamps.find(it->elem.id);
     Way_Skeleton oldest_new =
         add_intermediate_versions(*it_attic, it->elem,
 			          it_attic_time == existing_attic_skeleton_timestamps.end() ?
@@ -414,13 +403,11 @@ void compute_new_attic_skeletons
   }
 
   // Add the missing elements that result from node moves only
-  for (std::map< Uint31_Index, std::set< Way_Skeleton > >::const_iterator
-      it = implicitly_moved_skeletons.begin(); it != implicitly_moved_skeletons.end(); ++it)
+  for (auto it = implicitly_moved_skeletons.begin(); it != implicitly_moved_skeletons.end(); ++it)
   {
-    for (std::set< Way_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
-      std::map< Way_Skeleton::Id_Type, std::pair< Uint31_Index, Attic< Way_Delta > > >::const_iterator
-          it_attic_time = existing_attic_skeleton_timestamps.find(it2->id);
+      auto it_attic_time = existing_attic_skeleton_timestamps.find(it2->id);
       Uint31_Index dummy;
       Way_Skeleton oldest_new =
         add_intermediate_versions(*it2, *it2,
@@ -444,26 +431,23 @@ std::map< Uint31_Index, std::set< Way_Skeleton > > get_implicitly_moved_skeleton
      Transaction& transaction, const File_Properties& file_properties)
 {
   std::set< Uint31_Index > node_req;
-  for (std::map< Uint31_Index, std::set< Node_Skeleton > >::const_iterator
-      it = attic_nodes.begin(); it != attic_nodes.end(); ++it)
+  for (auto it = attic_nodes.begin(); it != attic_nodes.end(); ++it)
     node_req.insert(it->first);
   std::set< Uint31_Index > req = calc_parents(node_req);
 
   std::vector< Node_Skeleton::Id_Type > node_ids;
-  for (std::map< Uint31_Index, std::set< Node_Skeleton > >::const_iterator
-      it = attic_nodes.begin(); it != attic_nodes.end(); ++it)
+  for (auto it = attic_nodes.begin(); it != attic_nodes.end(); ++it)
   {
-    for (std::set< Node_Skeleton >::const_iterator nit = it->second.begin(); nit != it->second.end(); ++nit)
+    for (auto nit = it->second.begin(); nit != it->second.end(); ++nit)
       node_ids.push_back(nit->id);
   }
   std::sort(node_ids.begin(), node_ids.end());
   node_ids.erase(std::unique(node_ids.begin(), node_ids.end()), node_ids.end());
 
   std::vector< Way_Skeleton::Id_Type > known_way_ids;
-  for (std::map< Uint31_Index, std::set< Way_Skeleton > >::const_iterator
-      it = already_known_skeletons.begin(); it != already_known_skeletons.end(); ++it)
+  for (auto it = already_known_skeletons.begin(); it != already_known_skeletons.end(); ++it)
   {
-    for (std::set< Way_Skeleton >::const_iterator wit = it->second.begin(); wit != it->second.end(); ++wit)
+    for (auto wit = it->second.begin(); wit != it->second.end(); ++wit)
       known_way_ids.push_back(wit->id);
   }
   std::sort(known_way_ids.begin(), known_way_ids.end());
@@ -476,7 +460,7 @@ std::map< Uint31_Index, std::set< Way_Skeleton > > get_implicitly_moved_skeleton
   {
     if (binary_search(known_way_ids.begin(), known_way_ids.end(), it.handle().id()))
       continue;
-    for (std::vector< Node::Id_Type >::const_iterator nit = it.object().nds().begin();
+    for (auto nit = it.object().nds().begin();
          nit != it.object().nds().end(); ++nit)
     {
       if (binary_search(node_ids.begin(), node_ids.end(), *nit))
@@ -497,10 +481,9 @@ void add_implicitly_known_nodes
     (std::map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id,
      const std::map< Uint31_Index, std::set< Way_Skeleton > >& known_skeletons)
 {
-  for (std::map< Uint31_Index, std::set< Way_Skeleton > >::const_iterator it = known_skeletons.begin();
-       it != known_skeletons.end(); ++it)
+  for (auto it = known_skeletons.begin(); it != known_skeletons.end(); ++it)
   {
-    for (std::set< Way_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
       if (!it2->geometry().empty())
       {
@@ -522,27 +505,25 @@ void lookup_missing_nodes
 {
   std::vector< Node_Skeleton::Id_Type > missing_ids;
 
-  for (std::vector< Data_By_Id< Way_Skeleton >::Entry >::const_iterator
-      it = new_data.data.begin(); it != new_data.data.end(); ++it)
+  for (auto it = new_data.data.begin(); it != new_data.data.end(); ++it)
   {
     if (it->idx == 0u)
       // We don't touch deleted objects
       continue;
 
     std::vector< uint32 > nd_idxs;
-    for (std::vector< Node::Id_Type >::const_iterator nit = it->elem.nds().begin(); nit != it->elem.nds().end(); ++nit)
+    for (auto nit = it->elem.nds().begin(); nit != it->elem.nds().end(); ++nit)
     {
       if (new_node_idx_by_id.find(*nit) == new_node_idx_by_id.end())
         missing_ids.push_back(*nit);
     }
   }
 
-  for (std::map< Uint31_Index, std::set< Way_Skeleton > >::const_iterator it = known_skeletons_1.begin();
-       it != known_skeletons_1.end(); ++it)
+  for (auto it = known_skeletons_1.begin(); it != known_skeletons_1.end(); ++it)
   {
-    for (std::set< Way_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
-      for (std::vector< Node::Id_Type >::const_iterator nit = it2->nds().begin(); nit != it2->nds().end(); ++nit)
+      for (auto nit = it2->nds().begin(); nit != it2->nds().end(); ++nit)
       {
         if (new_node_idx_by_id.find(*nit) == new_node_idx_by_id.end())
           missing_ids.push_back(*nit);
@@ -550,12 +531,11 @@ void lookup_missing_nodes
     }
   }
 
-  for (std::map< Uint31_Index, std::set< Way_Skeleton > >::const_iterator it = known_skeletons_2.begin();
-       it != known_skeletons_2.end(); ++it)
+  for (auto it = known_skeletons_2.begin(); it != known_skeletons_2.end(); ++it)
   {
-    for (std::set< Way_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
-      for (std::vector< Node::Id_Type >::const_iterator nit = it2->nds().begin(); nit != it2->nds().end(); ++nit)
+      for (auto nit = it2->nds().begin(); nit != it2->nds().end(); ++nit)
       {
         if (new_node_idx_by_id.find(*nit) == new_node_idx_by_id.end())
           missing_ids.push_back(*nit);
@@ -599,8 +579,7 @@ void compute_geometry
      Data_By_Id< Way_Skeleton >& new_data)
 {
   std::vector< Data_By_Id< Way_Skeleton >::Entry >::const_iterator next_it = new_data.data.begin();
-  for (std::vector< Data_By_Id< Way_Skeleton >::Entry >::iterator
-      it = new_data.data.begin(); it != new_data.data.end(); ++it)
+  for (auto it = new_data.data.begin(); it != new_data.data.end(); ++it)
   {
     ++next_it;
     if (next_it != new_data.data.end() && next_it->elem.id == it->elem.id)
@@ -614,7 +593,7 @@ void compute_geometry
     std::vector< uint32 > nd_idxs;
     for (std::vector< Node::Id_Type >::const_iterator nit = it->elem.nds().begin(); nit != it->elem.nds().end(); ++nit)
     {
-      std::map< Node_Skeleton::Id_Type, Quad_Coord >::const_iterator it2 = new_node_idx_by_id.find(*nit);
+      auto it2 = new_node_idx_by_id.find(*nit);
       if (it2 != new_node_idx_by_id.end())
         nd_idxs.push_back(it2->second.ll_upper);
       else
@@ -630,7 +609,7 @@ void compute_geometry
       for (std::vector< Node::Id_Type >::const_iterator nit = it->elem.nds().begin();
            nit != it->elem.nds().end(); ++nit)
       {
-        std::map< Node_Skeleton::Id_Type, Quad_Coord >::const_iterator it2 = new_node_idx_by_id.find(*nit);
+        auto it2 = new_node_idx_by_id.find(*nit);
         if (it2 != new_node_idx_by_id.end())
           it->elem.geometry().push_back(it2->second);
         else
@@ -656,22 +635,20 @@ void new_implicit_skeletons
      std::map< Uint31_Index, std::set< Way_Skeleton > >& new_skeletons,
      std::vector< std::pair< Way::Id_Type, Uint31_Index > >& moved_ways)
 {
-  for (std::map< Uint31_Index, std::set< Way_Skeleton > >::const_iterator it = existing_skeletons.begin();
-       it != existing_skeletons.end(); ++it)
+  for (auto it = existing_skeletons.begin(); it != existing_skeletons.end(); ++it)
   {
-    for (std::set< Way_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
       attic_skeletons[it->first].insert(*it2);
   }
 
-  for (std::map< Uint31_Index, std::set< Way_Skeleton > >::const_iterator it = existing_skeletons.begin();
-       it != existing_skeletons.end(); ++it)
+  for (auto it = existing_skeletons.begin(); it != existing_skeletons.end(); ++it)
   {
-    for (std::set< Way_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
       std::vector< uint32 > nd_idxs;
-      for (std::vector< Node::Id_Type >::const_iterator nit = it2->nds().begin(); nit != it2->nds().end(); ++nit)
+      for (auto nit = it2->nds().begin(); nit != it2->nds().end(); ++nit)
       {
-        std::map< Node_Skeleton::Id_Type, Quad_Coord >::const_iterator it3 = new_node_idx_by_id.find(*nit);
+        auto it3 = new_node_idx_by_id.find(*nit);
         if (it3 != new_node_idx_by_id.end())
           nd_idxs.push_back(it3->second.ll_upper);
         else
@@ -685,9 +662,9 @@ void new_implicit_skeletons
 
       if (Way::indicates_geometry(index))
       {
-        for (std::vector< Node::Id_Type >::const_iterator nit = it2->nds().begin(); nit != it2->nds().end(); ++nit)
+        for (auto nit = it2->nds().begin(); nit != it2->nds().end(); ++nit)
         {
-          std::map< Node_Skeleton::Id_Type, Quad_Coord >::const_iterator it3 = new_node_idx_by_id.find(*nit);
+          auto it3 = new_node_idx_by_id.find(*nit);
           if (it3 != new_node_idx_by_id.end())
             new_skeleton.geometry().push_back(it3->second);
           else
@@ -726,11 +703,9 @@ std::map< Timestamp, std::set< Change_Entry< Way_Skeleton::Id_Type > > > compute
          std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > > > nodes_by_id
          = collect_nodes_by_id(new_attic_node_skeletons, new_node_idx_by_id);
 
-  std::vector< Data_By_Id< Way_Skeleton >::Entry >::const_iterator next_it
-      = new_data.data.begin();
+  auto next_it = new_data.data.begin();
   Way_Skeleton::Id_Type last_id = Way_Skeleton::Id_Type(0u);
-  for (std::vector< Data_By_Id< Way_Skeleton >::Entry >::const_iterator
-      it = new_data.data.begin(); it != new_data.data.end(); ++it)
+  for (auto it = new_data.data.begin(); it != new_data.data.end(); ++it)
   {
     ++next_it;
     if (next_it != new_data.data.end() && it->elem.id == next_it->elem.id)
@@ -772,14 +747,12 @@ std::map< Timestamp, std::set< Change_Entry< Way_Skeleton::Id_Type > > > compute
       continue;
     }
 
-    std::map< Uint31_Index, std::set< Way_Skeleton > >::const_iterator it_attic_idx
-        = attic_skeletons.find(*idx);
+    auto it_attic_idx = attic_skeletons.find(*idx);
     if (it_attic_idx == attic_skeletons.end())
       // Something has gone wrong. Skip this object.
       continue;
 
-    std::set< Way_Skeleton >::iterator it_attic
-        = it_attic_idx->second.find(it->elem);
+    auto it_attic = it_attic_idx->second.find(it->elem);
     if (it_attic == it_attic_idx->second.end())
       // Something has gone wrong. Skip this object.
       continue;
@@ -789,10 +762,9 @@ std::map< Timestamp, std::set< Change_Entry< Way_Skeleton::Id_Type > > > compute
   }
 
   // Add the missing elements that result from node moves only
-  for (std::map< Uint31_Index, std::set< Way_Skeleton > >::const_iterator
-      it = implicitly_moved_skeletons.begin(); it != implicitly_moved_skeletons.end(); ++it)
+  for (auto it = implicitly_moved_skeletons.begin(); it != implicitly_moved_skeletons.end(); ++it)
   {
-    for (std::set< Way_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
       add_intermediate_changelog_entries(*it2, 0, NOW, nodes_by_id,
                                 false, it->first, 0u, result);
   }

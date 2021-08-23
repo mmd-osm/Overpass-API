@@ -309,7 +309,7 @@ private:
 inline bool has_a_child_with_id
     (const Relation_Skeleton& relation, const std::vector< Global_Id_Type >& ids, uint32 type)
 {
-  for (std::vector< Relation_Entry >::const_iterator it3(relation.members().begin());
+  for (auto it3(relation.members().begin());
       it3 != relation.members().end(); ++it3)
   {
     if (it3->type == type &&
@@ -323,7 +323,7 @@ inline bool has_a_child_with_id
 inline bool has_a_child_with_id_and_role
     (const Relation_Skeleton& relation, const std::vector< Global_Id_Type >& ids, uint32 type, uint32 role_id)
 {
-  for (std::vector< Relation_Entry >::const_iterator it3(relation.members().begin());
+  for (auto it3(relation.members().begin());
       it3 != relation.members().end(); ++it3)
   {
     if (it3->type == type && it3->role == role_id &&
@@ -339,7 +339,7 @@ inline bool has_a_child_with_id
 {
   if (pos)
   {
-    std::vector< int >::const_iterator it3 = pos->begin();
+    auto it3 = pos->begin();
     for (; it3 != pos->end() && *it3 < 0; ++it3)
     {
       if (*it3 + (int)way.nds().size() >= 0 &&
@@ -355,7 +355,7 @@ inline bool has_a_child_with_id
   }
   else
   {
-    for (std::vector< Node::Id_Type >::const_iterator it3(way.nds().begin());
+    for (auto it3(way.nds().begin());
         it3 != way.nds().end(); ++it3)
     {
       if (std::binary_search(ids.begin(), ids.end(), *it3))
@@ -512,7 +512,7 @@ void keep_only_least_younger_than
 template < class TIndex, class TObject, class TPredicate >
 void filter_items(const TPredicate& predicate, std::map< TIndex, std::vector< TObject > >& data)
 {
-  for (typename std::map< TIndex, std::vector< TObject > >::iterator it = data.begin();
+  for (auto it = data.begin();
   it != data.end(); ++it)
   {
     std::vector< TObject > local_into;
@@ -530,10 +530,10 @@ template< class TIndex, class TObject >
 std::vector< typename TObject::Id_Type > filter_for_ids(const std::map< TIndex, std::vector< TObject > >& elems)
 {
   std::vector< typename TObject::Id_Type > ids;
-  for (typename std::map< TIndex, std::vector< TObject > >::const_iterator it = elems.begin();
+  for (auto it = elems.begin();
   it != elems.end(); ++it)
   {
-    for (typename std::vector< TObject >::const_iterator iit = it->second.begin();
+    for (auto iit = it->second.begin();
     iit != it->second.end(); ++iit)
     ids.push_back(iit->id);
   }
@@ -558,8 +558,7 @@ uint64 indexed_set_union(std::map< TIndex, std::vector< TObject > >& result,
 {
   uint64 result_size_increase = 0;
 
-  for (typename std::map< TIndex, std::vector< TObject > >::const_iterator
-      it = summand.begin(); it != summand.end(); ++it)
+  for (auto it = summand.begin(); it != summand.end(); ++it)
   {
     if (it->second.empty())
       continue;
@@ -574,8 +573,7 @@ uint64 indexed_set_union(std::map< TIndex, std::vector< TObject > >& result,
 
     if (it->second.size() == 1 && target.size() > 64)
     {
-      typename std::vector< TObject >::iterator it_target
-          = std::lower_bound(target.begin(), target.end(), it->second.front());
+      auto it_target = std::lower_bound(target.begin(), target.end(), it->second.front());
       if (it_target == target.end())
       {
         target.push_back(it->second.front());
@@ -607,8 +605,7 @@ template< class TIndex, class TObject >
 void indexed_set_difference(std::map< TIndex, std::vector< TObject > >& result,
                             const std::map< TIndex, std::vector< TObject > >& to_substract)
 {
-  for (typename std::map< TIndex, std::vector< TObject > >::const_iterator
-      it = to_substract.begin(); it != to_substract.end(); ++it)
+  for (auto it = to_substract.begin(); it != to_substract.end(); ++it)
   {
     std::vector< TObject > other;
     other.swap(result[it->first]);
@@ -633,8 +630,7 @@ std::pair< std::vector< Index >, std::vector< Index > > get_indexes
 
   Random_File< typename Skeleton::Id_Type, Index > current(rman.get_transaction()->random_index
       (current_skeleton_file_properties< Skeleton >()));
-  for (typename std::vector< typename Skeleton::Id_Type >::const_iterator
-      it = ids.begin(); it != ids.end(); ++it)
+  for (auto it = ids.begin(); it != ids.end(); ++it)
     result.first.push_back(current.get(it->val()));
 
   std::sort(result.first.begin(), result.first.end());
@@ -645,8 +641,7 @@ std::pair< std::vector< Index >, std::vector< Index > > get_indexes
     Random_File< typename Skeleton::Id_Type, Index > attic_random(rman.get_transaction()->random_index
         (attic_skeleton_file_properties< Skeleton >()));
     std::set< typename Skeleton::Id_Type > idx_list_ids;
-    for (typename std::vector< typename Skeleton::Id_Type >::const_iterator
-        it = ids.begin(); it != ids.end(); ++it)
+    for (auto it = ids.begin(); it != ids.end(); ++it)
     {
       if (attic_random.get(it->val()).val() == 0)
         ;

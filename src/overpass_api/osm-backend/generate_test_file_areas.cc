@@ -133,8 +133,7 @@ void create_way
     for (uint ref = start_node_ref; (int)ref >= (int)end_node_ref; ref -= stepping)
       std::cout<<"    <nd ref=\""<<ref<<"\"/>\n";
   }
-  for (std::vector< std::pair< std::string, std::string > >::const_iterator
-      it = tags.begin(); it != tags.end(); ++it)
+  for (auto it = tags.begin(); it != tags.end(); ++it)
     std::cout<<"    <tag k=\""<<it->first<<"\" v=\""<<it->second<<"\"/>\n";
   std::cout<<"  </way>\n";
 }
@@ -144,10 +143,9 @@ void create_way
    const std::vector< std::pair< std::string, std::string > >& tags)
 {
   std::cout<<"  <way id=\""<<id<<"\">\n";
-  for (std::vector< uint >::const_iterator it(refs.begin()); it != refs.end(); ++it)
+  for (auto it(refs.begin()); it != refs.end(); ++it)
     std::cout<<"    <nd ref=\""<<*it<<"\"/>\n";
-  for (std::vector< std::pair< std::string, std::string > >::const_iterator
-      it = tags.begin(); it != tags.end(); ++it)
+  for (auto it = tags.begin(); it != tags.end(); ++it)
     std::cout<<"    <tag k=\""<<it->first<<"\" v=\""<<it->second<<"\"/>\n";
   std::cout<<"  </way>\n";
 }
@@ -166,8 +164,7 @@ void create_relation
     "\" ref=\""<<refs[i]<<
     "\" role=\""<<roles[(refs[i] + types[i]) % 4]<<"\"/>\n";
   }
-  for (std::vector< std::pair< std::string, std::string > >::const_iterator
-      it = tags.begin(); it != tags.end(); ++it)
+  for (auto it = tags.begin(); it != tags.end(); ++it)
     std::cout<<"    <tag k=\""<<it->first<<"\" v=\""<<it->second<<"\"/>\n";
   std::cout<<"  </relation>\n";
 }

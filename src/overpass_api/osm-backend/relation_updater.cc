@@ -93,39 +93,34 @@ std::map< Uint31_Index, std::set< Relation_Skeleton > > get_implicitly_moved_ske
      Transaction& transaction, const File_Properties& file_properties)
 {
   std::set< Uint31_Index > member_req;
-  for (std::map< Uint31_Index, std::set< Node_Skeleton > >::const_iterator
-      it = attic_nodes.begin(); it != attic_nodes.end(); ++it)
+  for (auto it = attic_nodes.begin(); it != attic_nodes.end(); ++it)
     member_req.insert(it->first);
-  for (std::map< Uint31_Index, std::set< Way_Skeleton > >::const_iterator
-      it = attic_ways.begin(); it != attic_ways.end(); ++it)
+  for (auto it = attic_ways.begin(); it != attic_ways.end(); ++it)
     member_req.insert(it->first);
   std::set< Uint31_Index > req = calc_parents(member_req);
 
   std::vector< Node_Skeleton::Id_Type > node_ids;
-  for (std::map< Uint31_Index, std::set< Node_Skeleton > >::const_iterator
-      it = attic_nodes.begin(); it != attic_nodes.end(); ++it)
+  for (auto it = attic_nodes.begin(); it != attic_nodes.end(); ++it)
   {
-    for (std::set< Node_Skeleton >::const_iterator nit = it->second.begin(); nit != it->second.end(); ++nit)
+    for (auto nit = it->second.begin(); nit != it->second.end(); ++nit)
       node_ids.push_back(nit->id);
   }
   std::sort(node_ids.begin(), node_ids.end());
   node_ids.erase(std::unique(node_ids.begin(), node_ids.end()), node_ids.end());
 
   std::vector< Way_Skeleton::Id_Type > way_ids;
-  for (std::map< Uint31_Index, std::set< Way_Skeleton > >::const_iterator
-      it = attic_ways.begin(); it != attic_ways.end(); ++it)
+  for (auto it = attic_ways.begin(); it != attic_ways.end(); ++it)
   {
-    for (std::set< Way_Skeleton >::const_iterator nit = it->second.begin(); nit != it->second.end(); ++nit)
+    for (auto nit = it->second.begin(); nit != it->second.end(); ++nit)
       way_ids.push_back(nit->id);
   }
   std::sort(way_ids.begin(), way_ids.end());
   way_ids.erase(std::unique(way_ids.begin(), way_ids.end()), way_ids.end());
 
   std::vector< Relation_Skeleton::Id_Type > known_relation_ids;
-  for (std::map< Uint31_Index, std::set< Relation_Skeleton > >::const_iterator
-      it = already_known_skeletons.begin(); it != already_known_skeletons.end(); ++it)
+  for (auto it = already_known_skeletons.begin(); it != already_known_skeletons.end(); ++it)
   {
-    for (std::set< Relation_Skeleton >::const_iterator wit = it->second.begin(); wit != it->second.end(); ++wit)
+    for (auto wit = it->second.begin(); wit != it->second.end(); ++wit)
       known_relation_ids.push_back(wit->id);
   }
   std::sort(known_relation_ids.begin(), known_relation_ids.end());
@@ -138,8 +133,7 @@ std::map< Uint31_Index, std::set< Relation_Skeleton > > get_implicitly_moved_ske
   {
     if (binary_search(known_relation_ids.begin(), known_relation_ids.end(), it.handle().id()))
       continue;
-    for (std::vector< Relation_Entry >::const_iterator nit = it.object().members().begin();
-         nit != it.object().members().end(); ++nit)
+    for (auto nit = it.object().members().begin(); nit != it.object().members().end(); ++nit)
     {
       if (nit->type == Relation_Entry::NODE)
       {
@@ -177,32 +171,32 @@ void new_implicit_skeletons
      std::map< Uint31_Index, std::set< Relation_Skeleton > >& new_skeletons,
      std::vector< std::pair< Relation::Id_Type, Uint31_Index > >& moved_relations)
 {
-  for (std::map< Uint31_Index, std::set< Relation_Skeleton > >::const_iterator it = existing_skeletons.begin();
+  for (auto it = existing_skeletons.begin();
        it != existing_skeletons.end(); ++it)
   {
-    for (std::set< Relation_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
       attic_skeletons[it->first].insert(*it2);
   }
 
-  for (std::map< Uint31_Index, std::set< Relation_Skeleton > >::const_iterator it = existing_skeletons.begin();
+  for (auto it = existing_skeletons.begin();
        it != existing_skeletons.end(); ++it)
   {
-    for (std::set< Relation_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
       std::vector< uint32 > member_idxs;
-      for (std::vector< Relation_Entry >::const_iterator nit = it2->members().begin();
+      for (auto nit = it2->members().begin();
            nit != it2->members().end(); ++nit)
       {
         if (nit->type == Relation_Entry::NODE)
         {
-          std::map< Node_Skeleton::Id_Type, Quad_Coord >::const_iterator it2
+          auto it2
               = new_node_idx_by_id.find(Node_Skeleton::Id_Type(nit->ref.val()));
           if (it2 != new_node_idx_by_id.end())
             member_idxs.push_back(it2->second.ll_upper);
         }
         else if (nit->type == Relation_Entry::WAY)
         {
-          std::map< Way_Skeleton::Id_Type, Uint31_Index >::const_iterator it2
+          auto it2
               = new_way_idx_by_id.find(Way_Skeleton::Id_Type(nit->ref.val()));
           if (it2 != new_way_idx_by_id.end())
             member_idxs.push_back(it2->second.val());
@@ -217,20 +211,18 @@ void new_implicit_skeletons
 
       if (Relation::indicates_geometry(index))
       {
-        for (std::vector< Relation_Entry >::const_iterator nit = it2->members().begin();
+        for (auto nit = it2->members().begin();
              nit != it2->members().end(); ++nit)
         {
           if (nit->type == Relation_Entry::NODE)
           {
-            std::map< Node_Skeleton::Id_Type, Quad_Coord >::const_iterator it2
-                = new_node_idx_by_id.find(Node_Skeleton::Id_Type(nit->ref.val()));
+            auto it2 = new_node_idx_by_id.find(Node_Skeleton::Id_Type(nit->ref.val()));
             if (it2 != new_node_idx_by_id.end())
               new_skeleton.node_idxs().push_back(it2->second.ll_upper);
           }
           else if (nit->type == Relation_Entry::WAY)
           {
-            std::map< Way_Skeleton::Id_Type, Uint31_Index >::const_iterator it2
-                = new_way_idx_by_id.find(Way_Skeleton::Id_Type(nit->ref.val()));
+            auto it2 = new_way_idx_by_id.find(Way_Skeleton::Id_Type(nit->ref.val()));
             if (it2 != new_way_idx_by_id.end())
               new_skeleton.way_idxs().push_back(it2->second);
           }
@@ -253,10 +245,9 @@ inline std::map< Way_Skeleton::Id_Type, Uint31_Index > dictionary_from_skeletons
 {
   std::map< Way_Skeleton::Id_Type, Uint31_Index > result;
 
-  for (std::map< Uint31_Index, std::set< Way_Skeleton > >::const_iterator
-      it = new_way_skeletons.begin(); it != new_way_skeletons.end(); ++it)
+  for (auto it = new_way_skeletons.begin(); it != new_way_skeletons.end(); ++it)
   {
-    for (std::set< Way_Skeleton >::const_iterator nit = it->second.begin(); nit != it->second.end(); ++nit)
+    for (auto nit = it->second.begin(); nit != it->second.end(); ++nit)
       result.insert(std::make_pair(nit->id, it->first.val()));
   }
 
@@ -273,15 +264,14 @@ void lookup_missing_nodes
 {
   std::vector< Node_Skeleton::Id_Type > missing_ids;
 
-  for (std::vector< Data_By_Id< Relation_Skeleton >::Entry >::const_iterator
-      it = new_data.data.begin(); it != new_data.data.end(); ++it)
+  for (auto it = new_data.data.begin(); it != new_data.data.end(); ++it)
   {
     if (it->idx == 0u)
       // We don't touch deleted objects
       continue;
 
     std::vector< uint32 > nd_idxs;
-    for (std::vector< Relation_Entry >::const_iterator nit = it->elem.members().begin();
+    for (auto nit = it->elem.members().begin();
          nit != it->elem.members().end(); ++nit)
     {
       if (nit->type == Relation_Entry::NODE &&
@@ -290,12 +280,12 @@ void lookup_missing_nodes
     }
   }
 
-  for (std::map< Uint31_Index, std::set< Relation_Skeleton > >::const_iterator it = known_skeletons_1.begin();
+  for (auto it = known_skeletons_1.begin();
        it != known_skeletons_1.end(); ++it)
   {
-    for (std::set< Relation_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
-      for (std::vector< Relation_Entry >::const_iterator nit = it2->members().begin();
+      for (auto nit = it2->members().begin();
            nit != it2->members().end(); ++nit)
       {
         if (nit->type == Relation_Entry::NODE &&
@@ -305,12 +295,12 @@ void lookup_missing_nodes
     }
   }
 
-  for (std::map< Uint31_Index, std::set< Relation_Skeleton > >::const_iterator it = known_skeletons_2.begin();
+  for (auto it = known_skeletons_2.begin();
        it != known_skeletons_2.end(); ++it)
   {
-    for (std::set< Relation_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
-      for (std::vector< Relation_Entry >::const_iterator nit = it2->members().begin();
+      for (auto nit = it2->members().begin();
            nit != it2->members().end(); ++nit)
       {
         if (nit->type == Relation_Entry::NODE &&
@@ -335,7 +325,7 @@ void lookup_missing_nodes
   for (std::map< Uint31_Index, std::set< Node_Skeleton > >::const_iterator it = existing_skeletons.begin();
        it != existing_skeletons.end(); ++it)
   {
-    for (std::set< Node_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
       new_node_idx_by_id.insert(std::make_pair(it2->id, Quad_Coord(it->first.val(), it2->ll_lower)));
   }
 }
@@ -350,16 +340,14 @@ void lookup_missing_ways
 {
   std::vector< Way_Skeleton::Id_Type > missing_ids;
 
-  for (std::vector< Data_By_Id< Relation_Skeleton >::Entry >::const_iterator
-      it = new_data.data.begin(); it != new_data.data.end(); ++it)
+  for (auto it = new_data.data.begin(); it != new_data.data.end(); ++it)
   {
     if (it->idx == 0u)
       // We don't touch deleted objects
       continue;
 
     std::vector< uint32 > nd_idxs;
-    for (std::vector< Relation_Entry >::const_iterator nit = it->elem.members().begin();
-         nit != it->elem.members().end(); ++nit)
+    for (auto nit = it->elem.members().begin(); nit != it->elem.members().end(); ++nit)
     {
       if (nit->type == Relation_Entry::WAY &&
           new_way_idx_by_id.find(Way_Skeleton::Id_Type(nit->ref.val())) == new_way_idx_by_id.end())
@@ -367,13 +355,12 @@ void lookup_missing_ways
     }
   }
 
-  for (std::map< Uint31_Index, std::set< Relation_Skeleton > >::const_iterator it = known_skeletons_1.begin();
+  for (auto it = known_skeletons_1.begin();
        it != known_skeletons_1.end(); ++it)
   {
-    for (std::set< Relation_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
-      for (std::vector< Relation_Entry >::const_iterator nit = it2->members().begin();
-           nit != it2->members().end(); ++nit)
+      for (auto nit = it2->members().begin(); nit != it2->members().end(); ++nit)
       {
         if (nit->type == Relation_Entry::WAY &&
             new_way_idx_by_id.find(Way_Skeleton::Id_Type(nit->ref.val())) == new_way_idx_by_id.end())
@@ -382,13 +369,12 @@ void lookup_missing_ways
     }
   }
 
-  for (std::map< Uint31_Index, std::set< Relation_Skeleton > >::const_iterator it = known_skeletons_2.begin();
+  for (auto it = known_skeletons_2.begin();
        it != known_skeletons_2.end(); ++it)
   {
-    for (std::set< Relation_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
-      for (std::vector< Relation_Entry >::const_iterator nit = it2->members().begin();
-           nit != it2->members().end(); ++nit)
+      for (auto nit = it2->members().begin(); nit != it2->members().end(); ++nit)
       {
         if (nit->type == Relation_Entry::WAY &&
             new_way_idx_by_id.find(Way_Skeleton::Id_Type(nit->ref.val())) == new_way_idx_by_id.end())
@@ -412,7 +398,7 @@ void lookup_missing_ways
   for (std::map< Uint31_Index, std::set< Way_Skeleton > >::const_iterator it = existing_skeletons.begin();
        it != existing_skeletons.end(); ++it)
   {
-    for (std::set< Way_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
       new_way_idx_by_id.insert(std::make_pair(it2->id, it->first.val()));
   }
 }
@@ -426,8 +412,7 @@ void compute_geometry
      Data_By_Id< Relation_Skeleton >& new_data)
 {
   std::vector< Data_By_Id< Relation_Skeleton >::Entry >::const_iterator next_it = new_data.data.begin();
-  for (std::vector< Data_By_Id< Relation_Skeleton >::Entry >::iterator
-      it = new_data.data.begin(); it != new_data.data.end(); ++it)
+  for (auto it = new_data.data.begin(); it != new_data.data.end(); ++it)
   {
     ++next_it;
     if (next_it != new_data.data.end() && next_it->elem.id == it->elem.id)
@@ -444,8 +429,7 @@ void compute_geometry
     {
       if (nit->type == Relation_Entry::NODE)
       {
-        std::map< Node_Skeleton::Id_Type, Quad_Coord >::const_iterator it2
-            = new_node_idx_by_id.find(Node_Skeleton::Id_Type(nit->ref.val()));
+        auto it2 = new_node_idx_by_id.find(Node_Skeleton::Id_Type(nit->ref.val()));
         if (it2 != new_node_idx_by_id.end())
           member_idxs.push_back(it2->second.ll_upper);
         else
@@ -453,8 +437,7 @@ void compute_geometry
       }
       else if (nit->type == Relation_Entry::WAY)
       {
-        std::map< Way_Skeleton::Id_Type, Uint31_Index >::const_iterator it2
-            = new_way_idx_by_id.find(Way_Skeleton::Id_Type(nit->ref.val()));
+        auto it2 = new_way_idx_by_id.find(Way_Skeleton::Id_Type(nit->ref.val()));
         if (it2 != new_way_idx_by_id.end())
           member_idxs.push_back(it2->second.val());
         else
@@ -474,15 +457,13 @@ void compute_geometry
       {
         if (nit->type == Relation_Entry::NODE)
         {
-          std::map< Node_Skeleton::Id_Type, Quad_Coord >::const_iterator it2
-              = new_node_idx_by_id.find(Node_Skeleton::Id_Type(nit->ref.val()));
+          auto it2 = new_node_idx_by_id.find(Node_Skeleton::Id_Type(nit->ref.val()));
           if (it2 != new_node_idx_by_id.end())
             it->elem.node_idxs().push_back(it2->second.ll_upper);
         }
         else if (nit->type == Relation_Entry::WAY)
         {
-          std::map< Way_Skeleton::Id_Type, Uint31_Index >::const_iterator it2
-              = new_way_idx_by_id.find(Way_Skeleton::Id_Type(nit->ref.val()));
+          auto it2 = new_way_idx_by_id.find(Way_Skeleton::Id_Type(nit->ref.val()));
           if (it2 != new_way_idx_by_id.end())
             it->elem.way_idxs().push_back(it2->second);
         }
@@ -510,12 +491,10 @@ void compute_idx_and_geometry
   {
       if (mit->type == Relation_Entry::NODE)
       {
-        std::map< Node_Skeleton::Id_Type, std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > > >
-            ::const_iterator nit = nodes_by_id.find(Node_Skeleton::Id_Type(mit->ref.val()));
+        auto nit = nodes_by_id.find(Node_Skeleton::Id_Type(mit->ref.val()));
         if (nit != nodes_by_id.end() && !nit->second.empty())
         {
-          std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > >::const_iterator
-              it2 = nit->second.begin();
+          auto it2 = nit->second.begin();
           while (it2 != nit->second.end() && it2->second.timestamp < expiration_timestamp)
             ++it2;
           if (it2 != nit->second.end())
@@ -528,13 +507,10 @@ void compute_idx_and_geometry
       }
       else if (mit->type == Relation_Entry::WAY)
       {
-        std::map< Way_Skeleton::Id_Type,
-            std::vector< std::pair< Uint31_Index, Attic< Way_Skeleton::Id_Type > > > >
-            ::const_iterator nit = ways_by_id.find(Way_Skeleton::Id_Type(mit->ref.val()));
+        auto nit = ways_by_id.find(Way_Skeleton::Id_Type(mit->ref.val()));
         if (nit != ways_by_id.end() && !nit->second.empty())
         {
-          std::vector< std::pair< Uint31_Index, Attic< Way_Skeleton::Id_Type > > >::const_iterator
-              it2 = nit->second.begin();
+          auto it2 = nit->second.begin();
           while (it2 != nit->second.end() && it2->second.timestamp < expiration_timestamp)
             ++it2;
           if (it2 != nit->second.end())
@@ -586,17 +562,15 @@ Relation_Skeleton add_intermediate_versions
      std::map< Relation_Skeleton::Id_Type, std::set< Uint31_Index > >& idx_lists)
 {
   std::vector< uint64 > relevant_timestamps;
-  for (std::vector< Relation_Entry >::const_iterator mit = skeleton.members().begin();
+  for (auto mit = skeleton.members().begin();
        mit != skeleton.members().end(); ++mit)
   {
     if (mit->type == Relation_Entry::NODE)
     {
-      std::map< Node_Skeleton::Id_Type, std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > > >
-          ::const_iterator nit = nodes_by_id.find(Node_Skeleton::Id_Type(mit->ref.val()));
+      auto nit = nodes_by_id.find(Node_Skeleton::Id_Type(mit->ref.val()));
       if (nit != nodes_by_id.end() && !nit->second.empty())
       {
-        for (std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > >::const_iterator
-            it2 = nit->second.begin(); it2 != nit->second.end(); ++it2)
+        for (auto it2 = nit->second.begin(); it2 != nit->second.end(); ++it2)
         {
           if (old_timestamp < it2->second.timestamp && it2->second.timestamp <= new_timestamp)
             relevant_timestamps.push_back(it2->second.timestamp);
@@ -606,13 +580,10 @@ Relation_Skeleton add_intermediate_versions
     }
     else if (mit->type == Relation_Entry::WAY)
     {
-      std::map< Way_Skeleton::Id_Type,
-          std::vector< std::pair< Uint31_Index, Attic< Way_Skeleton::Id_Type > > > >
-          ::const_iterator nit = ways_by_id.find(Way_Skeleton::Id_Type(mit->ref.val()));
+      auto nit = ways_by_id.find(Way_Skeleton::Id_Type(mit->ref.val()));
       if (nit != ways_by_id.end() && !nit->second.empty())
       {
-        for (std::vector< std::pair< Uint31_Index, Attic< Way_Skeleton::Id_Type > > >::const_iterator
-            it2 = nit->second.begin(); it2 != nit->second.end(); ++it2)
+        for (auto it2 = nit->second.begin(); it2 != nit->second.end(); ++it2)
         {
           if (old_timestamp < it2->second.timestamp && it2->second.timestamp <= new_timestamp)
             relevant_timestamps.push_back(it2->second.timestamp);
@@ -704,17 +675,15 @@ void add_intermediate_changelog_entries
      std::map< Timestamp, std::set< Change_Entry< Relation_Skeleton::Id_Type > > >& result)
 {
   std::vector< uint64 > relevant_timestamps;
-  for (std::vector< Relation_Entry >::const_iterator mit = skeleton.members().begin();
+  for (auto mit = skeleton.members().begin();
        mit != skeleton.members().end(); ++mit)
   {
     if (mit->type == Relation_Entry::NODE)
     {
-      std::map< Node_Skeleton::Id_Type, std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > > >
-          ::const_iterator nit = nodes_by_id.find(Node_Skeleton::Id_Type(mit->ref.val()));
+      auto nit = nodes_by_id.find(Node_Skeleton::Id_Type(mit->ref.val()));
       if (nit != nodes_by_id.end() && !nit->second.empty())
       {
-        for (std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > >::const_iterator
-            it2 = nit->second.begin(); it2 != nit->second.end(); ++it2)
+        for (auto it2 = nit->second.begin(); it2 != nit->second.end(); ++it2)
         {
           if (old_timestamp < it2->second.timestamp && it2->second.timestamp <= new_timestamp)
             relevant_timestamps.push_back(it2->second.timestamp);
@@ -724,13 +693,10 @@ void add_intermediate_changelog_entries
     }
     else if (mit->type == Relation_Entry::WAY)
     {
-      std::map< Way_Skeleton::Id_Type,
-          std::vector< std::pair< Uint31_Index, Attic< Way_Skeleton::Id_Type > > > >
-          ::const_iterator nit = ways_by_id.find(Way_Skeleton::Id_Type(mit->ref.val()));
+      auto nit = ways_by_id.find(Way_Skeleton::Id_Type(mit->ref.val()));
       if (nit != ways_by_id.end() && !nit->second.empty())
       {
-        for (std::vector< std::pair< Uint31_Index, Attic< Way_Skeleton::Id_Type > > >::const_iterator
-            it2 = nit->second.begin(); it2 != nit->second.end(); ++it2)
+        for (auto it2 = nit->second.begin(); it2 != nit->second.end(); ++it2)
         {
           if (old_timestamp < it2->second.timestamp && it2->second.timestamp <= new_timestamp)
             relevant_timestamps.push_back(it2->second.timestamp);
@@ -842,11 +808,9 @@ void compute_new_attic_skeletons
          = collect_ways_by_id(new_attic_way_skeletons, new_way_idx_by_id);
 
   // Create full_attic and idx_lists by going through new_data and filling the gaps
-  std::vector< Data_By_Id< Relation_Skeleton >::Entry >::const_iterator next_it
-      = new_data.data.begin();
+  auto next_it = new_data.data.begin();
   Relation_Skeleton::Id_Type last_id = Relation_Skeleton::Id_Type(0u);
-  for (std::vector< Data_By_Id< Relation_Skeleton >::Entry >::const_iterator
-      it = new_data.data.begin(); it != new_data.data.end(); ++it)
+  for (auto it = new_data.data.begin(); it != new_data.data.end(); ++it)
   {
     ++next_it;
     Uint31_Index it_idx = it->idx;
@@ -871,7 +835,7 @@ void compute_new_attic_skeletons
     if (last_id == it->elem.id)
     {
       // An earlier version exists also in new_data.
-      std::vector< Data_By_Id< Relation_Skeleton >::Entry >::const_iterator last_it = it;
+      auto last_it = it;
       --last_it;
       if (last_it->idx == Uint31_Index(0u))
       {
@@ -905,20 +869,17 @@ void compute_new_attic_skeletons
       // No old data exists. So there is nothing to do here.
       continue;
 
-    std::map< Uint31_Index, std::set< Relation_Skeleton > >::const_iterator it_attic_idx
-        = attic_skeletons.find(*idx);
+    auto it_attic_idx = attic_skeletons.find(*idx);
     if (it_attic_idx == attic_skeletons.end())
       // Something has gone wrong. Skip this object.
       continue;
 
-    std::set< Relation_Skeleton >::iterator it_attic
-        = it_attic_idx->second.find(it->elem);
+    auto it_attic = it_attic_idx->second.find(it->elem);
     if (it_attic == it_attic_idx->second.end())
       // Something has gone wrong. Skip this object.
       continue;
 
-    std::map< Relation_Skeleton::Id_Type, std::pair< Uint31_Index, Attic< Relation_Delta > > >::const_iterator
-        it_attic_time = existing_attic_skeleton_timestamps.find(it->elem.id);
+    auto it_attic_time = existing_attic_skeleton_timestamps.find(it->elem.id);
     Relation_Skeleton oldest_new =
         add_intermediate_versions(*it_attic, it->elem,
 			      it_attic_time == existing_attic_skeleton_timestamps.end() ?
@@ -934,14 +895,11 @@ void compute_new_attic_skeletons
   }
 
   // Add the missing elements that result from node moves only
-  for (std::map< Uint31_Index, std::set< Relation_Skeleton > >::const_iterator
-      it = implicitly_moved_skeletons.begin(); it != implicitly_moved_skeletons.end(); ++it)
+  for (auto it = implicitly_moved_skeletons.begin(); it != implicitly_moved_skeletons.end(); ++it)
   {
-    for (std::set< Relation_Skeleton >::const_iterator it2 = it->second.begin();
-         it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
-      std::map< Relation_Skeleton::Id_Type, std::pair< Uint31_Index, Attic< Relation_Delta > > >::const_iterator
-          it_attic_time = existing_attic_skeleton_timestamps.find(it2->id);
+      auto it_attic_time = existing_attic_skeleton_timestamps.find(it2->id);
       Uint31_Index dummy;
       Relation_Skeleton oldest_new =
         add_intermediate_versions(*it2, *it2,
@@ -985,11 +943,9 @@ std::map< Timestamp, std::set< Change_Entry< Relation_Skeleton::Id_Type > > > co
          std::vector< std::pair< Uint31_Index, Attic< Way_Skeleton::Id_Type > > > > ways_by_id
          = collect_ways_by_id(new_attic_way_skeletons, new_way_idx_by_id);
 
-  std::vector< Data_By_Id< Relation_Skeleton >::Entry >::const_iterator next_it
-      = new_data.data.begin();
+  auto next_it = new_data.data.begin();
   Relation_Skeleton::Id_Type last_id = Relation_Skeleton::Id_Type(0u);
-  for (std::vector< Data_By_Id< Relation_Skeleton >::Entry >::const_iterator
-      it = new_data.data.begin(); it != new_data.data.end(); ++it)
+  for (auto it = new_data.data.begin(); it != new_data.data.end(); ++it)
   {
     ++next_it;
     if (next_it != new_data.data.end() && it->elem.id == next_it->elem.id)
@@ -1032,14 +988,12 @@ std::map< Timestamp, std::set< Change_Entry< Relation_Skeleton::Id_Type > > > co
       continue;
     }
 
-    std::map< Uint31_Index, std::set< Relation_Skeleton > >::const_iterator it_attic_idx
-        = attic_skeletons.find(*idx);
+    auto it_attic_idx = attic_skeletons.find(*idx);
     if (it_attic_idx == attic_skeletons.end())
       // Something has gone wrong. Skip this object.
       continue;
 
-    std::set< Relation_Skeleton >::iterator it_attic
-        = it_attic_idx->second.find(it->elem);
+    auto it_attic = it_attic_idx->second.find(it->elem);
     if (it_attic == it_attic_idx->second.end())
       // Something has gone wrong. Skip this object.
       continue;
@@ -1049,10 +1003,9 @@ std::map< Timestamp, std::set< Change_Entry< Relation_Skeleton::Id_Type > > > co
   }
 
   // Add the missing elements that result from node moves only
-  for (std::map< Uint31_Index, std::set< Relation_Skeleton > >::const_iterator
-      it = implicitly_moved_skeletons.begin(); it != implicitly_moved_skeletons.end(); ++it)
+  for (auto it = implicitly_moved_skeletons.begin(); it != implicitly_moved_skeletons.end(); ++it)
   {
-    for (std::set< Relation_Skeleton >::const_iterator it2 = it->second.begin();
+    for (auto it2 = it->second.begin();
          it2 != it->second.end(); ++it2)
       add_intermediate_changelog_entries(*it2, 0, NOW, nodes_by_id, ways_by_id,
                                 false, it->first, 0u, result);

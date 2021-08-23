@@ -28,15 +28,14 @@ std::vector< Node::Id_Type > way_nd_ids(
     const std::vector< int >* pos)
 {
   std::vector< Node::Id_Type > ids;
-  for (std::map< Uint31_Index, std::vector< Way_Skeleton > >::const_iterator
-      it(ways.begin()); it != ways.end(); ++it)
+  for (auto it(ways.begin()); it != ways.end(); ++it)
   {
-    for (std::vector< Way_Skeleton >::const_iterator it2(it->second.begin());
+    for (auto it2(it->second.begin());
         it2 != it->second.end(); ++it2)
     {
       if (pos)
       {
-        std::vector< int >::const_iterator it3 = pos->begin();
+        auto it3 = pos->begin();
         for (; it3 != pos->end() && *it3 < 0; ++it3)
         {
           if (*it3 + (int)it2->nds().size() >= 0)
@@ -50,7 +49,7 @@ std::vector< Node::Id_Type > way_nd_ids(
       }
       else
       {
-        for (std::vector< Node::Id_Type >::const_iterator it3 = it2->nds().begin();
+        for (auto it3 = it2->nds().begin();
             it3 != it2->nds().end(); ++it3)
           ids.push_back(*it3);
       }
@@ -74,15 +73,14 @@ std::vector< Node::Id_Type > way_nd_ids(
   if (attic_ways.empty())
     return ids;
 
-  for (std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >::const_iterator
-      it = attic_ways.begin(); it != attic_ways.end(); ++it)
+  for (auto it = attic_ways.begin(); it != attic_ways.end(); ++it)
   {
-    for (std::vector< Attic< Way_Skeleton > >::const_iterator it2 = it->second.begin();
+    for (auto it2 = it->second.begin();
         it2 != it->second.end(); ++it2)
     {
       if (pos)
       {
-        std::vector< int >::const_iterator it3 = pos->begin();
+        auto it3 = pos->begin();
         for (; it3 != pos->end() && *it3 < 0; ++it3)
         {
           if (*it3 + (int)it2->nds().size() >= 0)
@@ -96,7 +94,7 @@ std::vector< Node::Id_Type > way_nd_ids(
       }
       else
       {
-        for (std::vector< Node::Id_Type >::const_iterator it3 = it2->nds().begin();
+        for (auto it3 = it2->nds().begin();
             it3 != it2->nds().end(); ++it3)
           ids.push_back(*it3);
       }
@@ -117,7 +115,7 @@ inline std::set< std::pair< Uint32_Index, Uint32_Index > > calc_node_children_ra
 
   std::vector< std::pair< uint32, uint32 > > ranges;
 
-  for (std::vector< uint32 >::const_iterator it = way_rel_idxs.begin();
+  for (auto it = way_rel_idxs.begin();
       it != way_rel_idxs.end(); ++it)
   {
     if (*it & 0x80000000)
@@ -216,8 +214,7 @@ std::vector< Uint31_Index > collect_relation_req
 
   Random_File< Relation_Skeleton::Id_Type, Uint31_Index > random
       (rman.get_transaction()->random_index(osm_base_settings().RELATIONS));
-  for (std::vector< Relation::Id_Type >::const_iterator
-      it(map_ids.begin()); it != map_ids.end(); ++it)
+  for (auto it(map_ids.begin()); it != map_ids.end(); ++it)
     req.push_back(random.get(it->val()));
 
   rman.health_check(stmt);
@@ -254,11 +251,10 @@ std::vector< Uint31_Index > collect_way_req
 
   Random_File< Way_Skeleton::Id_Type, Uint31_Index > random
       (rman.get_transaction()->random_index(osm_base_settings().WAYS));
-  for (std::vector< uint32 >::const_iterator
-      it(map_ids.begin()); it != map_ids.end(); ++it)
+  for (auto it(map_ids.begin()); it != map_ids.end(); ++it)
     req.push_back(random.get(*it));
 
-  for (std::vector< Uint31_Index >::const_iterator it = children_idxs.begin();
+  for (auto it = children_idxs.begin();
       it != children_idxs.end(); ++it)
     req.push_back(*it);
 
@@ -281,8 +277,7 @@ std::set< std::pair< Uint32_Index, Uint32_Index > > collect_node_req
 
   Random_File< Node_Skeleton::Id_Type, Uint32_Index > random
       (rman.get_transaction()->random_index(osm_base_settings().NODES));
-  for (std::vector< Node::Id_Type >::const_iterator
-      it(map_ids.begin()); it != map_ids.end(); ++it)
+  for (auto it(map_ids.begin()); it != map_ids.end(); ++it)
   {
     Uint32_Index idx = random.get(it->val());
     req.insert(std::make_pair(idx, idx.val() + 1));
@@ -302,8 +297,7 @@ std::vector< Uint31_Index > relation_relation_member_indices
 {
   std::vector< Relation::Id_Type > map_ids;
 
-  for (std::map< Uint31_Index, std::vector< Relation_Skeleton > >::const_iterator
-      it = rels_begin; it != rels_end; ++it)
+  for (auto it = rels_begin; it != rels_end; ++it)
     // Treat relations with really large indices: get the node indexes from nodes.std::map.
     filter_for_member_ids(it->second, map_ids, Relation_Entry::RELATION);
 
@@ -323,8 +317,7 @@ std::vector< Uint31_Index > relation_relation_member_indices
 {
   std::vector< Relation::Id_Type > map_ids;
 
-  for (std::map< Uint31_Index, std::vector< Relation_Skeleton > >::const_iterator
-      it = rels_begin; it != rels_end; ++it)
+  for (auto it = rels_begin; it != rels_end; ++it)
     // Treat relations with really large indices: get the node indexes from nodes.std::map.
     filter_for_member_ids(it->second, map_ids, Relation_Entry::RELATION);
 
@@ -334,8 +327,7 @@ std::vector< Uint31_Index > relation_relation_member_indices
   std::vector< Uint31_Index > current = collect_relation_req(stmt, rman, map_ids);
 
   map_ids.clear();
-  for (std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > >::const_iterator
-      it = attic_rels_begin; it != attic_rels_end; ++it)
+  for (auto it = attic_rels_begin; it != attic_rels_end; ++it)
     // Treat relations with really large indices: get the node indexes from nodes.std::map.
     filter_for_member_ids(it->second, map_ids, Relation_Entry::RELATION);
 
@@ -357,16 +349,15 @@ std::set< std::pair< Uint32_Index, Uint32_Index > > way_nd_indices
 {
   std::vector< uint32 > parents;
 
-  for (std::map< Uint31_Index, std::vector< Way_Skeleton > >::const_iterator
-    it(ways_begin); it != ways_end; ++it)
+  for (auto it(ways_begin); it != ways_end; ++it)
   {
     if ((it->first.val() & 0x80000000) && ((it->first.val() & 0x1) == 0)) // Adapt 0x3
     {
       // Treat ways with really large indices: get the node indexes from the segment indexes
-      for (std::vector< Way_Skeleton >::const_iterator it2 = it->second.begin();
+      for (auto it2 = it->second.begin();
           it2 != it->second.end(); ++it2)
       {
-        for (std::vector< Quad_Coord >::const_iterator it3 = it2->geometry().begin();
+        for (auto it3 = it2->geometry().begin();
             it3 != it2->geometry().end(); ++it3)
           parents.push_back(it3->ll_upper);
       }
@@ -392,16 +383,15 @@ std::set< std::pair< Uint32_Index, Uint32_Index > > way_nd_indices
 {
   std::vector< uint32 > parents;
 
-  for (std::map< Uint31_Index, std::vector< Way_Skeleton > >::const_iterator
-    it(ways_begin); it != ways_end; ++it)
+  for (auto it(ways_begin); it != ways_end; ++it)
   {
     if ((it->first.val() & 0x80000000) && ((it->first.val() & 0x1) == 0)) // Adapt 0x3
     {
       // Treat ways with really large indices: get the node indexes from the segment indexes
-      for (std::vector< Way_Skeleton >::const_iterator it2 = it->second.begin();
+      for (auto it2 = it->second.begin();
           it2 != it->second.end(); ++it2)
       {
-        for (std::vector< Quad_Coord >::const_iterator it3 = it2->geometry().begin();
+        for (auto it3 = it2->geometry().begin();
             it3 != it2->geometry().end(); ++it3)
           parents.push_back(it3->ll_upper);
       }
@@ -409,16 +399,15 @@ std::set< std::pair< Uint32_Index, Uint32_Index > > way_nd_indices
     else
       parents.push_back(it->first.val());
   }
-  for (std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >::const_iterator
-    it(attic_ways_begin); it != attic_ways_end; ++it)
+  for (auto it(attic_ways_begin); it != attic_ways_end; ++it)
   {
     if ((it->first.val() & 0x80000000) && ((it->first.val() & 0x1) == 0)) // Adapt 0x3
     {
       // Treat ways with really large indices: get the node indexes from the segment indexes
-      for (std::vector< Attic< Way_Skeleton > >::const_iterator it2 = it->second.begin();
+      for (auto it2 = it->second.begin();
           it2 != it->second.end(); ++it2)
       {
-        for (std::vector< Quad_Coord >::const_iterator it3 = it2->geometry().begin();
+        for (auto it3 = it2->geometry().begin();
             it3 != it2->geometry().end(); ++it3)
           parents.push_back(it3->ll_upper);
       }
@@ -442,14 +431,12 @@ std::vector< Relation::Id_Type > relation_relation_member_ids
   std::vector< Relation::Id_Type > ids;
   if (role_id)
   {
-    for (std::map< Uint31_Index, std::vector< Relation_Skeleton > >::const_iterator
-        it(rels.begin()); it != rels.end(); ++it)
+    for (auto it(rels.begin()); it != rels.end(); ++it)
       filter_for_member_ids(it->second, ids, Relation_Entry::RELATION, *role_id);
   }
   else
   {
-    for (std::map< Uint31_Index, std::vector< Relation_Skeleton > >::const_iterator
-        it(rels.begin()); it != rels.end(); ++it)
+    for (auto it(rels.begin()); it != rels.end(); ++it)
       filter_for_member_ids(it->second, ids, Relation_Entry::RELATION);
   }
 
@@ -467,20 +454,16 @@ std::vector< Relation::Id_Type > relation_relation_member_ids
   std::vector< Relation::Id_Type > ids;
   if (role_id)
   {
-    for (std::map< Uint31_Index, std::vector< Relation_Skeleton > >::const_iterator
-        it(rels.begin()); it != rels.end(); ++it)
+    for (auto it(rels.begin()); it != rels.end(); ++it)
       filter_for_member_ids(it->second, ids, Relation_Entry::RELATION, *role_id);
-    for (std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > >::const_iterator
-        it(attic_rels.begin()); it != attic_rels.end(); ++it)
+    for (auto it(attic_rels.begin()); it != attic_rels.end(); ++it)
       filter_for_member_ids(it->second, ids, Relation_Entry::RELATION, *role_id);
   }
   else
   {
-    for (std::map< Uint31_Index, std::vector< Relation_Skeleton > >::const_iterator
-        it(rels.begin()); it != rels.end(); ++it)
+    for (auto it(rels.begin()); it != rels.end(); ++it)
       filter_for_member_ids(it->second, ids, Relation_Entry::RELATION);
-    for (std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > >::const_iterator
-        it(attic_rels.begin()); it != attic_rels.end(); ++it)
+    for (auto it(attic_rels.begin()); it != attic_rels.end(); ++it)
       filter_for_member_ids(it->second, ids, Relation_Entry::RELATION);
   }
 
@@ -866,7 +849,7 @@ const std::map< uint32, std::string >& relation_member_roles(Transaction& transa
 uint32 determine_role_id(Transaction& transaction, const std::string& role)
 {
   const std::map< uint32, std::string >& roles = relation_member_roles(transaction);
-  for (std::map< uint32, std::string >::const_iterator it = roles.begin(); it != roles.end(); ++it)
+  for (auto it = roles.begin(); it != roles.end(); ++it)
   {
     if (it->second == role)
       return it->first;
@@ -888,7 +871,7 @@ bool add_way_to_area_blocks(const std::vector< Quad_Coord >& coords,
 
   uint32 cur_idx = 0;
   std::vector< uint64 > cur_polyline;
-  for (std::vector< Quad_Coord >::const_iterator it = coords.begin(); it != coords.end(); ++it)
+  for (auto it = coords.begin(); it != coords.end(); ++it)
   {
     if ((it->ll_upper & 0xffffff00) != cur_idx)
     {
@@ -927,7 +910,7 @@ std::vector< Quad_Coord > make_geometry(const Way_Skeleton& way, const std::vect
   std::vector< Quad_Coord > result;
   result.reserve(way.nds().size());
 
-  for (std::vector< Node::Id_Type >::const_iterator it3(way.nds().begin());
+  for (auto it3(way.nds().begin());
       it3 != way.nds().end(); ++it3)
   {
     const Node_Base* node = binary_search_for_id(nodes, *it3);
@@ -948,7 +931,7 @@ std::vector< Uint31_Index > segment_idxs(const std::vector< Quad_Coord >& geomet
   std::vector< uint32 > nd_idxs;
   nd_idxs.reserve(geometry.size());
 
-  for (std::vector< Quad_Coord >::const_iterator it = geometry.begin(); it != geometry.end(); ++it)
+  for (auto it = geometry.begin(); it != geometry.end(); ++it)
     nd_idxs.push_back(it->ll_upper);
 
   return calc_segment_idxs(nd_idxs);
@@ -960,9 +943,9 @@ void filter_ways_by_ranges_generic
     (std::map< Uint31_Index, std::vector< Object > >& ways,
     const std::set< std::pair< Uint31_Index, Uint31_Index > >& ranges)
 {
-  std::set< std::pair< Uint31_Index, Uint31_Index > >::const_iterator ranges_it = ranges.begin();
-  typename std::map< Uint31_Index, std::vector< Object > >::iterator it = ways.begin();
-  std::set< std::pair< Uint31_Index, Uint31_Index > >::const_iterator ranges_begin = ranges.begin();
+  auto ranges_it = ranges.begin();
+  auto it = ways.begin();
+  auto ranges_begin = ranges.begin();
   for (; it != ways.end() && ranges_it != ranges.end(); )
   {
     if (!(it->first < ranges_it->second))
@@ -979,7 +962,7 @@ void filter_ways_by_ranges_generic
         for (typename std::vector< Object >::const_iterator it2 = it->second.begin();
              it2 != it->second.end(); ++it2)
         {
-          std::set< std::pair< Uint31_Index, Uint31_Index > >::const_iterator ranges_it2 = ranges_begin;
+          auto ranges_it2 = ranges_begin;
           std::vector< Uint31_Index > segment_idxs_ = segment_idxs(it2->geometry());
           for (std::vector< Uint31_Index >::const_iterator it3 = segment_idxs_.begin();
                it3 != segment_idxs_.end() && ranges_it2 != ranges.end(); )
@@ -1038,17 +1021,17 @@ void keep_matching_skeletons
 
   result.clear();
 
-  for (std::map< Uint32_Index, std::vector< Node_Skeleton > >::const_iterator it = current.begin();
+  for (auto it = current.begin();
        it != current.end(); ++it)
   {
-    for (std::vector< Node_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
       timestamp_by_id[it2->id] = NOW;
   }
 
-  for (std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > >::const_iterator it = attic.begin();
+  for (auto it = attic.begin();
        it != attic.end(); ++it)
   {
-    for (std::vector< Attic<Node_Skeleton > >::const_iterator it2 = it->second.begin();
+    for (auto it2 = it->second.begin();
          it2 != it->second.end(); ++it2)
     {
       uint64& stored_timestamp = timestamp_by_id[it2->id];
@@ -1057,20 +1040,20 @@ void keep_matching_skeletons
     }
   }
 
-  for (std::map< Uint32_Index, std::vector< Node_Skeleton > >::const_iterator it = current.begin();
+  for (auto it = current.begin();
        it != current.end(); ++it)
   {
-    for (std::vector< Node_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
       if (timestamp_by_id[it2->id] == NOW)
         result.push_back(Node_Base(it2->id, it->first.val(), it2->ll_lower));
     }
   }
 
-  for (std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > >::const_iterator it = attic.begin();
+  for (auto it = attic.begin();
        it != attic.end(); ++it)
   {
-    for (std::vector< Attic<Node_Skeleton > >::const_iterator it2 = it->second.begin();
+    for (auto it2 = it->second.begin();
          it2 != it->second.end(); ++it2)
     {
       if (timestamp_by_id[it2->id] == it2->timestamp)
@@ -1254,7 +1237,7 @@ void collect_ways
   std::vector< Node::Id_Type > ids;
   std::set_union(current_ids.begin(), current_ids.end(), attic_ids.begin(), attic_ids.end(),
                  std::back_inserter(ids));
-  for (std::set< Uint31_Index >::const_iterator it = attic_req.begin(); it != attic_req.end(); ++it)
+  for (auto it = attic_req.begin(); it != attic_req.end(); ++it)
     req.insert(*it);
 
   collect_items_discrete_by_timestamp(&stmt, rman, req,
@@ -1285,7 +1268,7 @@ void collect_ways
   std::vector< Node::Id_Type > children_ids;
   std::set_union(current_ids.begin(), current_ids.end(), attic_ids.begin(), attic_ids.end(),
                  std::back_inserter(children_ids));
-  for (std::set< Uint31_Index >::const_iterator it = attic_req.begin(); it != attic_req.end(); ++it)
+  for (auto it = attic_req.begin(); it != attic_req.end(); ++it)
     req.insert(*it);
 
   if (!invert_ids)

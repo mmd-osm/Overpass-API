@@ -52,7 +52,7 @@ Convert_Statement::~Convert_Statement() = default;
 
 void Convert_Statement::add_statement(Statement* statement, std::string text)
 {
-  Set_Prop_Statement* set_prop = dynamic_cast< Set_Prop_Statement* >(statement);
+  auto* set_prop = dynamic_cast< Set_Prop_Statement* >(statement);
   if (set_prop)
   {
     if (set_prop->get_key())
@@ -94,10 +94,10 @@ void generate_elems(const std::string& set_name,
     Owning_Array< Set_Prop_Task* >& tasks, const std::vector< std::string >& declared_keys,
     Set& into, Resource_Manager& rman, const std::string& type)
 {
-  for (typename std::map< Index, std::vector< Maybe_Attic > >::const_iterator it_idx = items.begin();
+  for (auto it_idx = items.begin();
       it_idx != items.end(); ++it_idx)
   {
-    for (typename std::vector< Maybe_Attic >::const_iterator it_elem = it_idx->second.begin();
+    for (auto it_elem = it_idx->second.begin();
         it_elem != it_idx->second.end(); ++it_elem)
     {
       Derived_Structure result(type, 0ull);

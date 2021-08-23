@@ -86,22 +86,20 @@ std::map< Node_Skeleton::Id_Type, std::vector< std::pair< Uint31_Index, Attic< N
   // Fill nodes_by_id from attic nodes as well as the current nodes in new_node_idx_by_id
   std::map< Node_Skeleton::Id_Type,
          std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > > > nodes_by_id;
-  for (std::map< Uint31_Index, std::set< Attic< Node_Skeleton > > >::const_iterator
-      it = new_attic_node_skeletons.begin(); it != new_attic_node_skeletons.end(); ++it)
+  for (auto it = new_attic_node_skeletons.begin(); it != new_attic_node_skeletons.end(); ++it)
   {
-    for (std::set< Attic< Node_Skeleton > >::const_iterator it2 = it->second.begin();
+    for (auto it2 = it->second.begin();
          it2 != it->second.end(); ++it2)
       nodes_by_id[it2->id].push_back(std::make_pair(it->first, *it2));
   }
 
-  for (std::map< Node_Skeleton::Id_Type, Quad_Coord >::const_iterator it = new_node_idx_by_id.begin();
+  for (auto it = new_node_idx_by_id.begin();
        it != new_node_idx_by_id.end(); ++it)
     nodes_by_id[it->first].push_back(std::make_pair
         (it->second.ll_upper, Attic< Node_Skeleton >(Node_Skeleton(it->first, it->second.ll_lower),
              NOW)));
 
-  for (std::map< Node_Skeleton::Id_Type, std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > > >
-      ::iterator it = nodes_by_id.begin(); it != nodes_by_id.end(); ++it)
+  for (auto it = nodes_by_id.begin(); it != nodes_by_id.end(); ++it)
     std::sort(it->second.begin(), it->second.end(),
 	      Ascending_By_Timestamp< Uint31_Index, Node_Skeleton >());
 
@@ -117,22 +115,20 @@ std::map< Way_Skeleton::Id_Type, std::vector< std::pair< Uint31_Index, Attic< Wa
   std::map< Way_Skeleton::Id_Type,
          std::vector< std::pair< Uint31_Index, Attic< Way_Skeleton::Id_Type > > > > ways_by_id;
 
-  for (std::map< Way_Skeleton::Id_Type, Uint31_Index >::const_iterator it = new_way_idx_by_id.begin();
+  for (auto it = new_way_idx_by_id.begin();
        it != new_way_idx_by_id.end(); ++it)
     ways_by_id[it->first].push_back(std::make_pair
         (it->second, Attic< Way_Skeleton::Id_Type >(it->first, NOW)));
 
-  for (std::map< Uint31_Index, std::set< Attic< Way_Delta > > >::const_iterator
-      it = new_attic_way_skeletons.begin(); it != new_attic_way_skeletons.end(); ++it)
+  for (auto it = new_attic_way_skeletons.begin(); it != new_attic_way_skeletons.end(); ++it)
   {
-    for (std::set< Attic< Way_Delta > >::const_iterator it2 = it->second.begin();
+    for (auto it2 = it->second.begin();
          it2 != it->second.end(); ++it2)
       ways_by_id[it2->id].push_back(std::make_pair(it->first,
           Attic< Way_Skeleton::Id_Type >(it2->id, it2->timestamp)));
   }
 
-  for (std::map< Way_Skeleton::Id_Type, std::vector< std::pair< Uint31_Index, Attic< Way_Skeleton::Id_Type > > > >
-      ::iterator it = ways_by_id.begin(); it != ways_by_id.end(); ++it)
+  for (auto it = ways_by_id.begin(); it != ways_by_id.end(); ++it)
     std::sort(it->second.begin(), it->second.end(),
 	      Ascending_By_Timestamp< Uint31_Index, Way_Skeleton::Id_Type >());
 

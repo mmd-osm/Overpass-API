@@ -115,8 +115,7 @@ void generate_index_query
   (std::set< Index >& indices,
    const std::map< Index, std::vector< Object > >& items)
 {
-  for (typename std::map< Index, std::vector< Object > >::const_iterator
-      it(items.begin()); it != items.end(); ++it)
+  for (auto it(items.begin()); it != items.end(); ++it)
     indices.insert(it->first);
 }
 
@@ -317,7 +316,7 @@ const OSM_Element_Metadata_Skeleton< Id_Type >* Meta_Collector< Index, Id_Type, 
   if (current_index && *current_index < index)
     update_current_objects(index);
 
-  typename std::vector< OSM_Element_Metadata_Skeleton< Id_Type > >::iterator it
+  auto it
       = std::lower_bound(current_objects.begin(), current_objects.end(),
              OSM_Element_Metadata_Skeleton< Id_Type >(ref));
   if (it != current_objects.end() && it->ref == ref)
@@ -339,7 +338,7 @@ const OSM_Element_Metadata_Skeleton< Id_Type >* Meta_Collector< Index, Id_Type, 
   if (current_index && *current_index < index)
     update_current_objects(index);
 
-  typename std::vector< OSM_Element_Metadata_Skeleton< Id_Type > >::iterator it
+  auto it
       = std::lower_bound(current_objects.begin(), current_objects.end(),
                          OSM_Element_Metadata_Skeleton< Id_Type >(ref, timestamp));
   if (it == current_objects.begin())

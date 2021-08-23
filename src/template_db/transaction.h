@@ -33,11 +33,9 @@ public:
   Index_Cache() : replicate_id("") {};
   ~Index_Cache() {
 
-    for (std::map< const File_Properties*, File_Blocks_Index_Base* >::iterator
-        it = data_files.begin(); it != data_files.end(); ++it)
+    for (auto it = data_files.begin(); it != data_files.end(); ++it)
       delete it->second;
-    for (std::map< const File_Properties*, Random_File_Index* >::iterator
-        it = random_files.begin(); it != random_files.end(); ++it)
+    for (auto it = random_files.begin(); it != random_files.end(); ++it)
       delete it->second;
 
     data_files.clear();
@@ -134,12 +132,10 @@ inline void Nonsynced_Transaction::flush()
 {
   std::lock_guard<std::mutex> guard(transaction_mutex);
 
-  for (std::map< const File_Properties*, File_Blocks_Index_Base* >::iterator
-      it = data_files.begin(); it != data_files.end(); ++it)
+  for (auto it = data_files.begin(); it != data_files.end(); ++it)
     delete it->second;
   data_files.clear();
-  for (std::map< const File_Properties*, Random_File_Index* >::iterator
-      it = random_files.begin(); it != random_files.end(); ++it)
+  for (auto it = random_files.begin(); it != random_files.end(); ++it)
     delete it->second;
   random_files.clear();
 }
@@ -152,12 +148,10 @@ inline void Nonsynced_Transaction::flush_outdated_index_cache()
 
   if (ic != nullptr && ic->replicate_id != get_replicate_id())
   {
-    for (std::map< const File_Properties*, File_Blocks_Index_Base* >::iterator
-        it = ic->data_files.begin(); it != ic->data_files.end(); ++it)
+    for (auto it = ic->data_files.begin(); it != ic->data_files.end(); ++it)
       delete it->second;
     ic->data_files.clear();
-    for (std::map< const File_Properties*, Random_File_Index* >::iterator
-        it = ic->random_files.begin(); it != ic->random_files.end(); ++it)
+    for (auto it = ic->random_files.begin(); it != ic->random_files.end(); ++it)
       delete it->second;
     ic->random_files.clear();
     ic->replicate_id = get_replicate_id();
@@ -174,8 +168,7 @@ inline File_Blocks_Index_Base* Nonsynced_Transaction::data_index
 
   df = (ic != nullptr) ? &ic->data_files : &data_files;
 
-  std::map< const File_Properties*, File_Blocks_Index_Base* >::iterator
-      it = df->find(fp);
+  auto it = df->find(fp);
   if (it != df->end())
     return it->second;
 
@@ -195,8 +188,7 @@ inline Random_File_Index* Nonsynced_Transaction::random_index(const File_Propert
 
   rf = (ic != nullptr) ? &ic->random_files : &random_files;
 
-  std::map< const File_Properties*, Random_File_Index* >::iterator
-      it = rf->find(fp);
+  auto it = rf->find(fp);
   if (it != rf->end())
     return it->second;
   

@@ -102,7 +102,7 @@ inline uint32 calc_index(const std::vector< uint32 >& node_idxs)
 
   // Calculate the bounding box of the appearing indices.
 
-  std::vector< uint32 >::const_iterator it = node_idxs.begin();
+  auto it = node_idxs.begin();
   uint32 lat_min = *it & 0x2aaaaaaa;
   uint32 lat_max = lat_min;
   uint32 lon_min = *it & 0x55555555;
@@ -365,7 +365,7 @@ inline std::vector< Uint32_Index > calc_node_children(const std::vector< uint32 
 
   std::vector< std::pair< uint32, uint32 > > ranges;
 
-  for (std::vector< uint32 >::const_iterator it = way_rel_idxs.begin();
+  for (auto it = way_rel_idxs.begin();
       it != way_rel_idxs.end(); ++it)
   {
     if (*it & 0x80000000)
@@ -460,7 +460,7 @@ inline std::vector< Uint31_Index > calc_children(const std::vector< uint32 >& wa
 {
   std::vector< Uint31_Index > result;
 
-  for (std::vector< uint32 >::const_iterator it = way_rel_idxs.begin();
+  for (auto it = way_rel_idxs.begin();
       it != way_rel_idxs.end(); ++it)
   {
     if (*it & 0x80000000)
@@ -584,7 +584,7 @@ inline std::set< Uint31_Index > calc_parents(const std::set< Uint31_Index >& nod
   std::set< Uint31_Index > result;
   result.insert(0x80000080);
 
-  for (std::set< Uint31_Index >::const_iterator it = node_idxs.begin();
+  for (auto it = node_idxs.begin();
       it != node_idxs.end(); ++it)
   {
     result.insert(*it);
@@ -648,7 +648,7 @@ inline std::vector< uint32 > calc_parents(const std::vector< uint32 >& node_idxs
   std::vector< uint32 > result;
   result.push_back(0x80000080);
 
-  for (std::vector< uint32 >::const_iterator it = node_idxs.begin();
+  for (auto it = node_idxs.begin();
   it != node_idxs.end(); ++it)
   {
     result.push_back(*it);
@@ -777,8 +777,7 @@ inline std::set< std::pair< Uint31_Index, Uint31_Index > > calc_parents
     (const std::set< std::pair< Uint32_Index, Uint32_Index > >& node_idxs)
 {
   std::vector< std::pair< Uint32_Index, Uint32_Index > > node_decomp;
-  for (std::set< std::pair< Uint32_Index, Uint32_Index > >::const_iterator
-      it = node_idxs.begin(); it != node_idxs.end(); ++it)
+  for (auto it = node_idxs.begin(); it != node_idxs.end(); ++it)
     add_decomp_range(*it, node_decomp);
 
   std::vector< std::pair< Uint31_Index, Uint31_Index > > result;
@@ -1119,8 +1118,8 @@ std::set< std::pair< Index, Index > > intersect_ranges
      const std::set< std::pair< Index, Index > >& range_b)
 {
   std::set< std::pair< Index, Index > > result;
-  typename std::set< std::pair< Index, Index > >::const_iterator it_a = range_a.begin();
-  typename std::set< std::pair< Index, Index > >::const_iterator it_b = range_b.begin();
+  auto it_a = range_a.begin();
+  auto it_b = range_b.begin();
 
   while (it_a != range_a.end() && it_b != range_b.end())
   {

@@ -374,7 +374,7 @@ File_Blocks_Index< TIndex >::~File_Blocks_Index()
 
   // Write void blocks
   std::vector< uint8 > void_index_buf(void_blocks.size() * 8);
-  std::pair< uint32, uint32 >* it_ptr = (std::pair< uint32, uint32 >*)(void_index_buf.data());
+  auto* it_ptr = (std::pair< uint32, uint32 >*)(void_index_buf.data());
   for (std::vector< std::pair< uint32, uint32 > >::const_iterator it(void_blocks.begin());
       it != void_blocks.end(); ++it)
     *(it_ptr++) = *it;
@@ -398,8 +398,7 @@ std::vector< bool > get_data_index_footprint
   File_Blocks_Index< TIndex > index(file_prop, false, false, db_dir, "");
 
   std::vector< bool > result(index.block_count, true);
-  for (typename std::vector< std::pair< uint32, uint32 > >::const_iterator
-      it = index.get_void_blocks().begin(); it != index.get_void_blocks().end(); ++it)
+  for (auto it = index.get_void_blocks().begin(); it != index.get_void_blocks().end(); ++it)
   {
     for (uint32 i = 0; i < it->first; ++i)
       result[it->second + i] = false;

@@ -211,7 +211,7 @@ Blocking_Client_Socket* Connection_Per_Pid_Map::get(pid_t pid)
 
 void Connection_Per_Pid_Map::set(pid_t pid, Blocking_Client_Socket* socket)
 {
-  std::map< pid_t, Blocking_Client_Socket* >::iterator it = connection_per_pid.find(pid);
+  auto it = connection_per_pid.find(pid);
   if (it != connection_per_pid.end())
     delete it->second;
   if (socket != 0)

@@ -58,8 +58,7 @@ void Idx_Footprints::unregister_pid(pid_t pid)
 std::vector< Idx_Footprints::pid_t > Idx_Footprints::registered_processes() const
 {
   std::vector< pid_t > result;
-  for (std::map< pid_t, std::shared_ptr< std::vector< bool > > >::const_iterator
-      it(footprint_per_pid.begin()); it != footprint_per_pid.end(); ++it)
+  for (auto it(footprint_per_pid.begin()); it != footprint_per_pid.end(); ++it)
     result.push_back(it->first);
   return result;
 }
@@ -68,8 +67,7 @@ std::vector< Idx_Footprints::pid_t > Idx_Footprints::registered_processes() cons
 std::vector< bool > Idx_Footprints::total_footprint() const
 {
   std::vector< bool > result(*current_footprint.get());
-  for (std::map< pid_t, std::shared_ptr< std::vector< bool > > >::const_iterator
-      it(footprint_per_pid.begin()); it != footprint_per_pid.end(); ++it)
+  for (auto it(footprint_per_pid.begin()); it != footprint_per_pid.end(); ++it)
   {
     // By construction, it->second.size() <= result.size()
     for (std::vector< bool >::size_type i = 0; i < it->second.get()->size(); ++i)
@@ -92,10 +90,10 @@ Transaction_Insulator::Transaction_Insulator(
 
 void Transaction_Insulator::request_read_and_idx(pid_t pid)
 {
-  for (std::vector< Idx_Footprints >::iterator it(data_footprints.begin());
+  for (auto it(data_footprints.begin());
       it != data_footprints.end(); ++it)
     it->register_pid(pid);
-  for (std::vector< Idx_Footprints >::iterator it(map_footprints.begin());
+  for (auto it(map_footprints.begin());
       it != map_footprints.end(); ++it)
     it->register_pid(pid);
 }
@@ -103,10 +101,10 @@ void Transaction_Insulator::request_read_and_idx(pid_t pid)
 
 void Transaction_Insulator::read_finished(pid_t pid)
 {
-  for (std::vector< Idx_Footprints >::iterator it(data_footprints.begin());
+  for (auto it(data_footprints.begin());
       it != data_footprints.end(); ++it)
     it->unregister_pid(pid);
-  for (std::vector< Idx_Footprints >::iterator it(map_footprints.begin());
+  for (auto it(map_footprints.begin());
       it != map_footprints.end(); ++it)
     it->unregister_pid(pid);
 }
@@ -213,7 +211,7 @@ std::set< pid_t > Transaction_Insulator::registered_pids() const
 {
   std::set< pid_t > registered;
 
-  for (std::vector< Idx_Footprints >::const_iterator it(data_footprints.begin());
+  for (auto it(data_footprints.begin());
       it != data_footprints.end(); ++it)
   {
     std::vector< Idx_Footprints::pid_t > registered_processes = it->registered_processes();
@@ -221,7 +219,7 @@ std::set< pid_t > Transaction_Insulator::registered_pids() const
         it != registered_processes.end(); ++it)
       registered.insert(*it);
   }
-  for (std::vector< Idx_Footprints >::const_iterator it(map_footprints.begin());
+  for (auto it(map_footprints.begin());
       it != map_footprints.end(); ++it)
   {
     std::vector< Idx_Footprints::pid_t > registered_processes = it->registered_processes();

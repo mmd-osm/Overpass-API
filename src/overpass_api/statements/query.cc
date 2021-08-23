@@ -101,7 +101,7 @@ void Query_Statement::add_statement(Statement* statement, std::string text)
 {
   assure_no_text(text, this->get_name());
 
-  Has_Kv_Statement* has_kv(dynamic_cast<Has_Kv_Statement*>(statement));
+  auto* has_kv(dynamic_cast<Has_Kv_Statement*>(statement));
   if (has_kv)
   {
     substatements.push_back(statement);
@@ -322,7 +322,7 @@ std::vector< std::pair< Id_Type, Uint31_Index > > filter_id_list_fast(
   IdSetHybrid<typename Id_Type::Id_Type, L> old_ids(std::move(new_ids));
   new_ids.clear();
 
-  for (typename Container::const_iterator it = container.begin(); it != container.end(); ++it)
+  for (auto it = container.begin(); it != container.end(); ++it)
   {
     if (!filtered || old_ids.get(it->first.val()))
     {
@@ -833,7 +833,7 @@ template< typename TIndex, typename TObject >
 void clear_empty_indices
     (std::map< TIndex, std::vector< TObject > >& modify)
 {
-  for (typename std::map< TIndex, std::vector< TObject > >::iterator it = modify.begin();
+  for (auto it = modify.begin();
       it != modify.end();)
   {
     if (!it->second.empty())
@@ -841,7 +841,7 @@ void clear_empty_indices
       ++it;
       continue;
     }
-    typename std::map< TIndex, std::vector< TObject > >::iterator next_it = it;
+    auto next_it = it;
     if (++next_it == modify.end())
     {
       modify.erase(it);
@@ -869,8 +869,7 @@ void filter_ids_by_ntags
   std::string last_key, last_value;
   bool key_relevant = false;
   bool valid = false;
-  std::map< std::string, std::pair< std::vector< Regular_Expression* >, std::vector< std::string > > >::const_iterator
-      key_it = keys.begin();
+  auto key_it = keys.begin();
 
   while ((!(tag_it == items_db.range_end())) &&
       (((tag_it.index().index) & 0x7fffff00) == coarse_index))
@@ -908,10 +907,10 @@ void filter_ids_by_ntags
       if (tag_it.index().value != last_value)
       {
         valid = false;
-        for (std::vector< Regular_Expression* >::const_iterator rit = key_it->second.first.begin();
+        for (auto rit = key_it->second.first.begin();
             rit != key_it->second.first.end(); ++rit)
           valid |= (tag_it.index().value != void_tag_value() && (*rit)->matches(tag_it.index().value));
-        for (std::vector< std::string >::const_iterator rit = key_it->second.second.begin();
+        for (auto rit = key_it->second.second.begin();
             rit != key_it->second.second.end(); ++rit)
           valid |= (*rit == tag_it.index().value);
         last_value = tag_it.index().value;
@@ -947,8 +946,7 @@ void filter_ids_by_ntags
    uint32 coarse_index,
    std::vector< Id_Type >& new_ids)
 {
-  for (std::map< std::string, std::pair< std::vector< Regular_Expression* >, std::vector< std::string > > >::const_iterator
-      key_it = keys.begin(); key_it != keys.end(); ++key_it)
+  for (auto key_it = keys.begin(); key_it != keys.end(); ++key_it)
   {
     std::map< Id_Type, std::pair< uint64, uint64 > > timestamps;
     for (typename std::vector< Id_Type >::const_iterator it = new_ids.begin(); it != new_ids.end(); ++it)
@@ -977,10 +975,10 @@ void filter_ids_by_ntags
         if (tag_it.index().value != last_value)
         {
           valid = false;
-          for (std::vector< Regular_Expression* >::const_iterator rit = key_it->second.first.begin();
+          for (auto rit = key_it->second.first.begin();
               rit != key_it->second.first.end(); ++rit)
             valid |= (tag_it.index().value != void_tag_value() && (*rit)->matches(tag_it.index().value));
-          for (std::vector< std::string >::const_iterator rit = key_it->second.second.begin();
+          for (auto rit = key_it->second.second.begin();
               rit != key_it->second.second.end(); ++rit)
             valid |= (*rit == tag_it.index().value);
           last_value = tag_it.index().value;
@@ -1009,11 +1007,11 @@ void filter_ids_by_ntags
           valid = false;
           if (attic_tag_it.index().value != void_tag_value())
           {
-            for (std::vector< Regular_Expression* >::const_iterator rit = key_it->second.first.begin();
+            for (auto rit = key_it->second.first.begin();
                 rit != key_it->second.first.end(); ++rit)
               valid |= (attic_tag_it.index().value != void_tag_value()
                   && (*rit)->matches(attic_tag_it.index().value));
-            for (std::vector< std::string >::const_iterator rit = key_it->second.second.begin();
+            for (auto rit = key_it->second.second.begin();
                 rit != key_it->second.second.end(); ++rit)
               valid |= (*rit == attic_tag_it.index().value);
           }
@@ -1058,13 +1056,12 @@ void filter_by_ids(
 
   if (!attic_items)
   {
-    for (typename std::map< uint32, std::vector< typename TObject::Id_Type > >::const_iterator
-        it = ids_by_coarse.begin(); it != ids_by_coarse.end(); ++it)
+    for (auto it = ids_by_coarse.begin(); it != ids_by_coarse.end(); ++it)
     {
       while ((item_it != items.end()) &&
           ((item_it->first.val() & 0x7fffff00) == it->first))
       {
-        for (typename std::vector< TObject >::const_iterator eit = item_it->second.begin();
+        for (auto eit = item_it->second.begin();
              eit != item_it->second.end(); ++eit)
         {
           if (binary_search(it->second.begin(), it->second.end(), eit->id))
@@ -1079,13 +1076,12 @@ void filter_by_ids(
     typename std::map< TIndex, std::vector< Attic< TObject > > >::const_iterator attic_item_it
         = attic_items->begin();
 
-    for (typename std::map< uint32, std::vector< typename TObject::Id_Type > >::const_iterator
-        it = ids_by_coarse.begin(); it != ids_by_coarse.end(); ++it)
+    for (auto it = ids_by_coarse.begin(); it != ids_by_coarse.end(); ++it)
     {
       while ((item_it != items.end()) &&
           ((item_it->first.val() & 0x7fffff00) == it->first))
       {
-        for (typename std::vector< TObject >::const_iterator eit = item_it->second.begin();
+        for (auto eit = item_it->second.begin();
              eit != item_it->second.end(); ++eit)
         {
           if (binary_search(it->second.begin(), it->second.end(), eit->id))
@@ -1097,7 +1093,7 @@ void filter_by_ids(
       while ((attic_item_it != attic_items->end()) &&
           ((attic_item_it->first.val() & 0x7fffff00) == it->first))
       {
-        for (typename std::vector< Attic< TObject > >::const_iterator eit = attic_item_it->second.begin();
+        for (auto eit = attic_item_it->second.begin();
              eit != attic_item_it->second.end(); ++eit)
         {
           if (binary_search(it->second.begin(), it->second.end(), eit->id))
@@ -1161,8 +1157,7 @@ void Query_Statement::filter_by_tags
 
   if (timestamp == NOW)
   {
-    for (typename std::map< uint32, std::vector< typename TObject::Id_Type > >::iterator
-        it = ids_by_coarse.begin(); it != ids_by_coarse.end(); ++it)
+    for (auto it = ids_by_coarse.begin(); it != ids_by_coarse.end(); ++it)
     {
       if (++coarse_count >= 1024)
       {
@@ -1184,8 +1179,7 @@ void Query_Statement::filter_by_tags
     typename std::map< TIndex, std::vector< Attic< TObject > > >::const_iterator attic_item_it
         = attic_items->begin();
 
-    for (typename std::map< uint32, std::vector< typename TObject::Id_Type > >::iterator
-        it = ids_by_coarse.begin(); it != ids_by_coarse.end(); ++it)
+    for (auto it = ids_by_coarse.begin(); it != ids_by_coarse.end(); ++it)
     {
       if (++coarse_count >= 1024)
       {
@@ -1223,8 +1217,7 @@ void Query_Statement::filter_by_tags
 
   if (timestamp == NOW)
   {
-    for (typename std::map< uint32, std::vector< typename TObject::Id_Type > >::iterator
-        it = ids_by_coarse.begin(); it != ids_by_coarse.end(); ++it)
+    for (auto it = ids_by_coarse.begin(); it != ids_by_coarse.end(); ++it)
     {
       if (++coarse_count >= 1024)
       {
@@ -1246,8 +1239,7 @@ void Query_Statement::filter_by_tags
     typename std::map< TIndex, std::vector< Attic< TObject > > >::const_iterator attic_item_it
         = attic_items->begin();
 
-    for (typename std::map< uint32, std::vector< typename TObject::Id_Type > >::iterator
-        it = ids_by_coarse.begin(); it != ids_by_coarse.end(); ++it)
+    for (auto it = ids_by_coarse.begin(); it != ids_by_coarse.end(); ++it)
     {
       if (++coarse_count >= 1024)
       {
@@ -1311,7 +1303,7 @@ void Query_Statement::filter_by_tags
         = items.begin();
 
     {
-      for (typename std::map< uint32, std::vector< typename TObject::Id_Type > >::iterator it = ids_by_coarse.begin();
+      for (auto it = ids_by_coarse.begin();
           it != ids_by_coarse.end(); ++it)
       {
         if (++coarse_count >= 1024)
@@ -1326,7 +1318,7 @@ void Query_Statement::filter_by_tags
         while ((item_it != items.end()) &&
             ((item_it->first.val() & 0x7fffff00) == it->first))
         {
-          for (typename std::vector< TObject >::const_iterator eit = item_it->second.begin();
+          for (auto eit = item_it->second.begin();
               eit != item_it->second.end(); ++eit)
           {
             if (binary_search(ids_by_coarse_.begin(), ids_by_coarse_.end(), eit->id))
@@ -1365,7 +1357,7 @@ void Query_Statement::filter_by_tags
   typename std::map< TIndex, std::vector< TObject > >::const_iterator item_it = items.begin();
 
   {
-    for (typename std::map< uint32, std::vector< typename TObject::Id_Type > >::iterator it = ids_by_coarse.begin();
+    for (auto it = ids_by_coarse.begin();
         it != ids_by_coarse.end(); ++it)
     {
       if (++coarse_count >= 1024)
@@ -1382,7 +1374,7 @@ void Query_Statement::filter_by_tags
       while ((item_it != items.end()) &&
           ((item_it->first.val() & 0x7fffff00) == it->first))
       {
-        for (typename std::vector< TObject >::const_iterator eit = item_it->second.begin();
+        for (auto eit = item_it->second.begin();
              eit != item_it->second.end(); ++eit)
         {
           if (binary_search(ids_by_coarse_.begin(), ids_by_coarse_.end(), eit->id))
@@ -1399,7 +1391,7 @@ void Query_Statement::filter_by_tags
 
 void Query_Statement::filter_by_tags(std::map< Uint31_Index, std::vector< Derived_Structure > >& items)
 {
-  for (std::map< Uint31_Index, std::vector< Derived_Structure > >::iterator it_idx = items.begin();
+  for (auto it_idx = items.begin();
       it_idx != items.end(); ++it_idx)
   {
     std::vector< Derived_Structure > result;
@@ -1409,7 +1401,7 @@ void Query_Statement::filter_by_tags(std::map< Uint31_Index, std::vector< Derive
       std::vector< std::pair< std::string, std::string > >::const_iterator it_kv = key_values.begin();
       for (; it_kv != key_values.end(); ++it_kv)
       {
-        std::vector< std::pair< std::string, std::string > >::const_iterator it_tag = it_elem->tags.begin();
+        auto it_tag = it_elem->tags.begin();
         for (; it_tag != it_elem->tags.end(); ++it_tag)
         {
           if (it_tag->first == it_kv->first && it_tag->second == it_kv->second)
@@ -1424,7 +1416,7 @@ void Query_Statement::filter_by_tags(std::map< Uint31_Index, std::vector< Derive
       std::vector< std::string >::const_iterator it_k = keys.begin();
       for (; it_k != keys.end(); ++it_k)
       {
-        std::vector< std::pair< std::string, std::string > >::const_iterator it_tag = it_elem->tags.begin();
+        auto it_tag = it_elem->tags.begin();
         for (; it_tag != it_elem->tags.end(); ++it_tag)
         {
           if (it_tag->first == *it_k)
@@ -1439,7 +1431,7 @@ void Query_Statement::filter_by_tags(std::map< Uint31_Index, std::vector< Derive
       std::vector< std::pair< std::string, Regular_Expression* > >::const_iterator it_kr = key_regexes.begin();
       for (; it_kr != key_regexes.end(); ++it_kr)
       {
-        std::vector< std::pair< std::string, std::string > >::const_iterator it_tag = it_elem->tags.begin();
+        auto it_tag = it_elem->tags.begin();
         for (; it_tag != it_elem->tags.end(); ++it_tag)
         {
           if (it_tag->first == it_kr->first && it_kr->second->matches(it_tag->second))
@@ -1454,7 +1446,7 @@ void Query_Statement::filter_by_tags(std::map< Uint31_Index, std::vector< Derive
       std::vector< std::pair< std::string, std::string > >::const_iterator it_nkv = key_nvalues.begin();
       for (; it_nkv != key_nvalues.end(); ++it_nkv)
       {
-        std::vector< std::pair< std::string, std::string > >::const_iterator it_tag = it_elem->tags.begin();
+        auto it_tag = it_elem->tags.begin();
         for (; it_tag != it_elem->tags.end(); ++it_tag)
         {
           if (it_tag->first == it_nkv->first && it_tag->second == it_nkv->second)
@@ -1469,7 +1461,7 @@ void Query_Statement::filter_by_tags(std::map< Uint31_Index, std::vector< Derive
       std::vector< std::pair< std::string, Regular_Expression* > >::const_iterator it_nkr = key_nregexes.begin();
       for (; it_nkr != key_nregexes.end(); ++it_nkr)
       {
-        std::vector< std::pair< std::string, std::string > >::const_iterator it_tag = it_elem->tags.begin();
+        auto it_tag = it_elem->tags.begin();
         for (; it_tag != it_elem->tags.end(); ++it_tag)
         {
           if (it_tag->first == it_nkr->first && it_nkr->second->matches(it_tag->second))
@@ -1622,7 +1614,7 @@ void Query_Statement::collect_nodes(std::vector< Id_Type >& ids,
 				 bool& invert_ids, Answer_State& answer_state, Set& into,
 				 Resource_Manager& rman)
 {
-  for (std::vector< Query_Constraint* >::iterator it = constraints.begin();
+  for (auto it = constraints.begin();
       it != constraints.end() && answer_state < data_collected; ++it)
   {
     if ((*it)->collect_nodes(rman, into, ids, invert_ids))
@@ -1636,7 +1628,7 @@ void Query_Statement::collect_elems(int type, std::vector< Id_Type >& ids,
 				 bool& invert_ids, Answer_State& answer_state, Set& into,
 				 Resource_Manager& rman)
 {
-  for (std::vector< Query_Constraint* >::iterator it = constraints.begin();
+  for (auto it = constraints.begin();
       it != constraints.end() && answer_state < data_collected; ++it)
   {
     if ((*it)->collect(rman, into, type, ids, invert_ids))
@@ -1647,7 +1639,7 @@ void Query_Statement::collect_elems(int type, std::vector< Id_Type >& ids,
 
 void Query_Statement::collect_elems(Answer_State& answer_state, Set& into, Resource_Manager& rman)
 {
-  for (std::vector< Query_Constraint* >::iterator it = constraints.begin();
+  for (auto it = constraints.begin();
       it != constraints.end() && answer_state < data_collected; ++it)
   {
     if ((*it)->collect(rman, into))
@@ -1664,7 +1656,7 @@ std::set< std::pair< Index, Index > > intersect_ranges
   std::set< std::pair< Index, Index > > result;
 
   unsigned long long sum = 0;
-  for (typename std::set< std::pair< Index, Index > >::const_iterator it = range_a.begin();
+  for (auto it = range_a.begin();
        it != range_a.end(); ++it)
     sum += difference(it->first, it->second);
 
@@ -1673,7 +1665,7 @@ std::set< std::pair< Index, Index > > intersect_ranges
 
   std::sort(range_vec.begin(), range_vec.end());
 
-  typename std::set< std::pair< Index, Index > >::const_iterator it_a = range_a.begin();
+  auto it_a = range_a.begin();
   typename std::vector< Index >::const_iterator it_vec = range_vec.begin();
 
   while (it_a != range_a.end() && it_vec != range_vec.end())
@@ -1704,8 +1696,7 @@ void Query_Statement::apply_all_filters(
   set_progress(5);
   rman.health_check(*this);
 
-  for (std::vector< Query_Constraint* >::iterator it = constraints.begin();
-      it != constraints.end(); ++it)
+  for (auto it = constraints.begin(); it != constraints.end(); ++it)
     (*it)->filter(rman, into);
 
   set_progress(6);
@@ -1738,8 +1729,7 @@ void Query_Statement::apply_all_filters(
   set_progress(8);
   rman.health_check(*this);
 
-  for (std::vector< Query_Constraint* >::iterator it = constraints.begin();
-      it != constraints.end(); ++it)
+  for (auto it = constraints.begin(); it != constraints.end(); ++it)
     (*it)->filter(*this, rman, into);
 }
 
@@ -1764,7 +1754,7 @@ void Query_Statement::execute(Resource_Manager& rman)
   rman.health_check(*this);
 
   Query_Filter_Strategy check_keys_late = ids_required;
-  for (std::vector< Query_Constraint* >::iterator it = constraints.begin(); it != constraints.end(); ++it)
+  for (auto it = constraints.begin(); it != constraints.end(); ++it)
     check_keys_late = std::max(check_keys_late, (*it)->delivers_data(rman));
 
   {
@@ -1819,7 +1809,7 @@ void Query_Statement::execute(Resource_Manager& rman)
 
     if (type & QUERY_NODE)
     {
-      for (std::vector< Query_Constraint* >::iterator it = constraints.begin();
+      for (auto it = constraints.begin();
           it != constraints.end() && node_answer_state < data_collected; ++it)
       {
 	std::vector< Node::Id_Type > constraint_node_ids;
@@ -1843,7 +1833,7 @@ void Query_Statement::execute(Resource_Manager& rman)
     }
     if (type & QUERY_WAY)
     {
-      for (std::vector< Query_Constraint* >::iterator it = constraints.begin();
+      for (auto it = constraints.begin();
           it != constraints.end() && way_answer_state < data_collected; ++it)
       {
 	std::vector< Way::Id_Type > constraint_way_ids;
@@ -1867,7 +1857,7 @@ void Query_Statement::execute(Resource_Manager& rman)
     }
     if (type & QUERY_RELATION)
     {
-      for (std::vector< Query_Constraint* >::iterator it = constraints.begin();
+      for (auto it = constraints.begin();
           it != constraints.end() && relation_answer_state < data_collected; ++it)
       {
 	std::vector< Relation::Id_Type > constraint_relation_ids;
@@ -1891,7 +1881,7 @@ void Query_Statement::execute(Resource_Manager& rman)
     }
     if (type & QUERY_AREA)
     {
-      for (std::vector< Query_Constraint* >::iterator it = constraints.begin();
+      for (auto it = constraints.begin();
           it != constraints.end() && area_answer_state < data_collected; ++it)
       {
 	std::vector< Area_Skeleton::Id_Type > constraint_area_ids;
@@ -1916,7 +1906,7 @@ void Query_Statement::execute(Resource_Manager& rman)
 
     if (type & QUERY_NODE)
     {
-      for (std::vector< Query_Constraint* >::iterator it = constraints.begin();
+      for (auto it = constraints.begin();
           it != constraints.end() && node_answer_state < data_collected; ++it)
       {
         std::set< std::pair< Uint32_Index, Uint32_Index > > range_req;
@@ -1945,7 +1935,7 @@ void Query_Statement::execute(Resource_Manager& rman)
     }
     if ((type & QUERY_WAY) && way_answer_state < data_collected)
     {
-      for (std::vector< Query_Constraint* >::iterator it = constraints.begin();
+      for (auto it = constraints.begin();
           it != constraints.end(); ++it)
       {
         std::set< std::pair< Uint31_Index, Uint31_Index > > range_req;
@@ -1975,7 +1965,7 @@ void Query_Statement::execute(Resource_Manager& rman)
     }
     if ((type & QUERY_RELATION) && relation_answer_state < data_collected)
     {
-      for (std::vector< Query_Constraint* >::iterator it = constraints.begin();
+      for (auto it = constraints.begin();
           it != constraints.end(); ++it)
       {
         std::set< std::pair< Uint31_Index, Uint31_Index > > range_req;
@@ -2009,7 +1999,7 @@ void Query_Statement::execute(Resource_Manager& rman)
 
     if (type & QUERY_NODE)
     {
-      for (std::vector< Query_Constraint* >::iterator it = constraints.begin();
+      for (auto it = constraints.begin();
           it != constraints.end() && node_answer_state < data_collected; ++it)
       {
 	if ((*it)->get_data(*this, rman, into, range_req_32, node_ids, invert_ids))
@@ -2018,7 +2008,7 @@ void Query_Statement::execute(Resource_Manager& rman)
     }
     if (type & QUERY_WAY)
     {
-      for (std::vector< Query_Constraint* >::iterator it = constraints.begin();
+      for (auto it = constraints.begin();
           it != constraints.end() && way_answer_state < data_collected; ++it)
       {
 	if ((*it)->get_data(*this, rman, into, way_range_req_31, type & QUERY_WAY, way_ids, invert_ids))
@@ -2027,7 +2017,7 @@ void Query_Statement::execute(Resource_Manager& rman)
     }
     if (type & QUERY_RELATION)
     {
-      for (std::vector< Query_Constraint* >::iterator it = constraints.begin();
+      for (auto it = constraints.begin();
           it != constraints.end() && relation_answer_state < data_collected; ++it)
       {
 	if ((*it)->get_data(*this, rman, into, relation_range_req_31, type & QUERY_RELATION,
@@ -2037,7 +2027,7 @@ void Query_Statement::execute(Resource_Manager& rman)
     }
     if (type & QUERY_AREA)
     {
-      for (std::vector< Query_Constraint* >::iterator it = constraints.begin();
+      for (auto it = constraints.begin();
           it != constraints.end() && area_answer_state < data_collected; ++it)
       {
 	if ((*it)->get_data(*this, rman, into, std::set< std::pair< Uint31_Index, Uint31_Index > >(),

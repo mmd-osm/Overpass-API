@@ -69,7 +69,7 @@ public:
     std::string result = indent + "<retro>\n"
           + (timestamp ? timestamp->dump_xml(indent + "  ") : "");
 
-    for (std::vector< Statement* >::const_iterator it = substatements.begin(); it != substatements.end(); ++it)
+    for (auto it = substatements.begin(); it != substatements.end(); ++it)
       result += *it ? (*it)->dump_xml(indent + "  ") : "";
 
     return result + indent + "</retro>\n";
@@ -81,7 +81,7 @@ public:
         + (timestamp ? timestamp->dump_compact_ql("") : "")
         + "){";
 
-    for (std::vector< Statement* >::const_iterator it = substatements.begin(); it != substatements.end(); ++it)
+    for (auto it = substatements.begin(); it != substatements.end(); ++it)
       result += (*it)->dump_compact_ql(indent);
     result += "}";
 
@@ -95,7 +95,7 @@ public:
         + ")\n"
         + indent + "{";
 
-    for (std::vector< Statement* >::const_iterator it = substatements.begin(); it != substatements.end(); ++it)
+    for (auto it = substatements.begin(); it != substatements.end(); ++it)
       result += "\n" + (*it)->dump_pretty_ql(indent + "  ");
     result += "\n" + indent + "}";
 

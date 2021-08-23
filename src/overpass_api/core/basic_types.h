@@ -643,7 +643,7 @@ template< typename Object >
 void copy_elems(const std::vector< Object >& source, std::vector< std::pair< uint, Object > >& target)
 {
   uint i = 0;
-  for (typename std::vector< Object >::const_iterator it = source.begin(); it != source.end(); ++it)
+  for (auto it = source.begin(); it != source.end(); ++it)
     target.push_back(std::make_pair(i++, *it));
 }
 
@@ -660,8 +660,8 @@ void expand_diff(const std::vector< Object >& reference,
   }
 
   target.reserve(reference.size() - removed.size() + added.size());
-  std::vector< uint >::const_iterator it_removed = removed.begin();
-  typename std::vector< std::pair< uint, Object > >::const_iterator it_added = added.begin();
+  auto it_removed = removed.begin();
+  auto it_added = added.begin();
   for (uint i = 0; i < reference.size(); ++i)
   {
     while (it_added != added.end() && target.size() == it_added->first)
@@ -775,7 +775,7 @@ void expand_diff_fast(std::vector< Object >& reference,
   }
 
   // copy added elements
-   typename std::vector< std::pair< uint, Object > >::const_iterator it_added = added.begin();
+   auto it_added = added.begin();
 
    while (it_added != added.end() && target.size() == it_added->first)
    {

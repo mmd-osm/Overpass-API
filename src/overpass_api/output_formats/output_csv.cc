@@ -96,7 +96,7 @@ std::string Output_CSV::dump_config() const
 {
   std::string result = "(";
 
-  for (std::vector< std::pair< std::string, bool > >::const_iterator it = csv_settings.keyfields.begin();
+  for (auto it = csv_settings.keyfields.begin();
       it != csv_settings.keyfields.end(); ++it)
   {
     if (it != csv_settings.keyfields.begin())
@@ -132,7 +132,7 @@ void print_meta(const std::string& keyfield,
     std::cout<<meta.user_id;
   else if (users && keyfield == "user")
   {
-    std::map< uint32, std::string >::const_iterator uit = users->find(meta.user_id);
+    auto uit = users->find(meta.user_id);
     if (uit != users->end())
       std::cout<<uit->second;
   }
@@ -146,7 +146,7 @@ void print_meta< int >(const std::string& keyfield,
 std::string get_count_tag(const std::vector< std::pair< std::string, std::string> >* tags, const std::string& tag)
 {
   if (tags)
-    for (std::vector< std::pair< std::string, std::string> >::const_iterator it_tags = tags->begin();
+    for (auto it_tags = tags->begin();
          it_tags != tags->end(); ++it_tags)
       if (it_tags->first == tag)
         return it_tags->second;
@@ -162,14 +162,14 @@ void process_csv_line(int otype, const std::string& type, Id_Type id, const Opaq
     const Csv_Settings& csv_settings,
     Output_Mode mode)
 {
-  std::vector< std::pair< std::string, bool > >::const_iterator it = csv_settings.keyfields.begin();
+  auto it = csv_settings.keyfields.begin();
   while (true)
   {
     if (!it->second)
     {
       if (tags)
       {
-	for (std::vector< std::pair< std::string, std::string> >::const_iterator it_tags = tags->begin();
+	for (auto it_tags = tags->begin();
 	     it_tags != tags->end(); ++it_tags)
 	{
 	  if (it_tags->first == it->first)

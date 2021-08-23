@@ -230,10 +230,9 @@ int main(int argc, char* args[])
         const Set* default_ = rman.get_set("_");
 	if (default_)
         {
-          for (std::map< Uint32_Index, std::vector< Node_Skeleton > >::const_iterator
-              it1 = default_->nodes.begin(); it1 != default_->nodes.end(); ++it1)
+          for (auto it1 = default_->nodes.begin(); it1 != default_->nodes.end(); ++it1)
           {
-            for (std::vector< Node_Skeleton >::const_iterator it2 = it1->second.begin();
+            for (auto it2 = it1->second.begin();
                 it2 != it1->second.end(); ++it2)
               total.nodes[it1->first].push_back(*it2);
           }

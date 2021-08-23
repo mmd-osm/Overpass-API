@@ -93,7 +93,7 @@ template< class TIndex, class TObject >
 void filter_elems(const std::vector< uint64 > & ids,
 		  std::map< TIndex, std::vector< TObject > >& elems)
 {
-  for (typename std::map< TIndex, std::vector< TObject > >::iterator it = elems.begin();
+  for (auto it = elems.begin();
       it != elems.end(); ++it)
   {
     std::vector< TObject > local_into;
@@ -270,7 +270,7 @@ Id_Query_Statement::Id_Query_Statement
   attributes["lower"] = "";
   attributes["upper"] = "";
 
-  for (std::map<std::string, std::string>::const_iterator it = input_attributes.begin();
+  for (auto it = input_attributes.begin();
       it != input_attributes.end(); ++it)
   {
     if (it->first.find("ref_") == 0)
@@ -308,7 +308,7 @@ Id_Query_Statement::Id_Query_Statement
   if (ref > 0)
     refs.push_back(ref);
 
-  for (std::map< std::string, std::string >::iterator it = attributes.begin();
+  for (auto it = attributes.begin();
       it != attributes.end(); ++it)
   {
     if (it->first.find("ref_") == 0)

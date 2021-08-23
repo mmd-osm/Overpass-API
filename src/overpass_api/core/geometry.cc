@@ -127,7 +127,7 @@ Bbox_Double* calc_bounds(const std::vector< Point_Double >& points)
   double north = -100.0;
   double east = -200.0;
 
-  for (std::vector< Point_Double >::const_iterator it = points.begin(); it != points.end(); ++it)
+  for (auto it = points.begin(); it != points.end(); ++it)
   {
     if (it->lat < 100.)
     {
@@ -146,7 +146,7 @@ Bbox_Double* calc_bounds(const std::vector< Point_Double >& points)
     double wrapped_west = 180.0;
     double wrapped_east = -180.0;
 
-    for (std::vector< Point_Double >::const_iterator it = points.begin(); it != points.end(); ++it)
+    for (auto it = points.begin(); it != points.end(); ++it)
     {
       if (it->lat < 100.)
       {
@@ -224,7 +224,7 @@ double Linestring_Geometry::east() const
 
 bool Linestring_Geometry::relevant_to_bbox(const Bbox_Double& bbox) const
 {
-  for (std::vector< Point_Double >::const_iterator it = points.begin(); it != points.end(); ++it)
+  for (auto it = points.begin(); it != points.end(); ++it)
   {
     if (bbox.contains(*it))
       return true;
@@ -352,7 +352,7 @@ void Partial_Way_Geometry::add_point(const Point_Double& point)
 
 bool Partial_Way_Geometry::relevant_to_bbox(const Bbox_Double& bbox) const
 {
-  for (std::vector< Point_Double >::const_iterator it = points.begin(); it != points.end(); ++it)
+  for (auto it = points.begin(); it != points.end(); ++it)
   {
     if (it->lat < 100. && bbox.contains(*it))
       return true;
@@ -375,10 +375,9 @@ Bbox_Double* calc_bounds(const std::vector< std::vector< Point_Double > >& lines
   double north = -100.0;
   double east = -200.0;
 
-  for (std::vector< std::vector< Point_Double > >::const_iterator iti = linestrings.begin();
-      iti != linestrings.end(); ++iti)
+  for (auto iti = linestrings.begin(); iti != linestrings.end(); ++iti)
   {
-    for (std::vector< Point_Double >::const_iterator it = iti->begin(); it != iti->end(); ++it)
+    for (auto it = iti->begin(); it != iti->end(); ++it)
     {
       if (it->lat < 100.)
       {
@@ -398,10 +397,9 @@ Bbox_Double* calc_bounds(const std::vector< std::vector< Point_Double > >& lines
     double wrapped_west = 180.0;
     double wrapped_east = -180.0;
 
-    for (std::vector< std::vector< Point_Double > >::const_iterator iti = linestrings.begin();
-        iti != linestrings.end(); ++iti)
+    for (auto iti = linestrings.begin(); iti != linestrings.end(); ++iti)
     {
-      for (std::vector< Point_Double >::const_iterator it = iti->begin(); it != iti->end(); ++it)
+      for (auto it = iti->begin(); it != iti->end(); ++it)
       {
         if (it->lat < 100.)
         {
@@ -426,7 +424,7 @@ Bbox_Double* calc_bounds(const std::vector< std::vector< Point_Double > >& lines
 
 Free_Polygon_Geometry::Free_Polygon_Geometry(const std::vector< std::vector< Point_Double > >& linestrings_) : linestrings(linestrings_), bounds(0)
 {
-  for (std::vector< std::vector< Point_Double > >::iterator it = linestrings.begin(); it != linestrings.end();
+  for (auto it = linestrings.begin(); it != linestrings.end();
       ++it)
   {
     if (it->front() != it->back())
@@ -608,18 +606,16 @@ void toggle_if_inside(bool& is_inside, bool& on_vertex, bool& on_segment, double
 
 bool Free_Polygon_Geometry::relevant_to_bbox(const Bbox_Double& bbox) const
 {
-  for (std::vector< std::vector< Point_Double > >::const_iterator iti = linestrings.begin();
-      iti != linestrings.end(); ++iti)
+  for (auto iti = linestrings.begin(); iti != linestrings.end(); ++iti)
   {
-    for (std::vector< Point_Double >::const_iterator it = iti->begin(); it != iti->end(); ++it)
+    for (auto it = iti->begin(); it != iti->end(); ++it)
     {
       if (bbox.contains(*it))
         return true;
     }
   }
 
-  for (std::vector< std::vector< Point_Double > >::const_iterator iti = linestrings.begin();
-      iti != linestrings.end(); ++iti)
+  for (auto iti = linestrings.begin(); iti != linestrings.end(); ++iti)
   {
     for (uint i = 1; i < iti->size(); ++i)
     {
@@ -843,7 +839,7 @@ void add_segment(std::map< uint32, std::vector< unsigned int > >& segments_per_i
 
 void replace_segment(std::vector< unsigned int >& segments, unsigned int old_pos, unsigned int new_pos)
 {
-  for (std::vector< unsigned int >::iterator it = segments.begin(); it != segments.end(); ++it)
+  for (auto it = segments.begin(); it != segments.end(); ++it)
   {
     if (*it == old_pos)
       *it = new_pos;
@@ -1074,7 +1070,7 @@ void split_segments(
     std::vector< unsigned int >& gap_positions,
     std::map< uint32, std::vector< unsigned int > >& segments_per_idx)
 {
-  for (std::map< uint32, std::vector< unsigned int > >::iterator idx_it = segments_per_idx.begin();
+  for (auto idx_it = segments_per_idx.begin();
       idx_it != segments_per_idx.end(); ++idx_it)
   {
     Point_Double isect(100, 0);
@@ -1153,8 +1149,7 @@ void collect_divertions(const std::vector< Point_Double >& all_segments,
 {
   std::vector< Idx_Per_Point_Double > pos_per_pt;
 
-  for (std::vector< unsigned int >::const_iterator seg_it = segments.begin();
-      seg_it != segments.end(); ++seg_it)
+  for (auto seg_it = segments.begin(); seg_it != segments.end(); ++seg_it)
   {
     uint32 lhs_ilat = ::ilat(all_segments[*seg_it].lat);
     int32 lhs_ilon = ::ilon(all_segments[*seg_it].lon);
@@ -1299,7 +1294,7 @@ private:
 void RHR_Polygon_Area_Oracle::build_area(
     bool sw_corner_inside, int32 value, bool* se_corner_inside, bool* nw_corner_inside)
 {
-  std::map< uint32, std::vector< unsigned int > >::const_iterator spi_it = segments_per_idx->find(value);
+  auto spi_it = segments_per_idx->find(value);
   if (spi_it == segments_per_idx->end())
     return;
 
@@ -1312,8 +1307,7 @@ void RHR_Polygon_Area_Oracle::build_area(
     {
       *nw_corner_inside = sw_corner_inside;
 
-      for (std::vector< unsigned int >::const_iterator seg_it = spi_it->second.begin();
-          seg_it != spi_it->second.end(); ++seg_it)
+      for (auto seg_it = spi_it->second.begin(); seg_it != spi_it->second.end(); ++seg_it)
       {
         int32 lhs_ilon = ::ilon((*all_segments)[*seg_it].lon) & 0xffff0000;
         int32 rhs_ilon = ::ilon((*all_segments)[*seg_it+1].lon) & 0xffff0000;
@@ -1335,8 +1329,7 @@ void RHR_Polygon_Area_Oracle::build_area(
     {
       *se_corner_inside = sw_corner_inside;
 
-      for (std::vector< unsigned int >::const_iterator seg_it = spi_it->second.begin();
-          seg_it != spi_it->second.end(); ++seg_it)
+      for (auto seg_it = spi_it->second.begin(); seg_it != spi_it->second.end(); ++seg_it)
       {
         uint32 lhs_ilat = ::ilat((*all_segments)[*seg_it].lat) & 0xffff0000;
         uint32 rhs_ilat = ::ilat((*all_segments)[*seg_it+1].lat) & 0xffff0000;
@@ -1360,8 +1353,7 @@ void RHR_Polygon_Area_Oracle::build_area(
     {
       *nw_corner_inside = sw_corner_inside;
 
-      for (std::vector< unsigned int >::const_iterator seg_it = spi_it->second.begin();
-          seg_it != spi_it->second.end(); ++seg_it)
+      for (auto seg_it = spi_it->second.begin(); seg_it != spi_it->second.end(); ++seg_it)
       {
         double lhs_lon = (*all_segments)[*seg_it].lon;
         lhs_lon -= lhs_lon > 0 ? 360. : 0.;
@@ -1403,8 +1395,7 @@ void RHR_Polygon_Area_Oracle::build_area(
     {
       *se_corner_inside = sw_corner_inside;
 
-      for (std::vector< unsigned int >::const_iterator seg_it = spi_it->second.begin();
-          seg_it != spi_it->second.end(); ++seg_it)
+      for (auto seg_it = spi_it->second.begin(); seg_it != spi_it->second.end(); ++seg_it)
       {
         uint32 lhs_ilat = ::ilat((*all_segments)[*seg_it].lat) & 0xffff0000;
         uint32 rhs_ilat = ::ilat((*all_segments)[*seg_it+1].lat) & 0xffff0000;
@@ -1435,7 +1426,7 @@ Area_Oracle::point_status RHR_Polygon_Area_Oracle::get_point_status(int32 value,
   if (value == 1)
     return 1;
 
-  std::map< uint32, std::vector< unsigned int > >::const_iterator spi_it = segments_per_idx->find(value);
+  auto spi_it = segments_per_idx->find(value);
   if (spi_it == segments_per_idx->end())
     return 0;
 
@@ -1447,7 +1438,7 @@ Area_Oracle::point_status RHR_Polygon_Area_Oracle::get_point_status(int32 value,
   bool is_inside = (inside_corners.find(value) != inside_corners.end());
   // is_inside is now true iff the sw corner is inside the area
 
-  for (std::vector< unsigned int >::const_iterator seg_it = spi_it->second.begin();
+  for (auto seg_it = spi_it->second.begin();
       seg_it != spi_it->second.end(); ++seg_it)
     toggle_if_inside(is_inside, on_vertex, on_segment, border_lat, border_lon, Point_Double(lat, lon),
         (*all_segments)[*seg_it], (*all_segments)[*seg_it+1]);
@@ -1533,8 +1524,7 @@ RHR_Polygon_Geometry::RHR_Polygon_Geometry(const Free_Polygon_Geometry& rhs) : b
 
   four_field_idx.compute_inside_parts();
 
-  for (std::vector< std::vector< Point_Double > >::iterator lstr_it = linestrings.begin();
-      lstr_it != linestrings.end(); ++lstr_it)
+  for (auto lstr_it = linestrings.begin(); lstr_it != linestrings.end(); ++lstr_it)
   {
     if (lstr_it->size() > 2)
     {
@@ -1638,17 +1628,17 @@ double RHR_Polygon_Geometry::east() const
 
 bool RHR_Polygon_Geometry::relevant_to_bbox(const Bbox_Double& bbox) const
 {
-  for (std::vector< std::vector< Point_Double > >::const_iterator iti = linestrings.begin();
+  for (auto iti = linestrings.begin();
       iti != linestrings.end(); ++iti)
   {
-    for (std::vector< Point_Double >::const_iterator it = iti->begin(); it != iti->end(); ++it)
+    for (auto it = iti->begin(); it != iti->end(); ++it)
     {
       if (bbox.contains(*it))
         return true;
     }
   }
 
-  for (std::vector< std::vector< Point_Double > >::const_iterator iti = linestrings.begin();
+  for (auto iti = linestrings.begin();
       iti != linestrings.end(); ++iti)
   {
     for (uint i = 1; i < iti->size(); ++i)
@@ -1663,7 +1653,7 @@ bool RHR_Polygon_Geometry::relevant_to_bbox(const Bbox_Double& bbox) const
   bool on_segment = false;
   Point_Double bbox_center(bbox.center_lat(), bbox.center_lon());
 
-  for (std::vector< std::vector< Point_Double > >::const_iterator iti = linestrings.begin();
+  for (auto iti = linestrings.begin();
       iti != linestrings.end(); ++iti)
   {
     for (uint i = 1; i < iti->size(); ++i)
@@ -1677,7 +1667,7 @@ bool RHR_Polygon_Geometry::relevant_to_bbox(const Bbox_Double& bbox) const
 Opaque_Geometry* Compound_Geometry::clone() const
 {
   std::vector< Opaque_Geometry* > cloned;
-  for (std::vector< Opaque_Geometry* >::const_iterator it = components.begin(); it != components.end(); ++it)
+  for (auto it = components.begin(); it != components.end(); ++it)
     cloned.push_back((*it)->clone());
   return new Compound_Geometry(cloned);
 }
@@ -1691,7 +1681,7 @@ Bbox_Double* calc_bounds(const std::vector< Opaque_Geometry* >& components)
   double east = -200.0;
   bool wrapped = false;
 
-  for (std::vector< Opaque_Geometry* >::const_iterator it = components.begin(); it != components.end(); ++it)
+  for (auto it = components.begin(); it != components.end(); ++it)
   {
     if ((*it)->has_bbox())
     {
@@ -1711,7 +1701,7 @@ Bbox_Double* calc_bounds(const std::vector< Opaque_Geometry* >& components)
 
   west = 200.;
   east = -200.;
-  for (std::vector< Opaque_Geometry* >::const_iterator it = components.begin(); it != components.end(); ++it)
+  for (auto it = components.begin(); it != components.end(); ++it)
   {
     if (!(*it)->has_bbox())
       continue;
@@ -1872,7 +1862,7 @@ void Compound_Geometry::add_component(Opaque_Geometry* component)
 
 bool Compound_Geometry::relevant_to_bbox(const Bbox_Double& bbox) const
 {
-  for (std::vector< Opaque_Geometry* >::const_iterator it = components.begin(); it != components.end(); ++it)
+  for (auto it = components.begin(); it != components.end(); ++it)
   {
     if ((*it)->relevant_to_bbox(bbox))
       return true;
@@ -1885,7 +1875,7 @@ bool Compound_Geometry::relevant_to_bbox(const Bbox_Double& bbox) const
 Opaque_Geometry* Partial_Relation_Geometry::clone() const
 {
   std::vector< Opaque_Geometry* > cloned;
-  for (std::vector< Opaque_Geometry* >::const_iterator it = components.begin(); it != components.end(); ++it)
+  for (auto it = components.begin(); it != components.end(); ++it)
     cloned.push_back((*it)->clone());
   return new Partial_Relation_Geometry(cloned);
 }
@@ -2072,7 +2062,7 @@ void Partial_Relation_Geometry::add_way_point(const Point_Double& point)
   delete bounds;
   bounds = 0;
 
-  Partial_Way_Geometry* geom = dynamic_cast< Partial_Way_Geometry* >(components.back());
+  auto* geom = dynamic_cast< Partial_Way_Geometry* >(components.back());
   if (geom)
   {
     has_coords = true;
@@ -2083,7 +2073,7 @@ void Partial_Relation_Geometry::add_way_point(const Point_Double& point)
 
 void Partial_Relation_Geometry::add_way_placeholder()
 {
-  Partial_Way_Geometry* geom = dynamic_cast< Partial_Way_Geometry* >(components.back());
+  auto* geom = dynamic_cast< Partial_Way_Geometry* >(components.back());
   if (geom)
     geom->add_point(Point_Double(100., 200.));
 }
@@ -2091,7 +2081,7 @@ void Partial_Relation_Geometry::add_way_placeholder()
 
 bool Partial_Relation_Geometry::relevant_to_bbox(const Bbox_Double& bbox) const
 {
-  for (std::vector< Opaque_Geometry* >::const_iterator it = components.begin(); it != components.end(); ++it)
+  for (auto it = components.begin(); it != components.end(); ++it)
   {
     if ((*it)->relevant_to_bbox(bbox))
       return true;
@@ -2122,7 +2112,7 @@ double length(const Opaque_Geometry& geometry)
   if (geometry.has_components())
   {
     const std::vector< Opaque_Geometry* >* components = geometry.get_components();
-    for (std::vector< Opaque_Geometry* >::const_iterator it = components->begin(); it != components->end(); ++it)
+    for (auto it = components->begin(); it != components->end(); ++it)
       result += (*it ? length(**it) : 0);
   }
   else if (geometry.has_line_geometry())
@@ -2151,7 +2141,7 @@ void collect_components(
   if (geometry.has_components())
   {
     const std::vector< Opaque_Geometry* >& components = *geometry.get_components();
-    for (std::vector< Opaque_Geometry* >::const_iterator it = components.begin(); it != components.end(); ++it)
+    for (auto it = components.begin(); it != components.end(); ++it)
     {
       if (*it)
         collect_components(nodes, linestrings, **it);
@@ -2162,7 +2152,7 @@ void collect_components(
   else if (geometry.has_multiline_geometry())
   {
     const std::vector< std::vector< Point_Double > >& lstrs = *geometry.get_multiline_geometry();
-    for (std::vector< std::vector< Point_Double > >::const_iterator it = lstrs.begin(); it != lstrs.end(); ++it)
+    for (auto it = lstrs.begin(); it != lstrs.end(); ++it)
       linestrings.push_back(*it);
   }
   else if (geometry.has_center())
@@ -2242,7 +2232,7 @@ Opaque_Geometry* make_trace(const Opaque_Geometry& geometry)
       ++coord_count[(*lit)[i]];
   }
 
-  Compound_Geometry* result = new Compound_Geometry();
+  auto* result = new Compound_Geometry();
 
   for (std::vector< Point_Double >::const_iterator it = nodes.begin(); it != nodes.end(); ++it)
     result->add_component(new Point_Geometry(it->lat, it->lon));
@@ -2262,7 +2252,7 @@ Opaque_Geometry* make_trace(const Opaque_Geometry& geometry)
       {
         points.push_back((*lit)[i]);
 
-        Linestring_Geometry* lstr = new Linestring_Geometry(points);
+        auto* lstr = new Linestring_Geometry(points);
         if (lstrs.insert(Linestring_Geometry_Ptr(lstr)).second)
           result->add_component(lstr);
         else
@@ -2273,7 +2263,7 @@ Opaque_Geometry* make_trace(const Opaque_Geometry& geometry)
       points.push_back((*lit)[i]);
     }
     points.push_back(lit->back());
-    Linestring_Geometry* lstr = new Linestring_Geometry(points);
+    auto* lstr = new Linestring_Geometry(points);
     if (lstrs.insert(Linestring_Geometry_Ptr(lstr)).second)
       result->add_component(lstr);
     else
@@ -2289,7 +2279,7 @@ void collect_components(std::vector< Point_Double >& nodes, const Opaque_Geometr
   if (geometry.has_components())
   {
     const std::vector< Opaque_Geometry* >& components = *geometry.get_components();
-    for (std::vector< Opaque_Geometry* >::const_iterator it = components.begin(); it != components.end(); ++it)
+    for (auto it = components.begin(); it != components.end(); ++it)
     {
       if (*it)
         collect_components(nodes, **it);
@@ -2298,15 +2288,15 @@ void collect_components(std::vector< Point_Double >& nodes, const Opaque_Geometr
   else if (geometry.has_line_geometry())
   {
     const std::vector< Point_Double >& lstrs = *geometry.get_line_geometry();
-    for (std::vector< Point_Double >::const_iterator it = lstrs.begin(); it != lstrs.end(); ++it)
+    for (auto it = lstrs.begin(); it != lstrs.end(); ++it)
       nodes.push_back(*it);
   }
   else if (geometry.has_multiline_geometry())
   {
     const std::vector< std::vector< Point_Double > >& lstrs = *geometry.get_multiline_geometry();
-    for (std::vector< std::vector< Point_Double > >::const_iterator lit = lstrs.begin(); lit != lstrs.end(); ++lit)
+    for (auto lit = lstrs.begin(); lit != lstrs.end(); ++lit)
     {
-      for (std::vector< Point_Double >::const_iterator it = lit->begin(); it != lit->end(); ++it)
+      for (auto it = lit->begin(); it != lit->end(); ++it)
         nodes.push_back(*it);
     }
   }
@@ -2407,7 +2397,7 @@ void Proto_Hull::enhance(const Point_Double& rhs)
 {
   Spherical_Vector s_pt(rhs);
 
-  std::vector< Hull_Segment >::iterator from_it = segments.begin();
+  auto from_it = segments.begin();
   while (from_it != segments.end() && from_it->edge*s_pt < 1e-8)
     ++from_it;
 
@@ -2422,7 +2412,7 @@ void Proto_Hull::enhance(const Point_Double& rhs)
       ++from_it;
       segments.erase(from_it, segments.end());
 
-      std::vector< Hull_Segment >::iterator to_it = segments.begin();
+      auto to_it = segments.begin();
       while (to_it != segments.end() && to_it->edge*s_pt >= 0)
         ++to_it;
       --to_it;
@@ -2441,7 +2431,7 @@ void Proto_Hull::enhance(const Point_Double& rhs)
     }
     else
     {
-      std::vector< Hull_Segment >::iterator to_it = from_it;
+      auto to_it = from_it;
       while (to_it != segments.end() && to_it->edge*s_pt >= 0)
         ++to_it;
       --to_it;
@@ -2473,7 +2463,7 @@ std::vector< Point_Double > Proto_Hull::get_line_geometry() const
 {
   std::vector< Point_Double > result;
   result.reserve(segments.size());
-  for (std::vector< Hull_Segment >::const_iterator it = segments.begin(); it != segments.end(); ++it)
+  for (auto it = segments.begin(); it != segments.end(); ++it)
     result.push_back(it->ll_pt);
   return result;
 }

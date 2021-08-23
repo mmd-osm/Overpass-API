@@ -44,7 +44,7 @@ Statement* Evaluator_Point::Evaluator_Maker::create_evaluator(
     return 0;
 
   std::map< std::string, std::string > attributes;
-  Evaluator_Point* result = new Evaluator_Point(tree_it->line_col.first, attributes, global_settings);
+  auto* result = new Evaluator_Point(tree_it->line_col.first, attributes, global_settings);
   if (tree_it.rhs()->token == "," && tree_it.rhs()->lhs && tree_it.rhs()->rhs)
   {
     Statement* first = stmt_factory.create_evaluator(
@@ -79,7 +79,7 @@ Evaluator_Point::Evaluator_Point
 
 void Evaluator_Point::add_statement(Statement* statement, std::string text)
 {
-  Evaluator* eval = dynamic_cast< Evaluator* >(statement);
+  auto* eval = dynamic_cast< Evaluator* >(statement);
   if (!eval)
     substatement_error(get_name(), statement);
   else if (!lat)
@@ -114,7 +114,7 @@ Requested_Context Evaluator_Point::request_context() const
 Opaque_Geometry* Eval_Linestring_Geometry_Task::make_linestring(const std::vector< Eval_Geometry_Task* >& tasks)
 {
   std::vector< Point_Double > points;
-  for (std::vector< Eval_Geometry_Task* >::const_iterator it = tasks.begin(); it != tasks.end(); ++it)
+  for (auto it = tasks.begin(); it != tasks.end(); ++it)
   {
     Owner< Opaque_Geometry > geom((*it)->eval());
     if (geom && geom->has_center())
@@ -129,7 +129,7 @@ Opaque_Geometry* Eval_Linestring_Geometry_Task::make_linestring(
       const std::vector< Eval_Geometry_Task* >& tasks, const Context& data)
 {
   std::vector< Point_Double > points;
-  for (std::vector< Eval_Geometry_Task* >::const_iterator it = tasks.begin(); it != tasks.end(); ++it)
+  for (auto it = tasks.begin(); it != tasks.end(); ++it)
   {
     Owner< Opaque_Geometry > geom((*it)->eval(data));
     if (geom && geom->has_center())
@@ -152,7 +152,7 @@ Statement* Evaluator_Linestring::Evaluator_Maker::create_evaluator(
     return 0;
 
   std::map< std::string, std::string > attributes;
-  Evaluator_Linestring* result = new Evaluator_Linestring(tree_it->line_col.first, attributes, global_settings);
+  auto* result = new Evaluator_Linestring(tree_it->line_col.first, attributes, global_settings);
 
   std::vector< Token_Node_Ptr > args;
   Token_Node_Ptr args_tree = tree_it.rhs();
@@ -196,7 +196,7 @@ Evaluator_Linestring::Evaluator_Linestring
 
 void Evaluator_Linestring::add_statement(Statement* statement, std::string text)
 {
-  Evaluator* eval = dynamic_cast< Evaluator* >(statement);
+  auto* eval = dynamic_cast< Evaluator* >(statement);
   if (!eval)
     substatement_error(get_name(), statement);
   else
@@ -207,7 +207,7 @@ void Evaluator_Linestring::add_statement(Statement* statement, std::string text)
 Requested_Context Evaluator_Linestring::request_context() const
 {
   Requested_Context result;
-  for (std::vector< Evaluator* >::const_iterator it = points.begin(); it != points.end(); ++it)
+  for (auto it = points.begin(); it != points.end(); ++it)
     result.add((*it)->request_context());
   return result;
 }
@@ -219,7 +219,7 @@ Requested_Context Evaluator_Linestring::request_context() const
 Opaque_Geometry* Eval_Polygon_Geometry_Task::make_polygon(const std::vector< Eval_Geometry_Task* >& tasks)
 {
   Free_Polygon_Geometry polygon;
-  for (std::vector< Eval_Geometry_Task* >::const_iterator it = tasks.begin(); it != tasks.end(); ++it)
+  for (auto it = tasks.begin(); it != tasks.end(); ++it)
   {
     Owner< Opaque_Geometry > geom((*it)->eval());
     if (geom && geom->has_line_geometry())
@@ -234,7 +234,7 @@ Opaque_Geometry* Eval_Polygon_Geometry_Task::make_polygon(
       const std::vector< Eval_Geometry_Task* >& tasks, const Context& data)
 {
   Free_Polygon_Geometry polygon;
-  for (std::vector< Eval_Geometry_Task* >::const_iterator it = tasks.begin(); it != tasks.end(); ++it)
+  for (auto it = tasks.begin(); it != tasks.end(); ++it)
   {
     Owner< Opaque_Geometry > geom((*it)->eval(data));
     if (geom && geom->has_line_geometry())
@@ -257,7 +257,7 @@ Statement* Evaluator_Polygon::Evaluator_Maker::create_evaluator(
     return 0;
 
   std::map< std::string, std::string > attributes;
-  Evaluator_Polygon* result = new Evaluator_Polygon(tree_it->line_col.first, attributes, global_settings);
+  auto* result = new Evaluator_Polygon(tree_it->line_col.first, attributes, global_settings);
 
   std::vector< Token_Node_Ptr > args;
   Token_Node_Ptr args_tree = tree_it.rhs();
@@ -301,7 +301,7 @@ Evaluator_Polygon::Evaluator_Polygon
 
 void Evaluator_Polygon::add_statement(Statement* statement, std::string text)
 {
-  Evaluator* eval = dynamic_cast< Evaluator* >(statement);
+  auto* eval = dynamic_cast< Evaluator* >(statement);
   if (!eval)
     substatement_error(get_name(), statement);
   else
@@ -312,7 +312,7 @@ void Evaluator_Polygon::add_statement(Statement* statement, std::string text)
 Requested_Context Evaluator_Polygon::request_context() const
 {
   Requested_Context result;
-  for (std::vector< Evaluator* >::const_iterator it = linestrings.begin(); it != linestrings.end(); ++it)
+  for (auto it = linestrings.begin(); it != linestrings.end(); ++it)
     result.add((*it)->request_context());
   return result;
 }

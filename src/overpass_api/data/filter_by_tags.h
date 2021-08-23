@@ -160,8 +160,7 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kv(
 
     if (current_timestamp > timestamp)
     {
-      typename std::map< Id_Type, std::pair< uint64, Uint31_Index > >::iterator
-          it = timestamp_per_id.find(it2.handle().id());
+      auto it = timestamp_per_id.find(it2.handle().id());
       if (it != timestamp_per_id.end())
       {
         if (current_timestamp < it->second.first)
@@ -223,8 +222,7 @@ std::vector< std::pair< Id_Type, Uint31_Index > > collect_attic_kv2(
 
     if (current_timestamp > timestamp)
     {
-      typename std::map< Id_Type, std::pair< uint64, Uint31_Index > >::iterator
-          it = timestamp_per_id.find(it2.handle().id());
+      auto it = timestamp_per_id.find(it2.handle().id());
       if (it != timestamp_per_id.end())
       {
         if (current_timestamp < it->second.first)
@@ -359,8 +357,7 @@ std::vector< std::pair < Id_Type, Uint31_Index > > collect_attic_k2(
 
     if (current_timestamp > timestamp && it2.index().value == void_tag_value())   // now remove DELETED elements
     {
-      typename std::map< Id_Type, std::pair< uint64, Uint31_Index > >::iterator
-          it = timestamp_per_id.find(it2.handle().id());
+      auto it = timestamp_per_id.find(it2.handle().id());
       if (it != timestamp_per_id.end())
       {
         if (current_timestamp < it->second.first)
@@ -432,8 +429,7 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kregv(
 
     if (current_timestamp > timestamp)
     {
-      typename std::map< Id_Type, std::pair< uint64, Uint31_Index > >::iterator
-          it = timestamp_per_id.find(it2.handle().id());
+      auto it = timestamp_per_id.find(it2.handle().id());
       if (it != timestamp_per_id.end())
       {
         if (current_timestamp < it->second.first)
@@ -495,8 +491,7 @@ std::vector< std::pair < Id_Type, Uint31_Index > > collect_attic_kregv2(
 
     if (current_timestamp > timestamp)
     {
-      typename std::map< Id_Type, std::pair< uint64, Uint31_Index > >::iterator
-          it = timestamp_per_id.find(it2.handle().id());
+      auto it = timestamp_per_id.find(it2.handle().id());
       if (it != timestamp_per_id.end())
       {
         if (current_timestamp < it->second.first)
@@ -598,12 +593,10 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_regkregv(
 
     if (matches && current_timestamp > timestamp)
     {
-      typename std::map< Id_Type, std::map< std::string, std::pair< uint64, Uint31_Index > > >::iterator
-          it = timestamp_per_id.find(it2.handle().id());
+      auto it = timestamp_per_id.find(it2.handle().id());
       if (it != timestamp_per_id.end())
       {
-	typename std::map< std::string, std::pair< uint64, Uint31_Index > >::iterator
-	    it3 = it->second.find(last_key);
+	auto it3 = it->second.find(last_key);
 	if (it3 != it->second.end())
 	{
 	  if (current_timestamp < it3->second.first)

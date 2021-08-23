@@ -234,14 +234,14 @@ void Osm_Script_Statement::execute(Resource_Manager& rman)
   {
     rman.start_diff(comparison_timestamp, desired_timestamp);
 
-    for (std::vector< Statement* >::iterator it(substatements.begin());
+    for (auto it(substatements.begin());
         it != substatements.end(); ++it)
       (*it)->execute(rman);
 
     rman.switch_diff_rhs(add_deletion_information);
   }
 
-  for (std::vector< Statement* >::iterator it(substatements.begin());
+  for (auto it(substatements.begin());
       it != substatements.end(); ++it)
     (*it)->execute(rman);
 

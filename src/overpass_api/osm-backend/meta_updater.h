@@ -138,13 +138,13 @@ template< typename Index, typename Object >
 void copy_idxs_by_id
     (const std::map< Index, std::set< Object > >& new_data, std::map< uint32, std::vector< uint32 > >& idxs_by_user_id)
 {
-  for (typename std::map< Index, std::set< Object > >::const_iterator it = new_data.begin();
+  for (auto it = new_data.begin();
        it != new_data.end(); ++it)
   {
     uint32 compressed_idx = (it->first.val() & 0xffffff00);
     if ((it->first.val() & 0x80000000) && ((it->first.val() & 0x3) == 0))
       compressed_idx = it->first.val();
-    for (typename std::set< Object >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
       idxs_by_user_id[it2->user_id].push_back(compressed_idx);
   }
 }
@@ -266,9 +266,7 @@ void merge_files
     {
       TIndex current_idx = *current_idxs.begin();
       current_idxs.erase(current_idxs.begin());
-      for (typename std::vector< std::pair< typename Block_Backend< TIndex, TObject >::Flat_Iterator,
-	      typename Block_Backend< TIndex, TObject >::Flat_Iterator > >::iterator
-	  it = from_its.begin(); it != from_its.end(); ++it)
+      for (auto it = from_its.begin(); it != from_its.end(); ++it)
       {
 	while (!(it->first == it->second) && (it->first.index() == current_idx))
 	{

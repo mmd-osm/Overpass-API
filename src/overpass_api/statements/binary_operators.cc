@@ -26,7 +26,7 @@ Evaluator_Pair_Operator::Evaluator_Pair_Operator(int line_number_) : Evaluator(l
 
 void Evaluator_Pair_Operator::add_statement(Statement* statement, std::string text)
 {
-  Evaluator* tag_value_ = dynamic_cast< Evaluator* >(statement);
+  auto* tag_value_ = dynamic_cast< Evaluator* >(statement);
   if (!tag_value_)
     substatement_error(get_name(), statement);
   else if (!lhs)

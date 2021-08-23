@@ -73,10 +73,9 @@ void collect_for_targets_by_string(
     const Valuation_Target& target,
     const Eval_Task& task, Set_With_Context& context_from)
 {
-  for (typename std::map< Index, std::vector< Object > >::const_iterator
-      it_idx = container.begin(); it_idx != container.end(); ++it_idx)
+  for (auto it_idx = container.begin(); it_idx != container.end(); ++it_idx)
   {
-    for (typename std::vector< Object >::const_iterator it_elem = it_idx->second.begin();
+    for (auto it_elem = it_idx->second.begin();
         it_elem != it_idx->second.end(); ++it_elem)
     {
       std::string valuation = task.eval(context_from.get_context(it_idx->first, *it_elem), 0);
@@ -92,10 +91,9 @@ void collect_for_targets_by_container(
     const Valuation_Target& target,
     const Eval_Container_Task& task, Set_With_Context& context_from)
 {
-  for (typename std::map< Index, std::vector< Object > >::const_iterator
-      it_idx = container.begin(); it_idx != container.end(); ++it_idx)
+  for (auto it_idx = container.begin(); it_idx != container.end(); ++it_idx)
   {
-    for (typename std::vector< Object >::const_iterator it_elem = it_idx->second.begin();
+    for (auto it_elem = it_idx->second.begin();
         it_elem != it_idx->second.end(); ++it_elem)
     {
       std::vector< std::string > valuation = task.eval(context_from.get_context(it_idx->first, *it_elem), 0);
@@ -248,14 +246,13 @@ void For_Statement::execute(Resource_Manager& rman)
         *task, *context_from);
   }
 
-  for (std::map< std::string, Set >::iterator it = element_groups.begin(); it != element_groups.end(); ++it)
+  for (auto it = element_groups.begin(); it != element_groups.end(); ++it)
   {
     rman.count_loop();
     rman.swap_set(get_result_name(), it->second);
     rman.set_value(get_result_name(), "val", it->first);
 
-    for (std::vector< Statement* >::iterator it = substatements.begin();
-        it != substatements.end(); ++it)
+    for (auto it = substatements.begin(); it != substatements.end(); ++it)
       (*it)->execute(rman);
   }
 

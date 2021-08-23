@@ -101,7 +101,7 @@ class For_Statement : public Statement
           + (output != "_" ? " into=\"" + output + "\"" : "") + ">\n";
 
       result += evaluator ? evaluator->dump_xml(indent + "  ") : "";
-      for (std::vector< Statement* >::const_iterator it = substatements.begin(); it != substatements.end(); ++it)
+      for (auto it = substatements.begin(); it != substatements.end(); ++it)
         result += *it ? (*it)->dump_xml(indent + "  ") : "";
 
       return result + indent + "</for>\n";
@@ -113,7 +113,7 @@ class For_Statement : public Statement
           + (input != "_" ? "." + input : "") + (output != "_" ? "->." + output : "");
 
       result += "(" + (evaluator ? evaluator->dump_compact_ql(indent) :  "") + "){";
-      for (std::vector< Statement* >::const_iterator it = substatements.begin(); it != substatements.end(); ++it)
+      for (auto it = substatements.begin(); it != substatements.end(); ++it)
         result += (*it)->dump_compact_ql(indent);
       result += "}";
 
@@ -126,7 +126,7 @@ class For_Statement : public Statement
           + (input != "_" ? "." + input : "") + (output != "_" ? "->." + output : "") + "(";
 
       result += (evaluator ? evaluator->dump_pretty_ql(indent) :  "") + "){";
-      for (std::vector< Statement* >::const_iterator it = substatements.begin(); it != substatements.end(); ++it)
+      for (auto it = substatements.begin(); it != substatements.end(); ++it)
         result += "\n" + (*it)->dump_pretty_ql(indent + "  ");
       result += "\n}";
 

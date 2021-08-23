@@ -113,7 +113,7 @@ template< class TIndex, class TObject >
 void filter_elems_fast(const IdSetHybrid<typename TObject::Id_Type::Id_Type>& ids,
                        std::map< TIndex, std::vector< TObject > >& elems)
 {
-  for (typename std::map< TIndex, std::vector< TObject > >::iterator it = elems.begin();
+  for (auto it = elems.begin();
       it != elems.end(); ++it)
   {
     std::vector< TObject > local_into;
@@ -247,18 +247,18 @@ Ids_Dense_Predicate< Index, Skeleton >::Ids_Dense_Predicate(
     const std::map< Index, std::vector< Skeleton > >& current,
     const std::map< Index, std::vector< Attic< Skeleton > > >& attic)
 {
-  for (typename std::map< Index, std::vector< Skeleton > >::const_iterator it_idx = current.begin();
+  for (auto it_idx = current.begin();
       it_idx != current.end(); ++it_idx)
   {
-    for (typename std::vector< Skeleton >::const_iterator it_elem = it_idx->second.begin();
+    for (auto it_elem = it_idx->second.begin();
         it_elem != it_idx->second.end(); ++it_elem)
       ids.set(it_elem->id.val());
   }
 
-  for (typename std::map< Index, std::vector< Attic< Skeleton > > >::const_iterator it_idx = attic.begin();
+  for (auto it_idx = attic.begin();
       it_idx != attic.end(); ++it_idx)
   {
-    for (typename std::vector< Attic< Skeleton > >::const_iterator it_elem = it_idx->second.begin();
+    for (auto it_elem = it_idx->second.begin();
         it_elem != it_idx->second.end(); ++it_elem)
       ids.set(it_elem->id.val());
   }

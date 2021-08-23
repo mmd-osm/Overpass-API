@@ -38,7 +38,7 @@ template< typename Index, typename Skeleton >
 unsigned int count(const std::map< Index, std::vector< Skeleton > >& elems)
 {
   uint result = 0;
-  for (typename std::map< Index, std::vector< Skeleton > >::const_iterator it = elems.begin();
+  for (auto it = elems.begin();
        it != elems.end(); ++it)
     result += it->second.size();
   return result;
@@ -152,7 +152,7 @@ inline bool string_represents_boolean_true(const std::string& val)
 template< typename Index, typename Object >
 void sort_second(std::map< Index, std::vector< Object > >& items)
 {
-  for (typename std::map< Index, std::vector< Object > >::iterator it = items.begin(); it != items.end(); ++it)
+  for (auto it = items.begin(); it != items.end(); ++it)
     if (!std::is_sorted(it->second.begin(), it->second.end()))
       std::sort(it->second.begin(), it->second.end());
 }

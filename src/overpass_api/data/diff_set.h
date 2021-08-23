@@ -155,7 +155,7 @@ public:
   explicit Double_Coords(const std::vector< Quad_Coord >& geometry)
     : min_lat(100.0), max_lat(-100.0), min_lon(200.0), max_lon(-200.0)
   {
-    for (std::vector< Quad_Coord >::const_iterator it = geometry.begin(); it != geometry.end(); ++it)
+    for (auto it = geometry.begin(); it != geometry.end(); ++it)
     {
       if (it->ll_upper != 0 || it->ll_lower != 0)
       {
@@ -172,10 +172,10 @@ public:
   explicit Double_Coords(const std::vector< std::vector< Quad_Coord > >& geometry)
     : min_lat(100.0), max_lat(-100.0), min_lon(200.0), max_lon(-200.0)
   {
-    for (std::vector< std::vector< Quad_Coord > >::const_iterator it = geometry.begin();
+    for (auto it = geometry.begin();
          it != geometry.end(); ++it)
     {
-      for (std::vector< Quad_Coord >::const_iterator it2 = it->begin(); it2 != it->end(); ++it2)
+      for (auto it2 = it->begin(); it2 != it->end(); ++it2)
       {
         if (it2->ll_upper != 0 || it2->ll_lower != 0)
         {

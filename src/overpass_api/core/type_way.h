@@ -89,7 +89,7 @@ inline uint32 calculate_nds_compressed_size(const std::vector< Node::Id_Type >& 
   Node::Id_Type prev = (uint64) 0;
   uint32 compressed_size = 0;
 
-  for (std::vector< Node_Skeleton::Id_Type>::const_iterator it = nds_.begin();
+  for (auto it = nds_.begin();
       it != nds_.end(); ++it)
   {
     int64_t diff = (int64_t) it->val() - (int64_t) prev.val();
@@ -106,7 +106,7 @@ uint8* compress_nds(const std::vector< Node::Id_Type >& nds_, uint8* buffer_)
   char* buffer = (char*) buffer_;
   Node::Id_Type prev = (uint64) 0;
 
-  for (std::vector< Node_Skeleton::Id_Type>::const_iterator it = nds_.begin();
+  for (auto it = nds_.begin();
        it != nds_.end(); ++it)
   {
     int64_t delta = (int64_t) it->val() - (int64_t) prev.val();
@@ -178,7 +178,7 @@ struct Way_Skeleton
 
     d->nds.reserve(*((uint16*)data + 2));
 
-    uint16* start_ptr = (uint16*) decompress_nds(d->nds, *((uint16*)data + 2), *((uint16*)data + 4), ((uint8*)data + 10));
+    auto* start_ptr = (uint16*) decompress_nds(d->nds, *((uint16*)data + 2), *((uint16*)data + 4), ((uint8*)data + 10));
 
     d->geometry.reserve(*((uint16*)data + 3));
     for (int i(0); i < *((uint16*)data + 3); ++i)
@@ -235,8 +235,8 @@ struct Way_Skeleton
     *((uint16*)data + 2) = d->nds.size();
     *((uint16*)data + 3) = d->geometry.size();
 
-    uint16* start_ptr = (uint16*) compress_nds(d->nds, (uint8*)data + 10);
-    uint16 nds_compressed_size = (uint16) ((uint8*)start_ptr - ((uint8*)data + 10));
+    auto* start_ptr = (uint16*) compress_nds(d->nds, (uint8*)data + 10);
+    auto nds_compressed_size = (uint16) ((uint8*)start_ptr - ((uint8*)data + 10));
     *((uint16*)data + 4) = nds_compressed_size;
 
     for (uint i(0); i < d->geometry.size(); ++i)

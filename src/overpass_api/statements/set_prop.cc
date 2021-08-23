@@ -156,7 +156,7 @@ Set_Prop_Statement::Set_Prop_Statement
 
 void Set_Prop_Statement::add_statement(Statement* statement, std::string text)
 {
-  Evaluator* tag_value_ = dynamic_cast< Evaluator* >(statement);
+  auto* tag_value_ = dynamic_cast< Evaluator* >(statement);
   if (tag_value_ && !tag_value)
     tag_value = tag_value_;
   else if (tag_value)
@@ -236,16 +236,16 @@ void eval_elems(std::set< std::string >& existing_keys, Set_With_Context& input_
     const std::map< Index, std::vector< Maybe_Attic > >& elems,
     const std::vector< std::string >& otherwise_set_keys)
 {
-  for (typename std::map< Index, std::vector< Maybe_Attic > >::const_iterator idx_it = elems.begin();
+  for (auto idx_it = elems.begin();
       idx_it != elems.end(); ++idx_it)
   {
-    for (typename std::vector< Maybe_Attic >::const_iterator elem_it = idx_it->second.begin();
+    for (auto elem_it = idx_it->second.begin();
         elem_it != idx_it->second.end(); ++elem_it)
     {
       Element_With_Context< Maybe_Attic > data = input_set.get_context(idx_it->first, *elem_it);
       if (data.tags)
       {
-        for (std::vector< std::pair< std::string, std::string > >::const_iterator it_keys = data.tags->begin();
+        for (auto it_keys = data.tags->begin();
             it_keys != data.tags->end(); ++it_keys)
         {
           if (!std::binary_search(otherwise_set_keys.begin(), otherwise_set_keys.end(), it_keys->first))
@@ -261,16 +261,16 @@ void eval_elems(std::set< std::string >& existing_keys, Set_With_Context& input_
     const std::map< Uint31_Index, std::vector< Derived_Structure > >& elems,
     const std::vector< std::string >& otherwise_set_keys)
 {
-  for (std::map< Uint31_Index, std::vector< Derived_Structure > >::const_iterator idx_it = elems.begin();
+  for (auto idx_it = elems.begin();
       idx_it != elems.end(); ++idx_it)
   {
-    for (std::vector< Derived_Structure >::const_iterator elem_it = idx_it->second.begin();
+    for (auto elem_it = idx_it->second.begin();
         elem_it != idx_it->second.end(); ++elem_it)
     {
       Element_With_Context< Derived_Skeleton > data = input_set.get_context(idx_it->first, *elem_it);
       if (data.tags)
       {
-        for (std::vector< std::pair< std::string, std::string > >::const_iterator it_keys = data.tags->begin();
+        for (auto it_keys = data.tags->begin();
             it_keys != data.tags->end(); ++it_keys)
         {
           if (!std::binary_search(otherwise_set_keys.begin(), otherwise_set_keys.end(), it_keys->first))
@@ -294,7 +294,7 @@ Set_Prop_Task* Set_Prop_Statement::get_task(
         key ? *key : "", mode);
   }
 
-  Set_Prop_Generic_Task* result = new Set_Prop_Generic_Task();
+  auto* result = new Set_Prop_Generic_Task();
 
   Set_With_Context* input_set = context.get_set(input);
   if (input_set && input_set->base)
@@ -310,7 +310,7 @@ Set_Prop_Task* Set_Prop_Statement::get_task(
     eval_elems(existing_keys, *input_set, input_set->base->areas, otherwise_set_keys);
     eval_elems(existing_keys, *input_set, input_set->base->deriveds, otherwise_set_keys);
 
-    for (std::set< std::string >::const_iterator it = existing_keys.begin(); it != existing_keys.end(); ++it)
+    for (auto it = existing_keys.begin(); it != existing_keys.end(); ++it)
       result->add_key(*it, tag_value ? tag_value->get_string_task(context, &*it) : 0);
   }
 
@@ -353,7 +353,7 @@ void process(const std::string& key, Set_Prop_Task::Mode mode, Eval_Task* rhs,
     if (data.tags)
     {
       std::vector< std::string > found_keys;
-      for (std::vector< std::pair< std::string, std::string > >::const_iterator it_keys = data.tags->begin();
+      for (auto it_keys = data.tags->begin();
           it_keys != data.tags->end(); ++it_keys)
         found_keys.push_back(it_keys->first);
       std::sort(found_keys.begin(), found_keys.end());

@@ -23,7 +23,7 @@
 
 void Ternary_Evaluator::add_statement(Statement* statement, std::string text)
 {
-  Evaluator* tag_value_ = dynamic_cast< Evaluator* >(statement);
+  auto* tag_value_ = dynamic_cast< Evaluator* >(statement);
   if (!tag_value_)
     substatement_error(get_name(), statement);
   else if (!condition)
@@ -78,7 +78,7 @@ void Ternary_Evaluator::add_substatements(Statement* result, const std::string& 
     if (lhs)
     {
       result->add_statement(lhs, "");
-      Evaluator* lhs_eval = (Evaluator*)lhs;
+      auto* lhs_eval = (Evaluator*)lhs;
       if (lhs_eval)
         rhs_expected = lhs_eval->return_type();
     }

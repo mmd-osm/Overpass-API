@@ -68,7 +68,7 @@ template < class Caller >
 void process_source_files(const std::string& source_dir,
 		          const std::vector< std::string >& source_file_names)
 {
-  std::vector< std::string >::const_iterator it(source_file_names.begin());
+  auto it(source_file_names.begin());
   while (it != source_file_names.end())
   {
     if ((*it == ".") || (*it == ".."))

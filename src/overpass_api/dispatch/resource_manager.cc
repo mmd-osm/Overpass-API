@@ -105,11 +105,11 @@ uint64 eval_set(const Set& set_)
 
 Set* Runtime_Stack_Frame::get_set(const std::string& set_name)
 {
-  std::map< std::string, Set >::iterator it = sets.find(set_name);
+  auto it = sets.find(set_name);
   if (it != sets.end())
     return &it->second;
 
-  std::map< std::string, Diff_Set >::iterator it_diff = diff_sets.find(set_name);
+  auto it_diff = diff_sets.find(set_name);
   if (it_diff != diff_sets.end())
     return 0;
 
@@ -122,11 +122,11 @@ Set* Runtime_Stack_Frame::get_set(const std::string& set_name)
 
 Diff_Set* Runtime_Stack_Frame::get_diff_set(const std::string& set_name)
 {
-  std::map< std::string, Diff_Set >::iterator it = diff_sets.find(set_name);
+  auto it = diff_sets.find(set_name);
   if (it != diff_sets.end())
     return &it->second;
 
-  std::map< std::string, Set >::iterator it_set = sets.find(set_name);
+  auto it_set = sets.find(set_name);
   if (it_set != sets.end())
     return 0;
 
@@ -161,7 +161,7 @@ const std::string* Runtime_Stack_Frame::get_value(const std::string& set_name, c
   const std::map< std::string, std::string >* key_values = get_set_key_values(set_name);
   if (key_values)
   {
-    std::map< std::string, std::string >::const_iterator kvit = key_values->find(key);
+    auto kvit = key_values->find(key);
     return kvit == key_values->end() ? 0 : &kvit->second;
   }
   return 0;
@@ -170,14 +170,14 @@ const std::string* Runtime_Stack_Frame::get_value(const std::string& set_name, c
 
 const std::map< std::string, std::string >* Runtime_Stack_Frame::get_set_key_values(const std::string& set_name)
 {
-  std::map< std::string, std::map< std::string, std::string > >::iterator it = key_values.find(set_name);
+  auto it = key_values.find(set_name);
   if (it != key_values.end())
     return &it->second;
 
-  std::map< std::string, Set >::iterator it_set = sets.find(set_name);
+  auto it_set = sets.find(set_name);
   if (it_set != sets.end())
     return 0;
-  std::map< std::string, Diff_Set >::iterator it_diff = diff_sets.find(set_name);
+  auto it_diff = diff_sets.find(set_name);
   if (it_diff != diff_sets.end())
     return 0;
 
@@ -240,11 +240,11 @@ void Runtime_Stack_Frame::move_outward(const std::string& inner_set_name, const 
 
   while (source && source->parent)
   {
-    std::map< std::string, Set >::iterator it = source->sets.find(inner_set_name);
+    auto it = source->sets.find(inner_set_name);
     if (it != source->sets.end())
       break;
 
-    std::map< std::string, Diff_Set >::iterator it_diff = source->diff_sets.find(inner_set_name);
+    auto it_diff = source->diff_sets.find(inner_set_name);
     if (it_diff != source->diff_sets.end())
       break;
 
@@ -331,7 +331,7 @@ void Runtime_Stack_Frame::copy_inward(const std::string& top_set_name, const std
   if (!parent)
     return;
 
-  std::map< std::string, Set >::iterator it = sets.find(top_set_name);
+  auto it = sets.find(top_set_name);
   if (it == sets.end())
   {
     Set* source = parent->get_set(top_set_name);
@@ -378,7 +378,7 @@ void Runtime_Stack_Frame::move_all_inward()
 {
   if (parent)
   {
-    for (std::map< std::string, Set >::iterator it = sets.begin(); it != sets.end(); ++it)
+    for (auto it = sets.begin(); it != sets.end(); ++it)
     {
       parent->swap_set(it->first, it->second);
       parent->diff_sets.erase(it->first);
@@ -392,7 +392,7 @@ void Runtime_Stack_Frame::move_all_inward_except(const std::string& set_name)
 {
   if (parent)
   {
-    for (std::map< std::string, Set >::iterator it = sets.begin(); it != sets.end(); ++it)
+    for (auto it = sets.begin(); it != sets.end(); ++it)
     {
       if (it->first != set_name)
       {
@@ -619,28 +619,21 @@ void Resource_Manager::pop_stack_frame()
 uint count_set(const Set& set_)
 {
   uint size(0);
-  for (std::map< Uint32_Index, std::vector< Node_Skeleton > >::const_iterator
-      it(set_.nodes.begin()); it != set_.nodes.end(); ++it)
+  for (auto it(set_.nodes.begin()); it != set_.nodes.end(); ++it)
     size += it->second.size();
-  for (std::map< Uint31_Index, std::vector< Way_Skeleton > >::const_iterator
-      it(set_.ways.begin()); it != set_.ways.end(); ++it)
+  for (auto it(set_.ways.begin()); it != set_.ways.end(); ++it)
     size += it->second.size();
-  for (std::map< Uint31_Index, std::vector< Relation_Skeleton > >::const_iterator
-      it(set_.relations.begin()); it != set_.relations.end(); ++it)
+  for (auto it(set_.relations.begin()); it != set_.relations.end(); ++it)
     size += it->second.size();
 
-  for (std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > >::const_iterator
-      it(set_.attic_nodes.begin()); it != set_.attic_nodes.end(); ++it)
+  for (auto it(set_.attic_nodes.begin()); it != set_.attic_nodes.end(); ++it)
     size += it->second.size();
-  for (std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >::const_iterator
-      it(set_.attic_ways.begin()); it != set_.attic_ways.end(); ++it)
+  for (auto it(set_.attic_ways.begin()); it != set_.attic_ways.end(); ++it)
     size += it->second.size();
-  for (std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > >::const_iterator
-      it(set_.attic_relations.begin()); it != set_.attic_relations.end(); ++it)
+  for (auto it(set_.attic_relations.begin()); it != set_.attic_relations.end(); ++it)
     size += it->second.size();
 
-  for (std::map< Uint31_Index, std::vector< Area_Skeleton > >::const_iterator
-      it(set_.areas.begin()); it != set_.areas.end(); ++it)
+  for (auto it(set_.areas.begin()); it != set_.areas.end(); ++it)
     size += it->second.size();
 
   return size;

@@ -96,10 +96,8 @@ void collect_attic_tags
   while ((!(current_tag_it == current_items_db.range_end())) &&
       (((current_tag_it.index().index) & 0x7fffff00) == coarse_index))
   {
-    typename std::vector< Attic< Id_Type > >::const_iterator it_id
-        = std::lower_bound(id_vec.begin(), id_vec.end(), Attic< Id_Type >(current_tag_it.handle().id(), 0ull));
-    typename std::vector< Attic< Id_Type > >::const_iterator it_id_end
-        = std::upper_bound(id_vec.begin(), id_vec.end(), Attic< Id_Type >
+    auto it_id = std::lower_bound(id_vec.begin(), id_vec.end(), Attic< Id_Type >(current_tag_it.handle().id(), 0ull));
+    auto it_id_end = std::upper_bound(id_vec.begin(), id_vec.end(), Attic< Id_Type >
             (current_tag_it.handle().id(), 0xffffffffffffffffull));
     if (it_id != it_id_end)
       found_tags[Attic< Id_Type >(current_tag_it.handle().id(), 0xffffffffffffffffull)].push_back
@@ -114,10 +112,8 @@ void collect_attic_tags
   while ((!(attic_tag_it == attic_items_db.range_end())) &&
       (((attic_tag_it.index().index) & 0x7fffff00) == coarse_index))
   {
-    typename std::vector< Attic< Id_Type > >::const_iterator it_id
-        = std::lower_bound(id_vec.begin(), id_vec.end(), Attic< Id_Type >(attic_tag_it.handle().id(), 0ull));
-    typename std::vector< Attic< Id_Type > >::const_iterator it_id_end
-        = std::upper_bound(id_vec.begin(), id_vec.end(), attic_tag_it.object());
+    auto it_id = std::lower_bound(id_vec.begin(), id_vec.end(), Attic< Id_Type >(attic_tag_it.handle().id(), 0ull));
+    auto it_id_end = std::upper_bound(id_vec.begin(), id_vec.end(), attic_tag_it.object());
     if (it_id != it_id_end)
       found_tags[attic_tag_it.object()].push_back
           (std::make_pair(attic_tag_it.index().key, attic_tag_it.index().value));
@@ -129,16 +125,13 @@ void collect_attic_tags
           ::const_iterator
       it = found_tags.begin(); it != found_tags.end(); ++it)
   {
-    typename std::vector< Attic< Id_Type > >::const_iterator it_id
-        = std::lower_bound(id_vec.begin(), id_vec.end(), Attic< Id_Type >(it->first, 0ull));
-    typename std::vector< Attic< Id_Type > >::const_iterator it_id_end
-        = std::upper_bound(id_vec.begin(), id_vec.end(), it->first);
+    auto it_id = std::lower_bound(id_vec.begin(), id_vec.end(), Attic< Id_Type >(it->first, 0ull));
+    auto it_id_end = std::upper_bound(id_vec.begin(), id_vec.end(), it->first);
     while (it_id != it_id_end)
     {
       std::vector< std::pair< std::string, std::string > >& obj_vec = tags_by_id[*it_id];
-      std::vector< std::pair< std::string, std::string > >::const_iterator last_added_it = it->second.end();
-      for (std::vector< std::pair< std::string, std::string > >::const_iterator
-          it_source = it->second.begin(); it_source != it->second.end(); ++it_source)
+      auto last_added_it = it->second.end();
+      for (auto it_source = it->second.begin(); it_source != it->second.end(); ++it_source)
       {
         if (last_added_it != it->second.end())
         {
@@ -168,9 +161,7 @@ void collect_attic_tags
   }
 
   // Remove empty tags. They are placeholders for tags added later than each timestamp in question.
-  for (typename std::map< Id_Type, std::vector< std::pair< std::string, std::string > > >
-          ::iterator
-      it_obj = tags_by_id.begin(); it_obj != tags_by_id.end(); ++it_obj)
+  for (auto it_obj = tags_by_id.begin(); it_obj != tags_by_id.end(); ++it_obj)
   {
     for (typename std::vector< std::pair< std::string, std::string > >::size_type
         i = 0; i < it_obj->second.size(); )
@@ -202,15 +193,13 @@ void collect_attic_tags
 
   if (!(upper_id_bound == Id_Type()))
   {
-    typename std::vector< Attic< Id_Type > >::iterator it_id
-        = std::lower_bound(id_vec.begin(), id_vec.end(),
+    auto it_id = std::lower_bound(id_vec.begin(), id_vec.end(),
                            Attic< Id_Type >(upper_id_bound, 0ull));
     id_vec.erase(it_id, id_vec.end());
   }
   if (!(lower_id_bound == Id_Type()))
   {
-    typename std::vector< Attic< Id_Type > >::iterator it_id
-        = std::lower_bound(id_vec.begin(), id_vec.end(),
+    auto it_id = std::lower_bound(id_vec.begin(), id_vec.end(),
                            Attic< Id_Type >(lower_id_bound, 0ull));
     id_vec.erase(id_vec.begin(), it_id);
   }

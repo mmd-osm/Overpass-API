@@ -53,8 +53,7 @@ void collect_elems(Resource_Manager& rman, const File_Properties& prop,
   std::set< TIndex > req;
   {
     Random_File< typename TObject::Id_Type, TIndex > random(rman.get_transaction()->random_index(&prop));
-    for (typename std::vector< typename TObject::Id_Type >::const_iterator
-        it = ids.begin(); it != ids.end(); ++it)
+    for (auto it = ids.begin(); it != ids.end(); ++it)
       req.insert(random.get(it->val()));
   }
   Block_Backend< TIndex, TObject > elems_db(rman.get_transaction()->data_index(&prop));
@@ -70,7 +69,7 @@ template< class TIndex, class TObject >
 void filter_elems(const std::vector< typename TObject::Id_Type >& ids,
                   std::map< TIndex, std::vector< TObject > >& elems)
 {
-  for (typename std::map< TIndex, std::vector< TObject > >::iterator it = elems.begin();
+  for (auto it = elems.begin();
       it != elems.end(); ++it)
   {
     std::vector< TObject > local_into;
@@ -88,10 +87,10 @@ void filter_elems(const std::vector< typename TObject::Id_Type >& ids,
 std::vector< Node::Id_Type > get_node_pivot_ids(const std::map< Uint31_Index, std::vector< Area_Skeleton > >& areas)
 {
   std::vector< Node::Id_Type > pivot_ids;
-  for (std::map< Uint31_Index, std::vector< Area_Skeleton > >::const_iterator it = areas.begin();
+  for (auto it = areas.begin();
       it != areas.end(); ++it)
   {
-    for (std::vector< Area_Skeleton >::const_iterator sit = it->second.begin(); sit != it->second.end(); ++sit)
+    for (auto sit = it->second.begin(); sit != it->second.end(); ++sit)
     {
       if (sit->id.val() < 2400000000u)
         pivot_ids.push_back(sit->id.val());
@@ -105,10 +104,10 @@ std::vector< Node::Id_Type > get_node_pivot_ids(const std::map< Uint31_Index, st
 std::vector< Way::Id_Type > get_way_pivot_ids(const std::map< Uint31_Index, std::vector< Area_Skeleton > >& areas)
 {
   std::vector< Way::Id_Type > pivot_ids;
-  for (std::map< Uint31_Index, std::vector< Area_Skeleton > >::const_iterator it = areas.begin();
+  for (auto it = areas.begin();
       it != areas.end(); ++it)
   {
-    for (std::vector< Area_Skeleton >::const_iterator sit = it->second.begin(); sit != it->second.end(); ++sit)
+    for (auto sit = it->second.begin(); sit != it->second.end(); ++sit)
     {
       if (sit->id.val() > 2400000000u && sit->id.val() < 3600000000u)
         pivot_ids.push_back(sit->id.val() - 2400000000u);
@@ -122,10 +121,10 @@ std::vector< Way::Id_Type > get_way_pivot_ids(const std::map< Uint31_Index, std:
 std::vector< Relation::Id_Type > get_relation_pivot_ids(const std::map< Uint31_Index, std::vector< Area_Skeleton > >& areas)
 {
   std::vector< Relation::Id_Type > pivot_ids;
-  for (std::map< Uint31_Index, std::vector< Area_Skeleton > >::const_iterator it = areas.begin();
+  for (auto it = areas.begin();
       it != areas.end(); ++it)
   {
-    for (std::vector< Area_Skeleton >::const_iterator sit = it->second.begin(); sit != it->second.end(); ++sit)
+    for (auto sit = it->second.begin(); sit != it->second.end(); ++sit)
     {
       if (sit->id.val() > 3600000000u)
         pivot_ids.push_back(sit->id.val() - 3600000000u);

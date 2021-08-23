@@ -28,7 +28,7 @@
 
 Statement_Dump::~Statement_Dump()
 {
-  for (std::vector< Statement_Dump* >::iterator it = substatements.begin();
+  for (auto it = substatements.begin();
       it != substatements.end(); ++it)
     delete *it;
 }
@@ -90,7 +90,7 @@ std::string Statement_Dump::dump_xml() const
   if (substatements.empty())
   {
     result = std::string("<") + name_;
-    for (std::map< std::string, std::string >::const_iterator it = attributes.begin();
+    for (auto it = attributes.begin();
         it != attributes.end(); ++it)
       result += std::string(" ") + it->first + "=\"" + escape_xml(it->second) + "\"";
     result += "/>\n";
@@ -98,12 +98,12 @@ std::string Statement_Dump::dump_xml() const
   else
   {
     result = std::string("<") + name_;
-    for (std::map< std::string, std::string >::const_iterator it = attributes.begin();
+    for (auto it = attributes.begin();
         it != attributes.end(); ++it)
       result += std::string(" ") + it->first + "=\"" + escape_xml(it->second) + "\"";
     result += ">\n";
 
-    for (std::vector< Statement_Dump* >::const_iterator it = substatements.begin();
+    for (auto it = substatements.begin();
         it != substatements.end(); ++it)
       result += indent((*it)->dump_xml());
 
@@ -354,7 +354,7 @@ Statement_Dump* Statement_Dump::Factory::create_criterion(const Token_Node_Ptr& 
 
 std::string Statement_Dump::attribute(const std::string& key) const
 {
-  std::map< std::string, std::string >::const_iterator it = attributes.find(key);
+  auto it = attributes.find(key);
   if (it == attributes.end())
     return "";
   else

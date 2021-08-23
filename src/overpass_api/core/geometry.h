@@ -453,7 +453,7 @@ public:
   ~Compound_Geometry() override
   {
     delete bounds;
-    for (std::vector< Opaque_Geometry* >::iterator it = components.begin(); it != components.end(); ++it)
+    for (auto it = components.begin(); it != components.end(); ++it)
       delete *it;
   }
   Opaque_Geometry* clone() const override;
@@ -511,9 +511,9 @@ public:
     for (std::vector< Opaque_Geometry* >::const_iterator it = components.begin();
         it != components.end() && !has_coords; ++it)
     {
-      Point_Geometry* pt = dynamic_cast< Point_Geometry* >(*it);
+      auto* pt = dynamic_cast< Point_Geometry* >(*it);
       has_coords |= (bool)pt;
-      Partial_Way_Geometry* way = dynamic_cast< Partial_Way_Geometry* >(*it);
+      auto* way = dynamic_cast< Partial_Way_Geometry* >(*it);
       if (way)
         has_coords |= way->has_center();
     }
@@ -521,7 +521,7 @@ public:
   ~Partial_Relation_Geometry() override
   {
     delete bounds;
-    for (std::vector< Opaque_Geometry* >::iterator it = components.begin(); it != components.end(); ++it)
+    for (auto it = components.begin(); it != components.end(); ++it)
       delete *it;
   }
   Opaque_Geometry* clone() const override;

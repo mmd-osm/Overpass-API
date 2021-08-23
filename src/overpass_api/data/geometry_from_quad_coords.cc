@@ -22,20 +22,20 @@
 Opaque_Geometry* make_linestring_way_geom(const std::vector< Quad_Coord >& geometry)
 {
   bool is_complete = true;
-  for (std::vector< Quad_Coord >::const_iterator it = geometry.begin(); it != geometry.end(); ++it)
+  for (auto it = geometry.begin(); it != geometry.end(); ++it)
     is_complete &= (it->ll_upper != 0 || it->ll_lower != 0);
 
   if (is_complete)
   {
     std::vector< Point_Double > coords;
-    for (std::vector< Quad_Coord >::const_iterator it = geometry.begin(); it != geometry.end(); ++it)
+    for (auto it = geometry.begin(); it != geometry.end(); ++it)
       coords.push_back(Point_Double(::lat(it->ll_upper, it->ll_lower), ::lon(it->ll_upper, it->ll_lower)));
     return new Linestring_Geometry(coords);
   }
   else
   {
-    Partial_Way_Geometry* pw_geom = new Partial_Way_Geometry();
-    for (std::vector< Quad_Coord >::const_iterator it = geometry.begin(); it != geometry.end(); ++it)
+    auto* pw_geom = new Partial_Way_Geometry();
+    for (auto it = geometry.begin(); it != geometry.end(); ++it)
     {
       if (it->ll_upper != 0 || it->ll_lower != 0)
         pw_geom->add_point(Point_Double(::lat(it->ll_upper, it->ll_lower), ::lon(it->ll_upper, it->ll_lower)));
@@ -121,7 +121,7 @@ const Opaque_Geometry& Geometry_From_Quad_Coords::make_way_geom(
 Opaque_Geometry* make_verbatim_rel_geom(const std::vector< std::vector< Quad_Coord > >& geometry)
 {
   bool is_complete = true;
-  for (std::vector< std::vector< Quad_Coord > >::const_iterator it = geometry.begin();
+  for (auto it = geometry.begin();
       it != geometry.end(); ++it)
   {
     if (it->empty())
@@ -130,15 +130,15 @@ Opaque_Geometry* make_verbatim_rel_geom(const std::vector< std::vector< Quad_Coo
       is_complete &= ((*it)[0].ll_upper != 0 || (*it)[0].ll_lower != 0);
     else
     {
-      for (std::vector< Quad_Coord >::const_iterator it2 = it->begin(); it2 != it->end(); ++it2)
+      for (auto it2 = it->begin(); it2 != it->end(); ++it2)
         is_complete &= (it2->ll_upper != 0 || it2->ll_lower != 0);
     }
   }
 
   if (is_complete)
   {
-    Compound_Geometry* cp_geom = new Compound_Geometry();
-    for (std::vector< std::vector< Quad_Coord > >::const_iterator it = geometry.begin();
+    auto* cp_geom = new Compound_Geometry();
+    for (auto it = geometry.begin();
         it != geometry.end(); ++it)
     {
       if (it->empty())
@@ -150,7 +150,7 @@ Opaque_Geometry* make_verbatim_rel_geom(const std::vector< std::vector< Quad_Coo
       else
       {
         std::vector< Point_Double > coords;
-        for (std::vector< Quad_Coord >::const_iterator it2 = it->begin(); it2 != it->end(); ++it2)
+        for (auto it2 = it->begin(); it2 != it->end(); ++it2)
           coords.push_back(Point_Double(::lat(it2->ll_upper, it2->ll_lower), ::lon(it2->ll_upper, it2->ll_lower)));
         cp_geom->add_component(new Linestring_Geometry(coords));
       }
@@ -161,8 +161,8 @@ Opaque_Geometry* make_verbatim_rel_geom(const std::vector< std::vector< Quad_Coo
     return new Null_Geometry();
   else
   {
-    Partial_Relation_Geometry* pr_geom = new Partial_Relation_Geometry();
-    for (std::vector< std::vector< Quad_Coord > >::const_iterator it = geometry.begin();
+    auto* pr_geom = new Partial_Relation_Geometry();
+    for (auto it = geometry.begin();
         it != geometry.end(); ++it)
     {
       if (it->empty())
@@ -174,7 +174,7 @@ Opaque_Geometry* make_verbatim_rel_geom(const std::vector< std::vector< Quad_Coo
       else
       {
         pr_geom->start_way();
-        for (std::vector< Quad_Coord >::const_iterator it2 = it->begin(); it2 != it->end(); ++it2)
+        for (auto it2 = it->begin(); it2 != it->end(); ++it2)
         {
           if (it2->ll_upper != 0 || it2->ll_lower != 0)
             pr_geom->add_way_point(
@@ -221,7 +221,7 @@ const Opaque_Geometry& Geometry_From_Quad_Coords::make_relation_geom(
       }
       else if (!it->empty())
       {
-        for (std::vector< Quad_Coord >::const_iterator it2 = it->begin(); it2 != it->end(); ++it2)
+        for (auto it2 = it->begin(); it2 != it->end(); ++it2)
         {
           double lat = ::lat(it2->ll_upper, it2->ll_lower);
           min_lat = std::min(min_lat, lat);
@@ -253,7 +253,7 @@ const Opaque_Geometry& Geometry_From_Quad_Coords::make_relation_geom(
           }
           else if (!it->empty())
           {
-            for (std::vector< Quad_Coord >::const_iterator it2 = it->begin(); it2 != it->end(); ++it2)
+            for (auto it2 = it->begin(); it2 != it->end(); ++it2)
             {
               double lon = ::lon(it2->ll_upper, it2->ll_lower);
               if (lon < 0.)

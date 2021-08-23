@@ -25,8 +25,7 @@ Set Diff_Set::make_from_set() const
 {
   Set result;
 
-  for (std::vector< std::pair< Node_With_Context, Node_With_Context > >::const_iterator
-      it = different_nodes.begin(); it != different_nodes.end(); ++it)
+  for (auto it = different_nodes.begin(); it != different_nodes.end(); ++it)
   {
     if (it->first.idx.val() != 0xffu)
     {
@@ -38,7 +37,7 @@ Set Diff_Set::make_from_set() const
     }
   }
 
-  for (std::vector< std::pair< Way_With_Context, Way_With_Context > >::const_iterator it = different_ways.begin();
+  for (auto it = different_ways.begin();
       it != different_ways.end(); ++it)
   {
     if (it->first.idx.val() != 0xffu)
@@ -51,7 +50,7 @@ Set Diff_Set::make_from_set() const
     }
   }
 
-  for (std::vector< std::pair< Relation_With_Context, Relation_With_Context > >::const_iterator it = different_relations.begin();
+  for (auto it = different_relations.begin();
       it != different_relations.end(); ++it)
   {
     if (it->first.idx.val() != 0xffu)
@@ -72,8 +71,7 @@ Set Diff_Set::make_to_set() const
 {
   Set result;
 
-  for (std::vector< std::pair< Node_With_Context, Node_With_Context > >::const_iterator
-      it = different_nodes.begin(); it != different_nodes.end(); ++it)
+  for (auto it = different_nodes.begin(); it != different_nodes.end(); ++it)
   {
     if ((it->second.idx.val() | 2) != 0xffu)
     {
@@ -85,7 +83,7 @@ Set Diff_Set::make_to_set() const
     }
   }
 
-  for (std::vector< std::pair< Way_With_Context, Way_With_Context > >::const_iterator it = different_ways.begin();
+  for (auto it = different_ways.begin();
       it != different_ways.end(); ++it)
   {
     if ((it->second.idx.val() | 2) != 0xffu)
@@ -98,7 +96,7 @@ Set Diff_Set::make_to_set() const
     }
   }
 
-  for (std::vector< std::pair< Relation_With_Context, Relation_With_Context > >::const_iterator it = different_relations.begin();
+  for (auto it = different_relations.begin();
       it != different_relations.end(); ++it)
   {
     if ((it->second.idx.val() | 2) != 0xffu)
@@ -130,8 +128,7 @@ void print_nodes(const std::vector< std::pair< Node_With_Context, Node_With_Cont
     uint32 output_mode, Output_Handler* output,
     const std::map< uint32, std::string >& users, bool add_deletion_information)
 {
-  for (std::vector< std::pair< Node_With_Context, Node_With_Context > >::const_iterator
-      it = different_nodes.begin(); it != different_nodes.end(); ++it)
+  for (auto it = different_nodes.begin(); it != different_nodes.end(); ++it)
   {
     if ((it->second.idx.val() | 2) == 0xffu)
     {
@@ -190,7 +187,7 @@ void print_ways(const std::vector< std::pair< Way_With_Context, Way_With_Context
     uint32 output_mode, Output_Handler* output,
     const std::map< uint32, std::string >& users, bool add_deletion_information)
 {
-  for (std::vector< std::pair< Way_With_Context, Way_With_Context > >::const_iterator it = different_ways.begin();
+  for (auto it = different_ways.begin();
       it != different_ways.end(); ++it)
   {
     if ((it->second.idx.val() | 2) == 0xffu)
@@ -258,7 +255,7 @@ void print_relations(
     const std::map< uint32, std::string >& users, const std::map< uint32, std::string >& roles,
     bool add_deletion_information)
 {
-  for (std::vector< std::pair< Relation_With_Context, Relation_With_Context > >::const_iterator it = different_relations.begin();
+  for (auto it = different_relations.begin();
       it != different_relations.end(); ++it)
   {
     if ((it->second.idx.val() | 2) == 0xffu)
@@ -326,11 +323,11 @@ void print_deriveds(
 {
   Null_Geometry null_geom;
 
-  for (std::vector< Derived_Structure >::const_iterator it = lhs_deriveds.begin(); it != lhs_deriveds.end(); ++it)
+  for (auto it = lhs_deriveds.begin(); it != lhs_deriveds.end(); ++it)
     output->print_item(*it, it->get_geometry() ? *it->get_geometry() : null_geom, &it->tags,
         output_mode, Output_Handler::erase);
 
-  for (std::vector< Derived_Structure >::const_iterator it = rhs_deriveds.begin(); it != rhs_deriveds.end(); ++it)
+  for (auto it = rhs_deriveds.begin(); it != rhs_deriveds.end(); ++it)
     output->print_item(*it, it->get_geometry() ? *it->get_geometry() : null_geom, &it->tags,
         output_mode, Output_Handler::create);
 }

@@ -72,7 +72,7 @@ class Polygon_Query_Statement final : public Output_Statement
     std::string dump_xml(const std::string& indent) const override
     {
       std::string result = indent + "<polygon-query bounds=\"";
-      std::vector< std::pair< double, double > >::const_iterator it = edges.begin();
+      auto it = edges.begin();
       if (it != edges.end())
       {
         result += to_string(it->first) + " " + to_string(it->second);
@@ -89,7 +89,7 @@ class Polygon_Query_Statement final : public Output_Statement
     std::string dump_ql_in_query(const std::string&) const override
     {
       std::string result = "(poly:\"";
-      std::vector< std::pair< double, double > >::const_iterator it = edges.begin();
+      auto it = edges.begin();
       if (it != edges.end())
       {
         result += to_string(it->first) + " " + to_string(it->second);

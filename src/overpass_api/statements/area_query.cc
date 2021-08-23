@@ -64,7 +64,7 @@ void copy_discrete_to_area_ranges(
     std::set< std::pair< Uint32_Index, Uint32_Index > >& nodes_req)
 {
   nodes_req.clear();
-  for (std::set< Uint31_Index >::const_iterator it = area_blocks_req.begin(); it != area_blocks_req.end(); ++it)
+  for (auto it = area_blocks_req.begin(); it != area_blocks_req.end(); ++it)
     nodes_req.insert(std::make_pair(Uint32_Index(it->val()), Uint32_Index((it->val()) + 0x100)));
 }
 
@@ -310,7 +310,7 @@ void Area_Query_Statement::fill_ranges(Resource_Manager& rman)
   {
     if (binary_search(area_id.begin(), area_id.end(), it.handle().id()))
     {
-      for (std::vector< uint32 >::const_iterator it2(it.object().used_indices().begin());
+      for (auto it2(it.object().used_indices().begin());
           it2 != it.object().used_indices().end(); ++it2)
         area_blocks_req.insert(Uint31_Index(*it2));
     }
@@ -325,14 +325,14 @@ void Area_Query_Statement::get_ranges
      Resource_Manager& rman)
 {
   area_id.clear();
-  for (std::map< Uint31_Index, std::vector< Area_Skeleton > >::const_iterator it = input_areas.begin();
+  for (auto it = input_areas.begin();
        it != input_areas.end(); ++it)
   {
-    for (std::vector< Area_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
       area_id.push_back(it2->id);
 
-      for (std::vector< uint32 >::const_iterator it3(it2->used_indices().begin());
+      for (auto it3(it2->used_indices().begin());
           it3 != it2->used_indices().end(); ++it3)
         area_blocks_req.insert(Uint31_Index(*it3));
     }
@@ -355,10 +355,10 @@ Query_Filter_Strategy Area_Constraint::delivers_data(Resource_Manager& rman)
     // Count the indicies of the input areas
     int counter = 0;
 
-    for (std::map< Uint31_Index, std::vector< Area_Skeleton > >::const_iterator it = input->areas.begin();
+    for (auto it = input->areas.begin();
          it != input->areas.end(); ++it)
     {
-      for (std::vector< Area_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+      for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
         counter += it2->used_indices().size();
     }
 
@@ -381,7 +381,7 @@ void Area_Query_Statement::collect_nodes
   Block_Backend< Uint31_Index, Area_Block >::Discrete_Iterator
       area_it(area_blocks_db.discrete_begin(req.begin(), req.end()));
 
-  typename std::map< Uint32_Index, std::vector< Node_Skeleton > >::iterator nodes_it = nodes.begin();
+  auto nodes_it = nodes.begin();
 
   uint32 loop_count = 0;
   uint32 current_idx(0);
@@ -423,7 +423,7 @@ void Area_Query_Statement::collect_nodes
 	     it != areas.end(); ++it)
         {
           int inside = 0;
-          for (std::vector< Area_Block >::const_iterator it2 = it->second.begin(); it2 != it->second.end();
+          for (auto it2 = it->second.begin(); it2 != it->second.end();
 	       ++it2)
           {
             ++loop_count;
@@ -470,7 +470,7 @@ bool Area_Query_Statement::collect_nodes_dynamic
   if (inputset->area_blocks.empty())
     return false;
 
-  typename std::map< Uint32_Index, std::vector< Node_Skeleton > >::iterator nodes_it = nodes.begin();
+  auto nodes_it = nodes.begin();
 
   uint32 loop_count = 0;
   uint32 current_idx(0);
@@ -513,7 +513,7 @@ bool Area_Query_Statement::collect_nodes_dynamic
              it != areas.end(); ++it)
         {
           int inside = 0;
-          for (std::vector< Area_Block >::const_iterator it2 = it->second.begin(); it2 != it->second.end();
+          for (auto it2 = it->second.begin(); it2 != it->second.end();
                ++it2)
           {
             ++loop_count;
@@ -754,16 +754,16 @@ void Area_Query_Statement::collect_ways
   std::map< Way::Id_Type, bool > ways_inside;
 
   std::map< Uint31_Index, std::vector< Area_Block > > way_segments;
-  for (typename std::map< Uint31_Index, std::vector< Way_Skeleton > >::iterator it = ways.begin(); it != ways.end(); ++it)
+  for (auto it = ways.begin(); it != ways.end(); ++it)
   {
-    for (typename std::vector< Way_Skeleton >::iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
       add_way_to_area_blocks(way_geometries.get_geometry(*it2), it2->id.val(), way_segments);
   }
 
   std::map< uint32, std::vector< std::pair< uint32, Way::Id_Type > > > way_coords_to_id;
-  for (typename std::map< Uint31_Index, std::vector< Way_Skeleton > >::iterator it = ways.begin(); it != ways.end(); ++it)
+  for (auto it = ways.begin(); it != ways.end(); ++it)
   {
-    for (typename std::vector< Way_Skeleton >::iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
       std::vector< Quad_Coord > coords = way_geometries.get_geometry(*it2);
       for (std::vector< Quad_Coord >::const_iterator it3 = coords.begin(); it3 != coords.end(); ++it3)
@@ -801,7 +801,7 @@ void Area_Query_Statement::collect_ways
         (nodes_it->first & 0xffffff00) == current_idx)
     {
       std::vector< std::pair< uint32, Way::Id_Type > > into;
-      for (std::vector< std::pair< uint32, Way::Id_Type > >::const_iterator iit = nodes_it->second.begin();
+      for (auto iit = nodes_it->second.begin();
           iit != nodes_it->second.end(); ++iit)
       {
         uint32 ilat = ::ilat(nodes_it->first, iit->first);
@@ -810,7 +810,7 @@ void Area_Query_Statement::collect_ways
 	     it != areas.end(); ++it)
         {
           int inside = 0;
-          for (std::vector< Area_Block >::const_iterator it2 = it->second.begin(); it2 != it->second.end();
+          for (auto it2 = it->second.begin(); it2 != it->second.end();
 	       ++it2)
           {
             ++loop_count;
@@ -841,7 +841,7 @@ void Area_Query_Statement::collect_ways
       {
 	if (ways_inside[Way::Id_Type(sit->id)])
 	  break;
-        for (std::vector< Area_Block >::const_iterator it2 = it->second.begin(); it2 != it->second.end();
+        for (auto it2 = it->second.begin(); it2 != it->second.end();
 	     ++it2)
 	{
 	  // If an area segment intersects this way segment in the inner of the way,
@@ -878,11 +878,11 @@ void Area_Query_Statement::collect_ways
   std::map< Uint31_Index, std::vector< Way_Skeleton > > result;
 
   // Mark ways as found that intersect the area border
-  for (typename std::map< Uint31_Index, std::vector< Way_Skeleton > >::iterator it = ways.begin();
+  for (auto it = ways.begin();
        it != ways.end(); ++it)
   {
     std::vector< Way_Skeleton > cur_result;
-    for (typename std::vector< Way_Skeleton >::iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
       if (ways_inside[it2->id])
       {
@@ -915,16 +915,16 @@ bool Area_Query_Statement::collect_ways_dynamic
   std::map< Way::Id_Type, bool > ways_inside;
 
   std::map< Uint31_Index, std::vector< Area_Block > > way_segments;
-  for (typename std::map< Uint31_Index, std::vector< Way_Skeleton > >::iterator it = ways.begin(); it != ways.end(); ++it)
+  for (auto it = ways.begin(); it != ways.end(); ++it)
   {
-    for (typename std::vector< Way_Skeleton >::iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
       add_way_to_area_blocks(way_geometries.get_geometry(*it2), it2->id.val(), way_segments);
   }
 
   std::map< uint32, std::vector< std::pair< uint32, Way::Id_Type > > > way_coords_to_id;
-  for (typename std::map< Uint31_Index, std::vector< Way_Skeleton > >::iterator it = ways.begin(); it != ways.end(); ++it)
+  for (auto it = ways.begin(); it != ways.end(); ++it)
   {
-    for (typename std::vector< Way_Skeleton >::iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
       std::vector< Quad_Coord > coords = way_geometries.get_geometry(*it2);
       for (std::vector< Quad_Coord >::const_iterator it3 = coords.begin(); it3 != coords.end(); ++it3)
@@ -963,7 +963,7 @@ bool Area_Query_Statement::collect_ways_dynamic
         (nodes_it->first & 0xffffff00) == current_idx)
     {
       std::vector< std::pair< uint32, Way::Id_Type > > into;
-      for (std::vector< std::pair< uint32, Way::Id_Type > >::const_iterator iit = nodes_it->second.begin();
+      for (auto iit = nodes_it->second.begin();
           iit != nodes_it->second.end(); ++iit)
       {
         uint32 ilat = ::ilat(nodes_it->first, iit->first);
@@ -972,7 +972,7 @@ bool Area_Query_Statement::collect_ways_dynamic
              it != areas.end(); ++it)
         {
           int inside = 0;
-          for (std::vector< Area_Block >::const_iterator it2 = it->second.begin(); it2 != it->second.end();
+          for (auto it2 = it->second.begin(); it2 != it->second.end();
                ++it2)
           {
             ++loop_count;
@@ -1003,7 +1003,7 @@ bool Area_Query_Statement::collect_ways_dynamic
       {
         if (ways_inside[Way::Id_Type(sit->id)])
           break;
-        for (std::vector< Area_Block >::const_iterator it2 = it->second.begin(); it2 != it->second.end();
+        for (auto it2 = it->second.begin(); it2 != it->second.end();
              ++it2)
         {
           // If an area segment intersects this way segment in the inner of the way,
@@ -1040,11 +1040,11 @@ bool Area_Query_Statement::collect_ways_dynamic
   std::map< Uint31_Index, std::vector< Way_Skeleton > > result;
 
   // Mark ways as found that intersect the area border
-  for (typename std::map< Uint31_Index, std::vector< Way_Skeleton > >::iterator it = ways.begin();
+  for (auto it = ways.begin();
        it != ways.end(); ++it)
   {
     std::vector< Way_Skeleton > cur_result;
-    for (typename std::vector< Way_Skeleton >::iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
       if (ways_inside[it2->id])
       {

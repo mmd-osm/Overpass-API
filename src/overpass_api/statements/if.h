@@ -82,13 +82,13 @@ public:
     std::string result = indent + "<if>\n"
           + (criterion ? criterion->dump_xml(indent + "  ") : "");
 
-    for (std::vector< Statement* >::const_iterator it = substatements.begin(); it != substatements.end(); ++it)
+    for (auto it = substatements.begin(); it != substatements.end(); ++it)
       result += *it ? (*it)->dump_xml(indent + "  ") : "";
 
     if (!else_statements.empty())
     {
       result = indent + "  <else/>\n";
-      for (std::vector< Statement* >::const_iterator it = else_statements.begin();
+      for (auto it = else_statements.begin();
           it != else_statements.end(); ++it)
         result += *it ? (*it)->dump_xml(indent + "  ") : "";
     }
@@ -100,13 +100,13 @@ public:
   {
     std::string result = indent + "if(" + (criterion ? criterion->dump_compact_ql("") : "") + "){";
 
-    for (std::vector< Statement* >::const_iterator it = substatements.begin(); it != substatements.end(); ++it)
+    for (auto it = substatements.begin(); it != substatements.end(); ++it)
       result += (*it)->dump_compact_ql(indent) + ";";
 
     if (!else_statements.empty())
     {
       result += "}else{";
-      for (std::vector< Statement* >::const_iterator it = else_statements.begin();
+      for (auto it = else_statements.begin();
           it != else_statements.end(); ++it)
         result += (*it)->dump_compact_ql(indent);
     }
@@ -120,13 +120,13 @@ public:
     std::string result = indent + "if (" + (criterion ? criterion->dump_compact_ql("") : "") + ")\n"
         + indent + "{";
 
-    for (std::vector< Statement* >::const_iterator it = substatements.begin(); it != substatements.end(); ++it)
+    for (auto it = substatements.begin(); it != substatements.end(); ++it)
       result += "\n" + (*it)->dump_pretty_ql(indent + "  ") + ";";
 
     if (!else_statements.empty())
     {
       result += "\n" + indent + "}\n" + indent + "else\n" + indent + "{\n";
-      for (std::vector< Statement* >::const_iterator it = else_statements.begin();
+      for (auto it = else_statements.begin();
           it != else_statements.end(); ++it)
         result += (*it)->dump_compact_ql(indent + "  ");
     }

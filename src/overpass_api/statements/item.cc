@@ -49,18 +49,18 @@ void collect_elements(const std::map< TIndex, std::vector< TObject > >& from,
 		      const std::vector< typename TObject::Id_Type >& ids, bool invert_ids)
 {
   into.clear();
-  for (typename std::map< TIndex, std::vector< TObject > >::const_iterator iit = from.begin();
+  for (auto iit = from.begin();
       iit != from.end(); ++iit)
   {
     if (ids.empty())
     {
-      for (typename std::vector< TObject >::const_iterator cit = iit->second.begin();
+      for (auto cit = iit->second.begin();
           cit != iit->second.end(); ++cit)
 	into[iit->first].push_back(*cit);
     }
     else if (!invert_ids)
     {
-      for (typename std::vector< TObject >::const_iterator cit = iit->second.begin();
+      for (auto cit = iit->second.begin();
           cit != iit->second.end(); ++cit)
       {
         if (binary_search(ids.begin(), ids.end(), cit->id))
@@ -69,7 +69,7 @@ void collect_elements(const std::map< TIndex, std::vector< TObject > >& from,
     }
     else
     {
-      for (typename std::vector< TObject >::const_iterator cit = iit->second.begin();
+      for (auto cit = iit->second.begin();
           cit != iit->second.end(); ++cit)
       {
         if (!binary_search(ids.begin(), ids.end(), cit->id))

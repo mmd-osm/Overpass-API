@@ -27,8 +27,7 @@ Output_Handler_Parser::Output_Handler_Parser(const std::string& format_name)
 
 Output_Handler_Parser* Output_Handler_Parser::get_format_parser(const std::string& format_name)
 {
-  std::map< std::string, Output_Handler_Parser* >::iterator
-      it = registry().find(format_name);
+  auto it = registry().find(format_name);
   if (it == registry().end())
     return 0;
   else

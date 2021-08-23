@@ -48,7 +48,7 @@ template< typename Index, typename Maybe_Attic >
 void eval_elems(std::map< Index, std::vector< Maybe_Attic > >& items,
     Set_With_Context& into_context, Eval_Task& task)
 {
-  for (typename std::map< Index, std::vector< Maybe_Attic > >::iterator it_idx = items.begin();
+  for (auto it_idx = items.begin();
       it_idx != items.end(); ++it_idx)
   {
     std::vector< Maybe_Attic > local_into;
@@ -153,7 +153,7 @@ Filter_Statement::~Filter_Statement()
 
 void Filter_Statement::add_statement(Statement* statement, std::string text)
 {
-  Evaluator* tag_value = dynamic_cast< Evaluator* >(statement);
+  auto* tag_value = dynamic_cast< Evaluator* >(statement);
   if (tag_value)
   {
     if (!criterion)

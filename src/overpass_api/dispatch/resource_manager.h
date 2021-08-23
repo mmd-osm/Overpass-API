@@ -118,7 +118,7 @@ public:
 
   ~Resource_Manager()
   {
-    for (std::vector< Runtime_Stack_Frame* >::iterator it = runtime_stack.begin();
+    for (auto it = runtime_stack.begin();
         it != runtime_stack.end(); ++it)
       delete *it;
 
@@ -245,8 +245,7 @@ const uint64 eval_map_index_size = 64;
 template<class TIndex, class TObject>
 uint64 eval_map(const std::map< TIndex, std::vector< TObject > >& obj) {
   uint64 size(0);
-  for (typename std::map< TIndex, std::vector< TObject > >::const_iterator
-      it(obj.begin()); it != obj.end(); ++it)
+  for (auto it(obj.begin()); it != obj.end(); ++it)
     size += it->second.size()*eval_elem<TObject>() + eval_map_index_size;
   return size;
 }

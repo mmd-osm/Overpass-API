@@ -197,7 +197,7 @@ uint32 Random_File< Key, Value >::allocate_block(uint32 data_size)
     this->index->block_count += data_size;
   else
   {
-    std::vector< std::pair< uint32, uint32 > >::iterator pos_it
+    auto pos_it
     = std::lower_bound(this->index->get_void_blocks().begin(), this->index->get_void_blocks().end(),
         std::make_pair(data_size, uint32(0)));
 

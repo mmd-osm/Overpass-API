@@ -317,7 +317,7 @@ void collect_relations
   std::vector< Global_Id_Type > ids;
   std::set_union(current_ids.begin(), current_ids.end(), attic_ids.begin(), attic_ids.end(),
                  std::back_inserter(ids));
-  for (std::set< Uint31_Index >::const_iterator it = attic_req.begin(); it != attic_req.end(); ++it)
+  for (auto it = attic_req.begin(); it != attic_req.end(); ++it)
     req.insert(*it);
 
   collect_items_discrete_by_timestamp(&stmt, rman, req,
@@ -350,7 +350,7 @@ void collect_relations
   std::vector< Global_Id_Type > ids;
   std::set_union(current_ids.begin(), current_ids.end(), attic_ids.begin(), attic_ids.end(),
                  std::back_inserter(ids));
-  for (std::set< Uint31_Index >::const_iterator it = attic_req.begin(); it != attic_req.end(); ++it)
+  for (auto it = attic_req.begin(); it != attic_req.end(); ++it)
     req.insert(*it);
 
   collect_items_discrete_by_timestamp(&stmt, rman, req,
@@ -383,7 +383,7 @@ void collect_relations
   std::vector< Global_Id_Type > children_ids;
   std::set_union(current_ids.begin(), current_ids.end(), attic_ids.begin(), attic_ids.end(),
                  std::back_inserter(children_ids));
-  for (std::set< Uint31_Index >::const_iterator it = attic_req.begin(); it != attic_req.end(); ++it)
+  for (auto it = attic_req.begin(); it != attic_req.end(); ++it)
     req.insert(*it);
 
   if (!invert_ids)
@@ -428,7 +428,7 @@ void collect_relations
   std::vector< Global_Id_Type > children_ids;
   std::set_union(current_ids.begin(), current_ids.end(), attic_ids.begin(), attic_ids.end(),
                  std::back_inserter(children_ids));
-  for (std::set< Uint31_Index >::const_iterator it = attic_req.begin(); it != attic_req.end(); ++it)
+  for (auto it = attic_req.begin(); it != attic_req.end(); ++it)
     req.insert(*it);
 
   if (!invert_ids)
@@ -1121,7 +1121,7 @@ bool Recurse_Constraint::get_way_ranges(Resource_Manager& rman, std::set< std::p
     else if (stmt->get_type() == RECURSE_NODE_WAY)
     {
       std::set< Uint31_Index > req = extract_parent_indices(input->nodes);
-      for (std::set< Uint31_Index >::const_iterator it = req.begin(); it != req.end(); ++it)
+      for (auto it = req.begin(); it != req.end(); ++it)
         ranges.insert(std::make_pair(*it, inc(*it)));
 
       return true;
@@ -1153,10 +1153,10 @@ bool Recurse_Constraint::get_way_ranges(Resource_Manager& rman, std::set< std::p
     else if (stmt->get_type() == RECURSE_NODE_WAY)
     {
       std::set< Uint31_Index > req = extract_parent_indices(input->nodes);
-      for (std::set< Uint31_Index >::const_iterator it = req.begin(); it != req.end(); ++it)
+      for (auto it = req.begin(); it != req.end(); ++it)
         ranges.insert(std::make_pair(*it, inc(*it)));
       std::set< Uint31_Index > attic_req = extract_parent_indices(input->attic_nodes);
-      for (std::set< Uint31_Index >::const_iterator it = attic_req.begin(); it != attic_req.end(); ++it)
+      for (auto it = attic_req.begin(); it != attic_req.end(); ++it)
         ranges.insert(std::make_pair(*it, inc(*it)));
 
       return true;
@@ -1193,7 +1193,7 @@ bool Recurse_Constraint::get_relation_ranges(Resource_Manager& rman, std::set< s
     else if (stmt->get_type() == RECURSE_NODE_RELATION)
     {
       std::set< Uint31_Index > req = extract_parent_indices(input->nodes);
-      for (std::set< Uint31_Index >::const_iterator it = req.begin(); it != req.end(); ++it)
+      for (auto it = req.begin(); it != req.end(); ++it)
         ranges.insert(std::make_pair(*it, inc(*it)));
 
       return true;
@@ -1201,7 +1201,7 @@ bool Recurse_Constraint::get_relation_ranges(Resource_Manager& rman, std::set< s
     else if (stmt->get_type() == RECURSE_WAY_RELATION)
     {
       std::set< Uint31_Index > req = extract_parent_indices(input->ways);
-      for (std::set< Uint31_Index >::const_iterator it = req.begin(); it != req.end(); ++it)
+      for (auto it = req.begin(); it != req.end(); ++it)
         ranges.insert(std::make_pair(*it, inc(*it)));
 
       return true;
@@ -1227,10 +1227,10 @@ bool Recurse_Constraint::get_relation_ranges(Resource_Manager& rman, std::set< s
     else if (stmt->get_type() == RECURSE_NODE_RELATION)
     {
       std::set< Uint31_Index > req = extract_parent_indices(input->nodes);
-      for (std::set< Uint31_Index >::const_iterator it = req.begin(); it != req.end(); ++it)
+      for (auto it = req.begin(); it != req.end(); ++it)
         ranges.insert(std::make_pair(*it, inc(*it)));
       std::set< Uint31_Index > attic_req = extract_parent_indices(input->attic_nodes);
-      for (std::set< Uint31_Index >::const_iterator it = attic_req.begin(); it != attic_req.end(); ++it)
+      for (auto it = attic_req.begin(); it != attic_req.end(); ++it)
         ranges.insert(std::make_pair(*it, inc(*it)));
 
       return true;
@@ -1238,10 +1238,10 @@ bool Recurse_Constraint::get_relation_ranges(Resource_Manager& rman, std::set< s
     else if (stmt->get_type() == RECURSE_WAY_RELATION)
     {
       std::set< Uint31_Index > req = extract_parent_indices(input->ways);
-      for (std::set< Uint31_Index >::const_iterator it = req.begin(); it != req.end(); ++it)
+      for (auto it = req.begin(); it != req.end(); ++it)
         ranges.insert(std::make_pair(*it, inc(*it)));
       std::set< Uint31_Index > attic_req = extract_parent_indices(input->attic_ways);
-      for (std::set< Uint31_Index >::const_iterator it = attic_req.begin(); it != attic_req.end(); ++it)
+      for (auto it = attic_req.begin(); it != attic_req.end(); ++it)
         ranges.insert(std::make_pair(*it, inc(*it)));
 
       return true;

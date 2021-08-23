@@ -32,8 +32,7 @@ std::set< std::pair< Uint32_Index, Uint32_Index > > small_way_nd_indices
 {
   std::vector< uint32 > parents;
 
-  for (typename std::map< Uint31_Index, std::vector< Object > >::const_iterator
-    it(ways_begin); it != ways_end; ++it)
+  for (auto it(ways_begin); it != ways_end; ++it)
   {
     if (!(it->first.val() & 0x80000000) || ((it->first.val() & 0x1) != 0)) // Adapt 0x3
       parents.push_back(it->first.val());
@@ -60,7 +59,7 @@ std::vector< Node::Id_Type > small_way_nd_ids(const std::map< Uint31_Index, std:
     for (typename std::vector< Object >::const_iterator it2(it->second.begin());
         it2 != it->second.end(); ++it2)
     {
-      for (std::vector< Node::Id_Type >::const_iterator it3(it2->nds().begin());
+      for (auto it3(it2->nds().begin());
           it3 != it2->nds().end(); ++it3)
         ids.push_back(*it3);
     }
@@ -76,15 +75,14 @@ template< typename Object >
 IdSetHybrid< Node::Id_Type::Id_Type> small_way_nd_ids_fast(const std::map< Uint31_Index, std::vector< Object > >& ways)
 {
   IdSetHybrid< Node::Id_Type::Id_Type> ids;
-  for (typename std::map< Uint31_Index, std::vector< Object > >::const_iterator
-      it(ways.begin()); it != ways.end(); ++it)
+  for (auto it(ways.begin()); it != ways.end(); ++it)
   {
     if ((it->first.val() & 0x80000000) && ((it->first.val() & 0x1) == 0))
       continue;
-    for (typename std::vector< Object >::const_iterator it2(it->second.begin());
+    for (auto it2(it->second.begin());
         it2 != it->second.end(); ++it2)
     {
-      for (std::vector< Node::Id_Type >::const_iterator it3(it2->nds().begin());
+      for (auto it3(it2->nds().begin());
           it3 != it2->nds().end(); ++it3)
         ids.set((*it3).val());
     }
@@ -124,15 +122,14 @@ IdSetHybrid< Node::Id_Type::Id_Type> small_way_nd_ids_fast_ranges(
     typename std::map< Uint31_Index, std::vector< Object > >::const_iterator ways_end)
 {
   IdSetHybrid< Node::Id_Type::Id_Type> ids;
-  for (typename std::map< Uint31_Index, std::vector< Object > >::const_iterator
-      it(ways_begin); it != ways_end; ++it)
+  for (auto it(ways_begin); it != ways_end; ++it)
   {
     if ((it->first.val() & 0x80000000) && ((it->first.val() & 0x1) == 0))
       continue;
-    for (typename std::vector< Object >::const_iterator it2(it->second.begin());
+    for (auto it2(it->second.begin());
         it2 != it->second.end(); ++it2)
     {
-      for (std::vector< Node::Id_Type >::const_iterator it3(it2->nds().begin());
+      for (auto it3(it2->nds().begin());
           it3 != it2->nds().end(); ++it3)
         ids.set((*it3).val());
     }
@@ -205,7 +202,7 @@ void Way_Geometry_Store::way_members_to_nodes(std::map< Uint32_Index, std::vecto
   nodes.swap(nds);
 
   // Order node ids by id.
-  for (std::map< Uint32_Index, std::vector< Node_Skeleton > >::iterator it = way_members_.begin();
+  for (auto it = way_members_.begin();
       it != way_members_.end(); ++it)
   {
     for (std::vector< Node_Skeleton >::const_iterator iit = it->second.begin();

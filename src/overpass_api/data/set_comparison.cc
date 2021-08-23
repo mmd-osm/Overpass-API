@@ -238,12 +238,11 @@ void Set_Comparison::tags_quadtile
   Meta_Collector< Index, typename Object::Id_Type > meta_printer(items, *rman.get_transaction(),
       (extra_data.mode & Output_Mode::META) ? current_meta_file_properties< Object >() : 0);
 
-  typename std::map< Index, std::vector< Object > >::const_iterator
-      item_it(items.begin());
+  auto item_it(items.begin());
   // print the result
   while (item_it != items.end())
   {
-    for (typename std::vector< Object >::const_iterator it2(item_it->second.begin());
+    for (auto it2(item_it->second.begin());
         it2 != item_it->second.end(); ++it2)
     {
       print_item(extra_data, item_it->first.val(), *it2, tag_store.get(item_it->first, *it2),
@@ -265,11 +264,10 @@ void Set_Comparison::tags_quadtile_attic
   Attic_Meta_Collector< Index, Object > meta_printer(
       items, *rman.get_transaction(), extra_data.mode & Output_Mode::META);
 
-  typename std::map< Index, std::vector< Attic< Object > > >::const_iterator
-      item_it(items.begin());
+  auto item_it(items.begin());
   while (item_it != items.end())
   {
-    for (typename std::vector< Attic< Object > >::const_iterator it2(item_it->second.begin());
+    for (auto it2(item_it->second.begin());
         it2 != item_it->second.end(); ++it2)
       print_item(extra_data, item_it->first.val(), *it2, tag_store.get(item_it->first, *it2),
                  meta_printer.get(item_it->first, it2->id, it2->timestamp), extra_data.users);
@@ -290,12 +288,11 @@ void Set_Comparison::tags_quadtile
   Meta_Collector< Index, typename Object::Id_Type > meta_printer(items, *rman.get_transaction(),
       (extra_data.mode & Output_Mode::META) ? current_meta_file_properties< Object >() : 0);
 
-  typename std::map< Index, std::vector< Object > >::const_iterator
-      item_it(items.begin());
+  auto item_it(items.begin());
   // print the result
   while (item_it != items.end())
   {
-    for (typename std::vector< Object >::const_iterator it2(item_it->second.begin());
+    for (auto it2(item_it->second.begin());
         it2 != item_it->second.end(); ++it2)
     {
       if (std::binary_search(id_list.begin(), id_list.end(), it2->id))
@@ -318,11 +315,10 @@ void Set_Comparison::tags_quadtile_attic
   Attic_Meta_Collector< Index, Object > meta_printer(
       items, *rman.get_transaction(), extra_data.mode & Output_Mode::META);
 
-  typename std::map< Index, std::vector< Attic< Object > > >::const_iterator
-      item_it(items.begin());
+  auto item_it(items.begin());
   while (item_it != items.end())
   {
-    for (typename std::vector< Attic< Object > >::const_iterator it2(item_it->second.begin());
+    for (auto it2(item_it->second.begin());
         it2 != item_it->second.end(); ++it2)
     {
       if (std::binary_search(id_list.begin(), id_list.end(), it2->id))
@@ -354,13 +350,13 @@ std::vector< typename Skeleton::Id_Type > find_still_existing_skeletons
   for (typename std::map< Index, std::vector< Skeleton > >::const_iterator it = current_result.begin();
        it != current_result.end(); ++it)
   {
-    for (typename std::vector< Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
       found_ids.push_back(it2->id);
   }
   for (typename std::map< Index, std::vector< Attic< Skeleton > > >::const_iterator it = attic_result.begin();
        it != attic_result.end(); ++it)
   {
-    for (typename std::vector< Attic< Skeleton > >::const_iterator it2 = it->second.begin();
+    for (auto it2 = it->second.begin();
 	 it2 != it->second.end(); ++it2)
       found_ids.push_back(it2->id);
   }
@@ -390,8 +386,7 @@ std::map< typename Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< typename Sk
     if (!(timestamp < it.object().timestamp)
         && std::binary_search(searched_ids.begin(), searched_ids.end(), it.object().ref))
     {
-      typename std::map< typename Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type > >
-          ::iterator meta_it = result.find(it.object().ref);
+      auto meta_it = result.find(it.object().ref);
       if (meta_it == result.end())
 	result.insert(std::make_pair(it.object().ref, it.object()));
       else if (meta_it->second.timestamp < it.object().timestamp)
@@ -412,8 +407,7 @@ std::map< typename Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< typename Sk
     if (!(timestamp < it.object().timestamp)
         && std::binary_search(searched_ids.begin(), searched_ids.end(), it.object().ref))
     {
-      typename std::map< typename Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type > >
-          ::iterator meta_it = result.find(it.object().ref);
+      auto meta_it = result.find(it.object().ref);
       if (meta_it == result.end())
 	result.insert(std::make_pair(it.object().ref, it.object()));
       else if (meta_it->second.timestamp < it.object().timestamp)
@@ -443,8 +437,7 @@ void Set_Comparison::compare_item(uint32 ll_upper, const Node_Skeleton& skel,
                             const std::map< uint32, std::string >* users, const Output_Handler::Feature_Action& action,
 			    const OSM_Element_Metadata_Skeleton< Node::Id_Type >* new_meta)
 {
-  std::vector< Node_With_Context >::iterator nodes_it
-      = std::lower_bound(nodes.begin(), nodes.end(), Node_With_Context(ll_upper, skel, 0));
+  auto nodes_it = std::lower_bound(nodes.begin(), nodes.end(), Node_With_Context(ll_upper, skel, 0));
 
   if (nodes_it == nodes.end() || skel.id < nodes_it->elem.id)
     result.different_nodes.push_back(std::make_pair(
@@ -514,8 +507,7 @@ void Set_Comparison::clear_nodes(Resource_Manager& rman, bool add_deletion_infor
     find_meta_elements< Uint32_Index, Node_Skeleton >(
         rman, rman.get_diff_from_timestamp(), req, searched_ids).swap(found_meta);
 
-    for (std::vector< std::pair< Node_With_Context, Node_With_Context > >::iterator
-        it = result.different_nodes.begin(); it != result.different_nodes.end(); ++it)
+    for (auto it = result.different_nodes.begin(); it != result.different_nodes.end(); ++it)
     {
       if (it->first.idx.val() == 0xffu)
       {
@@ -568,7 +560,7 @@ void Set_Comparison::compare_item(uint32 ll_upper, const Way_Skeleton& skel,
                             const std::map< uint32, std::string >* users, const Output_Handler::Feature_Action& action,
 			    const OSM_Element_Metadata_Skeleton< Way::Id_Type >* new_meta)
 {
-  std::vector< Way_With_Context >::iterator ways_it
+  auto ways_it
       = std::lower_bound(ways.begin(), ways.end(),
           Way_With_Context(ll_upper, skel, std::vector< Quad_Coord >(), timestamp));
 
@@ -645,8 +637,7 @@ void Set_Comparison::clear_ways(Resource_Manager& rman, bool add_deletion_inform
     find_meta_elements< Uint31_Index, Way_Skeleton >(
         rman, rman.get_diff_from_timestamp(), req, searched_ids).swap(found_meta);
 
-    for (std::vector< std::pair< Way_With_Context, Way_With_Context > >::iterator
-        it = result.different_ways.begin(); it != result.different_ways.end(); ++it)
+    for (auto it = result.different_ways.begin(); it != result.different_ways.end(); ++it)
     {
       if (it->first.idx.val() == 0xffu)
       {
@@ -700,7 +691,7 @@ void Set_Comparison::compare_item(uint32 ll_upper, const Relation_Skeleton& skel
                             const std::map< uint32, std::string >* users, const Output_Handler::Feature_Action& action,
 			    const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* new_meta)
 {
-  std::vector< Relation_With_Context >::iterator relations_it
+  auto relations_it
       = std::lower_bound(relations.begin(), relations.end(),
           Relation_With_Context(ll_upper, skel, std::vector< std::vector< Quad_Coord > >(), 0));
 
@@ -780,8 +771,7 @@ void Set_Comparison::clear_relations(Resource_Manager& rman, bool add_deletion_i
     find_meta_elements< Uint31_Index, Relation_Skeleton >(
         rman, rman.get_diff_from_timestamp(), req, searched_ids).swap(found_meta);
 
-    for (std::vector< std::pair< Relation_With_Context, Relation_With_Context > >::iterator
-        it = result.different_relations.begin(); it != result.different_relations.end(); ++it)
+    for (auto it = result.different_relations.begin(); it != result.different_relations.end(); ++it)
     {
       if (it->first.idx.val() == 0xffu)
       {
@@ -969,8 +959,8 @@ bool Derived_Structure_Handle::operator<(const Derived_Structure_Handle& rhs) co
   else if (rhs.elem->get_geometry())
     return false;
 
-  std::vector< std::pair< std::string, std::string > >::const_iterator it_tl = elem->tags.begin();
-  std::vector< std::pair< std::string, std::string > >::const_iterator it_tr = rhs.elem->tags.begin();
+  auto it_tl = elem->tags.begin();
+  auto it_tr = rhs.elem->tags.begin();
   while (it_tl != elem->tags.end() && it_tr != rhs.elem->tags.end())
   {
     if (*it_tl == *it_tr)
@@ -1007,7 +997,7 @@ void Set_Comparison::compute_deriveds(std::map< Uint31_Index, std::vector< Deriv
   for (std::map< Uint31_Index, std::vector< Derived_Structure > >::const_iterator
       it_idx = lhs_set_.deriveds.begin(); it_idx != lhs_set_.deriveds.end(); ++it_idx)
   {
-    for (std::vector< Derived_Structure >::const_iterator it_elem = it_idx->second.begin();
+    for (auto it_elem = it_idx->second.begin();
         it_elem != it_idx->second.end(); ++it_elem)
       lhs_handles.push_back(Derived_Structure_Handle(it_idx->first, *it_elem));
   }
@@ -1017,7 +1007,7 @@ void Set_Comparison::compute_deriveds(std::map< Uint31_Index, std::vector< Deriv
   for (std::map< Uint31_Index, std::vector< Derived_Structure > >::const_iterator
       it_idx = rhs_deriveds.begin(); it_idx != rhs_deriveds.end(); ++it_idx)
   {
-    for (std::vector< Derived_Structure >::const_iterator it_elem = it_idx->second.begin();
+    for (auto it_elem = it_idx->second.begin();
         it_elem != it_idx->second.end(); ++it_elem)
       rhs_handles.push_back(Derived_Structure_Handle(it_idx->first, *it_elem));
   }
@@ -1128,10 +1118,10 @@ template< typename Index, typename Id_Type, typename Maybe_Attic >
 void eval_lhs_elems(const std::map< Index, std::vector< Maybe_Attic > >& items,
     std::vector< std::pair< Id_Type, std::string > >& result, Set_With_Context& into_context, Eval_Task& task)
 {
-  for (typename std::map< Index, std::vector< Maybe_Attic > >::const_iterator it_idx = items.begin();
+  for (auto it_idx = items.begin();
       it_idx != items.end(); ++it_idx)
   {
-    for (typename std::vector< Maybe_Attic >::const_iterator it_elem = it_idx->second.begin();
+    for (auto it_elem = it_idx->second.begin();
         it_elem != it_idx->second.end(); ++it_elem)
       result.push_back(std::make_pair(
           it_elem->id, task.eval(into_context.get_context(it_idx->first, *it_elem), 0)));
@@ -1146,14 +1136,14 @@ void eval_rhs_elems(const std::map< Index, std::vector< Maybe_Attic > >& items,
     std::vector< std::pair< Id_Type, std::string > >& lhs_set, std::vector< Id_Type >& result,
     Set_With_Context& into_context, Eval_Task& task)
 {
-  for (typename std::map< Index, std::vector< Maybe_Attic > >::const_iterator it_idx = items.begin();
+  for (auto it_idx = items.begin();
       it_idx != items.end(); ++it_idx)
   {
-    for (typename std::vector< Maybe_Attic >::const_iterator it_elem = it_idx->second.begin();
+    for (auto it_elem = it_idx->second.begin();
         it_elem != it_idx->second.end(); ++it_elem)
     {
       std::string rhs_val = task.eval(into_context.get_context(it_idx->first, *it_elem), 0);
-      typename std::vector< std::pair< Id_Type, std::string > >::iterator it_lhs =
+      auto it_lhs =
           std::lower_bound(lhs_set.begin(), lhs_set.end(), std::make_pair(it_elem->id, ""),
               First_Comparator< Id_Type, std::string >());
 
@@ -1192,7 +1182,7 @@ void clear_elems(std::vector< std::pair< Id_Type, std::string > >& lhs_set, std:
 template< typename Index, typename Id_Type, typename Maybe_Attic >
 void filter_by_id(std::map< Index, std::vector< Maybe_Attic > >& items, const std::vector< Id_Type >& id_list)
 {
-  for (typename std::map< Index, std::vector< Maybe_Attic > >::iterator it_idx = items.begin();
+  for (auto it_idx = items.begin();
       it_idx != items.end(); ++it_idx)
   {
     std::vector< Maybe_Attic > result;

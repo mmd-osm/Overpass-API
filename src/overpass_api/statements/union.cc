@@ -140,7 +140,7 @@ void Union_Statement::execute(Resource_Manager& rman)
   rman.push_stack_frame();
   rman.move_outward(get_result_name(), get_result_name());
 
-  for (std::vector< Statement* >::iterator it(substatements.begin());
+  for (auto it(substatements.begin());
        it != substatements.end(); ++it)
   {
     (*it)->execute(rman);

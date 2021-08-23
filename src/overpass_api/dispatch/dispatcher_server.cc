@@ -54,7 +54,7 @@ void Default_Dispatcher_Logger::write_start(pid_t pid, const std::vector< pid_t 
 {
   std::ostringstream out;
   out<<"write_start of process "<<pid<<". Considered as reading:";
-  for (std::vector< pid_t >::const_iterator it = registered.begin(); it != registered.end(); ++it)
+  for (auto it = registered.begin(); it != registered.end(); ++it)
     out<<' '<<*it;
   out<<'.';
   logger->annotated_log(out.str());
@@ -176,7 +176,7 @@ bool assure_files_absent(const std::string& db_dir, const std::vector< File_Prop
 {
   bool suspicious_files_present = false;
 
-  for (std::vector< File_Properties* >::const_iterator it = files_to_avoid.begin(); it != files_to_avoid.end(); ++it)
+  for (auto it = files_to_avoid.begin(); it != files_to_avoid.end(); ++it)
   {
     if (file_present(db_dir + (*it)->get_file_name_trunk() + (*it)->get_data_suffix()))
     {

@@ -62,8 +62,7 @@ void evaluate_grid(double south, double north, double west, double east,
       const Set* default_ = rman.get_set("_");
       if (default_)
       {
-        for (std::map< Uint31_Index, std::vector< Area_Skeleton > >::const_iterator
-            it = default_->areas.begin(); it != default_->areas.end(); ++it)
+        for (auto it = default_->areas.begin(); it != default_->areas.end(); ++it)
           area_count += it->second.size();
       }
       area_counter.back().push_back(area_count);
@@ -81,7 +80,7 @@ void evaluate_grid(double south, double north, double west, double east,
   for (std::vector< std::vector< uint > >::const_reverse_iterator it = area_counter.rbegin();
       it != area_counter.rend(); ++it)
   {
-    for (std::vector< uint >::const_iterator it2 = it->begin(); it2 != it->end(); ++it2)
+    for (auto it2 = it->begin(); it2 != it->end(); ++it2)
       std::cout<<' '<<*it2;
     std::cout<<'\n';
   }
@@ -284,13 +283,13 @@ int main(int argc, char* args[])
   {
     {
       const char* attributes[] = { "ref", "2400000121", 0 };
-      Area_Query_Statement* stmt1 = new Area_Query_Statement(0, convert_c_pairs(attributes), global_settings);
+      auto* stmt1 = new Area_Query_Statement(0, convert_c_pairs(attributes), global_settings);
       stmt1->execute(rman);
       delete stmt1;
     }
     {
       const char* attributes[] = { 0 };
-      Print_Statement* stmt1 = new Print_Statement(0, convert_c_pairs(attributes), global_settings);
+      auto* stmt1 = new Print_Statement(0, convert_c_pairs(attributes), global_settings);
       stmt1->execute(rman);
       delete stmt1;
     }

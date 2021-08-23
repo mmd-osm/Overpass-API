@@ -374,13 +374,12 @@ void quadtile_
     (const std::map< TIndex, std::vector< TObject > >& items, Output_Handler& output,
      Transaction& transaction, Extra_Data& extra_data, uint32 limit, uint32& element_count)
 {
-  typename std::map< TIndex, std::vector< TObject > >::const_iterator
-      item_it(items.begin());
+  auto item_it(items.begin());
   // print the result
   while (item_it != items.end())
   {
     prefetch_qt<TIndex, TObject>(extra_data, item_it->first);
-    for (typename std::vector< TObject >::const_iterator it2(item_it->second.begin());
+    for (auto it2(item_it->second.begin());
         it2 != item_it->second.end(); ++it2)
     {
       if (++element_count > limit)
@@ -405,13 +404,12 @@ void tags_quadtile_
   Meta_Collector< Index, typename Object::Id_Type > meta_printer(items, transaction,
       (extra_data.mode & Output_Mode::META) ? current_meta_file_properties< Object >() : 0);
 
-  typename std::map< Index, std::vector< Object > >::const_iterator
-      item_it(items.begin());
+  auto item_it(items.begin());
   // print the result
   while (item_it != items.end())
   {
     prefetch_qt<Index, Object>(extra_data, item_it->first);
-    for (typename std::vector< Object >::const_iterator it2(item_it->second.begin());
+    for (auto it2(item_it->second.begin());
         it2 != item_it->second.end(); ++it2)
     {
       if (++element_count > limit)
@@ -435,12 +433,11 @@ void tags_quadtile_attic_
 
   Attic_Meta_Collector< Index, Object > meta_printer(items, transaction, extra_data.mode & Output_Mode::META);
 
-  typename std::map< Index, std::vector< Attic< Object > > >::const_iterator
-      item_it(items.begin());
+  auto item_it(items.begin());
   while (item_it != items.end())
   {
     prefetch_qt<Index, Attic< Object > >(extra_data, item_it->first);
-    for (typename std::vector< Attic< Object > >::const_iterator it2(item_it->second.begin());
+    for (auto it2(item_it->second.begin());
         it2 != item_it->second.end(); ++it2)
     {
       if (++element_count > limit)
@@ -484,10 +481,9 @@ std::vector< std::pair< const Object*, uint32 > > collect_items_by_id(
 {
   std::vector< std::pair< const Object*, uint32 > > items_by_id;
 
-  for (typename std::map< Index, std::vector< Object > >::const_iterator
-    it(items.begin()); it != items.end(); ++it)
+  for (auto it(items.begin()); it != items.end(); ++it)
   {
-    for (typename std::vector< Object >::const_iterator it2(it->second.begin());
+    for (auto it2(it->second.begin());
         it2 != it->second.end(); ++it2)
       items_by_id.push_back(std::make_pair(&(*it2), it->first.val()));
   }
@@ -504,17 +500,15 @@ std::vector< Maybe_Attic_Ref< Index, Object > > collect_items_by_id(
     const std::map< Index, std::vector< Attic< Object > > >& attic_items)
 {
   std::vector< Maybe_Attic_Ref< Index, Object > > items_by_id;
-  for (typename std::map< Index, std::vector< Object > >::const_iterator
-      it(items.begin()); it != items.end(); ++it)
+  for (auto it(items.begin()); it != items.end(); ++it)
   {
-    for (typename std::vector< Object >::const_iterator it2(it->second.begin());
+    for (auto it2(it->second.begin());
         it2 != it->second.end(); ++it2)
       items_by_id.push_back(Maybe_Attic_Ref< Index, Object >(it->first, &(*it2), NOW));
   }
-  for (typename std::map< Index, std::vector< Attic< Object > > >::const_iterator
-      it(attic_items.begin()); it != attic_items.end(); ++it)
+  for (auto it(attic_items.begin()); it != attic_items.end(); ++it)
   {
-    for (typename std::vector< Attic< Object > >::const_iterator it2(it->second.begin());
+    for (auto it2(it->second.begin());
         it2 != it->second.end(); ++it2)
       items_by_id.push_back(Maybe_Attic_Ref< Index, Object >(it->first, &(*it2), it2->timestamp));
   }
@@ -570,10 +564,9 @@ void collect_metadata(std::set< OSM_Element_Metadata_Skeleton< typename Object::
 		      typename Object::Id_Type lower_id_bound, typename Object::Id_Type upper_id_bound,
 		      Meta_Collector< Index, typename Object::Id_Type >& meta_printer)
 {
-  for (typename std::map< Index, std::vector< Object > >::const_iterator
-      it(items.begin()); it != items.end(); ++it)
+  for (auto it(items.begin()); it != items.end(); ++it)
   {
-    for (typename std::vector< Object >::const_iterator it2(it->second.begin());
+    for (auto it2(it->second.begin());
         it2 != it->second.end(); ++it2)
     {
       if (!(it2->id < lower_id_bound) && (it2->id < upper_id_bound))
@@ -594,10 +587,9 @@ void collect_metadata(std::set< OSM_Element_Metadata_Skeleton< typename Object::
                       typename Object::Id_Type lower_id_bound, typename Object::Id_Type upper_id_bound,
                       Attic_Meta_Collector< Index, Object >& meta_printer)
 {
-  for (typename std::map< Index, std::vector< Attic< Object > > >::const_iterator
-      it(items.begin()); it != items.end(); ++it)
+  for (auto it(items.begin()); it != items.end(); ++it)
   {
-    for (typename std::vector< Attic< Object > >::const_iterator it2(it->second.begin());
+    for (auto it2(it->second.begin());
         it2 != it->second.end(); ++it2)
     {
       if (!(it2->id < lower_id_bound) && (it2->id < upper_id_bound))
@@ -618,8 +610,7 @@ typename std::set< OSM_Element_Metadata_Skeleton< Id_Type > >::const_iterator
     (const std::set< OSM_Element_Metadata_Skeleton< Id_Type > >& metadata,
      Id_Type ref, uint64 timestamp)
 {
-  typename std::set< OSM_Element_Metadata_Skeleton< Id_Type > >::iterator it
-      = metadata.lower_bound(OSM_Element_Metadata_Skeleton< Id_Type >(ref, timestamp));
+  auto it = metadata.lower_bound(OSM_Element_Metadata_Skeleton< Id_Type >(ref, timestamp));
   if (it == metadata.begin())
     return metadata.end();
   --it;
@@ -671,7 +662,7 @@ void tags_by_id
     {
       if (++element_count > limit)
 	return;
-      typename std::set< OSM_Element_Metadata_Skeleton< typename Object::Id_Type > >::const_iterator meta_it
+      auto meta_it
           = metadata.lower_bound(OSM_Element_Metadata_Skeleton< typename Object::Id_Type >
               (items_by_id[i.val()].first->id));
       print_item(extra_data, output, items_by_id[i.val()].second, *(items_by_id[i.val()].first),
@@ -737,7 +728,7 @@ void tags_by_id_attic
 	return;
       if (items_by_id[i.val()].timestamp == NOW)
       {
-        typename std::set< OSM_Element_Metadata_Skeleton< typename Object::Id_Type > >::const_iterator meta_it
+        auto meta_it
             = only_current_metadata.lower_bound(OSM_Element_Metadata_Skeleton< typename Object::Id_Type >
                 (items_by_id[i.val()].obj->id));
         print_item(extra_data, output, items_by_id[i.val()].idx.val(), *items_by_id[i.val()].obj,
@@ -747,7 +738,7 @@ void tags_by_id_attic
       }
       else
       {
-        typename std::set< OSM_Element_Metadata_Skeleton< typename Object::Id_Type > >::const_iterator meta_it
+        auto meta_it
             = find_matching_metadata(attic_metadata,
                   items_by_id[i.val()].obj->id, items_by_id[i.val()].timestamp);
         print_item(extra_data, output, items_by_id[i.val()].idx.val(),

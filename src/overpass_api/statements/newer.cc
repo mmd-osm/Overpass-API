@@ -74,7 +74,7 @@ void newer_filter_map
 
   Meta_Collector< TIndex, typename TObject::Id_Type, Newer_Functor< typename TObject::Id_Type > > meta_collector
       (modify, *rman.get_transaction(), newer_filter, file_properties);
-  for (typename std::map< TIndex, std::vector< TObject > >::iterator it = modify.begin();
+  for (auto it = modify.begin();
       it != modify.end(); ++it)
   {
     std::vector< TObject > local_into;
@@ -105,7 +105,7 @@ void newer_filter_map_attic
   Meta_Collector< TIndex, typename TObject::Id_Type > attic_meta_collector
       (modify, *rman.get_transaction(), attic_file_properties);
 
-  for (typename std::map< TIndex, std::vector< TObject > >::iterator it = modify.begin();
+  for (auto it = modify.begin();
       it != modify.end(); ++it)
   {
     std::vector< TObject > local_into;

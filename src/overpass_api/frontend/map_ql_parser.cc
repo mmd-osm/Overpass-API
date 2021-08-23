@@ -81,7 +81,7 @@ std::vector< TStatement* > collect_substatements(typename TStatement::Factory& s
   ++token;
   while (token.good() && *token != closing_token)
   {
-    TStatement* substatement = parse_statement< TStatement >
+    auto* substatement = parse_statement< TStatement >
 	(stmt_factory, parsed_query, token, error_output, depth+1);
     if (substatement)
       substatements.push_back(substatement);
@@ -103,7 +103,7 @@ std::vector< TStatement* > collect_substatements_and_probe
   clear_until_after(token, error_output, "(");
   if (token.good() && *token != ")")
   {
-    TStatement* substatement = parse_statement< TStatement >
+    auto* substatement = parse_statement< TStatement >
         (stmt_factory, parsed_query, token, error_output, depth+1);
     if (substatement)
       substatements.push_back(substatement);
@@ -115,7 +115,7 @@ std::vector< TStatement* > collect_substatements_and_probe
   }
   if (token.good() && *token != ")")
   {
-    TStatement* substatement = parse_statement< TStatement >
+    auto* substatement = parse_statement< TStatement >
 	(stmt_factory, parsed_query, token, error_output, depth+1);
     if (substatement)
       substatements.push_back(substatement);
@@ -128,7 +128,7 @@ std::vector< TStatement* > collect_substatements_and_probe
   }
   while (token.good() && *token != ")")
   {
-    TStatement* substatement = parse_statement< TStatement >
+    auto* substatement = parse_statement< TStatement >
 	(stmt_factory, parsed_query, token, error_output, depth+1);
     if (substatement)
       substatements.push_back(substatement);
@@ -507,7 +507,7 @@ TStatement* parse_foreach(typename TStatement::Factory& stmt_factory, Parsed_Que
   if (*token == ";")
     ++token;
 
-  TStatement* statement = create_for_statement< TStatement >
+  auto* statement = create_for_statement< TStatement >
       (stmt_factory, "foreach", from, into, line_col.first);
   for (typename std::vector< TStatement* >::const_iterator it = substatements.begin();
       it != substatements.end(); ++it)
@@ -539,7 +539,7 @@ TStatement* parse_for(typename TStatement::Factory& stmt_factory, Parsed_Query& 
   std::string into = probe_into(token, error_output);
 
   clear_until_after(token, error_output, "(");
-  TStatement* condition = parse_value_tree< TStatement >(stmt_factory, token, error_output, true,
+  auto* condition = parse_value_tree< TStatement >(stmt_factory, token, error_output, true,
       Statement::elem_eval_possible, For_Stmt_Return_Type_Checker());
   clear_until_after(token, error_output, ")");
   std::vector< TStatement* > substatements =
@@ -547,7 +547,7 @@ TStatement* parse_for(typename TStatement::Factory& stmt_factory, Parsed_Query& 
   if (*token == ";")
     ++token;
 
-  TStatement* statement = create_for_statement< TStatement >
+  auto* statement = create_for_statement< TStatement >
       (stmt_factory, "for", from, into, line_col.first);
   statement->add_statement(condition, "");
   for (typename std::vector< TStatement* >::const_iterator it = substatements.begin();
@@ -577,7 +577,7 @@ TStatement* parse_complete(typename TStatement::Factory& stmt_factory, Parsed_Qu
   if (*token == ";")
     ++token;
 
-  TStatement* statement = create_complete_statement< TStatement >
+  auto* statement = create_complete_statement< TStatement >
       (stmt_factory, maxnum, from, into, line_col.first);
   for (typename std::vector< TStatement* >::const_iterator it = substatements.begin();
       it != substatements.end(); ++it)
@@ -606,7 +606,7 @@ TStatement* parse_make_area(typename TStatement::Factory& stmt_factory, Parsed_Q
   if (*token == ";")
     ++token;
 
-  TStatement* statement = create_make_area_statement< TStatement >
+  auto* statement = create_make_area_statement< TStatement >
       (stmt_factory, from, into, pivot, line_col.first);
 
   return statement;
@@ -622,7 +622,7 @@ TStatement* parse_if(typename TStatement::Factory& stmt_factory, Parsed_Query& p
   ++token;
 
   clear_until_after(token, error_output, "(");
-  TStatement* condition = parse_value_tree< TStatement >(stmt_factory, token, error_output, true,
+  auto* condition = parse_value_tree< TStatement >(stmt_factory, token, error_output, true,
       Statement::evaluator_expected, Statement::Single_Return_Type_Checker(Statement::string));
   clear_until_after(token, error_output, ")");
   std::vector< TStatement* > substatements =
@@ -637,7 +637,7 @@ TStatement* parse_if(typename TStatement::Factory& stmt_factory, Parsed_Query& p
   if (*token == ";")
     ++token;
 
-  TStatement* statement = create_if_statement< TStatement >(stmt_factory, line_col.first);
+  auto* statement = create_if_statement< TStatement >(stmt_factory, line_col.first);
   if (condition)
     statement->add_statement(condition, "");
   for (typename std::vector< TStatement* >::const_iterator it = substatements.begin();
@@ -660,7 +660,7 @@ TStatement* parse_retro(typename TStatement::Factory& stmt_factory, Parsed_Query
   ++token;
 
   clear_until_after(token, error_output, "(");
-  TStatement* condition = parse_value_tree< TStatement >(stmt_factory, token, error_output, true,
+  auto* condition = parse_value_tree< TStatement >(stmt_factory, token, error_output, true,
       Statement::evaluator_expected, Statement::Single_Return_Type_Checker(Statement::string));
   clear_until_after(token, error_output, ")");
   std::vector< TStatement* > substatements =
@@ -668,7 +668,7 @@ TStatement* parse_retro(typename TStatement::Factory& stmt_factory, Parsed_Query
   if (*token == ";")
     ++token;
 
-  TStatement* statement = create_retro_statement< TStatement >(stmt_factory, line_col.first);
+  auto* statement = create_retro_statement< TStatement >(stmt_factory, line_col.first);
   if (condition)
     statement->add_statement(condition, "");
   for (typename std::vector< TStatement* >::const_iterator it = substatements.begin();
@@ -741,7 +741,7 @@ TStatement* parse_compare(typename TStatement::Factory& stmt_factory, Parsed_Que
   else
     clear_until_after(token, error_output, ";");
 
-  TStatement* statement = create_compare_statement< TStatement >(stmt_factory, line_col.first, from, into);
+  auto* statement = create_compare_statement< TStatement >(stmt_factory, line_col.first, from, into);
   if (condition)
     statement->add_statement(condition, "");
   for (typename std::vector< TStatement* >::const_iterator it = substatements.begin();
@@ -1224,7 +1224,7 @@ TStatement* parse_query(typename TStatement::Factory& stmt_factory, Parsed_Query
       {
         statement = create_query_statement< TStatement >
            (stmt_factory, type, into, query_line_col.first);
-        TStatement* substatement = create_item_statement< TStatement >(stmt_factory, from, "_", query_line_col.first);
+        auto* substatement = create_item_statement< TStatement >(stmt_factory, from, "_", query_line_col.first);
         statement->add_statement(substatement, "");
       }
     }
@@ -1239,7 +1239,7 @@ TStatement* parse_query(typename TStatement::Factory& stmt_factory, Parsed_Query
     {
       statement = create_query_statement< TStatement >
           (stmt_factory, type, into, query_line_col.first);
-      TStatement* substatement = create_query_substatement< TStatement >
+      auto* substatement = create_query_substatement< TStatement >
           (stmt_factory, token, error_output, clauses.front(), type, from, "_");
       if (substatement)
 	statement->add_statement(substatement, "");
@@ -1274,7 +1274,7 @@ TStatement* parse_query(typename TStatement::Factory& stmt_factory, Parsed_Query
 
     if (!from.empty())
     {
-      TStatement* substatement = create_item_statement< TStatement >
+      auto* substatement = create_item_statement< TStatement >
           (stmt_factory, from, "_", query_line_col.first);
       if (substatement)
 	statement->add_statement(substatement, "");
@@ -1283,7 +1283,7 @@ TStatement* parse_query(typename TStatement::Factory& stmt_factory, Parsed_Query
     for (std::vector< Statement_Text >::const_iterator it = clauses.begin();
         it != clauses.end(); ++it)
     {
-      TStatement* substatement = create_query_substatement< TStatement >
+      auto* substatement = create_query_substatement< TStatement >
           (stmt_factory, token, error_output, *it, type, from, "_");
       if (substatement)
 	statement->add_statement(substatement, "");
@@ -1430,7 +1430,7 @@ void generic_parse_and_validate_map_ql
 
   while (token.good())
   {
-    TStatement* statement = parse_statement< TStatement >(stmt_factory, parsed_query, token, error_output, 0);
+    auto* statement = parse_statement< TStatement >(stmt_factory, parsed_query, token, error_output, 0);
     if (statement)
       base_statement->add_statement(statement, "");
   }
@@ -1455,8 +1455,7 @@ void parse_and_dump_xml_from_map_ql
   for (std::vector< Statement_Dump* >::const_iterator it = stmt_seq.begin();
       it != stmt_seq.end(); ++it)
     std::cout<<(*it)->dump_xml();
-  for (std::vector< Statement_Dump* >::iterator it = stmt_seq.begin();
-      it != stmt_seq.end(); ++it)
+  for (auto it = stmt_seq.begin(); it != stmt_seq.end(); ++it)
     delete *it;
 }
 
@@ -1469,8 +1468,7 @@ void parse_and_dump_compact_from_map_ql
   for (std::vector< Statement_Dump* >::const_iterator it = stmt_seq.begin();
       it != stmt_seq.end(); ++it)
     std::cout<<(*it)->dump_compact_map_ql(stmt_factory_)<<'\n';
-  for (std::vector< Statement_Dump* >::iterator it = stmt_seq.begin();
-      it != stmt_seq.end(); ++it)
+  for (auto it = stmt_seq.begin(); it != stmt_seq.end(); ++it)
     delete *it;
 }
 
@@ -1483,8 +1481,7 @@ void parse_and_dump_bbox_from_map_ql
   for (std::vector< Statement_Dump* >::const_iterator it = stmt_seq.begin();
       it != stmt_seq.end(); ++it)
     std::cout<<(*it)->dump_bbox_map_ql(stmt_factory_)<<'\n';
-  for (std::vector< Statement_Dump* >::iterator it = stmt_seq.begin();
-      it != stmt_seq.end(); ++it)
+  for (auto it = stmt_seq.begin(); it != stmt_seq.end(); ++it)
     delete *it;
 }
 
@@ -1497,7 +1494,6 @@ void parse_and_dump_pretty_from_map_ql
   for (std::vector< Statement_Dump* >::const_iterator it = stmt_seq.begin();
       it != stmt_seq.end(); ++it)
     std::cout<<(*it)->dump_pretty_map_ql(stmt_factory_);
-  for (std::vector< Statement_Dump* >::iterator it = stmt_seq.begin();
-      it != stmt_seq.end(); ++it)
+  for (auto it = stmt_seq.begin(); it != stmt_seq.end(); ++it)
     delete *it;
 }

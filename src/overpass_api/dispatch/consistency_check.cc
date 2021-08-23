@@ -139,8 +139,7 @@ const OSM_Element_Metadata_Skeleton< Id_Type >* Flat_Meta_Collector< TIndex, Id_
     }
   }
 
-  typename std::map< OSM_Element_Metadata_Skeleton< Id_Type >, bool >::iterator it
-      = current_objects.find(OSM_Element_Metadata_Skeleton< Id_Type >(ref));
+  auto it = current_objects.find(OSM_Element_Metadata_Skeleton< Id_Type >(ref));
   it->second = true;
   if (it != current_objects.end())
     return &it->first;
@@ -217,7 +216,7 @@ int main(int argc, char *argv[])
       File_Properties* props = meta_settings().WAYS_META;
       File_Blocks_Index_Base* index_base = rman.get_transaction()->data_index(props);
       std::cout<<"ways_meta address "<<index_base<<'\n';
-      File_Blocks_Index< Uint31_Index >* index = (File_Blocks_Index< Uint31_Index >*)index_base;
+      auto* index = (File_Blocks_Index< Uint31_Index >*)index_base;
       std::cout<<"ways_meta";
       for (int i = 0; i < (int)index->get_void_blocks().size(); ++i)
 	std::cout<<' '<<index->get_void_blocks()[i].first<<' '<<index->get_void_blocks()[i].second;

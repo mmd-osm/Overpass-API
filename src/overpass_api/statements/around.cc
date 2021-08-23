@@ -43,8 +43,7 @@ std::set< std::pair< TIndex, TIndex > > ranges(const std::map< TIndex, std::vect
   if (elems.empty())
     return result;
   std::pair< TIndex, TIndex > range = std::make_pair(elems.begin()->first, inc(elems.begin()->first));
-  for (typename std::map< TIndex, std::vector< TObject > >::const_iterator
-      it = elems.begin(); it != elems.end(); ++it)
+  for (auto it = elems.begin(); it != elems.end(); ++it)
   {
     if (!(range.second < it->first))
       range.second = inc(it->first);
@@ -75,7 +74,7 @@ std::set< std::pair< TIndex, TIndex > > condense_ranges(const std::set< std::pai
   if (temp_ranges.empty())
     return result;
 
-  typename std::set< std::pair< TIndex, TIndex > >::const_iterator it = temp_ranges.begin();
+  auto it = temp_ranges.begin();
   TIndex last_first = it->first;
   TIndex last_second = it->second;
   ++it;
@@ -117,7 +116,7 @@ std::set< std::pair< Uint32_Index, Uint32_Index > > blockwise_split
 {
   std::set< std::pair< Uint32_Index, Uint32_Index > > result;
 
-  for (std::set< std::pair< Uint32_Index, Uint32_Index > >::const_iterator it = idxs.begin();
+  for (auto it = idxs.begin();
       it != idxs.end(); ++it)
   {
     uint32 start = it->first.val();
@@ -168,7 +167,7 @@ std::set< std::pair< Uint32_Index, Uint32_Index > > expand
   std::set< std::pair< Uint32_Index, Uint32_Index > > blockwise_idxs = blockwise_split(idxs);
 
   std::set< std::pair< Uint32_Index, Uint32_Index > > result;
-  for (std::set< std::pair< Uint32_Index, Uint32_Index > >::const_iterator it = blockwise_idxs.begin();
+  for (auto it = blockwise_idxs.begin();
       it != blockwise_idxs.end(); ++it)
   {
     double south = ::lat(it->first.val(), 0) - radius*(90.0/10/1000/1000);
@@ -195,7 +194,7 @@ std::set< std::pair< Uint32_Index, Uint32_Index > > children
 
   std::vector< std::pair< uint32, uint32 > > ranges;
 
-  for (std::set< std::pair< Uint31_Index, Uint31_Index > >::const_iterator it = way_rel_idxs.begin();
+  for (auto it = way_rel_idxs.begin();
       it != way_rel_idxs.end(); ++it)
   {
     for (Uint31_Index idx = it->first; idx < it->second; idx = inc(idx))
@@ -319,7 +318,7 @@ inline bool Prepared_BBox::intersects(const Prepared_BBox & bbox) const
 
 inline bool Prepared_BBox::intersects(const std::vector < Prepared_BBox > & bboxes) const
 {
- for (std::vector< Prepared_BBox >::const_iterator it = bboxes.begin(); it != bboxes.end(); ++it)
+ for (auto it = bboxes.begin(); it != bboxes.end(); ++it)
   if (intersects(*it))
      return true;
  return false;
@@ -357,11 +356,11 @@ inline Prepared_BBox lat_lon_bbox(double lat1, double lon1, double lat2, double 
 inline Prepared_BBox way_geometry_bbox(const std::vector< Quad_Coord >& way_geometry)
 {
   Prepared_BBox bbox;
-  std::vector< Quad_Coord >::const_iterator nit = way_geometry.begin();
+  auto nit = way_geometry.begin();
   if (nit == way_geometry.end())
     return bbox;
 
-  for (std::vector< Quad_Coord >::const_iterator it = way_geometry.begin(); it != way_geometry.end(); ++it)
+  for (auto it = way_geometry.begin(); it != way_geometry.end(); ++it)
   {
     double lat(::lat(it->ll_upper, it->ll_lower));
     double lon(::lon(it->ll_upper, it->ll_lower));
@@ -475,8 +474,8 @@ void Around_Constraint::filter(Resource_Manager& rman, Set& into)
     std::set< std::pair< Uint32_Index, Uint32_Index > > ranges;
     get_ranges(rman, ranges);
 
-    std::set< std::pair< Uint32_Index, Uint32_Index > >::const_iterator ranges_it = ranges.begin();
-    std::map< Uint32_Index, std::vector< Node_Skeleton > >::iterator nit = into.nodes.begin();
+    auto ranges_it = ranges.begin();
+    auto nit = into.nodes.begin();
     for (; nit != into.nodes.end() && ranges_it != ranges.end(); )
     {
       if (!(nit->first < ranges_it->second))
@@ -493,7 +492,7 @@ void Around_Constraint::filter(Resource_Manager& rman, Set& into)
       nit->second.clear();
 
     ranges_it = ranges.begin();
-    std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > >::iterator it = into.attic_nodes.begin();
+    auto it = into.attic_nodes.begin();
     for (; it != into.attic_nodes.end() && ranges_it != ranges.end(); )
     {
       if (!(it->first < ranges_it->second))
@@ -532,7 +531,7 @@ template< typename Node_Skeleton >
 void filter_nodes_expensive(const Around_Statement& around,
                             std::map< Uint32_Index, std::vector< Node_Skeleton > >& nodes)
 {
-  for (typename std::map< Uint32_Index, std::vector< Node_Skeleton > >::iterator it = nodes.begin();
+  for (auto it = nodes.begin();
       it != nodes.end(); ++it)
   {
     std::vector< Node_Skeleton > local_into;
@@ -554,7 +553,7 @@ void filter_ways_expensive(const Around_Statement& around,
                            const Way_Geometry_Store& way_geometries,
                            std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways)
 {
-  for (typename std::map< Uint31_Index, std::vector< Way_Skeleton > >::iterator it = ways.begin();
+  for (auto it = ways.begin();
       it != ways.end(); ++it)
   {
     std::vector< Way_Skeleton > local_into;
@@ -578,14 +577,14 @@ void filter_relations_expensive(const Around_Statement& around,
                                 const Way_Geometry_Store& way_geometries,
                                 std::map< Uint31_Index, std::vector< Relation_Skeleton > >& relations)
 {
-  for (typename std::map< Uint31_Index, std::vector< Relation_Skeleton > >::iterator it = relations.begin();
+  for (auto it = relations.begin();
       it != relations.end(); ++it)
   {
     std::vector< Relation_Skeleton > local_into;
     for (typename std::vector< Relation_Skeleton >::const_iterator iit = it->second.begin();
         iit != it->second.end(); ++iit)
     {
-      for (std::vector< Relation_Entry >::const_iterator nit = iit->members().begin();
+      for (auto nit = iit->members().begin();
 	  nit != iit->members().end(); ++nit)
       {
 	if (nit->type == Relation_Entry::NODE)
@@ -988,7 +987,7 @@ std::set< std::pair< Uint32_Index, Uint32_Index > > Around_Statement::calc_range
     std::map< Uint31_Index, std::vector< Way_Skeleton > > ways;
     std::pair< Uint31_Index, std::vector< Way_Skeleton > > way;
 
-    for (std::vector< Point_Double >::const_iterator it = points.begin(); it != points.end(); ++it)
+    for (auto it = points.begin(); it != points.end(); ++it)
         nd_idxs.push_back(::ll_upper_(it->lat, it->lon));
 
     Uint31_Index idx = Way::calc_index(nd_idxs);
@@ -1057,7 +1056,7 @@ void add_way(const std::vector< Quad_Coord >& way_geometry, double radius,
   // add nodes
   Prepared_BBox way_bbox;
   
-  for (std::vector< Quad_Coord >::const_iterator nit = way_geometry.begin(); nit != way_geometry.end(); ++nit)
+  for (auto nit = way_geometry.begin(); nit != way_geometry.end(); ++nit)
   {
     double lat = ::lat(nit->ll_upper, nit->ll_lower);
     double lon = ::lon(nit->ll_upper, nit->ll_lower);
@@ -1069,7 +1068,7 @@ void add_way(const std::vector< Quad_Coord >& way_geometry, double radius,
 
   // add segments
 
-  std::vector< Quad_Coord >::const_iterator nit = way_geometry.begin();
+  auto nit = way_geometry.begin();
   if (nit == way_geometry.end())
     return;
 
@@ -1097,7 +1096,7 @@ void add_way(const std::vector< Point_Double >& points, double radius,
   // add nodes
   Prepared_BBox way_bbox;
 
-  for (std::vector< Point_Double >::const_iterator nit = points.begin(); nit != points.end(); ++nit)
+  for (auto nit = points.begin(); nit != points.end(); ++nit)
   {
     double lat = nit->lat;
     double lon = nit->lon;
@@ -1109,7 +1108,7 @@ void add_way(const std::vector< Point_Double >& points, double radius,
 
   // add segments
 
-  std::vector< Point_Double >::const_iterator nit = points.begin();
+  auto nit = points.begin();
   if (nit == points.end())
     return;
 
@@ -1142,7 +1141,7 @@ struct Relation_Member_Collection
     // Retrieve all nodes referred by the ways.
 
     // Order node ids by id.
-    for (std::map< Uint32_Index, std::vector< Node_Skeleton > >::iterator it = node_members.begin();
+    for (auto it = node_members.begin();
         it != node_members.end(); ++it)
     {
       for (std::vector< Node_Skeleton >::const_iterator iit = it->second.begin();
@@ -1155,7 +1154,7 @@ struct Relation_Member_Collection
     // Retrieve all ways referred by the relations.
 
     // Order way ids by id.
-    for (std::map< Uint31_Index, std::vector< Way_Skeleton > >::iterator it = way_members.begin();
+    for (auto it = way_members.begin();
         it != way_members.end(); ++it)
     {
       for (std::vector< Way_Skeleton >::const_iterator iit = it->second.begin();
@@ -1193,10 +1192,10 @@ struct Relation_Member_Collection
 template< typename Node_Skeleton >
 void Around_Statement::add_nodes(const std::map< Uint32_Index, std::vector< Node_Skeleton > >& nodes)
 {
-  for (typename std::map< Uint32_Index, std::vector< Node_Skeleton > >::const_iterator iit(nodes.begin());
+  for (auto iit(nodes.begin());
       iit != nodes.end(); ++iit)
   {
-    for (typename std::vector< Node_Skeleton >::const_iterator nit(iit->second.begin());
+    for (auto nit(iit->second.begin());
         nit != iit->second.end(); ++nit)
       add_node(iit->first, *nit, radius, radius_lat_lons, simple_lat_lons, node_bboxes);
   }
@@ -1207,10 +1206,10 @@ template< typename Way_Skeleton >
 void Around_Statement::add_ways(const std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
 				const Way_Geometry_Store& way_geometries)
 {
-  for (typename std::map< Uint31_Index, std::vector< Way_Skeleton > >::const_iterator it = ways.begin();
+  for (auto it = ways.begin();
       it != ways.end(); ++it)
   {
-    for (typename std::vector< Way_Skeleton >::const_iterator iit = it->second.begin();
+    for (auto iit = it->second.begin();
         iit != it->second.end(); ++iit)
       add_way(way_geometries.get_geometry(*iit), radius,
           radius_lat_lons, simple_lat_lons, simple_segments, way_bboxes);
@@ -1284,11 +1283,10 @@ bool Around_Statement::matches_bboxes(const Prepared_BBox & bbox) const
 
 bool Around_Statement::is_inside(double lat, double lon) const
 {
-  std::map< Uint32_Index, std::vector< Point_Double > >::const_iterator mit
-      = radius_lat_lons.find(::ll_upper_(lat, lon));
+  auto mit = radius_lat_lons.find(::ll_upper_(lat, lon));
   if (mit != radius_lat_lons.end())
   {
-    for (std::vector< Point_Double >::const_iterator cit = mit->second.begin();
+    for (auto cit = mit->second.begin();
         cit != mit->second.end(); ++cit)
     {
       if ((radius > 0 && great_circle_dist(cit->lat, cit->lon, lat, lon) <= radius)
@@ -1300,9 +1298,7 @@ bool Around_Statement::is_inside(double lat, double lon) const
   std::tuple< double, double, double > coord_cartesian = cartesian(lat, lon);
   Prepared_BBox bbox_lat_lon = ::lat_lon_bbox(lat, lon);
 
-  for (std::vector< std::pair< Prepared_BBox, Prepared_Segment> >::const_iterator
-
-      it = simple_segments.begin(); it != simple_segments.end(); ++it)
+  for (auto it = simple_segments.begin(); it != simple_segments.end(); ++it)
   {
     if (bbox_lat_lon.intersects(it->first) &&
         great_circle_line_dist(it->second, coord_cartesian) <= radius)
@@ -1325,9 +1321,7 @@ bool Around_Statement::is_inside
   Prepared_Segment segment(first_lat, first_lon, second_lat, second_lon);
   Prepared_BBox bbox_segment = ::lat_lon_bbox(first_lat, first_lon, second_lat, second_lon);
   
-  for (std::vector< std::pair< Prepared_BBox, Prepared_Point> >::const_iterator cit = simple_lat_lons.begin();
-
-      cit != simple_lat_lons.end(); ++cit)
+  for (auto cit = simple_lat_lons.begin(); cit != simple_lat_lons.end(); ++cit)
   {
     if (bbox_segment.intersects(cit->first) &&
         great_circle_line_dist(segment, cit->second.cartesian) <= radius)
@@ -1340,8 +1334,7 @@ bool Around_Statement::is_inside
     }
   }
 
-  for (std::vector< std::pair< Prepared_BBox, Prepared_Segment> >::const_iterator
-      cit = simple_segments.begin(); cit != simple_segments.end(); ++cit)
+  for (auto cit = simple_segments.begin(); cit != simple_segments.end(); ++cit)
   {
     if (bbox_segment.intersects(cit->first) &&
         intersect(cit->second, segment))
@@ -1354,12 +1347,12 @@ bool Around_Statement::is_inside
 
 bool Around_Statement::is_inside(const std::vector< Quad_Coord >& way_geometry) const
 {
-  std::vector< Quad_Coord >::const_iterator nit = way_geometry.begin();
+  auto nit = way_geometry.begin();
   if (nit == way_geometry.end())
     return false;
 
   // Pre-check if a node is inside
-  for (std::vector< Quad_Coord >::const_iterator it = way_geometry.begin(); it != way_geometry.end(); ++it)
+  for (auto it = way_geometry.begin(); it != way_geometry.end(); ++it)
   {
     double second_lat(::lat(it->ll_upper, it->ll_lower));
     double second_lon(::lon(it->ll_upper, it->ll_lower));

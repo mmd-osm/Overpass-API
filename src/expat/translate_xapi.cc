@@ -189,8 +189,7 @@ void print_bbox(const InputAnalyzer& analyzer)
 
 void print_key_values(const InputAnalyzer& analyzer)
 {
-  for (std::vector< std::pair< std::string, std::string > >::const_iterator it = analyzer.key_value.begin();
-      it != analyzer.key_value.end(); ++it)
+  for (auto it = analyzer.key_value.begin(); it != analyzer.key_value.end(); ++it)
   {
     if (it->second == "*")
       std::cout<<"[\""<<escape_xml(xapi_unescape(it->first))<<"\"]";

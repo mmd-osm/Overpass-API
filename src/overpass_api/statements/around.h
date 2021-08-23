@@ -129,7 +129,7 @@ class Around_Statement final : public Output_Statement
       else if (!points.empty())
       {
         result += " polyline=\"";
-        for (std::vector< Point_Double >::const_iterator it = points.begin(); it != points.end(); ++it)
+        for (auto it = points.begin(); it != points.end(); ++it)
           result += to_string(it->lat) + "," + to_string(it->lon) + ",";
         result[result.size()-1] = '\"';
       }
@@ -145,7 +145,7 @@ class Around_Statement final : public Output_Statement
       std::string result = std::string("(around")
           + (input != "_" ? std::string(".") + input : "")
           + std::string(":") + to_string(radius);
-      for (std::vector< Point_Double >::const_iterator it = points.begin(); it != points.end(); ++it)
+      for (auto it = points.begin(); it != points.end(); ++it)
         result += "," + to_string(it->lat) + "," + to_string(it->lon);
       return result + ")";
     }

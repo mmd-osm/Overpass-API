@@ -177,7 +177,7 @@ void add_segment_blocks(std::vector< Aligned_Segment >& segments)
   {
     std::set< int32 > lons;
 
-    for (std::vector< Aligned_Segment >::const_iterator it2 = it->second.begin();
+    for (auto it2 = it->second.begin();
         it2 != it->second.end(); ++it2)
     {
       int32 lon_front(ilon(it->first.val() | (it2->ll_lower_a>>32), (it2->ll_lower_a) & 0xffffffffull));
@@ -202,7 +202,7 @@ void add_segment_blocks(std::vector< Aligned_Segment >& segments)
 
     // insert lons
     std::vector< Aligned_Segment >& northern_block(by_upper[northern_ll_upper]);
-    for (std::set< int32 >::const_iterator it2 = lons.begin(); it2 != lons.end(); ++it2)
+    for (auto it2 = lons.begin(); it2 != lons.end(); ++it2)
     {
       int32 from(*it2);
       ++it2;
@@ -220,7 +220,7 @@ void add_segment_blocks(std::vector< Aligned_Segment >& segments)
   for (std::map< Uint31_Index, std::vector< Aligned_Segment > >::const_iterator it = by_upper.begin();
        it != by_upper.end(); ++it)
   {
-    for (std::vector< Aligned_Segment >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
       segments.push_back(*it2);
   }
 }
@@ -258,7 +258,7 @@ bool covers_large_area(const std::vector< std::pair< double, double > >& edges)
   double max_lon = -200.;
   double min_lon = 200.;
 
-  for (std::vector< std::pair< double, double > >::const_iterator it = edges.begin(); it != edges.end(); ++it)
+  for (auto it = edges.begin(); it != edges.end(); ++it)
   {
     max_lat = std::max(max_lat, it->first);
     min_lat = std::min(min_lat, it->first);
@@ -352,7 +352,7 @@ void Polygon_Query_Statement::collect_nodes(std::map< Uint32_Index, std::vector<
                                             bool add_border)
 {
   std::vector< Aligned_Segment >::const_iterator area_it = segments.begin();
-  typename std::map< Uint32_Index, std::vector< Node_Skeleton > >::iterator nodes_it = nodes.begin();
+  auto nodes_it = nodes.begin();
 
   uint32 current_idx(0);
 
@@ -422,9 +422,9 @@ void Polygon_Query_Statement::collect_ways
        bool add_border, const Statement& query, Resource_Manager& rman)
 {
   std::map< uint32, std::vector< std::pair< uint32, Way::Id_Type > > > way_coords_to_id;
-  for (typename std::map< Uint31_Index, std::vector< Way_Skeleton > >::iterator it = ways.begin(); it != ways.end(); ++it)
+  for (auto it = ways.begin(); it != ways.end(); ++it)
   {
-    for (typename std::vector< Way_Skeleton >::iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
       std::vector< Quad_Coord > coords = way_geometries.get_geometry(*it2);
       for (std::vector< Quad_Coord >::const_iterator it3 = coords.begin(); it3 != coords.end(); ++it3)
@@ -437,9 +437,9 @@ void Polygon_Query_Statement::collect_ways
   std::vector< Aligned_Segment >::const_iterator area_it = segments.begin();
 
   std::map< Uint31_Index, std::vector< Area_Block > > way_segments;
-  for (typename std::map< Uint31_Index, std::vector< Way_Skeleton > >::iterator it = ways.begin(); it != ways.end(); ++it)
+  for (auto it = ways.begin(); it != ways.end(); ++it)
   {
-    for (typename std::vector< Way_Skeleton >::iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
       add_way_to_area_blocks(way_geometries.get_geometry(*it2), it2->id.val(), way_segments);
   }
 
@@ -468,7 +468,7 @@ void Polygon_Query_Statement::collect_ways
         (nodes_it->first & 0xffffff00) == current_idx)
     {
       std::vector< std::pair< uint32, Way::Id_Type > > into;
-      for (std::vector< std::pair< uint32, Way::Id_Type > >::const_iterator iit = nodes_it->second.begin();
+      for (auto iit = nodes_it->second.begin();
           iit != nodes_it->second.end(); ++iit)
       {
         uint32 ilat = ::ilat(nodes_it->first, iit->first);
@@ -531,10 +531,10 @@ void Polygon_Query_Statement::collect_ways
   std::map< Uint31_Index, std::vector< Way_Skeleton > > result;
 
   // Mark ways as found that intersect the area border
-  for (typename std::map< Uint31_Index, std::vector< Way_Skeleton > >::iterator it = ways.begin(); it != ways.end(); ++it)
+  for (auto it = ways.begin(); it != ways.end(); ++it)
   {
     std::vector< Way_Skeleton > cur_result;
-    for (typename std::vector< Way_Skeleton >::iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
       if (ways_inside[it2->id])
       {

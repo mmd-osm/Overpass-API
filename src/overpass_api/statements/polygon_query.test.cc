@@ -40,13 +40,13 @@ void perform_polygon_print(const std::string& bounds, Transaction& transaction)
     Resource_Manager rman(transaction, &global_settings);
     {
       const char* attributes[] = { "bounds", bounds.c_str(), 0 };
-      Polygon_Query_Statement* stmt1 = new Polygon_Query_Statement(0, convert_c_pairs(attributes), global_settings);
+      auto* stmt1 = new Polygon_Query_Statement(0, convert_c_pairs(attributes), global_settings);
       stmt1->execute(rman);
       delete stmt1;
     }
     {
       const char* attributes[] = { "mode", "body", "order", "id", 0 };
-      Print_Statement* stmt1 = new Print_Statement(0, convert_c_pairs(attributes), global_settings);
+      auto* stmt1 = new Print_Statement(0, convert_c_pairs(attributes), global_settings);
       stmt1->execute(rman);
       delete stmt1;
     }
@@ -93,7 +93,7 @@ void perform_query_polygon_print(const std::string& bounds, const std::string& t
     }
     {
       const char* attributes[] = { "mode", "body", "order", "id", 0 };
-      Print_Statement* stmt1 = new Print_Statement(0, convert_c_pairs(attributes), global_settings);
+      auto* stmt1 = new Print_Statement(0, convert_c_pairs(attributes), global_settings);
       stmt1->execute(rman);
       delete stmt1;
     }

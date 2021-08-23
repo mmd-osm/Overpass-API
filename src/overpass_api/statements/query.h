@@ -114,7 +114,7 @@ class Query_Statement final : public Output_Statement
     {
       std::string result = indent + "<query" + dump_xml_result_name() + " type=\"" + to_string(type) + "\">\n";
 
-      for (std::vector< Statement* >::const_iterator it = substatements.begin(); it != substatements.end(); ++it)
+      for (auto it = substatements.begin(); it != substatements.end(); ++it)
         result += *it ? (*it)->dump_xml(indent + "  ") : "";
 
       return result + indent + "</query>\n";
@@ -128,7 +128,7 @@ class Query_Statement final : public Output_Statement
       std::string result = (pretty ? indent :  "") + to_string(type);
 
       uint proper_substatement_count = 0;
-      for (std::vector< Statement* >::const_iterator it = substatements.begin();
+      for (auto it = substatements.begin();
           it != substatements.end(); ++it)
       {
         if ((*it)->get_name() == "item")
@@ -139,7 +139,7 @@ class Query_Statement final : public Output_Statement
 
       std::string prefix = (pretty && proper_substatement_count > 1 ? "\n  " + indent : "");
 
-      for (std::vector< Statement* >::const_iterator it = substatements.begin();
+      for (auto it = substatements.begin();
           it != substatements.end(); ++it)
       {
         if ((*it)->get_name() != "item")
