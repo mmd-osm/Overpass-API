@@ -64,10 +64,9 @@ struct Tag_Index_Local
 
   Tag_Index_Local(const void* data)
   {
-    index = (*((uint32*)data + 1))<<8;
-    key = std::string(((int8*)data + 7), *(uint16*)data);
-    value = std::string(((int8*)data + 7 + key.length()),
-		   *((uint16*)data + 1));
+    index = (unalignedLoad<uint32>((uint32*)data + 1))<<8;
+    key = std::string(((int8*)data + 7), unalignedLoad<uint16>(data));
+    value = std::string(((int8*)data + 7 + key.length()), unalignedLoad<uint16>((uint16*)data + 1));
   }
 
   uint32 size_of() const
@@ -77,14 +76,14 @@ struct Tag_Index_Local
 
   static uint32 size_of(const void* data)
   {
-    return (*((uint16*)data) + *((uint16*)data + 1) + 7);
+    return unalignedLoad<uint16>(data) + unalignedLoad<uint16>((uint16*)data + 1) + 7;
   }
 
   void to_data(void* data) const
   {
-    *(uint16*)data = key.length();
-    *((uint16*)data + 1) = value.length();
-    *((uint32*)data + 1) = index>>8;
+    unalignedStore(data, (uint16) key.length());
+    unalignedStore(((uint16*)data + 1), (uint16) value.length());
+    unalignedStore(((uint32*)data + 1), (uint32) (index>>8));
     memcpy(((uint8*)data + 7), key.data(), key.length());
     memcpy(((uint8*)data + 7 + key.length()), value.data(),
 	   value.length());
@@ -136,7 +135,7 @@ struct Tag_Index_Local_Index_Functor {
 
   inline uint32 operator()(const void* data) const
    {
-     return (*((uint32*)data + 1))<<8;
+     return unalignedLoad<uint32>((uint32*)data + 1)<<8;
    }
 };
 
@@ -147,7 +146,7 @@ struct Tag_Index_Local_Element_Functor {
 
   inline Tag_Index_Local operator()(const void* data)
    {
-     return (Tag_Index_Local(data));
+     return Tag_Index_Local(data);
    }
 };
 
@@ -290,9 +289,8 @@ struct Tag_Index_Global
 
   Tag_Index_Global(const void* data)
   {
-    key = std::string(((int8*)data + 4), *(uint16*)data);
-    value = std::string(((int8*)data + 4 + key.length()),
-		   *((uint16*)data + 1));
+    key = std::string(((int8*)data + 4), unalignedLoad<uint16>(data));
+    value = std::string(((int8*)data + 4 + key.length()), unalignedLoad<uint16>((uint16*)data + 1));
   }
 
   Tag_Index_Global(const Tag_Index_Local& tag_idx) : key(tag_idx.key), value(tag_idx.value) {}
@@ -306,13 +304,13 @@ struct Tag_Index_Global
 
   static uint32 size_of(const void* data)
   {
-    return (*((uint16*)data) + *((uint16*)data + 1) + 4);
+    return (unalignedLoad<uint16>(data) + unalignedLoad<uint16>((uint16*)data + 1) + 4);
   }
 
   void to_data(void* data) const
   {
-    *(uint16*)data = key.length();
-    *((uint16*)data + 1) = value.length();
+    unalignedStore(data, (uint16)key.length());
+    unalignedStore(((uint16*)data + 1), (uint16)value.length());
     memcpy(((uint8*)data + 4), key.data(), key.length());
     memcpy(((uint8*)data + 4 + key.length()), value.data(),
 	   value.length());
@@ -357,7 +355,7 @@ struct Tag_Index_Global_Has_Key_Functor {
   inline bool operator()(const void* data) const
    {
      char* k = ((int8*)data + 4);
-     int len = *(uint16*)data;
+     int len = unalignedLoad<uint16>(data);
      return (len == key.length() && std::strncmp(k, key.c_str(), len) == 0);
    }
 
@@ -374,10 +372,10 @@ struct Tag_Index_Global_Has_Value_Functor {
   inline bool operator()(const void* data) const
    {
      // char* k = ((int8*)data + 4);
-     int key_len = *(uint16*)data;
+     int key_len = unalignedLoad<uint16>(data);
 
      char* v = ((int8*)data + 4 + key_len);
-     int value_len = *((uint16*)data + 1);
+     int value_len = unalignedLoad<uint16>((uint16*)data + 1);
 
      return (value_len == value.length() && std::strncmp(v, value.c_str(), value_len) == 0);
    }
@@ -419,7 +417,7 @@ struct Tag_Object_Global
 
   Tag_Object_Global(const void* data)
   {
-    idx = Uint31_Index(((*((uint32*)data))<<8) & 0xffffff00);
+    idx = Uint31_Index(((unalignedLoad<uint32>(data))<<8) & 0xffffff00);
     id = Id_Type((void*)((uint8*)data + 3));
   }
 
@@ -435,7 +433,7 @@ struct Tag_Object_Global
 
   void to_data(void* data) const
   {
-    *(uint32*)data = ((idx.val()>>8) & 0x7fffff);
+    unalignedStore(data, (uint32)((idx.val()>>8) & 0x7fffff));
     id.to_data((void*)((uint8*)data + 3));
   }
   
@@ -484,7 +482,7 @@ struct Tag_Object_Global_Idx_Functor {
 
   Uint31_Index operator()(const void* data) const
    {
-    return Uint31_Index(((*((uint32*)data))<<8) & 0xffffff00);
+    return Uint31_Index((unalignedLoad<uint32>(data)<<8) & 0xffffff00);
    }
 };
 

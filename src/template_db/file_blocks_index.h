@@ -251,9 +251,9 @@ void File_Blocks_Index< TIndex >::init_blocks()
         TIndex index(index_buf.data() + pos + 12);
         File_Block_Index_Entry< TIndex >
             entry(index,
-	    *(uint32*)(index_buf.data() + pos),
-	    *(uint32*)(index_buf.data() + pos + 4),
-	    *(uint32*)(index_buf.data() + pos + 8));
+            unalignedLoad<uint32>(index_buf.data() + pos),
+            unalignedLoad<uint32>(index_buf.data() + pos + 4),
+            unalignedLoad<uint32>(index_buf.data() + pos + 8));
         if (writeable())
           block_list.push_back(entry);
         else
@@ -355,11 +355,11 @@ File_Blocks_Index< TIndex >::~File_Blocks_Index()
   for (typename std::list< File_Block_Index_Entry< TIndex > >::const_iterator
       it(block_list.begin()); it != block_list.end(); ++it)
   {
-    *(uint32*)(index_buf.data()+pos) = it->pos;
+    unalignedStore(index_buf.data()+pos, it->pos);
     pos += 4;
-    *(uint32*)(index_buf.data()+pos) = it->size;
+    unalignedStore(index_buf.data()+pos, it->size);
     pos += 4;
-    *(uint32*)(index_buf.data()+pos) = it->max_keysize;
+    unalignedStore(index_buf.data()+pos, it->max_keysize);
     pos += 4;
     it->index.to_data(index_buf.data()+pos);
     pos += it->index.size_of();

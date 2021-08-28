@@ -49,7 +49,7 @@ struct String_Object
 
   String_Object(void* data)
   {
-    value = std::string(((int8*)data + 2), *(uint16*)data);
+    value = std::string(((int8*)data + 2), unalignedLoad<uint16>(data));
   }
 
   uint32 size_of() const
@@ -59,12 +59,12 @@ struct String_Object
 
   static uint32 size_of(void* data)
   {
-    return *(uint16*)data + 2;
+    return unalignedLoad<uint16>(data) + 2;
   }
 
   void to_data(void* data) const
   {
-    *(uint16*)data = value.length();
+    unalignedStore(data, (uint16) value.length());
     memcpy(((uint8*)data + 2), value.data(), value.length());
   }
 
@@ -277,7 +277,7 @@ struct Derived_Structure : public Derived_Skeleton
 
   std::vector< std::pair< std::string, std::string > > tags;
 
-  const Opaque_Geometry* get_geometry() const { return &*geometry; }
+  const Opaque_Geometry* get_geometry() const { return ((geometry) ? &*geometry : nullptr); }
   const void acquire_geometry(Opaque_Geometry* geometry_)
   {
     geometry.acquire(geometry_);
@@ -418,10 +418,10 @@ struct User_Data
 
   User_Data() : id(0) {}
 
-  User_Data(void* data)
+  User_Data(const void* data)
   {
-    id = *(uint32*)data;
-    name = std::string(((int8*)data + 6), *(uint16*)((int8*)data + 4));
+    id = unalignedLoad<uint32>(data);
+    name = std::string(((int8*)data + 6), unalignedLoad<uint16>((int8*)data + 4));
   }
 
   uint32 size_of() const
@@ -431,13 +431,13 @@ struct User_Data
 
   static uint32 size_of(void* data)
   {
-    return 6 + *(uint16*)((int8*)data + 4);
+    return 6 + unalignedLoad<uint16>((int8*)data + 4);
   }
 
   void to_data(void* data) const
   {
-    *(uint32*)data = id;
-    *(uint16*)((int8*)data + 4) = name.length();
+    unalignedStore(data, id);
+    unalignedStore((int8*)data + 4, (uint16) name.length());
     memcpy(((int8*)data + 6), name.data(), name.length());
   }
 
@@ -498,10 +498,10 @@ struct OSM_Element_Metadata_Skeleton
   OSM_Element_Metadata_Skeleton(const void* data)
     : ref(data)
   {
-    version = *(uint32*)((int8*)data + Id_Type::max_size_of());
-    timestamp = (*(uint64*)((int8*)data + Id_Type::max_size_of() + 4) & 0xffffffffffull);
-    changeset = *(uint32*)((int8*)data + Id_Type::max_size_of() + 9);
-    user_id = *(uint32*)((int8*)data + Id_Type::max_size_of() + 13);
+    version = unalignedLoad<uint32>((int8*)data + Id_Type::max_size_of());
+    timestamp = (unalignedLoad<uint64>((int8*)data + Id_Type::max_size_of() + 4) & 0xffffffffffull);
+    changeset = unalignedLoad<uint32>((int8*)data + Id_Type::max_size_of() + 9);
+    user_id = unalignedLoad<uint32>((int8*)data + Id_Type::max_size_of() + 13);
   }
 
   uint32 size_of() const
@@ -517,10 +517,10 @@ struct OSM_Element_Metadata_Skeleton
   void to_data(void* data) const
   {
     ref.to_data(data);
-    *(uint32*)((int8*)data + Id_Type::max_size_of()) = version;
-    *(uint64*)((int8*)data + Id_Type::max_size_of() + 4) = timestamp;
-    *(uint32*)((int8*)data + Id_Type::max_size_of() + 9) = changeset;
-    *(uint32*)((int8*)data + Id_Type::max_size_of() + 13) = user_id;
+    unalignedStore((int8*)data + Id_Type::max_size_of(), version);
+    unalignedStore((int8*)data + Id_Type::max_size_of() + 4, timestamp);
+    unalignedStore((int8*)data + Id_Type::max_size_of() + 9, changeset);
+    unalignedStore((int8*)data + Id_Type::max_size_of() + 13, user_id);
   }
 
   bool operator<(const OSM_Element_Metadata_Skeleton& a) const
@@ -549,7 +549,7 @@ struct Metadata_Timestamp_Functor {
 
   uint64 operator()(const void* data) const
    {
-     uint64 _timestamp((*(uint64*)((int8*)data + Id_Type::max_size_of() + 4) & 0xffffffffffull));
+     uint64 _timestamp((unalignedLoad<uint64>((int8*)data + Id_Type::max_size_of() + 4) & 0xffffffffffull));
      return _timestamp;
    }
 };
@@ -587,7 +587,7 @@ struct Metadata_Changeset_Functor {
 
   uint32 operator()(const void* data) const
    {
-     return *(uint32*)((int8*)data + Id_Type::max_size_of() + 9);
+     return unalignedLoad<uint32>((int8*)data + Id_Type::max_size_of() + 9);
    }
 };
 
@@ -725,7 +725,7 @@ struct Timestamp
 
   Timestamp(const void* data) {
 
-    timestamp = (uint64) (*(uint32*)(data));
+    timestamp = (uint64) (unalignedLoad<uint32>(data));
     timestamp |= (uint64)(*(uint8*)((uint8*)data+4)) << 32;
   }
 
@@ -856,7 +856,7 @@ struct Timestamp
   void to_data(void* data) const
   {
     void* pos = (uint8*)data;
-    *(uint32*)(pos) = (timestamp & 0xffffffffull);
+    unalignedStore(pos, (uint32)(timestamp & 0xffffffffull));
     *(uint8*)((uint8*)pos+4) = ((timestamp & 0xff00000000ull)>>32);
   }
 

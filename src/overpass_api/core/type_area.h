@@ -270,13 +270,15 @@ struct Area_Skeleton
 
   Area_Skeleton() : id(0u) { d = new Area_Skeleton_Data; }
 
-  Area_Skeleton(void* data) : id(0u)
+  Area_Skeleton(const void* data) : id(0u)
   {
     d = new Area_Skeleton_Data;
 
-    id = *(Id_Type*)data;
-    for (uint i(0); i < *((uint32*)data + 1); ++i)
-      d->used_indices.push_back(*((uint32*)data + i + 2));
+    id = unalignedLoad<Id_Type>(data);
+    const uint32 idx_size = unalignedLoad<uint32>((uint32*)data + 1);
+    d->used_indices.reserve(idx_size);
+    for (uint i(0); i < idx_size; ++i)
+      d->used_indices.push_back(unalignedLoad<uint32>((uint32*)data + i + 2));
   }
 
   Area_Skeleton(const Area_Location& loc)
@@ -338,7 +340,7 @@ struct Area_Skeleton_Id_Functor {
 
   Id_Type operator()(const void* data) const
    {
-     return *(Id_Type*)data;
+     return unalignedLoad<Id_Type>(data);
    }
 };
 
@@ -379,14 +381,20 @@ struct Area_Block
 
   Area_Block() : id(0u) { d = new Area_Block_Data; }
 
-  Area_Block(void* data) : id(*(Id_Type*)data)
+  Area_Block(const void* data) : id(unalignedLoad<Id_Type>(data))
   {
     d = new Area_Block_Data;
 
-    id = *(Id_Type*)data;
-    d->coors.resize(*((uint16*)data + 2));
-    for (int i(0); i < *((uint16*)data + 2); ++i)
-      d->coors[i] = (*(uint64*)((uint8*)data + 6 + 5*i)) & (uint64)0xffffffffffull;
+    id = unalignedLoad<Id_Type>(data);
+    const int num_coors = unalignedLoad<uint16>((uint16*)data + 2);
+
+    d->coors.resize(num_coors);
+    for (int i(0); i < num_coors; ++i) {
+      uint64 coors;
+      coors = (uint64) (unalignedLoad<uint32>((uint8*)data + 6 + 5*i));
+      coors |= (uint64)(*(uint8*)((uint8*)data + 10 + 5*i)) << 32;
+      d->coors[i] = coors;
+    }
   }
 
   Area_Block(Id_Type id_, const std::vector< uint64 >& coors_)
@@ -404,16 +412,16 @@ struct Area_Block
 
   static uint32 size_of(void* data)
   {
-    return (6 + 5 * *((uint16*)data + 2));
+    return (6 + 5 * unalignedLoad<uint16>((uint16*)data + 2));
   }
 
   void to_data(void* data) const
   {
-    *(Id_Type*)data = id.val();
-    *((uint16*)data + 2) = d->coors.size();
+    unalignedStore(data, id.val());
+    unalignedStore((uint16*)data + 2, (uint16) d->coors.size());
     for (uint i(0); i < d->coors.size(); ++i)
     {
-      *(uint32*)((uint8*)data + 6 + 5*i) = d->coors[i];
+      unalignedStore((uint8*)data + 6 + 5*i, (uint32) d->coors[i]);
       *((uint8*)data + 10 + 5*i) = (d->coors[i])>>32;
     }
   }
@@ -466,7 +474,7 @@ struct Area_Block_Id_Functor {
 
   Id_Type operator()(const void* data) const
    {
-     return *(Id_Type*)data;
+     return unalignedLoad<Id_Type>(data);
    }
 };
 

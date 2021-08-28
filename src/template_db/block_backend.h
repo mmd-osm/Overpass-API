@@ -206,7 +206,7 @@ private:
 
   uint32 next_idx_block_offset() const
   {
-    return *(uint32*)(((uint8*)buffer.ptr) + idx_block_offset);
+    return unalignedLoad<uint32>((uint8*)buffer.ptr + idx_block_offset);
   }
   uint8* idx_ptr() const
   {
@@ -214,7 +214,7 @@ private:
   }
   uint32 total_payload_size() const
   {
-    return *(uint32*)buffer.ptr;
+    return unalignedLoad<uint32>(buffer.ptr);
   }
 
   void increment_idx();
@@ -664,10 +664,8 @@ struct Block_Backend
 template< class TIndex, class TObject, class TIterator, class TRangeAssessor, class TDiscreteAssessor >
 Block_Backend< TIndex, TObject, TIterator, TRangeAssessor, TDiscreteAssessor >::Block_Backend(File_Blocks_Index_Base* index_)
   : file_blocks(index_),
-    block_size(((File_Blocks_Index< TIndex >*)index_)->get_block_size()
-        * ((File_Blocks_Index< TIndex >*)index_)->get_compression_factor()),
-    data_filename
-      (((File_Blocks_Index< TIndex >*)index_)->get_data_file_name())
+    block_size(index_->get_block_size() * index_->get_compression_factor()),
+    data_filename(index_->get_data_file_name())
 {
   flat_end_it = new Flat_Iterator(file_blocks, block_size, true);
   discrete_end_it = new Discrete_Iterator(file_blocks, block_size);

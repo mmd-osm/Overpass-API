@@ -775,7 +775,7 @@ void File_Blocks_Write_Iterator< TIndex, TIterator >::find_next_block()
 template< typename TIndex, typename TIterator, typename TRangeIterator >
 File_Blocks< TIndex, TIterator, TRangeIterator >::File_Blocks
     (File_Blocks_Index_Base* index_) :
-     index((File_Blocks_Index< TIndex >*)index_),
+     index(reinterpret_cast< File_Blocks_Index< TIndex >* >(index_)),
      block_size(index->get_block_size()),
      compression_factor(index->get_compression_factor()),
      compression_method(index->get_compression_method()),

@@ -172,7 +172,7 @@ struct Way_Skeleton
 
   Way_Skeleton(Way::Id_Type id_) : id(id_) { d = new Way_Skeleton_Data; }
 
-  Way_Skeleton(const void* data) : id(*(Id_Type*)data)
+  Way_Skeleton(const void* data) : id(unalignedLoad<Id_Type>(data))
   {
     d = new Way_Skeleton_Data;
 
@@ -180,9 +180,11 @@ struct Way_Skeleton
 
     auto* start_ptr = (uint16*) decompress_nds(d->nds, *((uint16*)data + 2), *((uint16*)data + 4), ((uint8*)data + 10));
 
-    d->geometry.reserve(*((uint16*)data + 3));
-    for (int i(0); i < *((uint16*)data + 3); ++i)
-      d->geometry.push_back(Quad_Coord(*(uint32*)(start_ptr + 4*i), *(uint32*)(start_ptr + 4*i + 2)));
+    const auto geometry_count = unalignedLoad<uint16>((uint16*)data + 3);
+
+    d->geometry.reserve(geometry_count);
+    for (int i(0); i < geometry_count; ++i)
+      d->geometry.push_back(Quad_Coord(unalignedLoad<uint32>(start_ptr + 4*i), unalignedLoad<uint32>(start_ptr + 4*i + 2)));
 
   }
 
@@ -225,24 +227,24 @@ struct Way_Skeleton
   static uint32 size_of(const void* data) noexcept
   {
     return (8 + 2 +
-            8 * *((uint16*)data + 3) +      // geometry size elements, 8 byte per element
-            *((uint16*)data + 4));          // nds_compressed_size (in bytes)
+            8 * unalignedLoad<uint16>((uint16*)data + 3) +      // geometry size elements, 8 byte per element
+            unalignedLoad<uint16>((uint16*)data + 4));          // nds_compressed_size (in bytes)
   }
 
   void to_data(void* data) const
   {
-    *(Id_Type*)data = id.val();
-    *((uint16*)data + 2) = d->nds.size();
-    *((uint16*)data + 3) = d->geometry.size();
+    unalignedStore(data, id.val());
+    unalignedStore(((uint16*)data + 2), (uint16) d->nds.size());
+    unalignedStore(((uint16*)data + 3), (uint16) d->geometry.size());
 
     auto* start_ptr = (uint16*) compress_nds(d->nds, (uint8*)data + 10);
     auto nds_compressed_size = (uint16) ((uint8*)start_ptr - ((uint8*)data + 10));
-    *((uint16*)data + 4) = nds_compressed_size;
+    unalignedStore(((uint16*)data + 4), (uint16) nds_compressed_size);
 
     for (uint i(0); i < d->geometry.size(); ++i)
     {
-      *(uint32*)(start_ptr + 4*i) = d->geometry[i].ll_upper;
-      *(uint32*)(start_ptr + 4*i + 2) = d->geometry[i].ll_lower;
+      unalignedStore(start_ptr + 4*i,     d->geometry[i].ll_upper);
+      unalignedStore(start_ptr + 4*i + 2, d->geometry[i].ll_lower);
     }
   }
 
@@ -271,7 +273,7 @@ struct Way_Skeleton_Id_Functor {
 
   Id_Type operator()(const void* data) const
    {
-     return *(Id_Type*)data;
+     return unalignedLoad<Id_Type>(data);
    }
 };
 
@@ -336,64 +338,64 @@ struct Way_Delta
 
   Way_Delta() : id(0u), full(false) {}
 
-  Way_Delta(const void* data) : id(*(Id_Type*)data), full(false)
+  Way_Delta(const void* data) : id(unalignedLoad<Id_Type>(data)), full(false)
   {
-    if (*((uint32*)data + 1) == 0xffffffff)
+    if (unalignedLoad<uint32>((uint32*)data + 1) == 0xffffffff)
     {
       full = true;
       nds_removed.clear();
-      nds_added.resize(*((uint32*)data + 2));
+      nds_added.resize(unalignedLoad<uint32>((uint32*)data + 2));
       geometry_removed.clear();
-      geometry_added.resize(*((uint32*)data + 3), std::make_pair(0, Quad_Coord()));
+      geometry_added.resize(unalignedLoad<uint32>((uint32*)data + 3), std::make_pair(0, Quad_Coord()));
 
       uint8* ptr = ((uint8*)data) + 16;
 
       for (uint i(0); i < nds_added.size(); ++i)
       {
         nds_added[i].first = i;
-        nds_added[i].second = *(uint64*)((uint32*)ptr);
+        nds_added[i].second = unalignedLoad<uint64>(ptr);
         ptr += 8;
       }
 
       for (uint i = 0; i < geometry_added.size(); ++i)
       {
         geometry_added[i].first = i;
-        geometry_added[i].second = *((Quad_Coord*)ptr);
+        geometry_added[i].second = unalignedLoad<Quad_Coord>(ptr);
         ptr += 8;
       }
     }
     else
     {
-      nds_removed.resize(*((uint32*)data + 1));
-      nds_added.resize(*((uint32*)data + 2));
-      geometry_removed.resize(*((uint32*)data + 3));
-      geometry_added.resize(*((uint32*)data + 4), std::make_pair(0, Quad_Coord()));
+      nds_removed.resize(unalignedLoad<uint32>((uint32*)data + 1));
+      nds_added.resize(unalignedLoad<uint32>((uint32*)data + 2));
+      geometry_removed.resize(unalignedLoad<uint32>((uint32*)data + 3));
+      geometry_added.resize(unalignedLoad<uint32>((uint32*)data + 4), std::make_pair(0, Quad_Coord()));
 
       uint8* ptr = ((uint8*)data) + 20;
 
       for (uint i(0); i < nds_removed.size(); ++i)
       {
-        nds_removed[i] = *((uint32*)ptr);
+        nds_removed[i] = unalignedLoad<uint32>(ptr);
         ptr += 4;
       }
 
       for (uint i(0); i < nds_added.size(); ++i)
       {
-        nds_added[i].first = *((uint32*)ptr);
-        nds_added[i].second = *(uint64*)((uint32*)(ptr + 4));
+        nds_added[i].first = unalignedLoad<uint32>(ptr);
+        nds_added[i].second = unalignedLoad<uint64>(ptr + 4);
         ptr += 12;
       }
 
       for (uint i = 0; i < geometry_removed.size(); ++i)
       {
-        geometry_removed[i] = *((uint32*)ptr);
+        geometry_removed[i] = unalignedLoad<uint32>(ptr);
         ptr += 4;
       }
 
       for (uint i = 0; i < geometry_added.size(); ++i)
       {
-        geometry_added[i].first = *((uint32*)ptr);
-        geometry_added[i].second = *((Quad_Coord*)(ptr + 4));
+        geometry_added[i].first = unalignedLoad<uint32>(ptr);
+        geometry_added[i].second = unalignedLoad<Quad_Coord>(ptr + 4);
         ptr += 12;
       }
     }
@@ -499,68 +501,71 @@ struct Way_Delta
 
   static uint32 size_of(const void* data)
   {
-    if (*((uint32*)data + 1) == 0xffffffff)
-      return 16 + 8 * *((uint32*)data + 2) + 8 * *((uint32*)data + 3);
+    if (unalignedLoad<uint32>((uint32*)data + 1) == 0xffffffff)
+      return 16 + 8 * unalignedLoad<uint32>((uint32*)data + 2) +
+                  8 * unalignedLoad<uint32>((uint32*)data + 3);
     else
-      return 20 + 4 * *((uint32*)data + 1) + 12 * *((uint32*)data + 2)
-          + 4 * *((uint32*)data + 3) + 12 * *((uint32*)data + 4);
+      return 20 + 4 * unalignedLoad<uint32>((uint32*)data + 1) +
+                 12 * unalignedLoad<uint32>((uint32*)data + 2) +
+                  4 * unalignedLoad<uint32>((uint32*)data + 3) +
+                 12 * unalignedLoad<uint32>((uint32*)data + 4);
   }
 
   void to_data(void* data) const
   {
-    *(Id_Type*)data = id.val();
+    unalignedStore(data, id.val());
     if (full)
     {
-      *((uint32*)data + 1) = 0xffffffff;
-      *((uint32*)data + 2) = nds_added.size();
-      *((uint32*)data + 3) = geometry_added.size();
+      unalignedStore((uint32*)data + 1, (uint32) 0xffffffff);
+      unalignedStore((uint32*)data + 2, (uint32) nds_added.size());
+      unalignedStore((uint32*)data + 3, (uint32) geometry_added.size());
 
       uint8* ptr = ((uint8*)data) + 16;
 
       for (uint i = 0; i < nds_added.size(); ++i)
       {
-        *(uint64*)((uint32*)ptr) = nds_added[i].second.val();
+        unalignedStore(ptr, (uint64) nds_added[i].second.val());
         ptr += 8;
       }
 
       for (uint i = 0; i < geometry_added.size(); ++i)
       {
-        *((Quad_Coord*)ptr) = geometry_added[i].second;
+        unalignedStore(ptr, (Quad_Coord) geometry_added[i].second);
         ptr += 8;
       }
     }
     else
     {
-      *((uint32*)data + 1) = nds_removed.size();
-      *((uint32*)data + 2) = nds_added.size();
-      *((uint32*)data + 3) = geometry_removed.size();
-      *((uint32*)data + 4) = geometry_added.size();
+      unalignedStore((uint32*)data + 1, (uint32) nds_removed.size());
+      unalignedStore((uint32*)data + 2, (uint32) nds_added.size());
+      unalignedStore((uint32*)data + 3, (uint32) geometry_removed.size());
+      unalignedStore((uint32*)data + 4, (uint32) geometry_added.size());
 
       uint8* ptr = ((uint8*)data) + 20;
 
       for (uint i = 0; i < nds_removed.size(); ++i)
       {
-        *((uint32*)ptr) = nds_removed[i];
+        unalignedStore(ptr, (uint32) nds_removed[i]);
         ptr += 4;
       }
 
       for (uint i = 0; i < nds_added.size(); ++i)
       {
-        *((uint32*)ptr) = nds_added[i].first;
-        *(uint64*)((uint32*)(ptr + 4)) = nds_added[i].second.val();
+        unalignedStore(ptr, (uint32) nds_added[i].first);
+        unalignedStore(ptr + 4, (uint64) nds_added[i].second.val());
         ptr += 12;
       }
 
       for (uint i = 0; i < geometry_removed.size(); ++i)
       {
-        *((uint32*)ptr) = geometry_removed[i];
+        unalignedStore(ptr, (uint32) geometry_removed[i]);
         ptr += 4;
       }
 
       for (uint i = 0; i < geometry_added.size(); ++i)
       {
-        *((uint32*)ptr) = geometry_added[i].first;
-        *((Quad_Coord*)(ptr + 4)) = geometry_added[i].second;
+        unalignedStore(ptr, (uint32) geometry_added[i].first);
+        unalignedStore(ptr + 4, (Quad_Coord) geometry_added[i].second);
         ptr += 12;
       }
     }
@@ -589,7 +594,7 @@ struct Way_Delta_Id_Functor {
 
   Id_Type operator()(const void* data) const
    {
-     return *(Id_Type*)data;
+     return unalignedLoad<Id_Type>(data);
    }
 };
 

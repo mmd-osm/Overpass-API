@@ -434,7 +434,7 @@ void Block_Backend_Updater< TIndex, TObject, TIterator >::create_from_scratch
           pos = pos + it2->size_of();
         }
       }
-      *(uint32*)current_pos = pos - buffer.data();
+      unalignedStore(current_pos, uint32(pos - buffer.data()));
     }
     else
     {
@@ -451,7 +451,7 @@ void Block_Backend_Updater< TIndex, TObject, TIterator >::create_from_scratch
       if (pos - buffer.data() > fit->size_of() + 8)
       {
         *(uint32*)(buffer.data() + 4) = pos - buffer.data();
-        max_size = (*(uint32*)(buffer.data() + 4)) - 4;
+        max_size = (unalignedLoad<uint32>(buffer.data() + 4)) - 4;
       }
       else
         pos = buffer.data() + 4;
@@ -486,12 +486,12 @@ void Block_Backend_Updater< TIndex, TObject, TIterator  >::update_group
   // prepare a unified iterator over all indices, from file, to_delete
   // and to_insert
   uint8* pos(source.data() + 4);
-  uint8* source_end(source.data() + *(uint32*)source.data());
+  uint8* source_end(source.data() + unalignedLoad<uint32>(source.data()));
   while (pos < source_end)
   {
     index_values.insert(std::make_pair(TIndex(pos + 4), Index_Collection< TIndex, TObject >
-        (pos, source.data() + *(uint32*)pos, to_delete.end(), to_insert.end())));
-    pos = source.data() + *(uint32*)pos;
+        (pos, source.data() + unalignedLoad<uint32>(pos), to_delete.end(), to_insert.end())));
+    pos = source.data() + unalignedLoad<uint32>(pos);
   }
   auto to_delete_begin(to_delete.lower_bound(*(file_it.lower_bound())));
   auto to_delete_end(to_delete.end());
@@ -627,7 +627,7 @@ void Block_Backend_Updater< TIndex, TObject, TIterator  >::update_group
           pos = pos + it2->size_of();
         }
       }
-      *(uint32*)current_pos = pos - dest.data();
+      unalignedStore(current_pos, (uint32)(pos - dest.data()));
     }
     else
     {
@@ -657,15 +657,14 @@ void Block_Backend_Updater< TIndex, TObject, TIterator  >::update_group
       {
         for (auto it2(it->second.insert_it->second.begin());
             it2 != it->second.insert_it->second.end(); ++it2)
-          flush_if_necessary_and_write_obj(
-              (uint64*)dest.data(), pos, file_it, it->first, *it2);
+          flush_if_necessary_and_write_obj((uint64*)dest.data(), pos, file_it, it->first, *it2);
       }
 
       if ((uint32)(pos - dest.data()) == it->first.size_of() + 8)
         // the block is in fact empty
         pos = dest.data() + 4;
 
-      *(uint32*)(dest.data() + 4) = pos - dest.data();
+      unalignedStore(dest.data() + 4, (uint32)(pos - dest.data()));
       max_size = pos - dest.data() - 4;
     }
   }
@@ -687,8 +686,8 @@ void Block_Backend_Updater< TIndex, TObject, TIterator >::flush_or_delete_block(
 {
   if (bytes_written > 8 + idx_size)
   {
-    *(uint32*)start_ptr = bytes_written;
-    *(((uint32*)start_ptr)+1) = bytes_written;
+    unalignedStore(start_ptr, (uint32) bytes_written);
+    unalignedStore(((uint32*)start_ptr) + 1, (uint32) bytes_written);
     file_it = file_blocks.replace_block(file_it, start_ptr, bytes_written - 4);
     ++file_it;
   }

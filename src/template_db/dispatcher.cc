@@ -38,6 +38,8 @@
 #include <iostream>
 #include <vector>
 
+#include "types.h"
+
 
 Dispatcher_Socket::Dispatcher_Socket
     (const std::string& dispatcher_share_name,
@@ -552,20 +554,22 @@ Dispatcher::Dispatcher
   std::string db_dir = transaction_insulator.db_dir();
   int foo = ftruncate(dispatcher_shm_fd,
                       SHM_SIZE + db_dir.size() + shadow_name.size());
-  dispatcher_shm_ptr = (uint8*)mmap
+
+  uint8* disp_shm = (uint8*)mmap
         (0, SHM_SIZE + db_dir.size() + shadow_name.size(),
          PROT_READ|PROT_WRITE, MAP_SHARED, dispatcher_shm_fd, 0);
 
   // copy db_dir and shadow_name
-  *(uint32*)(dispatcher_shm_ptr + 3*sizeof(uint32)) = db_dir.size();
-  memcpy((uint8*)dispatcher_shm_ptr + 4*sizeof(uint32), db_dir.data(), db_dir.size());
-  *(uint32*)(dispatcher_shm_ptr + 4*sizeof(uint32) + db_dir.size())
-      = shadow_name.size();
-  memcpy((uint8*)dispatcher_shm_ptr + 5*sizeof(uint32) + db_dir.size(),
+  unalignedStore(disp_shm + 3*sizeof(uint32), (uint32)db_dir.size());
+  memcpy((uint8*)disp_shm + 4*sizeof(uint32), db_dir.data(), db_dir.size());
+  unalignedStore(disp_shm + 4*sizeof(uint32) + db_dir.size(), (uint32)shadow_name.size());
+  memcpy((uint8*)disp_shm + 5*sizeof(uint32) + db_dir.size(),
       shadow_name.data(), shadow_name.size());
 
   // Set command state to zero.
-  *(uint32*)dispatcher_shm_ptr = 0;
+  *(uint32*)disp_shm = 0;
+
+  dispatcher_shm_ptr = disp_shm;
 
   if (file_exists(shadow_name))
   {

@@ -22,6 +22,7 @@
 #include <iostream>
 #include <vector>
 
+#include "../../template_db/types.h"
 
 typedef unsigned int uint;
 
@@ -52,7 +53,7 @@ struct Uint32_Index
 
   Uint32_Index() noexcept : value(0u) {}
   Uint32_Index(uint32 i) noexcept : value(i) {}
-  Uint32_Index(const void* data) noexcept : value(*(uint32*)data) {}
+  Uint32_Index(const void* data) noexcept : value(unalignedLoad<uint32>(data)) {}
 
   uint32 size_of() const noexcept
   {
@@ -71,7 +72,7 @@ struct Uint32_Index
 
   void to_data(void* data) const noexcept
   {
-    *(uint32*)data = value;
+    unalignedStore(data, value);
   }
 
   bool operator<(const Uint32_Index& index) const noexcept
@@ -129,7 +130,7 @@ struct Uint32_Index_Val_Functor {
 
   uint32 operator()(const void* data)
   {
-    return *(uint32*)data;
+    return unalignedLoad<uint32>(data);
   }
 };
 
@@ -141,7 +142,7 @@ struct Uint32_Id_Functor {
 
   Id_Type operator()(const void* data)
   {
-    return *(Id_Type*)data;
+    return unalignedLoad<Id_Type>(data);
   }
 };
 
@@ -185,7 +186,7 @@ struct Uint31_Index : Uint32_Index
 {
   Uint31_Index() noexcept {}
   Uint31_Index(uint32 i) noexcept : Uint32_Index(i) {}
-  Uint31_Index(void* data) noexcept : Uint32_Index(*(uint32*)data) {}
+  Uint31_Index(void* data) noexcept : Uint32_Index(unalignedLoad<uint32>(data)) {}
 
   bool operator<(const Uint31_Index& index) const noexcept
   {
@@ -223,7 +224,7 @@ struct Uint31_Index_Val_Functor {
 
   uint32 operator()(const void* data)
   {
-    return *(uint32*)data;
+    return unalignedLoad<uint32>(data);
   }
 };
 
@@ -235,7 +236,7 @@ struct Uint31_Id_Functor {
 
   Id_Type operator()(const void* data)
   {
-    return *(Id_Type*)data;
+    return unalignedLoad<Id_Type>(data);
   }
 };
 
@@ -267,7 +268,7 @@ struct Uint64
 
   Uint64() noexcept : value(0ull) {}
   Uint64(uint64 i) noexcept : value(i) {}
-  Uint64(const void* data) noexcept : value(*(uint64*)data) {}
+  Uint64(const void* data) noexcept : value(unalignedLoad<uint64>(data)) {}
 
   uint32 size_of() const noexcept { return 8; }
   static const uint32 max_size_of() noexcept { return 8; }
@@ -275,7 +276,7 @@ struct Uint64
 
   void to_data(void* data) const noexcept
   {
-    *(uint64*)data = value;
+    unalignedStore(data, value);
   }
 
   bool operator<(const Uint64& index) const noexcept
@@ -331,7 +332,7 @@ struct Uint64_Id_Functor {
 
   Id_Type operator()(const void* data)
   {
-    return *(Id_Type*)data;
+    return Uint64(data).val();
   }
 };
 
@@ -357,7 +358,7 @@ struct Uint40
   Uint40() noexcept : value(0ull) {}
   Uint40(uint64 i) noexcept : value(i) {}
   Uint40(const void* data) noexcept {
-    value = (uint64)(*(uint32*)(data));
+    value = (uint64)(unalignedLoad<uint32>(data));
     value |= (uint64)(*(uint8*)((uint8*)data + 4)) << 32;
   }
 
@@ -368,7 +369,7 @@ struct Uint40
   void to_data(void* data) const noexcept
   {
     void* pos = (uint8*)data;
-    *(uint32*)(pos) = (value & 0xffffffffull);
+    unalignedStore(pos, (uint32)(value & 0xffffffffull));
     *(uint8*)((uint8*)pos+4) = ((value & 0xff00000000ull)>>32);
   }
 
@@ -475,7 +476,7 @@ struct Attic : public Element_Skeleton
 
     const void* pos = (uint8*)data + Element_Skeleton::size_of(data);
 
-    timestamp = (uint64) (*(uint32*)(pos));
+    timestamp = (uint64) (unalignedLoad<uint32>(pos));
     timestamp |= (uint64)(*(uint8*)((uint8*)pos+4)) << 32;
   }
 
@@ -493,7 +494,7 @@ struct Attic : public Element_Skeleton
   {
     Element_Skeleton::to_data(data);
     void* pos = (uint8*)data + Element_Skeleton::size_of();
-    *(uint32*)(pos) = (timestamp & 0xffffffffull);
+    unalignedStore(pos, (uint32)(timestamp & 0xffffffffull));
     *(uint8*)((uint8*)pos+4) = ((timestamp & 0xff00000000ull)>>32);
   }
 
@@ -527,7 +528,7 @@ struct Attic_Timestamp_Functor {
 
     uint64 ts;
 
-    ts = (uint64) (*(uint32*)(pos));
+    ts = (uint64) (unalignedLoad<uint32>(pos));
     ts |= (uint64)(*(uint8*)((uint8*)pos+4)) << 32;
 
     return ts;

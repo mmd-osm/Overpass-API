@@ -47,16 +47,22 @@ Dispatcher_Client::Dispatcher_Client
         (errno, dispatcher_share_name, "Dispatcher_Client::1");
   struct stat stat_buf;
   fstat(dispatcher_shm_fd, &stat_buf);
-  dispatcher_shm_ptr = (uint8*)mmap
+
+  dispatcher_shm_ptr = nullptr;
+
+  uint8* disp_shm;
+
+  disp_shm = (uint8*)mmap
       (0, stat_buf.st_size,
        PROT_READ, MAP_SHARED, dispatcher_shm_fd, 0);
 
   // get db_dir and shadow_name
-  db_dir = std::string((const char *)(dispatcher_shm_ptr + 4*sizeof(uint32)),
-		  *(uint32*)(dispatcher_shm_ptr + 3*sizeof(uint32)));
-  shadow_name = std::string((const char *)(dispatcher_shm_ptr + 5*sizeof(uint32)
-      + db_dir.size()), *(uint32*)(dispatcher_shm_ptr + db_dir.size() +
-		       4*sizeof(uint32)));
+  db_dir = std::string((const char *)(disp_shm + 4*sizeof(uint32)),
+		  unalignedLoad<uint32>(disp_shm + 3*sizeof(uint32)));
+  shadow_name = std::string((const char *)(disp_shm + 5*sizeof(uint32) + db_dir.size()),
+                             unalignedLoad<uint32>(disp_shm + db_dir.size() + 4*sizeof(uint32)));
+
+  dispatcher_shm_ptr = disp_shm;
 
   // initialize the socket for the client
   socket.open(db_dir + dispatcher_share_name_);

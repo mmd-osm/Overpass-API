@@ -35,20 +35,20 @@
 struct IntIndex
 {
   IntIndex(uint32 i) : value(i) {}
-  IntIndex(void* data) : value(*(uint32*)data) {}
+  IntIndex(void* data) : value(unalignedLoad<uint32>(data)) {}
 
   uint32 size_of() const { return (value < 24 ? 12 : value-12); }
-  static uint32 size_of(void* data) { return ((*(uint32*)data) < 24 ? 12 : (*(uint32*)data)-12); }
+  static uint32 size_of(void* data) { return (unalignedLoad<uint32>(data) < 24 ? 12 : unalignedLoad<uint32>(data)-12); }
 
   void to_data(void* data) const
   {
     uint32 size = size_of();
-    *(uint32*)(((uint8*)data) + size - 4) = 0x5a5a5a5a;
-    *(uint32*)data = value;
+    unalignedStore((((uint8*)data) + size - 4), (uint32)0x5a5a5a5a);
+    unalignedStore(data, value);
     uint32 i = 1;
     while (i < size/4)
     {
-      *(uint32*)(((uint8*)data) + 4*i) = 4*i/3;
+      unalignedStore((((uint8*)data) + 4*i), (uint32)(4*i/3));
       ++i;
     }
   }
@@ -388,10 +388,10 @@ void read_loop(
     {
       uint8* pos(data+sizeof(uint32));
       pos += *(uint32*)pos;
-      std::cout<<", second block size "<<(*(uint32*)pos)<<" bytes, "
-      <<"second index "<<*(uint32*)(pos+sizeof(uint32))<<'\n';
+      std::cout<<", second block size "<<(unalignedLoad<uint32>(pos))<<" bytes, "
+      <<"second index "<<unalignedLoad<uint32>((pos+sizeof(uint32)))<<'\n';
     }
-    else if (max_keysize > (*(uint32*)data)-sizeof(uint32))
+    else if (max_keysize > (unalignedLoad<uint32>((uint32*)data))-sizeof(uint32))
     {
       uint32 large_block_size = ((max_keysize+3)/block_size+1)*block_size;
       std::cout<<"\nChecking "<<large_block_size<<" bytes for oversized object.\n";
@@ -464,8 +464,8 @@ void read_loop(
       {
 	uint8* pos(data+sizeof(uint32));
 	pos += *(uint32*)pos;
-	std::cout<<", second block size "<<(*(uint32*)pos)<<" bytes, "
-	    <<"second index "<<*(uint32*)(pos+sizeof(uint32));
+	std::cout<<", second block size "<<(unalignedLoad<uint32>(pos))<<" bytes, "
+	    <<"second index "<<unalignedLoad<uint32>(pos+sizeof(uint32));
       }
       else if (*(uint32*)(data+sizeof(uint32)) > (*(uint32*)data)-sizeof(uint32))
       {
@@ -500,14 +500,14 @@ void read_loop(
     std::cout<<", real size "<<(*(uint32*)data)<<" bytes, "
     <<"first block size "<<*(uint32*)(data+sizeof(uint32))<<" bytes, "
     <<"first index "<<*(uint32*)(data+2*sizeof(uint32));
-    if (*(uint32*)(data+sizeof(uint32)) < (*(uint32*)data)-sizeof(uint32))
+    if (unalignedLoad<uint32>(data+sizeof(uint32)) < (unalignedLoad<uint32>(data))-sizeof(uint32))
     {
       uint8* pos(data+sizeof(uint32));
-      pos += *(uint32*)pos;
-      std::cout<<", second block size "<<(*(uint32*)pos)<<" bytes, "
-      <<"second index "<<*(uint32*)(pos+sizeof(uint32));
+      pos += unalignedLoad<uint32>(pos);
+      std::cout<<", second block size "<<(unalignedLoad<uint32>(pos))<<" bytes, "
+      <<"second index "<<unalignedLoad<uint32>(pos+sizeof(uint32));
     }
-    else if (*(uint32*)(data+sizeof(uint32)) > (*(uint32*)data)-sizeof(uint32))
+    else if (unalignedLoad<uint32>(data+sizeof(uint32)) > (unalignedLoad<uint32>(data))-sizeof(uint32))
     {
       uint32 large_block_size = (((*(uint32*)(data+4))+3)/block_size+1)*block_size;
       std::cout<<"\nSkipping "<<large_block_size<<" bytes for oversized object.";
@@ -738,7 +738,7 @@ uint32 prepare_block(void* block, const std::list< IntIndex >& indices)
     if ((*it).val() + 12 > max_keysize)
       max_keysize = (*it).val() + 12;
 
-    *(uint32*)(((uint8*)block)+pos) = (*it).val() + 12;
+    unalignedStore( (((uint8*)block)+pos), (uint32)(*it).val() + 12);
     (*it).to_data(((uint8*)block)+pos+sizeof(uint32));
     pos += (*it).val() + 12;
   }

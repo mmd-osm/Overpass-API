@@ -128,17 +128,21 @@ struct Relation_Skeleton
 
   Relation_Skeleton(Relation::Id_Type id_) : id(id_) { d = new Relation_Skeleton_Data;}
 
-  Relation_Skeleton(const void* data) : id(*(Id_Type*)data)
+  Relation_Skeleton(const void* data) : id(unalignedLoad<Id_Type>(data))
   {
     d = new Relation_Skeleton_Data;
 
-    d->members.resize(*((uint32*)data + 1));
-    d->node_idxs.resize(*((uint32*)data + 2), 0u);
-    d->way_idxs.resize(*((uint32*)data + 3), 0u);
-    for (uint i(0); i < *((uint32*)data + 1); ++i)
+    const auto member_count = unalignedLoad<uint32>((uint32*)data + 1);
+    const auto node_idxs_count = unalignedLoad<uint32>((uint32*)data + 2);
+    const auto way_idxs_count = unalignedLoad<uint32>((uint32*)data + 3);
+
+    d->members.resize(member_count);
+    d->node_idxs.resize(node_idxs_count, 0u);
+    d->way_idxs.resize(way_idxs_count, 0u);
+    for (uint i(0); i < member_count; ++i)
     {
-      d->members[i].ref = *(uint64*)((uint32*)data + 4 + 3*i);
-      d->members[i].role = *((uint32*)data + 6 + 3*i) & 0xffffff;
+      d->members[i].ref = unalignedLoad<uint64>((uint32*)data + 4 + 3*i);
+      d->members[i].role = unalignedLoad<uint32>((uint32*)data + 6 + 3*i) & 0xffffff;
       d->members[i].type = *((uint8*)data + 27 + 12*i);
     }
     uint32* start_ptr = (uint32*)data + 4 + 3* d->members.size();
@@ -191,13 +195,13 @@ struct Relation_Skeleton
   void to_data(void* data) const
   {
     *(Id_Type*)data = id.val();
-    *((uint32*)data + 1) = d->members.size();
-    *((uint32*)data + 2) = d->node_idxs.size();
-    *((uint32*)data + 3) = d->way_idxs.size();
+    unalignedStore(((uint32*)data + 1), (uint32) d->members.size());
+    unalignedStore(((uint32*)data + 2), (uint32) d->node_idxs.size());
+    unalignedStore(((uint32*)data + 3), (uint32) d->way_idxs.size());
     for (uint i = 0; i < d->members.size(); ++i)
     {
-      *(uint64*)((uint32*)data + 4 + 3*i) = d->members[i].ref.val();
-      *((uint32*)data + 6 + 3*i) = d->members[i].role & 0xffffff;
+      unalignedStore( ((uint32*)data + 4 + 3*i), (uint64) d->members[i].ref.val());
+      unalignedStore( ((uint32*)data + 6 + 3*i), (uint32)(d->members[i].role & 0xffffff));
       *((uint8*)data + 27 + 12*i) = d->members[i].type;
     }
     Uint31_Index* start_ptr = (Uint31_Index*)data + 4 + 3* d->members.size();
@@ -244,7 +248,7 @@ struct Relation_Skeleton_Id_Functor {
 
   Id_Type operator()(const void* data) const
    {
-     return *(Id_Type*)data;
+     return unalignedLoad<Id_Type>(data);
    }
 };
 
@@ -309,25 +313,25 @@ struct Relation_Delta
 
   Relation_Delta() : id(0u), full(false) {}
 
-  Relation_Delta(const void* data) : id(*(Id_Type*)data), full(false)
+  Relation_Delta(const void* data) : id(unalignedLoad<Id_Type>(data)), full(false)
   {
-    if (*((uint32*)data + 1) == 0xffffffff)
+    if (unalignedLoad<uint32>((uint32*)data + 1) == 0xffffffff)
     {
       full = true;
       members_removed.clear();
-      members_added.resize(*((uint32*)data + 2));
+      members_added.resize(unalignedLoad<uint32>((uint32*)data + 2));
       node_idxs_removed.clear();
-      node_idxs_added.resize(*((uint32*)data + 3), std::make_pair(0, 0u));
+      node_idxs_added.resize(unalignedLoad<uint32>((uint32*)data + 3), std::make_pair(0, 0u));
       way_idxs_removed.clear();
-      way_idxs_added.resize(*((uint32*)data + 4), std::make_pair(0, 0u));
+      way_idxs_added.resize(unalignedLoad<uint32>((uint32*)data + 4), std::make_pair(0, 0u));
 
       uint8* ptr = ((uint8*)data) + 20;
 
       for (uint i(0); i < members_added.size(); ++i)
       {
         members_added[i].first = i;
-        members_added[i].second.ref = *(uint64*)((uint32*)ptr);
-        members_added[i].second.role = *((uint32*)(ptr + 8)) & 0xffffff;
+        members_added[i].second.ref = unalignedLoad<uint64>(ptr);
+        members_added[i].second.role = unalignedLoad<uint32>(ptr + 8) & 0xffffff;
         members_added[i].second.type = *((uint8*)(ptr + 11));
         ptr += 12;
       }
@@ -335,66 +339,66 @@ struct Relation_Delta
       for (uint i = 0; i < node_idxs_added.size(); ++i)
       {
         node_idxs_added[i].first = i;
-        node_idxs_added[i].second = *((uint32*)ptr);
+        node_idxs_added[i].second = unalignedLoad<uint32>(ptr);
         ptr += 4;
       }
 
       for (uint i = 0; i < way_idxs_added.size(); ++i)
       {
         way_idxs_added[i].first = i;
-        way_idxs_added[i].second = *((uint32*)ptr);
+        way_idxs_added[i].second = unalignedLoad<uint32>(ptr);
         ptr += 4;
       }
     }
     else
     {
-      members_removed.resize(*((uint32*)data + 1));
-      members_added.resize(*((uint32*)data + 2));
-      node_idxs_removed.resize(*((uint32*)data + 3));
-      node_idxs_added.resize(*((uint32*)data + 4), std::make_pair(0, 0u));
-      way_idxs_removed.resize(*((uint32*)data + 5));
-      way_idxs_added.resize(*((uint32*)data + 6), std::make_pair(0, 0u));
+      members_removed.resize(unalignedLoad<uint32>((uint32*)data + 1));
+      members_added.resize(unalignedLoad<uint32>((uint32*)data + 2));
+      node_idxs_removed.resize(unalignedLoad<uint32>((uint32*)data + 3));
+      node_idxs_added.resize(unalignedLoad<uint32>((uint32*)data + 4), std::make_pair(0, 0u));
+      way_idxs_removed.resize(unalignedLoad<uint32>((uint32*)data + 5));
+      way_idxs_added.resize(unalignedLoad<uint32>((uint32*)data + 6), std::make_pair(0, 0u));
 
       uint8* ptr = ((uint8*)data) + 28;
 
       for (uint i(0); i < members_removed.size(); ++i)
       {
-        members_removed[i] = *((uint32*)ptr);
+        members_removed[i] = unalignedLoad<uint32>(ptr);
         ptr += 4;
       }
 
       for (uint i(0); i < members_added.size(); ++i)
       {
-        members_added[i].first = *((uint32*)ptr);
-        members_added[i].second.ref = *(uint64*)((uint32*)(ptr + 4));
-        members_added[i].second.role = *((uint32*)(ptr + 12)) & 0xffffff;
+        members_added[i].first = unalignedLoad<uint32>(ptr);
+        members_added[i].second.ref = unalignedLoad<uint64>(ptr + 4);
+        members_added[i].second.role = unalignedLoad<uint32>(ptr + 12) & 0xffffff;
         members_added[i].second.type = *((uint8*)(ptr + 15));
         ptr += 16;
       }
 
       for (uint i = 0; i < node_idxs_removed.size(); ++i)
       {
-        node_idxs_removed[i] = *((uint32*)ptr);
+        node_idxs_removed[i] = unalignedLoad<uint32>(ptr);
         ptr += 4;
       }
 
       for (uint i = 0; i < node_idxs_added.size(); ++i)
       {
-        node_idxs_added[i].first = *((uint32*)ptr);
-        node_idxs_added[i].second = *((uint32*)(ptr + 4));
+        node_idxs_added[i].first = unalignedLoad<uint32>(ptr);
+        node_idxs_added[i].second = unalignedLoad<uint32>(ptr + 4);
         ptr += 8;
       }
 
       for (uint i = 0; i < way_idxs_removed.size(); ++i)
       {
-        way_idxs_removed[i] = *((uint32*)ptr);
+        way_idxs_removed[i] = unalignedLoad<uint32>(ptr);
         ptr += 4;
       }
 
       for (uint i = 0; i < way_idxs_added.size(); ++i)
       {
-        way_idxs_added[i].first = *((uint32*)ptr);
-        way_idxs_added[i].second = *((uint32*)(ptr + 4));
+        way_idxs_added[i].first = unalignedLoad<uint32>(ptr);
+        way_idxs_added[i].second = unalignedLoad<uint32>(ptr + 4);
         ptr += 8;
       }
     }
@@ -503,95 +507,100 @@ struct Relation_Delta
 
   static uint32 size_of(const void* data)
   {
-    if (*((uint32*)data + 1) == 0xffffffff)
-      return 20 + 12 * *((uint32*)data + 2) + 4 * *((uint32*)data + 3) + 4 * *((uint32*)data + 4);
+    if (unalignedLoad<uint32>((uint32*)data + 1) == 0xffffffff)
+      return 20 + 12 * unalignedLoad<uint32>((uint32*)data + 2) +
+                   4 * unalignedLoad<uint32>((uint32*)data + 3) +
+                   4 * unalignedLoad<uint32>((uint32*)data + 4);
     else
-      return 28 + 4 * *((uint32*)data + 1) + 16 * *((uint32*)data + 2)
-          + 4 * *((uint32*)data + 3) + 8 * *((uint32*)data + 4)
-          + 4 * *((uint32*)data + 5) + 8 * *((uint32*)data + 6);
+      return 28 + 4 * unalignedLoad<uint32>((uint32*)data + 1) +
+                 16 * unalignedLoad<uint32>((uint32*)data + 2) +
+                  4 * unalignedLoad<uint32>((uint32*)data + 3) +
+                  8 * unalignedLoad<uint32>((uint32*)data + 4) +
+                  4 * unalignedLoad<uint32>((uint32*)data + 5) +
+                  8 * unalignedLoad<uint32>((uint32*)data + 6);
   }
 
   void to_data(void* data) const
   {
-    *(Id_Type*)data = id.val();
+    unalignedStore(data, id.val());
     if (full)
     {
-      *((uint32*)data + 1) = 0xffffffff;
-      *((uint32*)data + 2) = members_added.size();
-      *((uint32*)data + 3) = node_idxs_added.size();
-      *((uint32*)data + 4) = way_idxs_added.size();
+      unalignedStore(((uint32*)data + 1), (uint32) 0xffffffff);
+      unalignedStore(((uint32*)data + 2), (uint32) members_added.size());
+      unalignedStore(((uint32*)data + 3), (uint32) node_idxs_added.size());
+      unalignedStore(((uint32*)data + 4), (uint32) way_idxs_added.size());
 
       uint8* ptr = ((uint8*)data) + 20;
 
       for (uint i = 0; i < members_added.size(); ++i)
       {
-        *(uint64*)((uint32*)ptr) = members_added[i].second.ref.val();
-        *((uint32*)(ptr + 8)) = members_added[i].second.role & 0xffffff;
+        unalignedStore(ptr, (uint64) members_added[i].second.ref.val());
+        unalignedStore(ptr + 8, (uint32) members_added[i].second.role & 0xffffff);
         *((uint8*)(ptr + 11)) = members_added[i].second.type;
         ptr += 12;
       }
 
       for (uint i = 0; i < node_idxs_added.size(); ++i)
       {
-        *((Uint31_Index*)ptr) = node_idxs_added[i].second;
+        unalignedStore(ptr, node_idxs_added[i].second);
         ptr += 4;
       }
 
       for (uint i = 0; i < way_idxs_added.size(); ++i)
       {
-        *((Uint31_Index*)ptr) = way_idxs_added[i].second;
+        unalignedStore(ptr, way_idxs_added[i].second);
         ptr += 4;
       }
     }
     else
     {
-      *((uint32*)data + 1) = members_removed.size();
-      *((uint32*)data + 2) = members_added.size();
-      *((uint32*)data + 3) = node_idxs_removed.size();
-      *((uint32*)data + 4) = node_idxs_added.size();
-      *((uint32*)data + 5) = way_idxs_removed.size();
-      *((uint32*)data + 6) = way_idxs_added.size();
+      unalignedStore(((uint32*)data + 1), (uint32) members_removed.size());
+      unalignedStore(((uint32*)data + 2), (uint32) members_added.size());
+      unalignedStore(((uint32*)data + 3), (uint32) node_idxs_removed.size());
+      unalignedStore(((uint32*)data + 4), (uint32) node_idxs_added.size());
+      unalignedStore(((uint32*)data + 5), (uint32) way_idxs_removed.size());
+      unalignedStore(((uint32*)data + 6), (uint32) way_idxs_added.size());
 
       uint8* ptr = ((uint8*)data) + 28;
 
       for (uint i = 0; i < members_removed.size(); ++i)
       {
-        *((uint32*)ptr) = members_removed[i];
+        unalignedStore(ptr, (uint32) members_removed[i]);
         ptr += 4;
       }
 
       for (uint i = 0; i < members_added.size(); ++i)
       {
-        *((uint32*)ptr) = members_added[i].first;
-        *(uint64*)((uint32*)(ptr + 4)) = members_added[i].second.ref.val();
-        *((uint32*)(ptr + 12)) = members_added[i].second.role & 0xffffff;
+        unalignedStore(ptr, (uint32) members_added[i].first);
+        unalignedStore(((uint32*)(ptr + 4)),  (uint64) members_added[i].second.ref.val());
+        unalignedStore(((uint32*)(ptr + 12)), (uint32) members_added[i].second.role & 0xffffff);
         *((uint8*)(ptr + 15)) = members_added[i].second.type;
         ptr += 16;
       }
 
       for (uint i = 0; i < node_idxs_removed.size(); ++i)
       {
-        *((uint32*)ptr) = node_idxs_removed[i];
+        unalignedStore(ptr, (uint32) node_idxs_removed[i]);
         ptr += 4;
       }
 
       for (uint i = 0; i < node_idxs_added.size(); ++i)
       {
-        *((uint32*)ptr) = node_idxs_added[i].first;
-        *((Uint31_Index*)(ptr + 4)) = node_idxs_added[i].second;
+        unalignedStore(ptr, (uint32) node_idxs_added[i].first);
+        unalignedStore(ptr + 4, node_idxs_added[i].second);
         ptr += 8;
       }
 
       for (uint i = 0; i < way_idxs_removed.size(); ++i)
       {
-        *((uint32*)ptr) = way_idxs_removed[i];
+        unalignedStore(ptr, (uint32) way_idxs_removed[i]);
         ptr += 4;
       }
 
       for (uint i = 0; i < way_idxs_added.size(); ++i)
       {
-        *((uint32*)ptr) = way_idxs_added[i].first;
-        *((Uint31_Index*)(ptr + 4)) = way_idxs_added[i].second;
+        unalignedStore(ptr, (uint32) way_idxs_added[i].first);
+        unalignedStore(ptr + 4, way_idxs_added[i].second);
         ptr += 8;
       }
     }
@@ -619,7 +628,7 @@ struct Relation_Delta_Id_Functor {
 
   Id_Type operator()(const void* data) const
    {
-     return *(Id_Type*)data;
+     return unalignedLoad<Id_Type>(data);
    }
 };
 
