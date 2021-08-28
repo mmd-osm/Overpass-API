@@ -25,6 +25,7 @@
 
 #include <cstring>
 #include <map>
+#include <memory>
 #include <set>
 #include <type_traits>
 
@@ -369,7 +370,7 @@ void Block_Backend_Updater< TIndex, TObject, TIterator >::create_from_scratch
   std::map< TIndex, uint32 > sizes;
   std::vector< TIndex > split;
   std::vector< uint32 > vsizes;
-  std::vector< uint8 > buffer(block_size);
+  auto buffer = std::unique_ptr<uint8[]>(new uint8[block_size]);
 
   // compute the distribution over different blocks
   for (typename std::set< TIndex >::const_iterator fit(file_it.lower_bound());
@@ -396,7 +397,7 @@ void Block_Backend_Updater< TIndex, TObject, TIterator >::create_from_scratch
 
   // really write data
   typename std::vector< TIndex >::const_iterator split_it(split.begin());
-  uint8* pos(buffer.data() + 4);
+  uint8* pos(buffer.get() + 4);
   uint32 max_size(0);
   typename std::set< TIndex >::const_iterator upper_bound(file_it.upper_bound());
   for (typename std::set< TIndex >::const_iterator fit(file_it.lower_bound());
@@ -406,11 +407,11 @@ void Block_Backend_Updater< TIndex, TObject, TIterator >::create_from_scratch
 
     if ((split_it != split.end()) && (*fit == *split_it))
     {
-      if (pos > buffer.data() + 4)
+      if (pos > buffer.get() + 4)
       {
-        *(uint32*)buffer.data() = pos - buffer.data();
-        file_it = file_blocks.insert_block(file_it, (uint64*)buffer.data(), max_size);
-        pos = buffer.data() + 4;
+        *(uint32*)buffer.get() = pos - buffer.get();
+        file_it = file_blocks.insert_block(file_it, (uint64*)buffer.get(), max_size);
+        pos = buffer.get() + 4;
       }
       ++split_it;
       max_size = 0;
@@ -434,7 +435,7 @@ void Block_Backend_Updater< TIndex, TObject, TIterator >::create_from_scratch
           pos = pos + it2->size_of();
         }
       }
-      unalignedStore(current_pos, uint32(pos - buffer.data()));
+      unalignedStore(current_pos, uint32(pos - buffer.get()));
     }
     else
     {
@@ -445,22 +446,22 @@ void Block_Backend_Updater< TIndex, TObject, TIterator >::create_from_scratch
       {
         for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
           flush_if_necessary_and_write_obj(
-              (uint64*)buffer.data(), pos, file_it, *fit, *it2);
+              (uint64*)buffer.get(), pos, file_it, *fit, *it2);
       }
 
-      if (pos - buffer.data() > fit->size_of() + 8)
+      if (pos - buffer.get() > fit->size_of() + 8)
       {
-        *(uint32*)(buffer.data() + 4) = pos - buffer.data();
-        max_size = (unalignedLoad<uint32>(buffer.data() + 4)) - 4;
+        *(uint32*)(buffer.get() + 4) = pos - buffer.get();
+        max_size = (unalignedLoad<uint32>(buffer.get() + 4)) - 4;
       }
       else
-        pos = buffer.data() + 4;
+        pos = buffer.get() + 4;
     }
   }
-  if (pos > buffer.data() + 4)
+  if (pos > buffer.get() + 4)
   {
-    *(uint32*)buffer.data() = pos - buffer.data();
-    file_it = file_blocks.insert_block(file_it, (uint64*)buffer.data(), max_size);
+    *(uint32*)buffer.get() = pos - buffer.get();
+    file_it = file_blocks.insert_block(file_it, (uint64*)buffer.get(), max_size);
   }
   ++file_it;
 }
@@ -478,20 +479,21 @@ void Block_Backend_Updater< TIndex, TObject, TIterator  >::update_group
   std::map< TIndex, uint32 > sizes;
   std::vector< TIndex > split;
   std::vector< uint32 > vsizes;
-  std::vector< uint8 > source(block_size);
-  std::vector< uint8 > dest(block_size);
 
-  file_blocks.read_block(file_it, (uint64*)source.data());
+  auto source = std::unique_ptr<uint8[]>(new uint8[block_size]);
+  auto dest = std::unique_ptr<uint8[]>(new uint8[block_size]);
+
+  file_blocks.read_block(file_it, (uint64*)source.get());
 
   // prepare a unified iterator over all indices, from file, to_delete
   // and to_insert
-  uint8* pos(source.data() + 4);
-  uint8* source_end(source.data() + unalignedLoad<uint32>(source.data()));
+  uint8* pos(source.get() + 4);
+  uint8* source_end(source.get() + unalignedLoad<uint32>(source.get()));
   while (pos < source_end)
   {
     index_values.insert(std::make_pair(TIndex(pos + 4), Index_Collection< TIndex, TObject >
-        (pos, source.data() + unalignedLoad<uint32>(pos), to_delete.end(), to_insert.end())));
-    pos = source.data() + unalignedLoad<uint32>(pos);
+        (pos, source.get() + unalignedLoad<uint32>(pos), to_delete.end(), to_insert.end())));
+    pos = source.get() + unalignedLoad<uint32>(pos);
   }
   auto to_delete_begin(to_delete.lower_bound(*(file_it.lower_bound())));
   auto to_delete_end(to_delete.end());
@@ -573,18 +575,18 @@ void Block_Backend_Updater< TIndex, TObject, TIterator  >::update_group
 
   // really write data
   typename std::vector< TIndex >::const_iterator split_it(split.begin());
-  pos = (dest.data() + 4);
+  pos = (dest.get() + 4);
   uint32 max_size = 0;
   for (typename std::map< TIndex, Index_Collection< TIndex, TObject > >::const_iterator
     it(index_values.begin()); it != index_values.end(); ++it)
   {
     if ((split_it != split.end()) && (it->first == *split_it))
     {
-      *(uint32*)dest.data() = pos - dest.data();
-      if (pos - dest.data() > 8)
-        file_it = file_blocks.insert_block(file_it, (uint64*)dest.data(), max_size);
+      *(uint32*)dest.get() = pos - dest.get();
+      if (pos - dest.get() > 8)
+        file_it = file_blocks.insert_block(file_it, (uint64*)dest.get(), max_size);
       ++split_it;
-      pos = dest.data() + 4;
+      pos = dest.get() + 4;
       max_size = 0;
     }
 
@@ -627,7 +629,7 @@ void Block_Backend_Updater< TIndex, TObject, TIterator  >::update_group
           pos = pos + it2->size_of();
         }
       }
-      unalignedStore(current_pos, (uint32)(pos - dest.data()));
+      unalignedStore(current_pos, (uint32)(pos - dest.get()));
     }
     else
     {
@@ -657,22 +659,22 @@ void Block_Backend_Updater< TIndex, TObject, TIterator  >::update_group
       {
         for (auto it2(it->second.insert_it->second.begin());
             it2 != it->second.insert_it->second.end(); ++it2)
-          flush_if_necessary_and_write_obj((uint64*)dest.data(), pos, file_it, it->first, *it2);
+          flush_if_necessary_and_write_obj((uint64*)dest.get(), pos, file_it, it->first, *it2);
       }
 
-      if ((uint32)(pos - dest.data()) == it->first.size_of() + 8)
+      if ((uint32)(pos - dest.get()) == it->first.size_of() + 8)
         // the block is in fact empty
-        pos = dest.data() + 4;
+        pos = dest.get() + 4;
 
-      unalignedStore(dest.data() + 4, (uint32)(pos - dest.data()));
-      max_size = pos - dest.data() - 4;
+      unalignedStore(dest.get() + 4, (uint32)(pos - dest.get()));
+      max_size = pos - dest.get() - 4;
     }
   }
 
-  if (pos > dest.data() + 4)
+  if (pos > dest.get() + 4)
   {
-    *(uint32*)dest.data() = pos - dest.data();
-    file_it = file_blocks.replace_block(file_it, (uint64*)dest.data(), max_size);
+    *(uint32*)dest.get() = pos - dest.get();
+    file_it = file_blocks.replace_block(file_it, (uint64*)dest.get(), max_size);
     ++file_it;
   }
   else

@@ -29,6 +29,7 @@
 #include <cstdlib>
 #include <limits>
 #include <map>
+#include <memory>
 #include <vector>
 
 
@@ -146,18 +147,19 @@ inline Random_File_Index::Random_File_Index
 
     // read index file
     uint32 index_size = source_file.size("Random_File:10");
-    std::vector< uint8 > index_buf(index_size);
-    source_file.read(index_buf.data(), index_size, "Random_File:14");
+    auto index_buf = std::unique_ptr<uint8[]>(new uint8[index_size]);
+
+    source_file.read(index_buf.get(), index_size, "Random_File:14");
 
     bool read_old_format = (file_name_extension == ".legacy" ||
-      (index_size > 0 && *(int32*)index_buf.data() != FILE_FORMAT_VERSION && *(int32*)index_buf.data() != 7512));
+      (index_size > 0 && *(int32*)index_buf.get() != FILE_FORMAT_VERSION && *(int32*)index_buf.get() != 7512));
       // We support this way the old format although it has no version marker.
 
     if (!read_old_format && index_size > 0)
     {
-      uint8 block_exp = *(uint8*)(index_buf.data() + 4);
-      uint8 compression_exp = *(uint8*)(index_buf.data() + 5);
-      uint16 guessed_compression_method = *(uint16*)(index_buf.data() + 6);
+      uint8 block_exp = *(uint8*)(index_buf.get() + 4);
+      uint8 compression_exp = *(uint8*)(index_buf.get() + 5);
+      uint16 guessed_compression_method = *(uint16*)(index_buf.get() + 6);
       uint32 guessed_compression_factor = 1u<<compression_exp;
 
       if (block_exp < 32 && compression_exp < 32 && guessed_compression_method < 3)
@@ -167,8 +169,8 @@ inline Random_File_Index::Random_File_Index
         uint32 pos = 8;
         while (pos < index_size)
         {
-          Random_File_Index_Entry entry(*(uint32*)(index_buf.data() + pos),
-              *(uint32*)(index_buf.data() + pos + 4));
+          Random_File_Index_Entry entry(*(uint32*)(index_buf.get() + pos),
+              *(uint32*)(index_buf.get() + pos + 4));
 
           blocks.push_back(entry);
 
@@ -207,7 +209,7 @@ inline Random_File_Index::Random_File_Index
       uint32 pos = 0;
       while (pos < index_size)
       {
-        Random_File_Index_Entry entry(*(uint32*)(index_buf.data() + pos),
+        Random_File_Index_Entry entry(*(uint32*)(index_buf.get() + pos),
             compression_factor); //block size is always 1 in the legacy format
         if (entry.pos != npos)
           entry.pos *= compression_factor;
@@ -249,10 +251,10 @@ inline void Random_File_Index::init_void_blocks()
     {
       Raw_File void_blocks_file(empty_index_file_name, O_RDONLY, S_666, "");
       uint32 void_index_size = void_blocks_file.size("Random_File:11");
-      std::vector< uint8 > index_buf(void_index_size);
-      void_blocks_file.read(index_buf.data(), void_index_size, "Random_File:15");
+      auto index_buf = std::unique_ptr<uint8[]>(new uint8[void_index_size]);
+      void_blocks_file.read(index_buf.get(), void_index_size, "Random_File:15");
       for (uint32 i = 0; i < void_index_size/VOID_BLOCK_ENTRY_SIZE; ++i)
-        void_blocks.push_back(*(std::pair< uint32, uint32 >*)(index_buf.data() + 8*i));
+        void_blocks.push_back(*(std::pair< uint32, uint32 >*)(index_buf.get() + 8*i));
       empty_index_file_used = true;
     }
     catch (const File_Error &e)
@@ -291,19 +293,19 @@ inline Random_File_Index::~Random_File_Index()
   uint32 index_size = 8 + 8 * blocks.size();
   uint32 pos = 8;
 
-  std::vector< uint8 > index_buf(index_size);
+  auto index_buf = std::unique_ptr<uint8[]>(new uint8[index_size]);
 
-  *(uint32*)index_buf.data() = FILE_FORMAT_VERSION;
-  *(uint8*)(index_buf.data() + 4) = shift_log(block_size_);
-  *(uint8*)(index_buf.data() + 5) = shift_log(compression_factor);
-  *(uint16*)(index_buf.data() + 6) = compression_method;
+  *(uint32*)index_buf.get() = FILE_FORMAT_VERSION;
+  *(uint8*)(index_buf.get() + 4) = shift_log(block_size_);
+  *(uint8*)(index_buf.get() + 5) = shift_log(compression_factor);
+  *(uint16*)(index_buf.get() + 6) = compression_method;
 
   for (std::vector< Random_File_Index_Entry >::const_iterator
       it = blocks.begin(); it != blocks.end(); ++it)
   {
-    *(uint32*)(index_buf.data()+pos) = it->pos;
+    *(uint32*)(index_buf.get()+pos) = it->pos;
     pos += 4;
-    *(uint32*)(index_buf.data()+pos) = it->size;
+    *(uint32*)(index_buf.get()+pos) = it->size;
     pos += 4;
   }
 
@@ -311,7 +313,7 @@ inline Random_File_Index::~Random_File_Index()
 
   if (index_size < dest_file.size("Random_File:12"))
     dest_file.resize(index_size, "Random_File:13");
-  dest_file.write(index_buf.data(), index_size, "Random_File:17");
+  dest_file.write(index_buf.get(), index_size, "Random_File:17");
 
   // Write void blocks
   std::vector< uint8 > void_index_buf(void_blocks.size() * 8);

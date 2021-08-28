@@ -21,7 +21,7 @@
 #include "types.h"
 
 #include <cstring>
-
+#include <memory>
 
 void copy_file(const std::string& source, const std::string& dest)
 {
@@ -33,11 +33,12 @@ void copy_file(const std::string& source, const std::string& dest)
   Raw_File dest_file(dest, O_RDWR|O_CREAT, S_666, "Dispatcher:3");
   dest_file.resize(size, "Dispatcher:4");
 
-  std::vector< uint8 > buf(64*1024);
+  auto buf = std::unique_ptr<uint8[]>(new uint8[64*1024]);
+
   while (size > 0)
   {
-    size = read(source_file.fd(), buf.data(), 64*1024);
-    dest_file.write(buf.data(), size, "Dispatcher:5");
+    size = read(source_file.fd(), buf.get(), 64*1024);
+    dest_file.write(buf.get(), size, "Dispatcher:5");
   }
 }
 
