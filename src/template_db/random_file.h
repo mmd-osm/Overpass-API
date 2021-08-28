@@ -162,8 +162,7 @@ void Random_File< Key, Value >::move_cache_window(uint32 pos)
   if ((index->get_blocks().size() <= pos) || (index->get_blocks()[pos].pos == index->npos))
   {
     // Reset the whole cache to zero.
-    for (uint32 i = 0; i < block_size * compression_factor; ++i)
-      *(cache.data() + i) = 0;
+    std::fill(cache.begin(), cache.end(), 0);
   }
   else
   {
