@@ -140,10 +140,8 @@ struct Block_Backend_Updater
 template< class TIndex, class TObject, class TIterator >
 Block_Backend_Updater< TIndex, TObject, TIterator >::Block_Backend_Updater(File_Blocks_Index_Base* index_)
   : file_blocks(index_),
-    block_size(((File_Blocks_Index< TIndex >*)index_)->get_block_size()
-        * ((File_Blocks_Index< TIndex >*)index_)->get_compression_factor()),
-    data_filename
-      (((File_Blocks_Index< TIndex >*)index_)->get_data_file_name())
+    block_size(index_->get_block_size() * index_->get_compression_factor()),
+    data_filename(index_->get_data_file_name())
 {
 
 }

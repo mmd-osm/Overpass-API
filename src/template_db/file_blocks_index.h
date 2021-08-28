@@ -60,13 +60,13 @@ public:
 	      const std::string& db_dir, const std::string& file_name_extension,
               int compression_method_ = USE_DEFAULT);
   ~File_Blocks_Index() override;
-  bool writeable() const { return (!empty_index_file_name.empty()); }
-  const std::string& file_name_extension() const { return file_name_extension_; }
+  bool writeable() const override { return (!empty_index_file_name.empty()); }
+  const std::string& file_name_extension() const override { return file_name_extension_; }
 
-  std::string get_data_file_name() const { return data_file_name; }
-  uint64 get_block_size() const { return block_size_; }
-  uint32 get_compression_factor() const { return compression_factor; }
-  uint32 get_compression_method() const { return compression_method; }
+  std::string get_data_file_name() const override { return data_file_name; }
+  uint64 get_block_size() const override { return block_size_; }
+  uint32 get_compression_factor() const override { return compression_factor; }
+  uint32 get_compression_method() const override { return compression_method; }
   bool empty() const override { return file_size == 0; }
 
   std::list< File_Block_Index_Entry< TIndex > >& get_block_list()
