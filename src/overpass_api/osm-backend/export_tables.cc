@@ -144,6 +144,14 @@ void serialize(Archive & archive,
            cereal::make_nvp("timestamp",m.timestamp));
 }
 
+template<class Archive>
+void serialize(Archive & archive,
+    Attic< Tag_Object_Global< Uint40 > >& m)
+{
+  archive( cereal::make_nvp("idx",m.idx),
+           cereal::make_nvp("id",m.id),
+           cereal::make_nvp("timestamp",m.timestamp));
+}
 
 
 //
