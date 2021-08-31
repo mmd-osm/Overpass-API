@@ -164,17 +164,13 @@ struct Tag_Index_Local_Handle_Methods
 };
 
 
-
-namespace {
-  class void_tag {
+// void_tag initialization in settings.cc
+class void_tag {
   public:
      const static std::string void_tag_value;
      const static std::string void_tag_value_space;
-  };
+};
 
-  const std::string void_tag::void_tag_value =  { (char) 0xff };
-  const std::string void_tag::void_tag_value_space = { (char) 0xff, (char) 0x20 };
-}
 
 inline const std::string& void_tag_value()
 {

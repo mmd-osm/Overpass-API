@@ -351,3 +351,6 @@ const std::string& get_logfile_name()
 
 
 const uint64 NOW = std::numeric_limits< unsigned long long >::max();
+
+const std::string void_tag::void_tag_value =  { (char) 0xff };
+const std::string void_tag::void_tag_value_space = { (char) 0xff, (char) 0x20 };
