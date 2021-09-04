@@ -128,6 +128,8 @@ public:
   Null_Geometry() = default;
   Opaque_Geometry* clone() const override { return new Null_Geometry(); }
 
+  ~Null_Geometry() override = default;
+
   bool has_center() const override { return false; }
   double center_lat() const override { return 0; }
   double center_lon() const override { return 0; }
@@ -166,6 +168,8 @@ class Point_Geometry final : public Opaque_Geometry
 public:
   Point_Geometry(double lat_, double lon_) : pt(lat_, lon_) {}
   Opaque_Geometry* clone() const override { return new Point_Geometry(pt.lat, pt.lon); }
+
+  ~Point_Geometry() override = default;
 
   bool has_center() const override { return true; }
   double center_lat() const override { return pt.lat; }
@@ -209,6 +213,8 @@ public:
   Bbox_Geometry(double south, double west, double north, double east) : bbox(south, west, north, east) {}
   Bbox_Geometry(const Bbox_Double& bbox_) : bbox(bbox_) {}
   Opaque_Geometry* clone() const override { return new Bbox_Geometry(bbox); }
+
+  ~Bbox_Geometry() override = default;
 
   bool has_center() const override { return true; }
   double center_lat() const override { return bbox.center_lat(); }

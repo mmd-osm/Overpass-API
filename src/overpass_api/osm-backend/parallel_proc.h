@@ -26,7 +26,7 @@
 #include <vector>
 
 
-inline void process_package(std::vector< std::function< void() > >& f, const int parallel_processes)
+inline void process_package(std::vector< std::function< void() > >& f, const unsigned int parallel_processes)
 {
   if (f.empty())
     return;
@@ -34,8 +34,10 @@ inline void process_package(std::vector< std::function< void() > >& f, const int
   // skip thread creation if no parallel processing requested
   if (parallel_processes <= 1)
   {
-    for (int i = 0; i < f.size(); i++)
+    for (unsigned int i = 0; i < f.size(); i++) {
       f[i]();
+    }
+
     f.clear();
     return;
   }
@@ -43,16 +45,17 @@ inline void process_package(std::vector< std::function< void() > >& f, const int
   std::vector< std::future< void > > futures;
   std::atomic< unsigned int > package{0};
 
-  const int procs = (f.size() < parallel_processes ? f.size() : parallel_processes);
+  const unsigned int procs = (f.size() < parallel_processes ? f.size() : parallel_processes);
 
   futures.reserve(procs);
-for (int i = 0; i < procs; i++)
-  {
+
+  for (unsigned int i = 0; i < procs; i++)  {
+
     futures.push_back(
         std::async(std::launch::async, [&]
       {
         while (true) {
-          int current_package = package++;
+          unsigned int current_package = package++;
           if (current_package >= f.size())
             return;
           f[current_package]();

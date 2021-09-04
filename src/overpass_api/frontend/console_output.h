@@ -46,6 +46,8 @@ struct Console_Output : public Error_Output
   bool display_parse_errors() override { return parse_errors; }
   bool display_static_errors() override { return static_errors; }
 
+  ~Console_Output() override = default;
+
 private:
   bool encoding_errors;
   bool parse_errors;

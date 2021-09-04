@@ -217,6 +217,8 @@ struct Test_File : File_Properties
         (*this, writeable, use_shadow, db_dir, file_name_extension);
   }
 
+   ~Test_File() override = default;
+
   std::string basename, basedir;
 };
 

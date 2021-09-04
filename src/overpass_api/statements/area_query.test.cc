@@ -175,8 +175,8 @@ int main(int argc, char* args[])
   Parsed_Query global_settings;
 
   {
-    const char* attributes[] = { "into", "comp", 0 };
-    auto* stmt1 = new Union_Statement(0, convert_c_pairs(attributes), global_settings);
+    const char* attr[] = { "into", "comp", 0 };
+    auto* stmt1 = new Union_Statement(0, convert_c_pairs(attr), global_settings);
     {
       const char* attributes[] = { "s", "51.1675", "n", "51.1725", "w", "7.134", "e", "7.138", 0 };
       auto* stmt2 = new Bbox_Query_Statement(0, convert_c_pairs(attributes), global_settings);

@@ -46,6 +46,8 @@ class Verbose_Osm_Backend_Callback : public Osm_Backend_Callback
     void relations_finished() override { std::cerr<<" finished reading relations. "; }
 
     void parser_succeeded() override { std::cerr<<"Update complete.\n"; }
+
+    ~Verbose_Osm_Backend_Callback() override = default;
 };
 
 
@@ -79,6 +81,8 @@ class Quiet_Osm_Backend_Callback : public Osm_Backend_Callback
     void relations_finished() override {}
 
     void parser_succeeded() override {}
+
+    ~Quiet_Osm_Backend_Callback() override = default;
 };
 
 

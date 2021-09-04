@@ -61,7 +61,7 @@ class Dispatcher_Stub : public Watchdog_Callback
     // Called once per minute from the resource manager
     void ping() const override;
 
-    ~Dispatcher_Stub();
+    ~Dispatcher_Stub() override;
 
     std::string get_db_dir() { return (db_dir.empty() ? dispatcher_client->get_db_dir() : db_dir); }
     std::string get_timestamp() { return timestamp; }

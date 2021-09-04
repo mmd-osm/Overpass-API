@@ -924,6 +924,7 @@ double great_circle_line_dist(const Prepared_Segment& segment, const std::tuple<
 }
 
 
+/*
 double great_circle_line_dist(double llat1, double llon1, double llat2, double llon2,
                               double plat, double plon)
 {
@@ -937,7 +938,7 @@ double great_circle_line_dist(double llat1, double llon1, double llat2, double l
 
   return asin(scalar_prod_)*(10*1000*1000/acos(0));
 }
-
+*/
 
 bool intersect(const Prepared_Segment& segment_a,
                const Prepared_Segment& segment_b)
@@ -952,7 +953,7 @@ bool intersect(const Prepared_Segment& segment_a,
       && std::abs(scalar_prod(bsum, intersection_pt)) >= scalar_prod(bsum, segment_b.first_cartesian));
 }
 
-
+/*
 bool intersect(double alat1, double alon1, double alat2, double alon2,
 	       double blat1, double blon1, double blat2, double blon2)
 {
@@ -972,6 +973,7 @@ bool intersect(double alat1, double alon1, double alat2, double alon2,
   return (std::abs(scalar_prod(asum, intersection_pt)) >= scalar_prod(asum, a1)
       && std::abs(scalar_prod(bsum, intersection_pt)) >= scalar_prod(bsum, b1));
 }
+*/
 
 }
 

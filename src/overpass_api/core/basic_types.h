@@ -65,7 +65,7 @@ struct Uint32_Index
     return 4;
   }
 
-  static uint32 size_of(const void* data) noexcept
+  static uint32 size_of(const void* ) noexcept
   {
     return 4;
   }
@@ -271,8 +271,8 @@ struct Uint64
   Uint64(const void* data) noexcept : value(unalignedLoad<uint64>(data)) {}
 
   uint32 size_of() const noexcept { return 8; }
-  static const uint32 max_size_of() noexcept { return 8; }
-  static uint32 size_of(const void* data) noexcept { return 8; }
+  static uint32 max_size_of() noexcept { return 8; }
+  static uint32 size_of(const void* ) noexcept { return 8; }
 
   void to_data(void* data) const noexcept
   {
@@ -363,8 +363,8 @@ struct Uint40
   }
 
   uint32 size_of() const noexcept { return 5; }
-  static const uint32 max_size_of() noexcept { return 5; }
-  static uint32 size_of(const void* data) noexcept { return 5; }
+  static uint32 max_size_of() noexcept { return 5; }
+  static uint32 size_of(const void* ) noexcept { return 5; }
 
   void to_data(void* data) const noexcept
   {
@@ -688,14 +688,14 @@ void expand_diff_fast(std::vector< Object >& reference,
     const std::vector< uint >& removed, const std::vector< std::pair< uint, Object > >& added,
     std::vector< Object >& target)
 {
-  int removed_min;
-  int removed_max;
-  int added_min;
-  int added_max;
+  uint removed_min{};
+  uint removed_max{};
+  uint added_min{};
+  uint added_max{};
   bool copy_prefix;
   bool copy_suffix;
-  int prefix_end_index;
-  int suffix_start_index;
+  uint prefix_end_index{};
+  uint suffix_start_index{};
 
   if (removed.empty() && added.empty())
   {
@@ -762,11 +762,11 @@ void expand_diff_fast(std::vector< Object >& reference,
   }
 
   // out of range checks
-  if ( prefix_end_index < 0 || prefix_end_index > reference.size()) {
+  if (prefix_end_index > reference.size()) {
     copy_prefix = false;
   }
 
-  if (suffix_start_index < 0 || suffix_start_index > reference.size()) {
+  if (suffix_start_index > reference.size()) {
     copy_suffix = false;
   }
 

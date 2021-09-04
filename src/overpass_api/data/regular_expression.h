@@ -290,7 +290,7 @@ class Regular_Expression_PCRE : public Regular_Expression
 
     ~Regular_Expression_PCRE()
     {
-      if (strategy == Strategy::call_library)
+      if (strategy == Strategy::call_library) {
 
         if (re != nullptr) {
           pcre2_code_free(re);
@@ -307,6 +307,7 @@ class Regular_Expression_PCRE : public Regular_Expression
         if (mcontext != nullptr) {
            pcre2_match_context_free(mcontext);
         }
+      }
     }
 
     inline bool matches(const std::string& line) const

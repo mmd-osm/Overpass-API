@@ -33,6 +33,7 @@ class Statement;
 struct Watchdog_Callback
 {
   virtual void ping() const = 0;
+  virtual ~Watchdog_Callback() = default;
 };
 
 
@@ -40,7 +41,7 @@ struct Watchdog_Callback
 namespace Diff_Action
 {
   enum _ { positive, collect_lhs, collect_rhs_no_del, collect_rhs_with_del, show_old, show_new };
-};
+}
 
 
 class Runtime_Stack_Frame

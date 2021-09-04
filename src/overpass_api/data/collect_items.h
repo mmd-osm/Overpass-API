@@ -29,41 +29,41 @@ inline uint64 timestamp_of(const Attic< Node_Skeleton >& skel) { return skel.tim
 inline uint64 timestamp_of(const Attic< Way_Skeleton >& skel) { return skel.timestamp; }
 inline uint64 timestamp_of(const Attic< Relation_Skeleton >& skel) { return skel.timestamp; }
 
-inline uint64 timestamp_of(const Node_Skeleton& skel) { return NOW; }
-inline uint64 timestamp_of(const Way_Skeleton& skel) { return NOW; }
-inline uint64 timestamp_of(const Relation_Skeleton& skel) { return NOW; }
+inline uint64 timestamp_of(const Node_Skeleton& ) { return NOW; }
+inline uint64 timestamp_of(const Way_Skeleton& ) { return NOW; }
+inline uint64 timestamp_of(const Relation_Skeleton& ) { return NOW; }
 
 template< typename TObject, class TIterator>
 inline typename std::enable_if< std::is_same< TObject, Attic < Node_Skeleton > >::value, uint64 >::type
-  timestamp_of_it(TIterator& it) { return it.handle().get_timestamp(); };
+  timestamp_of_it(TIterator& it) { return it.handle().get_timestamp(); }
 
 template< typename TObject, class TIterator>
 inline typename std::enable_if< std::is_same< TObject, Attic < Way_Skeleton > >::value, uint64 >::type
-  timestamp_of_it(TIterator& it) { return it.handle().get_timestamp(); };
+  timestamp_of_it(TIterator& it) { return it.handle().get_timestamp(); }
 
 template< typename TObject, class TIterator>
 inline typename std::enable_if< std::is_same< TObject, Attic < Relation_Skeleton > >::value, uint64 >::type
-  timestamp_of_it(TIterator& it) { return it.handle().get_timestamp(); };
+  timestamp_of_it(TIterator& it) { return it.handle().get_timestamp(); }
 
 template< typename TObject, class TIterator>
 inline typename std::enable_if< std::is_same< TObject, Attic < Way_Delta > >::value, uint64 >::type
-  timestamp_of_it(TIterator& it) { return it.handle().get_timestamp(); };
+  timestamp_of_it(TIterator& it) { return it.handle().get_timestamp(); }
 
 template< typename TObject, class TIterator>
 inline typename std::enable_if< std::is_same< TObject, Attic < Relation_Delta > >::value, uint64 >::type
-  timestamp_of_it(TIterator& it) { return it.handle().get_timestamp(); };
+  timestamp_of_it(TIterator& it) { return it.handle().get_timestamp(); }
 
 template< typename TObject, class TIterator>
 inline typename std::enable_if< std::is_same< TObject, Node_Skeleton >::value, uint64 >::type
-  timestamp_of_it(TIterator& it) { return NOW; };
+  timestamp_of_it(TIterator& ) { return NOW; }
 
 template< typename TObject, class TIterator>
 inline typename std::enable_if< std::is_same< TObject, Way_Skeleton >::value, uint64 >::type
-  timestamp_of_it(TIterator& it) { return NOW; };
+  timestamp_of_it(TIterator& ) { return NOW; }
 
 template< typename TObject, class TIterator>
 inline typename std::enable_if< std::is_same< TObject, Relation_Skeleton >::value, uint64 >::type
-  timestamp_of_it(TIterator& it) { return NOW; };
+  timestamp_of_it(TIterator& ) { return NOW; }
 
 
 

@@ -209,15 +209,11 @@ void get_existing_skeletons
   //ids_lookup.sort_unique();
 
   std::map< Uint31_Index, std::set< Element_Skeleton > > result;
-  Idx_Agnostic_Compare< typename Element_Skeleton::Id_Type > comp;
 
   Block_Backend< Uint31_Index, Element_Skeleton > db(transaction.data_index(&file_properties));
   for (typename Block_Backend< Uint31_Index, Element_Skeleton >::Discrete_Iterator
       it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
   {
-//    if (binary_search(ids_with_position.begin(), ids_with_position.end(), it.handle().id(), comp)) {
-//      f(it);
-//    }
     if (ids_lookup.get(it.handle().id().val())) {
       f(it);
     }

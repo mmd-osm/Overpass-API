@@ -31,7 +31,7 @@ struct Web_Output : public Error_Output
       encoding_errors(false), parse_errors(false), static_errors(false), log_level(log_level_),
       output_handler(0) {}
 
-  ~Web_Output() {
+  virtual ~Web_Output() {
     try {
       write_footer();
     } catch (...) {}

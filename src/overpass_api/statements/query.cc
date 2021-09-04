@@ -1176,8 +1176,8 @@ void Query_Statement::filter_by_tags
       (Default_Range_Iterator< Tag_Index_Local >(range_set.begin()),
        Default_Range_Iterator< Tag_Index_Local >(range_set.end())));
 
-    typename std::map< TIndex, std::vector< Attic< TObject > > >::const_iterator attic_item_it
-        = attic_items->begin();
+//    typename std::map< TIndex, std::vector< Attic< TObject > > >::const_iterator attic_item_it
+//        = attic_items->begin();
 
     for (auto it = ids_by_coarse.begin(); it != ids_by_coarse.end(); ++it)
     {
@@ -1236,8 +1236,8 @@ void Query_Statement::filter_by_tags
       (Default_Range_Iterator< Tag_Index_Local >(range_set.begin()),
        Default_Range_Iterator< Tag_Index_Local >(range_set.end())));
 
-    typename std::map< TIndex, std::vector< Attic< TObject > > >::const_iterator attic_item_it
-        = attic_items->begin();
+//    typename std::map< TIndex, std::vector< Attic< TObject > > >::const_iterator attic_item_it
+//        = attic_items->begin();
 
     for (auto it = ids_by_coarse.begin(); it != ids_by_coarse.end(); ++it)
     {
@@ -2265,7 +2265,7 @@ Has_Kv_Statement::Has_Kv_Statement
       key_regex = Regular_Expression_Factory::get_regexp_engine(global_settings.get_regexp_engine(), attributes["regk"], case_sensitive);
       key = attributes["regk"];
     }
-    catch (Regular_Expression_Error e)
+    catch (Regular_Expression_Error& e)
     {
       add_static_error("Invalid regular expression: \"" + attributes["regk"] + "\"");
     }
@@ -2286,7 +2286,7 @@ Has_Kv_Statement::Has_Kv_Statement
       regex = Regular_Expression_Factory::get_regexp_engine(global_settings.get_regexp_engine(), attributes["regv"], case_sensitive);
       value = attributes["regv"];
     }
-    catch (Regular_Expression_Error e)
+    catch (Regular_Expression_Error& e)
     {
       add_static_error("Invalid regular expression: \"" + attributes["regv"] + "\"");
     }

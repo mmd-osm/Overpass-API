@@ -353,8 +353,9 @@ void prep_map_data(Resource_Manager& rman, Bbox_Double bbox)
         auto r = it.object();
         for (const auto& m : r.members()) {
           if (m.type == Relation_Entry::NODE) {
-            if (nodes_dense.get(m.ref.val()))
+            if (nodes_dense.get(m.ref.val())) {
               relations_dense.set(r.id.val());
+            }
           }
         }
       }
@@ -397,9 +398,10 @@ void prep_map_data(Resource_Manager& rman, Bbox_Double bbox)
         auto r = it.object();
         for (const auto& m : r.members()) {
           if (m.type == Relation_Entry::RELATION) {
-            if (relations_dense.get(m.ref.val()))
+            if (relations_dense.get(m.ref.val())) {
               relations_dense.set(r.id.val());
               req_rel.insert(it.index());
+            }
           }
         }
       }
@@ -592,7 +594,6 @@ int main(int argc, char *argv[])
   Debug_Level debug_level = parser_execute;
   Clone_Settings clone_settings;
   int area_level = 0;
-  bool respect_timeout = true;
 
   Bbox_Double bbox(bbox.invalid);
 

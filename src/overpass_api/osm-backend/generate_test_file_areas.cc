@@ -48,6 +48,7 @@ struct Data_Modifier
   virtual bool admit_relation(uint id) const = 0;
   virtual bool admit_relation_skeleton(uint id) const = 0;
   virtual bool admit_relation_tags(uint id) const = 0;
+  virtual ~Data_Modifier() = default;
 };
 
 struct Accept_All_Tags : public Data_Modifier
@@ -58,6 +59,7 @@ struct Accept_All_Tags : public Data_Modifier
   bool admit_way_tags(uint id) const override { return true; }
   bool admit_relation_skeleton(uint id) const override { return true; }
   bool admit_relation_tags(uint id) const override { return true; }
+  ~Accept_All_Tags() override = default;
 };
 
 struct Accept_All : public Accept_All_Tags
@@ -71,6 +73,7 @@ struct Accept_All : public Accept_All_Tags
   bool admit_relation(uint id) const override { return true; }
   bool admit_relation_skeleton(uint id) const override { return true; }
   bool admit_relation_tags(uint id) const override { return true; }
+  ~Accept_All() override = default;
 };
 
 std::vector< std::pair< std::string, std::string > > collect_tags(const std::string& prefix, uint id)

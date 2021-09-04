@@ -102,13 +102,14 @@ private:
   void prepare_fifo();
 
   std::string output_format;
+  std::string params;
   osmium::memory::Buffer buffer{1024*1024};
   std::unique_ptr<osmium::io::Writer> writer;
   std::unique_ptr<osmium::io::File> output_file;
   std::unique_ptr<osmium::io::Header> header;
   std::future<void> repeater;
   std::string repeater_file;
-  std::string params;
+
 };
 
 #endif

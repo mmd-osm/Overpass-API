@@ -172,6 +172,7 @@ public:
   virtual bool value_relevant(const std::string& value) const = 0;
   virtual void eval_id(Id_Type id, uint64 timestamp, bool value_relevant) = 0;
   virtual void filter_ids(std::vector< Id_Type >& new_ids) = 0;
+  virtual ~Tag_Entry_Listener() = default;
 };
 
 
@@ -183,6 +184,8 @@ public:
       const std::string& key, const std::string& value, const std::vector< Regular_Expression* >& conditions,
       const std::vector< Id_Type >& old_ids)
       : key_(key), value_(value), conditions_(conditions), old_ids_(&old_ids) {}
+
+  ~Tag_Entry_Listener_Value_Regex() override = default;
 
   bool notify_key(const std::string& key) override { return key == key_; }
 
@@ -240,6 +243,8 @@ public:
       Regular_Expression* key, Regular_Expression* value,
       const std::vector< Id_Type >& old_ids)
       : key_(key), value_(value), old_ids_(&old_ids) {}
+
+  ~Tag_Entry_Listener_Key_Regex() override = default;
 
   bool notify_key(const std::string& key) override
   {

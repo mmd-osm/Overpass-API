@@ -278,7 +278,7 @@ struct Derived_Structure : public Derived_Skeleton
   std::vector< std::pair< std::string, std::string > > tags;
 
   const Opaque_Geometry* get_geometry() const { return ((geometry) ? &*geometry : nullptr); }
-  const void acquire_geometry(Opaque_Geometry* geometry_)
+  void acquire_geometry(Opaque_Geometry* geometry_)
   {
     geometry.acquire(geometry_);
   }
@@ -367,6 +367,8 @@ struct Error_Output
   virtual bool display_parse_errors() = 0;
   virtual bool display_static_errors() = 0;
 
+  virtual ~Error_Output() = default;
+
   static const uint QUIET = 1;
   static const uint CONCISE = 2;
   static const uint PROGRESS = 3;
@@ -406,6 +408,8 @@ class Osm_Backend_Callback
     virtual void relation_elapsed(Relation::Id_Type id) = 0;
     virtual void relations_finished() = 0;
     virtual void parser_succeeded() = 0;
+
+    virtual ~Osm_Backend_Callback() = default;
 };
 
 

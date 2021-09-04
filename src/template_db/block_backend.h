@@ -375,7 +375,7 @@ struct Default_Range_Iterator final : std::set< std::pair< Index, Index > >::con
 struct Flat_Idx_Assessor
 {
   template< typename Index >
-  bool is_relevant(Handle < Index > & handle)
+  bool is_relevant(Handle < Index > & )
   {
     return true;
   }
@@ -419,9 +419,9 @@ struct Block_Backend_Flat_Iterator final
   typedef File_Blocks< Index, Iterator, Default_Range_Iterator< Index > > File_Blocks_;
   typedef Flat_File_Handle< File_Blocks_, typename File_Blocks_::Flat_Iterator > File_Handle_;
 
-  Block_Backend_Flat_Iterator(File_Blocks_& file_blocks, uint32 block_size, bool is_end = false)
+  Block_Backend_Flat_Iterator(File_Blocks_& file_blocks, uint32 block_size_, bool is_end = false)
       : Block_Backend_Basic_Iterator< Index, Object, Assessor, File_Handle_ >(
-          block_size, File_Handle_(file_blocks, is_end), Flat_Idx_Assessor()) {}
+          block_size_, File_Handle_(file_blocks, is_end), Flat_Idx_Assessor()) {}
 
   Block_Backend_Flat_Iterator(const Block_Backend_Flat_Iterator& rhs)
       : Block_Backend_Basic_Iterator< Index, Object, Assessor, File_Handle_ >(rhs) {}
@@ -491,14 +491,14 @@ struct Block_Backend_Discrete_Iterator final
   typedef Discrete_File_Handle< File_Blocks_, typename File_Blocks_::Discrete_Iterator > File_Handle_;
 
   Block_Backend_Discrete_Iterator
-      (File_Blocks_& file_blocks, const Iterator& index_it, const Iterator& index_end, uint32 block_size)
+      (File_Blocks_& file_blocks, const Iterator& index_it, const Iterator& index_end, uint32 block_size_)
       : Block_Backend_Basic_Iterator< Index, Object, Assessor, File_Handle_ >(
-          block_size, File_Handle_(file_blocks, file_blocks.discrete_begin(index_it, index_end)),
+          block_size_, File_Handle_(file_blocks, file_blocks.discrete_begin(index_it, index_end)),
           Assessor(index_it, index_end)) {}
 
-  Block_Backend_Discrete_Iterator(File_Blocks_& file_blocks, uint32 block_size)
+  Block_Backend_Discrete_Iterator(File_Blocks_& file_blocks, uint32 block_size_)
       : Block_Backend_Basic_Iterator< Index, Object, Assessor, File_Handle_ >(
-          block_size, File_Handle_(file_blocks, file_blocks.discrete_end()),
+          block_size_, File_Handle_(file_blocks, file_blocks.discrete_end()),
           Assessor(Iterator(), Iterator())) {}
 
   Block_Backend_Discrete_Iterator(const Block_Backend_Discrete_Iterator& it)
@@ -571,16 +571,16 @@ struct Block_Backend_Range_Iterator final
   Block_Backend_Range_Iterator(
       File_Blocks_& file_blocks,
       const Default_Range_Iterator< Index >& index_it, const Default_Range_Iterator< Index >& index_end,
-      uint32 block_size)
+      uint32 block_size_)
       : Block_Backend_Basic_Iterator< Index, Object,
           Assessor, File_Handle_ >(
-          block_size, File_Handle_(file_blocks, file_blocks.range_begin(index_it, index_end)),
+          block_size_, File_Handle_(file_blocks, file_blocks.range_begin(index_it, index_end)),
           Assessor(index_it, index_end)) {}
 
-  Block_Backend_Range_Iterator(File_Blocks_& file_blocks, uint32 block_size)
+  Block_Backend_Range_Iterator(File_Blocks_& file_blocks, uint32 block_size_)
       : Block_Backend_Basic_Iterator< Index, Object,
           Assessor, File_Handle_ >(
-          block_size, File_Handle_(file_blocks, file_blocks.range_end()),
+          block_size_, File_Handle_(file_blocks, file_blocks.range_end()),
           Assessor(
               Default_Range_Iterator< Index >(), Default_Range_Iterator< Index >())) {}
 
@@ -630,7 +630,7 @@ struct Block_Backend
     template <class TIter>
     struct Adapter {
 
-      Adapter(TIter&& b, const TIter& e) : b(std::move(b)), e(e) {};
+      Adapter(TIter&& b_, const TIter& e_) : b(std::move(b_)), e(e_) {};
 
       TIter begin() const { return b; }
       TIter end() const { return e; }

@@ -259,6 +259,8 @@ struct Test_File : File_Properties
     return new File_Blocks_Index< IntIndex >
         (*this, writeable, use_shadow, db_dir, file_name_extension);
   }
+
+  ~Test_File() override = default;
 };
 
 //-----------------------------------------------------------------------------

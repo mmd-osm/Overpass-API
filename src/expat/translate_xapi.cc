@@ -70,14 +70,16 @@ struct InputAnalyzer
 {
   InputAnalyzer(const std::string& input, bool force_meta = false);
 
-  std::string south, north, east, west;
   bool bbox_found;
+  bool meta_found;
+  unsigned int timeout;
+  unsigned long uid;
+  std::string south, north, east, west;
   std::vector< std::pair< std::string, std::string > > key_value;
   std::string user;
-  unsigned long uid;
   std::string newer;
-  unsigned int timeout;
-  bool meta_found;
+
+
 };
 
 InputAnalyzer::InputAnalyzer(const std::string& input_, bool force_meta)

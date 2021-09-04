@@ -44,6 +44,8 @@ public:
 
   virtual void build_area(bool sw_corner_inside, int32 value, bool* se_corner_inside, bool* nw_corner_inside) = 0;
   virtual point_status get_point_status(int32 value, double lat, double lon) = 0;
+
+  virtual ~Area_Oracle() = default;
 };
 
 

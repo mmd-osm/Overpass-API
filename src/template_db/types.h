@@ -149,6 +149,8 @@ struct File_Properties
   virtual File_Blocks_Index_Base* new_data_index
       (bool writeable, bool use_shadow, const std::string& db_dir, const std::string& file_name_extension)
       const = 0;
+
+  virtual ~File_Properties() = default;
 };
 
 
