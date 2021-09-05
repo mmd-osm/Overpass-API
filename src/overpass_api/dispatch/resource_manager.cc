@@ -430,6 +430,22 @@ std::vector< std::pair< uint, uint > > Runtime_Stack_Frame::stack_progress() con
   return result;
 }
 
+bool Runtime_Stack_Frame::set_exists_in_parents(const std::string& inner_set_name) const
+{
+  Runtime_Stack_Frame* source = parent;
+
+  while (source != nullptr)
+  {
+    auto it = source->sets.find(inner_set_name);
+    if (it != source->sets.end())
+      return true;
+
+    source = source->parent;
+  }
+
+  return false;
+}
+
 
 Resource_Manager::Resource_Manager(
     Transaction& transaction_, Parsed_Query* global_settings_, Watchdog_Callback* watchdog_,
@@ -613,6 +629,14 @@ void Resource_Manager::pop_stack_frame()
     delete runtime_stack.back();
     runtime_stack.pop_back();
   }
+}
+
+bool Resource_Manager::set_exists_in_parents(const std::string& set_name)
+{
+  if (runtime_stack.empty())
+    return false;
+
+  return runtime_stack.back()->set_exists_in_parents(set_name);
 }
 
 

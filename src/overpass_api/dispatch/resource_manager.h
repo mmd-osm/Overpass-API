@@ -76,6 +76,8 @@ public:
   void move_all_inward();
   void move_all_inward_except(const std::string& set_name);
 
+  bool set_exists_in_parents(const std::string& inner_set_name) const;
+
   uint64 get_desired_timestamp() const { return desired_timestamp; }
   Diff_Action::_ get_desired_action() const { return desired_action; }
   uint64 get_diff_from_timestamp() const { return diff_from_timestamp; }
@@ -148,6 +150,7 @@ public:
   void move_all_inward();
   void move_all_inward_except(const std::string& set_name);
   void pop_stack_frame();
+  bool set_exists_in_parents(const std::string& set_name);
 
   void count_loop();
 

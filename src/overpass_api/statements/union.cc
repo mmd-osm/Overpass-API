@@ -62,7 +62,7 @@ void Union_Statement::add_statement(Statement* statement, std::string text)
   }
 }
 
-bool Union_Statement::union_item_statements(Resource_Manager& rman)
+bool Union_Statement::union_fast_path(Resource_Manager& rman)
 {
   /* Shortcut union operation for frequently occurring pattern
    *   (.element1; ...; ._elementn; .result;)->.result:
@@ -86,6 +86,10 @@ bool Union_Statement::union_item_statements(Resource_Manager& rman)
    *
    */
 
+
+  // exclude any diff actions for now (diff, adiff, compare statement,...)
+  if (!rman.get_desired_action() == Diff_Action::positive)
+    return false;
 
   if (get_result_name() == "_")
     return false;
@@ -117,6 +121,24 @@ bool Union_Statement::union_item_statements(Resource_Manager& rman)
   if (!result_name_found)
     return false;
 
+  // TODO: in case the result inputset already exists in one of the parent stack frames, we need to move or copy those over to the
+  // current stack frame. Otherwise, existing data in parent stack frames might be replaced by the current stack frame later on.
+  // As long as this isn't properly implemented, we fall back to the original coding in this case.
+
+  /* Example query - this query should return way 1000 twice. In the buggy version, way 1000 is returned only once.
+
+  ( ( way(1000);  (._;.result;)->.result; ); );
+  .result out ;
+
+  ( ( way(1001);  (._;.result;)->.result; ); );
+  .result out ;
+
+   */
+
+  if (rman.set_exists_in_parents(get_result_name())) {
+    return false;
+  }
+
   for (auto s : substatements) {
     const auto input_name = s->dump_ql_in_query("").replace(0, 1, "");
 
@@ -134,7 +156,7 @@ bool Union_Statement::union_item_statements(Resource_Manager& rman)
 
 void Union_Statement::execute(Resource_Manager& rman)
 {
-  if (union_item_statements(rman))
+  if (union_fast_path(rman))
     return;
 
   rman.push_stack_frame();
