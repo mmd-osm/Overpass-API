@@ -1,8 +1,0 @@
-<union>
-  <query type="way">
-    <has-kv k="key" v="value"/>
-    <user name="Username"/>
-  </query>
-  <recurse type="way-node"/>
-</union>
-<print/>

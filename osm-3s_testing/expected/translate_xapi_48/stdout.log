@@ -1,8 +1,0 @@
-<osm-script timeout="300">
-
-<query type="relation">
-  <has-kv k="key" v="value"/>
-</query>
-<print/>
-
-</osm-script>

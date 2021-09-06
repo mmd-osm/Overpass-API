@@ -1,4 +1,0 @@
-<query type="relation">
-  <has-kv k="key" regv="^(value1|value2|value3)$"/>
-</query>
-<print/>

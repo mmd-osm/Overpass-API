@@ -143,6 +143,7 @@ Example syntax for changeset 46503970: (syntax is subject to change)
 * `[out:custom]` and `[out:popup]` output modes
 * Public transport diagrams (sketch route tools)
 * local (localize)
+* XAPI compatibility layer (obsolete, no real world usage anymore)
 
 ### :recycle: Cleanup
 

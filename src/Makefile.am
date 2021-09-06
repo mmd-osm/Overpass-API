@@ -26,11 +26,6 @@ cgi_bin_script_clone = cgi-bin/trigger_clone
 cgi_bin_augmented_diffs =
 cgi_bin_script_augmented_diffs = cgi-bin/augmented_diff cgi-bin/augmented_diff_status cgi-bin/augmented_state_by_date
 
-bin_xapi_layer = bin/translate_xapi
-
-cgi_bin_xapi_layer = 
-cgi_bin_script_xapi_layer = cgi-bin/convert_xapi cgi-bin/xapi cgi-bin/xapi_meta
-
 bin_openlayers = bin/tocgi bin/uncgi bin/escape_xml
 bin_script_openlayers =
 cgi_bin_openlayers =
@@ -50,7 +45,6 @@ bin_PROGRAMS = \
   ${bin_customoutput} \
   ${bin_clone} \
   ${bin_augmented_diffs} \
-  ${bin_xapi_layer} \
   ${bin_openlayers} \
   ${bin_public_transport} \
   ${bin_convenience}
@@ -60,7 +54,6 @@ dist_bin_SCRIPTS = \
   ${bin_script_customoutput} \
   ${bin_script_clone} \
   ${bin_script_augmented_diffs} \
-  ${bin_script_xapi_layer} \
   ${bin_script_openlayers} \
   ${bin_script_convenience}
   
@@ -71,7 +64,6 @@ cgibin_PROGRAMS = \
   ${cgi_bin_customoutput} \
   ${cgi_bin_clone} \
   ${cgi_bin_augmented_diffs} \
-  ${cgi_bin_xapi_layer} \
   ${cgi_bin_openlayers} \
   ${cgi_bin_convenience}
 
@@ -80,7 +72,6 @@ dist_cgibin_SCRIPTS = \
   ${cgi_bin_script_customoutput} \
   ${cgi_bin_script_clone} \
   ${cgi_bin_script_augmented_diffs} \
-  ${cgi_bin_script_xapi_layer} \
   ${cgi_bin_script_openlayers} \
   ${cgi_bin_script_convenience}
 
@@ -221,8 +212,6 @@ bin_tocgi_SOURCES = pt_diagrams/tocgi.cc
 bin_tocgi_LDADD =
 bin_escape_xml_SOURCES = expat/escape_xml.cc expat/escape_xml_main.cc
 bin_escape_xml_LDADD =
-bin_translate_xapi_SOURCES = expat/translate_xapi.cc expat/escape_xml.cc
-bin_translate_xapi_LDADD = 
 
 distdir = osm-3s_v0.7.59
 
