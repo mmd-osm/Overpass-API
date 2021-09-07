@@ -57,7 +57,6 @@ RUN apt-get update -qq && \
 
 COPY --from=builder /root/overpass/bin /opt/overpass/bin
 COPY --from=builder /root/overpass/cgi-bin /opt/overpass/cgi-bin
-COPY --from=builder /root/overpass/templates /opt/overpass/templates
 
 RUN groupadd -g 62000 overpass && \
     useradd -g 62000 -l -M -s /bin/false -u 62000 overpass

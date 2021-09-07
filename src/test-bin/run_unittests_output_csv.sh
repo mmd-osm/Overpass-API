@@ -95,8 +95,6 @@ perform_test_interpreter()
 # Prepare testing the statements with meta
 mkdir -p input/update_database/
 rm -f input/update_database/*
-mkdir -p input/update_database/templates/
-cp -p $BASEDIR/templates/* input/update_database/templates/
 $BASEDIR/test-bin/generate_test_file_meta 40 more_tags >input/update_database/stdin.log
 $BASEDIR/bin/update_database --db-dir=input/update_database/ --meta --version=mock-up-init <input/update_database/stdin.log
 

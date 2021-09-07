@@ -75,9 +75,6 @@ dist_cgibin_SCRIPTS = \
   ${cgi_bin_script_openlayers} \
   ${cgi_bin_script_convenience}
 
-templatesdir = ${prefix}/templates
-dist_templates_DATA = templates/default.wiki templates/base.wiki
-
 noinst_LTLIBRARIES = libcore.la libdata.la libdispatcher.la libdispatcherclient.la libexpatwrapper.la libfrontend.la liboutput.la libsettings.la
 
 statements_cc = \

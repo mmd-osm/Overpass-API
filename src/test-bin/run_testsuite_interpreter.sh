@@ -106,8 +106,6 @@ prepare_test_interpreter()
 # Prepare testing the statements
 mkdir -p input/update_database/
 rm -fR input/update_database/*
-mkdir -p input/update_database/templates/
-cp -p $BASEDIR/templates/* input/update_database/templates/
 $BASEDIR/test-bin/generate_test_file $DATA_SIZE >input/update_database/stdin.log
 $BASEDIR/bin/update_database --db-dir=input/update_database/ --meta --version=mock-up-init <input/update_database/stdin.log
 
