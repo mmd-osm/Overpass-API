@@ -15,8 +15,6 @@ cgi_bin_script_mandatory = cgi-bin/kill_my_queries cgi-bin/map cgi-bin/status
 
 bin_customoutput = bin/uncgi bin/escape_xml
 bin_script_customoutput =
-cgi_bin_customoutput =
-cgi_bin_script_customoutput = cgi-bin/template
 
 bin_clone =
 bin_script_clone = bin/compress_clone.sh bin/clone.sh
