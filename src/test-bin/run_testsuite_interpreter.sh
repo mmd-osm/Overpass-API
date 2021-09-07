@@ -152,38 +152,46 @@ echo "data=[out:json];(node(1);way(1);rel(1););out ids;" >input/interpreter_21/s
 echo "data=[out:json];(node(1);way(1);rel(1););out skel;" >input/interpreter_22/stdin.log
 echo "data=[out:json];(node(1);way(1);rel(1););out body;" >input/interpreter_23/stdin.log
 
-echo "data=[out:custom];out;" >input/interpreter_24/stdin.log
-echo "data=[out:custom];node(1);out;&redirect=no" >input/interpreter_25/stdin.log
-echo "data=[out:custom];(node(1);node($(($DATA_SIZE * 3 + 3))););out;" >input/interpreter_26/stdin.log
-echo "data=[out:custom];way(1);out geom;&redirect=no" >input/interpreter_27/stdin.log
-echo "data=[out:custom];(way(1);way(2););out geom;" >input/interpreter_28/stdin.log
-echo "data=[out:custom];rel(1);out;&redirect=no" >input/interpreter_29/stdin.log
-echo "data=[out:custom];(rel(1);rel(9););out geom;" >input/interpreter_30/stdin.log
-echo "data=[out:custom];(node(1);way(1););out geom;" >input/interpreter_31/stdin.log
-echo "data=[out:custom];(node(1);rel(1););out geom;" >input/interpreter_32/stdin.log
-echo "data=[out:custom];(way(1);rel(1););out geom;" >input/interpreter_33/stdin.log
-echo "data=[out:custom];(node(1);way(1);rel(1););out geom;" >input/interpreter_34/stdin.log
-echo "data=[out:custom];(node(1);way(1);rel(1););out ids;" >input/interpreter_35/stdin.log
-echo "data=[out:custom];(node(1);way(1);rel(1););out skel;" >input/interpreter_36/stdin.log
-echo "data=[out:custom];(node(1);way(1);rel(1););out body;" >input/interpreter_37/stdin.log
+echo "Skipping tests 24..37 for out:custom"
+#echo "data=[out:custom];out;" >input/interpreter_24/stdin.log
+#echo "data=[out:custom];node(1);out;&redirect=no" >input/interpreter_25/stdin.log
+#echo "data=[out:custom];(node(1);node($(($DATA_SIZE * 3 + 3))););out;" >input/interpreter_26/stdin.log
+#echo "data=[out:custom];way(1);out geom;&redirect=no" >input/interpreter_27/stdin.log
+#echo "data=[out:custom];(way(1);way(2););out geom;" >input/interpreter_28/stdin.log
+#echo "data=[out:custom];rel(1);out;&redirect=no" >input/interpreter_29/stdin.log
+#echo "data=[out:custom];(rel(1);rel(9););out geom;" >input/interpreter_30/stdin.log
+#echo "data=[out:custom];(node(1);way(1););out geom;" >input/interpreter_31/stdin.log
+#echo "data=[out:custom];(node(1);rel(1););out geom;" >input/interpreter_32/stdin.log
+#echo "data=[out:custom];(way(1);rel(1););out geom;" >input/interpreter_33/stdin.log
+#echo "data=[out:custom];(node(1);way(1);rel(1););out geom;" >input/interpreter_34/stdin.log
+#echo "data=[out:custom];(node(1);way(1);rel(1););out ids;" >input/interpreter_35/stdin.log
+#echo "data=[out:custom];(node(1);way(1);rel(1););out skel;" >input/interpreter_36/stdin.log
+#echo "data=[out:custom];(node(1);way(1);rel(1););out body;" >input/interpreter_37/stdin.log
 
 echo "data=[out:json];node(1);out;&jsonp=foo" >input/interpreter_38/stdin.log
-echo "data=[out:custom];way(1);out geom;" >input/interpreter_39/stdin.log
-echo "data=[out:custom];way(1);out geom;&url=https://www.openstreetmap.org/?{{{type}}}={{{id}}}" >input/interpreter_40/stdin.log
-echo "data=[out:custom];way(1);out geom;&url=https%3A%2F%2Fwww%2Eopenstreetmap%2Eorg%2F%3F%7B%7B%7Btype%7D%7D%7D%3D%7B%7B%7Bid%7D%7D%7D" >input/interpreter_41/stdin.log
-echo "data=[out:custom];node(1);out;&redirect=no&template=base.wiki" >input/interpreter_42/stdin.log
-echo "data=[out:custom];(node(1);way(1);rel(1););out geom;&template=base%2Ewiki" >input/interpreter_43/stdin.log
-echo "data=[out:custom];(node(1);node($(($DATA_SIZE * 3 + 3)));way(1);way(2);rel(1);rel(9););out geom;&template=base.wiki" >input/interpreter_44/stdin.log
+echo "Skipping tests 39..44 for out:custom"
+#echo "data=[out:custom];way(1);out geom;" >input/interpreter_39/stdin.log
+#echo "data=[out:custom];way(1);out geom;&url=https://www.openstreetmap.org/?{{{type}}}={{{id}}}" >input/interpreter_40/stdin.log
+#echo "data=[out:custom];way(1);out geom;&url=https%3A%2F%2Fwww%2Eopenstreetmap%2Eorg%2F%3F%7B%7B%7Btype%7D%7D%7D%3D%7B%7B%7Bid%7D%7D%7D" >input/interpreter_41/stdin.log
+#echo "data=[out:custom];node(1);out;&redirect=no&template=base.wiki" >input/interpreter_42/stdin.log
+#echo "data=[out:custom];(node(1);way(1);rel(1););out geom;&template=base%2Ewiki" >input/interpreter_43/stdin.log
+#echo "data=[out:custom];(node(1);node($(($DATA_SIZE * 3 + 3)));way(1);way(2);rel(1);rel(9););out geom;&template=base.wiki" >input/interpreter_44/stdin.log
 
 echo "data=[out:json];(node(1);rel(7);way(r););out geom (51.5,7.5,52,8);" >input/interpreter_45/stdin.log
 
 II=1
-while [[ $II -lt 46 ]]; do
+while [[ $II -lt 24 ]]; do
 {
   prepare_test_interpreter $II
   perform_test_interpreter $II
   II=$(($II + 1))
 }; done
+
+prepare_test_interpreter 38
+perform_test_interpreter 38
+
+prepare_test_interpreter 45
+perform_test_interpreter 45
 
 $BASEDIR/bin/dispatcher --terminate
 
@@ -203,17 +211,18 @@ $BASEDIR/bin/dispatcher --osm-base --meta --db-dir=input/update_database/ &
 sleep 1
 
 II=46
-while [[ $II -lt 48 ]]; do
+while [[ $II -lt 47 ]]; do
 {
   mkdir -p input/interpreter_$II/
   II=$(($II + 1))
 }; done
 
 echo "data=[out:json];(node(7);way(1);rel(1););out meta;" >input/interpreter_46/stdin.log
-echo "data=[out:custom];(node(7);way(1);rel(1););out meta;" >input/interpreter_47/stdin.log
+echo "Skipping test 47 for out:custom"
+#echo "data=[out:custom];(node(7);way(1);rel(1););out meta;" >input/interpreter_47/stdin.log
 
 II=46
-while [[ $II -lt 48 ]]; do
+while [[ $II -lt 47 ]]; do
 {
   prepare_test_interpreter $II
   perform_test_interpreter $II
