@@ -49,7 +49,7 @@ struct Tag_Index_Local_Handle_Methods;
 
 struct Tag_Index_Local
 {
-  uint32 index;
+  uint32 index{};
   std::string key;
   std::string value;
 

@@ -97,9 +97,9 @@ void dump_nodes(uint32 pattern_size, const std::string& db_dir)
   Output_Sorter output_sorter;
 
   Nonsynced_Transaction transaction(false, false, db_dir, "");
-  Block_Backend< Uint32_Index, Node_Skeleton > nodes_db
+  Block_Backend< Uint31_Index, Node_Skeleton > nodes_db
       (transaction.data_index(osm_base_settings().NODES));
-  for (Block_Backend< Uint32_Index, Node_Skeleton >::Flat_Iterator
+  for (Block_Backend< Uint31_Index, Node_Skeleton >::Flat_Iterator
       it(nodes_db.flat_begin()); !(it == nodes_db.flat_end()); ++it)
   {
     output_sorter.sort_and_output_if_index_changed(it.index().val());
@@ -116,9 +116,9 @@ void dump_node_tags_local(uint32 pattern_size, const std::string& db_dir)
   Output_Sorter output_sorter;
 
   Nonsynced_Transaction transaction(false, false, db_dir, "");
-  Block_Backend< Tag_Index_Local, Uint32_Index > nodes_local_db
+  Block_Backend< Tag_Index_Local, Node_Skeleton::Id_Type > nodes_local_db
       (transaction.data_index(osm_base_settings().NODE_TAGS_LOCAL));
-  for (Block_Backend< Tag_Index_Local, Uint32_Index >::Flat_Iterator
+  for (Block_Backend< Tag_Index_Local, Node_Skeleton::Id_Type >::Flat_Iterator
       it(nodes_local_db.flat_begin());
       !(it == nodes_local_db.flat_end()); ++it)
   {
