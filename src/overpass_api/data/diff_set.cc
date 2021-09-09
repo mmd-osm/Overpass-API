@@ -152,7 +152,17 @@ void print_nodes(const std::vector< std::pair< Node_With_Context, Node_With_Cont
             (output_mode & Output_Mode::META) ? &it->first.meta : 0,
             &users, output_mode, Output_Handler::erase);
     }
-    else if ((it->first.idx.val() | 2) != 0xffu)      // TODO: CHECK | 2
+    else if (it->first.idx.val() == 0xfdu && it->first.meta.ref.val() == 0)
+    {
+      // Old element with empty metadata -> create
+      output->print_item(it->second.elem,
+          Point_Geometry(::lat(it->second.idx.val(), it->second.elem.ll_lower),
+              ::lon(it->second.idx.val(), it->second.elem.ll_lower)),
+          (output_mode & Output_Mode::TAGS) ? &it->second.tags : 0,
+          (output_mode & Output_Mode::META) ? &it->second.meta : 0,
+          &users, output_mode, Output_Handler::create);
+    }
+    else if (it->first.idx.val() != 0xffu)
     {
       // The elements differ
       Null_Geometry null_geom;
@@ -214,7 +224,19 @@ void print_ways(const std::vector< std::pair< Way_With_Context, Way_With_Context
             (output_mode & Output_Mode::META) ? &it->first.meta : 0,
             &users, output_mode, Output_Handler::erase);
     }
-    else if ((it->first.idx.val() | 2) != 0xffu)      // TODO: CHECK | 2
+    else if (it->first.idx.val() == 0xfdu && it->first.meta.ref.val() == 0)
+    {
+      // Old element with empty metadata -> create
+      Double_Coords double_coords(it->second.geometry);
+      Geometry_From_Quad_Coords broker;
+      output->print_item(it->second.elem,
+          broker.make_way_geom((output_mode & Output_Mode::GEOMETRY) ? &it->second.geometry : 0,
+              bound_variant(double_coords, output_mode)),
+          (output_mode & Output_Mode::TAGS) ? &it->second.tags : 0,
+          (output_mode & Output_Mode::META) ? &it->second.meta : 0,
+          &users, output_mode, Output_Handler::create);
+    }
+    else if (it->first.idx.val() != 0xffu)
     {
       // The elements differ
       Double_Coords double_coords(it->first.geometry);
@@ -282,7 +304,19 @@ void print_relations(
             (output_mode & Output_Mode::META) ? &it->first.meta : 0,
             &roles, &users, output_mode, Output_Handler::erase);
     }
-    else if ((it->first.idx.val() | 2) != 0xffu)     // TODO: CHECK | 2
+    else if (it->first.idx.val() == 0xfdu && it->first.meta.ref.val() == 0)
+    {
+      // Old element with empty metadata -> create
+      Double_Coords double_coords(it->second.geometry);
+      Geometry_From_Quad_Coords broker;
+      output->print_item(it->second.elem,
+          broker.make_relation_geom((output_mode & Output_Mode::GEOMETRY) ? &it->second.geometry : 0,
+              bound_variant(double_coords, output_mode)),
+          (output_mode & Output_Mode::TAGS) ? &it->second.tags : 0,
+          (output_mode & Output_Mode::META) ? &it->second.meta : 0,
+          &roles, &users, output_mode, Output_Handler::create);
+    }
+    else if (it->first.idx.val() != 0xffu)
     {
       // The elements differ
       Double_Coords double_coords(it->first.geometry);
