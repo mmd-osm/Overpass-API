@@ -60,5 +60,6 @@ $BASEDIR/test-bin/run_unittests_meta.sh $DATA_SIZE $2
 
 $BASEDIR/test-bin/run_unittests_attic.sh $DATA_SIZE $2
 
-$BASEDIR/test-bin/run_unittests_vlt.sh $DATA_SIZE $2
+# localize not enabled in this branch, skip unit test
+#$BASEDIR/test-bin/run_unittests_vlt.sh $DATA_SIZE $2
 
