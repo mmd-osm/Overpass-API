@@ -40,15 +40,18 @@
 #include <cereal/types/utility.hpp>
 #include <cereal/types/vector.hpp>
 
-#include "../../expat/expat_justparse_interface.h"
+#include "../../template_db/block_backend.h"
+#include "../../template_db/block_backend_updater.h"
 #include "../../template_db/random_file.h"
 #include "../../template_db/transaction.h"
 #include "../../template_db/dispatcher.h"
-#include "../../template_db/block_backend_updater.h"
-#include "../frontend/console_output.h"
 #include "../core/settings.h"
-#include "../frontend/output.h"
-#include "../dispatch/scripting_core.h"
+#include "../core/basic_types.h"
+#include "../core/datatypes.h"
+#include "../core/type_node.h"
+#include "../core/type_way.h"
+#include "../core/type_relation.h"
+#include "../core/type_tags.h"
 
 
 
@@ -485,10 +488,10 @@ int main(int argc, char* args[])
   {
     Nonsynced_Transaction transaction(true, false, db_dir, "");
 
-    Parsed_Query global_settings;
-
-    Error_Output* error_output(new Console_Output(1));
-    Statement::set_error_output(error_output);
+//    Parsed_Query global_settings;
+//
+//    Error_Output* error_output(new Console_Output(1));
+//    Statement::set_error_output(error_output);
 
     // connect to dispatcher and get database dir
 

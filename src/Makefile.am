@@ -184,11 +184,11 @@ bin_dump_file_SOURCES = overpass_api/osm-backend/dump_file.cc   ${statements_cc}
 bin_dump_file_LDADD = libcore.la libdata.la @COMPRESS_LIBS@ @ICU_LIBS@ @PCRE_LIBS@ @PTHREAD_LIBS@
 
 
-bin_export_tables_SOURCES = overpass_api/osm-backend/export_tables.cc   ${statements_cc} ${output_formats_cc} overpass_api/frontend/basic_formats.cc overpass_api/frontend/output_handler.cc overpass_api/frontend/console_output.cc overpass_api/frontend/web_output.cc overpass_api/osm-backend/clone_database.cc overpass_api/core/four_field_index.cc overpass_api/core/geometry.cc overpass_api/dispatch/scripting_core.cc overpass_api/dispatch/dispatcher_stub.cc template_db/types.cc overpass_api/frontend/decode_text.cc overpass_api/frontend/map_ql_parser.cc overpass_api/frontend/tokenizer_utils.cc template_db/zlib_wrapper.cc template_db/lz4_wrapper.cc
-bin_export_tables_LDADD = libcore.la libdata.la @COMPRESS_LIBS@ @ICU_LIBS@ @PCRE_LIBS@ @PTHREAD_LIBS@
+bin_export_tables_SOURCES = overpass_api/osm-backend/export_tables.cc template_db/types.cc template_db/zlib_wrapper.cc template_db/lz4_wrapper.cc
+bin_export_tables_LDADD = libdata.la libdispatcher.la libexpatwrapper.la liboutput.la libsettings.la @COMPRESS_LIBS@
 
-bin_import_tables_SOURCES = overpass_api/osm-backend/import_tables.cc   ${statements_cc} ${output_formats_cc} overpass_api/frontend/basic_formats.cc overpass_api/frontend/output_handler.cc overpass_api/frontend/console_output.cc overpass_api/frontend/web_output.cc overpass_api/osm-backend/clone_database.cc overpass_api/core/four_field_index.cc overpass_api/core/geometry.cc overpass_api/dispatch/scripting_core.cc overpass_api/dispatch/dispatcher_stub.cc template_db/types.cc overpass_api/frontend/decode_text.cc overpass_api/frontend/map_ql_parser.cc overpass_api/frontend/tokenizer_utils.cc template_db/zlib_wrapper.cc template_db/lz4_wrapper.cc
-bin_import_tables_LDADD = libcore.la libdata.la @COMPRESS_LIBS@ @ICU_LIBS@ @PCRE_LIBS@ @PTHREAD_LIBS@
+bin_import_tables_SOURCES = overpass_api/osm-backend/import_tables.cc template_db/types.cc template_db/zlib_wrapper.cc template_db/lz4_wrapper.cc
+bin_import_tables_LDADD = libdata.la libdispatcher.la libexpatwrapper.la liboutput.la libsettings.la @COMPRESS_LIBS@
 
 cgi_bin_interpreter_SOURCES = ${statements_cc} ${output_formats_cc} overpass_api/frontend/basic_formats.cc overpass_api/frontend/output_handler.cc overpass_api/dispatch/web_query.cc overpass_api/core/four_field_index.cc overpass_api/core/geometry.cc overpass_api/dispatch/scripting_core.cc overpass_api/dispatch/dispatcher_stub.cc template_db/types.cc overpass_api/frontend/decode_text.cc overpass_api/frontend/map_ql_parser.cc overpass_api/frontend/tokenizer_utils.cc overpass_api/frontend/web_output.cc template_db/zlib_wrapper.cc template_db/lz4_wrapper.cc
 cgi_bin_interpreter_LDADD = libcore.la libdata.la @COMPRESS_LIBS@ @FASTCGI_LIBS@ @ICU_LIBS@ @PCRE_LIBS@ @PTHREAD_LIBS@
@@ -271,6 +271,7 @@ nobase_dist_HEADERS = \
   overpass_api/output_formats/output_csv.h\
   overpass_api/output_formats/output_custom.h\
   overpass_api/output_formats/output_json.h\
+  overpass_api/output_formats/output_osmium.h\
   overpass_api/output_formats/output_popup.h\
   overpass_api/output_formats/output_xml.h\
   overpass_api/statements/aggregators.h\
