@@ -242,45 +242,7 @@ int main(int argc, char *argv[])
       (*it)->execute(dispatcher.resource_manager());
     dispatcher.resource_manager().stop_cpu_timer(0);
 
-    //TODO
-    /*if (osm_script && osm_script->get_type() == "custom")
-    {
-      uint32 count = osm_script->get_written_elements_count();
-      if (count == 0)
-      {
-        web_output.write_html_header
-            (dispatcher.get_timestamp(),
-	     area_level > 0 ? dispatcher.get_area_timestamp() : "");
-	std::cout<<"<p>No results found.</p>\n";
-	web_output.write_footer();
-      }
-      else if (count == 1)
-      {
-	std::cout<<"Status: 302 Moved\n";
-	std::cout<<"Location: "
-	    <<osm_script->adapt_url("http://www.openstreetmap.org/browse/{{{type}}}/{{{id}}}")
-	    <<"\n\n";
-      }
-      else
-      {
-        web_output.write_html_header
-            (dispatcher.get_timestamp(),
-	     area_level > 0 ? dispatcher.get_area_timestamp() : "");
-        osm_script->write_output();
-	web_output.write_footer();
-      }
-    }
-    else if (osm_script && osm_script->get_type() == "popup")
-    {
-      web_output.write_html_header
-          (dispatcher.get_timestamp(),
-	   area_level > 0 ? dispatcher.get_area_timestamp() : "", 200,
-	   osm_script->template_contains_js(), false);
-      osm_script->write_output();
-      web_output.write_footer();
-    }
-    else*/
-      web_output.write_footer();
+    web_output.write_footer();
 
     return 0;
   }
