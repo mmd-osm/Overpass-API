@@ -21,6 +21,7 @@
 
 #include <iostream>
 #include <vector>
+#include <type_traits>
 
 #include "../../template_db/types.h"
 
@@ -457,12 +458,33 @@ struct Quad_Coord
 };
 
 
+
+namespace detail
+{
+template <template <typename > class C>
+struct is_base_of_any_helper
+{
+  template <typename T>
+  std::true_type operator ()(const C<T>*) const;
+
+  std::false_type operator() (...) const;
+
+};
+
+}
+
+template <template <typename > class C , typename T>
+using is_base_of_any = decltype(detail::is_base_of_any_helper<C>{}(std::declval<const T*>()));
+
+
 template <class T, class Object, class Element_Skeleton>
 struct Attic_Handle_Methods;
 
 template< typename Element_Skeleton >
 struct Attic : public Element_Skeleton
 {
+  static_assert(!is_base_of_any< Attic , Element_Skeleton >::value, "Nested attic: Element_Skeleton may not be an Attic struct itself");
+
   Attic() = default;
 
   Attic(const Element_Skeleton& elem, uint64 timestamp_) : Element_Skeleton(elem), timestamp(timestamp_) {}

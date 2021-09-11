@@ -2152,12 +2152,12 @@ void Recurse_Constraint::filter(const Statement& query, Resource_Manager& rman, 
       set_union(way_ids.begin(), way_ids.end(), rel_ids.begin(), rel_ids.end(), back_inserter(ids));
 
       filter_items(Id_Predicate< Node_Skeleton >(ids), into.nodes);
-      filter_items(Id_Predicate< Attic< Node_Skeleton > >(ids), into.attic_nodes);
+      filter_items(Id_Predicate< Node_Skeleton >(ids), into.attic_nodes);
 
       std::vector< Way::Id_Type > rel_way_ids
           = relation_way_member_ids(rman, input->relations, input->attic_relations);
       filter_items(Id_Predicate< Way_Skeleton >(rel_way_ids), into.ways);
-      filter_items(Id_Predicate< Attic< Way_Skeleton > >(rel_way_ids), into.attic_ways);
+      filter_items(Id_Predicate< Way_Skeleton >(rel_way_ids), into.attic_ways);
     }
 
     into.attic_relations.clear();
@@ -2207,12 +2207,12 @@ void Recurse_Constraint::filter(const Statement& query, Resource_Manager& rman, 
                 back_inserter(ids));
 
       filter_items(Id_Predicate< Node_Skeleton >(ids), into.nodes);
-      filter_items(Id_Predicate< Attic< Node_Skeleton > >(ids), into.attic_nodes);
+      filter_items(Id_Predicate< Node_Skeleton >(ids), into.attic_nodes);
 
       std::vector< Way::Id_Type > rel_way_ids
           = relation_way_member_ids(rman, input->relations, input->attic_relations);
       filter_items(Id_Predicate< Way_Skeleton >(rel_way_ids), into.ways);
-      filter_items(Id_Predicate< Attic< Way_Skeleton > >(rel_way_ids), into.attic_ways);
+      filter_items(Id_Predicate< Way_Skeleton >(rel_way_ids), into.attic_ways);
 
       item_filter_map(into.relations, rel_rels);
       item_filter_map(into.attic_relations, attic_rel_rels);
