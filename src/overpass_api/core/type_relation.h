@@ -189,7 +189,7 @@ struct Relation_Skeleton
 
   void to_data(void* data) const
   {
-    *(Id_Type*)data = id.val();
+    unalignedStore(data, id.val());
     unalignedStore(((uint32*)data + 1), (uint32) d->members.size());
     unalignedStore(((uint32*)data + 2), (uint32) d->node_idxs.size());
     unalignedStore(((uint32*)data + 3), (uint32) d->way_idxs.size());
