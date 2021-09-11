@@ -389,7 +389,6 @@ class Osm_Backend_Callback
 {
   public:
     virtual void update_started() = 0;
-    virtual void compute_indexes_finished() = 0;
     virtual void update_ids_finished() = 0;
     virtual void update_coords_finished() = 0;
     virtual void prepare_delete_tags_finished() = 0;
@@ -836,15 +835,6 @@ struct Timestamp
     s += 'Z';
 
     return s;
-
-//    std::ostringstream out;
-//    out<<std::setw(4)<<std::setfill('0')<<year()<<"-"
-//        <<std::setw(2)<<std::setfill('0')<<month()<<"-"
-//	<<std::setw(2)<<std::setfill('0')<<day()<<"T"
-//	<<std::setw(2)<<std::setfill('0')<<hour()<<":"
-//	<<std::setw(2)<<std::setfill('0')<<minute()<<":"
-//	<<std::setw(2)<<std::setfill('0')<<second()<<"Z";
-//    return out.str();
   }
 
   uint32 size_of() const

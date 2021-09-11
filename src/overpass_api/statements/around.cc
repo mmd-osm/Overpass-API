@@ -923,23 +923,6 @@ double great_circle_line_dist(const Prepared_Segment& segment, const std::tuple<
   return asin(scalar_prod_)*(10*1000*1000/acos(0));
 }
 
-
-/*
-double great_circle_line_dist(double llat1, double llon1, double llat2, double llon2,
-                              double plat, double plon)
-{
-  std::tuple< double, double, double > norm = cross_prod(cartesian(llat1, llon1), cartesian(llat2, llon2));
-
-  double scalar_prod_ = std::abs(scalar_prod(cartesian(plat, plon), norm))
-      /sqrt(scalar_prod(norm, norm));
-
-  if (scalar_prod_ > 1)
-    scalar_prod_ = 1;
-
-  return asin(scalar_prod_)*(10*1000*1000/acos(0));
-}
-*/
-
 bool intersect(const Prepared_Segment& segment_a,
                const Prepared_Segment& segment_b)
 {
@@ -953,27 +936,6 @@ bool intersect(const Prepared_Segment& segment_a,
       && std::abs(scalar_prod(bsum, intersection_pt)) >= scalar_prod(bsum, segment_b.first_cartesian));
 }
 
-/*
-bool intersect(double alat1, double alon1, double alat2, double alon2,
-	       double blat1, double blon1, double blat2, double blon2)
-{
-  std::tuple< double, double, double > a1 = cartesian(alat1, alon1);
-  std::tuple< double, double, double > a2 = cartesian(alat2, alon2);
-  std::tuple< double, double, double > norm_a = cross_prod(a1, a2);
-  std::tuple< double, double, double > b1 = cartesian(blat1, blon1);
-  std::tuple< double, double, double > b2 = cartesian(blat2, blon2);
-  std::tuple< double, double, double > norm_b = cross_prod(b1, b2);
-
-  std::tuple< double, double, double > intersection_pt = cross_prod(norm_a, norm_b);
-  rescale(1.0/sqrt(scalar_prod(intersection_pt, intersection_pt)), intersection_pt);
-
-  std::tuple< double, double, double > asum = sum(a1, a2);
-  std::tuple< double, double, double > bsum = sum(b1, b2);
-
-  return (std::abs(scalar_prod(asum, intersection_pt)) >= scalar_prod(asum, a1)
-      && std::abs(scalar_prod(bsum, intersection_pt)) >= scalar_prod(bsum, b1));
-}
-*/
 
 }
 
@@ -1165,22 +1127,6 @@ struct Relation_Member_Collection
     }
     Order_By_Way_Id order_by_way_id;
     sort(way_members_by_id.begin(), way_members_by_id.end(), order_by_way_id);
-  }
-
-  const std::pair< Uint32_Index, const Node_Skeleton* >* get_node_by_id(Node::Id_Type id) const
-  {
-    const std::pair< Uint32_Index, const Node_Skeleton* >* node =
-        binary_search_for_pair_id(node_members_by_id, id);
-
-    return node;
-  }
-
-  const std::pair< Uint31_Index, const Way_Skeleton* >* get_way_by_id(Uint32_Index id) const
-  {
-    const std::pair< Uint31_Index, const Way_Skeleton* >* way =
-        binary_search_for_pair_id(way_members_by_id, id);
-
-    return way;
   }
 
   const Statement& query_;

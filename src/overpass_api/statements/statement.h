@@ -210,9 +210,6 @@ class Statement
     int get_tagendpos() const { return tagendpos; }
     void set_tagendpos(int pos) { tagendpos = pos; }
 
-    void display_full();
-    void display_starttag();
-
     virtual std::string dump_xml(const std::string&) const { return ""; }
     virtual std::string dump_compact_ql(const std::string&) const { return ""; }
     virtual std::string dump_pretty_ql(const std::string&) const { return ""; }

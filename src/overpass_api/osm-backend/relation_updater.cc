@@ -1343,30 +1343,6 @@ void Relation_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu
     cpu_stopwatch->stop_cpu_timer(3);
 }
 
-
-std::vector< Uint31_Index > calc_node_idxs(const std::vector< uint32 >& node_idxs)
-{
-  std::vector< Uint31_Index > result;
-  for (std::vector< uint32 >::size_type i = 0; i < node_idxs.size(); ++i)
-    result.push_back((node_idxs[i] & 0x7fffff00) | 0x80000002);
-  sort(result.begin(), result.end());
-  result.erase(unique(result.begin(), result.end()), result.end());
-
-  return result;
-}
-
-std::vector< Uint31_Index > calc_way_idxs(const std::vector< uint32 >& way_idxs)
-{
-  std::vector< Uint31_Index > result;
-  for (std::vector< uint32 >::size_type i = 0; i < way_idxs.size(); ++i)
-    result.push_back(way_idxs[i]);
-  sort(result.begin(), result.end());
-  result.erase(unique(result.begin(), result.end()), result.end());
-
-  return result;
-}
-
-
 void Relation_Updater::flush_roles()
 {
   std::map< Uint32_Index, std::set< String_Object > > db_to_delete;

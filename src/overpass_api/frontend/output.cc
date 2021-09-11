@@ -26,7 +26,6 @@ class Verbose_Osm_Backend_Callback : public Osm_Backend_Callback
 {
   public:
     void update_started() override { std::cerr<<"Flushing to database ."; }
-    void compute_indexes_finished() override { std::cerr<<'.'; }
     void update_ids_finished() override { std::cerr<<'.'; }
     void update_coords_finished() override { std::cerr<<'.'; }
     void prepare_delete_tags_finished() override { std::cerr<<'.'; }
@@ -61,7 +60,6 @@ class Quiet_Osm_Backend_Callback : public Osm_Backend_Callback
 {
   public:
     void update_started() override {}
-    void compute_indexes_finished() override {}
     void update_ids_finished() override {}
     void update_coords_finished() override {}
     void prepare_delete_tags_finished() override {}

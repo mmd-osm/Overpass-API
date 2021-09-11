@@ -41,8 +41,6 @@ struct Dispatcher_Logger
   virtual void request_read_and_idx(pid_t pid, uint32 max_allowed_time, uint64 max_allowed_space)
       = 0;
   virtual void read_idx_finished(pid_t pid) = 0;
-  virtual void prolongate(pid_t pid) = 0;
-  virtual void idle_counter(uint32 idle_count) = 0;
   virtual void read_finished(pid_t pid) = 0;
   virtual void query_my_status(pid_t pid) = 0;
   virtual void read_aborted(pid_t pid) = 0;

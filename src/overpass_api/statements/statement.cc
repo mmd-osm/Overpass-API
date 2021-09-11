@@ -104,16 +104,6 @@ void Statement::add_final_text(std::string text)
   assure_no_text(std::move(text), this->get_name());
 }
 
-void Statement::display_full()
-{
-  //display_verbatim(get_source(startpos, endpos - startpos));
-}
-
-void Statement::display_starttag()
-{
-  //display_verbatim(get_source(startpos, tagendpos - startpos));
-}
-
 
 Statement::Factory::~Factory()
 {
