@@ -187,7 +187,7 @@ class Regular_Expression_ICU : public Regular_Expression
         delete matcher;
     }
 
-    inline bool matches(const std::string& line) const
+    inline bool matches(const std::string& line) const override
     {
       if (strategy == Strategy::match_anything)
         return true;
@@ -310,7 +310,7 @@ class Regular_Expression_PCRE : public Regular_Expression
       }
     }
 
-    inline bool matches(const std::string& line) const
+    inline bool matches(const std::string& line) const override
     {
       if (strategy == Strategy::match_anything)
         return true;
