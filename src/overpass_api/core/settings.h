@@ -70,6 +70,9 @@ struct Osm_Base_Settings
   uint64 total_available_time_units;
 
   Osm_Base_Settings();
+
+  Osm_Base_Settings(const Osm_Base_Settings&) = delete;
+  Osm_Base_Settings& operator=(const Osm_Base_Settings& a) = delete;
 };
 
 
@@ -87,6 +90,8 @@ struct Area_Settings
   uint64 total_available_time_units;
 
   Area_Settings();
+  Area_Settings(const Area_Settings&) = delete;
+  Area_Settings& operator=(const Area_Settings& a) = delete;
 };
 
 
@@ -99,6 +104,8 @@ struct Meta_Settings
   File_Properties* RELATIONS_META;
 
   Meta_Settings();
+  Meta_Settings(const Meta_Settings&) = delete;
+  Meta_Settings& operator=(const Meta_Settings& a) = delete;
 
   const std::vector< File_Properties* >& idxs() const;
 
@@ -132,6 +139,8 @@ struct Attic_Settings
   File_Properties* RELATION_CHANGELOG;
 
   Attic_Settings();
+  Attic_Settings(const Attic_Settings&) = delete;
+  Attic_Settings& operator=(const Attic_Settings& a) = delete;
 
   const std::vector< File_Properties* >& idxs() const;
 

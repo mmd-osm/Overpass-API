@@ -43,6 +43,9 @@ class Osmium_Updater
 		bool initial_load = false);
     ~Osmium_Updater();
 
+    Osmium_Updater(const Osmium_Updater&) = delete;
+    Osmium_Updater& operator=(const Osmium_Updater& a) = delete;
+
     void finish_updater();
     void parse_file_completely(FILE* in, const std::string& input_format);
     void parse_multiple_files(const std::string& source_dir, const std::vector< std::string >& source_file_names);

@@ -39,6 +39,9 @@ public:
 
   ~Relation_Geometry_Store();
 
+  Relation_Geometry_Store(const Relation_Geometry_Store&) = delete;
+  Relation_Geometry_Store& operator=(const Relation_Geometry_Store& a) = delete;
+
   // return the empty vector if the relation is not found
   std::vector< std::vector< Quad_Coord > > get_geometry(const Relation_Skeleton& relation) const;
 

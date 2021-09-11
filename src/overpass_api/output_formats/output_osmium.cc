@@ -182,8 +182,8 @@ void Output_Osmium::print_item(const Node_Skeleton& skel,
 
   osmium::Location loc;
 
-  if (mode & Output_Mode::ID)
-    ;
+  if (mode & Output_Mode::ID) { }
+
   if (mode & (Output_Mode::COORDS | Output_Mode::GEOMETRY | Output_Mode::BOUNDS | Output_Mode::CENTER))
   {
     loc.set_lat(geometry.center_lat());

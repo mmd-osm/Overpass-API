@@ -119,6 +119,10 @@ public:
 		   Transaction& area_transaction_, Watchdog_Callback* watchdog_,
 		   Area_Usage_Listener* area_updater__);
 
+  Resource_Manager(const Resource_Manager&) = delete;
+  Resource_Manager& operator=(const Resource_Manager& a) = delete;
+
+
   ~Resource_Manager()
   {
     for (auto it = runtime_stack.begin();

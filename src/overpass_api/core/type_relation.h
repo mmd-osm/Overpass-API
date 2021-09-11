@@ -124,14 +124,12 @@ struct Relation_Skeleton
 
   Id_Type id;
 
-  Relation_Skeleton() : id(0u) { d = new Relation_Skeleton_Data; }
+  Relation_Skeleton() : id(0u),  d(new Relation_Skeleton_Data) { }
 
-  Relation_Skeleton(Relation::Id_Type id_) : id(id_) { d = new Relation_Skeleton_Data;}
+  Relation_Skeleton(Relation::Id_Type id_) : id(id_), d(new Relation_Skeleton_Data) { }
 
-  Relation_Skeleton(const void* data) : id(unalignedLoad<Id_Type>(data))
+  Relation_Skeleton(const void* data) : id(unalignedLoad<Id_Type>(data)), d(new Relation_Skeleton_Data)
   {
-    d = new Relation_Skeleton_Data;
-
     const auto member_count = unalignedLoad<uint32>((uint32*)data + 1);
     const auto node_idxs_count = unalignedLoad<uint32>((uint32*)data + 2);
     const auto way_idxs_count = unalignedLoad<uint32>((uint32*)data + 3);
@@ -154,9 +152,8 @@ struct Relation_Skeleton
   }
 
   Relation_Skeleton(const Relation& rel)
-      : id(rel.id) {
+      : id(rel.id), d(new Relation_Skeleton_Data) {
 
-    d = new Relation_Skeleton_Data;
     d->members = rel.members;
     d->node_idxs = rel.node_idxs;
     d->way_idxs = rel.way_idxs;
@@ -164,18 +161,16 @@ struct Relation_Skeleton
   }
 
   Relation_Skeleton(Id_Type id_, std::vector< Relation_Entry >&& members_)
-      : id(id_) {
+      : id(id_), d(new Relation_Skeleton_Data) {
 
-    d = new Relation_Skeleton_Data;
     d->members = std::move(members_);
   }
 
   Relation_Skeleton(Id_Type id_, const std::vector< Relation_Entry >& members_,
 		    const std::vector< Uint31_Index >& node_idxs_,
 		    const std::vector< Uint31_Index >& way_idxs_)
-      : id(id_) {
+      : id(id_), d(new Relation_Skeleton_Data) {
 
-    d = new Relation_Skeleton_Data;
     d->members = members_;
     d->node_idxs = node_idxs_;
     d->way_idxs = way_idxs_;

@@ -216,7 +216,7 @@ int main(int argc, char* argv[])
       }
     }
   }
-  catch(Context_Error e)
+  catch (Context_Error &e)
   {
     std::cerr<<"Context error: "<<e.message<<'\n';
     return 3;

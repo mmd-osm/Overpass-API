@@ -63,6 +63,9 @@ class Dispatcher_Stub : public Watchdog_Callback
 
     ~Dispatcher_Stub() override;
 
+    Dispatcher_Stub(const Dispatcher_Stub&) = delete;
+    Dispatcher_Stub& operator=(const Dispatcher_Stub& a) = delete;
+
     std::string get_db_dir() { return (db_dir.empty() ? dispatcher_client->get_db_dir() : db_dir); }
     std::string get_timestamp() { return timestamp; }
     std::string get_area_timestamp() { return area_timestamp; }

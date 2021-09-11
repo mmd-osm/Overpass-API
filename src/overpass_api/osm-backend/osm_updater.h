@@ -39,6 +39,9 @@ class Osm_Updater
 		meta_modes meta, unsigned int flush_limit, unsigned int parallel_processes);
     ~Osm_Updater();
 
+    Osm_Updater(const Osm_Updater&) = delete;
+    Osm_Updater& operator=(const Osm_Updater& a) = delete;
+
     void finish_updater();
     void parse_file_completely(FILE* in);
 

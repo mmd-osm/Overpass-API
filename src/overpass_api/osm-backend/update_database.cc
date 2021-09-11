@@ -186,12 +186,12 @@ int main(int argc, char* argv[])
       }
     }
   }
-  catch(Context_Error e)
+  catch (Context_Error &e)
   {
     std::cerr<<"Context error: "<<e.message<<'\n';
     return 3;
   }
-  catch (File_Error e)
+  catch (File_Error &e)
   {
     report_file_error(e);
     return 2;

@@ -613,6 +613,9 @@ struct Block_Backend
     Block_Backend(File_Blocks_Index_Base* index_);
     ~Block_Backend();
 
+    Block_Backend(const Block_Backend&) = delete;
+    Block_Backend& operator=(const Block_Backend& a) = delete;
+
     Flat_Iterator flat_begin() { return Flat_Iterator(file_blocks, block_size, false); }
     const Flat_Iterator& flat_end() const { return *flat_end_it; }
 

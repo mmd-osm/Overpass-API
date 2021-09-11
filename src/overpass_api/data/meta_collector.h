@@ -59,6 +59,9 @@ public:
       Transaction& transaction, Functor functor,
       const File_Properties* meta_file_prop = 0);
 
+  Meta_Collector(const Meta_Collector&) = delete;
+  Meta_Collector& operator=(const Meta_Collector& a) = delete;
+
   void reset();
   const OSM_Element_Metadata_Skeleton< Id_Type >* get
       (const Index& index, Id_Type ref);

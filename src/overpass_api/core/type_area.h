@@ -268,12 +268,10 @@ struct Area_Skeleton
 
   Id_Type id;
 
-  Area_Skeleton() : id(0u) { d = new Area_Skeleton_Data; }
+  Area_Skeleton() : id(0u), d(new Area_Skeleton_Data) {}
 
-  Area_Skeleton(const void* data) : id(0u)
+  Area_Skeleton(const void* data) : id(0u), d(new Area_Skeleton_Data)
   {
-    d = new Area_Skeleton_Data;
-
     id = unalignedLoad<Id_Type>(data);
     const uint32 idx_size = unalignedLoad<uint32>((uint32*)data + 1);
     d->used_indices.reserve(idx_size);
@@ -282,9 +280,8 @@ struct Area_Skeleton
   }
 
   Area_Skeleton(const Area_Location& loc)
-      : id(loc.id) {
+      : id(loc.id), d(new Area_Skeleton_Data) {
 
-    d = new Area_Skeleton_Data;
     d->used_indices = loc.used_indices;
   }
 
@@ -379,12 +376,10 @@ struct Area_Block
 
   Id_Type id;
 
-  Area_Block() : id(0u) { d = new Area_Block_Data; }
+  Area_Block() : id(0u), d(new Area_Block_Data)  { }
 
-  Area_Block(const void* data) : id(unalignedLoad<Id_Type>(data))
+  Area_Block(const void* data) : id(unalignedLoad<Id_Type>(data)), d(new Area_Block_Data)
   {
-    d = new Area_Block_Data;
-
     id = unalignedLoad<Id_Type>(data);
     const int num_coors = unalignedLoad<uint16>((uint16*)data + 2);
 
@@ -398,9 +393,8 @@ struct Area_Block
   }
 
   Area_Block(Id_Type id_, const std::vector< uint64 >& coors_)
-  : id(id_) {
+  : id(id_), d(new Area_Block_Data) {
 
-    d = new Area_Block_Data;
     d->coors = coors_;
 
   }

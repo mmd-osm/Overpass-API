@@ -168,14 +168,12 @@ struct Way_Skeleton
 
   Id_Type id;
 
-  Way_Skeleton() : id(0u) { d = new Way_Skeleton_Data; }
+  Way_Skeleton() : id(0u), d(new Way_Skeleton_Data) { }
 
-  Way_Skeleton(Way::Id_Type id_) : id(id_) { d = new Way_Skeleton_Data; }
+  Way_Skeleton(Way::Id_Type id_) : id(id_),  d(new Way_Skeleton_Data) { }
 
-  Way_Skeleton(const void* data) : id(unalignedLoad<Id_Type>(data))
+  Way_Skeleton(const void* data) : id(unalignedLoad<Id_Type>(data)),  d(new Way_Skeleton_Data)
   {
-    d = new Way_Skeleton_Data;
-
     d->nds.reserve(*((uint16*)data + 2));
 
     auto* start_ptr = (uint16*) decompress_nds(d->nds, *((uint16*)data + 2), *((uint16*)data + 4), ((uint8*)data + 10));
@@ -189,25 +187,22 @@ struct Way_Skeleton
   }
 
   Way_Skeleton(const Way& way)
-      : id(way.id) {
+      : id(way.id),  d(new Way_Skeleton_Data) {
 
-    d = new Way_Skeleton_Data;
     d->nds = way.nds;
     d->geometry = way.geometry;
   }
 
   Way_Skeleton(Id_Type id_,  std::vector< Node::Id_Type >&& nds_)
-      : id(id_) {
+      : id(id_),  d(new Way_Skeleton_Data) {
 
-    d = new Way_Skeleton_Data;
     d->nds = std::move(nds_);
   }
 
 
   Way_Skeleton(Id_Type id_, const std::vector< Node::Id_Type >& nds_, const std::vector< Quad_Coord >& geometry_)
-      : id(id_) {
+      : id(id_),  d(new Way_Skeleton_Data) {
 
-    d = new Way_Skeleton_Data;
     d->nds = nds_;
     d->geometry = geometry_;
   }

@@ -221,10 +221,10 @@ inline Random_File_Index::Random_File_Index
       }
     }
   }
-  catch (File_Error e)
+  catch (File_Error &e)
   {
     if (e.error_number != 2)
-      throw e;
+      throw;
   }
 
   if (!empty_index_file_name.empty())

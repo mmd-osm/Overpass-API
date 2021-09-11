@@ -41,6 +41,9 @@ struct Extra_Data_For_Diff
       double south, double north, double west, double east);
   ~Extra_Data_For_Diff();
 
+  Extra_Data_For_Diff(const Extra_Data_For_Diff&) = delete;
+  Extra_Data_For_Diff& operator=(const Extra_Data_For_Diff& a) = delete;
+
   const std::map< uint32, std::string >* get_users() const;
 
   unsigned int mode;
