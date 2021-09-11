@@ -40,9 +40,9 @@
 template < typename TVal >
 struct OSM_File_Properties : public File_Properties
 {
-  OSM_File_Properties(const std::string& file_base_name_, uint32 block_size_,
+  OSM_File_Properties(std::string file_base_name_, uint32 block_size_,
 		      uint32 map_block_size_)
-    : file_base_name(file_base_name_), block_size(block_size_), map_block_size(map_block_size_) {}
+    : file_base_name(std::move(file_base_name_)), block_size(block_size_), map_block_size(map_block_size_) {}
 
   const std::string& get_file_name_trunk() const override { return file_base_name; }
 
@@ -82,9 +82,9 @@ struct OSM_File_Properties : public File_Properties
         (*this, writeable, use_shadow, db_dir, file_name_extension);
   }
 
-  std::string file_base_name;
-  uint32 block_size;
-  uint32 map_block_size;
+  const std::string file_base_name;
+  const uint32 block_size;
+  const uint32 map_block_size;
 };
 
 
@@ -112,11 +112,9 @@ Basic_Settings::Basic_Settings()
 
 {}
 
-Basic_Settings& basic_settings()
-{
-  static Basic_Settings obj;
-  return obj;
-}
+
+Basic_Settings all_settings::basic_settings = { };
+
 
 //-----------------------------------------------------------------------------
 
@@ -156,11 +154,7 @@ Osm_Base_Settings::Osm_Base_Settings()
   total_available_time_units(256*1024)
 {}
 
-const Osm_Base_Settings& osm_base_settings()
-{
-  static Osm_Base_Settings obj;
-  return obj;
-}
+const Osm_Base_Settings all_settings::osm_base_settings = { };
 
 //-----------------------------------------------------------------------------
 
@@ -181,11 +175,7 @@ Area_Settings::Area_Settings()
   total_available_time_units(256*1024)
 {}
 
-const Area_Settings& area_settings()
-{
-  static Area_Settings obj;
-  return obj;
-}
+const Area_Settings all_settings::area_settings = { };
 
 //-----------------------------------------------------------------------------
 
@@ -200,14 +190,9 @@ Meta_Settings::Meta_Settings()
   WAYS_META(new OSM_File_Properties< Uint31_Index >
       ("ways_meta", 128*1024, 0)),
   RELATIONS_META(new OSM_File_Properties< Uint31_Index >
-      ("relations_meta", 128*1024, 0))
+      ("relations_meta", 128*1024, 0)),
+  idxs_{ USER_DATA, USER_INDICES,  NODES_META, WAYS_META, RELATIONS_META }
 {
-  idxs_.reserve(5);
-  idxs_.push_back(USER_DATA);
-  idxs_.push_back(USER_INDICES);
-  idxs_.push_back(NODES_META);
-  idxs_.push_back(WAYS_META);
-  idxs_.push_back(RELATIONS_META);
 }
 
 
@@ -216,12 +201,7 @@ const std::vector< File_Properties* >& Meta_Settings::idxs() const
   return idxs_;
 }
 
-
-const Meta_Settings& meta_settings()
-{
-  static Meta_Settings obj;
-  return obj;
-}
+const Meta_Settings all_settings::meta_settings = { };
 
 //-----------------------------------------------------------------------------
 
@@ -264,31 +244,11 @@ Attic_Settings::Attic_Settings()
   RELATIONS_META(new OSM_File_Properties< Uint31_Index >
       ("relations_meta_attic", 128*1024, 0)),
   RELATION_CHANGELOG(new OSM_File_Properties< Timestamp >
-      ("relation_changelog", 128*1024, 0))
-{
-  idxs_.reserve(21);
-  idxs_.push_back(NODES);
-  idxs_.push_back(NODES_UNDELETED);
-  idxs_.push_back(NODE_IDX_LIST);
-  idxs_.push_back(NODE_TAGS_LOCAL);
-  idxs_.push_back(NODE_TAGS_GLOBAL);
-  idxs_.push_back(NODES_META);
-  idxs_.push_back(NODE_CHANGELOG);
-  idxs_.push_back(WAYS);
-  idxs_.push_back(WAYS_UNDELETED);
-  idxs_.push_back(WAY_IDX_LIST);
-  idxs_.push_back(WAY_TAGS_LOCAL);
-  idxs_.push_back(WAY_TAGS_GLOBAL);
-  idxs_.push_back(WAYS_META);
-  idxs_.push_back(WAY_CHANGELOG);
-  idxs_.push_back(RELATIONS);
-  idxs_.push_back(RELATIONS_UNDELETED);
-  idxs_.push_back(RELATION_IDX_LIST);
-  idxs_.push_back(RELATION_TAGS_LOCAL);
-  idxs_.push_back(RELATION_TAGS_GLOBAL);
-  idxs_.push_back(RELATIONS_META);
-  idxs_.push_back(RELATION_CHANGELOG);
-}
+      ("relation_changelog", 128*1024, 0)),
+  idxs_{NODES,     NODES_UNDELETED,     NODE_IDX_LIST,     NODE_TAGS_LOCAL,     NODE_TAGS_GLOBAL,     NODES_META,     NODE_CHANGELOG,
+        WAYS,      WAYS_UNDELETED,      WAY_IDX_LIST,      WAY_TAGS_LOCAL,      WAY_TAGS_GLOBAL,      WAYS_META,      WAY_CHANGELOG,
+        RELATIONS, RELATIONS_UNDELETED, RELATION_IDX_LIST, RELATION_TAGS_LOCAL, RELATION_TAGS_GLOBAL, RELATIONS_META, RELATION_CHANGELOG }
+{ }
 
 
 const std::vector< File_Properties* >& Attic_Settings::idxs() const
@@ -296,12 +256,7 @@ const std::vector< File_Properties* >& Attic_Settings::idxs() const
   return idxs_;
 }
 
-
-const Attic_Settings& attic_settings()
-{
-  static Attic_Settings obj;
-  return obj;
-}
+const Attic_Settings all_settings::attic_settings = { };
 
 //-----------------------------------------------------------------------------
 

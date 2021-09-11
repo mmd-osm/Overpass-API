@@ -27,17 +27,17 @@
 
 struct Basic_Settings
 {
-  std::string DATA_SUFFIX;
-  std::string INDEX_SUFFIX;
-  std::string ID_SUFFIX;
-  std::string SHADOW_SUFFIX;
+  const std::string DATA_SUFFIX;
+  const std::string INDEX_SUFFIX;
+  const std::string ID_SUFFIX;
+  const std::string SHADOW_SUFFIX;
 
-  std::string base_directory;
-  std::string logfile_name;
-  std::string shared_name_base;
+  const std::string base_directory;
+  const std::string logfile_name;
+  const std::string shared_name_base;
 
-  std::string version;
-  std::string source_hash;
+  const std::string version;
+  const std::string source_hash;
 
   uint32 compression_method;
   uint32 map_compression_method;
@@ -48,26 +48,26 @@ struct Basic_Settings
 
 struct Osm_Base_Settings
 {
-  File_Properties* NODES;
-  File_Properties* NODE_TAGS_LOCAL;
-  File_Properties* NODE_TAGS_GLOBAL;
-  File_Properties* NODE_KEYS;
-  File_Properties* NODES_TAGGED;
-  File_Properties* WAYS;
-  File_Properties* WAY_TAGS_LOCAL;
-  File_Properties* WAY_TAGS_GLOBAL;
-  File_Properties* WAY_KEYS;
-  File_Properties* RELATIONS;
-  File_Properties* RELATION_ROLES;
-  File_Properties* RELATION_TAGS_LOCAL;
-  File_Properties* RELATION_TAGS_GLOBAL;
-  File_Properties* RELATION_KEYS;
+  File_Properties* const NODES;
+  File_Properties* const NODE_TAGS_LOCAL;
+  File_Properties* const NODE_TAGS_GLOBAL;
+  File_Properties* const NODE_KEYS;
+  File_Properties* const NODES_TAGGED;
+  File_Properties* const WAYS;
+  File_Properties* const WAY_TAGS_LOCAL;
+  File_Properties* const WAY_TAGS_GLOBAL;
+  File_Properties* const WAY_KEYS;
+  File_Properties* const RELATIONS;
+  File_Properties* const RELATION_ROLES;
+  File_Properties* const RELATION_TAGS_LOCAL;
+  File_Properties* const RELATION_TAGS_GLOBAL;
+  File_Properties* const RELATION_KEYS;
 
-  std::string shared_name;
-  uint max_num_processes;
-  uint purge_timeout;
-  uint64 total_available_space;
-  uint64 total_available_time_units;
+  const std::string shared_name;
+  const uint max_num_processes;
+  const uint purge_timeout;
+  const uint64 total_available_space;
+  const uint64 total_available_time_units;
 
   Osm_Base_Settings();
 
@@ -78,16 +78,16 @@ struct Osm_Base_Settings
 
 struct Area_Settings
 {
-  File_Properties* AREA_BLOCKS;
-  File_Properties* AREAS;
-  File_Properties* AREA_TAGS_LOCAL;
-  File_Properties* AREA_TAGS_GLOBAL;
+  File_Properties* const AREA_BLOCKS;
+  File_Properties* const AREAS;
+  File_Properties* const AREA_TAGS_LOCAL;
+  File_Properties* const AREA_TAGS_GLOBAL;
 
-  std::string shared_name;
-  uint max_num_processes;
-  uint purge_timeout;
-  uint64 total_available_space;
-  uint64 total_available_time_units;
+  const std::string shared_name;
+  const uint max_num_processes;
+  const uint purge_timeout;
+  const uint64 total_available_space;
+  const uint64 total_available_time_units;
 
   Area_Settings();
   Area_Settings(const Area_Settings&) = delete;
@@ -97,11 +97,11 @@ struct Area_Settings
 
 struct Meta_Settings
 {
-  File_Properties* USER_DATA;
-  File_Properties* USER_INDICES;
-  File_Properties* NODES_META;
-  File_Properties* WAYS_META;
-  File_Properties* RELATIONS_META;
+  File_Properties* const USER_DATA;
+  File_Properties* const USER_INDICES;
+  File_Properties* const NODES_META;
+  File_Properties* const WAYS_META;
+  File_Properties* const RELATIONS_META;
 
   Meta_Settings();
   Meta_Settings(const Meta_Settings&) = delete;
@@ -110,33 +110,33 @@ struct Meta_Settings
   const std::vector< File_Properties* >& idxs() const;
 
 private:
-  std::vector< File_Properties* > idxs_;
+  std::vector< File_Properties* > const idxs_;
 };
 
 
 struct Attic_Settings
 {
-  File_Properties* NODES;
-  File_Properties* NODES_UNDELETED;
-  File_Properties* NODE_IDX_LIST;
-  File_Properties* NODE_TAGS_LOCAL;
-  File_Properties* NODE_TAGS_GLOBAL;
-  File_Properties* NODES_META;
-  File_Properties* NODE_CHANGELOG;
-  File_Properties* WAYS;
-  File_Properties* WAYS_UNDELETED;
-  File_Properties* WAY_IDX_LIST;
-  File_Properties* WAY_TAGS_LOCAL;
-  File_Properties* WAY_TAGS_GLOBAL;
-  File_Properties* WAYS_META;
-  File_Properties* WAY_CHANGELOG;
-  File_Properties* RELATIONS;
-  File_Properties* RELATIONS_UNDELETED;
-  File_Properties* RELATION_IDX_LIST;
-  File_Properties* RELATION_TAGS_LOCAL;
-  File_Properties* RELATION_TAGS_GLOBAL;
-  File_Properties* RELATIONS_META;
-  File_Properties* RELATION_CHANGELOG;
+  File_Properties* const NODES;
+  File_Properties* const NODES_UNDELETED;
+  File_Properties* const NODE_IDX_LIST;
+  File_Properties* const NODE_TAGS_LOCAL;
+  File_Properties* const NODE_TAGS_GLOBAL;
+  File_Properties* const NODES_META;
+  File_Properties* const NODE_CHANGELOG;
+  File_Properties* const WAYS;
+  File_Properties* const WAYS_UNDELETED;
+  File_Properties* const WAY_IDX_LIST;
+  File_Properties* const WAY_TAGS_LOCAL;
+  File_Properties* const WAY_TAGS_GLOBAL;
+  File_Properties* const WAYS_META;
+  File_Properties* const WAY_CHANGELOG;
+  File_Properties* const RELATIONS;
+  File_Properties* const RELATIONS_UNDELETED;
+  File_Properties* const RELATION_IDX_LIST;
+  File_Properties* const RELATION_TAGS_LOCAL;
+  File_Properties* const RELATION_TAGS_GLOBAL;
+  File_Properties* const RELATIONS_META;
+  File_Properties* const RELATION_CHANGELOG;
 
   Attic_Settings();
   Attic_Settings(const Attic_Settings&) = delete;
@@ -145,7 +145,7 @@ struct Attic_Settings
   const std::vector< File_Properties* >& idxs() const;
 
 private:
-  std::vector< File_Properties* > idxs_;
+  std::vector< File_Properties* > const idxs_;
 };
 
 
@@ -160,11 +160,42 @@ struct Clone_Settings
 };
 
 
-Basic_Settings& basic_settings();
-const Osm_Base_Settings& osm_base_settings();
-const Area_Settings& area_settings();
-const Meta_Settings& meta_settings();
-const Attic_Settings& attic_settings();
+class all_settings {
+
+public:
+   static Basic_Settings basic_settings;
+   const static Osm_Base_Settings osm_base_settings;
+   const static Attic_Settings attic_settings;
+   const static Meta_Settings meta_settings;
+   const static Area_Settings area_settings;
+
+};
+
+inline Basic_Settings& basic_settings()
+{
+  return all_settings::basic_settings;
+}
+
+inline const Osm_Base_Settings& osm_base_settings()
+{
+  return all_settings::osm_base_settings;
+}
+
+inline const Attic_Settings& attic_settings()
+{
+  return all_settings::attic_settings;
+}
+
+inline const Meta_Settings& meta_settings()
+{
+  return all_settings::meta_settings;
+}
+
+inline const Area_Settings& area_settings()
+{
+  return all_settings::area_settings;
+}
+
 
 void show_mem_status();
 
