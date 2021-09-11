@@ -94,9 +94,6 @@ class Dispatcher_Client
 
     void set_global_limits(uint64 max_allowed_space, uint64 max_allowed_time_units, int rate_limit);
 
-    /** Called regularly to tell the dispatcher that this process is still alive */
-    void ping();
-
     const std::string& get_db_dir() { return db_dir; }
     const std::string& get_shadow_name() { return shadow_name; }
 

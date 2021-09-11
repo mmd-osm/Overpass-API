@@ -377,11 +377,11 @@ bool Runtime_Stack_Frame::set_exists_in_parents(const std::string& inner_set_nam
 
 
 Resource_Manager::Resource_Manager(
-    Transaction& transaction_, Parsed_Query* global_settings_, Watchdog_Callback* watchdog_,
+    Transaction& transaction_, Parsed_Query* global_settings_,
     Error_Output* error_output_)
       : transaction(&transaction_), error_output(error_output_),
         area_transaction(0), area_updater_(0),
-        watchdog(watchdog_), global_settings(global_settings_), global_settings_owned(false),
+        global_settings(global_settings_), global_settings_owned(false),
 	start_time(time(NULL)), last_ping_time(0), last_report_time(0),
 	max_allowed_time(0), max_allowed_space(0)
 {
@@ -397,10 +397,10 @@ Resource_Manager::Resource_Manager(
 
 Resource_Manager::Resource_Manager(
     Transaction& transaction_, Parsed_Query& global_settings_, Error_Output* error_output_,
-    Transaction& area_transaction_, Watchdog_Callback* watchdog_, Area_Usage_Listener* area_updater__)
+    Transaction& area_transaction_, Area_Usage_Listener* area_updater__)
     : transaction(&transaction_), error_output(error_output_),
       area_transaction(&area_transaction_), area_updater_(area_updater__),
-      watchdog(watchdog_), global_settings(&global_settings_), global_settings_owned(false),
+      global_settings(&global_settings_), global_settings_owned(false),
       start_time(time(NULL)), last_ping_time(0), last_report_time(0),
       max_allowed_time(0), max_allowed_space(0)
 {
@@ -622,8 +622,6 @@ bool Resource_Manager::health_check(const Statement& stmt, uint32 extra_time, ui
 
   if (elapsed_time >= last_ping_time + 5)
   {
-    if (watchdog)
-      watchdog->ping();
     last_ping_time = elapsed_time;
 
     if (elapsed_time >= last_report_time + 15)

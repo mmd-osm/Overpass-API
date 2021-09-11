@@ -201,7 +201,6 @@ int main(int argc, char *argv[])
       {
         if (++count >= 1000*1000)
         {
-	  dispatcher.ping();
           count = 0;
           std::cout<<"Processed 1000000 nodes.\n";
         }
@@ -230,7 +229,6 @@ int main(int argc, char *argv[])
       {
         if (++count >= 100*1000)
         {
-	  dispatcher.ping();
 	  count = 0;
           std::cout<<"Processed 100000 ways.\n";
         }
@@ -251,7 +249,6 @@ int main(int argc, char *argv[])
       {
         if (++count >= 100*1000)
         {
-	  dispatcher.ping();
 	  count = 0;
           std::cout<<"Processed 100000 relations.\n";
         }

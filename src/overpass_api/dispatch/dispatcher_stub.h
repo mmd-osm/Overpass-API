@@ -43,7 +43,7 @@
 struct Exit_Error {};
 
 
-class Dispatcher_Stub : public Watchdog_Callback
+class Dispatcher_Stub
 {
   public:
     // Opens the connection to the database, sets db_dir accordingly
@@ -58,10 +58,8 @@ class Dispatcher_Stub : public Watchdog_Callback
                     uint32 max_allowed_time, uint64 max_allowed_space, Parsed_Query& global_settings_,
                     Index_Cache* ic);
 
-    // Called once per minute from the resource manager
-    void ping() const override;
 
-    ~Dispatcher_Stub() override;
+    ~Dispatcher_Stub();
 
     Dispatcher_Stub(const Dispatcher_Stub&) = delete;
     Dispatcher_Stub& operator=(const Dispatcher_Stub& a) = delete;

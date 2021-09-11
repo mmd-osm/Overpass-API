@@ -320,10 +320,10 @@ Dispatcher_Stub::Dispatcher_Stub
       }
 
       rman = new Resource_Manager(*transaction, global_settings, area_level == 2 ? error_output : 0,
-	  *area_transaction, this, area_level == 2 ? new Area_Updater(*area_transaction) : 0);
+	  *area_transaction, area_level == 2 ? new Area_Updater(*area_transaction) : 0);
     }
     else
-      rman = new Resource_Manager(*transaction, &global_settings, this, error_output);
+      rman = new Resource_Manager(*transaction, &global_settings,  error_output);
   }
   else
   {
@@ -336,10 +336,10 @@ Dispatcher_Stub::Dispatcher_Stub
     {
       area_transaction = new Nonsynced_Transaction(area_level == 2, false, db_dir, "");
       rman = new Resource_Manager(*transaction, global_settings, area_level == 2 ? error_output : 0,
-	  *area_transaction, this, area_level == 2 ? new Area_Updater(*area_transaction) : 0);
+	  *area_transaction, area_level == 2 ? new Area_Updater(*area_transaction) : 0);
     }
     else
-      rman = new Resource_Manager(*transaction, &global_settings, this, error_output);
+      rman = new Resource_Manager(*transaction, &global_settings, error_output);
 
     {
       std::ifstream version((db_dir + "osm_base_version").c_str());
@@ -359,15 +359,6 @@ Dispatcher_Stub::Dispatcher_Stub
       area_timestamp = de_escape(timestamp);
     }
   }
-}
-
-
-void Dispatcher_Stub::ping() const
-{
-  if (dispatcher_client)
-    dispatcher_client->ping();
-  if (area_dispatcher_client)
-    area_dispatcher_client->ping();
 }
 
 

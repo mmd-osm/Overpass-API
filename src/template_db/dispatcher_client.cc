@@ -385,14 +385,6 @@ void Dispatcher_Client::set_global_limits(uint64 max_allowed_space, uint64 max_a
 }
 
 
-void Dispatcher_Client::ping()
-{
-// Ping-Feature removed. The concept of unassured messages doesn't fit in the context of strict
-// two-directional communication.
-//   send_message(Dispatcher::PING, "Dispatcher_Client::ping::socket");
-}
-
-
 void Dispatcher_Client::terminate()
 {
   while (true)

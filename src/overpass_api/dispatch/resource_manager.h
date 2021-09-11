@@ -30,14 +30,6 @@
 class Statement;
 
 
-struct Watchdog_Callback
-{
-  virtual void ping() const = 0;
-  virtual ~Watchdog_Callback() = default;
-};
-
-
-
 namespace Diff_Action
 {
   enum _ { positive, collect_lhs, collect_rhs_no_del, collect_rhs_with_del, show_old, show_new };
@@ -112,11 +104,11 @@ private:
 class Resource_Manager
 {
 public:
-  Resource_Manager(Transaction& transaction_, Parsed_Query* global_settings_ = 0, Watchdog_Callback* watchdog_ = 0,
+  Resource_Manager(Transaction& transaction_, Parsed_Query* global_settings_ = 0,
 		   Error_Output* error_output_ = 0);
 
   Resource_Manager(Transaction& transaction_, Parsed_Query& global_settings_, Error_Output* error_output_,
-		   Transaction& area_transaction_, Watchdog_Callback* watchdog_,
+		   Transaction& area_transaction_,
 		   Area_Usage_Listener* area_updater__);
 
   Resource_Manager(const Resource_Manager&) = delete;
@@ -202,7 +194,6 @@ private:
   Error_Output* error_output;
   Transaction* area_transaction;
   Area_Usage_Listener* area_updater_;
-  Watchdog_Callback* watchdog;
   Parsed_Query* global_settings;
   bool global_settings_owned;
   User_Data_Cache user_data_cache;

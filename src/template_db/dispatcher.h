@@ -195,7 +195,7 @@ class Dispatcher
     static const uint32 QUERY_MY_STATUS = 15;
     static const uint32 REGISTER_PID = 16;
     static const uint32 SET_LIMITS = 17;
-    static const uint32 PING = 18;
+
     static const uint32 UNREGISTER_PID = 19;
     static const uint32 QUERY_BY_TOKEN = 20;
 
