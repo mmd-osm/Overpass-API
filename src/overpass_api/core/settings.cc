@@ -38,7 +38,7 @@
 
 
 template < typename TVal >
-struct OSM_File_Properties : public File_Properties
+struct OSM_File_Properties final : public File_Properties
 {
   OSM_File_Properties(std::string file_base_name_, uint32 block_size_,
 		      uint32 map_block_size_)
