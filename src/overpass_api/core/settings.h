@@ -157,10 +157,12 @@ struct Clone_Settings
 {
   uint32 compression_method;
   uint32 map_compression_method;
+  uint32 parallel_processes;
 
   Clone_Settings()
       : compression_method(File_Blocks_Index_Base::USE_DEFAULT),
-      map_compression_method(File_Blocks_Index_Base::USE_DEFAULT) {}
+      map_compression_method(File_Blocks_Index_Base::USE_DEFAULT),
+      parallel_processes(1) {}
 };
 
 

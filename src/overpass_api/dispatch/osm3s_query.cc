@@ -136,6 +136,10 @@ int main(int argc, char *argv[])
         return 0;
       }
     }
+    else if (!(strncmp(argv[argpos], "--clone-parallel=", 17)))
+    {
+      clone_settings.parallel_processes = atoi(std::string(argv[argpos]).substr(17).c_str());
+    }
     else if (!(strcmp(argv[argpos], "--version")))
     {
       std::cout<<"Overpass API version "<<basic_settings().version<<" "<<basic_settings().source_hash<<"\n";
@@ -155,6 +159,7 @@ int main(int argc, char *argv[])
       "  --clone=$TARGET_DIR: Write a consistent copy of the entire database to the given $TARGET_DIR.\n"
       "  --clone-compression=$METHOD: Use a specific compression method $METHOD for clone bin files\n"
       "  --clone-map-compression=$METHOD: Use a specific compression method $METHOD for clone map files\n"
+      "  --clone-parallel=n: Number of parallel threads used for clone generation\n"
       "  --rules: Ignore all time limits and allow area creation by this query.\n"
       "  --request=$QL: Use $QL instead of standard input as the request text.\n"
       "  --quiet: Don't print anything on stderr.\n"

@@ -134,7 +134,7 @@ Example syntax for changeset 46503970: (syntax is subject to change)
 * Reduce memory consumption for attic tag queries (collect_attic_kregv and al.)
 * Expensive health check: use linear complexity approach in collect_items_range and similar functions.
 * Use of SharedDataPointer to reduce cost of copying large objects (ways, relations, areas, etc.)
-* Parallel clone generation (currently 4 processes hard coded)
+* Parallel clone generation. Number of parallel threads can be set using the `--clone-parallel=n` command line parameter.
 
 
 

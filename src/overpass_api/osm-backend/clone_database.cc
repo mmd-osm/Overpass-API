@@ -119,8 +119,6 @@ void clone_map_file(const File_Properties& file_prop, Transaction& transaction, 
 
 void clone_database(Transaction& transaction, const std::string& dest_db_dir, const Clone_Settings& clone_settings)
 {
-  const unsigned int PARALLEL_PROCS = 4;
-
   std::vector< std::function< void() > > f;
 
   f.push_back( [&] {
@@ -354,6 +352,6 @@ void clone_database(Transaction& transaction, const std::string& dest_db_dir, co
                                 transaction, dest_db_dir, clone_settings);
   });
 
-  process_package(f, PARALLEL_PROCS);
+  process_package(f, clone_settings.parallel_processes);
 
 }
