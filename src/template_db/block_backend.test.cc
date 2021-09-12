@@ -246,12 +246,6 @@ struct Test_File : File_Properties
     return std::vector< bool >();
   }
 
-  uint32 id_max_size_of() const override
-  {
-    throw std::string();
-    return 0;
-  }
-
   File_Blocks_Index_Base* new_data_index
       (bool writeable, bool use_shadow, const std::string& db_dir, const std::string& file_name_extension)
       const override

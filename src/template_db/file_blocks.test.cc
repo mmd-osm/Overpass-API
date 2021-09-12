@@ -168,12 +168,6 @@ struct Test_File : File_Properties
     return std::vector< bool >();
   }
 
-  uint32 id_max_size_of() const override
-  {
-    throw std::string();
-    return 0;
-  }
-
   File_Blocks_Index_Base* new_data_index
       (bool writeable, bool use_shadow, const std::string& db_dir, const std::string& file_name_extension)
       const override
@@ -257,12 +251,6 @@ struct Variable_Block_Test_File : File_Properties
   std::vector< bool > get_map_footprint(const std::string& db_dir) const override
   {
     return std::vector< bool >();
-  }
-
-  uint32 id_max_size_of() const override
-  {
-    throw std::string();
-    return 0;
   }
 
   File_Blocks_Index_Base* new_data_index
@@ -352,12 +340,6 @@ struct Compressed_Test_File : File_Properties
   std::vector< bool > get_map_footprint(const std::string& db_dir) const override
   {
     return std::vector< bool >();
-  }
-
-  uint32 id_max_size_of() const override
-  {
-    throw std::string();
-    return 0;
   }
 
   File_Blocks_Index_Base* new_data_index

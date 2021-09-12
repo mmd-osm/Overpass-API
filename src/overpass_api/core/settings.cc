@@ -69,11 +69,6 @@ struct OSM_File_Properties final : public File_Properties
     return get_map_index_footprint(*this, db_dir);
   }
 
-  uint32 id_max_size_of() const override
-  {
-    return TVal::max_size_of();
-  }
-
   File_Blocks_Index_Base* new_data_index
       (bool writeable, bool use_shadow, const std::string& db_dir, const std::string& file_name_extension)
       const override
