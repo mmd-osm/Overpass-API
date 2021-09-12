@@ -168,8 +168,8 @@ int main(int argc, char *argv[])
     ++argpos;
   }
 
-  Error_Output* error_output(new Console_Output(log_level));
-  Statement::set_error_output(error_output);
+  Console_Output error_output{log_level};
+  Statement::set_error_output(&error_output);
 
   // connect to dispatcher and get database dir
   try
@@ -178,8 +178,8 @@ int main(int argc, char *argv[])
     if (!clone_db_dir.empty())
     {
       // open read transaction and log this.
-      area_level = determine_area_level(error_output, area_level);
-      Dispatcher_Stub dispatcher(db_dir, error_output, "-- clone database --",
+      area_level = determine_area_level(&error_output, area_level);
+      Dispatcher_Stub dispatcher(db_dir, &error_output, "-- clone database --",
 				 get_uses_meta_data(), area_level, 24*60*60, 1024*1024*1024, global_settings);
       copy_file(dispatcher.resource_manager().get_transaction()->get_db_dir() + "/replicate_id",
 		clone_db_dir + "/replicate_id");
@@ -190,13 +190,13 @@ int main(int argc, char *argv[])
     }
 
     if (xml_raw.empty())
-      xml_raw = get_xml_console(error_output);
+      xml_raw = get_xml_console(&error_output);
 
-    if ((error_output) && (error_output->display_encoding_errors()))
+    if (error_output.display_encoding_errors())
       return 0;
 
     Statement::Factory stmt_factory(global_settings);
-    if (!parse_and_validate(stmt_factory, global_settings, xml_raw, error_output, debug_level))
+    if (!parse_and_validate(stmt_factory, global_settings, xml_raw, &error_output, debug_level))
       return 0;
     if (debug_level != parser_execute)
       return 0;
@@ -224,8 +224,8 @@ int main(int argc, char *argv[])
       max_allowed_time = 0;
 
     // open read transaction and log this.
-    area_level = determine_area_level(error_output, area_level);
-    Dispatcher_Stub dispatcher(db_dir, error_output, xml_raw,
+    area_level = determine_area_level(&error_output, area_level);
+    Dispatcher_Stub dispatcher(db_dir, &error_output, xml_raw,
 			       get_uses_meta_data(), area_level, max_allowed_time, max_allowed_space,
 			       global_settings);
     if (osm_script && osm_script->get_desired_timestamp())
@@ -259,8 +259,7 @@ int main(int argc, char *argv[])
       else
         temp<<"open64: "<<e.error_number<<' '<<strerror(e.error_number)<<' '<<e.filename<<' '<<e.origin;
 
-      if (error_output)
-        error_output->runtime_error(temp.str());
+      error_output.runtime_error(temp.str());
     }
     return 1;
   }
@@ -273,14 +272,13 @@ int main(int argc, char *argv[])
     else
       temp<<"Query run out of memory in \""<<e.stmt_name<<"\" at line "
           <<e.line_number<<" using about "<<e.size/(1024*1024)<<" MB of RAM.";
-    if (error_output)
-      error_output->runtime_error(temp.str());
+    error_output.runtime_error(temp.str());
 
     return 2;
   }
   catch (const Context_Error &e)
   {
-    error_output->runtime_error("Context error: " + e.message);
+    error_output.runtime_error("Context error: " + e.message);
     return 3;
   }
   catch (const Exit_Error &e)
@@ -293,12 +291,12 @@ int main(int argc, char *argv[])
     getrlimit(RLIMIT_AS, &limit);
     std::ostringstream temp;
     temp<<"Query run out of memory using about "<<limit.rlim_cur/(1024*1024)<<" MB of RAM.";
-    error_output->runtime_error(temp.str());
+    error_output.runtime_error(temp.str());
     return 5;
   }
   catch(const std::exception& e)
   {
-    error_output->runtime_error(std::string("Query failed with the exception: ") + e.what());
+    error_output.runtime_error(std::string("Query failed with the exception: ") + e.what());
     return 6;
   }
 }

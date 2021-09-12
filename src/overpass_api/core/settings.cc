@@ -154,6 +154,24 @@ Osm_Base_Settings::Osm_Base_Settings()
   total_available_time_units(256*1024)
 {}
 
+Osm_Base_Settings::~Osm_Base_Settings()
+{
+  delete NODES;
+  delete NODE_TAGS_LOCAL;
+  delete NODE_TAGS_GLOBAL;
+  delete NODE_KEYS;
+  delete NODES_TAGGED;
+  delete WAYS;
+  delete WAY_TAGS_LOCAL;
+  delete WAY_TAGS_GLOBAL;
+  delete WAY_KEYS;
+  delete RELATIONS;
+  delete RELATION_ROLES;
+  delete RELATION_TAGS_LOCAL;
+  delete RELATION_TAGS_GLOBAL;
+  delete RELATION_KEYS;
+}
+
 const Osm_Base_Settings all_settings::osm_base_settings = { };
 
 //-----------------------------------------------------------------------------
@@ -175,6 +193,14 @@ Area_Settings::Area_Settings()
   total_available_time_units(256*1024)
 {}
 
+Area_Settings::~Area_Settings()
+{
+  delete AREA_BLOCKS;
+  delete AREAS;
+  delete AREA_TAGS_LOCAL;
+  delete AREA_TAGS_GLOBAL;
+}
+
 const Area_Settings all_settings::area_settings = { };
 
 //-----------------------------------------------------------------------------
@@ -195,6 +221,12 @@ Meta_Settings::Meta_Settings()
 {
 }
 
+
+Meta_Settings::~Meta_Settings()
+{
+  for(auto & e : idxs_)
+    delete e;
+}
 
 const std::vector< File_Properties* >& Meta_Settings::idxs() const
 {
@@ -250,6 +282,12 @@ Attic_Settings::Attic_Settings()
         RELATIONS, RELATIONS_UNDELETED, RELATION_IDX_LIST, RELATION_TAGS_LOCAL, RELATION_TAGS_GLOBAL, RELATIONS_META, RELATION_CHANGELOG }
 { }
 
+
+Attic_Settings::~Attic_Settings()
+{
+  for(auto & e : idxs_)
+    delete e;
+}
 
 const std::vector< File_Properties* >& Attic_Settings::idxs() const
 {
