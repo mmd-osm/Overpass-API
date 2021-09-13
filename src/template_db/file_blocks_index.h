@@ -165,10 +165,10 @@ File_Blocks_Index< TIndex >::File_Blocks_Index
     Raw_File val_file(data_file_name, O_RDONLY, S_666, "File_Blocks_Index::File_Blocks_Index::1");
     file_size = val_file.size("File_Blocks_Index::File_Blocks_Index::2");
   }
-  catch (File_Error e)
+  catch (File_Error &e)
   {
     if (e.error_number != 2)
-      throw e;
+      throw;
   }
 
   try
@@ -182,10 +182,10 @@ File_Blocks_Index< TIndex >::File_Blocks_Index
     index_buf.reset(index_size > 0 ? new uint8[index_size] : nullptr);
     source_file.read(index_buf.get(), index_size, "File_Blocks_Index::File_Blocks_Index::5");
   }
-  catch (File_Error e)
+  catch (File_Error &e)
   {
     if (e.error_number != 2)
-      throw e;
+      throw;
     index_buf.reset();
   }
 

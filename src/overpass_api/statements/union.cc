@@ -88,7 +88,7 @@ bool Union_Statement::union_fast_path(Resource_Manager& rman)
 
 
   // exclude any diff actions for now (diff, adiff, compare statement,...)
-  if (!rman.get_desired_action() == Diff_Action::positive)
+  if (!(rman.get_desired_action() == Diff_Action::positive))
     return false;
 
   if (get_result_name() == "_")

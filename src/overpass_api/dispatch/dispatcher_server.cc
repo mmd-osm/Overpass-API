@@ -126,7 +126,7 @@ void Default_Dispatcher_Logger::purge(pid_t pid)
 struct Quiet_Dispatcher_Logger : public Dispatcher_Logger
 {
 
-  Quiet_Dispatcher_Logger(Logger& logger_) : logger(&logger_) {}
+  Quiet_Dispatcher_Logger() {}
   ~Quiet_Dispatcher_Logger() override = default;
 
   void write_start(pid_t pid, const std::vector< pid_t >& registered) override {}
@@ -139,9 +139,6 @@ struct Quiet_Dispatcher_Logger : public Dispatcher_Logger
   void read_aborted(pid_t pid) override{ }
   void hangup(pid_t pid) override {}
   void purge(pid_t pid) override {}
-
-  private:
-    Logger* logger;
 };
 
 
@@ -495,7 +492,7 @@ int main(int argc, char* argv[])
     std::unique_ptr<Dispatcher_Logger> disp_logger;
 
     if (quiet)
-      disp_logger.reset(new Quiet_Dispatcher_Logger(logger));
+      disp_logger.reset(new Quiet_Dispatcher_Logger());
     else
       disp_logger.reset(new Default_Dispatcher_Logger(logger));
 

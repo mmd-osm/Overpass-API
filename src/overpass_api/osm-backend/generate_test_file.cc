@@ -138,14 +138,11 @@ struct Accept_Recurse_2 : public Accept_All_Tags
 
 struct Accept_Recurse_3 : public Accept_All_Tags
 {
-  Accept_Recurse_3(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Recurse_3() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Recurse_4 : public Accept_All_Tags
@@ -191,15 +188,12 @@ struct Accept_Recurse_6 : public Accept_All_Tags
 
 struct Accept_Recurse_7 : public Accept_All_Tags
 {
-  Accept_Recurse_7(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Recurse_7() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override
       { return ((id == 2) || (id == 8) || (id == 10) || (id == 11)); }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Recurse_8 : public Accept_All_Tags
@@ -219,41 +213,32 @@ struct Accept_Recurse_8 : public Accept_All_Tags
 
 struct Accept_Recurse_9 : public Accept_All_Tags
 {
-  Accept_Recurse_9(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Recurse_9() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override
       { return ((id == 6) || (id == 8) || (id == 10)); }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Recurse_10 : public Accept_All_Tags
 {
-  Accept_Recurse_10(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Recurse_10() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override
       { return ((id == 1) || (id == 2)); }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Recurse_11 : public Accept_All_Tags
 {
-  Accept_Recurse_11(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Recurse_11() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override
       { return ((id == 9) || (id == 10)); }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Recurse_12 : public Accept_All_Tags
@@ -368,7 +353,7 @@ struct Accept_Recurse_16 : public Accept_All_Tags
 
 struct Accept_Recurse_17 : public Accept_All_Tags
 {
-  Accept_Recurse_17(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Recurse_17() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
@@ -376,9 +361,6 @@ struct Accept_Recurse_17 : public Accept_All_Tags
   {
     return (id == 6 || id == 8 || id == 10);
   }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Recurse_18 : public Accept_All_Tags
@@ -401,7 +383,7 @@ struct Accept_Recurse_18 : public Accept_All_Tags
 
 struct Accept_Recurse_19 : public Accept_All_Tags
 {
-  Accept_Recurse_19(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Recurse_19() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
@@ -409,14 +391,11 @@ struct Accept_Recurse_19 : public Accept_All_Tags
   {
     return (id == 6 || id == 8 || id == 9 || id == 10);
   }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Recurse_20 : public Accept_All_Tags
 {
-  Accept_Recurse_20(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Recurse_20() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
@@ -424,9 +403,6 @@ struct Accept_Recurse_20 : public Accept_All_Tags
   {
     return (id == 1 || id == 9 || id == 10);
   }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Recurse_21 : public Accept_All_Tags
@@ -446,7 +422,7 @@ struct Accept_Recurse_21 : public Accept_All_Tags
 
 struct Accept_Recurse_23 : public Accept_All_Tags
 {
-  Accept_Recurse_23(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Recurse_23() {}
 
   bool admit_node(uint id) const override
   {
@@ -455,13 +431,11 @@ struct Accept_Recurse_23 : public Accept_All_Tags
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return false; }
 
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Recurse_24 : public Accept_All_Tags
 {
-  Accept_Recurse_24(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Recurse_24() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
@@ -469,9 +443,6 @@ struct Accept_Recurse_24 : public Accept_All_Tags
   {
     return (id == 11);
   }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Recurse_25 : public Accept_All_Tags
@@ -491,7 +462,7 @@ struct Accept_Recurse_25 : public Accept_All_Tags
 
 struct Accept_Recurse_26 : public Accept_All_Tags
 {
-  Accept_Recurse_26(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Recurse_26() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
@@ -499,14 +470,11 @@ struct Accept_Recurse_26 : public Accept_All_Tags
   {
     return (id == 6 || id == 8 || id == 10);
   }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Recurse_27 : public Accept_All_Tags
 {
-  Accept_Recurse_27(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Recurse_27() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
@@ -515,13 +483,11 @@ struct Accept_Recurse_27 : public Accept_All_Tags
     return (id == 3);
   }
 
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Recurse_28 : public Accept_All_Tags
 {
-  Accept_Recurse_28(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Recurse_28() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
@@ -529,9 +495,6 @@ struct Accept_Recurse_28 : public Accept_All_Tags
   {
     return (id == 9);
   }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Bbox_Query_1 : public Accept_All_Tags
@@ -599,14 +562,11 @@ struct Accept_Bbox_Query_4 : public Accept_All_Tags
 
 struct Accept_Bbox_Query_5 : public Accept_All_Tags
 {
-  Accept_Bbox_Query_5(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Bbox_Query_5() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Bbox_Query_6 : public Accept_All_Tags
@@ -641,105 +601,84 @@ struct Accept_Bbox_Query_8 : public Accept_All_Tags
 
 struct Accept_Query_1 : public Accept_All_Tags
 {
-  Accept_Query_1(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_1() {}
 
   bool admit_node(uint id) const override
   { return (id == 11); }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_2 : public Accept_All_Tags
 {
-  Accept_Query_2(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_2() {}
 
   bool admit_node(uint id) const override
   { return (id % 5 == 0); }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_3 : public Accept_All_Tags
 {
-  Accept_Query_3(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_3() {}
 
   bool admit_node(uint id) const override
   { return (id % 11 == 0); }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return false; }
 
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_4 : public Accept_All_Tags
 {
-  Accept_Query_4(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_4() {}
 
   bool admit_node(uint id) const override
   { return (id % 15 == 0); }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return false; }
 
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_5 : public Accept_All_Tags
 {
-  Accept_Query_5(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_5() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_6 : public Accept_All_Tags
 {
-  Accept_Query_6(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_6() {}
 
   bool admit_node(uint id) const override
   { return (id == 77); }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_7 : public Accept_All_Tags
 {
-  Accept_Query_7(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_7() {}
 
   bool admit_node(uint id) const override
   { return (id % 105 == 0); }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_8 : public Accept_All_Tags
 {
-  Accept_Query_8(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_8() {}
 
   bool admit_node(uint id) const override
   { return (id == 11); }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return false; }
 
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_9 : public Accept_All_Tags
@@ -778,161 +717,123 @@ struct Accept_Query_10 : public Accept_All_Tags
 
 struct Accept_Query_11 : public Accept_All_Tags
 {
-  Accept_Query_11(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_11() {}
 
   bool admit_node(uint id) const override
   { return (id % 105 == 0); }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_12 : public Accept_All_Tags
 {
-  Accept_Query_12(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_12() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override
       { return (id == 11); }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_13 : public Accept_All_Tags
 {
-  Accept_Query_13(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_13() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override
       { return (id % 5 == 0); }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_14 : public Accept_All_Tags
 {
-  Accept_Query_14(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_14() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return (id % 11 == 0); }
   bool admit_relation(uint id) const override { return false; }
 
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_15 : public Accept_All_Tags
 {
-  Accept_Query_15(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_15() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return (id % 15 == 0); }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_17 : public Accept_All_Tags
 {
-  Accept_Query_17(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_17() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return (id == 77); }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_18 : public Accept_All_Tags
 {
-  Accept_Query_18(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_18() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return (id % 105 == 0); }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_19 : public Accept_All_Tags
 {
-  Accept_Query_19(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_19() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return (id % 105 == 0); }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_20 : public Accept_All_Tags
 {
-  Accept_Query_20(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_20() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return (id == 11); }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_21 : public Accept_All_Tags
 {
-  Accept_Query_21(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_21() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return (id % 4 == 1); }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_22 : public Accept_All_Tags
 {
-  Accept_Query_22(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_22() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return (id % 4 != 3); }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_23 : public Accept_All_Tags
 {
-  Accept_Query_23(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_23() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return (id % 5 == 0); }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_25 : public Accept_All_Tags
 {
-  Accept_Query_25(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_25() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return (id % 10 == 0); }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_28 : public Accept_All_Tags
@@ -1060,7 +961,7 @@ struct Accept_Query_38 : public Accept_All_Tags
 
 struct Accept_Query_39 : public Accept_All_Tags
 {
-  Accept_Query_39(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_39() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
@@ -1068,14 +969,11 @@ struct Accept_Query_39 : public Accept_All_Tags
   {
     return ((id >= 12 && id <= 15) || id == 17 || id == 19 || id == 21 || id == 22);
   }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_40 : public Accept_All_Tags
 {
-  Accept_Query_40(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_40() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
@@ -1083,9 +981,6 @@ struct Accept_Query_40 : public Accept_All_Tags
   {
     return (id == 18 || id == 22);
   }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_41 : public Accept_All_Tags
@@ -1174,38 +1069,29 @@ struct Accept_Query_44 : public Accept_All_Tags
 
 struct Accept_Query_45 : public Accept_All_Tags
 {
-  Accept_Query_45(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_45() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return (id % 21 != 14); }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_46 : public Accept_All_Tags
 {
-  Accept_Query_46(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_46() {}
 
   bool admit_node(uint id) const override { return (id < 100 && id % 21 != 0); }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_47 : public Accept_All_Tags
 {
-  Accept_Query_47(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_47() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return (id % 21 != 14 && id % 21 != 0); }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_51 : public Accept_All_Tags
@@ -1444,7 +1330,7 @@ struct Accept_Query_65 : public Accept_All_Tags
 
 struct Accept_Query_66 : public Accept_All_Tags
 {
-  Accept_Query_66(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_66() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
@@ -1452,14 +1338,11 @@ struct Accept_Query_66 : public Accept_All_Tags
   {
     return (id <= 6);
   }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_67 : public Accept_All_Tags
 {
-  Accept_Query_67(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_67() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
@@ -1467,14 +1350,11 @@ struct Accept_Query_67 : public Accept_All_Tags
   {
     return (id <= 6 && id % 2 == 0);
   }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_68 : public Accept_All_Tags
 {
-  Accept_Query_68(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_68() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
@@ -1482,14 +1362,11 @@ struct Accept_Query_68 : public Accept_All_Tags
   {
     return (id == 3 || id == 4);
   }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_69 : public Accept_All_Tags
 {
-  Accept_Query_69(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_69() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
@@ -1497,14 +1374,11 @@ struct Accept_Query_69 : public Accept_All_Tags
   {
     return (id == 4);
   }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_70 : public Accept_All_Tags
 {
-  Accept_Query_70(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_70() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
@@ -1512,9 +1386,6 @@ struct Accept_Query_70 : public Accept_All_Tags
   {
     return (id == 1 || id == 2);
   }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_71 : public Accept_All_Tags
@@ -1598,7 +1469,7 @@ struct Accept_Query_75 : public Accept_All_Tags
 
 struct Accept_Query_76 : public Accept_All_Tags
 {
-  Accept_Query_76(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_76() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
@@ -1606,14 +1477,11 @@ struct Accept_Query_76 : public Accept_All_Tags
   {
     return (id == 1 || id == 2 || id == 4 || id == 8 || id == 10 || id == 11);
   }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_77 : public Accept_All_Tags
 {
-  Accept_Query_77(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_77() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
@@ -1621,9 +1489,6 @@ struct Accept_Query_77 : public Accept_All_Tags
   {
     return (id == 2 || id == 4 || id == 8 || id == 10);
   }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_78 : public Accept_All_Tags
@@ -1643,7 +1508,7 @@ struct Accept_Query_78 : public Accept_All_Tags
 
 struct Accept_Query_79 : public Accept_All_Tags
 {
-  Accept_Query_79(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_79() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
@@ -1651,9 +1516,6 @@ struct Accept_Query_79 : public Accept_All_Tags
   {
     return (id == 4);
   }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_80 : public Accept_All_Tags
@@ -1673,7 +1535,7 @@ struct Accept_Query_80 : public Accept_All_Tags
 
 struct Accept_Query_81 : public Accept_All_Tags
 {
-  Accept_Query_81(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_81() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
@@ -1681,14 +1543,11 @@ struct Accept_Query_81 : public Accept_All_Tags
   {
     return (id == 6 || id == 8 || id == 10);
   }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_82 : public Accept_All_Tags
 {
-  Accept_Query_82(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_82() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
@@ -1696,14 +1555,11 @@ struct Accept_Query_82 : public Accept_All_Tags
   {
     return (id == 10);
   }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_83 : public Accept_All_Tags
 {
-  Accept_Query_83(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_83() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
@@ -1711,14 +1567,11 @@ struct Accept_Query_83 : public Accept_All_Tags
   {
     return (id == 6 || id == 8 || id == 10);
   }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_84 : public Accept_All_Tags
 {
-  Accept_Query_84(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_84() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
@@ -1726,14 +1579,11 @@ struct Accept_Query_84 : public Accept_All_Tags
   {
     return (id == 10);
   }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_85 : public Accept_All_Tags
 {
-  Accept_Query_85(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_85() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
@@ -1741,14 +1591,11 @@ struct Accept_Query_85 : public Accept_All_Tags
   {
     return (id == 6 || id == 8 || id == 10);
   }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_86 : public Accept_All_Tags
 {
-  Accept_Query_86(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_86() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
@@ -1756,14 +1603,11 @@ struct Accept_Query_86 : public Accept_All_Tags
   {
     return (id == 9 || id == 10);
   }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_87 : public Accept_All_Tags
 {
-  Accept_Query_87(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_87() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
@@ -1771,14 +1615,11 @@ struct Accept_Query_87 : public Accept_All_Tags
   {
     return (id == 10);
   }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_88 : public Accept_All_Tags
 {
-  Accept_Query_88(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_88() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
@@ -1786,14 +1627,11 @@ struct Accept_Query_88 : public Accept_All_Tags
   {
     return (id == 10);
   }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_89 : public Accept_All_Tags
 {
-  Accept_Query_89(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_89() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
@@ -1801,14 +1639,11 @@ struct Accept_Query_89 : public Accept_All_Tags
   {
     return (id == 10);
   }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_90 : public Accept_All_Tags
 {
-  Accept_Query_90(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_90() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
@@ -1817,188 +1652,142 @@ struct Accept_Query_90 : public Accept_All_Tags
     return (id == 9 || id == 10);
   }
 
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_91 : public Accept_All_Tags
 {
-  Accept_Query_91(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_91() {}
 
   bool admit_node(uint id) const override { return (id <= 10); }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_92 : public Accept_All_Tags
 {
-  Accept_Query_92(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_92() {}
 
   bool admit_node(uint id) const override { return (id == 5 || id == 10); }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_93 : public Accept_All_Tags
 {
-  Accept_Query_93(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_93() {}
 
   bool admit_node(uint id) const override { return (id <= 5); }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_94 : public Accept_All_Tags
 {
-  Accept_Query_94(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_94() {}
 
   bool admit_node(uint id) const override { return (id == 5); }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_95 : public Accept_All_Tags
 {
-  Accept_Query_95(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_95() {}
 
   bool admit_node(uint id) const override { return (id == 9 || id == 10); }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_96 : public Accept_All_Tags
 {
-  Accept_Query_96(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_96() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return (id <= 10); }
   bool admit_relation(uint id) const override { return false; }
 
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_97 : public Accept_All_Tags
 {
-  Accept_Query_97(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_97() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return (id == 5 || id == 10); }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_98 : public Accept_All_Tags
 {
-  Accept_Query_98(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_98() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return (id <= 5); }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_99 : public Accept_All_Tags
 {
-  Accept_Query_99(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_99() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return (id == 5); }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_100 : public Accept_All_Tags
 {
-  Accept_Query_100(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_100() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return (id == 9 || id == 10); }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_101 : public Accept_All_Tags
 {
-  Accept_Query_101(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_101() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return (id <= 10); }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_102 : public Accept_All_Tags
 {
-  Accept_Query_102(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_102() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return (id == 5 || id == 10); }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_103 : public Accept_All_Tags
 {
-  Accept_Query_103(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_103() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return (id <= 10 && id != 5 && id != 9); }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_104 : public Accept_All_Tags
 {
-  Accept_Query_104(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_104() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return (id == 10); }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_105 : public Accept_All_Tags
 {
-  Accept_Query_105(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_105() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return (id == 9 || id == 10); }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_106 : public Accept_All_Tags
@@ -2037,14 +1826,11 @@ struct Accept_Query_107 : public Accept_All_Tags
 
 struct Accept_Query_108 : public Accept_All_Tags
 {
-  Accept_Query_108(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_108() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_109 : public Accept_All_Tags
@@ -2086,7 +1872,7 @@ struct Accept_Query_110 : public Accept_All_Tags
 
 struct Accept_Query_111 : public Accept_All_Tags
 {
-  Accept_Query_111(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_111() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
@@ -2094,9 +1880,6 @@ struct Accept_Query_111 : public Accept_All_Tags
   {
     return ((id >= 1 && id <= 6) || id == 9);
   }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_113 : public Accept_All_Tags
@@ -2116,7 +1899,7 @@ struct Accept_Query_113 : public Accept_All_Tags
 
 struct Accept_Query_114 : public Accept_All_Tags
 {
-  Accept_Query_114(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_114() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
@@ -2124,14 +1907,11 @@ struct Accept_Query_114 : public Accept_All_Tags
   {
     return (id == 2 || (id >= 6 && id <= 8) || id == 10 || id == 11);
   }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_117 : public Accept_All_Tags
 {
-  Accept_Query_117(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_117() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
@@ -2139,9 +1919,6 @@ struct Accept_Query_117 : public Accept_All_Tags
   {
     return (id == 2 || (id >= 6 && id <= 11));
   }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_118 : public Accept_All_Tags
@@ -2231,74 +2008,56 @@ struct Accept_Query_125 : public Accept_All_Tags
 
 struct Accept_Query_139 : public Accept_All_Tags
 {
-  Accept_Query_139(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_139() {}
 
   bool admit_node(uint id) const override { return (id % 11 == 0 && id >= 99 && id <= 1078); }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_140 : public Accept_All_Tags
 {
-  Accept_Query_140(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_140() {}
 
   bool admit_node(uint id) const override { return (id % 55 == 0 && id >= 99 && id <= 1078); }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_141 : public Accept_All_Tags
 {
-  Accept_Query_141(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_141() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return (id % 22 == 0 && id >= 99 && id <= 1078); }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_142 : public Accept_All_Tags
 {
-  Accept_Query_142(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_142() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return (id % 110 == 0 && id >= 99 && id <= 1078); }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_143 : public Accept_All_Tags
 {
-  Accept_Query_143(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_143() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return (id % 11 == 0 && id % 4 != 3 && id >= 99 && id <= 1078); }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_144 : public Accept_All_Tags
 {
-  Accept_Query_144(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_144() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return (id % 55 == 0 && id % 4 != 3 && id >= 99 && id <= 1078); }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_145 : public Accept_All_Tags
@@ -2429,74 +2188,56 @@ struct Accept_Query_153 : public Accept_All_Tags
 
 struct Accept_Query_154 : public Accept_All_Tags
 {
-  Accept_Query_154(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_154() {}
 
   bool admit_node(uint id) const override { return id % 5 == 0 && id < 100; }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_155 : public Accept_All_Tags
 {
-  Accept_Query_155(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_155() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return id % 5 == 0 && id < 100; }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_156 : public Accept_All_Tags
 {
-  Accept_Query_156(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_156() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return id % 5 == 0 && id % 4 != 3; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_157 : public Accept_All_Tags
 {
-  Accept_Query_157(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_157() {}
 
   bool admit_node(uint id) const override { return id == 11; }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_158 : public Accept_All_Tags
 {
-  Accept_Query_158(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_158() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return id == 11; }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_159 : public Accept_All_Tags
 {
-  Accept_Query_159(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_159() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return id == 11; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_160 : public Accept_All_Tags
@@ -2522,62 +2263,47 @@ struct Accept_Query_160 : public Accept_All_Tags
 
 struct Accept_Query_170 : public Accept_All_Tags
 {
-  Accept_Query_170(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_170() {}
 
   bool admit_node(uint id) const override { return id % 15 == 0; }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_171 : public Accept_All_Tags
 {
-  Accept_Query_171(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_171() {}
 
   bool admit_node(uint id) const override { return id == 10; }
   bool admit_way(uint id) const override { return id == 10; }
   bool admit_relation(uint id) const override { return id == 10; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_172 : public Accept_All_Tags
 {
-  Accept_Query_172(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_172() {}
 
   bool admit_node(uint id) const override { return id == 10; }
   bool admit_way(uint id) const override { return id == 10; }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_173 : public Accept_All_Tags
 {
-  Accept_Query_173(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_173() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return id == 10; }
   bool admit_relation(uint id) const override { return id == 10; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Query_174 : public Accept_All_Tags
 {
-  Accept_Query_174(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Query_174() {}
 
   bool admit_node(uint id) const override { return id == 10; }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return id == 10; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Foreach_1 : public Accept_All_Tags
@@ -2609,148 +2335,115 @@ struct Accept_Foreach_2 : public Accept_All_Tags
 
 struct Accept_Union_1 : public Accept_All_Tags
 {
-  Accept_Union_1(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Union_1() {}
 
   bool admit_node(uint id) const override { return (id == 2); }
   bool admit_way(uint id) const override { return (id == 11); }
   bool admit_relation(uint id) const override
   { return ((id == 2) || (id == 8) || (id == 10) || (id == 11)); }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Union_2 : public Accept_All_Tags
 {
-  Accept_Union_2(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Union_2() {}
 
   bool admit_node(uint id) const override { return ((id == 1) || (id == 2)); }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Union_4 : public Accept_All_Tags
 {
-  Accept_Union_4(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Union_4() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return (id == 1); }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Union_5 : public Accept_All_Tags
 {
-  Accept_Union_5(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Union_5() {}
 
   bool admit_node(uint id) const override { return (id == 2); }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Union_6 : public Accept_All_Tags
 {
-  Accept_Union_6(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Union_6() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override
   { return ((id == 2) || (id == 8) || (id == 10) || (id == 11)); }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Difference_1 : public Accept_All_Tags
 {
-  Accept_Difference_1(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Difference_1() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Difference_2 : public Accept_All_Tags
 {
-  Accept_Difference_2(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Difference_2() {}
 
   bool admit_node(uint id) const override { return (id == 2); }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Difference_4 : public Accept_All_Tags
 {
-  Accept_Difference_4(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Difference_4() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return (id == 1 || id == 4); }
   bool admit_relation(uint id) const override { return (id == 1 || id == 4); }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Difference_5 : public Accept_All_Tags
 {
-  Accept_Difference_5(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Difference_5() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return (id == 1 || id == 4); }
   bool admit_relation(uint id) const override { return false; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Difference_6 : public Accept_All_Tags
 {
-  Accept_Difference_6(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Difference_6() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return (id == 1); }
   bool admit_relation(uint id) const override { return false; }
 
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Complete_1 : public Accept_All_Tags
 {
-  Accept_Complete_1(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Complete_1() {}
 
   bool admit_node(uint id) const override { return id == 1; }
   bool admit_way(uint id) const override { return id == 2; }
   bool admit_relation(uint id) const override { return id == 3; }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_Complete_6 : public Accept_All_Tags
 {
-  Accept_Complete_6(uint pattern_size_, bool admit_node_4_) : pattern_size(pattern_size_), admit_node_4(admit_node_4_) {}
+  Accept_Complete_6(bool admit_node_4_) : admit_node_4(admit_node_4_) {}
 
   bool admit_node(uint id) const override { return id == 1 || (id == 4 && admit_node_4); }
   bool admit_way(uint id) const override { return id == 2; }
   bool admit_relation(uint id) const override { return id == 3; }
 
   private:
-    uint pattern_size;
     bool admit_node_4;
 };
 
@@ -2896,7 +2589,7 @@ struct Accept_Polygon_4 : public Accept_All_Tags
 
 struct Accept_Polygon_5 : public Accept_All_Tags
 {
-  Accept_Polygon_5(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Polygon_5() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
@@ -2904,14 +2597,11 @@ struct Accept_Polygon_5 : public Accept_All_Tags
   {
     return (id == 18 || id == 22);
   }
-
-  private:
-    uint pattern_size;
 };
 
 struct Accept_All_But_5 : public Accept_All_Tags
 {
-  Accept_All_But_5(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_All_But_5(uint ) {}
 
   bool admit_node(uint id) const override
       { return (id != 5); }
@@ -2919,9 +2609,6 @@ struct Accept_All_But_5 : public Accept_All_Tags
       { return (id != 5); }
   bool admit_relation(uint id) const override
       { return (id != 5); }
-
-  private:
-    uint pattern_size;
 };
 
 double great_circle_dist(double lat1, double lon1, double lat2, double lon2)
@@ -3038,28 +2725,23 @@ private:
 
 struct Accept_Around_18 : public Accept_All_Tags
 {
-  Accept_Around_18(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Around_18()  {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return false; }
   bool admit_relation(uint id) const override
   { return id <= 11 && id != 5 && id != 7 && id != 9; }
 
-private:
-  uint pattern_size;
 };
 
 
 struct Accept_Around_19 : public Accept_All_Tags
 {
-  Accept_Around_19(uint pattern_size_) : pattern_size(pattern_size_) {}
+  Accept_Around_19() {}
 
   bool admit_node(uint id) const override { return false; }
   bool admit_way(uint id) const override { return id == 1; }
   bool admit_relation(uint id) const override { return false; }
-
-private:
-  uint pattern_size;
 };
 
 
@@ -3378,7 +3060,7 @@ int main(int argc, char* args[])
     else if (std::string(args[2]) == "recurse_2")
       modifier = new Accept_Recurse_2(pattern_size);
     else if (std::string(args[2]) == "recurse_3")
-      modifier = new Accept_Recurse_3(pattern_size);
+      modifier = new Accept_Recurse_3();
     else if (std::string(args[2]) == "recurse_4")
       modifier = new Accept_Recurse_4(pattern_size);
     else if (std::string(args[2]) == "recurse_5")
@@ -3386,15 +3068,15 @@ int main(int argc, char* args[])
     else if (std::string(args[2]) == "recurse_6")
       modifier = new Accept_Recurse_6(pattern_size);
     else if (std::string(args[2]) == "recurse_7")
-      modifier = new Accept_Recurse_7(pattern_size);
+      modifier = new Accept_Recurse_7();
     else if (std::string(args[2]) == "recurse_8")
       modifier = new Accept_Recurse_8(pattern_size);
     else if (std::string(args[2]) == "recurse_9")
-      modifier = new Accept_Recurse_9(pattern_size);
+      modifier = new Accept_Recurse_9();
     else if (std::string(args[2]) == "recurse_10")
-      modifier = new Accept_Recurse_10(pattern_size);
+      modifier = new Accept_Recurse_10();
     else if (std::string(args[2]) == "recurse_11")
-      modifier = new Accept_Recurse_11(pattern_size);
+      modifier = new Accept_Recurse_11();
     else if (std::string(args[2]) == "recurse_12")
       modifier = new Accept_Recurse_12(pattern_size);
     else if (std::string(args[2]) == "recurse_13")
@@ -3406,29 +3088,29 @@ int main(int argc, char* args[])
     else if (std::string(args[2]) == "recurse_16")
       modifier = new Accept_Recurse_16(pattern_size);
     else if (std::string(args[2]) == "recurse_17")
-      modifier = new Accept_Recurse_17(pattern_size);
+      modifier = new Accept_Recurse_17();
     else if (std::string(args[2]) == "recurse_18")
       modifier = new Accept_Recurse_18(pattern_size);
     else if (std::string(args[2]) == "recurse_19")
-      modifier = new Accept_Recurse_19(pattern_size);
+      modifier = new Accept_Recurse_19();
     else if (std::string(args[2]) == "recurse_20")
-      modifier = new Accept_Recurse_20(pattern_size);
+      modifier = new Accept_Recurse_20();
     else if (std::string(args[2]) == "recurse_21")
       modifier = new Accept_Recurse_21(pattern_size);
     else if (std::string(args[2]) == "recurse_22")
       modifier = new Accept_Recurse_21(pattern_size); //recurse_21 and recurse_22 are equal
     else if (std::string(args[2]) == "recurse_23")
-      modifier = new Accept_Recurse_23(pattern_size);
+      modifier = new Accept_Recurse_23();
     else if (std::string(args[2]) == "recurse_24")
-      modifier = new Accept_Recurse_24(pattern_size);
+      modifier = new Accept_Recurse_24();
     else if (std::string(args[2]) == "recurse_25")
       modifier = new Accept_Recurse_25(pattern_size);
     else if (std::string(args[2]) == "recurse_26")
-      modifier = new Accept_Recurse_26(pattern_size);
+      modifier = new Accept_Recurse_26();
     else if (std::string(args[2]) == "recurse_27")
-      modifier = new Accept_Recurse_27(pattern_size);
+      modifier = new Accept_Recurse_27();
     else if (std::string(args[2]) == "recurse_28")
-      modifier = new Accept_Recurse_28(pattern_size);
+      modifier = new Accept_Recurse_28();
     else if (std::string(args[2]) == "bbox_query_1")
       modifier = new Accept_Bbox_Query_1(pattern_size);
     else if (std::string(args[2]) == "bbox_query_2")
@@ -3438,66 +3120,66 @@ int main(int argc, char* args[])
     else if (std::string(args[2]) == "bbox_query_4")
       modifier = new Accept_Bbox_Query_4(pattern_size);
     else if (std::string(args[2]) == "bbox_query_5")
-      modifier = new Accept_Bbox_Query_5(pattern_size);
+      modifier = new Accept_Bbox_Query_5();
     else if (std::string(args[2]) == "bbox_query_6")
       modifier = new Accept_Bbox_Query_6(pattern_size);
     else if (std::string(args[2]) == "bbox_query_7")
       // bbox-query five and bboy-query seven shall both return an empty std::set.
-      modifier = new Accept_Bbox_Query_5(pattern_size);
+      modifier = new Accept_Bbox_Query_5();
     else if (std::string(args[2]) == "bbox_query_8")
       modifier = new Accept_Bbox_Query_8(pattern_size);
     else if (std::string(args[2]) == "query_1")
-      modifier = new Accept_Query_1(pattern_size);
+      modifier = new Accept_Query_1();
     else if (std::string(args[2]) == "query_2")
-      modifier = new Accept_Query_2(pattern_size);
+      modifier = new Accept_Query_2();
     else if (std::string(args[2]) == "query_3")
-      modifier = new Accept_Query_3(pattern_size);
+      modifier = new Accept_Query_3();
     else if (std::string(args[2]) == "query_4")
-      modifier = new Accept_Query_4(pattern_size);
+      modifier = new Accept_Query_4();
     else if (std::string(args[2]) == "query_5")
-      modifier = new Accept_Query_5(pattern_size);
+      modifier = new Accept_Query_5();
     else if (std::string(args[2]) == "query_6")
-      modifier = new Accept_Query_6(pattern_size);
+      modifier = new Accept_Query_6();
     else if (std::string(args[2]) == "query_7")
-      modifier = new Accept_Query_7(pattern_size);
+      modifier = new Accept_Query_7();
     else if (std::string(args[2]) == "query_8")
-      modifier = new Accept_Query_8(pattern_size);
+      modifier = new Accept_Query_8();
     else if (std::string(args[2]) == "query_9")
       modifier = new Accept_Query_9(pattern_size);
     else if (std::string(args[2]) == "query_10")
       modifier = new Accept_Query_10(pattern_size);
     else if (std::string(args[2]) == "query_11")
-      modifier = new Accept_Query_11(pattern_size);
+      modifier = new Accept_Query_11();
     else if (std::string(args[2]) == "query_12")
-      modifier = new Accept_Query_12(pattern_size);
+      modifier = new Accept_Query_12();
     else if (std::string(args[2]) == "query_13")
-      modifier = new Accept_Query_13(pattern_size);
+      modifier = new Accept_Query_13();
     else if (std::string(args[2]) == "query_14")
-      modifier = new Accept_Query_14(pattern_size);
+      modifier = new Accept_Query_14();
     else if (std::string(args[2]) == "query_15")
-      modifier = new Accept_Query_15(pattern_size);
+      modifier = new Accept_Query_15();
     else if (std::string(args[2]) == "query_16")
       // query 16 and query 5 shall both return an empty std::set.
-      modifier = new Accept_Query_5(pattern_size);
+      modifier = new Accept_Query_5();
     else if (std::string(args[2]) == "query_17")
-      modifier = new Accept_Query_17(pattern_size);
+      modifier = new Accept_Query_17();
     else if (std::string(args[2]) == "query_18")
-      modifier = new Accept_Query_18(pattern_size);
+      modifier = new Accept_Query_18();
     else if (std::string(args[2]) == "query_19")
-      modifier = new Accept_Query_19(pattern_size);
+      modifier = new Accept_Query_19();
     else if (std::string(args[2]) == "query_20")
-      modifier = new Accept_Query_20(pattern_size);
+      modifier = new Accept_Query_20();
     else if (std::string(args[2]) == "query_21")
-      modifier = new Accept_Query_21(pattern_size);
+      modifier = new Accept_Query_21();
     else if (std::string(args[2]) == "query_22")
-      modifier = new Accept_Query_22(pattern_size);
+      modifier = new Accept_Query_22();
     else if (std::string(args[2]) == "query_23")
-      modifier = new Accept_Query_23(pattern_size);
+      modifier = new Accept_Query_23();
     else if (std::string(args[2]) == "query_24")
       // query 24 and query 5 shall both return an empty std::set.
-      modifier = new Accept_Query_5(pattern_size);
+      modifier = new Accept_Query_5();
     else if (std::string(args[2]) == "query_25")
-      modifier = new Accept_Query_25(pattern_size);
+      modifier = new Accept_Query_25();
     else if (std::string(args[2]) == "query_26")
       modifier = new Accept_Around_1(pattern_size, 200.1, false, 11);
     else if (std::string(args[2]) == "query_27")
@@ -3511,23 +3193,23 @@ int main(int argc, char* args[])
     else if (std::string(args[2]) == "query_31")
       modifier = new Accept_Query_31(pattern_size);
     else if (std::string(args[2]) == "query_32")
-      modifier = new Accept_Query_1(pattern_size);
+      modifier = new Accept_Query_1();
     else if (std::string(args[2]) == "query_33")
-      modifier = new Accept_Query_1(pattern_size);
+      modifier = new Accept_Query_1();
     else if (std::string(args[2]) == "query_34")
-      modifier = new Accept_Query_25(pattern_size);
+      modifier = new Accept_Query_25();
     else if (std::string(args[2]) == "query_35")
-      modifier = new Accept_Query_25(pattern_size);
+      modifier = new Accept_Query_25();
     else if (std::string(args[2]) == "query_36")
-      modifier = new Accept_Query_17(pattern_size);
+      modifier = new Accept_Query_17();
     else if (std::string(args[2]) == "query_37")
       modifier = new Accept_Query_37(pattern_size);
     else if (std::string(args[2]) == "query_38")
       modifier = new Accept_Query_38(pattern_size);
     else if (std::string(args[2]) == "query_39")
-      modifier = new Accept_Query_39(pattern_size);
+      modifier = new Accept_Query_39();
     else if (std::string(args[2]) == "query_40")
-      modifier = new Accept_Query_40(pattern_size);
+      modifier = new Accept_Query_40();
     else if (std::string(args[2]) == "query_41")
       modifier = new Accept_Query_41(pattern_size);
     else if (std::string(args[2]) == "query_42")
@@ -3537,17 +3219,17 @@ int main(int argc, char* args[])
     else if (std::string(args[2]) == "query_44")
       modifier = new Accept_Query_44(pattern_size);
     else if (std::string(args[2]) == "query_45")
-      modifier = new Accept_Query_45(pattern_size);
+      modifier = new Accept_Query_45();
     else if (std::string(args[2]) == "query_46")
-      modifier = new Accept_Query_46(pattern_size);
+      modifier = new Accept_Query_46();
     else if (std::string(args[2]) == "query_47")
-      modifier = new Accept_Query_47(pattern_size);
+      modifier = new Accept_Query_47();
     else if (std::string(args[2]) == "query_48")
-      modifier = new Accept_Query_45(pattern_size);
+      modifier = new Accept_Query_45();
     else if (std::string(args[2]) == "query_49")
-      modifier = new Accept_Query_46(pattern_size);
+      modifier = new Accept_Query_46();
     else if (std::string(args[2]) == "query_50")
-      modifier = new Accept_Query_47(pattern_size);
+      modifier = new Accept_Query_47();
     else if (std::string(args[2]) == "query_51")
       modifier = new Accept_Query_51(pattern_size);
     else if (std::string(args[2]) == "query_52")
@@ -3579,15 +3261,15 @@ int main(int argc, char* args[])
     else if (std::string(args[2]) == "query_65")
       modifier = new Accept_Query_65(pattern_size);
     else if (std::string(args[2]) == "query_66")
-      modifier = new Accept_Query_66(pattern_size);
+      modifier = new Accept_Query_66();
     else if (std::string(args[2]) == "query_67")
-      modifier = new Accept_Query_67(pattern_size);
+      modifier = new Accept_Query_67();
     else if (std::string(args[2]) == "query_68")
-      modifier = new Accept_Query_68(pattern_size);
+      modifier = new Accept_Query_68();
     else if (std::string(args[2]) == "query_69")
-      modifier = new Accept_Query_69(pattern_size);
+      modifier = new Accept_Query_69();
     else if (std::string(args[2]) == "query_70")
-      modifier = new Accept_Query_70(pattern_size);
+      modifier = new Accept_Query_70();
     else if (std::string(args[2]) == "query_71")
       modifier = new Accept_Query_71(pattern_size);
     else if (std::string(args[2]) == "query_72")
@@ -3599,92 +3281,92 @@ int main(int argc, char* args[])
     else if (std::string(args[2]) == "query_75")
       modifier = new Accept_Query_75(pattern_size);
     else if (std::string(args[2]) == "query_76")
-      modifier = new Accept_Query_76(pattern_size);
+      modifier = new Accept_Query_76();
     else if (std::string(args[2]) == "query_77")
-      modifier = new Accept_Query_77(pattern_size);
+      modifier = new Accept_Query_77();
     else if (std::string(args[2]) == "query_78")
       modifier = new Accept_Query_78(pattern_size);
     else if (std::string(args[2]) == "query_79")
-      modifier = new Accept_Query_79(pattern_size);
+      modifier = new Accept_Query_79();
     else if (std::string(args[2]) == "query_80")
       modifier = new Accept_Query_80(pattern_size);
     else if (std::string(args[2]) == "query_81")
-      modifier = new Accept_Query_81(pattern_size);
+      modifier = new Accept_Query_81();
     else if (std::string(args[2]) == "query_82")
-      modifier = new Accept_Query_82(pattern_size);
+      modifier = new Accept_Query_82();
     else if (std::string(args[2]) == "query_83")
-      modifier = new Accept_Query_83(pattern_size);
+      modifier = new Accept_Query_83();
     else if (std::string(args[2]) == "query_84")
-      modifier = new Accept_Query_84(pattern_size);
+      modifier = new Accept_Query_84();
     else if (std::string(args[2]) == "query_85")
-      modifier = new Accept_Query_85(pattern_size);
+      modifier = new Accept_Query_85();
     else if (std::string(args[2]) == "query_86")
-      modifier = new Accept_Query_86(pattern_size);
+      modifier = new Accept_Query_86();
     else if (std::string(args[2]) == "query_87")
-      modifier = new Accept_Query_87(pattern_size);
+      modifier = new Accept_Query_87();
     else if (std::string(args[2]) == "query_88")
-      modifier = new Accept_Query_88(pattern_size);
+      modifier = new Accept_Query_88();
     else if (std::string(args[2]) == "query_89")
-      modifier = new Accept_Query_89(pattern_size);
+      modifier = new Accept_Query_89();
     else if (std::string(args[2]) == "query_90")
-      modifier = new Accept_Query_90(pattern_size);
+      modifier = new Accept_Query_90();
     else if (std::string(args[2]) == "query_91")
-      modifier = new Accept_Query_91(pattern_size);
+      modifier = new Accept_Query_91();
     else if (std::string(args[2]) == "query_92")
-      modifier = new Accept_Query_92(pattern_size);
+      modifier = new Accept_Query_92();
     else if (std::string(args[2]) == "query_93")
-      modifier = new Accept_Query_93(pattern_size);
+      modifier = new Accept_Query_93();
     else if (std::string(args[2]) == "query_94")
-      modifier = new Accept_Query_94(pattern_size);
+      modifier = new Accept_Query_94();
     else if (std::string(args[2]) == "query_95")
-      modifier = new Accept_Query_95(pattern_size);
+      modifier = new Accept_Query_95();
     else if (std::string(args[2]) == "query_96")
-      modifier = new Accept_Query_96(pattern_size);
+      modifier = new Accept_Query_96();
     else if (std::string(args[2]) == "query_97")
-      modifier = new Accept_Query_97(pattern_size);
+      modifier = new Accept_Query_97();
     else if (std::string(args[2]) == "query_98")
-      modifier = new Accept_Query_98(pattern_size);
+      modifier = new Accept_Query_98();
     else if (std::string(args[2]) == "query_99")
-      modifier = new Accept_Query_99(pattern_size);
+      modifier = new Accept_Query_99();
     else if (std::string(args[2]) == "query_100")
-      modifier = new Accept_Query_100(pattern_size);
+      modifier = new Accept_Query_100();
     else if (std::string(args[2]) == "query_101")
-      modifier = new Accept_Query_101(pattern_size);
+      modifier = new Accept_Query_101();
     else if (std::string(args[2]) == "query_102")
-      modifier = new Accept_Query_102(pattern_size);
+      modifier = new Accept_Query_102();
     else if (std::string(args[2]) == "query_103")
-      modifier = new Accept_Query_103(pattern_size);
+      modifier = new Accept_Query_103();
     else if (std::string(args[2]) == "query_104")
-      modifier = new Accept_Query_104(pattern_size);
+      modifier = new Accept_Query_104();
     else if (std::string(args[2]) == "query_105")
-      modifier = new Accept_Query_105(pattern_size);
+      modifier = new Accept_Query_105();
     else if (std::string(args[2]) == "query_106")
       modifier = new Accept_Query_106(pattern_size);
     else if (std::string(args[2]) == "query_107")
       modifier = new Accept_Query_107(pattern_size);
     else if (std::string(args[2]) == "query_108")
-      modifier = new Accept_Query_108(pattern_size);
+      modifier = new Accept_Query_108();
     else if (std::string(args[2]) == "query_109")
       modifier = new Accept_Query_109(pattern_size);
     else if (std::string(args[2]) == "query_110")
       modifier = new Accept_Query_110(pattern_size);
     else if (std::string(args[2]) == "query_111")
-      modifier = new Accept_Query_111(pattern_size);
+      modifier = new Accept_Query_111();
     else if (std::string(args[2]) == "query_112")
       // query 112 and query 5 shall both return an empty std::set.
-      modifier = new Accept_Query_5(pattern_size);
+      modifier = new Accept_Query_5();
     else if (std::string(args[2]) == "query_113")
       modifier = new Accept_Query_113(pattern_size);
     else if (std::string(args[2]) == "query_114")
-      modifier = new Accept_Query_114(pattern_size);
+      modifier = new Accept_Query_114();
     else if (std::string(args[2]) == "query_115")
       // query 115 and query 5 shall both return an empty std::set.
-      modifier = new Accept_Query_5(pattern_size);
+      modifier = new Accept_Query_5();
     else if (std::string(args[2]) == "query_116")
       // query 116 and 113 shall return the same result
       modifier = new Accept_Query_113(pattern_size);
     else if (std::string(args[2]) == "query_117")
-      modifier = new Accept_Query_117(pattern_size);
+      modifier = new Accept_Query_117();
     else if (std::string(args[2]) == "query_118")
       modifier = new Accept_Query_118(pattern_size);
     else if (std::string(args[2]) == "query_119")
@@ -3712,33 +3394,33 @@ int main(int argc, char* args[])
     else if (std::string(args[2]) == "query_130")
       modifier = new Accept_Query_38(pattern_size);
     else if (std::string(args[2]) == "query_131")
-      modifier = new Accept_Query_39(pattern_size);
+      modifier = new Accept_Query_39();
     else if (std::string(args[2]) == "query_132")
-      modifier = new Accept_Query_40(pattern_size);
+      modifier = new Accept_Query_40();
     else if (std::string(args[2]) == "query_133")
-      modifier = new Accept_Recurse_23(pattern_size);
+      modifier = new Accept_Recurse_23();
     else if (std::string(args[2]) == "query_134")
       modifier = new Accept_Recurse_25(pattern_size);
     else if (std::string(args[2]) == "query_135")
-      modifier = new Accept_Recurse_27(pattern_size);
+      modifier = new Accept_Recurse_27();
     else if (std::string(args[2]) == "query_136")
-      modifier = new Accept_Recurse_24(pattern_size);
+      modifier = new Accept_Recurse_24();
     else if (std::string(args[2]) == "query_137")
-      modifier = new Accept_Recurse_26(pattern_size);
+      modifier = new Accept_Recurse_26();
     else if (std::string(args[2]) == "query_138")
-      modifier = new Accept_Recurse_28(pattern_size);
+      modifier = new Accept_Recurse_28();
     else if (std::string(args[2]) == "query_139")
-      modifier = new Accept_Query_139(pattern_size);
+      modifier = new Accept_Query_139();
     else if (std::string(args[2]) == "query_140")
-      modifier = new Accept_Query_140(pattern_size);
+      modifier = new Accept_Query_140();
     else if (std::string(args[2]) == "query_141")
-      modifier = new Accept_Query_141(pattern_size);
+      modifier = new Accept_Query_141();
     else if (std::string(args[2]) == "query_142")
-      modifier = new Accept_Query_142(pattern_size);
+      modifier = new Accept_Query_142();
     else if (std::string(args[2]) == "query_143")
-      modifier = new Accept_Query_143(pattern_size);
+      modifier = new Accept_Query_143();
     else if (std::string(args[2]) == "query_144")
-      modifier = new Accept_Query_144(pattern_size);
+      modifier = new Accept_Query_144();
     else if (std::string(args[2]) == "query_145")
       modifier = new Accept_Query_145(pattern_size);
     else if (std::string(args[2]) == "query_146")
@@ -3758,17 +3440,17 @@ int main(int argc, char* args[])
     else if (std::string(args[2]) == "query_153")
       modifier = new Accept_Query_153(pattern_size);
     else if (std::string(args[2]) == "query_154")
-      modifier = new Accept_Query_154(pattern_size);
+      modifier = new Accept_Query_154();
     else if (std::string(args[2]) == "query_155")
-      modifier = new Accept_Query_155(pattern_size);
+      modifier = new Accept_Query_155();
     else if (std::string(args[2]) == "query_156")
-      modifier = new Accept_Query_156(pattern_size);
+      modifier = new Accept_Query_156();
     else if (std::string(args[2]) == "query_157")
-      modifier = new Accept_Query_157(pattern_size);
+      modifier = new Accept_Query_157();
     else if (std::string(args[2]) == "query_158")
-      modifier = new Accept_Query_158(pattern_size);
+      modifier = new Accept_Query_158();
     else if (std::string(args[2]) == "query_159")
-      modifier = new Accept_Query_159(pattern_size);
+      modifier = new Accept_Query_159();
     else if (std::string(args[2]) == "query_160")
       modifier = new Accept_Query_160(pattern_size, true, true, true, true, true, true);
     else if (std::string(args[2]) == "query_161")
@@ -3790,15 +3472,15 @@ int main(int argc, char* args[])
     else if (std::string(args[2]) == "query_169")
       modifier = new Accept_Query_160(pattern_size, false, false, false, false, true, false);
     else if (std::string(args[2]) == "query_170")
-      modifier = new Accept_Query_170(pattern_size);
+      modifier = new Accept_Query_170();
     else if (std::string(args[2]) == "query_171")
-      modifier = new Accept_Query_171(pattern_size);
+      modifier = new Accept_Query_171();
     else if (std::string(args[2]) == "query_172")
-      modifier = new Accept_Query_172(pattern_size);
+      modifier = new Accept_Query_172();
     else if (std::string(args[2]) == "query_173")
-      modifier = new Accept_Query_173(pattern_size);
+      modifier = new Accept_Query_173();
     else if (std::string(args[2]) == "query_174")
-      modifier = new Accept_Query_174(pattern_size);
+      modifier = new Accept_Query_174();
     else if (std::string(args[2]) == "foreach_1")
       modifier = new Accept_Foreach_1(pattern_size);
     else if (std::string(args[2]) == "foreach_2")
@@ -3810,42 +3492,42 @@ int main(int argc, char* args[])
       // query 1 and 4 shall both return the same set.
       modifier = new Accept_Foreach_1(pattern_size);
     else if (std::string(args[2]) == "union_1")
-      modifier = new Accept_Union_1(pattern_size);
+      modifier = new Accept_Union_1();
     else if (std::string(args[2]) == "union_2")
-      modifier = new Accept_Union_2(pattern_size);
+      modifier = new Accept_Union_2();
     else if (std::string(args[2]) == "union_3")
       // query 1 and 3 shall return the same result
-      modifier = new Accept_Union_1(pattern_size);
+      modifier = new Accept_Union_1();
     else if (std::string(args[2]) == "union_4")
-      modifier = new Accept_Union_4(pattern_size);
+      modifier = new Accept_Union_4();
     else if (std::string(args[2]) == "union_5")
-      modifier = new Accept_Union_5(pattern_size);
+      modifier = new Accept_Union_5();
     else if (std::string(args[2]) == "union_6")
-      modifier = new Accept_Union_6(pattern_size);
+      modifier = new Accept_Union_6();
     else if (std::string(args[2]) == "difference_1")
-      modifier = new Accept_Difference_1(pattern_size);
+      modifier = new Accept_Difference_1();
     else if (std::string(args[2]) == "difference_2")
-      modifier = new Accept_Difference_2(pattern_size);
+      modifier = new Accept_Difference_2();
     else if (std::string(args[2]) == "difference_3")
-      modifier = new Accept_Difference_1(pattern_size);
+      modifier = new Accept_Difference_1();
     else if (std::string(args[2]) == "difference_4")
-      modifier = new Accept_Difference_4(pattern_size);
+      modifier = new Accept_Difference_4();
     else if (std::string(args[2]) == "difference_5")
-      modifier = new Accept_Difference_5(pattern_size);
+      modifier = new Accept_Difference_5();
     else if (std::string(args[2]) == "difference_6")
-      modifier = new Accept_Difference_6(pattern_size);
+      modifier = new Accept_Difference_6();
     else if (std::string(args[2]) == "complete_1")
-      modifier = new Accept_Complete_1(pattern_size);
+      modifier = new Accept_Complete_1();
     else if (std::string(args[2]) == "complete_2")
-      modifier = new Accept_Complete_1(pattern_size);
+      modifier = new Accept_Complete_1();
     else if (std::string(args[2]) == "complete_3")
-      modifier = new Accept_Complete_1(pattern_size);
+      modifier = new Accept_Complete_1();
     else if (std::string(args[2]) == "complete_4")
-      modifier = new Accept_Complete_1(pattern_size);
+      modifier = new Accept_Complete_1();
     else if (std::string(args[2]) == "complete_5")
-      modifier = new Accept_Complete_1(pattern_size);
+      modifier = new Accept_Complete_1();
     else if (std::string(args[2]) == "complete_6")
-      modifier = new Accept_Complete_6(pattern_size, false);
+      modifier = new Accept_Complete_6(false);
     else if (std::string(args[2]) == "complete_7")
       modifier = new Accept_Complete_7(pattern_size, 0);
     else if (std::string(args[2]) == "if_1")
@@ -3887,9 +3569,9 @@ int main(int argc, char* args[])
     else if (std::string(args[2]) == "around_17")
       modifier = new Accept_Around_17(pattern_size);
     else if (std::string(args[2]) == "around_18")
-      modifier = new Accept_Around_18(pattern_size);
+      modifier = new Accept_Around_18();
     else if (std::string(args[2]) == "around_19")
-      modifier = new Accept_Around_19(pattern_size);
+      modifier = new Accept_Around_19();
     else if (std::string(args[2]) == "polygon_query_1")
       modifier = new Accept_Polygon_1(pattern_size);
     else if (std::string(args[2]) == "polygon_query_2")
@@ -3899,7 +3581,7 @@ int main(int argc, char* args[])
     else if (std::string(args[2]) == "polygon_query_4")
       modifier = new Accept_Polygon_4(pattern_size);
     else if (std::string(args[2]) == "polygon_query_5")
-      modifier = new Accept_Polygon_5(pattern_size);
+      modifier = new Accept_Polygon_5();
     else if (std::string(args[2]) == "diff_do")
       modifier = new Accept_All;
     else if (std::string(args[2]) == "diff_compare")
@@ -3908,7 +3590,7 @@ int main(int argc, char* args[])
       modifier = new Accept_All;
     else
       // return an empty osm file otherwise
-      modifier = new Accept_Bbox_Query_5(pattern_size);
+      modifier = new Accept_Bbox_Query_5();
   }
   else
     modifier = new Accept_All;
@@ -5848,14 +5530,14 @@ int main(int argc, char* args[])
     create_relation_test_pattern(0, pattern_size, global_node_offset, modifier);
 
     delete modifier;
-    modifier = new Accept_Complete_6(pattern_size, true);
+    modifier = new Accept_Complete_6(true);
 
     create_node_test_pattern(51.0, 52.0, 7.0, 8.0, 0, pattern_size, global_node_offset, modifier);
     create_way_test_pattern(0, pattern_size, global_node_offset, modifier);
     create_relation_test_pattern(0, pattern_size, global_node_offset, modifier);
 
     delete modifier;
-    modifier = new Accept_Complete_6(pattern_size, true);
+    modifier = new Accept_Complete_6(true);
 
     create_node_test_pattern(51.0, 52.0, 7.0, 8.0, 0, pattern_size, global_node_offset, modifier);
     create_way_test_pattern(0, pattern_size, global_node_offset, modifier);

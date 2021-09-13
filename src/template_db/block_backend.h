@@ -30,7 +30,7 @@
 template <typename...> using void_t = void;
 
 template< typename Object >
-class Handle;
+struct Handle;
 
 template <class T, class Object>
 struct Empty_Handle { };
