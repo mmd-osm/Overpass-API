@@ -25,14 +25,14 @@
 #include "statement.h"
 
 
-// Tries to make an area from the ways in the "from"-std::set.
+// Tries to make an area from the ways in the "from"-set.
 // It assumes that
 // - all nodes referenced in the ways exist also in the nodes
 // - the ways do intersect each other only at nodes that are members of all involved ways
 // - the ways can be concatenated such that they form only closed ways.
 // It produces the datastructure Area described in script_datatypes.h
 // - due to the size restrictions, the algorithm might split up line segments and produce
-//   addtional vertices. It does not add nodes for these datastructures to the "into"-std::set,
+//   addtional vertices. It does not add nodes for these datastructures to the "into"-set,
 //   they are contained only in the Area dataset.
 class Make_Area_Statement final : public Output_Statement
 {
@@ -48,6 +48,22 @@ class Make_Area_Statement final : public Output_Statement
     static Generic_Statement_Maker< Make_Area_Statement > statement_maker;
 
     static bool is_used() { return make_area_stmt_ref_counter_ > 0; }
+
+    std::string dump_ql_in_query(const std::string&) const override { return "." + input; }
+
+    std::string dump_compact_ql(const std::string& indent) const override
+    {
+      std::string result = indent +  (input == "_" ? "" : "." + input + " ") +
+          "make_area[." + pivot + "]";
+      return result + dump_ql_result_name() + ";";
+    }
+
+    std::string dump_pretty_ql(const std::string& indent) const override
+    {
+      std::string result = indent +  (input == "_" ? "" : "." + input + " ") +
+          "make_area[." + pivot + "]";
+      return result + dump_ql_result_name() + ";";
+    }
 
   private:
     std::string input, pivot;

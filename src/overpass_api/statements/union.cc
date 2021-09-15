@@ -107,9 +107,9 @@ bool Union_Statement::union_fast_path(Resource_Manager& rman)
         s->dump_compact_ql("").find("->.") != std::string::npos)
       return false;
 
-    // TODO: make-area doesn't have proper dump_ql_in_query implementation, method returns an empty string only!
-
-    const auto input_name = s->dump_ql_in_query("").replace(0, 1, "");   // avoid dynamic casts to Item_Statement!
+    // to avoid dynamic casts to Item_Statement or Make_Area_Statement,
+    // we simply remove the leading "." to retrieve the statement's input_name
+    const auto input_name = s->dump_ql_in_query("").replace(0, 1, "");
 
     if (input_name == get_result_name())
       result_name_found = true;
