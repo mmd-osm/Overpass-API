@@ -512,8 +512,8 @@ void File_Blocks_Range_Iterator< TIndex, TRangeIterator >::find_next_block()
       auto lower_bound_entry(File_Block_Index_Entry<TIndex>(index_it.lower_bound(), 0, 0, 0));
 
       auto lower = std::lower_bound(this->block_begin, this->block_end, lower_bound_entry,
-                                    [](File_Block_Index_Entry<TIndex> lhs,
-                                       File_Block_Index_Entry<TIndex> rhs) -> bool {
+                                    [](const File_Block_Index_Entry<TIndex> & lhs,
+                                       const File_Block_Index_Entry<TIndex> & rhs) -> bool {
                                          return lhs.index < rhs.index; });
 
       auto dist = std::distance(this->block_it, lower);
