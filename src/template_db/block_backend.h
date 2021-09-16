@@ -660,15 +660,13 @@ struct Block_Backend
     Discrete_Iterator* discrete_end_it;
     Range_Iterator* range_end_it;
     uint32 block_size;
-    std::string data_filename;
 };
 
 
 template< class TIndex, class TObject, class TIterator, class TRangeAssessor, class TDiscreteAssessor >
 Block_Backend< TIndex, TObject, TIterator, TRangeAssessor, TDiscreteAssessor >::Block_Backend(File_Blocks_Index_Base* index_)
   : file_blocks(index_),
-    block_size(index_->get_block_size() * index_->get_compression_factor()),
-    data_filename(index_->get_data_file_name())
+    block_size(index_->get_block_size() * index_->get_compression_factor())
 {
   flat_end_it = new Flat_Iterator(file_blocks, block_size, true);
   discrete_end_it = new Discrete_Iterator(file_blocks, block_size);

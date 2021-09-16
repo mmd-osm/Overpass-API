@@ -83,7 +83,6 @@ struct Block_Backend_Updater
     File_Blocks_ file_blocks;
     uint32 block_size;
     std::set< TIndex > relevant_idxs;
-    std::string data_filename;
 
     void calc_split_idxs
         (std::vector< TIndex >& split,
@@ -141,8 +140,7 @@ struct Block_Backend_Updater
 template< class TIndex, class TObject, class TIterator >
 Block_Backend_Updater< TIndex, TObject, TIterator >::Block_Backend_Updater(File_Blocks_Index_Base* index_)
   : file_blocks(index_),
-    block_size(index_->get_block_size() * index_->get_compression_factor()),
-    data_filename(index_->get_data_file_name())
+    block_size(index_->get_block_size() * index_->get_compression_factor())
 {
 
 }
@@ -331,7 +329,7 @@ void Block_Backend_Updater< Index, Object, TIterator >::flush_if_necessary_and_w
     if (idx_size + obj_size + 8 > block_size)
     {
       if (obj_size > 64*1024*1024)
-          throw File_Error(0, data_filename, "Block_Backend: an item's size exceeds limit of 64 MiB.");
+          throw File_Error(0, file_blocks.get_index().get_data_file_name(), "Block_Backend: an item's size exceeds limit of 64 MiB.");
 
       uint buf_scale = (idx_size + obj_size + 7)/block_size + 1;
       Void64_Pointer< uint64 > large_buf(buf_scale * block_size);
@@ -726,7 +724,7 @@ void Block_Backend_Updater< TIndex, TObject, TIterator >::copy_and_delete_on_the
 
   //copy everything that is not deleted yet
   if (*(uint32*)source_start_ptr != *(((uint32*)source_start_ptr)+1))
-    throw File_Error(0, data_filename, "Block_Backend: one index expected - several found.");
+    throw File_Error(0, file_blocks.get_index().get_data_file_name(), "Block_Backend: one index expected - several found.");
 
   while ((uint32)(spos - (uint8*)source_start_ptr) < *(uint32*)source_start_ptr)
   {
