@@ -379,9 +379,9 @@ void Make_Area_Statement::execute(Resource_Manager& rman)
   }
 
   if (pivot_type == WAY)
-    pivot_id += 2400000000u;
+    pivot_id += AREA_OFFSET_WAYS;
   else if (pivot_type == RELATION)
-    pivot_id += 3600000000u;
+    pivot_id += AREA_OFFSET_RELS;
 
   const Set* input_set = rman.get_set(input);
   if (!input_set)

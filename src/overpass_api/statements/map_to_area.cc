@@ -50,7 +50,7 @@ std::vector< Area_Skeleton::Id_Type > get_area_ids_for_ways(const std::map< Uint
     for (auto sit = it->second.begin();
         sit != it->second.end(); ++sit)
     {
-      area_ids.push_back(sit->id.val() + 2400000000u);
+      area_ids.push_back(sit->id.val() + AREA_OFFSET_WAYS);
     }
   }
 
@@ -64,7 +64,7 @@ std::vector< Area_Skeleton::Id_Type > get_area_ids_for_attic_ways(const std::map
   {
     for (auto sit = it->second.begin(); sit != it->second.end(); ++sit)
     {
-      area_ids.push_back(sit->id.val() + 2400000000u);
+      area_ids.push_back(sit->id.val() + AREA_OFFSET_WAYS);
     }
   }
 
@@ -78,7 +78,7 @@ std::vector< Area_Skeleton::Id_Type > get_area_ids_for_relations(const std::map<
   {
     for (auto sit = it->second.begin(); sit != it->second.end(); ++sit)
     {
-      area_ids.push_back(sit->id.val() + 3600000000u);
+      area_ids.push_back(sit->id.val() + AREA_OFFSET_RELS);
     }
   }
 
@@ -92,7 +92,7 @@ std::vector< Area_Skeleton::Id_Type > get_area_ids_for_attic_relations(const std
   {
     for (auto sit = it->second.begin(); sit != it->second.end(); ++sit)
     {
-      area_ids.push_back(sit->id.val() + 3600000000u);
+      area_ids.push_back(sit->id.val() + AREA_OFFSET_RELS);
     }
   }
 

@@ -30,6 +30,8 @@
 
 #include "basic_types.h"
 
+constexpr auto AREA_OFFSET_WAYS = 2400000000u;
+constexpr auto AREA_OFFSET_RELS = 3600000000u;
 
 struct Aligned_Segment
 {

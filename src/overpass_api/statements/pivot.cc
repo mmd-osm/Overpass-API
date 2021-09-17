@@ -92,7 +92,7 @@ std::vector< Node::Id_Type > get_node_pivot_ids(const std::map< Uint31_Index, st
   {
     for (auto sit = it->second.begin(); sit != it->second.end(); ++sit)
     {
-      if (sit->id.val() < 2400000000u)
+      if (sit->id.val() < AREA_OFFSET_WAYS)
         pivot_ids.push_back(sit->id.val());
     }
   }
@@ -109,8 +109,8 @@ std::vector< Way::Id_Type > get_way_pivot_ids(const std::map< Uint31_Index, std:
   {
     for (auto sit = it->second.begin(); sit != it->second.end(); ++sit)
     {
-      if (sit->id.val() > 2400000000u && sit->id.val() < 3600000000u)
-        pivot_ids.push_back(sit->id.val() - 2400000000u);
+      if (sit->id.val() > AREA_OFFSET_WAYS && sit->id.val() < AREA_OFFSET_RELS)
+        pivot_ids.push_back(sit->id.val() - AREA_OFFSET_WAYS);
     }
   }
   sort(pivot_ids.begin(), pivot_ids.end());
@@ -126,8 +126,8 @@ std::vector< Relation::Id_Type > get_relation_pivot_ids(const std::map< Uint31_I
   {
     for (auto sit = it->second.begin(); sit != it->second.end(); ++sit)
     {
-      if (sit->id.val() > 3600000000u)
-        pivot_ids.push_back(sit->id.val() - 3600000000u);
+      if (sit->id.val() > AREA_OFFSET_RELS)
+        pivot_ids.push_back(sit->id.val() - AREA_OFFSET_RELS);
     }
   }
   sort(pivot_ids.begin(), pivot_ids.end());
