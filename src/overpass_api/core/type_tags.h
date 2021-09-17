@@ -69,17 +69,17 @@ struct Tag_Index_Local
     value = std::string(((int8*)data + 7 + key.length()), unalignedLoad<uint16>((uint16*)data + 1));
   }
 
-  uint32 size_of() const
+  uint32 size_of() const noexcept
   {
     return 7 + key.length() + value.length();
   }
 
-  static uint32 size_of(const void* data)
+  static uint32 size_of(const void* data) noexcept
   {
     return unalignedLoad<uint16>(data) + unalignedLoad<uint16>((uint16*)data + 1) + 7;
   }
 
-  void to_data(void* data) const
+  void to_data(void* data) const noexcept
   {
     unalignedStore(data, (uint16) key.length());
     unalignedStore(((uint16*)data + 1), (uint16) value.length());
@@ -89,7 +89,7 @@ struct Tag_Index_Local
 	   value.length());
   }
 
-  bool operator<(const Tag_Index_Local& a) const
+  bool operator<(const Tag_Index_Local& a) const noexcept
   {
     if ((index & 0x7fffffff) != (a.index & 0x7fffffff))
       return ((index & 0x7fffffff) < (a.index & 0x7fffffff));
@@ -100,7 +100,7 @@ struct Tag_Index_Local
     return (value < a.value);
   }
 
-  bool operator==(const Tag_Index_Local& a) const
+  bool operator==(const Tag_Index_Local& a) const noexcept
   {
     if (index != a.index)
       return false;
@@ -293,17 +293,17 @@ struct Tag_Index_Global
 
   Tag_Index_Global(const std::string& key_, const std::string& value_) : key(key_), value(value_) {}
 
-  uint32 size_of() const
+  uint32 size_of() const noexcept
   {
     return 4 + key.length() + value.length();
   }
 
-  static uint32 size_of(const void* data)
+  static uint32 size_of(const void* data) noexcept
   {
     return (unalignedLoad<uint16>(data) + unalignedLoad<uint16>((uint16*)data + 1) + 4);
   }
 
-  void to_data(void* data) const
+  void to_data(void* data) const noexcept
   {
     unalignedStore(data, (uint16)key.length());
     unalignedStore(((uint16*)data + 1), (uint16)value.length());
@@ -312,14 +312,14 @@ struct Tag_Index_Global
 	   value.length());
   }
 
-  bool operator<(const Tag_Index_Global& a) const
+  bool operator<(const Tag_Index_Global& a) const noexcept
   {
     if (key != a.key)
       return (key < a.key);
     return (value < a.value);
   }
 
-  bool operator==(const Tag_Index_Global& a) const
+  bool operator==(const Tag_Index_Global& a) const noexcept
   {
     if (key != a.key)
       return false;
@@ -417,23 +417,23 @@ struct Tag_Object_Global
     id = Id_Type((void*)((uint8*)data + 3));
   }
 
-  uint32 size_of() const
+  uint32 size_of() const noexcept
   {
     return 3 + id.size_of();
   }
 
-  static uint32 size_of(const void* data)
+  static uint32 size_of(const void* data) noexcept
   {
     return 3 + Id_Type::size_of((void*)((uint8*)data + 3));
   }
 
-  void to_data(void* data) const
+  void to_data(void* data) const noexcept
   {
     unalignedStore(data, (uint32)((idx.val()>>8) & 0x7fffff));
     id.to_data((void*)((uint8*)data + 3));
   }
   
-  bool operator<(const Tag_Object_Global& a) const
+  bool operator<(const Tag_Object_Global& a) const noexcept
   {
     if (id < a.id)
       return true;
@@ -443,12 +443,12 @@ struct Tag_Object_Global
     return (idx < a.idx);
   }
 
-  bool operator==(const Tag_Object_Global& a) const
+  bool operator==(const Tag_Object_Global& a) const noexcept
   {
     return (id == a.id && idx == a.idx);
   }
 
-  static uint32 max_size_of()
+  static uint32 max_size_of() noexcept
   {
     return 3 + Id_Type::max_size_of();
   }

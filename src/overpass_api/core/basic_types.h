@@ -502,7 +502,7 @@ struct Attic : public Element_Skeleton
     timestamp |= (uint64)(*(uint8*)((uint8*)pos+4)) << 32;
   }
 
-  uint32 size_of() const
+  uint32 size_of() const noexcept
   {
     return Element_Skeleton::size_of() + 5;
   }
@@ -512,7 +512,7 @@ struct Attic : public Element_Skeleton
     return Element_Skeleton::size_of(data) + 5;
   }
 
-  void to_data(void* data) const
+  void to_data(void* data) const noexcept
   {
     Element_Skeleton::to_data(data);
     void* pos = (uint8*)data + Element_Skeleton::size_of();
@@ -520,7 +520,7 @@ struct Attic : public Element_Skeleton
     *(uint8*)((uint8*)pos+4) = ((timestamp & 0xff00000000ull)>>32);
   }
 
-  bool operator<(const Attic& rhs) const
+  bool operator<(const Attic& rhs) const noexcept
   {
     if (*static_cast< const Element_Skeleton* >(this) < *static_cast< const Element_Skeleton* >(&rhs))
       return true;
@@ -529,7 +529,7 @@ struct Attic : public Element_Skeleton
     return (timestamp < rhs.timestamp);
   }
 
-  bool operator==(const Attic& rhs) const
+  bool operator==(const Attic& rhs) const noexcept
   {
     return (*static_cast< const Element_Skeleton* >(this) == rhs && timestamp == rhs.timestamp);
   }
@@ -613,7 +613,7 @@ template< typename Attic >
 struct Delta_Comparator
 {
 public:
-  bool operator()(const Attic& lhs, const Attic& rhs) const
+  bool operator()(const Attic& lhs, const Attic& rhs) const noexcept
   {
     if (lhs.id == rhs.id)
       return rhs.timestamp < lhs.timestamp;
@@ -627,7 +627,7 @@ template< typename Attic >
 struct Delta_Ref_Comparator
 {
 public:
-  bool operator()(const Attic* lhs, const Attic* rhs) const
+  bool operator()(const Attic* lhs, const Attic* rhs) const noexcept
   {
     if (lhs->id == rhs->id)
       return rhs->timestamp < lhs->timestamp;

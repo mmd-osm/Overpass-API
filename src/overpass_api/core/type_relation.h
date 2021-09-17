@@ -42,7 +42,7 @@ struct Relation_Entry
   const static uint32 WAY = 2;
   const static uint32 RELATION = 3;
 
-  bool operator==(const Relation_Entry& a) const
+  bool operator==(const Relation_Entry& a) const noexcept
   {
     return (a.ref == this->ref && a.type == this->type && a.role == this->role);
   }
@@ -82,7 +82,7 @@ struct Relation
 
 
 struct Relation_Comparator_By_Id {
-  bool operator() (const Relation* a, const Relation* b)
+  bool operator() (const Relation* a, const Relation* b) noexcept
   {
     return (a->id < b->id);
   }
@@ -90,7 +90,7 @@ struct Relation_Comparator_By_Id {
 
 
 struct Relation_Equal_Id {
-  bool operator() (const Relation* a, const Relation* b)
+  bool operator() (const Relation* a, const Relation* b) noexcept
   {
     return (a->id == b->id);
   }
@@ -177,7 +177,7 @@ struct Relation_Skeleton
 
   }
 
-  uint32 size_of() const
+  uint32 size_of() const noexcept
   {
     return 16 + 12* d->members.size() + 4* d->node_idxs.size() + 4* d->way_idxs.size();
   }
@@ -187,7 +187,7 @@ struct Relation_Skeleton
     return 16 + 12 * *((uint32*)data + 1) + 4* *((uint32*)data + 2) + 4* *((uint32*)data + 3);
   }
 
-  void to_data(void* data) const
+  void to_data(void* data) const noexcept
   {
     unalignedStore(data, id.val());
     unalignedStore(((uint32*)data + 1), (uint32) d->members.size());
@@ -217,12 +217,12 @@ struct Relation_Skeleton
   std::vector< Uint31_Index > & way_idxs() { return d->way_idxs; }
 
 
-  bool operator<(const Relation_Skeleton& a) const
+  bool operator<(const Relation_Skeleton& a) const noexcept
   {
     return this->id < a.id;
   }
 
-  bool operator==(const Relation_Skeleton& a) const
+  bool operator==(const Relation_Skeleton& a) const noexcept
   {
     return this->id == a.id;
   }
@@ -490,7 +490,7 @@ struct Relation_Delta
     return result;
   }
 
-  uint32 size_of() const
+  uint32 size_of() const noexcept
   {
     if (full)
       return 20 + 12*members_added.size() + 4*node_idxs_added.size() + 4*way_idxs_added.size();
@@ -500,7 +500,7 @@ struct Relation_Delta
           + 4*way_idxs_removed.size() + 8*way_idxs_added.size();
   }
 
-  static uint32 size_of(const void* data)
+  static uint32 size_of(const void* data) noexcept
   {
     if (unalignedLoad<uint32>((uint32*)data + 1) == 0xffffffff)
       return 20 + 12 * unalignedLoad<uint32>((uint32*)data + 2) +
@@ -515,7 +515,7 @@ struct Relation_Delta
                   8 * unalignedLoad<uint32>((uint32*)data + 6);
   }
 
-  void to_data(void* data) const
+  void to_data(void* data) const noexcept
   {
     unalignedStore(data, id.val());
     if (full)
@@ -601,12 +601,12 @@ struct Relation_Delta
     }
   }
 
-  bool operator<(const Relation_Delta& a) const
+  bool operator<(const Relation_Delta& a) const noexcept
   {
     return this->id < a.id;
   }
 
-  bool operator==(const Relation_Delta& a) const
+  bool operator==(const Relation_Delta& a) const noexcept
   {
     return this->id == a.id;
   }

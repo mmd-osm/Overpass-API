@@ -494,7 +494,7 @@ struct Way_Delta
           + 4*geometry_removed.size() + 12*geometry_added.size();
   }
 
-  static uint32 size_of(const void* data)
+  static uint32 size_of(const void* data) noexcept
   {
     if (unalignedLoad<uint32>((uint32*)data + 1) == 0xffffffff)
       return 16 + 8 * unalignedLoad<uint32>((uint32*)data + 2) +
