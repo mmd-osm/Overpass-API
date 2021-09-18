@@ -212,12 +212,15 @@ TStatement* create_complete_statement(typename TStatement::Factory& stmt_factory
 
 template< class TStatement >
 TStatement* create_make_area_statement(typename TStatement::Factory& stmt_factory,
-    std::string from, std::string into, std::string pivot, uint line_nr)
+    std::string from, std::string into, std::string pivot, std::string return_area, uint line_nr)
 {
   std::map< std::string, std::string > attr;
   attr["from"] = std::move(from);
   attr["into"] = std::move(into);
   attr["pivot"] = std::move(pivot);
+  if (!return_area.empty())
+    attr["return-area"] = std::move(return_area);
+
   return stmt_factory.create_statement("make-area", line_nr, attr);
 }
 
@@ -589,25 +592,33 @@ template< class TStatement >
 TStatement* parse_make_area(typename TStatement::Factory& stmt_factory, Parsed_Query& parsed_query,
               Tokenizer_Wrapper& token, Error_Output* error_output, int depth)
 {
+  std::string return_area = "";
   std::pair< uint, uint > line_col = token.line_col();
   ++token;
 
   std::string from = probe_from(token, error_output);
-  std::string into = probe_into(token, error_output);
 
   std::string pivot;
   if (*token == "[")
   {
     ++token;
     pivot = probe_from(token, error_output);
+
+    if (*token == ",")
+    {
+      ++token;
+      return_area = get_text_token(token, error_output, "return_area");
+    }
     clear_until_after(token, error_output, "]");
   }
+
+  std::string into = probe_into(token, error_output);
 
   if (*token == ";")
     ++token;
 
   auto* statement = create_make_area_statement< TStatement >
-      (stmt_factory, from, into, pivot, line_col.first);
+      (stmt_factory, from, into, pivot, return_area, line_col.first);
 
   return statement;
 }

@@ -53,15 +53,13 @@ class Make_Area_Statement final : public Output_Statement
 
     std::string dump_compact_ql(const std::string& indent) const override
     {
-      std::string result = indent +  (input == "_" ? "" : "." + input + " ") +
-          "make_area[." + pivot + "]";
+      std::string result = indent +  "make_area"+ (input == "_" ? "" : "." + input) +"[." + pivot + (!return_area ? ", no" : "") + "]";
       return result + dump_ql_result_name() + ";";
     }
 
     std::string dump_pretty_ql(const std::string& indent) const override
     {
-      std::string result = indent +  (input == "_" ? "" : "." + input + " ") +
-          "make_area[." + pivot + "]";
+      std::string result = indent +  "make_area"+ (input == "_" ? "" : "." + input) +"[." + pivot + (!return_area ? ", no" : "") + "]";
       return result + dump_ql_result_name() + ";";
     }
 
