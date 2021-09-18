@@ -374,6 +374,9 @@ void quadtile_
     (const std::map< TIndex, std::vector< TObject > >& items, Output_Handler& output,
      Transaction& transaction, Extra_Data& extra_data, uint32 limit, uint32& element_count)
 {
+  if (items.empty())
+    return;
+
   auto item_it(items.begin());
   // print the result
   while (item_it != items.end())
@@ -397,6 +400,9 @@ void tags_quadtile_
      Output_Handler& output,
      Resource_Manager& rman, Transaction& transaction, uint32 limit, uint32& element_count)
 {
+  if (items.empty())
+    return;
+
   Tag_Store< Index, Object > tag_store(*rman.get_transaction());
   tag_store.prefetch_all(items);
 
@@ -428,6 +434,9 @@ void tags_quadtile_attic_
      Output_Handler& output,
      Resource_Manager& rman, Transaction& transaction, uint32 limit, uint32& element_count)
 {
+  if (items.empty())
+    return;
+
   Tag_Store< Index, Object > tag_store(transaction);
   tag_store.prefetch_all(items);
 
