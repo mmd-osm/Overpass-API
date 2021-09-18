@@ -74,7 +74,7 @@ class Area_Query_Statement final : public Output_Statement
        Resource_Manager& rman);
 
     template< typename Node_Skeleton >
-    bool collect_nodes_dynamic
+    void collect_nodes_adhoc
       (std::map< Uint32_Index, std::vector< Node_Skeleton > >& nodes,
        const std::set< Uint31_Index >& req, bool add_border,
        Resource_Manager& rman);
@@ -87,10 +87,13 @@ class Area_Query_Statement final : public Output_Statement
        const Statement& query, Resource_Manager& rman);
 
     template< typename Way_Skeleton >
-    bool collect_ways_dynamic
+    void collect_ways_adhoc
       (const Way_Geometry_Store& way_geometries,
        std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
-       const std::set< Uint31_Index >& req, bool add_border,
+       const std::set< Uint31_Index >& req,
+       const std::map< Uint31_Index, std::vector< Area_Block > > & way_segments,
+       const std::map< uint32, std::vector< std::pair< uint32, Way::Id_Type > > > & way_coords_to_id,
+       bool add_border,
        const Statement& query, Resource_Manager& rman);
 
     bool areas_from_input() const { return (submitted_id == 0); }
@@ -123,8 +126,9 @@ class Area_Query_Statement final : public Output_Statement
   private:
     std::string input;
     long long submitted_id;
-    std::vector< Area_Skeleton::Id_Type > area_id;
-    std::vector< Area_Skeleton::Id_Type > area_id_dynamic;
+    std::vector< Area_Skeleton::Id_Type > area_id;       // all area ids
+    std::vector< Area_Skeleton::Id_Type > area_id_db;    // area ids for areas which have been persisted on disk
+    std::vector< Area_Skeleton::Id_Type > area_id_adhoc; // ad hoc area ids (only in memory, will be discarded after each query)
     static int area_stmt_ref_counter_;
     std::set< Uint31_Index > area_blocks_req;
     bool area_blocks_req_filled;
