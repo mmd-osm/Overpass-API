@@ -80,7 +80,7 @@ bool Area_Constraint::get_ranges
     if (!input)
       return true;
 
-    area->get_ranges(input->areas, area_blocks_req, rman);
+    area->get_ranges(input->areas, input->area_blocks, area_blocks_req, rman);
   }
   else
     area->get_ranges(area_blocks_req, rman);
@@ -127,7 +127,7 @@ void Area_Constraint::filter(const Statement& query, Resource_Manager& rman, Set
   {
     const Set* input = rman.get_set(area->get_input());
     if (input)
-      area->get_ranges(input->areas, area_blocks_req, rman);
+      area->get_ranges(input->areas, input->area_blocks, area_blocks_req, rman);
   }
   else
     area->get_ranges(area_blocks_req, rman);
@@ -321,15 +321,35 @@ void Area_Query_Statement::fill_ranges(Resource_Manager& rman)
 
 void Area_Query_Statement::get_ranges
     (const std::map< Uint31_Index, std::vector< Area_Skeleton > >& input_areas,
+     const std::map< Uint31_Index, std::vector< Area_Block > >& input_area_blocks,
      std::set< Uint31_Index >& area_blocks_req,
      Resource_Manager& rman)
 {
   area_id.clear();
+  area_id_dynamic.clear();
+
+  // Collect all area ids which have been created using ad-hoc area creation
+
+  for (auto it = input_area_blocks.begin();
+       it != input_area_blocks.end(); ++it)
+  {
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    {
+      area_id_dynamic.push_back(it2->id);
+    }
+  }
+
+  sort(area_id_dynamic.begin(), area_id_dynamic.end());
+
   for (auto it = input_areas.begin();
        it != input_areas.end(); ++it)
   {
     for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
+//      // Skip Area id already provided using Ad-Hoc area creation
+//      if (binary_search(area_id_dynamic.begin(), area_id_dynamic.end(), it2->id))
+//          continue;
+
       area_id.push_back(it2->id);
 
       for (auto it3(it2->used_indices().begin());
@@ -372,9 +392,11 @@ void Area_Query_Statement::collect_nodes
      const std::set< Uint31_Index >& req, bool add_border,
      Resource_Manager& rman)
 {
-  // check for on-the-fly Area blocks first. Leave upon successful processing
-  if (collect_nodes_dynamic(nodes, req, add_border, rman))
-    return;  //
+  // check for on-the-fly Area blocks first
+  collect_nodes_dynamic(nodes, req, add_border, rman);
+
+  if (area_id.empty())
+    return;
 
   Block_Backend< Uint31_Index, Area_Block > area_blocks_db
       (rman.get_area_transaction()->data_index(area_settings().AREA_BLOCKS));
@@ -489,7 +511,7 @@ bool Area_Query_Statement::collect_nodes_dynamic
 
     for (const auto & block : area_blocks_per_index.second)
     {
-      if (binary_search(area_id.begin(), area_id.end(), block.id))
+      if (binary_search(area_id_dynamic.begin(), area_id_dynamic.end(), block.id))
         areas[block.id].push_back(block);
     }
 
@@ -743,7 +765,10 @@ void Area_Query_Statement::collect_ways
        const std::set< Uint31_Index >& req, bool add_border,
        const Statement& query, Resource_Manager& rman)
 {
-  if (collect_ways_dynamic(way_geometries, ways, req, add_border, query, rman))
+  collect_ways_dynamic(way_geometries, ways, req, add_border, query, rman);
+
+
+  if (area_id.empty())
     return;
 
   Block_Backend< Uint31_Index, Area_Block > area_blocks_db
@@ -952,7 +977,7 @@ bool Area_Query_Statement::collect_ways_dynamic
 
     for (const auto & block : area_blocks_per_index.second)
     {
-      if (binary_search(area_id.begin(), area_id.end(), block.id))
+      if (binary_search(area_id_dynamic.begin(), area_id_dynamic.end(), block.id))
         areas[block.id].push_back(block);
     }
 

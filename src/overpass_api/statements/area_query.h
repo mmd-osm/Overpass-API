@@ -63,6 +63,7 @@ class Area_Query_Statement final : public Output_Statement
 
     void get_ranges
       (const std::map< Uint31_Index, std::vector< Area_Skeleton > >& input_areas,
+       const std::map< Uint31_Index, std::vector< Area_Block > >& input_area_blocks,
        std::set< Uint31_Index >& area_blocks_req,
        Resource_Manager& rman);
 
@@ -123,6 +124,7 @@ class Area_Query_Statement final : public Output_Statement
     std::string input;
     long long submitted_id;
     std::vector< Area_Skeleton::Id_Type > area_id;
+    std::vector< Area_Skeleton::Id_Type > area_id_dynamic;
     static int area_stmt_ref_counter_;
     std::set< Uint31_Index > area_blocks_req;
     bool area_blocks_req_filled;
