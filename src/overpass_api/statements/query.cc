@@ -1121,6 +1121,14 @@ void Query_Statement::filter_by_tags
       && key_nregexes.empty() && key_nvalues.empty())
     return;
 
+  if (items.empty() && timestamp == NOW) {
+    return;
+  }
+
+  if (timestamp != NOW && attic_items->empty()) {
+    return;
+  }
+
   // generate set of relevant coarse indices
   std::map< uint32, std::vector< typename TObject::Id_Type > > ids_by_coarse;
   generate_ids_by_coarse(ids_by_coarse, items);
@@ -1263,6 +1271,9 @@ void Query_Statement::filter_by_tags
 {
   if (keys.empty() && key_values.empty() && key_regexes.empty() && regkey_regexes.empty()
       && key_nregexes.empty() && key_nvalues.empty())
+    return;
+
+  if (items.empty())
     return;
 
   // generate set of relevant coarse indices
