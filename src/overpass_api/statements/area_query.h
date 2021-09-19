@@ -74,9 +74,19 @@ class Area_Query_Statement final : public Output_Statement
        Resource_Manager& rman);
 
     template< typename Node_Skeleton >
+    void collect_nodes_db
+      (std::map< Uint32_Index, std::vector< Node_Skeleton > >& nodes,
+       const std::set< Uint31_Index >& req,
+       IdSetHybrid< Node::Id_Type::Id_Type> & nodes_inside,
+       bool add_border,
+       Resource_Manager& rman);
+
+    template< typename Node_Skeleton >
     void collect_nodes_adhoc
       (std::map< Uint32_Index, std::vector< Node_Skeleton > >& nodes,
-       const std::set< Uint31_Index >& req, bool add_border,
+       const std::set< Uint31_Index >& req,
+       IdSetHybrid< Node::Id_Type::Id_Type> & nodes_inside,
+       bool add_border,
        Resource_Manager& rman);
 
     template< typename Way_Skeleton >
@@ -86,15 +96,20 @@ class Area_Query_Statement final : public Output_Statement
        const std::set< Uint31_Index >& req, bool add_border,
        const Statement& query, Resource_Manager& rman);
 
-    template< typename Way_Skeleton >
-    void collect_ways_adhoc
-      (const Way_Geometry_Store& way_geometries,
-       std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
-       const std::set< Uint31_Index >& req,
+    void collect_ways_db
+      (const std::set< Uint31_Index >& req,
        const std::map< Uint31_Index, std::vector< Area_Block > > & way_segments,
        const std::map< uint32, std::vector< std::pair< uint32, Way::Id_Type > > > & way_coords_to_id,
+       std::map< Way::Id_Type, bool > & ways_inside,
        bool add_border,
-       const Statement& query, Resource_Manager& rman);
+       Resource_Manager& rman);
+
+    void collect_ways_adhoc
+      (const std::map< Uint31_Index, std::vector< Area_Block > > & way_segments,
+       const std::map< uint32, std::vector< std::pair< uint32, Way::Id_Type > > > & way_coords_to_id,
+       std::map< Way::Id_Type, bool > & ways_inside,
+       bool add_border,
+       Resource_Manager& rman);
 
     bool areas_from_input() const { return (submitted_id == 0); }
     long long get_submitted_id() const { return submitted_id; }

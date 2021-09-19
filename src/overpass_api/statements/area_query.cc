@@ -398,6 +398,7 @@ template< typename Node_Skeleton >
 uint32 check_nodes(const std::map< Area_Skeleton::Id_Type, std::vector< Area_Block > > & areas,
                    const std::map< Uint32_Index, std::vector< Node_Skeleton > >& nodes,
                    typename std::map< Uint32_Index, std::vector< Node_Skeleton > >::iterator & nodes_it,
+                   IdSetHybrid< Node::Id_Type::Id_Type> & nodes_inside,
                    uint32 current_idx,
                    bool add_border
                  )
@@ -406,13 +407,11 @@ uint32 check_nodes(const std::map< Area_Skeleton::Id_Type, std::vector< Area_Blo
 
   while (nodes_it != nodes.end() && nodes_it->first.val() < current_idx)
   {
-    nodes_it->second.clear();
     ++nodes_it;
   }
   while (nodes_it != nodes.end() &&
       (nodes_it->first.val() & 0xffffff00) == current_idx)
   {
-    std::vector< Node_Skeleton > into;
     for (typename std::vector< Node_Skeleton >::const_iterator iit = nodes_it->second.begin();
         iit != nodes_it->second.end(); ++iit)
     {
@@ -440,12 +439,11 @@ uint32 check_nodes(const std::map< Area_Skeleton::Id_Type, std::vector< Area_Blo
         }
         if (inside)
         {
-          into.push_back(*iit);
+          nodes_inside.set((*iit).id.val());
           break;
         }
       }
     }
-    nodes_it->second.swap(into);
     ++nodes_it;
   }
 
@@ -453,18 +451,42 @@ uint32 check_nodes(const std::map< Area_Skeleton::Id_Type, std::vector< Area_Blo
 
 }
 
+template< typename Node_Skeleton >
+void filter_by_nodes_inside( std::map< Uint32_Index, std::vector< Node_Skeleton > >& nodes,
+                             IdSetHybrid< Node::Id_Type::Id_Type> & nodes_inside)
+{
+  nodes_inside.sort_unique();
+
+  std::map< Uint32_Index, std::vector< Node_Skeleton > > result;
+  for (const auto & node : nodes) {
+
+    std::vector< Node_Skeleton > nds;
+
+    for (const auto & n : node.second) {
+      if (nodes_inside.get(n.id.val())) {
+        nds.push_back(n);
+      }
+    }
+
+    if (!nds.empty()) {
+      result[node.first].swap(nds);
+    }
+  }
+
+  nodes.swap(result);
+}
 
 }
 
+
 template< typename Node_Skeleton >
-void Area_Query_Statement::collect_nodes
+void Area_Query_Statement::collect_nodes_db
     (std::map< Uint32_Index, std::vector< Node_Skeleton > >& nodes,
-     const std::set< Uint31_Index >& req, bool add_border,
+     const std::set< Uint31_Index >& req,
+     IdSetHybrid< Node::Id_Type::Id_Type> & nodes_inside,
+     bool add_border,
      Resource_Manager& rman)
 {
-  // check for on-the-fly Area blocks first
-  collect_nodes_adhoc(nodes, req, add_border, rman);
-
   if (area_id_db.empty())
     return;
 
@@ -476,7 +498,7 @@ void Area_Query_Statement::collect_nodes
   typename std::map< Uint32_Index, std::vector< Node_Skeleton > >::iterator nodes_it = nodes.begin();
 
   uint32 loop_count = 0;
-  uint32 current_idx(0);
+  uint32 current_idx = 0;
   while (!(area_it == area_blocks_db.discrete_end()))
   {
     current_idx = area_it.index().val();
@@ -492,27 +514,32 @@ void Area_Query_Statement::collect_nodes
         (area_it.index().val() == current_idx))
     {
       if (binary_search(area_id_db.begin(), area_id_db.end(), area_it.handle().id()))
-	areas[area_it.object().id].push_back(area_it.object());
+        areas[area_it.object().id].push_back(area_it.object());
       ++area_it;
     }
 
-    loop_count += check_nodes(areas, nodes, nodes_it, current_idx, add_border);
+    // in case nodes are inside, set flag for node id in "nodes_inside"
+    loop_count += check_nodes(areas, nodes, nodes_it, nodes_inside, current_idx, add_border);
 
   }
   while (nodes_it != nodes.end())
   {
-    nodes_it->second.clear();
     ++nodes_it;
   }
-}
 
+}
 
 template< typename Node_Skeleton >
 void Area_Query_Statement::collect_nodes_adhoc
     (std::map< Uint32_Index, std::vector< Node_Skeleton > >& nodes,
-     const std::set< Uint31_Index >& req, bool add_border,
+     const std::set< Uint31_Index >& req,
+     IdSetHybrid< Node::Id_Type::Id_Type> & nodes_inside,
+     bool add_border,
      Resource_Manager& rman)
 {
+  if (area_id_adhoc.empty())
+    return;
+
   const Set * inputset = rman.get_set(get_input());
 
   if (!inputset)
@@ -524,7 +551,7 @@ void Area_Query_Statement::collect_nodes_adhoc
   auto nodes_it = nodes.begin();
 
   uint32 loop_count = 0;
-  uint32 current_idx(0);
+  uint32 current_idx = 0;
 
   for (const auto & area_blocks_per_index : inputset->area_blocks)
   {
@@ -544,15 +571,33 @@ void Area_Query_Statement::collect_nodes_adhoc
         areas[block.id].push_back(block);
     }
 
-    loop_count += check_nodes(areas, nodes, nodes_it, current_idx, add_border);
+    // in case nodes are inside, set flag for node id in "nodes_inside"
+    loop_count += check_nodes(areas, nodes, nodes_it, nodes_inside, current_idx, add_border);
   }
   while (nodes_it != nodes.end())
   {
-    nodes_it->second.clear();
     ++nodes_it;
   }
 }
 
+template< typename Node_Skeleton >
+void Area_Query_Statement::collect_nodes
+    (std::map< Uint32_Index, std::vector< Node_Skeleton > >& nodes,
+     const std::set< Uint31_Index >& req, bool add_border,
+     Resource_Manager& rman)
+{
+
+  IdSetHybrid< Node::Id_Type::Id_Type> nodes_inside;
+
+  // check for on-the-fly Area blocks first
+  collect_nodes_adhoc(nodes, req, nodes_inside, add_border, rman);
+
+  collect_nodes_db(nodes, req, nodes_inside, add_border, rman);
+
+  // filter out ways according to ways_inside flag
+  filter_by_nodes_inside(nodes, nodes_inside);
+
+}
 
 
 
@@ -877,6 +922,105 @@ void filter_by_ways_inside(std::map< Uint31_Index, std::vector< Way_Skeleton > >
 
 }
 
+
+void Area_Query_Statement::collect_ways_db
+      (const std::set< Uint31_Index >& req,
+       const std::map< Uint31_Index, std::vector< Area_Block > > & way_segments,
+       const std::map< uint32, std::vector< std::pair< uint32, Way::Id_Type > > > & way_coords_to_id,
+       std::map< Way::Id_Type, bool > & ways_inside,
+       bool add_border,
+       Resource_Manager& rman)
+{
+
+  if (area_id_db.empty())
+    return;
+
+  std::map< uint32, std::vector< std::pair< uint32, Way::Id_Type > > >::const_iterator nodes_it = way_coords_to_id.begin();
+
+  Block_Backend< Uint31_Index, Area_Block > area_blocks_db
+      (rman.get_area_transaction()->data_index(area_settings().AREA_BLOCKS));
+  Block_Backend< Uint31_Index, Area_Block >::Discrete_Iterator
+      area_it(area_blocks_db.discrete_begin(req.begin(), req.end()));
+
+  // Fill node_status with the area related status of each node and segment
+  uint32 loop_count = 0;
+  uint32 current_idx = 0;
+  while (!(area_it == area_blocks_db.discrete_end()))
+  {
+    current_idx = area_it.index().val();
+    if (loop_count > 64*1024)
+    {
+      rman.health_check(*this);
+      loop_count = 0;
+    }
+
+    std::map< Area_Skeleton::Id_Type, std::vector< Area_Block > > areas;
+    while ((!(area_it == area_blocks_db.discrete_end())) &&
+        (area_it.index().val() == current_idx))
+    {
+      if (binary_search(area_id_db.begin(), area_id_db.end(), area_it.handle().id()))
+        areas[area_it.object().id].push_back(area_it.object());
+      ++area_it;
+    }
+
+    // check nodes
+    loop_count += check_nodes_for_ways(areas, ways_inside, nodes_it, way_coords_to_id, current_idx);
+
+    // check segments
+    check_segments_for_ways(areas, way_segments, ways_inside, current_idx, add_border);
+  }
+}
+
+void Area_Query_Statement::collect_ways_adhoc
+      (const std::map< Uint31_Index, std::vector< Area_Block > > & way_segments,
+       const std::map< uint32, std::vector< std::pair< uint32, Way::Id_Type > > > & way_coords_to_id,
+       std::map< Way::Id_Type, bool > & ways_inside,
+       bool add_border,
+       Resource_Manager& rman)
+{
+  if (area_id_adhoc.empty())
+    return;
+
+  const Set * inputset = rman.get_set(get_input());
+
+  if (!inputset)
+    return;
+
+  if (inputset->area_blocks.empty())
+    return;
+
+  std::map< uint32, std::vector< std::pair< uint32, Way::Id_Type > > >::const_iterator nodes_it = way_coords_to_id.begin();
+
+  // Fill node_status with the area related status of each node and segment
+  uint32 loop_count = 0;
+  uint32 current_idx = 0;
+
+  for (const auto & area_blocks_per_index : inputset->area_blocks)
+  {
+    current_idx = area_blocks_per_index.first.val();
+
+    if (loop_count > 1024*1024)
+    {
+      rman.health_check(*this);
+      loop_count = 0;
+    }
+
+    std::map< Area_Skeleton::Id_Type, std::vector< Area_Block > > areas;
+
+    for (const auto & block : area_blocks_per_index.second)
+    {
+      if (binary_search(area_id_adhoc.begin(), area_id_adhoc.end(), block.id))
+        areas[block.id].push_back(block);
+    }
+
+    // check nodes
+    loop_count += check_nodes_for_ways(areas, ways_inside, nodes_it, way_coords_to_id, current_idx);
+
+    // check segments
+    check_segments_for_ways(areas, way_segments, ways_inside, current_idx, add_border);
+  }
+}
+
 template< typename Way_Skeleton >
 void Area_Query_Statement::collect_ways
       (const Way_Geometry_Store& way_geometries,
@@ -903,104 +1047,13 @@ void Area_Query_Statement::collect_ways
     }
   }
 
+  std::map< Way::Id_Type, bool > ways_inside;
+
   // check for ad hoc Area blocks first
-  collect_ways_adhoc(way_geometries, ways, req, way_segments, way_coords_to_id, add_border, query, rman);
+  // method updates ways_inside to indicate which way ids are inside either the ad-hoc or (further down) the db based areas
+  collect_ways_adhoc(way_segments, way_coords_to_id, ways_inside, add_border, rman);
 
-  if (area_id_db.empty())
-    return;
-
-  std::map< Way::Id_Type, bool > ways_inside;
-
-  std::map< uint32, std::vector< std::pair< uint32, Way::Id_Type > > >::const_iterator nodes_it = way_coords_to_id.begin();
-
-  Block_Backend< Uint31_Index, Area_Block > area_blocks_db
-      (rman.get_area_transaction()->data_index(area_settings().AREA_BLOCKS));
-  Block_Backend< Uint31_Index, Area_Block >::Discrete_Iterator
-      area_it(area_blocks_db.discrete_begin(req.begin(), req.end()));
-
-  // Fill node_status with the area related status of each node and segment
-  uint32 loop_count = 0;
-  uint32 current_idx(0);
-  while (!(area_it == area_blocks_db.discrete_end()))
-  {
-    current_idx = area_it.index().val();
-    if (loop_count > 64*1024)
-    {
-      rman.health_check(*this);
-      loop_count = 0;
-    }
-
-    std::map< Area_Skeleton::Id_Type, std::vector< Area_Block > > areas;
-    while ((!(area_it == area_blocks_db.discrete_end())) &&
-        (area_it.index().val() == current_idx))
-    {
-      if (binary_search(area_id_db.begin(), area_id_db.end(), area_it.handle().id()))
-	areas[area_it.object().id].push_back(area_it.object());
-      ++area_it;
-    }
-
-    // check nodes
-    loop_count += check_nodes_for_ways(areas, ways_inside, nodes_it, way_coords_to_id, current_idx);
-
-    // check segments
-    check_segments_for_ways(areas, way_segments, ways_inside, current_idx, add_border);
-  }
-
-  // filter out ways according to ways_inside flag
-  filter_by_ways_inside(ways, ways_inside);
-}
-
-
-template< typename Way_Skeleton >
-void Area_Query_Statement::collect_ways_adhoc
-      (const Way_Geometry_Store& way_geometries,
-       std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
-       const std::set< Uint31_Index >& req,
-       const std::map< Uint31_Index, std::vector< Area_Block > > & way_segments,
-       const std::map< uint32, std::vector< std::pair< uint32, Way::Id_Type > > > & way_coords_to_id,
-       bool add_border,
-       const Statement& query, Resource_Manager& rman)
-{
-  const Set * inputset = rman.get_set(get_input());
-
-  if (!inputset)
-    return;
-
-  if (inputset->area_blocks.empty())
-    return;
-
-  std::map< Way::Id_Type, bool > ways_inside;
-
-  std::map< uint32, std::vector< std::pair< uint32, Way::Id_Type > > >::const_iterator nodes_it = way_coords_to_id.begin();
-
-  // Fill node_status with the area related status of each node and segment
-  uint32 loop_count = 0;
-  uint32 current_idx(0);
-
-  for (const auto & area_blocks_per_index : inputset->area_blocks)
-  {
-    current_idx = area_blocks_per_index.first.val();
-
-    if (loop_count > 1024*1024)
-    {
-      rman.health_check(*this);
-      loop_count = 0;
-    }
-
-    std::map< Area_Skeleton::Id_Type, std::vector< Area_Block > > areas;
-
-    for (const auto & block : area_blocks_per_index.second)
-    {
-      if (binary_search(area_id_adhoc.begin(), area_id_adhoc.end(), block.id))
-        areas[block.id].push_back(block);
-    }
-
-    // check nodes
-    loop_count += check_nodes_for_ways(areas, ways_inside, nodes_it, way_coords_to_id, current_idx);
-
-    // check segments
-    check_segments_for_ways(areas, way_segments, ways_inside, current_idx, add_border);
-  }
+  collect_ways_db(req, way_segments, way_coords_to_id, ways_inside, add_border, rman);
 
   // filter out ways according to ways_inside flag
   filter_by_ways_inside(ways, ways_inside);
