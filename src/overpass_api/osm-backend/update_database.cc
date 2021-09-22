@@ -139,12 +139,27 @@ int main(int argc, char* argv[])
   if (abort)
   {
 #ifdef HAVE_LZ4
-    std::cerr<<"Usage: "<<argv[0]<<" [--db-dir=DIR] [--version=VER] [--meta|--keep-attic] [--flush_size=FLUSH_SIZE]"
-        " [--compression-method=(no|gz|lz4)] [--map-compression-method=(no|gz|lz4)]\n";
+    const std::string compression_formats = "no|gz|lz4";
 #else
-    std::cerr<<"Usage: "<<argv[0]<<" [--db-dir=DIR] [--version=VER] [--meta|--keep-attic] [--flush_size=FLUSH_SIZE]"
-        " [--compression-method=(no|gz)] [--map-compression-method=(no|gz)]\n";
+    const std::string compression_formats = "no|gz";
 #endif
+
+    std::cerr<<"Usage: "<<argv[0]<<" [OPTIONS]\n\n"
+              "Options:\n"
+              "    --db-dir=DIR\n"
+              "    --version=VER\n"
+              "    --meta|--keep-attic\n"
+              "    --flush-size=FLUSH_SIZE\n"
+              "    --compression-method=(" + compression_formats + ")\n"
+              "    --map-compression-method=("+ compression_formats + ")\n"
+              "\n"
+              "Additional branch specific options:\n"
+              "    --use-osmium             Use libosmium for OSM input file processing (PBF support, multi-threaded, faster processing)\n"
+              "    --input-format=FORMAT    Override input file format, if different from osm.pbf\n"
+              "                             For supported values see libosmium file format description\n"
+              "    --parallel=N             Number of parallel processes to be used for database updates (default: 1)\n"
+              "    --initial-load           Enable optimization for duplicate free, sorted input files\n\n";
+
     return 1;
   }
 

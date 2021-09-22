@@ -148,7 +148,7 @@ int main(int argc, char* argv[])
   if (abort)
   {
     std::cerr<<"Usage: "<<argv[0]<<" --osc-dir=DIR"
-          " [--db-dir=DIR] [--version=VER] [--meta|--keep-attic] [--flush-size=FLUSH_SIZE]\n";
+          " [--db-dir=DIR] [--version=VER] [--meta|--keep-attic] [--flush-size=FLUSH_SIZE] [--use-osmium] [--parallel=N]\n";
     return -1;
   }
 
