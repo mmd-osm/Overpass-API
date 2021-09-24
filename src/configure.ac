@@ -5,6 +5,9 @@ AC_PREREQ([2.61])
 AC_INIT([OverpassAPI], [0.7.59], [roland at olbricht.nrw, mmd.osm at gmail.com])
 AC_CONFIG_SRCDIR([template_db/file_blocks.h])
 AC_CONFIG_HEADERS([config.h])
+AC_USE_SYSTEM_EXTENSIONS
+AC_CHECK_HEADERS([malloc.h])
+AC_CHECK_HEADERS([sys/statvfs.h])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([-Wall foreign subdir-objects -Wno-portability])
 
@@ -46,8 +49,28 @@ AC_FUNC_MMAP
 AC_FUNC_SELECT_ARGTYPES
 AC_FUNC_STAT
 AC_FUNC_STRFTIME
-AC_CHECK_FUNCS([clock_gettime floor ftruncate getcwd munmap regcomp select shm_open socket sqrt strnlen])
+AC_FUNC_ERROR_AT_LINE
+AC_FUNC_FORK
+AC_FUNC_STRNLEN
+AC_FUNC_STRTOD
+AC_PROG_RANLIB
+AC_TYPE_INT16_T
+AC_TYPE_INT32_T
+AC_TYPE_INT64_T
+AC_TYPE_INT8_T
+AC_TYPE_OFF_T
+AC_TYPE_SSIZE_T
+AC_TYPE_UID_T
+AC_TYPE_UINT16_T
+AC_TYPE_UINT32_T
+AC_TYPE_UINT64_T
+AC_TYPE_UINT8_T
 
+AC_CHECK_FUNCS([clock_gettime floor ftruncate getcwd munmap regcomp select shm_open socket sqrt strnlen])
+AC_CHECK_FUNCS([dup2 gettimeofday memmove memset mkdir mkfifo pow setenv setlocale strcasecmp strchr])
+AC_CHECK_FUNCS([strerror strstr strtol strtoul])
+
+AC_CHECK_TYPES([ptrdiff_t])
 
 AC_ARG_ENABLE([lz4],
      AS_HELP_STRING([--enable-lz4],[enable lz4 compression algorithm]),

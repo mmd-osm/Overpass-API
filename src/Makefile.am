@@ -322,7 +322,7 @@ nobase_dist_HEADERS = \
   overpass_api/statements/union.h\
   overpass_api/statements/user.h\
   template_db/block_backend.h\
-  template_db/block_backend_updater.h\  
+  template_db/block_backend_updater.h\
   template_db/dispatcher_client.h\
   template_db/dispatcher.h\
   template_db/file_blocks.h\
