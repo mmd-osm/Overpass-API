@@ -47,7 +47,7 @@ Dispatcher_Socket::Dispatcher_Socket
      const std::string& db_dir_,
      uint max_num_reading_processes)
   : socket("", max_num_reading_processes),
-    efd(0)
+    efd(0), signal_fd(0)
 {
   signal(SIGPIPE, SIG_IGN);
 
@@ -136,7 +136,10 @@ int Dispatcher_Socket::accept_new_connection(Connection_Per_Pid_Map& connection_
   // Derive client PID via SO_PEERCRED, rather than trusting the client to provide it via a message
   struct ucred ucred;
   socklen_t len = sizeof(struct ucred);
-  getsockopt(socket_fd, SOL_SOCKET, SO_PEERCRED, &ucred, &len);
+  if (getsockopt(socket_fd, SOL_SOCKET, SO_PEERCRED, &ucred, &len) == -1) {
+    throw File_Error
+          (errno, "(socket)", "Dispatcher_Server::8");
+  }
 
   connection_per_pid.set(ucred.pid, new Blocking_Client_Socket(socket_fd, efd, ucred.uid));
 
@@ -216,7 +219,9 @@ std::vector<unsigned int> Dispatcher_Socket::wait_for_clients(Connection_Per_Pid
 
       struct ucred ucred;
       socklen_t len = sizeof(struct ucred);
-      getsockopt(pid, SOL_SOCKET, SO_PEERCRED, &ucred, &len);
+      if (getsockopt(pid, SOL_SOCKET, SO_PEERCRED, &ucred, &len) == -1) {
+        throw File_Error( errno, "(socket)", "Dispatcher_Socket::wait_for_clients:2");
+      }
 
       result_pids.push_back(ucred.pid);
     }
