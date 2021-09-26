@@ -27,6 +27,8 @@
 #include <cerrno>
 #include <cstdlib>
 #include <cstring>
+#include <fstream>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -88,14 +90,65 @@ inline void unalignedStore(void *ptr, T t)
 #undef OVERPASS_HAS_BUILTIN
 
 
-struct File_Error
+struct Rate_limited_Error : std::exception {
+
+
+  Rate_limited_Error(const std::string& filename_, const std::string& origin_) :
+    filename(filename_), origin(origin_){
+
+    std::ostringstream out;
+    out << origin <<' ' << filename;
+    error_msg = out.str();
+
+  }
+
+  const char* what() const noexcept override {
+    return error_msg.c_str();
+  }
+
+  std::string filename;
+  std::string origin;
+  std::string error_msg;
+};
+
+struct Timeout_Error : std::exception {
+
+
+  Timeout_Error(const std::string& filename_, const std::string& origin_) :
+    filename(filename_), origin(origin_) {
+
+    std::ostringstream out;
+    out << origin <<' ' << filename;
+    error_msg = out.str();
+  }
+
+  const char* what() const noexcept override {
+    return error_msg.c_str();
+  }
+
+  std::string filename;
+  std::string origin;
+  std::string error_msg;
+};
+
+struct File_Error : std::exception
 {
   File_Error(uint32 errno_, const std::string& filename_, const std::string& origin_)
-  : error_number(errno_), filename(filename_), origin(origin_) {}
+  : error_number(errno_), filename(filename_), origin(origin_) {
+
+    std::ostringstream out;
+    out << origin <<' ' << filename<<' '<< error_number<<' '<< strerror(error_number);
+    error_msg = out.str();
+  }
+
+  const char* what() const noexcept override {
+    return error_msg.c_str();
+  }
 
   uint32 error_number;
   std::string filename;
   std::string origin;
+  std::string error_msg;
 };
 
 

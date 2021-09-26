@@ -251,6 +251,16 @@ int main(int argc, char *argv[])
 
     return 0;
   }
+  catch (const Rate_limited_Error& e)
+  {
+    error_output.runtime_error(e.what());
+    return 1;
+  }
+  catch (const Timeout_Error& e)
+  {
+    error_output.runtime_error(e.what());
+    return 1;
+  }
   catch (const File_Error &e)
   {
     if (e.origin != "Dispatcher_Stub::Dispatcher_Stub::1")

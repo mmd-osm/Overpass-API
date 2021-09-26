@@ -295,7 +295,7 @@ void File_Blocks_Index< TIndex >::init_void_blocks()
         void_blocks.push_back(*(std::pair< uint32, uint32 >*)(index_buf.get() + 8*i));
       empty_index_file_used = true;
     }
-    catch (File_Error e) {}
+    catch (File_Error& e) {}
   }
 
   if (!empty_index_file_used)
@@ -389,7 +389,7 @@ File_Blocks_Index< TIndex >::~File_Blocks_Index()
     void_file.write(void_index_buf.data(), void_blocks.size()*sizeof(uint32),
 		    "File_Blocks_Index::~File_Blocks_Index::6");
   }
-  catch (File_Error e) {}
+  catch (File_Error& e) {}
 }
 
 /** Implementation non-members: ---------------------------------------------*/

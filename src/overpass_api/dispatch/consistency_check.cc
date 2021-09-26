@@ -262,7 +262,7 @@ int main(int argc, char *argv[])
 
     return 0;
   }
-  catch(File_Error e)
+  catch(File_Error& e)
   {
     std::ostringstream temp;
     if (e.origin != "Dispatcher_Stub::Dispatcher_Stub::1")
@@ -274,7 +274,7 @@ int main(int argc, char *argv[])
 
     return 1;
   }
-  catch(Resource_Error e)
+  catch(Resource_Error& e)
   {
     std::ostringstream temp;
     if (e.timed_out)
@@ -288,7 +288,7 @@ int main(int argc, char *argv[])
 
     return 2;
   }
-  catch(Exit_Error e)
+  catch(Exit_Error& e)
   {
     return 3;
   }

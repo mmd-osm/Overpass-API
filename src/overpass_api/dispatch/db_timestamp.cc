@@ -125,27 +125,29 @@ int main(int argc, char *argv[])
       error_output.write_payload_header(dispatcher_client.get_db_dir(), timestamp, "", true);
     }
   }
+  catch (const Timeout_Error& e) {
+    std::ostringstream temp;
+    error_output.write_html_header("", "", 504, false);
+    if (error_output.http_method == http_get
+        || error_output.http_method == http_post)
+      temp<<"open64: "<< 0 <<' '<<strerror(0)<<' '<<e.filename<<' '<<e.origin
+          <<". Probably the server is overcrowded.\n";
+    error_output.runtime_error(temp.str());
+  }
+  catch (const Rate_limited_Error& e) {
+
+    std::ostringstream temp;
+    error_output.write_html_header("", "", 429, false);
+    if (error_output.http_method == http_get
+        || error_output.http_method == http_post)
+      temp<<"open64: "<< 0 <<' '<<strerror(0)<<' '<<e.filename<<' '<<e.origin
+          <<". Please check /api/status for the quota of your IP address.\n";
+    error_output.runtime_error(temp.str());
+  }
   catch (const File_Error &e)
   {
     std::ostringstream temp;
-    if (e.origin.substr(e.origin.size()-9) == "::timeout")
-    {
-      error_output.write_html_header("", "", 504, false);
-      if (error_output.http_method == http_get
-          || error_output.http_method == http_post)
-        temp<<"open64: "<<e.error_number<<' '<<strerror(e.error_number)<<' '<<e.filename<<' '<<e.origin
-            <<". Probably the server is overcrowded.\n";
-    }
-    else if (e.origin.substr(e.origin.size()-14) == "::rate_limited")
-    {
-      error_output.write_html_header("", "", 429, false);
-      if (error_output.http_method == http_get
-          || error_output.http_method == http_post)
-        temp<<"open64: "<<e.error_number<<' '<<strerror(e.error_number)<<' '<<e.filename<<' '<<e.origin
-            <<". Please check /api/status for the quota of your IP address.\n";
-    }
-    else
-      temp<<"open64: "<<e.error_number<<' '<<strerror(e.error_number)<<' '<<e.filename<<' '<<e.origin;
+    temp<<"open64: "<< e.what();
     error_output.runtime_error(temp.str());
   }
 

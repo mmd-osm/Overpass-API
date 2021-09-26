@@ -133,40 +133,35 @@ int handle_request(const std::string & content, bool is_cgi, Index_Cache* ic)
         throw;
       }
 
-    //TODO
-//       if (osm_script && osm_script->get_type() == "popup")
-//       {
-//         error_output.write_html_header
-//             (dispatcher.get_timestamp(),
-// 	     area_level > 0 ? dispatcher.get_area_timestamp() : "", 200,
-// 	     osm_script->template_contains_js(), false);
-//         osm_script->write_output();
-//         error_output.write_footer();
-//       }
-//       else
-//         error_output.write_footer();
+
     }
+  }
+
+  catch (const Timeout_Error& e) {
+    std::ostringstream temp;
+    error_output.write_html_header("", "", 504, false);
+    if (error_output.http_method == http_get
+        || error_output.http_method == http_post)
+      temp<<"open64: "<< 0 <<' '<<strerror(0)<<' '<<e.filename<<' '<<e.origin
+          <<". The server is probably too busy to handle your request.";
+    error_output.runtime_error(temp.str());
+  }
+  catch (const Rate_limited_Error& e) {
+
+    std::ostringstream temp;
+    error_output.write_html_header("", "", 429, false);
+    if (error_output.http_method == http_get
+        || error_output.http_method == http_post)
+      temp<<"open64: "<< 0 <<' '<<strerror( 0 )<<' '<<e.filename<<' '<<e.origin
+          <<". Please check /api/status for the quota of your IP address.";
+    error_output.runtime_error(temp.str());
   }
   catch(const File_Error& e)
   {
     std::ostringstream temp;
-    if (e.origin.size() >= 9 && e.origin.substr(e.origin.size()-9) == "::timeout")
-    {
-      error_output.write_html_header("", "", 504, false);
-      if (error_output.http_method == http_get
-          || error_output.http_method == http_post)
-        temp<<"open64: "<<e.error_number<<' '<<strerror(e.error_number)<<' '<<e.filename<<' '<<e.origin
-            <<". The server is probably too busy to handle your request.";
-    }
-    else if (e.origin.size() >= 14 && e.origin.substr(e.origin.size()-14) == "::rate_limited")
-    {
-      error_output.write_html_header("", "", 429, false);
-      if (error_output.http_method == http_get
-          || error_output.http_method == http_post)
-        temp<<"open64: "<<e.error_number<<' '<<strerror(e.error_number)<<' '<<e.filename<<' '<<e.origin
-            <<". Please check /api/status for the quota of your IP address.";
-    }
-    else if (e.origin == "Dispatcher_Client::1")
+
+
+    if (e.origin == "Dispatcher_Client::1")
     {
       error_output.write_html_header("", "", 504, false);
       temp<<"The dispatcher (i.e. the database management system) is turned off.";

@@ -236,9 +236,9 @@ void Dispatcher_Client::request_read_and_idx(uint32 max_allowed_time, uint64 max
     millisleep(300);
   }
   if (ack == Dispatcher::RATE_LIMITED)
-    throw File_Error(0, dispatcher_share_name, "Dispatcher_Client::request_read_and_idx::rate_limited");
+    throw Rate_limited_Error(dispatcher_share_name, "Dispatcher_Client::request_read_and_idx::rate_limited");
   else
-    throw File_Error(0, dispatcher_share_name, "Dispatcher_Client::request_read_and_idx::timeout");
+    throw Timeout_Error(dispatcher_share_name, "Dispatcher_Client::request_read_and_idx::timeout");
 }
 
 
@@ -252,7 +252,7 @@ void Dispatcher_Client::read_idx_finished()
     if (ack_arrived())
       return;
   }
-  throw File_Error(0, dispatcher_share_name, "Dispatcher_Client::read_idx_finished::timeout");
+  throw Timeout_Error(dispatcher_share_name, "Dispatcher_Client::read_idx_finished::timeout");
 }
 
 
@@ -266,7 +266,7 @@ void Dispatcher_Client::read_finished()
     if (ack_arrived())
       return;
   }
-  throw File_Error(0, dispatcher_share_name, "Dispatcher_Client::read_finished::timeout");
+  throw Timeout_Error(dispatcher_share_name, "Dispatcher_Client::read_finished::timeout");
 }
 
 

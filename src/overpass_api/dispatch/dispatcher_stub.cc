@@ -163,14 +163,21 @@ Dispatcher_Stub::Dispatcher_Stub
       dispatcher_client->request_read_and_idx(max_allowed_time, max_allowed_space, client_token);
       logger.annotated_log("request_read_and_idx() end");
     }
+    catch (const Rate_limited_Error& e) {
+      std::ostringstream out;
+      out<<e.origin<<' '<<e.filename<<' '<< 0 <<' '<<strerror(0) << probe_client_identifier();
+      logger.annotated_log(out.str());
+      throw;
+    }
+    catch (const Timeout_Error& e) {
+      std::ostringstream out;
+      out<<e.origin<<' '<<e.filename<<' '<< 0 <<' '<<strerror(0) << probe_client_identifier();
+      logger.annotated_log(out.str());
+      throw;
+    }
     catch (const File_Error& e)
     {
-      std::ostringstream out;
-      out<<e.origin<<' '<<e.filename<<' '<<e.error_number<<' '<<strerror(e.error_number);
-      if (e.origin == "Dispatcher_Client::request_read_and_idx::rate_limited"
-          || e.origin == "Dispatcher_Client::request_read_and_idx::timeout")
-	out<<' '<<probe_client_identifier();
-      logger.annotated_log(out.str());
+      logger.annotated_log(e.what());
       throw;
     }
 
@@ -235,15 +242,18 @@ Dispatcher_Stub::Dispatcher_Stub
       logger.annotated_log("read_idx_finished() end");
       logger.annotated_log('\n' + xml_raw);
     }
+    catch (const Timeout_Error& e)
+    {
+      logger.annotated_log(e.what());
+      throw;
+    }
     catch (const File_Error& e)
     {
-      std::ostringstream out;
-      out<<e.origin<<' '<<e.filename<<' '<<e.error_number<<' '<<strerror(e.error_number);
-      logger.annotated_log(out.str());
+      logger.annotated_log(e.what());
       throw;
     }
 
-    if (area_level > 0)
+    if (1 <= area_level && area_level <= 2)
     {
       area_dispatcher_client = new Dispatcher_Client(area_settings().shared_name);
       Logger logger(area_dispatcher_client->get_db_dir());
@@ -256,11 +266,19 @@ Dispatcher_Stub::Dispatcher_Stub
 	  area_dispatcher_client->request_read_and_idx(max_allowed_time, max_allowed_space, client_token);
           logger.annotated_log("request_read_and_idx() area end");
         }
+        catch (const Rate_limited_Error& e)
+        {
+          logger.annotated_log(e.what());
+          throw;
+        }
+        catch (const Timeout_Error& e)
+        {
+          logger.annotated_log(e.what());
+          throw;
+        }
 	catch (const File_Error& e)
 	{
-	  std::ostringstream out;
-	  out<<e.origin<<' '<<e.filename<<' '<<e.error_number<<' '<<strerror(e.error_number);
-	  logger.annotated_log(out.str());
+	  logger.annotated_log(e.what());
 	  throw;
 	}
 	area_transaction = new Nonsynced_Transaction
@@ -282,9 +300,7 @@ Dispatcher_Stub::Dispatcher_Stub
 	}
 	catch (const File_Error& e)
 	{
-	  std::ostringstream out;
-	  out<<e.origin<<' '<<e.filename<<' '<<e.error_number<<' '<<strerror(e.error_number);
-	  logger.annotated_log(out.str());
+	  logger.annotated_log(e.what());
 	  throw;
 	}
 	area_transaction = new Nonsynced_Transaction
@@ -312,9 +328,7 @@ Dispatcher_Stub::Dispatcher_Stub
 	}
 	catch (const File_Error& e)
 	{
-	  std::ostringstream out;
-	  out<<e.origin<<' '<<e.filename<<' '<<e.error_number<<' '<<strerror(e.error_number);
-	  logger.annotated_log(out.str());
+	  logger.annotated_log(e.what());
 	  throw;
 	}
       }
@@ -451,9 +465,7 @@ Dispatcher_Stub::~Dispatcher_Stub()
     }
     catch (const File_Error& e)
     {
-      std::ostringstream out;
-      out<<e.origin<<' '<<e.filename<<' '<<e.error_number<<' '<<strerror(e.error_number);
-      logger.annotated_log(out.str());
+      logger.annotated_log(e.what());
     }
     delete dispatcher_client;
   }
@@ -472,9 +484,7 @@ Dispatcher_Stub::~Dispatcher_Stub()
       }
       catch (const File_Error& e)
       {
-        std::ostringstream out;
-        out<<e.origin<<' '<<e.filename<<' '<<e.error_number<<' '<<strerror(e.error_number);
-        logger.annotated_log(out.str());
+        logger.annotated_log(e.what());
       }
     }
     else
@@ -488,9 +498,7 @@ Dispatcher_Stub::~Dispatcher_Stub()
       }
       catch (const File_Error& e)
       {
-        std::ostringstream out;
-        out<<e.origin<<' '<<e.filename<<' '<<e.error_number<<' '<<strerror(e.error_number);
-        logger.annotated_log(out.str());
+        logger.annotated_log(e.what());
       }
     }
     delete area_dispatcher_client;
