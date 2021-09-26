@@ -106,7 +106,7 @@ struct Node_Skeleton
   Node::Id_Type id;
   uint32 ll_lower;
 
-  Node_Skeleton() noexcept : id(0ull) {}
+  Node_Skeleton() noexcept : id(0ull), ll_lower(0) {}
 
   Node_Skeleton(const void* data) noexcept
     : id(data), ll_lower(unalignedLoad<uint32>((uint8*)data + Id_Type::max_size_of())) {}

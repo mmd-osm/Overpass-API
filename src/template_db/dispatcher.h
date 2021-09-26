@@ -172,7 +172,7 @@ private:
   int efd;   // epoll file descriptor
   int signal_fd; // signal file descriptor
 
-  std::array<struct epoll_event, MAX_EVENTS> events;
+  std::array<struct epoll_event, MAX_EVENTS> events{};
 };
 
 

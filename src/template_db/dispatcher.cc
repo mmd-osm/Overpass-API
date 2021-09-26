@@ -150,7 +150,10 @@ void Dispatcher_Socket::set_socket_reuse_addr()
 {
   int reuseaddr_on;
   reuseaddr_on = 1;
-  setsockopt(socket.descriptor(), SOL_SOCKET, SO_REUSEADDR, &reuseaddr_on, sizeof(reuseaddr_on));
+  if (setsockopt(socket.descriptor(), SOL_SOCKET, SO_REUSEADDR, &reuseaddr_on, sizeof(reuseaddr_on)) == -1) {
+    throw File_Error
+          (errno, "(socket)", "Dispatcher_Server::set_socket_reuse_addr");
+  }
 }
 
 void Dispatcher_Socket::init_epoll()
@@ -158,12 +161,17 @@ void Dispatcher_Socket::init_epoll()
   struct epoll_event event;
 
   efd = epoll_create1(0);
+  if (efd == -1) {
+    throw File_Error
+          (errno, "(socket)", "Dispatcher_Server::init_epoll:1");
+  }
 
   event.data.fd = socket.descriptor();
   event.events = EPOLLIN | EPOLLET;
-  if (epoll_ctl (efd, EPOLL_CTL_ADD, socket.descriptor(), &event) == -1)
+  if (epoll_ctl (efd, EPOLL_CTL_ADD, socket.descriptor(), &event) == -1) {
     throw File_Error
-          (errno, "(socket)", "Dispatcher_Server::11");
+          (errno, "(socket)", "Dispatcher_Server::init_epoll:2");
+  }
 
 }
 
@@ -243,7 +251,9 @@ std::vector<unsigned int> Dispatcher_Socket::wait_for_clients(Connection_Per_Pid
 
       struct ucred ucred;
       socklen_t len = sizeof(struct ucred);
-      getsockopt(pid, SOL_SOCKET, SO_PEERCRED, &ucred, &len);
+      if (getsockopt(pid, SOL_SOCKET, SO_PEERCRED, &ucred, &len) == -1) {
+        throw File_Error( errno, "(socket)", "Dispatcher_Socket::wait_for_clients:3");
+      }
 
       result_pids.push_back(ucred.pid);
     }

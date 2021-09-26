@@ -605,7 +605,11 @@ Osm_Updater::~Osm_Updater()
       delete transaction;
     Logger logger(dispatcher_client->get_db_dir());
     logger.annotated_log("write_rollback() start");
-    dispatcher_client->write_rollback();
+    try {
+      dispatcher_client->write_rollback();
+    } catch (File_Error& e) {
+      logger.annotated_log(e.what());
+    }
     logger.annotated_log("write_rollback() end");
     delete dispatcher_client;
   }

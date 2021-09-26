@@ -440,7 +440,7 @@ bool Dispatcher_Stub::is_attic_file(const std::string& filename) const
 
 Dispatcher_Stub::~Dispatcher_Stub()
 {
-  bool areas_written = (rman->area_updater() != 0);
+  bool areas_written = (rman ? (rman->area_updater() != 0) : false);
   std::vector< std::chrono::milliseconds > cpu_runtime = rman ? rman->cpu_time() : std::vector< std::chrono::milliseconds >();
   delete rman;
   if (transaction)
@@ -463,6 +463,10 @@ Dispatcher_Stub::~Dispatcher_Stub()
       dispatcher_client->read_finished();
       logger.annotated_log("read_finished() end");
     }
+    catch (const Timeout_Error& e)
+    {
+      logger.annotated_log(e.what());
+    }
     catch (const File_Error& e)
     {
       logger.annotated_log(e.what());
@@ -482,8 +486,10 @@ Dispatcher_Stub::~Dispatcher_Stub()
 	       (area_dispatcher_client->get_db_dir() + "area_version").c_str());
         logger.annotated_log("write_commit() area end");
       }
-      catch (const File_Error& e)
-      {
+      catch (const Timeout_Error& e) {
+        logger.annotated_log(e.what());
+      }
+      catch (const File_Error& e) {
         logger.annotated_log(e.what());
       }
     }

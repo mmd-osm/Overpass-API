@@ -457,7 +457,7 @@ std::string Evaluator_Set_Count::to_string(Evaluator_Set_Count::Objects objects)
 
 Evaluator_Set_Count::Evaluator_Set_Count
     (int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
-    : Evaluator(line_number_)
+    : Evaluator(line_number_), to_count(Evaluator_Set_Count::nothing)
 {
   std::map< std::string, std::string > attributes;
 
