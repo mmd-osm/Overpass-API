@@ -44,7 +44,7 @@ int main(int argc, char* args[])
 
   std::string db_dir(args[1]);
 
-  uint32 index_int;
+  uint32 index_int = 0;
   bool index_used = false;
   if (argc >= 4)
   {
@@ -603,7 +603,7 @@ int main(int argc, char* args[])
     else
       std::cout<<"Unknown target.\n";
   }
-  catch (File_Error e)
+  catch (File_Error& e)
   {
     std::cerr<<e.origin<<' '<<e.filename<<' '<<e.error_number<<'\n';
   }
