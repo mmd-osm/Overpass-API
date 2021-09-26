@@ -248,8 +248,11 @@ bool Runtime_Stack_Frame::union_inward(const std::string& top_set_name, const st
 
     parent->size_per_set[inner_set_name] += result_size_increase;   // eval_set(target);
   }
-  parent->diff_sets.erase(inner_set_name);
-  parent->key_values.erase(top_set_name);
+
+  if (parent) {
+    parent->diff_sets.erase(inner_set_name);
+    parent->key_values.erase(top_set_name);
+  }
 
   return result_size_increase > 0;
 }
@@ -298,37 +301,40 @@ void Runtime_Stack_Frame::substract_from_inward(const std::string& top_set_name,
 
     parent->size_per_set[inner_set_name] = eval_set(target);
   }
-  parent->diff_sets.erase(inner_set_name);
-  parent->key_values.erase(inner_set_name);
+
+  if (parent) {
+    parent->diff_sets.erase(inner_set_name);
+    parent->key_values.erase(inner_set_name);
+  }
 }
 
 
 void Runtime_Stack_Frame::move_all_inward()
 {
-  if (parent)
+  if (!parent)
+    return;
+
+  for (auto it = sets.begin(); it != sets.end(); ++it)
   {
-    for (auto it = sets.begin(); it != sets.end(); ++it)
-    {
-      parent->swap_set(it->first, it->second);
-      parent->diff_sets.erase(it->first);
-      parent->key_values.erase(it->first);
-    }
+    parent->swap_set(it->first, it->second);
+    parent->diff_sets.erase(it->first);
+    parent->key_values.erase(it->first);
   }
 }
 
 
 void Runtime_Stack_Frame::move_all_inward_except(const std::string& set_name)
 {
-  if (parent)
+  if (!parent)
+    return;
+
+  for (auto it = sets.begin(); it != sets.end(); ++it)
   {
-    for (auto it = sets.begin(); it != sets.end(); ++it)
+    if (it->first != set_name)
     {
-      if (it->first != set_name)
-      {
-        parent->swap_set(it->first, it->second);
-        parent->diff_sets.erase(it->first);
-        parent->key_values.erase(it->first);
-      }
+      parent->swap_set(it->first, it->second);
+      parent->diff_sets.erase(it->first);
+      parent->key_values.erase(it->first);
     }
   }
 }
@@ -342,7 +348,7 @@ uint64 Runtime_Stack_Frame::total_size()
     result += it->second;
 
   if (parent)
-    return result + parent->total_size();
+    result += parent->total_size();
 
   return result;
 }
