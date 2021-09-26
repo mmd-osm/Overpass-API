@@ -2465,10 +2465,7 @@ Recurse_Statement::Recurse_Statement
       {
         pos.push_back(atoll(&attributes["pos"][startpos]));
         if (pos.back() == 0)
-          add_static_error("Invalid pos '"
-              + (endpos != std::string::npos ?
-                  attributes["pos"].substr(startpos,endpos-startpos) : attributes["pos"].substr(startpos))
-              + "' in positions list.");
+          add_static_error("Invalid pos '" + attributes["pos"].substr(startpos,endpos-startpos) + "' in positions list.");
         startpos = endpos + 1;
         endpos = attributes["pos"].find(',', startpos);
       }
