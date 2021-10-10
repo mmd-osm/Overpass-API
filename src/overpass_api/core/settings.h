@@ -209,12 +209,27 @@ void show_mem_status();
 class Logger
 {
   public:
+    enum LEVEL {
+      error,
+      warn,
+      info,
+      debug,
+      trace
+    };
+
     Logger(const std::string& db_dir);
     void annotated_log(const std::string& message);
+    void annotated_log(LEVEL l, const std::string& message);
     void raw_log(const std::string& message);
+    void raw_log(LEVEL l, const std::string& message);
+    bool enabled(LEVEL l);
 
   private:
+    static LEVEL int_to_level(int level);
+    static LEVEL get_env_log_level();
+
     std::string logfile_full_name;
+    static const LEVEL log_level;
 };
 
 

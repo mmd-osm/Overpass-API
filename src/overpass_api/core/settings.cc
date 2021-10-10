@@ -307,10 +307,52 @@ void show_mem_status()
   std::cerr<<'\n';
 }
 
+
 //-----------------------------------------------------------------------------
 
+Logger::LEVEL Logger::int_to_level(int level)
+{
+  switch (level) {
+  case 0:
+    return LEVEL::error;
+   case 1:
+    return LEVEL::warn;
+  case 2:
+    return LEVEL::info;
+  case 3:
+    return LEVEL::debug;
+  case 4:
+    return LEVEL::trace;
+  default:
+    return LEVEL::debug;
+  }
+}
+
+bool Logger::enabled(LEVEL l) {
+  return (l <= log_level);
+}
+
+Logger::LEVEL Logger::get_env_log_level()
+{
+  const char *loglevel_c = std::getenv("OVERPASS_LOG_LEVEL");
+  if (loglevel_c == nullptr)
+    return Logger::LEVEL::debug;
+
+  int level = atoi(loglevel_c);
+  return int_to_level(level);
+}
+
 Logger::Logger(const std::string& db_dir)
-  : logfile_full_name(db_dir + basic_settings().logfile_name) {}
+  : logfile_full_name(db_dir + basic_settings().logfile_name)
+{
+
+}
+
+void Logger::annotated_log(LEVEL l, const std::string& message)
+{
+  if (enabled(l))
+    annotated_log(message);
+}
 
 void Logger::annotated_log(const std::string& message)
 {
@@ -326,6 +368,12 @@ void Logger::annotated_log(const std::string& message)
   out<<strftime_buf<<'['<<getpid()<<"] "<<message<<'\n';
 }
 
+void Logger::raw_log(LEVEL l, const std::string& message)
+{
+  if (enabled(l))
+    raw_log(message);
+}
+
 void Logger::raw_log(const std::string& message)
 {
   std::ofstream out(logfile_full_name.c_str(), std::ios_base::app);
@@ -337,6 +385,7 @@ const std::string& get_logfile_name()
   return basic_settings().logfile_name;
 }
 
+const Logger::LEVEL Logger::log_level = Logger::get_env_log_level();
 
 const uint64 NOW = std::numeric_limits< unsigned long long >::max();
 

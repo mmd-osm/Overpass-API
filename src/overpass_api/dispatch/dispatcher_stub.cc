@@ -159,9 +159,9 @@ Dispatcher_Stub::Dispatcher_Stub
     Logger logger(dispatcher_client->get_db_dir());
     try
     {
-      logger.annotated_log("request_read_and_idx() start");
+      logger.annotated_log(Logger::LEVEL::debug, "request_read_and_idx() start");
       dispatcher_client->request_read_and_idx(max_allowed_time, max_allowed_space, client_token);
-      logger.annotated_log("request_read_and_idx() end");
+      logger.annotated_log(Logger::LEVEL::debug, "request_read_and_idx() end");
     }
     catch (const Rate_limited_Error& e) {
       std::ostringstream out;
@@ -237,9 +237,9 @@ Dispatcher_Stub::Dispatcher_Stub
 
     try
     {
-      logger.annotated_log("read_idx_finished() start");
+      logger.annotated_log(Logger::LEVEL::debug, "read_idx_finished() start");
       dispatcher_client->read_idx_finished();
-      logger.annotated_log("read_idx_finished() end");
+      logger.annotated_log(Logger::LEVEL::debug, "read_idx_finished() end");
       logger.annotated_log('\n' + xml_raw);
     }
     catch (const Timeout_Error& e)
@@ -262,9 +262,9 @@ Dispatcher_Stub::Dispatcher_Stub
       {
 	try
 	{
-          logger.annotated_log("request_read_and_idx() area start");
+          logger.annotated_log(Logger::LEVEL::debug, "request_read_and_idx() area start");
 	  area_dispatcher_client->request_read_and_idx(max_allowed_time, max_allowed_space, client_token);
-          logger.annotated_log("request_read_and_idx() area end");
+          logger.annotated_log(Logger::LEVEL::debug, "request_read_and_idx() area end");
         }
         catch (const Rate_limited_Error& e)
         {
@@ -294,9 +294,9 @@ Dispatcher_Stub::Dispatcher_Stub
       {
 	try
 	{
-	  logger.annotated_log("write_start() area start");
+	  logger.annotated_log(Logger::LEVEL::debug, "write_start() area start");
 	  area_dispatcher_client->write_start();
-	  logger.annotated_log("write_start() area end");
+	  logger.annotated_log(Logger::LEVEL::debug, "write_start() area end");
 	}
 	catch (const File_Error& e)
 	{
@@ -322,9 +322,9 @@ Dispatcher_Stub::Dispatcher_Stub
       {
 	try
 	{
-          logger.annotated_log("read_idx_finished() area start");
+          logger.annotated_log(Logger::LEVEL::debug, "read_idx_finished() area start");
           area_dispatcher_client->read_idx_finished();
-          logger.annotated_log("read_idx_finished() area end");
+          logger.annotated_log(Logger::LEVEL::debug, "read_idx_finished() area end");
 	}
 	catch (const File_Error& e)
 	{
@@ -461,15 +461,15 @@ Dispatcher_Stub::~Dispatcher_Stub()
         out<<' '<<r.count();
       logger.annotated_log(out.str());
       dispatcher_client->read_finished();
-      logger.annotated_log("read_finished() end");
+      logger.annotated_log(Logger::LEVEL::debug, "read_finished() end");
     }
     catch (const Timeout_Error& e)
     {
-      logger.annotated_log(e.what());
+      logger.annotated_log(Logger::LEVEL::error, e.what());
     }
     catch (const File_Error& e)
     {
-      logger.annotated_log(e.what());
+      logger.annotated_log(Logger::LEVEL::error, e.what());
     }
     delete dispatcher_client;
   }
@@ -480,17 +480,17 @@ Dispatcher_Stub::~Dispatcher_Stub()
       Logger logger(area_dispatcher_client->get_db_dir());
       try
       {
-        logger.annotated_log("write_commit() area start");
+        logger.annotated_log(Logger::LEVEL::debug, "write_commit() area start");
         area_dispatcher_client->write_commit();
         rename((area_dispatcher_client->get_db_dir() + "area_version.shadow").c_str(),
 	       (area_dispatcher_client->get_db_dir() + "area_version").c_str());
-        logger.annotated_log("write_commit() area end");
+        logger.annotated_log(Logger::LEVEL::debug, "write_commit() area end");
       }
       catch (const Timeout_Error& e) {
-        logger.annotated_log(e.what());
+        logger.annotated_log(Logger::LEVEL::error, e.what());
       }
       catch (const File_Error& e) {
-        logger.annotated_log(e.what());
+        logger.annotated_log(Logger::LEVEL::error, e.what());
       }
     }
     else
@@ -498,13 +498,13 @@ Dispatcher_Stub::~Dispatcher_Stub()
       Logger logger(area_dispatcher_client->get_db_dir());
       try
       {
-        logger.annotated_log("read_finished() area start");
+        logger.annotated_log(Logger::LEVEL::debug, "read_finished() area start");
         area_dispatcher_client->read_finished();
-        logger.annotated_log("read_finished() area end");
+        logger.annotated_log(Logger::LEVEL::debug, "read_finished() area end");
       }
       catch (const File_Error& e)
       {
-        logger.annotated_log(e.what());
+        logger.annotated_log(Logger::LEVEL::error, e.what());
       }
     }
     delete area_dispatcher_client;
