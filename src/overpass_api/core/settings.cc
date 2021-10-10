@@ -94,7 +94,8 @@ Basic_Settings::Basic_Settings()
 
   base_directory("./"),
   logfile_name("transactions.log"),
-  shared_name_base("/osm3s_v0.7.59_mmd"),
+  shared_name_base("/osm3s_v0.7.59"),
+  shared_name_suffix(get_shared_name_suffix()),
   version("0.7.59_mmd"),
   source_hash(GIT_VERSION),
 #ifdef HAVE_LZ4
@@ -106,6 +107,15 @@ Basic_Settings::Basic_Settings()
 #endif
 
 {}
+
+inline std::string Basic_Settings::get_shared_name_suffix() {
+
+  const char *suffix_c = std::getenv("OVERPASS_SHARED_NAME_SUFFIX");
+  if (suffix_c != nullptr)
+    return "_" + std::string(suffix_c);
+
+  return "_mmd";
+}
 
 
 Basic_Settings all_settings::basic_settings = { };
@@ -142,7 +152,7 @@ Osm_Base_Settings::Osm_Base_Settings()
   RELATION_KEYS(new OSM_File_Properties< Uint32_Index >
       ("relation_keys", 512*1024, 0)),
 
-  shared_name(basic_settings().shared_name_base + "_osm_base"),
+  shared_name(basic_settings().shared_name_base + "_osm_base" + basic_settings().shared_name_suffix),
   max_num_processes(20),
   purge_timeout(900),
   total_available_space(12ll*1024*1024*1024),
@@ -181,7 +191,7 @@ Area_Settings::Area_Settings()
   AREA_TAGS_GLOBAL(new OSM_File_Properties< Tag_Index_Global >
       ("area_tags_global", 512*1024, 0)),
 
-  shared_name(basic_settings().shared_name_base + "_areas"),
+  shared_name(basic_settings().shared_name_base + "_areas"  + basic_settings().shared_name_suffix),
   max_num_processes(5),
   purge_timeout(900),
   total_available_space(4ll*1024*1024*1024),

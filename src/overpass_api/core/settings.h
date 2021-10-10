@@ -35,6 +35,7 @@ struct Basic_Settings
   const std::string base_directory;
   const std::string logfile_name;
   const std::string shared_name_base;
+  const std::string shared_name_suffix;
 
   const std::string version;
   const std::string source_hash;
@@ -43,6 +44,8 @@ struct Basic_Settings
   uint32 map_compression_method;
 
   Basic_Settings();
+
+  static std::string get_shared_name_suffix();
 };
 
 
