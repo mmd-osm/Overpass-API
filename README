@@ -63,12 +63,14 @@ foreach .result -> .area {
 * Improved dispatcher process security for use in multi-user environments ([upstream issue 247](https://github.com/drolbr/Overpass-API/issues/247))
 * Improved dispatcher signal handling for SIGTERM and SIGINT, same behavior as `--terminate` command line parameter
     
-* Environment parameters:
+* Environment variables:
     
     * OVERPASS_MAX_TIMEOUT: global override for maximium permitted `[timeout:...]` value.
     * OVERPASS_FCGI_MAX_REQUESTS: number of FastCGI requests before `interpreter` process is being terminated (when idle)
     * OVERPASS_FCGI_MAX_ELAPSED_TIME: maximum time after which FastCGI process is being terminated (when idle)
     * OVERPASS_REGEXP_ENGINE: default regexp engine to use if none is specified in Overpass QL settings. POSIX, ICU, PCREJIT
+    * OVERPASS_LOG_LEVEL: define transaction.log log level. Available levels: 0 (error), 1 (warn), 2 (info), 3 (debug, default value), 4 (trace)
+    * OVERPASS_SHARED_NAME_SUFFIX: define /dev/shm/osm3s_... shared memory file suffix
 
 
 ### :bug: Bugfixes
