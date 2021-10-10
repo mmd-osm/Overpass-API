@@ -469,7 +469,7 @@ int main(int argc, char* args[])
       file_properties.push_back(&test_file_1);
       file_properties.push_back(&test_file_2);
       file_properties.push_back(&test_file_3);
-      Dispatcher dispatcher("osm3s_share_test", "osm3s_index_share_test",
+      Dispatcher dispatcher("osm3s_share_test",
 			    BASE_DIRECTORY + "test-shadow", BASE_DIRECTORY,
 			    5, 180, 1024*1024*1024, 1024*1024, file_properties);
     }
@@ -496,7 +496,7 @@ int main(int argc, char* args[])
     file_properties.push_back(&test_file_1);
     file_properties.push_back(&test_file_2);
     file_properties.push_back(&test_file_3);
-    Dispatcher dispatcher("osm3s_share_test", "osm3s_index_share_test",
+    Dispatcher dispatcher("osm3s_share_test",
 			  BASE_DIRECTORY + "test-shadow", BASE_DIRECTORY,
 			  5, 180, 1024*1024*1024,  1024*1024, file_properties);
   }
@@ -507,7 +507,7 @@ int main(int argc, char* args[])
 
     std::vector< File_Properties* > file_properties;
     file_properties.push_back(&test_file);
-    Dispatcher dispatcher("osm3s_share_test", "osm3s_index_share_test",
+    Dispatcher dispatcher("osm3s_share_test",
 			  BASE_DIRECTORY + "test-shadow", BASE_DIRECTORY,
 			  5, 180, 1024*1024*1024,  1024*1024, file_properties);
   }
@@ -518,7 +518,7 @@ int main(int argc, char* args[])
 
     std::vector< File_Properties* > file_properties;
     file_properties.push_back(&test_file);
-    Dispatcher dispatcher("osm3s_share_test", "osm3s_index_share_test",
+    Dispatcher dispatcher("osm3s_share_test",
 			  BASE_DIRECTORY + "test-shadow", BASE_DIRECTORY,
 			  5, 180, 1024*1024*1024,  1024*1024, file_properties);
     dispatcher.write_start(480);
@@ -539,7 +539,7 @@ int main(int argc, char* args[])
 
     std::vector< File_Properties* > file_properties;
     file_properties.push_back(&test_file);
-    Dispatcher dispatcher("osm3s_share_test", "osm3s_index_share_test",
+    Dispatcher dispatcher("osm3s_share_test",
 			  BASE_DIRECTORY + "test-shadow", BASE_DIRECTORY,
 			  5, 180, 1024*1024*1024,  1024*1024, file_properties);
     dispatcher.write_start(495);
@@ -569,7 +569,7 @@ int main(int argc, char* args[])
 
     std::vector< File_Properties* > file_properties;
     file_properties.push_back(&test_file);
-    Dispatcher dispatcher("osm3s_share_test", "osm3s_index_share_test",
+    Dispatcher dispatcher("osm3s_share_test",
 			  BASE_DIRECTORY + "test-shadow", BASE_DIRECTORY,
 			  5, 180, 1024*1024*1024,  1024*1024, file_properties);
     dispatcher.write_start(480);
@@ -591,7 +591,7 @@ int main(int argc, char* args[])
 
     std::vector< File_Properties* > file_properties;
     file_properties.push_back(&test_file);
-    Dispatcher dispatcher("osm3s_share_test", "osm3s_index_share_test",
+    Dispatcher dispatcher("osm3s_share_test",
 			  BASE_DIRECTORY + "test-shadow", BASE_DIRECTORY,
 			  5, 180, 1024*1024*1024,  1024*1024, file_properties);
     dispatcher.write_start(480);
@@ -621,7 +621,7 @@ int main(int argc, char* args[])
 
     std::vector< File_Properties* > file_properties;
     file_properties.push_back(&test_file);
-    Dispatcher dispatcher("osm3s_share_test", "osm3s_index_share_test",
+    Dispatcher dispatcher("osm3s_share_test",
 			  BASE_DIRECTORY + "test-shadow", BASE_DIRECTORY,
 			  5, 180, 1024*1024*1024,  1024*1024, file_properties);
     dispatcher.write_start(480);
@@ -659,7 +659,7 @@ int main(int argc, char* args[])
 
     std::vector< File_Properties* > file_properties;
     file_properties.push_back(&test_file);
-    Dispatcher dispatcher("osm3s_share_test", "osm3s_index_share_test",
+    Dispatcher dispatcher("osm3s_share_test",
 			  BASE_DIRECTORY + "test-shadow", BASE_DIRECTORY,
 			  5, 180, 1024*1024*1024,  1024*1024, file_properties);
     dispatcher.write_start(480);
@@ -676,7 +676,7 @@ int main(int argc, char* args[])
 
     std::vector< File_Properties* > file_properties;
     file_properties.push_back(&test_file);
-    Dispatcher dispatcher("osm3s_share_test", "osm3s_index_share_test",
+    Dispatcher dispatcher("osm3s_share_test",
 			  BASE_DIRECTORY + "test-shadow", BASE_DIRECTORY,
 			  5, 180, 1024*1024*1024,  1024*1024, file_properties);
     dispatcher.write_start(480);
@@ -696,7 +696,7 @@ int main(int argc, char* args[])
 
     std::vector< File_Properties* > file_properties;
     file_properties.push_back(&test_file);
-    Dispatcher dispatcher("osm3s_share_test", "osm3s_index_share_test",
+    Dispatcher dispatcher("osm3s_share_test",
 			  BASE_DIRECTORY + "test-shadow", BASE_DIRECTORY,
 			  5, 180, 1024*1024*1024,  1024*1024, file_properties);
     dispatcher.write_start(480);
@@ -719,7 +719,7 @@ int main(int argc, char* args[])
 
     std::vector< File_Properties* > file_properties;
     file_properties.push_back(&test_file);
-    Dispatcher dispatcher("osm3s_share_test", "osm3s_index_share_test",
+    Dispatcher dispatcher("osm3s_share_test",
 			  BASE_DIRECTORY + "test-shadow", BASE_DIRECTORY,
 			  5, 180, 1024*1024*1024,  1024*1024, file_properties);
     dispatcher.write_start(480);
@@ -749,7 +749,7 @@ int main(int argc, char* args[])
 
     std::vector< File_Properties* > file_properties;
     file_properties.push_back(&test_file);
-    Dispatcher dispatcher("osm3s_share_test", "osm3s_index_share_test",
+    Dispatcher dispatcher("osm3s_share_test",
 			  BASE_DIRECTORY + "test-shadow", BASE_DIRECTORY,
 			  5, 180, 1024*1024*1024,  1024*1024, file_properties);
     dispatcher.write_start(480);
@@ -797,7 +797,7 @@ int main(int argc, char* args[])
 
     std::vector< File_Properties* > file_properties;
     file_properties.push_back(&test_file);
-    Dispatcher dispatcher("osm3s_share_test", "osm3s_index_share_test",
+    Dispatcher dispatcher("osm3s_share_test",
 			  BASE_DIRECTORY + "test-shadow", BASE_DIRECTORY,
 			  5, 180, 1024*1024*1024,  1024*1024, file_properties);
     dispatcher.write_start(480);
@@ -830,7 +830,7 @@ int main(int argc, char* args[])
 
     std::vector< File_Properties* > file_properties;
     file_properties.push_back(&test_file);
-    Dispatcher dispatcher("osm3s_share_test", "osm3s_index_share_test",
+    Dispatcher dispatcher("osm3s_share_test",
 			  BASE_DIRECTORY + "test-shadow", BASE_DIRECTORY,
 			  5, 180, 1024*1024*1024,  1024*1024, file_properties);
     dispatcher.write_start(480);
@@ -871,7 +871,7 @@ int main(int argc, char* args[])
 
     std::vector< File_Properties* > file_properties;
     file_properties.push_back(&test_file);
-    Dispatcher dispatcher("osm3s_share_test", "osm3s_index_share_test",
+    Dispatcher dispatcher("osm3s_share_test",
 			  BASE_DIRECTORY + "test-shadow", BASE_DIRECTORY,
 			  5, 180, 1024*1024*1024,  1024*1024, file_properties);
     dispatcher.write_start(480);
@@ -897,7 +897,7 @@ int main(int argc, char* args[])
 
     std::vector< File_Properties* > file_properties;
     file_properties.push_back(&test_file);
-    Dispatcher dispatcher("osm3s_share_test", "osm3s_index_share_test",
+    Dispatcher dispatcher("osm3s_share_test",
 			  BASE_DIRECTORY + "test-shadow", BASE_DIRECTORY,
 			  5, 180, 1024*1024*1024,  1024*1024, file_properties);
     dispatcher.write_start(480);
@@ -946,7 +946,7 @@ int main(int argc, char* args[])
 
     std::vector< File_Properties* > file_properties;
     file_properties.push_back(&test_file);
-    Dispatcher dispatcher("osm3s_share_test", "osm3s_index_share_test",
+    Dispatcher dispatcher("osm3s_share_test",
 			  BASE_DIRECTORY + "test-shadow", BASE_DIRECTORY,
 			  5, 180, 1024*1024*1024,  1024*1024, file_properties);
     dispatcher.write_start(480);
@@ -977,7 +977,7 @@ int main(int argc, char* args[])
     file_properties.push_back(&test_file);
     try
     {
-      Dispatcher dispatcher("/", "osm3s_index_share_test",
+      Dispatcher dispatcher("/",
 			    BASE_DIRECTORY + "test-shadow", BASE_DIRECTORY,
 			    5, 180, 1024*1024*1024,  1024*1024, file_properties);
     }
@@ -1013,7 +1013,7 @@ int main(int argc, char* args[])
     file_properties.push_back(&test_file);
     try
     {
-      Dispatcher dispatcher("osm3s_share_test", "osm3s_index_share_test",
+      Dispatcher dispatcher("osm3s_share_test",
 			    BASE_DIRECTORY + "test-shadow", BASE_DIRECTORY,
 			    5, 180, 1024*1024*1024,  1024*1024, file_properties);
       dispatcher.write_start(480);
@@ -1042,7 +1042,7 @@ int main(int argc, char* args[])
     // a File_Error.
     try
     {
-      Dispatcher dispatcher("osm3s_share_test", "osm3s_index_share_test",
+      Dispatcher dispatcher("osm3s_share_test",
 			    BASE_DIRECTORY + "test-shadow", BASE_DIRECTORY,
 			    5, 180, 1024*1024*1024,  1024*1024, file_properties);
     }

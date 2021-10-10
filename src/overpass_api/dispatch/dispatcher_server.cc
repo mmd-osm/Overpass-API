@@ -503,7 +503,7 @@ int main(int argc, char* argv[])
           : osm_base_settings().total_available_time_units;
     Dispatcher dispatcher
         (areas ? area_settings().shared_name : osm_base_settings().shared_name,
-         "", db_dir + (areas ? "areas_shadow" : "osm_base_shadow"), db_dir,
+         db_dir + (areas ? "areas_shadow" : "osm_base_shadow"), db_dir,
 	 areas ? area_settings().max_num_processes : osm_base_settings().max_num_processes,
 	 areas ? area_settings().purge_timeout : osm_base_settings().purge_timeout,
 	 max_allowed_space,

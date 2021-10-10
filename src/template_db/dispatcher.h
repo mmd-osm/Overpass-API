@@ -214,7 +214,6 @@ class Dispatcher
       * detects whether idx or idy are valid, clears to idx if necessary,
       * and loads them into the shared memory idx_share_name. */
     Dispatcher(const std::string& dispatcher_share_name,
-	       const std::string& index_share_name,
 	       const std::string& shadow_name,
 	       const std::string& db_dir,
 	       uint max_num_reading_processes, uint purge_timeout,
