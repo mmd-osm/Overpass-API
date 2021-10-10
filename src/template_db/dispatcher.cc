@@ -963,6 +963,12 @@ void Dispatcher::standby_loop(uint64 milliseconds)
 
           connection_per_pid.get(client_pid)->send_result(command);
         }
+        else
+        {
+          // Unknown command, terminate connection
+          connection_per_pid.set(client_pid, 0);
+          hangup(client_pid);
+        }
       }
       catch (const File_Error &e)
       {
