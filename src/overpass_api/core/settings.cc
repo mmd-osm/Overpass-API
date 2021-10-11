@@ -94,7 +94,7 @@ Basic_Settings::Basic_Settings()
 
   base_directory("./"),
   logfile_name("transactions.log"),
-  shared_name_base("/osm3s_v0.7.59"),
+  shared_name_base("/osm3s_v0.7.59_mmd"),
   shared_name_suffix(get_shared_name_suffix()),
   version("0.7.59_mmd"),
   source_hash(GIT_VERSION),
@@ -114,7 +114,7 @@ inline std::string Basic_Settings::get_shared_name_suffix() {
   if (suffix_c != nullptr)
     return "_" + std::string(suffix_c);
 
-  return "_mmd";
+  return "";
 }
 
 
