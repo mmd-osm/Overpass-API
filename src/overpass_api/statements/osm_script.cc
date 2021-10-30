@@ -74,7 +74,10 @@ Osm_Script_Statement::Osm_Script_Statement
     add_static_error("For the attribute \"element-limit\" of the element \"osm-script\""
         " the only allowed values are positive integers.");
 
+  // optionally limit max allowed space by global parameter
   max_allowed_space = max_space;
+  if (global_settings.get_max_element_limit() > 0)
+    max_allowed_space = std::min(max_allowed_space, global_settings.get_max_element_limit());
 
 
   if (!global_settings.get_output_handler())

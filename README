@@ -66,6 +66,7 @@ foreach .result -> .area {
 * Environment variables:
     
     * OVERPASS_MAX_TIMEOUT: global override for maximium permitted `[timeout:...]` value.
+    * OVERPASS_MAX_ELEMENT_LIMIT: global override for maximum permitted `[maxsize:...]` value.
     * OVERPASS_FCGI_MAX_REQUESTS: number of FastCGI requests before `interpreter` process is being terminated (when idle)
     * OVERPASS_FCGI_MAX_ELAPSED_TIME: maximum time after which FastCGI process is being terminated (when idle)
     * OVERPASS_REGEXP_ENGINE: default regexp engine to use if none is specified in Overpass QL settings. POSIX, ICU, PCREJIT

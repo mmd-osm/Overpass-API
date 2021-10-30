@@ -60,6 +60,12 @@ public:
       default_element_limit = std::string(default_element_limit_c);
     }
 
+    max_element_limit = 0; // maximum value hasn't been set
+    char const* max_element_limit_c = std::getenv("OVERPASS_MAX_ELEMENT_LIMIT");
+    if (max_element_limit_c != nullptr) {
+      max_element_limit = atoll(max_element_limit_c);
+    }
+
     char const* use_nodes_tagged_c = std::getenv("OVERPASS_USE_NODES_TAGGED");
     if (use_nodes_tagged_c != nullptr) {
       if (std::strcmp(use_nodes_tagged_c, "1") == 0 || std::strcmp(use_nodes_tagged_c, "true") == 0)
@@ -90,6 +96,7 @@ public:
   std::string get_default_timeout() { return default_timeout; }
   int32 get_max_timeout() { return max_timeout; }
   std::string get_default_element_limit() { return default_element_limit; }
+  uint64 get_max_element_limit() { return max_element_limit; }
   bool get_use_nodes_tagged() { return use_nodes_tagged; }
 
 private:
@@ -106,6 +113,7 @@ private:
   std::string default_timeout;
   int32 max_timeout;
   std::string default_element_limit;
+  uint64 max_element_limit;
   bool use_nodes_tagged;     // tagged nodes prototype enabled?
 };
 
