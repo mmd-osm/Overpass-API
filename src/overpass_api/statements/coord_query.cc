@@ -30,6 +30,8 @@
 #include <iomanip>
 
 #include "../../template_db/block_backend.h"
+#include "../data/collect_items.h"
+#include "../data/tilewise_geometry.h"
 #include "coord_query.h"
 
 
@@ -199,25 +201,41 @@ void register_coord(double lat, double lon,
 }
 
 
+struct Closedness_Predicate
+{
+  bool match(const Way_Skeleton& obj) const { return !obj.nds().empty() && obj.nds().front() == obj.nds().back(); }
+  bool match(const Handle< Way_Skeleton >& h) const
+  { return !h.object().nds().empty() && h.object().nds().front() == h.object().nds().back(); }
+  bool match(const Handle< Attic< Way_Skeleton > >& h) const
+  { return !h.object().nds().empty() && h.object().nds().front() == h.object().nds().back(); }
+};
+
+
 void Coord_Query_Statement::execute(Resource_Manager& rman)
 {
   if (rman.area_updater())
     rman.area_updater()->flush();
 
   std::set< Uint31_Index > req;
+  std::set< Uint31_Index > node_idxs;
   std::map< Uint31_Index, std::vector< std::pair< double, double > > > coord_per_req;
 
+  const Set* input_set = 0;
   if (lat != 100.0)
+  {
+    node_idxs.insert(::ll_upper_(lat, lon));
     register_coord(lat, lon, req, coord_per_req);
+  }
   else
   {
-    const Set* input_set = rman.get_set(input);
+    input_set = rman.get_set(input);
     if (input_set)
     {
       const std::map< Uint32_Index, std::vector< Node_Skeleton > >& nodes = input_set->nodes;
       for (auto it = nodes.begin();
 	  it != nodes.end(); ++it)
       {
+        node_idxs.insert(Uint31_Index(it->first.val()));
         for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
           register_coord(::lat(it->first.val(), it2->ll_lower), ::lon(it->first.val(), it2->ll_lower),
               req, coord_per_req);
@@ -227,6 +245,7 @@ void Coord_Query_Statement::execute(Resource_Manager& rman)
       for (auto it = attic_nodes.begin();
           it != attic_nodes.end(); ++it)
       {
+        node_idxs.insert(Uint31_Index(it->first.val()));
         for (auto it2 = it->second.begin();
             it2 != it->second.end(); ++it2)
           register_coord(::lat(it->first.val(), it2->ll_lower), ::lon(it->first.val(), it2->ll_lower),
@@ -302,20 +321,95 @@ void Coord_Query_Statement::execute(Resource_Manager& rman)
 
   Set into;
 
-  std::vector< uint32 > req_v;
-  for (auto it = req.begin(); it != req.end(); ++it)
-    req_v.push_back(it->val());
-  std::vector< uint32 > idx_req_v = ::calc_parents(req_v);
-  std::vector< Uint31_Index > idx_req;
-  for (std::vector< uint32 >::const_iterator it = idx_req_v.begin(); it != idx_req_v.end(); ++it)
-    idx_req.push_back(*it);
-  sort(idx_req.begin(), idx_req.end());
-  Block_Backend< Uint31_Index, Area_Skeleton, std::vector< Uint31_Index >::const_iterator > area_locations_db
-      (rman.get_area_transaction()->data_index(area_settings().AREAS));
-  for (const auto & it : area_locations_db.as_discrete(idx_req))
+  if (!areas_found.empty())
   {
-    if (areas_found.find(it.handle().id()) != areas_found.end())
-      into.areas[it.index()].push_back(it.object());
+    std::vector< uint32 > req_v;
+    for (auto it = req.begin(); it != req.end(); ++it)
+      req_v.push_back(it->val());
+    std::vector< uint32 > idx_req_v = ::calc_parents(req_v);
+    std::vector< Uint31_Index > idx_req;
+    for (std::vector< uint32 >::const_iterator it = idx_req_v.begin(); it != idx_req_v.end(); ++it)
+      idx_req.push_back(*it);
+    sort(idx_req.begin(), idx_req.end());
+    Block_Backend< Uint31_Index, Area_Skeleton, std::vector< Uint31_Index >::const_iterator > area_locations_db
+        (rman.get_area_transaction()->data_index(area_settings().AREAS));
+    for (const auto & it : area_locations_db.as_discrete(idx_req))
+    {
+      if (areas_found.find(it.handle().id()) != areas_found.end())
+        into.areas[it.index()].push_back(it.object());
+    }
+  }
+  
+  std::set< Uint31_Index > way_idxs = calc_parents(node_idxs);
+  std::map< Uint31_Index, std::vector< Way_Skeleton > > current_candidates;
+  std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > > attic_candidates;
+  if (rman.get_desired_timestamp() == NOW)
+    collect_items_discrete(
+        this, rman, *osm_base_settings().WAYS, way_idxs, Closedness_Predicate(), current_candidates);
+  else
+    collect_items_discrete_by_timestamp(
+        this, rman, way_idxs, Closedness_Predicate(), current_candidates, attic_candidates);
+  
+  if (lat != 100.0)
+  {
+    Tilewise_Area_Iterator tai(current_candidates, attic_candidates, *this, rman);
+    uint32 idx = ::ll_upper_(lat, lon);
+    tai.set_limits(ilat(idx, 0u), ilat(idx, 0u));
+    while (!tai.is_end() && tai.get_idx().val() < idx)
+      tai.next();
+    if (!tai.is_end())
+      tai.move_covering_ways(idx, ::ll_lower(lat, lon), into.ways, into.attic_ways);
+  }
+  else if (input_set)
+  {
+    Tilewise_Area_Iterator tai(current_candidates, attic_candidates, *this, rman);
+    uint32 minlat = 0x7fff0000u;
+    uint32 maxlat = 0u;
+    for (std::map< Uint32_Index, std::vector< Node_Skeleton > >::const_iterator it = input_set->nodes.begin();
+        it != input_set->nodes.end(); ++it)
+    {
+      minlat = std::min(minlat, ilat(it->first.val(), 0u));
+      maxlat = std::max(maxlat, ilat(it->first.val(), 0u));
+    }
+    for (std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > >::const_iterator it = input_set->attic_nodes.begin();
+        it != input_set->attic_nodes.end(); ++it)
+    {
+      minlat = std::min(minlat, ilat(it->first.val(), 0u));
+      maxlat = std::max(maxlat, ilat(it->first.val(), 0u));
+    }
+    tai.set_limits(minlat, maxlat);
+
+    std::map< Uint32_Index, std::vector< Node_Skeleton > >::const_iterator cur_it = input_set->nodes.begin();
+    std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > >::const_iterator attic_it =
+        input_set->attic_nodes.begin();
+    
+    while (cur_it != input_set->nodes.end() || attic_it != input_set->attic_nodes.end())
+    {
+      Uint32_Index idx =
+          (attic_it == input_set->attic_nodes.end() ||
+              (cur_it != input_set->nodes.end() && !(attic_it->first < cur_it->first))) ? cur_it->first : attic_it->first;
+      while (!tai.is_end() && tai.get_idx().val() < idx.val())
+        tai.next();
+      if (tai.is_end())
+        continue;
+      
+      if (cur_it->first == tai.get_idx())
+      {
+        for (std::vector< Node_Skeleton >::const_iterator it2 = cur_it->second.begin(); it2 != cur_it->second.end();
+            ++it2)
+          tai.move_covering_ways(cur_it->first.val(), it2->ll_lower, into.ways, into.attic_ways);
+      }
+      if (attic_it->first == tai.get_idx())
+      {
+        for (std::vector< Attic< Node_Skeleton > >::const_iterator it2 = attic_it->second.begin();
+            it2 != attic_it->second.end(); ++it2)
+          tai.move_covering_ways(attic_it->first.val(), it2->ll_lower, into.ways, into.attic_ways);
+      }
+      while (cur_it != input_set->nodes.end() && !(tai.get_idx().val() < cur_it->first.val()))
+        ++cur_it;
+      while (attic_it != input_set->attic_nodes.end() && !(tai.get_idx().val() < attic_it->first.val()))
+        ++attic_it;
+    }
   }
 
   transfer_output(rman, into);

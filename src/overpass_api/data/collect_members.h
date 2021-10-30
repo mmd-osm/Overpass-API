@@ -179,6 +179,74 @@ void filter_relations_by_ranges(std::map< Uint31_Index, std::vector< Relation_Sk
 
 //-----------------------------------------------------------------------------
 
+// TODO: include upstream refactoring of get_elements_by_id_from_db
+
+/*
+template < typename Index, typename Object, typename Predicate >
+bool get_elements_by_id_from_db_generic(
+    std::map< Index, std::vector< Object > >& elements,
+    std::map< Index, std::vector< Attic< Object > > >& attic_elements,
+    const Predicate& pred,
+    const std::set< std::pair< Index, Index > >& range_req, Index* min_idx,
+    const Statement& query, Resource_Manager& rman)
+{
+  uint64 timestamp = rman.get_desired_timestamp();
+
+  if (range_req.empty())
+    return false;
+  Index cur_idx = min_idx ? *min_idx : range_req.begin()->first;
+  while (timestamp == NOW
+      ? collect_items_range(&query, rman, range_req, pred, cur_idx, elements)
+      : collect_items_range_by_timestamp(&query, rman, range_req, pred, cur_idx, elements, attic_elements))
+  {
+    if (min_idx)
+    {
+      *min_idx = cur_idx;
+      return true;
+    }
+  }
+  return false;
+}
+
+
+
+template < typename TIndex, typename TObject >
+bool get_elements_by_id_from_db
+    (std::map< TIndex, std::vector< TObject > >& elements,
+     std::map< TIndex, std::vector< Attic< TObject > > >& attic_elements,
+     const std::vector< typename TObject::Id_Type >& ids, bool invert_ids,
+     const std::set< std::pair< TIndex, TIndex > >& range_req, TIndex* min_idx,
+     const Statement& query, Resource_Manager& rman)
+{
+  elements.clear();
+  attic_elements.clear();
+  if (ids.empty())
+    return get_elements_by_id_from_db_generic(
+        elements, attic_elements, Trivial_Predicate< TObject >(), range_req, min_idx, query, rman);
+  else if (!invert_ids)
+    return get_elements_by_id_from_db_generic(
+        elements, attic_elements, Id_Predicate< TObject >(ids), range_req, min_idx, query, rman);
+  else if (!range_req.empty())
+    return get_elements_by_id_from_db_generic(
+        elements, attic_elements, Not_Predicate< TObject, Id_Predicate< TObject > >(Id_Predicate< TObject >(ids)),
+        range_req, min_idx, query, rman);
+  else
+  {
+    if (rman.get_desired_timestamp() == NOW)
+      collect_items_flat(query, rman, *current_skeleton_file_properties< TObject >(),
+          Not_Predicate< TObject, Id_Predicate< TObject > >(Id_Predicate< TObject >(ids)),
+          elements);
+    else
+      collect_items_flat_by_timestamp(query, rman,
+          Not_Predicate< TObject, Id_Predicate< TObject > >(Id_Predicate< TObject >(ids)),
+          elements, attic_elements);
+  }
+
+  return false;
+}
+
+*/
+
 
 template < typename TIndex, typename TObject >
 bool get_elements_by_id_from_db
@@ -1017,6 +1085,20 @@ std::set< std::pair< Uint32_Index, Uint32_Index > > way_nd_indices
      std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >::const_iterator attic_ways_end);
 
 
+std::set< std::pair< Uint32_Index, Uint32_Index > > way_covered_indices
+    (const Statement* stmt, Resource_Manager& rman,
+     std::map< Uint31_Index, std::vector< Way_Skeleton > >::const_iterator ways_begin,
+     std::map< Uint31_Index, std::vector< Way_Skeleton > >::const_iterator ways_end);
+
+
+std::set< std::pair< Uint32_Index, Uint32_Index > > way_covered_indices
+    (const Statement* stmt, Resource_Manager& rman,
+     std::map< Uint31_Index, std::vector< Way_Skeleton > >::const_iterator ways_begin,
+     std::map< Uint31_Index, std::vector< Way_Skeleton > >::const_iterator ways_end,
+     std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >::const_iterator attic_ways_begin,
+     std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >::const_iterator attic_ways_end);
+
+
 struct Order_By_Node_Id
 {
   bool operator() (const std::pair< Uint32_Index, const Node_Skeleton* >& a,
@@ -1148,5 +1230,20 @@ void add_nw_member_objects(Resource_Manager& rman, const Statement* stmt, const 
     const std::set< std::pair< Uint32_Index, Uint32_Index > >* ranges_32 = 0,
     const std::set< std::pair< Uint31_Index, Uint31_Index > >* ranges_31 = 0);
 
+
+template< typename Index, typename Object >
+void filter_elems_for_closed_ways(std::map< Index, std::vector< Object > >& arg)
+{
+  for (typename std::map< Index, std::vector< Object > >::iterator it1 = arg.begin(); it1 != arg.end(); ++it1)
+  {
+    std::vector< Object > into;
+    for (typename std::vector< Object >::iterator it2 = it1->second.begin(); it2 != it1->second.end(); ++it2)
+    {
+      if (!it2->nds.empty() && it2->nds.front() == it2->nds.back())
+        into.push_back(*it2);
+    }
+    into.swap(it1->second);
+  }
+}
 
 #endif
