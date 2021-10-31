@@ -118,7 +118,8 @@ bool Area_Constraint::get_ranges
     if (!input)
       return true;
 
-//    area->get_ranges(input->areas, input->area_blocks, area_blocks_req, rman);
+    area->get_ranges(input->areas, input->area_blocks, area_blocks_req, rman);
+
     area->get_ranges(input->ways, input->areas, area_blocks_req, rman);
 
     if (rman.get_desired_timestamp() == NOW)
@@ -317,8 +318,11 @@ void Area_Constraint::filter(const Statement& query, Resource_Manager& rman, Set
   const Set* input = rman.get_set(area->get_input());
   if (area->areas_from_input())
   {
-    if (input)
+    if (input) {
+      area->get_ranges(input->areas, input->area_blocks, area_blocks_req, rman);
+
       area->get_ranges(input->ways, input->areas, area_blocks_req, rman);
+    }
   }
   else
     area->get_ranges(area_blocks_req, rman);
