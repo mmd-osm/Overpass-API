@@ -46,7 +46,7 @@ class Area_Query_Statement final : public Output_Statement
 
     struct Criterion_Maker : public Statement::Criterion_Maker
     {
-      bool can_standalone(const std::string& type) override { return type == "node"; }
+      bool can_standalone(const std::string& type) override { return false; }
       Statement* create_criterion(const Token_Node_Ptr& tree_it,
           const std::string& type, const std::string& into,
           Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output) override;
@@ -64,6 +64,12 @@ class Area_Query_Statement final : public Output_Statement
     void get_ranges
       (const std::map< Uint31_Index, std::vector< Area_Skeleton > >& input_areas,
        const std::map< Uint31_Index, std::vector< Area_Block > >& input_area_blocks,
+       std::set< Uint31_Index >& area_blocks_req,
+       Resource_Manager& rman);
+
+    void get_ranges
+      (const std::map< Uint31_Index, std::vector< Way_Skeleton > >& input_ways,
+       const std::map< Uint31_Index, std::vector< Area_Skeleton > >& input_areas,
        std::set< Uint31_Index >& area_blocks_req,
        Resource_Manager& rman);
 
@@ -141,6 +147,7 @@ class Area_Query_Statement final : public Output_Statement
   private:
     std::string input;
     long long submitted_id;
+    std::vector< Way_Skeleton::Id_Type > way_areas_id;    
     std::vector< Area_Skeleton::Id_Type > area_id;       // all area ids
     std::vector< Area_Skeleton::Id_Type > area_id_db;    // area ids for areas which have been persisted on disk
     std::vector< Area_Skeleton::Id_Type > area_id_adhoc; // ad hoc area ids (only in memory, will be discarded after each query)

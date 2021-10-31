@@ -71,7 +71,7 @@ Query_Statement::Query_Statement
     type = (QUERY_NODE | QUERY_RELATION);
   else if (attributes["type"] == "area")
   {
-    type = QUERY_AREA;
+    type = QUERY_AREA | QUERY_WAY | QUERY_CLOSED_WAY;
     ++area_query_ref_counter_;
   }
   else
@@ -91,7 +91,7 @@ Query_Statement::Query_Statement
 }
 
 Query_Statement::~Query_Statement() {
-  if (type == QUERY_AREA && area_query_ref_counter_ > 0)
+  if ((type & QUERY_AREA != 0) && area_query_ref_counter_ > 0)
     --area_query_ref_counter_;
 
   delete global_bbox_statement;
@@ -1745,6 +1745,13 @@ void Query_Statement::apply_all_filters(
 }
 
 
+void filter_elems_for_closed_ways(Set& arg)
+{
+  filter_elems_for_closed_ways(arg.ways);
+  filter_elems_for_closed_ways(arg.attic_ways);
+}
+
+
 void Query_Statement::execute(Resource_Manager& rman)
 {
   Cpu_Timer cpu(rman, 1);
@@ -1795,6 +1802,8 @@ void Query_Statement::execute(Resource_Manager& rman)
 	  way_ids, way_range_vec_31, invert_ids, timestamp, way_answer_state, check_keys_late,
           *osm_base_settings().WAY_TAGS_GLOBAL, *attic_settings().WAY_TAGS_GLOBAL, rman);
       collect_elems(QUERY_WAY, way_ids, invert_ids, way_answer_state, into, rman);
+      if (type & QUERY_CLOSED_WAY)
+        filter_elems_for_closed_ways(into);      
     }
     if (type & QUERY_RELATION)
     {
@@ -1810,9 +1819,18 @@ void Query_Statement::execute(Resource_Manager& rman)
     }
     if (type & QUERY_AREA)
     {
-      progress_1(area_ids, invert_ids, area_answer_state,
-		 check_keys_late, *area_settings().AREA_TAGS_GLOBAL, rman);
-      collect_elems(QUERY_AREA, area_ids, invert_ids, area_answer_state, into, rman);
+      try
+      {
+        progress_1(area_ids, invert_ids, area_answer_state,
+                  check_keys_late, *area_settings().AREA_TAGS_GLOBAL, rman);
+        collect_elems(QUERY_AREA, area_ids, invert_ids, area_answer_state, into, rman);
+      }
+      catch (const File_Error& e)
+      {
+        if (e.error_number != ENOENT)
+          throw;
+        area_answer_state = data_collected;
+      }
     }
 
     set_progress(2);
@@ -2023,7 +2041,11 @@ void Query_Statement::execute(Resource_Manager& rman)
           it != constraints.end() && way_answer_state < data_collected; ++it)
       {
 	if ((*it)->get_data(*this, rman, into, way_range_req_31, type & QUERY_WAY, way_ids, invert_ids))
+        {
+          if (type & QUERY_CLOSED_WAY)
+            filter_elems_for_closed_ways(into);
 	  way_answer_state = data_collected;
+        }
       }
     }
     if (type & QUERY_RELATION)
@@ -2132,6 +2154,8 @@ void Query_Statement::execute(Resource_Manager& rman)
 	      (into.ways, into.attic_ways,
                way_ids, invert_ids, way_range_req_31, 0, *this, rman,
                *osm_base_settings().WAYS, *attic_settings().WAYS);
+          if (type & QUERY_CLOSED_WAY)
+            filter_elems_for_closed_ways(into);               
         else
         {
           Uint31_Index min_idx = way_range_req_31.begin()->first;
@@ -2143,6 +2167,11 @@ void Query_Statement::execute(Resource_Manager& rman)
             Set to_filter;
             to_filter.ways.swap(into.ways);
             to_filter.attic_ways.swap(into.attic_ways);
+            if (type & QUERY_CLOSED_WAY)
+            {
+              filter_elems_for_closed_ways(to_filter.ways);
+              filter_elems_for_closed_ways(to_filter.attic_ways);
+            }            
             apply_all_filters(rman, timestamp, check_keys_late, to_filter);
             indexed_set_union(filtered.ways, to_filter.ways);
             indexed_set_union(filtered.attic_ways, to_filter.attic_ways);
@@ -2187,11 +2216,21 @@ void Query_Statement::execute(Resource_Manager& rman)
     }
     if (type & QUERY_AREA)
     {
-      if (area_answer_state < data_collected)
-	get_elements_by_id_from_db(into.areas, area_ids, invert_ids, rman, *area_settings().AREAS);
+      try
+      {
+        if (area_answer_state < data_collected)
+          get_elements_by_id_from_db(into.areas, area_ids, invert_ids, rman, *area_settings().AREAS);
+      }
+      catch (const File_Error& e)
+      {
+        if (e.error_number != ENOENT)
+          throw;
+      }
     }
   }
 
+  if (type & QUERY_CLOSED_WAY)
+    filter_elems_for_closed_ways(into);
   apply_all_filters(rman, timestamp, check_keys_late, into);
   indexed_set_union(into.nodes, filtered.nodes);
   indexed_set_union(into.attic_nodes, filtered.attic_nodes);

@@ -478,7 +478,7 @@ private:
       {
         for (std::vector< Way_Skeleton >::iterator it = cur_it->second.begin(); it != cur_it->second.end(); ++it)
         {
-          if (!it->nds.empty() && it->nds.front() == it->nds.back())
+          if (!it->nds().empty() && it->nds().front() == it->nds().back())
             make_entries(Segment_Collector(queue, Full_Way_Ref(idx, &*it, NOW)), cur_geom_store.get_geometry(*it));
         }
         ++cur_it;
@@ -488,7 +488,7 @@ private:
         for (std::vector< Attic< Way_Skeleton > >::iterator it = attic_it->second.begin();
             it != attic_it->second.end(); ++it)
         {
-          if (!it->nds.empty() && it->nds.front() == it->nds.back())
+          if (!it->nds().empty() && it->nds().front() == it->nds().back())
             make_entries(Segment_Collector(queue, Full_Way_Ref(idx, &*it, it->timestamp)), attic_geom_store.get_geometry(*it));
         }
         ++attic_it;
@@ -601,7 +601,7 @@ private:
       {
         for (std::vector< Way_Skeleton >::const_iterator it = cur_it->second.begin(); it != cur_it->second.end(); ++it)
         {
-          if (!it->nds.empty() && it->nds.front() == it->nds.back())
+          if (!it->nds().empty() && it->nds().front() == it->nds().back())
             make_entries(Segment_Collector(queue, Full_Way_Ref(idx, &*it, NOW)), cur_geom_store.get_geometry(*it));
         }
         ++cur_it;
@@ -611,7 +611,7 @@ private:
         for (std::vector< Attic< Way_Skeleton > >::const_iterator it = attic_it->second.begin();
             it != attic_it->second.end(); ++it)
         {
-          if (!it->nds.empty() && it->nds.front() == it->nds.back())
+          if (!it->nds().empty() && it->nds().front() == it->nds().back())
             make_entries(Segment_Collector(queue, Full_Way_Ref(idx, &*it, it->timestamp)), attic_geom_store.get_geometry(*it));
         }
         ++attic_it;

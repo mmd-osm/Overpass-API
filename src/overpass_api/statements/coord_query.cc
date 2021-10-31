@@ -30,6 +30,7 @@
 #include <iomanip>
 
 #include "../../template_db/block_backend.h"
+#include "../dispatch/resource_manager.h"
 #include "../data/collect_items.h"
 #include "../data/tilewise_geometry.h"
 #include "coord_query.h"
