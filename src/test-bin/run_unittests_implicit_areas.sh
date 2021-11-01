@@ -17,10 +17,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Overpass_API. If not, see <https://www.gnu.org/licenses/>.
 
-pushd "$(dirname $0)"
-BASEDIR="$(pwd)/.."
-popd
-pushd "$BASEDIR/osm-3s_testing/"
+#pushd "$(dirname $0)"
+#BASEDIR="$(pwd)/.."
+#popd
+#pushd "$BASEDIR/osm-3s_testing/"
+
+BASEDIR="$(cd `dirname $0` && pwd)/.."
 
 evaluate_test()
 {
@@ -100,7 +102,7 @@ mkdir -p run/area/
 rm -f run/area/*
 touch run/area/area_tags_local.bin
 touch run/area/area_blocks.bin
-cat input/area/init.osm | ../bin/update_database --db-dir=run/area/
+cat input/area/init.osm | $BASEDIR/bin/update_database --db-dir=run/area/
 date +%T
 
 for i in $(ls input/area/*.ql); do
@@ -121,4 +123,4 @@ for i in $(ls *.out); do
   diff -q "../../expected/area/$i" "$i"
 done
 
-popd
+#popd
