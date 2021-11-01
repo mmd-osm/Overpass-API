@@ -431,7 +431,7 @@ std::set< std::pair< Uint32_Index, Uint32_Index > > way_covered_indices
 {
   std::vector< uint32 > parents;
 
-  for (std::map< Uint31_Index, std::vector< Way_Skeleton > >::const_iterator it(ways_begin); it != ways_end; ++it)
+  for (auto it(ways_begin); it != ways_end; ++it)
     parents.push_back(it->first.val());
   std::sort(parents.begin(), parents.end());
   parents.erase(unique(parents.begin(), parents.end()), parents.end());
@@ -451,9 +451,9 @@ std::set< std::pair< Uint32_Index, Uint32_Index > > way_covered_indices
 {
   std::vector< uint32 > parents;
 
-  for (std::map< Uint31_Index, std::vector< Way_Skeleton > >::const_iterator it(ways_begin); it != ways_end; ++it)
+  for (auto it(ways_begin); it != ways_end; ++it)
     parents.push_back(it->first.val());
-  for (std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >::const_iterator it(attic_ways_begin);
+  for (auto it(attic_ways_begin);
       it != attic_ways_end; ++it)
     parents.push_back(it->first.val());
   std::sort(parents.begin(), parents.end());

@@ -476,7 +476,7 @@ private:
           ? cur_it->first : attic_it->first);
       if (cur_it != ways->end() && cur_it->first == idx)
       {
-        for (std::vector< Way_Skeleton >::iterator it = cur_it->second.begin(); it != cur_it->second.end(); ++it)
+        for (auto it = cur_it->second.begin(); it != cur_it->second.end(); ++it)
         {
           if (!it->nds().empty() && it->nds().front() == it->nds().back())
             make_entries(Segment_Collector(queue, Full_Way_Ref(idx, &*it, NOW)), cur_geom_store.get_geometry(*it));
@@ -485,7 +485,7 @@ private:
       }
       if (attic_it != attic_ways->end() && attic_it->first == idx)
       {
-        for (std::vector< Attic< Way_Skeleton > >::iterator it = attic_it->second.begin();
+        for (auto it = attic_it->second.begin();
             it != attic_it->second.end(); ++it)
         {
           if (!it->nds().empty() && it->nds().front() == it->nds().back())
@@ -599,7 +599,7 @@ private:
           ? cur_it->first : attic_it->first);
       if (cur_it != ways->end() && cur_it->first == idx)
       {
-        for (std::vector< Way_Skeleton >::const_iterator it = cur_it->second.begin(); it != cur_it->second.end(); ++it)
+        for (auto it = cur_it->second.begin(); it != cur_it->second.end(); ++it)
         {
           if (!it->nds().empty() && it->nds().front() == it->nds().back())
             make_entries(Segment_Collector(queue, Full_Way_Ref(idx, &*it, NOW)), cur_geom_store.get_geometry(*it));
@@ -608,7 +608,7 @@ private:
       }
       if (attic_it != attic_ways->end() && attic_it->first == idx)
       {
-        for (std::vector< Attic< Way_Skeleton > >::const_iterator it = attic_it->second.begin();
+        for (auto it = attic_it->second.begin();
             it != attic_it->second.end(); ++it)
         {
           if (!it->nds().empty() && it->nds().front() == it->nds().back())
@@ -632,7 +632,7 @@ inline bool eastern_sw_is_inside(const Tilewise_Area_Iterator::Index_Block& bloc
 {
   bool is_inside = block.sw_is_inside;
   
-  for (std::vector< Segment >::const_iterator it = block.segments.begin(); it != block.segments.end(); ++it)
+  for (auto it = block.segments.begin(); it != block.segments.end(); ++it)
   {
     if ((it->ilat_west <= south) ^ (it->ilat_east <= south))
     {
@@ -652,7 +652,7 @@ inline bool northern_sw_is_inside(const Tilewise_Area_Iterator::Index_Block& blo
 {
   bool is_inside = block.sw_is_inside;
   
-  for (std::vector< Segment >::const_iterator it = block.segments.begin(); it != block.segments.end(); ++it)
+  for (auto it = block.segments.begin(); it != block.segments.end(); ++it)
   {
     if (it->ilon_west == -1800000000 && it->ilon_east != -1800000000)
       is_inside = !is_inside;
@@ -667,7 +667,7 @@ inline Tilewise_Area_Iterator::Relative_Position rel_pos_ilat_ilon(
 {
   bool is_inside = block.sw_is_inside;
 
-  for (std::vector< Segment >::const_iterator it = block.segments.begin(); it != block.segments.end(); ++it)
+  for (auto it = block.segments.begin(); it != block.segments.end(); ++it)
   {
     if (it->ilat_west > south && it->ilat_east > south)
     {
@@ -815,7 +815,7 @@ inline Tilewise_Area_Iterator::Relative_Position rel_position(
 {
   std::vector< std::pair< uint32, int32 > > touching_coords;
 
-  for (std::vector< Segment >::const_iterator ait = block.segments.begin(); ait != block.segments.end(); ++ait)
+  for (auto ait = block.segments.begin(); ait != block.segments.end(); ++ait)
   {
     if (ait->ilon_west <= segment.ilon_east && segment.ilon_west <= ait->ilon_east)
     {
@@ -883,7 +883,7 @@ inline Tilewise_Area_Iterator::Relative_Position rel_position(
 inline Tilewise_Area_Iterator::Relative_Position Tilewise_Area_Iterator::rel_position(
     const std::vector< Segment >& segments, bool accept_border)
 {
-  for (std::vector< Segment >::const_iterator it = segments.begin(); it != segments.end(); ++it)
+  for (auto it = segments.begin(); it != segments.end(); ++it)
   {
     Relative_Position status = rel_pos_ilat_ilon(it->ilat_west, it->ilon_west, false);
     if (status == inside)
@@ -893,7 +893,7 @@ inline Tilewise_Area_Iterator::Relative_Position Tilewise_Area_Iterator::rel_pos
       return status;
 
     const std::map< Full_Way_Ref, Index_Block >& way_blocks = get_obj();
-    for (std::map< Full_Way_Ref, Index_Block >::const_iterator bit = way_blocks.begin();
+    for (auto bit = way_blocks.begin();
         bit != way_blocks.end(); ++bit)
     {
       const Index_Block& block = bit->second;
@@ -909,7 +909,7 @@ inline Tilewise_Area_Iterator::Relative_Position Tilewise_Area_Iterator::rel_pos
 inline Tilewise_Area_Iterator::Relative_Position Tilewise_Const_Area_Iterator::rel_position(
     const std::vector< Segment >& segments, bool accept_border)
 {
-  for (std::vector< Segment >::const_iterator it = segments.begin(); it != segments.end(); ++it)
+  for (auto it = segments.begin(); it != segments.end(); ++it)
   {
     Tilewise_Area_Iterator::Relative_Position status = rel_pos_ilat_ilon(it->ilat_west, it->ilon_west, false);
     if (status == Tilewise_Area_Iterator::inside)
@@ -919,7 +919,7 @@ inline Tilewise_Area_Iterator::Relative_Position Tilewise_Const_Area_Iterator::r
       return status;
 
     const std::map< Full_Way_Ref, Tilewise_Area_Iterator::Index_Block >& way_blocks = get_obj();
-    for (std::map< Full_Way_Ref, Tilewise_Area_Iterator::Index_Block >::const_iterator bit = way_blocks.begin();
+    for (auto bit = way_blocks.begin();
         bit != way_blocks.end(); ++bit)
     {
       const Tilewise_Area_Iterator::Index_Block& block = bit->second;
@@ -944,7 +944,7 @@ inline void Tilewise_Area_Iterator::propagate_inside_flag()
   
   const std::map< Full_Way_Ref, Index_Block >& way_blocks = get_obj();
   
-  for (std::map< Full_Way_Ref, Index_Block >::const_iterator bit = way_blocks.begin();
+  for (auto bit = way_blocks.begin();
       bit != way_blocks.end(); ++bit)
   {
     const Index_Block& block = bit->second;
@@ -963,7 +963,7 @@ inline void Tilewise_Const_Area_Iterator::propagate_inside_flag()
   int32 west = ilon(idx.val(), 0u);
   const std::map< Full_Way_Ref, Tilewise_Area_Iterator::Index_Block >& way_blocks = get_obj();
   
-  for (std::map< Full_Way_Ref, Tilewise_Area_Iterator::Index_Block >::const_iterator bit = way_blocks.begin();
+  for (auto bit = way_blocks.begin();
       bit != way_blocks.end(); ++bit)
   {
     const Tilewise_Area_Iterator::Index_Block& block = bit->second;
@@ -985,7 +985,7 @@ inline Tilewise_Area_Iterator::Relative_Position Tilewise_Area_Iterator::rel_pos
     return outside;
   const std::map< Full_Way_Ref, Index_Block >& way_blocks = get_obj();
   
-  for (std::map< Full_Way_Ref, Index_Block >::const_iterator bit = way_blocks.begin();
+  for (auto bit = way_blocks.begin();
       bit != way_blocks.end(); ++bit)
   {
     Relative_Position status = ::rel_pos_ilat_ilon(lat_p, lon_p, bit->second, south, west);
@@ -1009,7 +1009,7 @@ inline Tilewise_Area_Iterator::Relative_Position Tilewise_Const_Area_Iterator::r
     return Tilewise_Area_Iterator::outside;
   const std::map< Full_Way_Ref, Tilewise_Area_Iterator::Index_Block >& way_blocks = get_obj();
   
-  for (std::map< Full_Way_Ref, Tilewise_Area_Iterator::Index_Block >::const_iterator bit = way_blocks.begin();
+  for (auto bit = way_blocks.begin();
       bit != way_blocks.end(); ++bit)
   {
     Tilewise_Area_Iterator::Relative_Position status = ::rel_pos_ilat_ilon(lat_p, lon_p, bit->second, south, west);
@@ -1036,7 +1036,7 @@ inline void Tilewise_Area_Iterator::move_covering_ways(
   uint32 lat_p = ilat(ll_upper, ll_lower);
   int32 lon_p = ilon(ll_upper, ll_lower);
   
-  for (std::map< Full_Way_Ref, Index_Block >::const_iterator bit = way_blocks.begin();
+  for (auto bit = way_blocks.begin();
       bit != way_blocks.end(); ++bit)
   {
 //     std::cout<<"DEBUG move_covering_ways "<<std::hex<<idx.val()<<' '<<std::dec<<bit->first.way->id.val()<<'\n';
@@ -1164,19 +1164,19 @@ private:
       if (cur_it != ways->end() && cur_it->first == idx)
       {
         std::vector< Status_Ref< Way_Skeleton > >& refs = current_refs[idx];
-        for (std::vector< Way_Skeleton >::const_iterator it = cur_it->second.begin(); it != cur_it->second.end(); ++it)
+        for (auto it = cur_it->second.begin(); it != cur_it->second.end(); ++it)
           refs.push_back(Status_Ref< Way_Skeleton >(idx, *it));
-        for (std::vector< Status_Ref< Way_Skeleton > >::iterator it = refs.begin(); it != refs.end(); ++it)
+        for (auto it = refs.begin(); it != refs.end(); ++it)
           make_entries(Current_Segment_Collector(queue, *it), cur_geom_store.get_geometry(*it->skel));
         ++cur_it;
       }
       if (attic_it != attic_ways->end() && attic_it->first == idx)
       {
         std::vector< Status_Ref< Attic< Way_Skeleton > > >& refs = attic_refs[idx];
-        for (std::vector< Attic< Way_Skeleton > >::const_iterator it = attic_it->second.begin();
+        for (auto it = attic_it->second.begin();
             it != attic_it->second.end(); ++it)
           refs.push_back(Status_Ref< Attic< Way_Skeleton > >(idx, *it));
-        for (std::vector< Status_Ref< Attic< Way_Skeleton > > >::iterator it = refs.begin(); it != refs.end(); ++it)
+        for (auto it = refs.begin(); it != refs.end(); ++it)
           make_entries(Attic_Segment_Collector(queue, *it), attic_geom_store.get_geometry(*it->skel));
         ++attic_it;
       }

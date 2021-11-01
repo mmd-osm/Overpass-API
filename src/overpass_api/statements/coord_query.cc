@@ -366,13 +366,13 @@ void Coord_Query_Statement::execute(Resource_Manager& rman)
     Tilewise_Area_Iterator tai(current_candidates, attic_candidates, *this, rman);
     uint32 minlat = 0x7fff0000u;
     uint32 maxlat = 0u;
-    for (std::map< Uint32_Index, std::vector< Node_Skeleton > >::const_iterator it = input_set->nodes.begin();
+    for (auto it = input_set->nodes.begin();
         it != input_set->nodes.end(); ++it)
     {
       minlat = std::min(minlat, ilat(it->first.val(), 0u));
       maxlat = std::max(maxlat, ilat(it->first.val(), 0u));
     }
-    for (std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > >::const_iterator it = input_set->attic_nodes.begin();
+    for (auto it = input_set->attic_nodes.begin();
         it != input_set->attic_nodes.end(); ++it)
     {
       minlat = std::min(minlat, ilat(it->first.val(), 0u));
@@ -380,8 +380,8 @@ void Coord_Query_Statement::execute(Resource_Manager& rman)
     }
     tai.set_limits(minlat, maxlat);
 
-    std::map< Uint32_Index, std::vector< Node_Skeleton > >::const_iterator cur_it = input_set->nodes.begin();
-    std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > >::const_iterator attic_it =
+    auto cur_it = input_set->nodes.begin();
+    auto attic_it =
         input_set->attic_nodes.begin();
     
     while (cur_it != input_set->nodes.end() || attic_it != input_set->attic_nodes.end())
@@ -396,13 +396,13 @@ void Coord_Query_Statement::execute(Resource_Manager& rman)
       
       if (cur_it->first == tai.get_idx())
       {
-        for (std::vector< Node_Skeleton >::const_iterator it2 = cur_it->second.begin(); it2 != cur_it->second.end();
+        for (auto it2 = cur_it->second.begin(); it2 != cur_it->second.end();
             ++it2)
           tai.move_covering_ways(cur_it->first.val(), it2->ll_lower, into.ways, into.attic_ways);
       }
       if (attic_it->first == tai.get_idx())
       {
-        for (std::vector< Attic< Node_Skeleton > >::const_iterator it2 = attic_it->second.begin();
+        for (auto it2 = attic_it->second.begin();
             it2 != attic_it->second.end(); ++it2)
           tai.move_covering_ways(attic_it->first.val(), it2->ll_lower, into.ways, into.attic_ways);
       }

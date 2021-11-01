@@ -569,7 +569,7 @@ Dispatcher::Dispatcher
   int foo = ftruncate(dispatcher_shm_fd,
                       SHM_SIZE + db_dir.size() + shadow_name.size());
 
-  uint8* disp_shm = (uint8*)mmap
+  auto* disp_shm = (uint8*)mmap
         (0, SHM_SIZE + db_dir.size() + shadow_name.size(),
          PROT_READ|PROT_WRITE, MAP_SHARED, dispatcher_shm_fd, 0);
 

@@ -91,7 +91,7 @@ Query_Statement::Query_Statement
 }
 
 Query_Statement::~Query_Statement() {
-  if ((type & QUERY_AREA != 0) && area_query_ref_counter_ > 0)
+  if ((type & QUERY_AREA) != 0 && area_query_ref_counter_ > 0)
     --area_query_ref_counter_;
 
   delete global_bbox_statement;

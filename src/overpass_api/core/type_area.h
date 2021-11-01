@@ -275,7 +275,7 @@ struct Area_Skeleton
   Area_Skeleton(const void* data) : id(0u), d(new Area_Skeleton_Data)
   {
     id = unalignedLoad<Id_Type>(data);
-    const uint32 idx_size = unalignedLoad<uint32>((uint32*)data + 1);
+    const auto idx_size = unalignedLoad<uint32>((uint32*)data + 1);
     d->used_indices.reserve(idx_size);
     for (uint i(0); i < idx_size; ++i)
       d->used_indices.push_back(unalignedLoad<uint32>((uint32*)data + i + 2));

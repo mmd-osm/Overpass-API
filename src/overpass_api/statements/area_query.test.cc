@@ -187,7 +187,7 @@ int main(int argc, char* args[])
     std::set< std::pair< Uint32_Index, Uint32_Index > > rhs;
     std::set< std::pair< Uint32_Index, Uint32_Index > > result = range_union(lhs, rhs);
     std::cout<<"Test empty lhs and rhs:\n";
-    for (std::set< std::pair< Uint32_Index, Uint32_Index > >::const_iterator it = result.begin();
+    for (auto it = result.begin();
         it != result.end(); ++it)
       std::cout<<'\t'<<std::hex<<it->first.val()<<'\t'<<it->second.val()<<'\n';
     std::cout<<'\n';
@@ -198,7 +198,7 @@ int main(int argc, char* args[])
     std::set< std::pair< Uint32_Index, Uint32_Index > > rhs;
     std::set< std::pair< Uint32_Index, Uint32_Index > > result = range_union(lhs, rhs);
     std::cout<<"Test single entry in lhs:\n";
-    for (std::set< std::pair< Uint32_Index, Uint32_Index > >::const_iterator it = result.begin();
+    for (auto it = result.begin();
         it != result.end(); ++it)
       std::cout<<'\t'<<std::hex<<it->first.val()<<'\t'<<it->second.val()<<'\n';
     std::cout<<'\n';
@@ -209,7 +209,7 @@ int main(int argc, char* args[])
     rhs.insert(std::make_pair(3, 5));
     std::set< std::pair< Uint32_Index, Uint32_Index > > result = range_union(lhs, rhs);
     std::cout<<"Test single entry in rhs:\n";
-    for (std::set< std::pair< Uint32_Index, Uint32_Index > >::const_iterator it = result.begin();
+    for (auto it = result.begin();
         it != result.end(); ++it)
       std::cout<<'\t'<<std::hex<<it->first.val()<<'\t'<<it->second.val()<<'\n';
     std::cout<<'\n';
@@ -221,7 +221,7 @@ int main(int argc, char* args[])
     rhs.insert(std::make_pair(9, 10));
     std::set< std::pair< Uint32_Index, Uint32_Index > > result = range_union(lhs, rhs);
     std::cout<<"Test lhs before rhs:\n";
-    for (std::set< std::pair< Uint32_Index, Uint32_Index > >::const_iterator it = result.begin();
+    for (auto it = result.begin();
         it != result.end(); ++it)
       std::cout<<'\t'<<std::hex<<it->first.val()<<'\t'<<it->second.val()<<'\n';
     std::cout<<'\n';
@@ -233,7 +233,7 @@ int main(int argc, char* args[])
     rhs.insert(std::make_pair(11, 14));
     std::set< std::pair< Uint32_Index, Uint32_Index > > result = range_union(lhs, rhs);
     std::cout<<"Test rhs before lhs:\n";
-    for (std::set< std::pair< Uint32_Index, Uint32_Index > >::const_iterator it = result.begin();
+    for (auto it = result.begin();
         it != result.end(); ++it)
       std::cout<<'\t'<<std::hex<<it->first.val()<<'\t'<<it->second.val()<<'\n';
     std::cout<<'\n';
@@ -250,7 +250,7 @@ int main(int argc, char* args[])
     rhs.insert(std::make_pair(28, 30));
     std::set< std::pair< Uint32_Index, Uint32_Index > > result = range_union(lhs, rhs);
     std::cout<<"Test tail matching next head:\n";
-    for (std::set< std::pair< Uint32_Index, Uint32_Index > >::const_iterator it = result.begin();
+    for (auto it = result.begin();
         it != result.end(); ++it)
       std::cout<<'\t'<<std::hex<<it->first.val()<<'\t'<<it->second.val()<<'\n';
     std::cout<<'\n';
@@ -268,7 +268,7 @@ int main(int argc, char* args[])
     rhs.insert(std::make_pair(84, 92));
     std::set< std::pair< Uint32_Index, Uint32_Index > > result = range_union(lhs, rhs);
     std::cout<<"Test overlap between lhs and rhs:\n";
-    for (std::set< std::pair< Uint32_Index, Uint32_Index > >::const_iterator it = result.begin();
+    for (auto it = result.begin();
         it != result.end(); ++it)
       std::cout<<'\t'<<std::hex<<it->first.val()<<'\t'<<it->second.val()<<'\n';
     std::cout<<'\n';
@@ -286,7 +286,7 @@ int main(int argc, char* args[])
     rhs.insert(std::make_pair(128, 160));
     std::set< std::pair< Uint32_Index, Uint32_Index > > result = range_union(lhs, rhs);
     std::cout<<"Test segment contained in other segments:\n";
-    for (std::set< std::pair< Uint32_Index, Uint32_Index > >::const_iterator it = result.begin();
+    for (auto it = result.begin();
         it != result.end(); ++it)
       std::cout<<'\t'<<std::hex<<it->first.val()<<'\t'<<it->second.val()<<'\n';
     std::cout<<'\n';

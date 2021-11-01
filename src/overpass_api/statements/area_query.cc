@@ -78,8 +78,8 @@ std::set< std::pair< Uint32_Index, Uint32_Index > > range_union(
     const std::set< std::pair< Uint32_Index, Uint32_Index > >& rhs)
 {
   std::vector< std::pair< Uint32_Index, Uint32_Index > > result;
-  std::set< std::pair< Uint32_Index, Uint32_Index > >::const_iterator it_l = lhs.begin();
-  std::set< std::pair< Uint32_Index, Uint32_Index > >::const_iterator it_r = rhs.begin();
+  auto it_l = lhs.begin();
+  auto it_r = rhs.begin();
   
   while (true)
   {
@@ -183,7 +183,7 @@ std::map< Uint32_Index, std::vector< Node_Skeleton > > nodes_contained_in(
   Tilewise_Const_Area_Iterator tai(potential_areas->ways, potential_areas->attic_ways, stmt, rman);
   std::map< Uint32_Index, std::vector< Node_Skeleton > > result;
   
-  for (typename std::map< Uint32_Index, std::vector< Node_Skeleton > >::const_iterator iit = nodes.begin();
+  for (auto iit = nodes.begin();
       iit != nodes.end(); ++iit)
   {
     while (!tai.is_end() && tai.get_idx().val() < iit->first.val())
@@ -193,7 +193,7 @@ std::map< Uint32_Index, std::vector< Node_Skeleton > > nodes_contained_in(
     
     std::vector< Node_Skeleton >& result_block = result[iit->first];
 
-    for (typename std::vector< Node_Skeleton >::const_iterator it = iit->second.begin(); it != iit->second.end(); ++it)
+    for (auto it = iit->second.begin(); it != iit->second.end(); ++it)
     {
       Tilewise_Area_Iterator::Relative_Position relpos = tai.rel_position(iit->first.val(), it->ll_lower, true);
 //       std::cout<<"Id "<<it->id.val()<<' '<<relpos<<'\n';
@@ -253,7 +253,7 @@ std::map< Uint31_Index, std::vector< Way_Skeleton > > ways_contained_in(
     }
 
     const std::map< Tilewise_Way_Iterator::Status_Ref< Way_Skeleton >*, Tilewise_Way_Iterator::Index_Block >& obj = twi.get_current_obj();
-    for (std::map< Tilewise_Way_Iterator::Status_Ref< Way_Skeleton >*, Tilewise_Way_Iterator::Index_Block >::const_iterator it = obj.begin();
+    for (auto it = obj.begin();
         it != obj.end(); ++it)
     {
       if (it->first->status == Tilewise_Area_Iterator::outside)
@@ -293,7 +293,7 @@ std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > > ways_contained_in
     }
     
     const std::map< Tilewise_Way_Iterator::Status_Ref< Attic< Way_Skeleton > >*, Tilewise_Way_Iterator::Index_Block >& obj = twi.get_attic_obj();
-    for (std::map< Tilewise_Way_Iterator::Status_Ref< Attic< Way_Skeleton > >*, Tilewise_Way_Iterator::Index_Block >::const_iterator
+    for (auto
         it = obj.begin(); it != obj.end(); ++it)
     {
       if (it->first->status == Tilewise_Area_Iterator::outside)
@@ -615,10 +615,10 @@ void Area_Query_Statement::get_ranges
      Resource_Manager& rman)
 {
   way_areas_id.clear();
-  for (std::map< Uint31_Index, std::vector< Way_Skeleton > >::const_iterator it = input_ways.begin();
+  for (auto it = input_ways.begin();
        it != input_ways.end(); ++it)
   {
-    for (std::vector< Way_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
       if (!it2->nds().empty() && it2->nds().front() == it2->nds().back())
         way_areas_id.push_back(it2->id);
@@ -627,14 +627,14 @@ void Area_Query_Statement::get_ranges
   std::sort(way_areas_id.begin(), way_areas_id.end());
   
   area_id.clear();
-  for (std::map< Uint31_Index, std::vector< Area_Skeleton > >::const_iterator it = input_areas.begin();
+  for (auto it = input_areas.begin();
        it != input_areas.end(); ++it)
   {
-    for (std::vector< Area_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
       area_id.push_back(it2->id);
 
-      for (std::vector< uint32 >::const_iterator it3(it2->used_indices().begin());
+      for (auto it3(it2->used_indices().begin());
           it3 != it2->used_indices().end(); ++it3)
         area_blocks_req.insert(Uint31_Index(*it3));
     }
@@ -694,7 +694,7 @@ uint32 check_nodes(const std::map< Area_Skeleton::Id_Type, std::vector< Area_Blo
           + 91.0)*10000000+0.5);
       int32 ilon(::lon(nodes_it->first.val(), iit->ll_lower)*10000000
           + (::lon(nodes_it->first.val(), iit->ll_lower) > 0 ? 0.5 : -0.5));
-      for (std::map< Area_Skeleton::Id_Type, std::vector< Area_Block > >::const_iterator it = areas.begin();
+      for (auto it = areas.begin();
            it != areas.end(); ++it)
       {
         int inside = 0;
@@ -770,7 +770,7 @@ void Area_Query_Statement::collect_nodes_db
   Block_Backend< Uint31_Index, Area_Block >::Discrete_Iterator
       area_it(area_blocks_db.discrete_begin(req.begin(), req.end()));
 
-  typename std::map< Uint32_Index, std::vector< Node_Skeleton > >::iterator nodes_it = nodes.begin();
+  auto nodes_it = nodes.begin();
 
   uint32 loop_count = 0;
   uint32 current_idx = 0;
@@ -1082,7 +1082,7 @@ int check_nodes_for_ways(const std::map< Area_Skeleton::Id_Type, std::vector< Ar
     {
       uint32 ilat = ::ilat(nodes_it->first, iit->first);
       int32 ilon = ::ilon(nodes_it->first, iit->first);
-      for (std::map< Area_Skeleton::Id_Type, std::vector< Area_Block > >::const_iterator it = areas.begin();
+      for (auto it = areas.begin();
            it != areas.end(); ++it)
       {
         int inside = 0;
@@ -1125,11 +1125,11 @@ void check_segments_for_ways(const std::map< Area_Skeleton::Id_Type, std::vector
 
   const auto & area_blocks = area_blocks_it->second;
 
-  for (std::vector< Area_Block >::const_iterator sit = area_blocks.begin();
+  for (auto sit = area_blocks.begin();
        sit != area_blocks.end(); ++sit)
   {
     std::map< Area::Id_Type, int > area_status;
-    for (std::map< Area_Skeleton::Id_Type, std::vector< Area_Block > >::const_iterator it = areas.begin();
+    for (auto it = areas.begin();
          it != areas.end(); ++it)
     {
       if (ways_inside[Way::Id_Type(sit->id)])
@@ -1210,7 +1210,7 @@ void Area_Query_Statement::collect_ways_db
   if (area_id_db.empty())
     return;
 
-  std::map< uint32, std::vector< std::pair< uint32, Way::Id_Type > > >::const_iterator nodes_it = way_coords_to_id.begin();
+  auto nodes_it = way_coords_to_id.begin();
 
   Block_Backend< Uint31_Index, Area_Block > area_blocks_db
       (rman.get_area_transaction()->data_index(area_settings().AREA_BLOCKS));
@@ -1264,7 +1264,7 @@ void Area_Query_Statement::collect_ways_adhoc
   if (inputset->area_blocks.empty())
     return;
 
-  std::map< uint32, std::vector< std::pair< uint32, Way::Id_Type > > >::const_iterator nodes_it = way_coords_to_id.begin();
+  auto nodes_it = way_coords_to_id.begin();
 
   // Fill node_status with the area related status of each node and segment
   uint32 loop_count = 0;

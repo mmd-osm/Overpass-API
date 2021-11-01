@@ -351,7 +351,7 @@ struct Tag_Index_Global_Has_Key_Functor {
   inline bool operator()(const void* data) const
    {
      char* k = ((int8*)data + 4);
-     uint16 len = unalignedLoad<uint16>(data);
+     auto len = unalignedLoad<uint16>(data);
      return (len == key.length() && std::strncmp(k, key.c_str(), len) == 0);
    }
 
@@ -368,10 +368,10 @@ struct Tag_Index_Global_Has_Value_Functor {
   inline bool operator()(const void* data) const
    {
      // char* k = ((int8*)data + 4);
-    uint16 key_len = unalignedLoad<uint16>(data);
+    auto key_len = unalignedLoad<uint16>(data);
 
      char* v = ((int8*)data + 4 + key_len);
-     uint16 value_len = unalignedLoad<uint16>((uint16*)data + 1);
+     auto value_len = unalignedLoad<uint16>((uint16*)data + 1);
 
      return (value_len == value.length() && std::strncmp(v, value.c_str(), value_len) == 0);
    }
