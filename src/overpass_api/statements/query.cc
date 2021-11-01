@@ -2150,12 +2150,14 @@ void Query_Statement::execute(Resource_Manager& rman)
             way_range_req_31.insert(std::make_pair(*it, inc(*it)));
 	}
 	if (way_range_req_31.empty())
+	{
   	  ::get_elements_by_id_from_db< Uint31_Index, Way_Skeleton >
 	      (into.ways, into.attic_ways,
                way_ids, invert_ids, way_range_req_31, 0, *this, rman,
                *osm_base_settings().WAYS, *attic_settings().WAYS);
           if (type & QUERY_CLOSED_WAY)
-            filter_elems_for_closed_ways(into);               
+            filter_elems_for_closed_ways(into);
+	}
         else
         {
           Uint31_Index min_idx = way_range_req_31.begin()->first;
@@ -2177,8 +2179,6 @@ void Query_Statement::execute(Resource_Manager& rman)
             indexed_set_union(filtered.attic_ways, to_filter.attic_ways);
           }
         }             
-             
-             
       }
     }
     if (type & QUERY_RELATION)
