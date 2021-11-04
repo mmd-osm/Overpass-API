@@ -34,11 +34,6 @@
 #include "way_geometry_store.h"
 
 
-inline Point_Double make_point_double(Quad_Coord arg)
-{
-  return Point_Double(lat(arg.ll_upper, arg.ll_lower), lon(arg.ll_upper, arg.ll_lower)); 
-}
-
 
 inline void add_idx_sequence(uint32 lat_lhs, uint32 lat_rhs, int32 lon, std::vector< Uint31_Index >& result)
 {
@@ -72,7 +67,7 @@ inline std::vector< Uint31_Index > touched_indexes(Quad_Coord lhs, Quad_Coord rh
     add_idx_sequence(lat_lhs, lat_rhs, lon_lhs, result);
   else
   {
-    Great_Circle gc(make_point_double(lhs), make_point_double(rhs));
+    Great_Circle gc(lhs, rhs);
     Quad_Coord min = lon_lhs < lon_rhs ? lhs : rhs;
     Quad_Coord max = lon_lhs < lon_rhs ? rhs : lhs;
     int32 i_ilon = ilon(min.ll_upper, min.ll_lower);
@@ -227,7 +222,7 @@ void calculate_auxiliary_points(const Segment_Collector& collector, Quad_Coord l
     calculate_south_north_sequence(collector, lat_lhs, lon_lhs, lat_rhs, lon_rhs);
   else
   {
-    Great_Circle gc(make_point_double(lhs), make_point_double(rhs));
+    Great_Circle gc(lhs, rhs);
     Quad_Coord min = lon_lhs < lon_rhs ? lhs : rhs;
     Quad_Coord max = lon_lhs < lon_rhs ? rhs : lhs;
     int32 i_ilon = ilon(min.ll_upper, min.ll_lower);

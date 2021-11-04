@@ -23,11 +23,14 @@
 #include <cmath>
 #include <vector>
 
+#include "index_computations.h"
+
 
 struct Point_Double
 {
 public:
   Point_Double(double lat_, double lon_) : lat(lat_), lon(lon_) {}
+  Point_Double(Quad_Coord arg) : lat(::lat(arg.ll_upper, arg.ll_lower)), lon(::lon(arg.ll_upper, arg.ll_lower)) {}
 
   double lat;
   double lon;
