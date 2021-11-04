@@ -58,7 +58,7 @@ struct Index_Collection
 template< class TIndex, class TObject, class TIterator = typename std::set< TIndex >::const_iterator >
 struct Block_Backend_Updater
 {
-    typedef File_Blocks< TIndex, TIterator, Default_Range_Iterator< TIndex > > File_Blocks_;
+    typedef File_Blocks< TIndex, TIterator > File_Blocks_;
 
     Block_Backend_Updater(File_Blocks_Index_Base* index_);
     ~Block_Backend_Updater();
