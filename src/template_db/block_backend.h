@@ -158,6 +158,11 @@ struct Block_Backend_Basic_Iterator
     return obj_cache;
   }
 
+  const bool start_of_new_index() const
+  {
+     return start_new_index;
+  }
+
   struct Block_Backend_Element
   {
     Block_Backend_Element(Block_Backend_Basic_Iterator<Index, Object, Idx_Assessor, File_Handle> & _ref) : ref(_ref) {};
@@ -203,6 +208,7 @@ private:
   Handle< Object > obj_cache;
   File_Handle file_handle;
   Idx_Assessor idx_assessor;
+  bool start_new_index;   // flag to indicate first object of a new index
 
   uint32 next_idx_block_offset() const
   {
@@ -230,7 +236,8 @@ Block_Backend_Basic_Iterator< Index, Object, Idx_Assessor, File_Handle >::
     Block_Backend_Basic_Iterator(
         uint32 block_size_, const File_Handle& file_handle_, const Idx_Assessor& idx_assessor_)
     : block_size(block_size_), buffer(block_size_), buffer_size(block_size_),
-    idx_block_offset(0), obj_offset(0), file_handle(file_handle_), idx_assessor(idx_assessor_)
+    idx_block_offset(0), obj_offset(0), file_handle(file_handle_), idx_assessor(idx_assessor_),
+    start_new_index(false)
 {
   increment_block();
 
@@ -247,6 +254,7 @@ Block_Backend_Basic_Iterator< Index, Object, Idx_Assessor, File_Handle >::
   while (obj_offset > 0 && obj_offset >= next_idx_block_offset())
     increment_idx();
 
+  start_new_index = true;
   idx_cache.set_ptr(idx_ptr());
   obj_cache.set_ptr(((uint8*)buffer.ptr) + obj_offset);
 }
@@ -257,7 +265,8 @@ Block_Backend_Basic_Iterator< Index, Object, Idx_Assessor, File_Handle >::
     Block_Backend_Basic_Iterator(const Block_Backend_Basic_Iterator& rhs)
     : block_size(rhs.block_size), buffer(rhs.buffer_size), buffer_size(rhs.buffer_size),
     idx_block_offset(rhs.idx_block_offset), obj_offset(rhs.obj_offset),
-    file_handle(rhs.file_handle), idx_assessor(rhs.idx_assessor)
+    file_handle(rhs.file_handle), idx_assessor(rhs.idx_assessor),
+    start_new_index(rhs.start_new_index)
 {
   memcpy(buffer.ptr, rhs.buffer.ptr, buffer_size);
   idx_cache.set_ptr(((uint8*)buffer.ptr) + idx_block_offset + 4);
@@ -282,6 +291,7 @@ const Block_Backend_Basic_Iterator< Index, Object, Idx_Assessor, File_Handle >&
   obj_offset = rhs.obj_offset;
   file_handle = rhs.file_handle;
   idx_assessor = rhs.idx_assessor;
+  start_new_index = rhs.start_new_index;
 
   memcpy(buffer.ptr, rhs.buffer.ptr, buffer_size);
   idx_cache.set_ptr(((uint8*)buffer.ptr) + idx_block_offset + 4);
@@ -295,6 +305,7 @@ template< typename Index, typename Object, typename Idx_Assessor, typename File_
 Block_Backend_Basic_Iterator< Index, Object, Idx_Assessor, File_Handle >&
     Block_Backend_Basic_Iterator< Index, Object, Idx_Assessor, File_Handle >::operator++()
 {
+  start_new_index = false;
   obj_offset += Object::size_of(((uint8*)buffer.ptr) + obj_offset);
   while (obj_offset > 0 && obj_offset >= next_idx_block_offset())
     increment_idx();
@@ -322,6 +333,7 @@ void Block_Backend_Basic_Iterator< Index, Object, Idx_Assessor, File_Handle >::i
   else
     obj_offset = idx_block_offset + 4 + Index::size_of(idx_ptr());
 
+  start_new_index = true;
   idx_cache.set_ptr(idx_ptr());
 }
 

@@ -165,7 +165,7 @@ public:
   bool matches(const std::string&) const { return true; }
 };
 
-
+/*
 template< typename Id_Type, typename Iterator, typename Key_Regex, typename Val_Regex >
 void filter_id_list(
     std::vector< std::pair< Id_Type, Uint31_Index > >& new_ids, bool& filtered,
@@ -203,7 +203,7 @@ void filter_id_list(
 
   filtered = true;
 }
-
+*/
 
 template< typename Id_Type, typename Iterator, typename Key_Regex, typename Val_Regex, unsigned int L >
 std::vector< std::pair< Id_Type, Uint31_Index > > filter_id_list_fast(
@@ -222,17 +222,25 @@ std::vector< std::pair< Id_Type, Uint31_Index > > filter_id_list_fast(
     return new_ids_idx;
   }
 
+  bool key_val_match = false;
+
   for (Iterator it = begin; !(it == end); ++it)
   {
+    if (it.start_of_new_index()) {
+      key_val_match = key_regex.matches(it.index().key) &&
+                      it.index().value != void_tag_value() &&
+                      val_regex.matches(it.index().value);
+    }
+
+    if (!key_val_match)
+      continue;
+
     auto current_id = it.handle().id().val();
 
-    if (key_regex.matches(it.index().key) &&
-        it.index().value != void_tag_value() &&
-        val_regex.matches(it.index().value) &&
-        (!filtered || old_ids.get(current_id)))
+    if (!filtered || old_ids.get(current_id))
     {
       if (final)
-         new_ids_idx.push_back(std::make_pair(current_id, it.handle().get_idx()));
+         new_ids_idx.push_back({current_id, it.handle().get_idx()});
       else
          new_ids.set(current_id);
     }
@@ -276,11 +284,20 @@ void filter_id_list(
   std::vector< Id_Type > old_ids;
   old_ids.swap(new_ids);
 
+  bool key_val_match = false;
+
   for (Iterator it = begin; !(it == end); ++it)
   {
-    if (key_regex.matches(it.index().key) && it.index().value != void_tag_value()
-        && val_regex.matches(it.index().value) &&
-	(!filtered || binary_search(old_ids.begin(), old_ids.end(), it.object())))
+    if (it.start_of_new_index()) {
+      key_val_match = key_regex.matches(it.index().key) &&
+                      it.index().value != void_tag_value() &&
+                      val_regex.matches(it.index().value);
+    }
+
+    if (!key_val_match)
+      continue;
+
+    if (!filtered || binary_search(old_ids.begin(), old_ids.end(), it.object()))
       new_ids.push_back(it.object());
   }
 
