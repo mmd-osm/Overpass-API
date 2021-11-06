@@ -232,8 +232,10 @@ std::vector< std::pair< Id_Type, Uint31_Index > > filter_id_list_fast(
                       val_regex.matches(it.index().value);
     }
 
-    if (!key_val_match)
+    if (!key_val_match) {
+      it.skip_current_index();
       continue;
+    }
 
     auto current_id = it.handle().id().val();
 
@@ -294,8 +296,10 @@ void filter_id_list(
                       val_regex.matches(it.index().value);
     }
 
-    if (!key_val_match)
+    if (!key_val_match) {
+      it.skip_current_index();
       continue;
+    }
 
     if (!filtered || binary_search(old_ids.begin(), old_ids.end(), it.object()))
       new_ids.push_back(it.object());
