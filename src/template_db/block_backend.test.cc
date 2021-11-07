@@ -398,11 +398,12 @@ void read_test(unsigned int step)
     uint32 fool(0), foou(10);
     range_list.insert(std::make_pair(IntIndex(&fool), IntIndex(&foou)));
     std::cout<<"Reading blocks with indices [0, 10[ ...\n";
+
     {
       Block_Backend< IntIndex, IntObject >::Range_Iterator
-          rit(db_backend.range_begin
-          (Default_Range_Iterator< IntIndex >(range_list.begin()),
-           Default_Range_Iterator< IntIndex >(range_list.end())));
+      rit(db_backend.range_begin
+          (Ranges< IntIndex >::Iterator(range_list.begin()),
+              Ranges< IntIndex >::Iterator(range_list.end())));
       read_loop(db_backend, rit);
     }
     std::cout<<"... all blocks read.\n";
@@ -423,13 +424,15 @@ void read_test(unsigned int step)
     foou = 100;
     range_list.insert(std::make_pair(IntIndex(&fool), IntIndex(&foou)));
     std::cout<<"Reading blocks with indices [90, 100[ ...\n";
+
     {
       Block_Backend< IntIndex, IntObject >::Range_Iterator
-                rit(db_backend.range_begin
-          (Default_Range_Iterator< IntIndex >(range_list.begin()),
-           Default_Range_Iterator< IntIndex >(range_list.end())));
+      rit = db_backend.range_begin
+          (Ranges< IntIndex >::Iterator(range_list.begin()),
+           Ranges< IntIndex >::Iterator(range_list.end()));
       read_loop(db_backend, rit);
     }
+
     std::cout<<"... all blocks read.\n";
 
     index_list.clear();
@@ -450,9 +453,9 @@ void read_test(unsigned int step)
     std::cout<<"Reading blocks with indices [50, 51[ ...\n";
     {
       Block_Backend< IntIndex, IntObject >::Range_Iterator
-                rit(db_backend.range_begin
-          (Default_Range_Iterator< IntIndex >(range_list.begin()),
-           Default_Range_Iterator< IntIndex >(range_list.end())));
+      rit = db_backend.range_begin
+      (Ranges< IntIndex >::Iterator(range_list.begin()),
+          Ranges< IntIndex >::Iterator(range_list.end()));
       read_loop(db_backend, rit);
     }
     std::cout<<"... all blocks read.\n";
@@ -470,9 +473,9 @@ void read_test(unsigned int step)
     std::cout<<"Reading blocks with indices [0,10[\\cup [50, 51[\\cup [90, 100[ ...\n";
     {
       Block_Backend< IntIndex, IntObject >::Range_Iterator
-                rit(db_backend.range_begin
-          (Default_Range_Iterator< IntIndex >(range_list.begin()),
-           Default_Range_Iterator< IntIndex >(range_list.end())));
+      rit = db_backend.range_begin
+      (Ranges< IntIndex >::Iterator(range_list.begin()),
+          Ranges< IntIndex >::Iterator(range_list.end()));
       read_loop(db_backend, rit);
     }
     std::cout<<"... all blocks read.\n";

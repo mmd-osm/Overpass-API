@@ -1173,8 +1173,8 @@ void Query_Statement::filter_by_tags
       (transaction.data_index(&file_prop));
   typename Block_Backend< Tag_Index_Local, typename TObject::Id_Type >::Range_Iterator
     tag_it(items_db.range_begin
-    (Default_Range_Iterator< Tag_Index_Local >(range_set.begin()),
-     Default_Range_Iterator< Tag_Index_Local >(range_set.end())));
+    (Ranges< Tag_Index_Local >::Iterator(range_set.begin()),
+     Ranges< Tag_Index_Local >::Iterator(range_set.end())));
 
   if (timestamp == NOW)
   {
@@ -1194,8 +1194,8 @@ void Query_Statement::filter_by_tags
         (transaction.data_index(attic_file_prop));
     typename Block_Backend< Tag_Index_Local, Attic< typename TObject::Id_Type > >::Range_Iterator
       attic_tag_it(attic_items_db.range_begin
-      (Default_Range_Iterator< Tag_Index_Local >(range_set.begin()),
-       Default_Range_Iterator< Tag_Index_Local >(range_set.end())));
+      (Ranges< Tag_Index_Local >::Iterator(range_set.begin()),
+       Ranges< Tag_Index_Local >::Iterator(range_set.end())));
 
 //    typename std::map< TIndex, std::vector< Attic< TObject > > >::const_iterator attic_item_it
 //        = attic_items->begin();
@@ -1233,8 +1233,8 @@ void Query_Statement::filter_by_tags
   coarse_count = 0;
   typename Block_Backend< Tag_Index_Local, typename TObject::Id_Type >::Range_Iterator
       ntag_it(items_db.range_begin
-      (Default_Range_Iterator< Tag_Index_Local >(range_set.begin()),
-       Default_Range_Iterator< Tag_Index_Local >(range_set.end())));
+      (Ranges< Tag_Index_Local >::Iterator(range_set.begin()),
+       Ranges< Tag_Index_Local >::Iterator(range_set.end())));
 
   if (timestamp == NOW)
   {
@@ -1254,8 +1254,8 @@ void Query_Statement::filter_by_tags
         (transaction.data_index(attic_file_prop));
     typename Block_Backend< Tag_Index_Local, Attic< typename TObject::Id_Type > >::Range_Iterator
       attic_ntag_it(attic_items_db.range_begin
-      (Default_Range_Iterator< Tag_Index_Local >(range_set.begin()),
-       Default_Range_Iterator< Tag_Index_Local >(range_set.end())));
+      (Ranges< Tag_Index_Local >::Iterator(range_set.begin()),
+       Ranges< Tag_Index_Local >::Iterator(range_set.end())));
 
 //    typename std::map< TIndex, std::vector< Attic< TObject > > >::const_iterator attic_item_it
 //        = attic_items->begin();
@@ -1320,8 +1320,8 @@ void Query_Statement::filter_by_tags
         (transaction.data_index(&file_prop));
     typename Block_Backend< Tag_Index_Local, typename TObject::Id_Type >::Range_Iterator
         tag_it(items_db.range_begin
-        (Default_Range_Iterator< Tag_Index_Local >(range_set.begin()),
-        Default_Range_Iterator< Tag_Index_Local >(range_set.end())));
+        (Ranges< Tag_Index_Local >::Iterator(range_set.begin()),
+            Ranges< Tag_Index_Local >::Iterator(range_set.end())));
 
     typename std::map< TIndex, std::vector< TObject > >::const_iterator item_it
         = items.begin();
@@ -1376,10 +1376,9 @@ void Query_Statement::filter_by_tags
       (transaction.data_index(&file_prop));
   typename Block_Backend< Tag_Index_Local, typename TObject::Id_Type >::Range_Iterator
       ntag_it(items_db.range_begin
-      (Default_Range_Iterator< Tag_Index_Local >(range_set.begin()),
-       Default_Range_Iterator< Tag_Index_Local >(range_set.end())));
+      (Ranges< Tag_Index_Local >::Iterator(range_set.begin()),
+       Ranges< Tag_Index_Local >::Iterator(range_set.end())));
   typename std::map< TIndex, std::vector< TObject > >::const_iterator item_it = items.begin();
-
   {
     for (auto it = ids_by_coarse.begin();
         it != ids_by_coarse.end(); ++it)

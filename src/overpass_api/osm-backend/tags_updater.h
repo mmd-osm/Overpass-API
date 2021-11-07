@@ -139,8 +139,8 @@ void prepare_delete_tags
   current_index.index = 0xffffffff;
   for (typename Block_Backend< Tag_Index_Local, Id_Type >::Range_Iterator
     it(rels_db.range_begin
-    (Default_Range_Iterator< Tag_Index_Local >(range_set.begin()),
-     Default_Range_Iterator< Tag_Index_Local >(range_set.end())));
+    (Ranges< Tag_Index_Local >::Iterator(range_set.begin()),
+     Ranges< Tag_Index_Local >::Iterator(range_set.end())));
      !(it == rels_db.range_end()); ++it)
   {
     if (!(current_index == it.index()))
@@ -195,8 +195,8 @@ void get_existing_tags
   current_index.index = 0xffffffff;
   for (typename Block_Backend< Tag_Index_Local, Id_Type >::Range_Iterator
     it(rels_db.range_begin
-    (Default_Range_Iterator< Tag_Index_Local >(range_set.begin()),
-     Default_Range_Iterator< Tag_Index_Local >(range_set.end())));
+    (Ranges< Tag_Index_Local >::Iterator(range_set.begin()),
+     Ranges< Tag_Index_Local >::Iterator(range_set.end())));
      !(it == rels_db.range_end()); ++it)
   {
     if (!(current_index == it.index()))
