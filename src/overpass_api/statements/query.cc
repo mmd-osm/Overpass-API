@@ -674,11 +674,9 @@ IdSetHybrid<typename Id_Type::Id_Type> Query_Statement::collect_non_ids_hybrid
     }
     else
     {
-      std::map< Id_Type, std::pair< uint64, Uint31_Index > > timestamp_per_id
-          = collect_attic_kv(knvit, timestamp, tags_db, *attic_tags_db.obj);
+      auto timestamp_per_id = collect_attic_kv2(knvit, timestamp, tags_db, *attic_tags_db.obj);
 
-      for (typename std::map< Id_Type, std::pair< uint64, Uint31_Index > >::const_iterator
-          it = timestamp_per_id.begin(); it != timestamp_per_id.end(); ++it)
+      for (auto it = timestamp_per_id.begin(); it != timestamp_per_id.end(); ++it)
         new_ids.set(it->first.val());
     }
     rman.health_check(*this);
@@ -699,11 +697,9 @@ IdSetHybrid<typename Id_Type::Id_Type> Query_Statement::collect_non_ids_hybrid
     }
     else
     {
-      std::map< Id_Type, std::pair< uint64, Uint31_Index > > timestamp_per_id
-          = collect_attic_kregv(knrit, timestamp, tags_db, *attic_tags_db.obj);
+      auto timestamp_per_id = collect_attic_kregv2(knrit, timestamp, tags_db, *attic_tags_db.obj);
 
-      for (typename std::map< Id_Type, std::pair< uint64, Uint31_Index > >::const_iterator
-          it = timestamp_per_id.begin(); it != timestamp_per_id.end(); ++it)
+      for (auto it = timestamp_per_id.begin(); it != timestamp_per_id.end(); ++it)
         new_ids.set(it->first.val());
     }
     rman.health_check(*this);
@@ -745,11 +741,9 @@ std::vector< Id_Type > Query_Statement::collect_non_ids
     }
     else
     {
-      std::map< Id_Type, std::pair< uint64, Uint31_Index > > timestamp_per_id
-          = collect_attic_kv(knvit, timestamp, tags_db, *attic_tags_db.obj);
+      auto timestamp_per_id = collect_attic_kv2(knvit, timestamp, tags_db, *attic_tags_db.obj);
 
-      for (typename std::map< Id_Type, std::pair< uint64, Uint31_Index > >::const_iterator
-          it = timestamp_per_id.begin(); it != timestamp_per_id.end(); ++it)
+      for (auto it = timestamp_per_id.begin(); it != timestamp_per_id.end(); ++it)
         new_ids.push_back(it->first);
     }
     rman.health_check(*this);
@@ -771,11 +765,9 @@ std::vector< Id_Type > Query_Statement::collect_non_ids
     }
     else
     {
-      std::map< Id_Type, std::pair< uint64, Uint31_Index > > timestamp_per_id
-          = collect_attic_kregv(knrit, timestamp, tags_db, *attic_tags_db.obj);
+      auto timestamp_per_id = collect_attic_kregv2(knrit, timestamp, tags_db, *attic_tags_db.obj);
 
-      for (typename std::map< Id_Type, std::pair< uint64, Uint31_Index > >::const_iterator
-          it = timestamp_per_id.begin(); it != timestamp_per_id.end(); ++it)
+      for (auto it = timestamp_per_id.begin(); it != timestamp_per_id.end(); ++it)
         new_ids.push_back(it->first);
     }
     rman.health_check(*this);

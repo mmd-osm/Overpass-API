@@ -126,7 +126,7 @@ bool operator==(const std::pair< Id_Type, Uint31_Index >& lhs, const std::pair< 
   return lhs.first == rhs.first;
 }
 
-
+/*
 template< class Id_Type >
 std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kv(
     std::vector< std::pair< std::string, std::string > >::const_iterator kvit, uint64 timestamp,
@@ -171,7 +171,7 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kv(
 
   return timestamp_per_id;
 }
-
+*/
 
 template< class Id_Type >
 std::vector< std::pair< Id_Type, Uint31_Index > > collect_attic_kv2(
@@ -262,7 +262,7 @@ std::vector< std::pair< Id_Type, Uint31_Index > > collect_attic_kv2(
 
 
 
-
+/*
 template< class Id_Type >
 std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_k(
     std::vector< std::string >::const_iterator kit, uint64 timestamp,
@@ -305,7 +305,7 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_k(
 
   return timestamp_per_id;
 }
-
+*/
 
 // more memory efficient version of collect_attic_k
 // caller filter_id_list doesn't care about all those timestamps -> don't return them!
@@ -394,7 +394,7 @@ std::vector< std::pair < Id_Type, Uint31_Index > > collect_attic_k2(
   return result;
 }
 
-
+/*
 template< class Id_Type >
 std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kregv(
     std::vector< std::pair< std::string, Regular_Expression* > >::const_iterator krit, uint64 timestamp,
@@ -440,7 +440,7 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kregv(
 
   return timestamp_per_id;
 }
-
+*/
 
 template< class Id_Type >
 std::vector< std::pair < Id_Type, Uint31_Index > > collect_attic_kregv2(
