@@ -363,7 +363,7 @@ void Make_Area_Statement::execute(Resource_Manager& rman)
                                               Uint32_Index,
                                               Block_Backend<Tag_Index_Local, Uint32_Index>::default_iterator,
                                               Tag_Index_Local_Range_Idx_Assessor< Tag_Index_Local, Ranges< Tag_Index_Local >::Iterator >,
-                                              Block_Backend<Tag_Index_Local, Uint32_Index>::default_descrete_assessor >;
+                                              Block_Backend<Tag_Index_Local, Uint32_Index>::default_discrete_assessor >;
 
   Block_Backend_Custom items_db(rman.get_transaction()->data_index(file_prop));
 

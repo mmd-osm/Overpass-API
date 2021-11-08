@@ -651,7 +651,7 @@ struct Block_Backend
 {
     using default_iterator = typename std::set< TIndex >::const_iterator;
     using default_range_assessor = Range_Idx_Assessor < TIndex, typename Ranges< TIndex >::Iterator >;
-    using default_descrete_assessor = Discrete_Idx_Assessor< TIndex, TIterator >;
+    using default_discrete_assessor = Discrete_Idx_Assessor< TIndex, TIterator >;
 
     typedef Block_Backend_Flat_Iterator< TIndex, TObject, TIterator > Flat_Iterator;
     typedef Block_Backend_Discrete_Iterator< TIndex, TObject, TIterator, TDiscreteAssessor > Discrete_Iterator;

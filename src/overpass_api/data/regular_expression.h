@@ -79,7 +79,7 @@ class Regular_Expression
 
     virtual ~Regular_Expression() = default;
 
-    virtual bool matches(const std::string& line) const = 0;
+    virtual bool matches(const std::string& line, bool use_buffer = true) const = 0;
 
   private:
     Regular_Expression(const Regular_Expression&);
@@ -121,21 +121,23 @@ class Regular_Expression_POSIX : public Regular_Expression
         regfree(&preg);
     }
 
-    inline bool matches(const std::string& line) const override
+    inline bool matches(const std::string& line, bool use_buffer = true) const override
     {
       if (strategy == Strategy::match_anything)
         return true;
       else if (strategy == Strategy::match_nonempty)
         return !line.empty();
 
-      if (is_cache_available && line == prev_line)
+      if (use_buffer && is_cache_available && line == prev_line)
         return prev_result;
 
       bool result = (regexec(&preg, line.c_str(), 0, 0, 0) == 0);
 
-      is_cache_available = true;
-      prev_result = result;
-      prev_line = line;
+      if (use_buffer) {
+        is_cache_available = true;
+        prev_result = result;
+        prev_line = line;
+      }
 
       return (result);
     }
@@ -187,14 +189,14 @@ class Regular_Expression_ICU : public Regular_Expression
         delete matcher;
     }
 
-    inline bool matches(const std::string& line) const override
+    inline bool matches(const std::string& line, bool use_buffer = true) const override
     {
       if (strategy == Strategy::match_anything)
         return true;
       else if (strategy == Strategy::match_nonempty)
         return !line.empty();
 
-      if (is_cache_available && line == prev_line)
+      if (use_buffer && is_cache_available && line == prev_line)
         return prev_result;
 
       UnicodeString stringToTest_U = UnicodeString(line.c_str());
@@ -209,9 +211,11 @@ class Regular_Expression_ICU : public Regular_Expression
         throw Regular_Expression_Error(u_errorName(status));
       }
 
-      is_cache_available = true;
-      prev_result = result;
-      prev_line = line;
+      if (use_buffer) {
+        is_cache_available = true;
+        prev_result = result;
+        prev_line = line;
+      }
 
       return (result);
     }
@@ -310,14 +314,14 @@ class Regular_Expression_PCRE : public Regular_Expression
       }
     }
 
-    inline bool matches(const std::string& line) const override
+    inline bool matches(const std::string& line, bool use_buffer = true) const override
     {
       if (strategy == Strategy::match_anything)
         return true;
       else if (strategy == Strategy::match_nonempty)
         return !line.empty();
 
-      if (is_cache_available && line == prev_line)
+      if (use_buffer && is_cache_available && line == prev_line)
         return prev_result;
 
       bool result;
@@ -360,9 +364,11 @@ class Regular_Expression_PCRE : public Regular_Expression
         result = true;
       }
 
-      is_cache_available = true;
-      prev_result = result;
-      prev_line = line;
+      if (use_buffer) {
+        is_cache_available = true;
+        prev_result = result;
+        prev_line = line;
+      }
 
       return (result);
     }

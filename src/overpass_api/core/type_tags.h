@@ -380,6 +380,36 @@ struct Tag_Index_Global_Has_Value_Functor {
      std::string& value;
 };
 
+struct Tag_Index_Global_Compare_Key_Functor {
+  Tag_Index_Global_Compare_Key_Functor(const std::string& key) : key(key) {};
+
+  using reference_type = Tag_Index_Global;
+
+  inline int operator()(const void* data) const
+   {
+     auto key_len = unalignedLoad<uint16>(data);
+     char* k =  ((int8*)data + 4);
+     return (key.compare(0, key_len, k, key_len));
+   }
+
+  private:
+     const std::string& key;
+};
+
+
+struct Tag_Index_Global_Element_Functor {
+  Tag_Index_Global_Element_Functor() = default;
+
+  using reference_type = Tag_Index_Global;
+
+  Tag_Index_Global operator()(const void* data)
+  {
+    return Tag_Index_Global(data);
+  }
+};
+
+
+
 
 template <class T, class Object>
 struct Tag_Index_Global_Handle_Methods
@@ -390,6 +420,14 @@ struct Tag_Index_Global_Handle_Methods
 
   inline bool has_value(std::string& value) const {
      return (static_cast<const T*>(this)->apply_func(Tag_Index_Global_Has_Value_Functor(value)));
+  }
+
+  inline int compare_key(const std::string& key) const {
+    return (static_cast<const T*>(this)->apply_func(Tag_Index_Global_Compare_Key_Functor(key)));
+  }
+
+  inline Tag_Index_Global get_element() const {
+     return (static_cast<const T*>(this)->apply_func(Tag_Index_Global_Element_Functor()));
   }
 };
 

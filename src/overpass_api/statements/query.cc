@@ -162,7 +162,7 @@ struct Optional
 struct Trivial_Regex
 {
 public:
-  bool matches(const std::string&) const { return true; }
+  bool matches(const std::string&, bool use_buffer = true) const { return true; }
 };
 
 /*
@@ -227,9 +227,10 @@ std::vector< std::pair< Id_Type, Uint31_Index > > filter_id_list_fast(
   for (Iterator it = begin; !(it == end); ++it)
   {
     if (it.start_of_new_index()) {
-      key_val_match = key_regex.matches(it.index().key) &&
-                      it.index().value != void_tag_value() &&
-                      val_regex.matches(it.index().value);
+      auto el = it.index_handle().get_element();
+      key_val_match = key_regex.matches(el.key, false) &&
+                      el.value != void_tag_value() &&
+                      val_regex.matches(el.value, false);
     }
 
     if (!key_val_match) {
@@ -421,6 +422,26 @@ enum class FinalProcessing {
 };
 
 
+template< typename Index, typename Iterator >
+struct Tag_Index_Global_Range_Idx_Assessor
+{
+  Tag_Index_Global_Range_Idx_Assessor(const Iterator& index_it_, const Iterator& index_end_)
+      : index_it(index_it_), index_end(index_end_) {}
+
+  bool is_relevant(Handle < Index > & handle)
+  {
+    while (index_it != index_end && (handle.compare_key(index_it.lower_bound().key) < 0))
+      ++index_it;
+
+    return index_it != index_end && (handle.compare_key(index_it.lower_bound().key) == 0);
+  }
+
+private:
+  Iterator index_it;
+  Iterator index_end;
+};
+
+
 template< typename Skeleton, typename Id_Type >
 std::vector< std::pair< Id_Type, Uint31_Index > > Query_Statement::collect_ids
   (const File_Properties& file_prop, const File_Properties& attic_file_prop, Resource_Manager& rman,
@@ -429,6 +450,13 @@ std::vector< std::pair< Id_Type, Uint31_Index > > Query_Statement::collect_ids
   if (key_values.empty() && keys.empty() && key_regexes.empty() && regkey_regexes.empty())
     return std::vector< std::pair< Id_Type, Uint31_Index > >();
 
+  using Block_Backend_Custom = Block_Backend< Tag_Index_Global,
+                                              Tag_Object_Global< Id_Type >,
+                                              typename Block_Backend<Tag_Index_Global, Tag_Object_Global< Id_Type > >::default_iterator,
+                                              Tag_Index_Global_Range_Idx_Assessor< Tag_Index_Global, Ranges< Tag_Index_Global >::Iterator > ,
+                                              typename Block_Backend<Tag_Index_Global, Tag_Object_Global< Id_Type > >::default_discrete_assessor >;
+
+
   Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > > tags_db
       (rman.get_transaction()->data_index(&file_prop));
   Optional< Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > > > attic_tags_db
@@ -436,6 +464,8 @@ std::vector< std::pair< Id_Type, Uint31_Index > > Query_Statement::collect_ids
         new Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >
         (rman.get_transaction()->data_index(&attic_file_prop)));
 
+
+  Block_Backend_Custom tags_db_cust(rman.get_transaction()->data_index(&file_prop));
 
   IdSetHybrid<typename Id_Type::Id_Type> tmp_ids;
 
@@ -494,7 +524,7 @@ std::vector< std::pair< Id_Type, Uint31_Index > > Query_Statement::collect_ids
       {
         std::set< std::pair< Tag_Index_Global, Tag_Index_Global > > range_req = get_k_req(*kit);
         new_ids = filter_id_list_fast<Id_Type>(tmp_ids, filtered,
-		       tags_db.range_begin(range_req.begin(), range_req.end()), tags_db.range_end(),
+            tags_db_cust.range_begin(range_req.begin(), range_req.end()), tags_db_cust.range_end(),
 			Trivial_Regex(), Trivial_Regex(), check_keys_late, last);
         if (!filtered)
         {
@@ -524,7 +554,7 @@ std::vector< std::pair< Id_Type, Uint31_Index > > Query_Statement::collect_ids
       {
         std::set< std::pair< Tag_Index_Global, Tag_Index_Global > > range_req = get_k_req(krit->first);
         new_ids = filter_id_list_fast<Id_Type>(tmp_ids, filtered,
-	    tags_db.range_begin(range_req.begin(), range_req.end()), tags_db.range_end(),
+            tags_db_cust.range_begin(range_req.begin(), range_req.end()), tags_db_cust.range_end(),
 		Trivial_Regex(), *krit->second, check_keys_late, last);
         if (!filtered)
         {
@@ -555,7 +585,7 @@ std::vector< std::pair< Id_Type, Uint31_Index > > Query_Statement::collect_ids
 	std::set< std::pair< Tag_Index_Global, Tag_Index_Global > > range_req
 	    = get_regk_req< Skeleton >(it->first, rman, *this);
 	new_ids = filter_id_list_fast<Id_Type>(tmp_ids, filtered,
-	    tags_db.range_begin(range_req.begin(), range_req.end()), tags_db.range_end(),
+	    tags_db_cust.range_begin(range_req.begin(), range_req.end()), tags_db_cust.range_end(),
 	    *it->first, *it->second, check_keys_late, last);
         if (!filtered)
         {
