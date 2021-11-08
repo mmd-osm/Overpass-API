@@ -430,10 +430,14 @@ struct Tag_Index_Global_Range_Idx_Assessor
 
   bool is_relevant(Handle < Index > & handle)
   {
-    while (index_it != index_end && (handle.compare_key(index_it.lower_bound().key) < 0))
+//    while (index_it != index_end && (handle.compare_key(index_it.lower_bound().key) < 0))
+//      ++index_it;
+//
+//    return index_it != index_end && (handle.compare_key(index_it.lower_bound().key) == 0);
+    Index idx(handle.get_ptr_to_raw());
+    while (index_it != index_end && !(idx < index_it.upper_bound()))
       ++index_it;
-
-    return index_it != index_end && (handle.compare_key(index_it.lower_bound().key) == 0);
+    return index_it != index_end && !(idx < index_it.lower_bound()) && idx < index_it.upper_bound();
   }
 
 private:
