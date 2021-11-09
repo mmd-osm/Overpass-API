@@ -163,6 +163,7 @@ struct Trivial_Regex
 {
 public:
   bool matches(const std::string&, bool use_buffer = true) const { return true; }
+  bool matches(const std::string_view& line, bool use_buffer = true) const { return true; }
 };
 
 /*
@@ -227,10 +228,11 @@ std::vector< std::pair< Id_Type, Uint31_Index > > filter_id_list_fast(
   for (Iterator it = begin; !(it == end); ++it)
   {
     if (it.start_of_new_index()) {
-      auto el = it.index_handle().get_element();
-      key_val_match = key_regex.matches(el.key, false) &&
-                      el.value != void_tag_value() &&
-                      val_regex.matches(el.value, false);
+      auto const k = it.index_handle().get_key();
+      auto const v = it.index_handle().get_value();
+      key_val_match = key_regex.matches(k, false) &&
+                      v != void_tag_value() &&
+                      val_regex.matches(v, false);
     }
 
     if (!key_val_match) {
@@ -430,14 +432,10 @@ struct Tag_Index_Global_Range_Idx_Assessor
 
   bool is_relevant(Handle < Index > & handle)
   {
-//    while (index_it != index_end && (handle.compare_key(index_it.lower_bound().key) < 0))
-//      ++index_it;
-//
-//    return index_it != index_end && (handle.compare_key(index_it.lower_bound().key) == 0);
-    Index idx(handle.get_ptr_to_raw());
-    while (index_it != index_end && !(idx < index_it.upper_bound()))
+    auto const key = handle.get_key();
+    while (index_it != index_end && !(key < index_it.upper_bound().key))
       ++index_it;
-    return index_it != index_end && !(idx < index_it.lower_bound()) && idx < index_it.upper_bound();
+    return index_it != index_end && !(key < index_it.lower_bound().key) && key < index_it.upper_bound().key;
   }
 
 private:

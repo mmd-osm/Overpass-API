@@ -19,9 +19,11 @@
 #ifndef DE__OSM3S___OVERPASS_API__CORE__TYPE_TAGS_H
 #define DE__OSM3S___OVERPASS_API__CORE__TYPE_TAGS_H
 
+#include <algorithm>
 #include <map>
 #include <set>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -380,20 +382,33 @@ struct Tag_Index_Global_Has_Value_Functor {
      std::string& value;
 };
 
-struct Tag_Index_Global_Compare_Key_Functor {
-  Tag_Index_Global_Compare_Key_Functor(const std::string& key) : key(key) {};
+struct Tag_Index_Global_Get_Key_Functor {
+  Tag_Index_Global_Get_Key_Functor() {};
 
   using reference_type = Tag_Index_Global;
 
-  inline int operator()(const void* data) const
+  inline std::string_view operator()(const void* data) const
    {
      auto key_len = unalignedLoad<uint16>(data);
      char* k =  ((int8*)data + 4);
-     return (key.compare(0, key_len, k, key_len));
+     return std::string_view(k, key_len);
    }
+};
 
-  private:
-     const std::string& key;
+struct Tag_Index_Global_Get_Value_Functor {
+  Tag_Index_Global_Get_Value_Functor() {};
+
+  using reference_type = Tag_Index_Global;
+
+  inline std::string_view operator()(const void* data) const
+   {
+    auto key_len = unalignedLoad<uint16>(data);
+
+     char* v = ((int8*)data + 4 + key_len);
+     auto value_len = unalignedLoad<uint16>((uint16*)data + 1);
+
+     return std::string_view(v, value_len);
+   }
 };
 
 
@@ -422,8 +437,12 @@ struct Tag_Index_Global_Handle_Methods
      return (static_cast<const T*>(this)->apply_func(Tag_Index_Global_Has_Value_Functor(value)));
   }
 
-  inline int compare_key(const std::string& key) const {
-    return (static_cast<const T*>(this)->apply_func(Tag_Index_Global_Compare_Key_Functor(key)));
+  inline std::string_view get_key() const {
+    return (static_cast<const T*>(this)->apply_func(Tag_Index_Global_Get_Key_Functor()));
+  }
+
+  inline std::string_view get_value() const {
+    return (static_cast<const T*>(this)->apply_func(Tag_Index_Global_Get_Value_Functor()));
   }
 
   inline Tag_Index_Global get_element() const {

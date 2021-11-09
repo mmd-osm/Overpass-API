@@ -30,8 +30,10 @@
 
 #include <iostream>
 #include <string>
+#include <string_view>
 
 #ifdef HAVE_ICU
+#define U_CHARSET_IS_UTF8 1
 #include <unicode/regex.h>
 
 using icu::UnicodeString;
@@ -80,6 +82,7 @@ class Regular_Expression
     virtual ~Regular_Expression() = default;
 
     virtual bool matches(const std::string& line, bool use_buffer = true) const = 0;
+    virtual bool matches(const std::string_view& line, bool use_buffer = true) const = 0;
 
   private:
     Regular_Expression(const Regular_Expression&);
@@ -142,6 +145,11 @@ class Regular_Expression_POSIX : public Regular_Expression
       return (result);
     }
 
+    inline bool matches(const std::string_view& line, bool use_buffer = true) const override
+    {
+      return matches(std::string(line));
+    }
+
   private:
     regex_t preg;
 };
@@ -199,7 +207,38 @@ class Regular_Expression_ICU : public Regular_Expression
       if (use_buffer && is_cache_available && line == prev_line)
         return prev_result;
 
-      UnicodeString stringToTest_U = UnicodeString(line.c_str());
+      UnicodeString stringToTest_U = UnicodeString(line.data(), line.size());
+
+      matcher->reset(stringToTest_U);
+
+      UErrorCode status  = U_ZERO_ERROR;
+
+      bool result = (matcher->find(0, status));
+
+      if (U_FAILURE(status)) {
+        throw Regular_Expression_Error(u_errorName(status));
+      }
+
+      if (use_buffer) {
+        is_cache_available = true;
+        prev_result = result;
+        prev_line = line;
+      }
+
+      return (result);
+    }
+
+    inline bool matches(const std::string_view& line, bool use_buffer = true) const override
+    {
+      if (strategy == Strategy::match_anything)
+        return true;
+      else if (strategy == Strategy::match_nonempty)
+        return !line.empty();
+
+      if (use_buffer && is_cache_available && line == prev_line)
+        return prev_result;
+
+      UnicodeString stringToTest_U = UnicodeString(line.data(), line.size());
 
       matcher->reset(stringToTest_U);
 
@@ -315,6 +354,65 @@ class Regular_Expression_PCRE : public Regular_Expression
     }
 
     inline bool matches(const std::string& line, bool use_buffer = true) const override
+    {
+      if (strategy == Strategy::match_anything)
+        return true;
+      else if (strategy == Strategy::match_nonempty)
+        return !line.empty();
+
+      if (use_buffer && is_cache_available && line == prev_line)
+        return prev_result;
+
+      bool result;
+
+      uint32_t options = 0;
+
+      int rc;
+
+      if (pcre2_jit_on) {
+        rc = pcre2_jit_match(
+          re,                                            /* the compiled pattern */
+          reinterpret_cast<PCRE2_SPTR>(line.data()),     /* the subject string */
+          line.size(),                                   /* the length of the subject */
+          0,                                             /* starting offset in the subject */
+          options,                                       /* options */
+          match_data,                                    /* block for storing the result */
+          NULL);                                         /* use default match context */
+      }
+      else {
+        rc = pcre2_match(
+          re,                                            /* the compiled pattern */
+          reinterpret_cast<PCRE2_SPTR>(line.data()),     /* the subject string */
+          line.size(),                                   /* the length of the subject */
+          0,                                             /* starting offset in the subject */
+          options,                                       /* options */
+          match_data,                                    /* block for storing the result */
+          NULL);                                         /* use default match context */
+      }
+
+      if (rc < 0)  {
+        switch(rc)
+          {
+          case PCRE2_ERROR_NOMATCH:
+              result = false;
+              break;
+          default:
+            throw Regular_Expression_Error("PCRE2 failed");
+          }
+      } else {
+        result = true;
+      }
+
+      if (use_buffer) {
+        is_cache_available = true;
+        prev_result = result;
+        prev_line = line;
+      }
+
+      return (result);
+    }
+
+    inline bool matches(const std::string_view& line, bool use_buffer = true) const override
     {
       if (strategy == Strategy::match_anything)
         return true;
