@@ -600,6 +600,14 @@ int main(int argc, char* args[])
            it(db.flat_begin()); !(it == db.flat_end()); ++it)
         std::cout<<std::dec<<it.index().val()<<'\t'<<std::hex<<it.object().val()<<'\n';
     }
+    else if (std::string("--user-data") == args[2])
+    {
+      Block_Backend< Uint32_Index, User_Data > db
+          (transaction.data_index(meta_settings().USER_DATA));
+      for (Block_Backend< Uint32_Index, User_Data >::Flat_Iterator
+           it(db.flat_begin()); !(it == db.flat_end()); ++it)
+        std::cout<<std::dec<<it.index().val()<<'\t' << it.object().id << " - " << it.object().name <<'\n';
+    }
     else
       std::cout<<"Unknown target.\n";
   }
