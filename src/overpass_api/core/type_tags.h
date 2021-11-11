@@ -152,6 +152,63 @@ struct Tag_Index_Local_Element_Functor {
    }
 };
 
+struct Tag_Index_Local_Get_Key_Functor {
+  Tag_Index_Local_Get_Key_Functor() {};
+
+  using reference_type = Tag_Index_Local;
+
+  inline std::string_view operator()(const void* data) const
+   {
+     auto key_len = unalignedLoad<uint16>(data);
+     char* k =  ((int8*)data + 7);
+
+     return std::string_view(k, key_len);
+   }
+};
+
+struct Tag_Index_Local_Get_Value_Functor {
+  Tag_Index_Local_Get_Value_Functor() {};
+
+  using reference_type = Tag_Index_Local;
+
+  inline std::string_view operator()(const void* data) const
+   {
+     auto key_len = unalignedLoad<uint16>(data);
+     char* v = (int8*)data + 7 + key_len;
+     auto value_len = unalignedLoad<uint16>((uint16*)data + 1);
+
+     return std::string_view(v, value_len);
+   }
+};
+
+struct Tag_Index_Local_Operator_Lower_Functor {
+  Tag_Index_Local_Operator_Lower_Functor(const Tag_Index_Local& til_) : a(til_) { }
+
+  using reference_type = Tag_Index_Local;
+
+  bool operator()(const void* data)
+  {
+    auto index = Tag_Index_Local_Index_Functor()(data);
+
+    if ((index & 0x7fffffff) != (a.index & 0x7fffffff))
+      return ((index & 0x7fffffff) < (a.index & 0x7fffffff));
+    if (index != a.index)
+      return (index < a.index);
+
+    auto key = Tag_Index_Local_Get_Key_Functor()(data);
+
+    if (key != a.key)
+      return (key < a.key);
+
+    auto value = Tag_Index_Local_Get_Value_Functor()(data);
+
+    return (value < a.value);
+  }
+
+private:
+  const Tag_Index_Local & a;
+};
+
 
 template <class T, class Object>
 struct Tag_Index_Local_Handle_Methods
@@ -162,6 +219,18 @@ struct Tag_Index_Local_Handle_Methods
 
   inline Tag_Index_Local get_element() const {
     return (static_cast<const T*>(this)->apply_func(Tag_Index_Local_Element_Functor()));
+  }
+
+  inline std::string_view get_key() const {
+    return (static_cast<const T*>(this)->apply_func(Tag_Index_Local_Get_Key_Functor()));
+  }
+
+  inline std::string_view get_value() const {
+    return (static_cast<const T*>(this)->apply_func(Tag_Index_Local_Get_Value_Functor()));
+  }
+
+  inline bool operator<(const Tag_Index_Local& tig) const {
+    return (static_cast<const T*>(this)->apply_func(Tag_Index_Local_Operator_Lower_Functor(tig)));
   }
 };
 
@@ -424,6 +493,26 @@ struct Tag_Index_Global_Element_Functor {
 };
 
 
+struct Tag_Index_Global_Operator_Lower_Functor {
+  Tag_Index_Global_Operator_Lower_Functor(const Tag_Index_Global& tig_) : a(tig_) { }
+
+  using reference_type = Tag_Index_Global;
+
+  bool operator()(const void* data)
+  {
+    auto key = Tag_Index_Global_Get_Key_Functor()(data);
+
+    if (key != a.key)
+      return (key < a.key);
+
+    auto value = Tag_Index_Global_Get_Value_Functor()(data);
+
+    return (value < a.value);
+  }
+
+private:
+  const Tag_Index_Global & a;
+};
 
 
 template <class T, class Object>
@@ -447,6 +536,10 @@ struct Tag_Index_Global_Handle_Methods
 
   inline Tag_Index_Global get_element() const {
      return (static_cast<const T*>(this)->apply_func(Tag_Index_Global_Element_Functor()));
+  }
+
+  inline bool operator<(const Tag_Index_Global& tig) const {
+    return (static_cast<const T*>(this)->apply_func(Tag_Index_Global_Operator_Lower_Functor(tig)));
   }
 };
 

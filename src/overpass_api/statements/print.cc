@@ -43,7 +43,6 @@ const unsigned int WAY_FLUSH_SIZE = 512*1024;
 const unsigned int RELATION_FLUSH_SIZE = 512*1024;
 const unsigned int AREA_FLUSH_SIZE = 64*1024;
 
-
 Generic_Statement_Maker< Print_Statement > Print_Statement::statement_maker("print");
 
 
