@@ -412,6 +412,10 @@ class Osm_Backend_Callback
 };
 
 
+template <class T, class Object>
+struct User_Data_Handle_Methods;
+
+
 struct User_Data
 {
   typedef uint32 Id_Type;
@@ -452,6 +456,46 @@ struct User_Data
   bool operator==(const User_Data& a) const
   {
     return (id == a.id);
+  }
+
+  template <class T, class Object>
+  using Handle_Methods = User_Data_Handle_Methods<T, Object>;
+};
+
+template <typename Id_Type >
+struct User_Data_Id_Functor {
+  User_Data_Id_Functor() = default;
+
+  using reference_type = User_Data;
+
+  Id_Type operator()(const void* data) const
+   {
+    return unalignedLoad<uint32>(data);
+   }
+};
+
+struct User_Data_Name_Functor {
+  User_Data_Name_Functor() {};
+
+  using reference_type = User_Data;
+
+  inline std::string_view operator()(const void* data) const
+   {
+     auto name_len = unalignedLoad<uint16>((int8*)data + 4);
+     char* name =  (int8*)data + 6;
+     return std::string_view(name, name_len);
+   }
+};
+
+template <class T, class Object>
+struct User_Data_Handle_Methods
+{
+  typename Object::Id_Type inline id() const {
+     return (static_cast<const T*>(this)->apply_func(User_Data_Id_Functor<typename Object::Id_Type>()));
+  }
+
+  inline std::string_view get_name() const {
+    return (static_cast<const T*>(this)->apply_func(User_Data_Name_Functor()));
   }
 };
 

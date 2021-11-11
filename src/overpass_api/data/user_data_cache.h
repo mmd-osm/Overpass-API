@@ -57,9 +57,11 @@ inline const std::map< uint32, std::string >& User_Data_Cache::users(
   {
     Block_Backend< Uint32_Index, User_Data > user_db
         (transaction.data_index(meta_settings().USER_DATA));
-    for (const auto & it : user_db.as_flat())
-      users_[it.object().id] = it.object().name;
-
+    auto it_hint = users_.begin();
+    for (const auto & it : user_db.as_flat()) {
+      users_.emplace_hint(it_hint, it.handle().id(), it.handle().get_name());
+      it_hint = users_.end();
+    }
     loaded = true;
   }
 
