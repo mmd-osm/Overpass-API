@@ -236,8 +236,10 @@ void Meta_Collector< Index, Id_Type, Functor >::reset()
   {
     last_index = new Index(used_ranges.begin()->first);
 
-    Ranges< Index > ranges(used_ranges);
-    range_it = new auto(meta_db->range_begin(ranges));
+    range_it = new typename Block_Backend< Index, OSM_Element_Metadata_Skeleton< Id_Type > >
+        ::Range_Iterator(meta_db->range_begin(
+            typename Ranges< Index >::Iterator(used_ranges.begin()),
+            typename Ranges< Index >::Iterator(used_ranges.end())));
 
     if (!(*range_it == meta_db->range_end()))
     {
