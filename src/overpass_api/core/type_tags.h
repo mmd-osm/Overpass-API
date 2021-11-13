@@ -27,6 +27,7 @@
 #include <utility>
 #include <vector>
 
+#include "../../template_db/ranges.h"
 #include "basic_types.h"
 
 
@@ -254,11 +255,10 @@ inline const std::string& void_tag_value_space()
 }
 
 
-template< class TIndex >
-void formulate_range_query
-    (std::set< std::pair< Tag_Index_Local, Tag_Index_Local > >& range_set,
-     const std::set< TIndex >& coarse_indices)
+template< class Index >
+Ranges< Tag_Index_Local > formulate_range_query(const std::set< Index >& coarse_indices)
 {
+  std::set< std::pair< Tag_Index_Local, Tag_Index_Local > > range_set;
   for (auto it(coarse_indices.begin()); it != coarse_indices.end(); ++it)
   {
     Tag_Index_Local lower, upper;
@@ -270,14 +270,14 @@ void formulate_range_query
     upper.value = "";
     range_set.insert(std::make_pair(lower, upper));
   }
+  return Ranges< Tag_Index_Local >(std::move(range_set));
 }
 
 
 template< class Value >
-void formulate_range_query
-    (std::set< std::pair< Tag_Index_Local, Tag_Index_Local > >& range_set,
-     const std::map< uint32, Value >& coarse_indices)
+Ranges< Tag_Index_Local > formulate_range_query(const std::map< uint32, Value >& coarse_indices)
 {
+  std::set< std::pair< Tag_Index_Local, Tag_Index_Local > > range_set;
   for (auto it = coarse_indices.begin(); it != coarse_indices.end(); ++it)
   {
     Tag_Index_Local lower, upper;
@@ -289,6 +289,7 @@ void formulate_range_query
     upper.value = "";
     range_set.insert(std::make_pair(lower, upper));
   }
+  return Ranges< Tag_Index_Local >(std::move(range_set));
 }
 
 

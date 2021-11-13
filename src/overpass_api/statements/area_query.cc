@@ -29,6 +29,7 @@
 #include <vector>
 
 #include "../../template_db/block_backend.h"
+#include "../core/index_computations.h"
 #include "../data/collect_members.h"
 #include "../data/tilewise_geometry.h"
 #include "area_query.h"
@@ -71,38 +72,6 @@ void copy_discrete_to_area_ranges(
     nodes_req.insert(std::make_pair(Uint32_Index(it->val()), Uint32_Index((it->val()) + 0x100)));
 }
 
-}
-
-std::set< std::pair< Uint32_Index, Uint32_Index > > range_union(
-    const std::set< std::pair< Uint32_Index, Uint32_Index > >& lhs,
-    const std::set< std::pair< Uint32_Index, Uint32_Index > >& rhs)
-{
-  std::vector< std::pair< Uint32_Index, Uint32_Index > > result;
-  auto it_l = lhs.begin();
-  auto it_r = rhs.begin();
-  
-  while (true)
-  {
-    if (it_l != lhs.end() && (it_r == rhs.end() || it_l->first < it_r->first))
-    {
-      if (result.empty() || result.back().second < it_l->first)
-        result.push_back(*it_l);
-      else if (result.back().second < it_l->second)
-        result.back().second = it_l->second;
-      ++it_l;
-    }
-    else if (it_r != rhs.end())
-    {
-      if (result.empty() || result.back().second < it_r->first)
-        result.push_back(*it_r);
-      else if (result.back().second < it_r->second)
-        result.back().second = it_r->second;
-      ++it_r;
-    }
-    else
-      break;
-  }
-  return std::set< std::pair< Uint32_Index, Uint32_Index > >(result.begin(), result.end());
 }
 
 

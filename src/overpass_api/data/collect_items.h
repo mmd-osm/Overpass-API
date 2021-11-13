@@ -520,36 +520,6 @@ void collect_items_discrete_by_timestamp(const Statement* stmt, Resource_Manager
 }
 
 
-template < class Index, class Container >
-struct Shortened_Idx
-{
-  Shortened_Idx(const Container& req, const Index& cur_idx) : skipped(req.begin()), end_(req.end())
-  {
-    if (skipped != req.end() && !(skipped.lower_bound() == cur_idx))
-    {
-      while (skipped != req.end() && !(cur_idx < skipped.upper_bound()))
-        ++skipped;
-
-      if (skipped != req.end() && !(skipped.lower_bound() == cur_idx))
-      {
-        shortened.insert(std::make_pair(cur_idx, skipped.upper_bound()));
-        for (++skipped; skipped != end_; ++skipped)
-          shortened.insert(*skipped);
-        skipped = shortened.begin();
-        end_ = shortened.end();
-      }
-    }
-}
-
-  typename Ranges< Index >::Iterator begin() { return skipped; }
-  typename Ranges< Index >::Iterator end() { return end_; }
-
-private:
-  std::set< std::pair< Index, Index > > shortened;
-  typename Ranges< Index >::Iterator skipped;
-  typename Ranges< Index >::Iterator end_;
-};
-
 
 template < class Index, class Object, class Container, class Predicate >
 bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
@@ -565,8 +535,9 @@ bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
 
   Block_Backend< Index, Object > db
       (rman.get_transaction()->data_index(&file_properties));
-      
-  Shortened_Idx< Index, Container > shortened(req, cur_idx);
+
+  Ranges< Index > ranges(req);
+  Ranges< Index > shortened = ranges.skip_start(cur_idx);
 
   for (const auto & it : db.as_range(shortened))
   {
@@ -613,8 +584,9 @@ bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
 
   Block_Backend< Index, Object > db
       (rman.get_transaction()->data_index(&file_properties));
-      
-  Shortened_Idx< Index, Container > shortened(req, cur_idx);
+
+  Ranges< Index > ranges(req);
+  Ranges< Index > shortened = ranges.skip_start(cur_idx);
 
   for (const auto & it : db.as_range(shortened))
   {
@@ -654,14 +626,16 @@ bool collect_items_range_by_timestamp(const Statement* stmt, Resource_Manager& r
                    std::map< Index, std::vector< Object > >& result,
                    std::map< Index, std::vector< Attic< Object > > >& attic_result)
 {
-  Shortened_Idx< Index, Container > shortened(req, cur_idx);
+  Ranges< Index > ranges(req);
+  Ranges< Index > shortened = ranges.skip_start(cur_idx);
+
   Block_Backend< Index, Object > current_db
       (rman.get_transaction()->data_index(current_skeleton_file_properties< Object >()));
   Block_Backend< Index, Attic< typename Object::Delta > > attic_db
       (rman.get_transaction()->data_index(attic_skeleton_file_properties< Object >()));
   return collect_items_by_timestamp(stmt, rman,
-      current_db.range_begin(shortened.begin(), shortened.end()), current_db.range_end(),
-      attic_db.range_begin(shortened.begin(), shortened.end()), attic_db.range_end(),
+      current_db.range_begin(shortened), current_db.range_end(),
+      attic_db.range_begin(shortened), attic_db.range_end(),
       predicate, &cur_idx, rman.get_desired_timestamp(), result, attic_result);
 }
 

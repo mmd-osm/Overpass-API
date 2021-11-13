@@ -20,6 +20,7 @@
 #define DE__OSM3S___TEMPLATE_DB__BLOCK_BACKEND_H
 
 #include "file_blocks.h"
+#include "ranges.h"
 #include "types.h"
 
 #include <cstring>
@@ -384,40 +385,6 @@ void Block_Backend_Basic_Iterator< Index, Object, Idx_Assessor, File_Handle >::i
 //-----------------------------------------------------------------------------
 
 
-template< typename Index >
-class Ranges
-{
-public:
-  class Iterator
-  {
-  public:
-    Iterator(typename std::set< std::pair< Index, Index > >::const_iterator it_) : it(it_) {}
-    Iterator() {}
-    const Index& lower_bound() const { return it->first; }
-    const Index& upper_bound() const { return it->second; }
-    const std::pair< Index, Index >& operator*() const { return *it; }
-    const Iterator& operator++()
-    {
-      ++it;
-      return *this;
-    }
-    bool operator==(const Iterator& rhs) const { return it == rhs.it; }
-    bool operator!=(const Iterator& rhs) const { return it != rhs.it; }
-  private:
-    typename std::set< std::pair< Index, Index > >::const_iterator it; 
-  };
-  
-  Iterator begin() const { return Iterator(data.begin()); }
-  Iterator end() const { return Iterator(data.end()); }
-
-private:
-  std::set< std::pair< Index, Index > > data;
-};
-
-
-//-----------------------------------------------------------------------------
-
-
 struct Flat_Idx_Assessor
 {
   template< typename Index >
@@ -672,12 +639,15 @@ struct Block_Backend
         { return Discrete_Iterator(file_blocks, begin, end, block_size); }
     const Discrete_Iterator& discrete_end() const { return *discrete_end_it; }
 
-    Range_Iterator range_begin
-        (typename Ranges< TIndex >::Iterator begin,
-         typename Ranges< TIndex >::Iterator end)
-        { return Range_Iterator(file_blocks, begin, end, block_size); }
-    const Range_Iterator& range_end() const { return *range_end_it; }
+//    Range_Iterator range_begin
+//        (typename Ranges< TIndex >::Iterator begin,
+//         typename Ranges< TIndex >::Iterator end)
+//        { return Range_Iterator(file_blocks, begin, end, block_size); }
 
+    Range_Iterator range_begin(const Ranges< TIndex >& arg)
+        { return Range_Iterator(file_blocks, arg.begin(), arg.end(), block_size); }
+
+    const Range_Iterator& range_end() const { return *range_end_it; }
 
     template <class TIter>
     struct Adapter {
@@ -695,7 +665,7 @@ struct Block_Backend
     Adapter<Flat_Iterator> as_flat() { return Adapter<Flat_Iterator> (flat_begin(), flat_end()); }
 
     template <class TContainer>
-    Adapter<Range_Iterator> as_range(TContainer& s) { return Adapter<Range_Iterator> (range_begin(s.begin(), s.end()), range_end()); }
+    Adapter<Range_Iterator> as_range(TContainer& s) { return Adapter<Range_Iterator> (range_begin(s), range_end()); }
 
     template <class TContainer>
     Adapter<Discrete_Iterator> as_discrete(TContainer& s) { return Adapter<Discrete_Iterator>(discrete_begin(s.begin(), s.end()), discrete_end()); }

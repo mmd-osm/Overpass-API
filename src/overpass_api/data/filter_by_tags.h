@@ -73,22 +73,15 @@ std::set< Tag_Index_Global > get_kv_req(const std::string& key, const std::strin
 }
 
 
-std::set< std::pair< Tag_Index_Global, Tag_Index_Global > > get_k_req(const std::string& key)
+Ranges< Tag_Index_Global > get_k_req(const std::string& key)
 {
-  std::set< std::pair< Tag_Index_Global, Tag_Index_Global > > result;
-  std::pair< Tag_Index_Global, Tag_Index_Global > idx_pair;
-  idx_pair.first.key = key;
-  idx_pair.first.value = "";
-  idx_pair.second.key = key + (char)0;
-  idx_pair.second.value = "";
-  result.insert(idx_pair);
-  return result;
+  return Ranges< Tag_Index_Global >(
+      Tag_Index_Global{ key, "" }, Tag_Index_Global{ key + (char)0, "" });
 }
 
 
 template< typename Skeleton >
-std::set< std::pair< Tag_Index_Global, Tag_Index_Global > > get_regk_req
-    (Regular_Expression* key, Resource_Manager& rman, Statement& stmt)
+Ranges< Tag_Index_Global > get_regk_req(Regular_Expression* key, Resource_Manager& rman, Statement& stmt)
 {
   std::set< std::pair< Tag_Index_Global, Tag_Index_Global > > result;
 
@@ -109,7 +102,7 @@ std::set< std::pair< Tag_Index_Global, Tag_Index_Global > > get_regk_req
   }
   rman.health_check(stmt);
 
-  return result;
+  return Ranges< Tag_Index_Global >(std::move(result));
 }
 
 
@@ -214,7 +207,7 @@ std::vector< std::pair< Id_Type, Uint31_Index > > collect_attic_kv2(
     }
   }
 
-  std::set< std::pair< Tag_Index_Global, Tag_Index_Global > > range_req = get_k_req(kvit->first);
+  auto range_req = get_k_req(kvit->first);
 
   for (const auto & it2 : attic_tags_db.as_range(range_req))
   {
@@ -322,7 +315,7 @@ std::vector< std::pair < Id_Type, Uint31_Index > > collect_attic_k2(
   std::map< Id_Type, std::pair< uint64, Uint31_Index > > timestamp_per_id;
   std::vector< std::pair < Id_Type, Uint31_Index > > ts_now;
 
-  const std::set< std::pair< Tag_Index_Global, Tag_Index_Global > > range_req = get_k_req(*kit);
+  auto range_req = get_k_req(*kit);
 
   for (const auto & it2 : tags_db.as_range(range_req)) {
     ts_now.emplace_back(it2.handle().id(), it2.handle().get_idx());
@@ -453,7 +446,7 @@ std::vector< std::pair < Id_Type, Uint31_Index > > collect_attic_kregv2(
   std::map< Id_Type, std::pair< uint64, Uint31_Index > > timestamp_per_id;
   std::vector< std::pair < Id_Type, Uint31_Index > > ts_now;
 
-  const std::set< std::pair< Tag_Index_Global, Tag_Index_Global > > range_req = get_k_req(krit->first);
+  auto range_req = get_k_req(krit->first);
 
   for (const auto & it2 : tags_db.as_range(range_req))
   {
@@ -537,8 +530,7 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_regkregv(
     Resource_Manager& rman, Statement& stmt)
 {
   std::map< Id_Type, std::map< std::string, std::pair< uint64, Uint31_Index > > > timestamp_per_id;
-  std::set< std::pair< Tag_Index_Global, Tag_Index_Global > > range_req
-      = get_regk_req< Skeleton >(krit->first, rman, stmt);
+  auto range_req = get_regk_req< Skeleton >(krit->first, rman, stmt);
 
   std::string last_key = void_tag_value();
   bool matches = false;

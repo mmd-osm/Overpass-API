@@ -1113,6 +1113,40 @@ inline double lon(int32 ilon)
 
 
 template< typename Index >
+std::set< std::pair< Index, Index > > range_union(
+    const std::set< std::pair< Index, Index > >& lhs,
+    const std::set< std::pair< Index, Index > >& rhs)
+{
+  std::vector< std::pair< Index, Index > > result;
+  typename std::set< std::pair< Index, Index > >::const_iterator it_l = lhs.begin();
+  typename std::set< std::pair< Index, Index > >::const_iterator it_r = rhs.begin();
+  
+  while (true)
+  {
+    if (it_l != lhs.end() && (it_r == rhs.end() || it_l->first < it_r->first))
+    {
+      if (result.empty() || result.back().second < it_l->first)
+        result.push_back(*it_l);
+      else if (result.back().second < it_l->second)
+        result.back().second = it_l->second;
+      ++it_l;
+    }
+    else if (it_r != rhs.end())
+    {
+      if (result.empty() || result.back().second < it_r->first)
+        result.push_back(*it_r);
+      else if (result.back().second < it_r->second)
+        result.back().second = it_r->second;
+      ++it_r;
+    }
+    else
+      break;
+  }
+  return std::set< std::pair< Index, Index > >(result.begin(), result.end());
+}
+
+
+template< typename Index >
 std::set< std::pair< Index, Index > > intersect_ranges
     (const std::set< std::pair< Index, Index > >& range_a,
      const std::set< std::pair< Index, Index > >& range_b)

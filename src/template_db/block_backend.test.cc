@@ -400,10 +400,9 @@ void read_test(unsigned int step)
     std::cout<<"Reading blocks with indices [0, 10[ ...\n";
 
     {
+      Ranges< IntIndex > ranges(range_list);
       Block_Backend< IntIndex, IntObject >::Range_Iterator
-      rit(db_backend.range_begin
-          (Ranges< IntIndex >::Iterator(range_list.begin()),
-              Ranges< IntIndex >::Iterator(range_list.end())));
+      rit(db_backend.range_begin(ranges));
       read_loop(db_backend, rit);
     }
     std::cout<<"... all blocks read.\n";
@@ -426,10 +425,9 @@ void read_test(unsigned int step)
     std::cout<<"Reading blocks with indices [90, 100[ ...\n";
 
     {
+      Ranges< IntIndex > ranges(range_list);
       Block_Backend< IntIndex, IntObject >::Range_Iterator
-      rit = db_backend.range_begin
-          (Ranges< IntIndex >::Iterator(range_list.begin()),
-           Ranges< IntIndex >::Iterator(range_list.end()));
+      rit(db_backend.range_begin(ranges));
       read_loop(db_backend, rit);
     }
 
@@ -452,10 +450,9 @@ void read_test(unsigned int step)
     range_list.insert(std::make_pair(IntIndex(&fool), IntIndex(&foou)));
     std::cout<<"Reading blocks with indices [50, 51[ ...\n";
     {
+      Ranges< IntIndex > ranges(range_list);
       Block_Backend< IntIndex, IntObject >::Range_Iterator
-      rit = db_backend.range_begin
-      (Ranges< IntIndex >::Iterator(range_list.begin()),
-          Ranges< IntIndex >::Iterator(range_list.end()));
+      rit(db_backend.range_begin(ranges));
       read_loop(db_backend, rit);
     }
     std::cout<<"... all blocks read.\n";
@@ -472,10 +469,9 @@ void read_test(unsigned int step)
     range_list.insert(std::make_pair(IntIndex(&fool), IntIndex(&foou)));
     std::cout<<"Reading blocks with indices [0,10[\\cup [50, 51[\\cup [90, 100[ ...\n";
     {
+      Ranges< IntIndex > ranges(range_list);
       Block_Backend< IntIndex, IntObject >::Range_Iterator
-      rit = db_backend.range_begin
-      (Ranges< IntIndex >::Iterator(range_list.begin()),
-          Ranges< IntIndex >::Iterator(range_list.end()));
+      rit(db_backend.range_begin(ranges));
       read_loop(db_backend, rit);
     }
     std::cout<<"... all blocks read.\n";

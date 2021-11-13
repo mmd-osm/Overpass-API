@@ -185,6 +185,8 @@ void prep_map_data(Resource_Manager& rman, Bbox_Double bbox)
       // Ranges for bbox
       node_ranges = ::get_ranges_32(bbox.south, bbox.north, bbox.west, bbox.east);
 
+      Ranges< Uint32_Index > nds_ranges(std::move(node_ranges));
+
       // Nodes inside bbox:     node( {{bbox}} )
 
       uint32 south = ilat_(bbox.south);
@@ -195,7 +197,7 @@ void prep_map_data(Resource_Manager& rman, Bbox_Double bbox)
       Uint32_Index previous_node_idx{};
 
       Block_Backend< Uint32_Index, Node_Skeleton > db (rman.get_transaction()->data_index(osm_base_settings().NODES));
-      for (auto it(db.range_begin(node_ranges.begin(), node_ranges.end()));
+      for (auto it(db.range_begin(nds_ranges));
           !(it == db.range_end()); ++it)
       {
         auto n = it.object();
@@ -486,8 +488,10 @@ void next_package_node(Resource_Manager& rman, std::pair<Node_Skeleton::Id_Type:
     std::map< Uint32_Index, std::vector< Node_Skeleton > > result;
     long cnt = 0;
 
+    Ranges< Uint32_Index >  rng(std::move(ranges));
+
     Block_Backend< Uint32_Index, Node_Skeleton > db (rman.get_transaction()->data_index(osm_base_settings().NODES));
-    for (auto it(db.range_begin(ranges.begin(), ranges.end()));
+    for (auto it(db.range_begin(rng));
         !(it == db.range_end()); ++it)
     {
         if ( it.handle().id().val() >= idx.first &&

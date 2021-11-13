@@ -332,6 +332,7 @@ nobase_dist_HEADERS = \
   template_db/lz4_wrapper.h\
   template_db/random_file.h\
   template_db/random_file_index.h\
+  template_db/ranges.h\
   template_db/transaction.h\
   template_db/transaction_insulator.h\
   template_db/types.h\

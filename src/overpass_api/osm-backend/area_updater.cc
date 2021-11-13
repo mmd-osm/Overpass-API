@@ -174,7 +174,9 @@ void Area_Updater::prepare_delete_tags
   Tag_Entry< uint32 > tag_entry;
   current_index.index = 0xffffffff;
 
-  for (const auto & it : areas_db.as_range(range_set))
+  Ranges< Tag_Index_Local > ranges(std::move(range_set));
+
+  for (const auto & it : areas_db.as_range(ranges))
   {
     if (!(current_index == it.index()))
     {
@@ -250,7 +252,9 @@ void Area_Updater::prepare_tags
   Tag_Entry< uint32 > tag_entry;
   current_index.index = 0xffffffff;
 
-  for (const auto & it : areas_db.as_range(range_set))
+  Ranges< Tag_Index_Local > ranges(std::move(range_set));
+
+  for (const auto & it : areas_db.as_range(ranges))
   {
     if (!(current_index == it.index()))
     {
