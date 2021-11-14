@@ -1209,7 +1209,7 @@ Diff_Set Set_Comparison::compare_to_lhs(Resource_Manager& rman, const Statement&
     Requested_Context requested_context = evaluator->request_context();
     Prepare_Task_Context context(requested_context, stmt, rman);
 
-    Owner< Eval_Task > task(evaluator->get_string_task(context, 0));
+    std::unique_ptr< Eval_Task > task(evaluator->get_string_task(context, 0));
 
     Set_With_Context into_context;
     into_context.name = "";
@@ -1241,7 +1241,7 @@ Diff_Set Set_Comparison::compare_to_lhs(Resource_Manager& rman, const Statement&
     Requested_Context requested_context = evaluator->request_context();
     Prepare_Task_Context context(requested_context, stmt, rman);
 
-    Owner< Eval_Task > task(evaluator->get_string_task(context, 0));
+    std::unique_ptr< Eval_Task > task(evaluator->get_string_task(context, 0));
 
     Set_With_Context into_context;
     into_context.name = "";

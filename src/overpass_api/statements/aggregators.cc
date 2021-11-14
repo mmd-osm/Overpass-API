@@ -80,7 +80,7 @@ Eval_Task* Evaluator_Aggregator::get_string_task(Prepare_Task_Context& context, 
   if (!rhs)
     return 0;
 
-  Owner< Eval_Task > rhs_task(rhs->get_string_task(context, key));
+  std::unique_ptr< Eval_Task > rhs_task(rhs->get_string_task(context, key));
   if (!rhs_task)
     return 0;
 
@@ -88,7 +88,7 @@ Eval_Task* Evaluator_Aggregator::get_string_task(Prepare_Task_Context& context, 
   if (!input_set || !input_set->base)
     return 0;
 
-  Owner< Value_Aggregator > value_agg(get_aggregator());
+  std::unique_ptr< Value_Aggregator > value_agg(get_aggregator());
   if (!value_agg)
     return 0;
 
@@ -110,7 +110,7 @@ Eval_Geometry_Task* Evaluator_Aggregator::get_geometry_task(Prepare_Task_Context
   if (!rhs)
     return 0;
 
-  Owner< Eval_Geometry_Task > rhs_task(rhs->get_geometry_task(context));
+  std::unique_ptr< Eval_Geometry_Task > rhs_task(rhs->get_geometry_task(context));
   if (!rhs_task)
     return 0;
 
@@ -118,7 +118,7 @@ Eval_Geometry_Task* Evaluator_Aggregator::get_geometry_task(Prepare_Task_Context
   if (!input_set || !input_set->base)
     return 0;
 
-  Owner< Geometry_Aggregator > value_agg(get_geometry_aggregator());
+  std::unique_ptr< Geometry_Aggregator > value_agg(get_geometry_aggregator());
   if (!value_agg)
     return 0;
 

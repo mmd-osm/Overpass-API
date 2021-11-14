@@ -187,24 +187,6 @@ private:
 
 
 template< typename Object >
-struct Owner
-{
-  Owner(Object* ptr_) : ptr(ptr_) {}
-  ~Owner() { delete ptr; }
-
-  operator bool() const { return ptr; }
-  Object& operator*() const { return *ptr; }
-  Object* operator->() const { return ptr; }
-
-private:
-  Owner(const Owner&);
-  Owner& operator=(const Owner&);
-
-  Object* ptr;
-};
-
-
-template< typename Object >
 struct Clonable_Owner
 {
   Clonable_Owner(Object* ptr_) : ptr(ptr_) {}

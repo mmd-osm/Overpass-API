@@ -205,7 +205,7 @@ void For_Statement::execute(Resource_Manager& rman)
 
   if (evaluator->return_type() == Statement::string)
   {
-    Owner< Eval_Task > task(evaluator->get_string_task(context, 0));
+    std::unique_ptr< Eval_Task > task(evaluator->get_string_task(context, 0));
 
     collect_for_targets_by_string(base_set->nodes, Node_Valuation_Target(element_groups),
         *task, *context_from);
@@ -226,7 +226,7 @@ void For_Statement::execute(Resource_Manager& rman)
   }
   else
   {
-    Owner< Eval_Container_Task > task(evaluator->get_container_task(context, 0));
+    std::unique_ptr< Eval_Container_Task > task(evaluator->get_container_task(context, 0));
 
     collect_for_targets_by_container(base_set->nodes, Node_Valuation_Target(element_groups),
         *task, *context_from);

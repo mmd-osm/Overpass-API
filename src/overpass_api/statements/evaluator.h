@@ -333,7 +333,7 @@ struct Const_Eval_Geometry_Task final : public Eval_Geometry_Task
   Opaque_Geometry* eval() const override { return geometry ? geometry->clone() : 0; }
 
 private:
-  Owner< Opaque_Geometry > geometry;
+  std::unique_ptr< Opaque_Geometry > geometry;
 };
 
 

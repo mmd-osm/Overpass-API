@@ -116,7 +116,7 @@ Opaque_Geometry* Eval_Linestring_Geometry_Task::make_linestring(const std::vecto
   std::vector< Point_Double > points;
   for (auto it = tasks.begin(); it != tasks.end(); ++it)
   {
-    Owner< Opaque_Geometry > geom((*it)->eval());
+    std::unique_ptr< Opaque_Geometry > geom((*it)->eval());
     if (geom && geom->has_center())
       points.push_back(Point_Double(geom->center_lat(), geom->center_lon()));
   }
@@ -131,7 +131,7 @@ Opaque_Geometry* Eval_Linestring_Geometry_Task::make_linestring(
   std::vector< Point_Double > points;
   for (auto it = tasks.begin(); it != tasks.end(); ++it)
   {
-    Owner< Opaque_Geometry > geom((*it)->eval(data));
+    std::unique_ptr< Opaque_Geometry > geom((*it)->eval(data));
     if (geom && geom->has_center())
       points.push_back(Point_Double(geom->center_lat(), geom->center_lon()));
   }
@@ -221,7 +221,7 @@ Opaque_Geometry* Eval_Polygon_Geometry_Task::make_polygon(const std::vector< Eva
   Free_Polygon_Geometry polygon;
   for (auto it = tasks.begin(); it != tasks.end(); ++it)
   {
-    Owner< Opaque_Geometry > geom((*it)->eval());
+    std::unique_ptr< Opaque_Geometry > geom((*it)->eval());
     if (geom && geom->has_line_geometry())
       polygon.add_linestring(*geom->get_line_geometry());
   }
@@ -236,7 +236,7 @@ Opaque_Geometry* Eval_Polygon_Geometry_Task::make_polygon(
   Free_Polygon_Geometry polygon;
   for (auto it = tasks.begin(); it != tasks.end(); ++it)
   {
-    Owner< Opaque_Geometry > geom((*it)->eval(data));
+    std::unique_ptr< Opaque_Geometry > geom((*it)->eval(data));
     if (geom && geom->has_line_geometry())
       polygon.add_linestring(*geom->get_line_geometry());
   }

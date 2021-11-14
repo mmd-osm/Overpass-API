@@ -132,7 +132,7 @@ struct Per_Member_Eval_Task final : public Eval_Task
   std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override;
 
 private:
-  Owner< Eval_Task > rhs_task;
+  std::unique_ptr< Eval_Task > rhs_task;
 };
 
 
@@ -186,7 +186,7 @@ struct Per_Vertex_Eval_Task final : public Eval_Task
   std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override;
 
 private:
-  Owner< Eval_Task > rhs_task;
+  std::unique_ptr< Eval_Task > rhs_task;
 };
 
 
