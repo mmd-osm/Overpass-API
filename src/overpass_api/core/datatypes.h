@@ -910,7 +910,7 @@ typedef enum { only_data, keep_meta, keep_attic } meta_modes;
 
 
 template< typename Object >
-std::string name_of_type() { return "[undefined]"; }
+std::string name_of_type() = delete;
 
 template< > inline std::string name_of_type< Node_Skeleton >() { return "Node"; }
 template< > inline std::string name_of_type< Way_Skeleton >() { return "Way"; }
