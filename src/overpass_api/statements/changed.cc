@@ -135,15 +135,14 @@ std::vector< typename Skeleton::Id_Type > collect_changed_elements
     (uint64 since, uint64 until,
      const Id_Predicate& relevant, Resource_Manager& rman)
 {
-  std::set< std::pair< Timestamp, Timestamp > > range;
-  range.insert(std::make_pair(Timestamp(since), Timestamp(until)));
+  Ranges< Timestamp > ranges{ Timestamp(since), Timestamp(until) };
 
   std::vector< typename Skeleton::Id_Type > ids;
 
   Block_Backend< Timestamp, Change_Entry< typename Skeleton::Id_Type > > changelog_db
       (rman.get_transaction()->data_index(changelog_file_properties< Skeleton >()));
 
-  for (const auto & it : changelog_db.as_range(range))
+  for (const auto & it : changelog_db.as_range(ranges))
   {
     if (relevant(it.handle().id()))
       ids.push_back(it.handle().id());
@@ -159,15 +158,14 @@ IdSetHybrid<typename Skeleton::Id_Type::Id_Type> collect_changed_elements_fast
     (uint64 since, uint64 until,
      const Id_Predicate& relevant, Resource_Manager& rman)
 {
-  std::set< std::pair< Timestamp, Timestamp > > range;
-  range.insert(std::make_pair(Timestamp(since), Timestamp(until)));
+  Ranges< Timestamp > ranges{ Timestamp(since), Timestamp(until) };
 
   IdSetHybrid<typename Skeleton::Id_Type::Id_Type> ids;
 
   Block_Backend< Timestamp, Change_Entry< typename Skeleton::Id_Type > > changelog_db
       (rman.get_transaction()->data_index(changelog_file_properties< Skeleton >()));
 
-  for (const auto & it : changelog_db.as_range(range))
+  for (const auto & it : changelog_db.as_range(ranges))
   {
     if (relevant(it.handle().id()))
       ids.set(it.handle().id().val());

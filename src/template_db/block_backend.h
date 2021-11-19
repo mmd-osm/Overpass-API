@@ -664,8 +664,8 @@ struct Block_Backend
 
     Adapter<Flat_Iterator> as_flat() { return Adapter<Flat_Iterator> (flat_begin(), flat_end()); }
 
-    template <class TContainer>
-    Adapter<Range_Iterator> as_range(TContainer& s) { return Adapter<Range_Iterator> (range_begin(s), range_end()); }
+    template <class TObj >
+    Adapter<Range_Iterator> as_range(Ranges< TObj >& s) { return Adapter<Range_Iterator> (range_begin(s), range_end()); }
 
     template <class TContainer>
     Adapter<Discrete_Iterator> as_discrete(TContainer& s) { return Adapter<Discrete_Iterator>(discrete_begin(s.begin(), s.end()), discrete_end()); }

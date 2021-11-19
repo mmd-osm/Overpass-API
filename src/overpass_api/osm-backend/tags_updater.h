@@ -75,6 +75,7 @@ std::map< uint32, std::set< Id_Type > > collect_coarse
 
 
 // formulate range query
+/*
 template< typename Id_Type >
 std::set< std::pair< Tag_Index_Local, Tag_Index_Local > > make_range_set
     (const std::map< uint32, std::set< Id_Type > >& coarse)
@@ -94,7 +95,7 @@ std::set< std::pair< Tag_Index_Local, Tag_Index_Local > > make_range_set
   }
   return range_set;
 }
-
+*/
 
 //-----------------------------------------------------------------------------
 
@@ -245,13 +246,15 @@ void prepare_tags
     range_set.insert(std::make_pair(lower, upper));
   }
 
+  Ranges< Tag_Index_Local > ranges(std::move(range_set));
+
   // iterate over the result
   Block_Backend< Tag_Index_Local, Uint32_Index > elems_db(&tags_local);
   Tag_Index_Local current_index;
   Tag_Entry< typename TObject::Id_Type > tag_entry;
   current_index.index = 0xffffffff;
 
-  for (const auto & it : elems_db.as_range(range_set))
+  for (const auto & it : elems_db.as_range(ranges))
   {
     if (!(current_index == it.index()))
     {
