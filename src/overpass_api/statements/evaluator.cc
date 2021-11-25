@@ -504,3 +504,8 @@ const std::string* Prepare_Task_Context::get_user_name(uint32 user_id) const
     return 0;
   return &it->second;
 }
+
+
+bool Evaluator::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
+

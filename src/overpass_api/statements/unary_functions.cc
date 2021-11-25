@@ -48,6 +48,9 @@ Requested_Context Evaluator_Unary_Function::request_context() const
   return Requested_Context();
 }
 
+bool Evaluator_Unary_Function::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Unary_Function::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
+
 
 std::string Unary_Eval_Task::eval(const std::string* key) const
 {
@@ -160,6 +163,9 @@ Requested_Context Evaluator_Geometry_Unary_Function::request_context() const
   return Requested_Context();
 }
 
+bool Evaluator_Geometry_Unary_Function::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Geometry_Unary_Function::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
+
 
 Opaque_Geometry* Unary_Geometry_Eval_Task::eval() const
 {
@@ -259,6 +265,9 @@ Requested_Context Evaluator_Binary_Function::request_context() const
 
   return Requested_Context();
 }
+
+bool Evaluator_Binary_Function::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Binary_Function::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 
 std::string Binary_Func_Eval_Task::eval(const std::string* key) const

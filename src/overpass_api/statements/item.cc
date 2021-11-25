@@ -34,6 +34,7 @@ class Item_Constraint final : public Query_Constraint
     bool collect(Resource_Manager& rman, Set& into) override;
     void filter(Resource_Manager& rman, Set& into) override;
     ~Item_Constraint() override = default;
+    const Statement* get_statement() const override{ return item; };
   private:
     std::ostream& print_constraint( std::ostream &os ) const override {
       return os <<  (item != nullptr ? item->dump_ql_in_query("") : "item");
@@ -228,3 +229,6 @@ Query_Constraint* Item_Statement::get_query_constraint()
   constraints.push_back(new Item_Constraint(*this));
   return constraints.back();
 }
+
+bool Item_Statement::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Item_Statement::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }

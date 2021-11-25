@@ -378,3 +378,6 @@ void Output_Statement::transfer_output(Resource_Manager& rman, Diff_Set& into) c
   rman.swap_diff_set(output, into);
   into.clear();
 }
+
+bool Output_Statement::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Output_Statement::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }

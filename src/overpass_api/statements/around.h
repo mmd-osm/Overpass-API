@@ -107,6 +107,7 @@ class Around_Statement final : public Output_Statement
     bool is_inside(const std::vector< Quad_Coord >& way_geometry) const;
 
     double get_radius() const { return radius; }
+    const std::vector< Point_Double > & get_points() { return points; }
 
     template< typename Node_Skeleton >
     void add_nodes(const std::map< Uint32_Index, std::vector< Node_Skeleton > >& nodes);
@@ -163,6 +164,9 @@ class Around_Statement final : public Output_Statement
     std::vector< Query_Constraint* > constraints;
     std::vector< Prepared_BBox > node_bboxes;
     std::vector< Prepared_BBox > way_bboxes;
+
+    bool accept(Statement_Visitor& visitor)  override;
+    bool accept(const Statement_Visitor& visitor) const override;
 };
 
 #endif

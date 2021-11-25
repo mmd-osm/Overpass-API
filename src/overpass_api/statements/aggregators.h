@@ -74,6 +74,9 @@ struct Evaluator_Aggregator : public Evaluator
   virtual Value_Aggregator* get_aggregator() = 0;
   virtual Geometry_Aggregator* get_geometry_aggregator() = 0;
 
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
+
   std::string input;
   Evaluator* rhs;
 };
@@ -199,6 +202,9 @@ public:
   };
   Value_Aggregator* get_aggregator() override { return new Aggregator(); }
   Geometry_Aggregator* get_geometry_aggregator() override { return 0; }
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -223,6 +229,9 @@ public:
   };
   Value_Aggregator* get_aggregator() override { return new Aggregator(); }
   Geometry_Aggregator* get_geometry_aggregator() override { return 0; }
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -278,6 +287,9 @@ public:
   };
   Value_Aggregator* get_aggregator() override { return new Aggregator(); }
   Geometry_Aggregator* get_geometry_aggregator() override { return 0; }
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -307,6 +319,9 @@ public:
   };
   Value_Aggregator* get_aggregator() override { return new Aggregator(); }
   Geometry_Aggregator* get_geometry_aggregator() override { return 0; }
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -349,6 +364,9 @@ public:
   };
   Value_Aggregator* get_aggregator() override { return new Aggregator(); }
   Geometry_Aggregator* get_geometry_aggregator() override { return 0; }
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -422,6 +440,9 @@ public:
 private:
   std::string input;
   Objects to_count;
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -464,6 +485,9 @@ public:
   };
   Value_Aggregator* get_aggregator() override { return 0; }
   Geometry_Aggregator* get_geometry_aggregator() override { return new Aggregator(); }
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 

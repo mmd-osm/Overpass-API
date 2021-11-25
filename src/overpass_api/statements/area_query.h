@@ -157,6 +157,8 @@ class Area_Query_Statement final : public Output_Statement
     std::vector< Query_Constraint* > constraints;
 
     void fill_ranges(Resource_Manager& rman);
+    bool accept(Statement_Visitor& visitor)  override;
+    bool accept(const Statement_Visitor& visitor) const override;
 };
 
 

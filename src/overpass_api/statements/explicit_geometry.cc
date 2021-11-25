@@ -108,6 +108,9 @@ Requested_Context Evaluator_Point::request_context() const
 }
 
 
+bool Evaluator_Point::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Point::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
+
 //-----------------------------------------------------------------------------
 
 
@@ -213,6 +216,10 @@ Requested_Context Evaluator_Linestring::request_context() const
 }
 
 
+bool Evaluator_Linestring::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Linestring::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
+
+
 //-----------------------------------------------------------------------------
 
 
@@ -316,3 +323,7 @@ Requested_Context Evaluator_Polygon::request_context() const
     result.add((*it)->request_context());
   return result;
 }
+
+bool Evaluator_Polygon::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Polygon::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
+

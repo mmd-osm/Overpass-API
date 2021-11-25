@@ -200,6 +200,9 @@ private:
   std::string* key;
   Set_Prop_Task::Mode mode;
   Evaluator* tag_value;
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 

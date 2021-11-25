@@ -154,6 +154,11 @@ class Query_Statement final : public Output_Statement
           + dump_ql_result_name() + ";";
     }
 
+    const std::vector< Statement* > * get_substatements() const { return &substatements; };
+    const std::vector< Query_Constraint* > * get_constraints() const { return &constraints; };
+    const int get_type() const { return type; }
+
+
   private:
     int type;
     std::vector< std::string > keys;
@@ -240,6 +245,9 @@ class Query_Statement final : public Output_Statement
     void collect_elems(Answer_State& answer_state, Set& into, Resource_Manager& rman);
     void apply_all_filters(
         Resource_Manager& rman, uint64 timestamp, Query_Filter_Strategy check_keys_late, Set& into);
+
+    bool accept(Statement_Visitor& visitor)  override;
+    bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -260,6 +268,7 @@ class Has_Kv_Statement : public Statement
     std::string get_value() const { return regex ? "" : value; }
     Regular_Expression* get_regex() { return regex; }
     bool get_straight() const { return straight; }
+    bool get_case_sensitive() const { return case_sensitive; }
 
     std::string dump_xml(const std::string& indent) const override
     {
@@ -287,6 +296,9 @@ class Has_Kv_Statement : public Statement
     Regular_Expression* key_regex;
     bool straight;
     bool case_sensitive;
+
+    bool accept(Statement_Visitor& visitor)  override;
+    bool accept(const Statement_Visitor& visitor) const override;
 };
 
 #endif

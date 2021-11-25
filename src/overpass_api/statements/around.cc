@@ -437,6 +437,8 @@ class Around_Constraint final : public Query_Constraint
     void filter(Resource_Manager& rman, Set& into) override;
     void filter(const Statement& query, Resource_Manager& rman, Set& into) override;
     ~Around_Constraint() override = default;
+    const Statement* get_statement() const override { return around; };
+
   private:
     std::ostream& print_constraint( std::ostream &os ) const override {
       return os << (around != nullptr ? around->dump_ql_in_query("") : "around");
@@ -1351,3 +1353,8 @@ Query_Constraint* Around_Statement::get_query_constraint()
   constraints.push_back(new Around_Constraint(*this));
   return constraints.back();
 }
+
+bool Around_Statement::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Around_Statement::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
+
+

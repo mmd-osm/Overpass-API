@@ -76,6 +76,9 @@ class Pivot_Statement final : public Output_Statement
   private:
     std::string input;
     std::vector< Query_Constraint* > constraints;
+
+    bool accept(Statement_Visitor& visitor)  override;
+    bool accept(const Statement_Visitor& visitor) const override;
 };
 
 #endif

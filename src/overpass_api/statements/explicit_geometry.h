@@ -126,6 +126,9 @@ public:
 private:
   Evaluator* lat;
   Evaluator* lon;
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -239,6 +242,9 @@ public:
 
 private:
   std::vector< Evaluator* > points;
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -353,6 +359,9 @@ public:
 
 private:
   std::vector< Evaluator* > linestrings;
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 

@@ -337,6 +337,8 @@ void Set_Prop_Plain_Task::process(Derived_Structure& result, bool& id_set) const
   }
 }
 
+bool Set_Prop_Statement::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Set_Prop_Statement::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 template< typename Object >
 void process(const std::string& key, Set_Prop_Task::Mode mode, Eval_Task* rhs,
@@ -583,3 +585,6 @@ void Set_Prop_Geometry_Task::process(const Element_With_Context< Derived_Skeleto
   if (rhs)
     result.acquire_geometry(rhs->eval(data));
 }
+
+
+

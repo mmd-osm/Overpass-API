@@ -59,6 +59,9 @@ Eval_Task* Evaluator_Per_Member::get_string_task(Prepare_Task_Context& context, 
   return new Per_Member_Eval_Task(rhs_task);
 }
 
+bool Evaluator_Per_Member::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Per_Member::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
+
 
 std::string Per_Member_Eval_Task::eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
 {
@@ -138,6 +141,9 @@ Eval_Task* Evaluator_Per_Vertex::get_string_task(Prepare_Task_Context& context, 
   return new Per_Vertex_Eval_Task(rhs_task);
 }
 
+bool Evaluator_Per_Vertex::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Per_Vertex::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
+
 
 std::string Per_Vertex_Eval_Task::eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
 {
@@ -182,6 +188,9 @@ Evaluator_Pos::Evaluator_Pos
   eval_attributes_array(get_name(), attributes, input_attributes);
 }
 
+bool Evaluator_Pos::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Pos::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
+
 //-----------------------------------------------------------------------------
 
 Evaluator_Ref::Statement_Maker Evaluator_Ref::statement_maker;
@@ -195,6 +204,9 @@ Evaluator_Ref::Evaluator_Ref
   std::map< std::string, std::string > attributes;
   eval_attributes_array(get_name(), attributes, input_attributes);
 }
+
+bool Evaluator_Ref::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Ref::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 //-----------------------------------------------------------------------------
 
@@ -210,6 +222,9 @@ Evaluator_Membertype::Evaluator_Membertype
   eval_attributes_array(get_name(), attributes, input_attributes);
 }
 
+bool Evaluator_Membertype::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Membertype::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
+
 //-----------------------------------------------------------------------------
 
 Evaluator_Role::Statement_Maker Evaluator_Role::statement_maker;
@@ -224,6 +239,9 @@ Evaluator_Role::Evaluator_Role
   eval_attributes_array(get_name(), attributes, input_attributes);
 }
 
+bool Evaluator_Role::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Role::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
+
 //-----------------------------------------------------------------------------
 
 Evaluator_Angle::Statement_Maker Evaluator_Angle::statement_maker;
@@ -237,6 +255,9 @@ Evaluator_Angle::Evaluator_Angle
   std::map< std::string, std::string > attributes;
   eval_attributes_array(get_name(), attributes, input_attributes);
 }
+
+bool Evaluator_Angle::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Angle::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 
 std::string Angle_Eval_Task::eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const

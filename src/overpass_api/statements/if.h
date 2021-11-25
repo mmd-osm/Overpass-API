@@ -135,11 +135,16 @@ public:
     return result;
   }
 
+  const std::vector< Statement* > * get_substatements() const { return &substatements; };
+
 private:
   Evaluator* criterion;
   bool else_reached;
   std::vector< Statement* > substatements;
   std::vector< Statement* > else_statements;
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -161,6 +166,10 @@ public:
   std::string dump_xml(const std::string& indent) const override { return indent + "<else/>\n"; }
   std::string dump_compact_ql(const std::string& indent) const override { return "else\n"; }
   std::string dump_pretty_ql(const std::string& indent) const override { return indent + "else\n"; }
+
+private:
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 

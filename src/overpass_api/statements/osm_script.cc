@@ -252,3 +252,6 @@ void Osm_Script_Statement::execute(Resource_Manager& rman)
     rman.area_updater()->flush();
   rman.health_check(*this);
 }
+
+bool Osm_Script_Statement::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Osm_Script_Statement::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }

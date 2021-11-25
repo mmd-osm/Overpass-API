@@ -999,3 +999,6 @@ Print_Statement::~Print_Statement()
 {
   delete collection_print_target;
 }
+
+bool Print_Statement::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Print_Statement::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }

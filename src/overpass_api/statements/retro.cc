@@ -83,3 +83,6 @@ void Retro_Statement::execute(Resource_Manager& rman)
   rman.pop_stack_frame();
   rman.health_check(*this);
 }
+
+bool Retro_Statement::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Retro_Statement::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }

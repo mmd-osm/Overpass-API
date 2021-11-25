@@ -35,6 +35,9 @@ Evaluator_Is_Closed::Evaluator_Is_Closed
 }
 
 
+bool Evaluator_Is_Closed::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Is_Closed::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
+
 //-----------------------------------------------------------------------------
 
 
@@ -51,6 +54,9 @@ Evaluator_Geometry::Evaluator_Geometry
 }
 
 
+bool Evaluator_Geometry::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Geometry::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
+
 //-----------------------------------------------------------------------------
 
 
@@ -66,6 +72,8 @@ Evaluator_Length::Evaluator_Length
   eval_attributes_array(get_name(), attributes, input_attributes);
 }
 
+bool Evaluator_Length::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Length::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 //-----------------------------------------------------------------------------
 
@@ -82,6 +90,8 @@ Evaluator_Latitude::Evaluator_Latitude
   eval_attributes_array(get_name(), attributes, input_attributes);
 }
 
+bool Evaluator_Latitude::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Latitude::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 Evaluator_Longitude::Statement_Maker Evaluator_Longitude::statement_maker;
 Element_Function_Maker< Evaluator_Longitude > Evaluator_Longitude::evaluator_maker;
@@ -94,3 +104,6 @@ Evaluator_Longitude::Evaluator_Longitude
   std::map< std::string, std::string > attributes;
   eval_attributes_array(get_name(), attributes, input_attributes);
 }
+
+bool Evaluator_Longitude::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Longitude::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }

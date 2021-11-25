@@ -82,6 +82,9 @@ class Coord_Query_Statement final : public Output_Statement
     double lat, lon;
 
     static int coord_stmt_ref_counter_;
+
+    bool accept(Statement_Visitor& visitor)  override;
+    bool accept(const Statement_Visitor& visitor) const override;
 };
 
 #endif

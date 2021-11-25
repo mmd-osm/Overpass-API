@@ -44,6 +44,9 @@ class Map_To_Area_Statement final : public Output_Statement
     std::string input;
 
     static int map_stmt_ref_counter_;
+
+    bool accept(Statement_Visitor& visitor)  override;
+    bool accept(const Statement_Visitor& visitor) const override;
 };
 
 #endif

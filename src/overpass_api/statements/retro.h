@@ -16,8 +16,8 @@
  * along with Overpass_API.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DE__OSM3S___OVERPASS_API__STATEMENTS__COMPLETE_H
-#define DE__OSM3S___OVERPASS_API__STATEMENTS__COMPLETE_H
+#ifndef DE__OSM3S___OVERPASS_API__STATEMENTS__RETRO_H
+#define DE__OSM3S___OVERPASS_API__STATEMENTS__RETRO_H
 
 #include <map>
 #include <string>
@@ -51,7 +51,7 @@ where <Evaluator> is an evaulator and <List of Substatements> is a list of subst
 
 */
 
-class Retro_Statement : public Statement
+class Retro_Statement final : public Statement
 {
 public:
   Retro_Statement(int line_number_, const std::map< std::string, std::string >& attributes,
@@ -102,9 +102,14 @@ public:
     return result;
   }
 
+  const std::vector< Statement* > * get_substatements() const { return &substatements; };
+
 private:
   Evaluator* timestamp;
   std::vector< Statement* > substatements;
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 

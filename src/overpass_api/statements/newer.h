@@ -80,6 +80,9 @@ public:
 private:
   uint64 than_timestamp;
   std::vector< Query_Constraint* > constraints;
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 #endif

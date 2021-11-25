@@ -102,6 +102,9 @@ struct Evaluator_Geometry_Endom_Syntax : public Evaluator_Geometry_Unary_Functio
   }
 
   std::string get_name() const override { return Evaluator_::stmt_name(); }
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -129,6 +132,9 @@ public:
       : Evaluator_Geometry_Endom_Syntax< Evaluator_Center >(line_number_, input_attributes) {}
 
   Opaque_Geometry* process(Opaque_Geometry* geom) const override;
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -159,6 +165,9 @@ public:
       : Evaluator_Geometry_Endom_Syntax< Evaluator_Trace >(line_number_, input_attributes) {}
 
   Opaque_Geometry* process(Opaque_Geometry* geom) const override;
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -186,6 +195,9 @@ public:
       : Evaluator_Geometry_Endom_Syntax< Evaluator_Hull >(line_number_, input_attributes) {}
 
   Opaque_Geometry* process(Opaque_Geometry* geom) const override;
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 

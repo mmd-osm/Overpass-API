@@ -20,6 +20,12 @@
 #include "../data/utils.h"
 #include "geometry_endomorphisms.h"
 
+template< typename Evaluator_ >
+bool Evaluator_Geometry_Endom_Syntax<Evaluator_>::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+
+template< typename Evaluator_ >
+bool Evaluator_Geometry_Endom_Syntax<Evaluator_>::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
+
 
 Geometry_Endom_Statement_Maker< Evaluator_Center > Evaluator_Center::statement_maker;
 Geometry_Endom_Evaluator_Maker< Evaluator_Center > Evaluator_Center::evaluator_maker;
@@ -40,6 +46,8 @@ Opaque_Geometry* Evaluator_Center::process(Opaque_Geometry* geom) const
   return result;
 }
 
+bool Evaluator_Center::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Center::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 //-----------------------------------------------------------------------------
 
@@ -59,6 +67,9 @@ Opaque_Geometry* Evaluator_Trace::process(Opaque_Geometry* geom) const
   return result;
 }
 
+bool Evaluator_Trace::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Trace::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
+
 
 //-----------------------------------------------------------------------------
 
@@ -77,3 +88,6 @@ Opaque_Geometry* Evaluator_Hull::process(Opaque_Geometry* geom) const
   delete geom;
   return result;
 }
+
+bool Evaluator_Hull::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Hull::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }

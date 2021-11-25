@@ -287,6 +287,8 @@ class Changed_Constraint final : public Query_Constraint
 
     void filter(Resource_Manager& rman, Set& into) override;
     ~Changed_Constraint() override = default;
+    const Statement* get_statement() const override{ return stmt; };
+
   private:
     std::ostream& print_constraint( std::ostream &os ) const override {
       return os << (stmt != nullptr ? stmt->dump_ql_in_query("") : "changed");
@@ -665,3 +667,6 @@ Query_Constraint* Changed_Statement::get_query_constraint()
   constraints.push_back(new Changed_Constraint(*this));
   return constraints.back();
 }
+
+bool Changed_Statement::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Changed_Statement::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }

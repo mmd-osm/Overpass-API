@@ -47,18 +47,20 @@ private:
 class Newer_Constraint final : public Query_Constraint
 {
   public:
-    Newer_Constraint(Newer_Statement& newer) : timestamp(newer.get_timestamp()) {}
+    Newer_Constraint(Newer_Statement& newer) : stmt(&newer) {}
 
     Query_Filter_Strategy delivers_data(Resource_Manager& rman) override { return ids_required; }
 
     void filter(const Statement& query, Resource_Manager& rman, Set& into) override;
     ~Newer_Constraint() override = default;
+    const Statement* get_statement() const override{ return stmt; };
+
   private:
     std::ostream& print_constraint( std::ostream &os ) const override{
-      return os << "(newer:\"" << Timestamp(timestamp).str() << "\")";
+      return os << "(newer:\"" << Timestamp(stmt->get_timestamp()).str() << "\")";
     }
 
-    uint64 timestamp;
+    Newer_Statement * stmt;
 };
 
 
@@ -126,20 +128,22 @@ void newer_filter_map_attic
 
 void Newer_Constraint::filter(const Statement& query, Resource_Manager& rman, Set& into)
 {
-  newer_filter_map(into.nodes, rman, this->timestamp, meta_settings().NODES_META);
-  newer_filter_map(into.ways, rman, this->timestamp, meta_settings().WAYS_META);
-  newer_filter_map(into.relations, rman, this->timestamp, meta_settings().RELATIONS_META);
+  auto timestamp = this->stmt->get_timestamp();
+
+  newer_filter_map(into.nodes, rman, timestamp, meta_settings().NODES_META);
+  newer_filter_map(into.ways, rman, timestamp, meta_settings().WAYS_META);
+  newer_filter_map(into.relations, rman, timestamp, meta_settings().RELATIONS_META);
 
   if (!into.attic_nodes.empty())
-    newer_filter_map_attic(into.attic_nodes, rman, this->timestamp,
+    newer_filter_map_attic(into.attic_nodes, rman, timestamp,
 			   meta_settings().NODES_META, attic_settings().NODES_META);
 
   if (!into.attic_ways.empty())
-    newer_filter_map_attic(into.attic_ways, rman, this->timestamp,
+    newer_filter_map_attic(into.attic_ways, rman, timestamp,
 			   meta_settings().WAYS_META, attic_settings().WAYS_META);
 
   if (!into.attic_relations.empty())
-    newer_filter_map_attic(into.attic_relations, rman, this->timestamp,
+    newer_filter_map_attic(into.attic_relations, rman, timestamp,
 			   meta_settings().RELATIONS_META, attic_settings().RELATIONS_META);
 
   into.areas.clear();
@@ -198,3 +202,6 @@ Query_Constraint* Newer_Statement::get_query_constraint()
   constraints.push_back(new Newer_Constraint(*this));
   return constraints.back();
 }
+
+bool Newer_Statement::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Newer_Statement::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }

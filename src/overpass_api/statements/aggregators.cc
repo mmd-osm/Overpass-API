@@ -45,6 +45,9 @@ void Evaluator_Aggregator::add_statement(Statement* statement, std::string text)
     add_static_error(get_name() + " must have exactly one evaluator substatements.");
 }
 
+bool Evaluator_Aggregator::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Aggregator::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
+
 
 template< typename Index, typename Maybe_Attic >
 void eval_elems(Value_Aggregator& aggregator, Eval_Task& task,
@@ -202,6 +205,8 @@ void Evaluator_Union_Value::Aggregator::update_value(const std::string& value)
     agg_value = (agg_value.empty() ? value : "< multiple values found >");
 }
 
+bool Evaluator_Union_Value::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Union_Value::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 //-----------------------------------------------------------------------------
 
@@ -250,6 +255,8 @@ std::string Evaluator_Min_Value::Aggregator::get_value()
   return result_s;
 }
 
+bool Evaluator_Min_Value::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Min_Value::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 //-----------------------------------------------------------------------------
 
@@ -298,6 +305,8 @@ std::string Evaluator_Max_Value::Aggregator::get_value()
   return result_s;
 }
 
+bool Evaluator_Max_Value::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Max_Value::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 //-----------------------------------------------------------------------------
 
@@ -338,6 +347,8 @@ std::string Evaluator_Sum_Value::Aggregator::get_value()
   return "NaN";
 }
 
+bool Evaluator_Sum_Value::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Sum_Value::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 //-----------------------------------------------------------------------------
 
@@ -367,6 +378,8 @@ std::string Evaluator_Set_Value::Aggregator::get_value()
   return result;
 }
 
+bool Evaluator_Set_Value::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Set_Value::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 //-----------------------------------------------------------------------------
 
@@ -508,6 +521,9 @@ Eval_Task* Evaluator_Set_Count::get_string_task(Prepare_Task_Context& context, c
   return new Const_Eval_Task(::to_string(counter));
 }
 
+bool Evaluator_Set_Count::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Set_Count::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
+
 
 //-----------------------------------------------------------------------------
 
@@ -534,3 +550,6 @@ Opaque_Geometry* Evaluator_Geom_Concat_Value::Aggregator::move_value()
   result = 0;
   return result_;
 }
+
+bool Evaluator_Geom_Concat_Value::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Geom_Concat_Value::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }

@@ -354,3 +354,6 @@ Requested_Context Ternary_Evaluator::request_context() const
 
 Operator_Stmt_Maker< Ternary_Evaluator > Ternary_Evaluator::statement_maker;
 Operator_Eval_Maker< Ternary_Evaluator > Ternary_Evaluator::evaluator_maker;
+
+bool Ternary_Evaluator::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Ternary_Evaluator::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }

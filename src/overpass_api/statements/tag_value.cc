@@ -78,6 +78,9 @@ std::string Evaluator_Fixed::dump_compact_ql(const std::string&) const
 }
 
 
+bool Evaluator_Fixed::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Fixed::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
+
 //-----------------------------------------------------------------------------
 
 
@@ -92,6 +95,9 @@ Evaluator_Id::Evaluator_Id
   std::map< std::string, std::string > attributes;
   eval_attributes_array(get_name(), attributes, input_attributes);
 }
+
+bool Evaluator_Id::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Id::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 
 //-----------------------------------------------------------------------------
@@ -109,6 +115,9 @@ Evaluator_Type::Evaluator_Type
 
   eval_attributes_array(get_name(), attributes, input_attributes);
 }
+
+bool Evaluator_Type::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Type::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 
 //-----------------------------------------------------------------------------
@@ -205,6 +214,9 @@ Eval_Task* Evaluator_Value::get_string_task(Prepare_Task_Context& context, const
   Eval_Task* rhs_task = rhs ? rhs->get_string_task(context, key) : 0;
   return new Value_Eval_Task(rhs_task);
 }
+
+bool Evaluator_Value::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Value::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 
 std::string Value_Eval_Task::eval(const std::string* key) const
@@ -318,6 +330,9 @@ Evaluator_Is_Tag::Evaluator_Is_Tag
   key = attributes["k"];
 }
 
+bool Evaluator_Is_Tag::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Is_Tag::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
+
 
 //-----------------------------------------------------------------------------
 
@@ -351,6 +366,8 @@ Evaluator_All_Keys::Evaluator_All_Keys
   eval_attributes_array(get_name(), attributes, input_attributes);
 }
 
+bool Evaluator_All_Keys::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_All_Keys::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 //-----------------------------------------------------------------------------
 
@@ -367,6 +384,10 @@ Evaluator_Version::Evaluator_Version
   eval_attributes_array(get_name(), attributes, input_attributes);
 }
 
+bool Evaluator_Version::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Version::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
+
+
 
 Evaluator_Timestamp::Statement_Maker Evaluator_Timestamp::statement_maker;
 Element_Function_Maker< Evaluator_Timestamp > Evaluator_Timestamp::evaluator_maker;
@@ -379,6 +400,10 @@ Evaluator_Timestamp::Evaluator_Timestamp
   std::map< std::string, std::string > attributes;
   eval_attributes_array(get_name(), attributes, input_attributes);
 }
+
+bool Evaluator_Timestamp::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Timestamp::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
+
 
 
 Evaluator_Changeset::Statement_Maker Evaluator_Changeset::statement_maker;
@@ -393,6 +418,9 @@ Evaluator_Changeset::Evaluator_Changeset
   eval_attributes_array(get_name(), attributes, input_attributes);
 }
 
+bool Evaluator_Changeset::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Changeset::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
+
 
 Evaluator_Uid::Statement_Maker Evaluator_Uid::statement_maker;
 Element_Function_Maker< Evaluator_Uid > Evaluator_Uid::evaluator_maker;
@@ -406,6 +434,9 @@ Evaluator_Uid::Evaluator_Uid
   eval_attributes_array(get_name(), attributes, input_attributes);
 }
 
+bool Evaluator_Uid::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Uid::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
+
 
 Evaluator_User::Statement_Maker Evaluator_User::statement_maker;
 Element_Function_Maker< Evaluator_User > Evaluator_User::evaluator_maker;
@@ -418,6 +449,9 @@ Evaluator_User::Evaluator_User
   std::map< std::string, std::string > attributes;
   eval_attributes_array(get_name(), attributes, input_attributes);
 }
+
+bool Evaluator_User::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_User::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 
 //-----------------------------------------------------------------------------
@@ -446,6 +480,9 @@ Evaluator_Generic::Evaluator_Generic
 
   eval_attributes_array(get_name(), attributes, input_attributes);
 }
+
+bool Evaluator_Generic::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Generic::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 
 //-----------------------------------------------------------------------------
@@ -640,6 +677,9 @@ Eval_Task* Evaluator_Properties_Count::get_string_task(Prepare_Task_Context& con
 
   return new Prop_Count_Eval_Task(to_count, type_to_count);
 }
+
+bool Evaluator_Properties_Count::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Properties_Count::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 
 std::string Prop_Count_Eval_Task::eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const

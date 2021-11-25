@@ -24,6 +24,7 @@
 #include "../osm-backend/clone_database.h"
 #include "../statements/osm_script.h"
 #include "../statements/statement.h"
+#include "../statements/statement_visitor.h"
 #include "resource_manager.h"
 #include "scripting_core.h"
 
@@ -240,6 +241,9 @@ int main(int argc, char *argv[])
     web_output.set_output_handler(global_settings.get_output_handler());
     web_output.write_payload_header("", dispatcher.get_timestamp(),
  	   area_level > 0 ? dispatcher.get_area_timestamp() : "", false);
+
+    DataRenderer render;
+    render.render(*(get_statement_stack()->front()));
 
     dispatcher.resource_manager().start_cpu_timer(0);
     for (std::vector< Statement* >::const_iterator it(get_statement_stack()->begin());

@@ -46,6 +46,8 @@ class Osm_Script_Statement : public Statement
     uint64 get_max_allowed_space() const { return max_allowed_space; }
     uint64 get_desired_timestamp() const { return desired_timestamp; }
 
+    const std::vector< Statement* > * get_substatements() const { return &substatements; };
+
   private:
     std::vector< Statement* > substatements;
     uint64 desired_timestamp;
@@ -54,6 +56,9 @@ class Osm_Script_Statement : public Statement
     uint32 max_allowed_time;
     uint64 max_allowed_space;
     Statement::Factory* factory;
+
+    bool accept(Statement_Visitor& visitor) override;
+    bool accept(const Statement_Visitor& visitor) const override;
 };
 
 #endif

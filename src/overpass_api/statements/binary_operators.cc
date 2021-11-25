@@ -178,6 +178,9 @@ Requested_Context Evaluator_Pair_Operator::request_context() const
   return Requested_Context();
 }
 
+bool Evaluator_Pair_Operator::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Pair_Operator::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
+
 
 //-----------------------------------------------------------------------------
 
@@ -197,6 +200,9 @@ inline std::string Evaluator_And::process(TransientFunction<std::string()> lhs, 
 }
 
 
+bool Evaluator_And::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_And::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
+
 //-----------------------------------------------------------------------------
 
 
@@ -214,6 +220,8 @@ inline std::string Evaluator_Or::process(TransientFunction<std::string()> lhs, T
   return string_represents_boolean_true(lhs()) || string_represents_boolean_true(rhs()) ? "1" : "0";
 }
 
+bool Evaluator_Or::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Or::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 //-----------------------------------------------------------------------------
 
@@ -237,6 +245,8 @@ std::string Evaluator_Equal::process(const std::string& lhs_s, const std::string
   return lhs_s == rhs_s ? "1" : "0";
 }
 
+bool Evaluator_Equal::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Equal::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 //-----------------------------------------------------------------------------
 
@@ -260,6 +270,8 @@ std::string Evaluator_Not_Equal::process(const std::string& lhs_s, const std::st
   return lhs_s == rhs_s ? "0" : "1";
 }
 
+bool Evaluator_Not_Equal::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Not_Equal::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 //-----------------------------------------------------------------------------
 
@@ -283,6 +295,8 @@ std::string Evaluator_Less::process(const std::string& lhs_s, const std::string&
   return lhs_s < rhs_s ? "1" : "0";
 }
 
+bool Evaluator_Less::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Less::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 //-----------------------------------------------------------------------------
 
@@ -306,6 +320,8 @@ std::string Evaluator_Less_Equal::process(const std::string& lhs_s, const std::s
   return lhs_s <= rhs_s ? "1" : "0";
 }
 
+bool Evaluator_Less_Equal::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Less_Equal::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 //-----------------------------------------------------------------------------
 
@@ -329,6 +345,8 @@ std::string Evaluator_Greater::process(const std::string& lhs_s, const std::stri
   return lhs_s > rhs_s ? "1" : "0";
 }
 
+bool Evaluator_Greater::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Greater::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 //-----------------------------------------------------------------------------
 
@@ -352,6 +370,8 @@ std::string Evaluator_Greater_Equal::process(const std::string& lhs_s, const std
   return lhs_s >= rhs_s ? "1" : "0";
 }
 
+bool Evaluator_Greater_Equal::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Greater_Equal::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 //-----------------------------------------------------------------------------
 
@@ -375,6 +395,8 @@ std::string Evaluator_Plus::process(const std::string& lhs_s, const std::string&
   return lhs_s + rhs_s;
 }
 
+bool Evaluator_Plus::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Plus::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 //-----------------------------------------------------------------------------
 
@@ -398,6 +420,8 @@ std::string Evaluator_Minus::process(const std::string& lhs_s, const std::string
   return "NaN";
 }
 
+bool Evaluator_Minus::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Minus::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 //-----------------------------------------------------------------------------
 
@@ -421,6 +445,8 @@ std::string Evaluator_Times::process(const std::string& lhs_s, const std::string
   return "NaN";
 }
 
+bool Evaluator_Times::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Times::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 //-----------------------------------------------------------------------------
 
@@ -441,6 +467,9 @@ std::string Evaluator_Divided::process(const std::string& lhs_s, const std::stri
   return "NaN";
 }
 
+bool Evaluator_Divided::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Divided::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
+
 //-----------------------------------------------------------------------------
 
 
@@ -457,3 +486,6 @@ std::string Evaluator_Modulo::process(const std::string& lhs_s, const std::strin
 
   return "NaN";
 }
+
+bool Evaluator_Modulo::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Modulo::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }

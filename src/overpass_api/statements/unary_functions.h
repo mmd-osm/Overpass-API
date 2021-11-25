@@ -42,6 +42,9 @@ public:
 
 protected:
   Evaluator* rhs;
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -89,6 +92,9 @@ public:
 
 protected:
   Evaluator* rhs;
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -133,6 +139,9 @@ public:
 protected:
   Evaluator* first;
   Evaluator* second;
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 

@@ -35,6 +35,7 @@ class Filter_Constraint final : public Query_Constraint
     void filter(Resource_Manager& rman, Set& into) override {}
     void filter(const Statement& query, Resource_Manager& rman, Set& into) override;
     ~Filter_Constraint() override = default;
+    const Statement* get_statement() const override{ return stmt; };
   private:
     std::ostream& print_constraint( std::ostream &os ) const override {
       return os << (stmt != nullptr ? stmt->dump_ql_in_query("") : "filter");
@@ -183,3 +184,6 @@ Query_Constraint* Filter_Statement::get_query_constraint()
   constraints.push_back(new Filter_Constraint(*this));
   return constraints.back();
 }
+
+bool Filter_Statement::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Filter_Statement::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }

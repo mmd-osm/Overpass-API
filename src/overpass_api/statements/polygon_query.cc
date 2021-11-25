@@ -47,6 +47,7 @@ class Polygon_Constraint final : public Query_Constraint
     void filter(Resource_Manager& rman, Set& into) override;
     void filter(const Statement& query, Resource_Manager& rman, Set& into) override;
     ~Polygon_Constraint() override = default;
+    const Statement* get_statement() const override{ return polygon; };
   private:
     std::ostream& print_constraint( std::ostream &os ) const override {
       return os <<(polygon != nullptr ? polygon->dump_ql_in_query("") : "poly");
@@ -573,3 +574,6 @@ Query_Constraint* Polygon_Query_Statement::get_query_constraint()
   constraints.push_back(new Polygon_Constraint(*this));
   return constraints.back();
 }
+
+bool Polygon_Query_Statement::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Polygon_Query_Statement::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }

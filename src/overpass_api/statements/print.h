@@ -200,6 +200,8 @@ class Print_Statement : public Statement
     double east;
 
     virtual void execute_comparison(Resource_Manager& rman);
+    bool accept(Statement_Visitor& visitor)  override;
+    bool accept(const Statement_Visitor& visitor) const override;
 };
 
 

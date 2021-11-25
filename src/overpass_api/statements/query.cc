@@ -148,6 +148,9 @@ void Query_Statement::add_statement(Statement* statement, std::string text)
     substatement_error(get_name(), statement);
 }
 
+bool Query_Statement::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Query_Statement::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
+
 
 template < typename T >
 struct Optional
@@ -2428,3 +2431,6 @@ Has_Kv_Statement::~Has_Kv_Statement()
   delete regex;
   delete key_regex;
 }
+
+bool Has_Kv_Statement::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Has_Kv_Statement::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }

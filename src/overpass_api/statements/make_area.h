@@ -78,6 +78,9 @@ class Make_Area_Statement final : public Output_Statement
         (std::map< Uint31_Index, std::vector< Area_Block > >& areas, uint32 id);
 
     static int make_area_stmt_ref_counter_;
+
+    bool accept(Statement_Visitor& visitor)  override;
+    bool accept(const Statement_Visitor& visitor) const override;
 };
 
 #endif

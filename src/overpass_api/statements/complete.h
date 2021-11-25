@@ -145,10 +145,15 @@ public:
     return result;
   }
 
+  const std::vector< Statement* > * get_substatements() const { return &substatements; };
+
 private:
   std::string input;
   uint max_loop_num;
   std::vector< Statement* > substatements;
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 

@@ -416,3 +416,6 @@ void Coord_Query_Statement::execute(Resource_Manager& rman)
   transfer_output(rman, into);
   rman.health_check(*this);
 }
+
+bool Coord_Query_Statement::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Coord_Query_Statement::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }

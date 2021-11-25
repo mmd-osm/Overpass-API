@@ -133,10 +133,15 @@ class For_Statement : public Statement
       return result;
     }
 
+    const std::vector< Statement* > * get_substatements() const { return &substatements; };
+
   private:
     std::string input, output;
     Evaluator* evaluator;
     std::vector< Statement* > substatements;
+
+    bool accept(Statement_Visitor& visitor)  override;
+    bool accept(const Statement_Visitor& visitor) const override;
 };
 
 #endif

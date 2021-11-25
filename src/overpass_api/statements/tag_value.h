@@ -78,6 +78,9 @@ public:
 
 private:
   std::string value;
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -156,6 +159,9 @@ public:
 
   Statement::Eval_Return_Type return_type() const override { return Statement::string; };
   Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override { return new Id_Eval_Task(); }
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -208,6 +214,9 @@ public:
   Statement::Eval_Return_Type return_type() const override { return Statement::string; };
   Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override
   { return new Type_Eval_Task(); }
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -305,6 +314,9 @@ public:
 
 private:
   Evaluator* rhs;
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -376,6 +388,9 @@ public:
 
 private:
   std::string key;
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -435,6 +450,9 @@ public:
   Statement::Eval_Return_Type return_type() const override { return Statement::string; };
   Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override
   { return new Generic_Eval_Task(); }
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -513,6 +531,9 @@ public:
 
 private:
   std::string key;
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -600,6 +621,9 @@ public:
   Statement::Eval_Return_Type return_type() const override { return Statement::string; };
   Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override
   { return new Version_Eval_Task(); }
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -656,6 +680,9 @@ public:
   Statement::Eval_Return_Type return_type() const override { return Statement::string; };
   Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override
   { return new Timestamp_Eval_Task(); }
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -712,6 +739,9 @@ public:
   Statement::Eval_Return_Type return_type() const override { return Statement::string; };
   Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override
   { return new Changeset_Eval_Task(); }
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -768,6 +798,9 @@ public:
   Statement::Eval_Return_Type return_type() const override { return Statement::string; };
   Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override
   { return new Uid_Eval_Task(); }
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -825,6 +858,9 @@ public:
   Statement::Eval_Return_Type return_type() const override { return Statement::string; };
   Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override
   { return new User_Eval_Task(); }
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -918,6 +954,9 @@ private:
   Objects to_count;
   Members_Type type_to_count;
   std::string role;
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 

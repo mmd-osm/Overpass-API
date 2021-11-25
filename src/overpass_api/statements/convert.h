@@ -121,6 +121,9 @@ private:
   Set_Prop_Statement* geom_evaluator;
   Set_Prop_Statement* id_evaluator;
   Set_Prop_Statement* multi_evaluator;
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 

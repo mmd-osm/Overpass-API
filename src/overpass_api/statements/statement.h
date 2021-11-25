@@ -31,10 +31,13 @@
 #include "../dispatch/resource_manager.h"
 #include "../frontend/tokenizer_utils.h"
 #include "../osm-backend/area_updater.h"
+#include "statement_visitor.h"
+
 
 
 typedef enum { ids_required, ids_useful, prefer_ranges } Query_Filter_Strategy;
 
+class Statement;
 
 class Query_Constraint
 {
@@ -96,6 +99,8 @@ class Query_Constraint
 
     virtual ~Query_Constraint() = default;
     friend std::ostream & operator<<(std::ostream &os, const Query_Constraint& p);
+
+    virtual const Statement * get_statement() const = 0;
 
   private:
     virtual std::ostream& print_constraint( std::ostream &os ) const {
@@ -215,6 +220,9 @@ class Statement
     virtual std::string dump_pretty_ql(const std::string&) const { return ""; }
     virtual std::string dump_ql_in_query(const std::string& indent) const { return dump_compact_ql(indent); }
 
+    virtual bool accept(Statement_Visitor& visitor) = 0;
+    virtual bool accept(const Statement_Visitor& visitor) const = 0;
+
     static void set_error_output(Error_Output* error_output_)
     {
       error_output = error_output_;
@@ -286,6 +294,9 @@ class Output_Statement : public Statement
 
   private:
     std::string output;
+
+    bool accept(Statement_Visitor& visitor)  override;
+    bool accept(const Statement_Visitor& visitor) const override;
 };
 
 

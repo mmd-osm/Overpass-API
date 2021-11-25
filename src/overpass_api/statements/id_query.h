@@ -111,6 +111,9 @@ class Id_Query_Statement final : public Output_Statement
     std::vector< Query_Constraint* > constraints;
 
     static int area_query_ref_counter_;
+
+    bool accept(Statement_Visitor& visitor)  override;
+    bool accept(const Statement_Visitor& visitor) const override;
 };
 
 #endif

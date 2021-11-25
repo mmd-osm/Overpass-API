@@ -93,6 +93,9 @@ class Bbox_Query_Statement final : public Output_Statement
     std::set< std::pair< Uint32_Index, Uint32_Index > > ranges_32;
     std::set< std::pair< Uint31_Index, Uint31_Index > > ranges_31;
     std::vector< Query_Constraint* > constraints;
+
+    bool accept(Statement_Visitor& visitor)  override;
+    bool accept(const Statement_Visitor& visitor) const override;
 };
 
 

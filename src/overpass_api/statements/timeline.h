@@ -109,6 +109,9 @@ private:
     int type;
     uint64 ref;
     uint32 version;
+
+    bool accept(Statement_Visitor& visitor)  override;
+    bool accept(const Statement_Visitor& visitor) const override;
 };
 
 

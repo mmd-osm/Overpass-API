@@ -89,3 +89,6 @@ void Difference_Statement::execute(Resource_Manager& rman)
 
   rman.health_check(*this);
 }
+
+bool Difference_Statement::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Difference_Statement::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }

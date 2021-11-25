@@ -151,11 +151,16 @@ public:
     return result;
   }
 
+  const std::vector< Statement* > * get_substatements() const { return &substatements; };
+
 private:
   Evaluator* criterion;
   std::vector< Statement* > substatements;
   std::string input;
   Set_Comparison* set_comparison;
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 

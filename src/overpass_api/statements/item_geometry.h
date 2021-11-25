@@ -97,6 +97,9 @@ public:
   Statement::Eval_Return_Type return_type() const override { return Statement::string; };
   Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override
   { return new Is_Closed_Eval_Task(); }
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -166,6 +169,9 @@ public:
   Eval_Geometry_Task* get_geometry_task(Prepare_Task_Context& context) override
   { return new Geometry_Geometry_Task(); }
   virtual bool returns_geometry() const { return true; }
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -234,6 +240,9 @@ public:
   Statement::Eval_Return_Type return_type() const override { return Statement::string; };
   Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override
   { return new Length_Eval_Task(); }
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -313,6 +322,9 @@ public:
   Statement::Eval_Return_Type return_type() const override { return Statement::string; };
   Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override
   { return new Latitude_Eval_Task(); }
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -377,6 +389,9 @@ public:
   Statement::Eval_Return_Type return_type() const override { return Statement::string; };
   Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override
   { return new Longitude_Eval_Task(); }
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 

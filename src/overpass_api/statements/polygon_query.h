@@ -105,6 +105,9 @@ class Polygon_Query_Statement final : public Output_Statement
     std::vector< Aligned_Segment > segments;
     bool covers_large_area_;
     std::vector< Query_Constraint* > constraints;
+
+    bool accept(Statement_Visitor& visitor)  override;
+    bool accept(const Statement_Visitor& visitor) const override;
 };
 
 #endif

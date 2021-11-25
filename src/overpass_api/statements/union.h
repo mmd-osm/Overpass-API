@@ -72,8 +72,13 @@ class Union_Statement final : public Output_Statement
 
     bool union_fast_path(Resource_Manager& rman);
 
+    const std::vector< Statement* > * get_substatements() const { return &substatements; };
+
   private:
     std::vector< Statement* > substatements;
+
+    bool accept(Statement_Visitor& visitor)  override;
+    bool accept(const Statement_Visitor& visitor) const override;
 };
 
 

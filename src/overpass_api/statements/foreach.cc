@@ -163,3 +163,6 @@ void Foreach_Statement::execute(Resource_Manager& rman)
 
   rman.health_check(*this);
 }
+
+bool Foreach_Statement::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Foreach_Statement::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }

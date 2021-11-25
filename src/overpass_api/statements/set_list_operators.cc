@@ -97,6 +97,8 @@ std::string Evaluator_Lrs_In::process(const std::string& first_s, const std::str
   return "0";
 }
 
+bool Evaluator_Lrs_In::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Lrs_In::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 //-----------------------------------------------------------------------------
 
@@ -125,6 +127,8 @@ std::string Evaluator_Lrs_Isect::process(const std::string& first_s, const std::
   return result_s;
 }
 
+bool Evaluator_Lrs_Isect::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Lrs_Isect::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 //-----------------------------------------------------------------------------
 
@@ -153,6 +157,8 @@ std::string Evaluator_Lrs_Union::process(const std::string& first_s, const std::
   return result_s;
 }
 
+bool Evaluator_Lrs_Union::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Lrs_Union::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 //-----------------------------------------------------------------------------
 
@@ -222,6 +228,8 @@ std::string Evaluator_Lrs_Max::process(const std::string& rhs_s) const
   return result_s;
 }
 
+bool Evaluator_Lrs_Max::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Lrs_Max::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
 
 //-----------------------------------------------------------------------------
 
@@ -287,3 +295,6 @@ std::string Evaluator_Lrs_Min::process(const std::string& rhs_s) const
 
   return result_s;
 }
+
+bool Evaluator_Lrs_Min::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Evaluator_Lrs_Min::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }

@@ -97,6 +97,9 @@ public:
 protected:
   Evaluator* lhs;
   Evaluator* rhs;
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -197,6 +200,8 @@ struct Evaluator_Or final : public Evaluator_Pair_Operator_Syntax< Evaluator_Or 
 
   inline std::string process(TransientFunction<std::string()> lhs, TransientFunction<std::string()> rhs) const override;
 
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -229,6 +234,8 @@ struct Evaluator_And final : public Evaluator_Pair_Operator_Syntax< Evaluator_An
   std::string process(const std::string& lhs_result, const std::string& rhs_result) const override;
 
   inline std::string process(TransientFunction<std::string()> lhs, TransientFunction<std::string()> rhs) const override;
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -264,6 +271,8 @@ struct Evaluator_Equal final : public Evaluator_Pair_Operator_Syntax< Evaluator_
       : Evaluator_Pair_Operator_Syntax< Evaluator_Equal >(line_number_, input_attributes) {}
 
   std::string process(const std::string& lhs_result, const std::string& rhs_result) const override;
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -278,6 +287,8 @@ struct Evaluator_Not_Equal final : public Evaluator_Pair_Operator_Syntax< Evalua
       : Evaluator_Pair_Operator_Syntax< Evaluator_Not_Equal >(line_number_, input_attributes) {}
 
   std::string process(const std::string& lhs_result, const std::string& rhs_result) const override;
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -313,6 +324,9 @@ struct Evaluator_Less final : public Evaluator_Pair_Operator_Syntax< Evaluator_L
       : Evaluator_Pair_Operator_Syntax< Evaluator_Less >(line_number_, input_attributes) {}
 
   std::string process(const std::string& lhs_result, const std::string& rhs_result) const override;
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -327,6 +341,9 @@ struct Evaluator_Less_Equal final : public Evaluator_Pair_Operator_Syntax< Evalu
       : Evaluator_Pair_Operator_Syntax< Evaluator_Less_Equal >(line_number_, input_attributes) {}
 
   std::string process(const std::string& lhs_result, const std::string& rhs_result) const override;
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -341,6 +358,8 @@ struct Evaluator_Greater final : public Evaluator_Pair_Operator_Syntax< Evaluato
       : Evaluator_Pair_Operator_Syntax< Evaluator_Greater >(line_number_, input_attributes) {}
 
   std::string process(const std::string& lhs_result, const std::string& rhs_result) const override;
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -355,6 +374,8 @@ struct Evaluator_Greater_Equal final : public Evaluator_Pair_Operator_Syntax< Ev
       : Evaluator_Pair_Operator_Syntax< Evaluator_Greater_Equal >(line_number_, input_attributes) {}
 
   std::string process(const std::string& lhs_result, const std::string& rhs_result) const override;
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -389,6 +410,8 @@ struct Evaluator_Plus final : public Evaluator_Pair_Operator_Syntax< Evaluator_P
       : Evaluator_Pair_Operator_Syntax< Evaluator_Plus >(line_number_, input_attributes) {}
 
   std::string process(const std::string& lhs_result, const std::string& rhs_result) const override;
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -403,6 +426,8 @@ struct Evaluator_Minus final : public Evaluator_Pair_Operator_Syntax< Evaluator_
       : Evaluator_Pair_Operator_Syntax< Evaluator_Minus >(line_number_, input_attributes) {}
 
   std::string process(const std::string& lhs_result, const std::string& rhs_result) const override;
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -434,6 +459,8 @@ struct Evaluator_Times final : public Evaluator_Pair_Operator_Syntax< Evaluator_
       : Evaluator_Pair_Operator_Syntax< Evaluator_Times >(line_number_, input_attributes) {}
 
   std::string process(const std::string& lhs_result, const std::string& rhs_result) const override;
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -448,6 +475,8 @@ struct Evaluator_Divided final : public Evaluator_Pair_Operator_Syntax< Evaluato
       : Evaluator_Pair_Operator_Syntax< Evaluator_Divided >(line_number_, input_attributes) {}
 
   std::string process(const std::string& lhs_result, const std::string& rhs_result) const override;
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -465,6 +494,8 @@ struct Evaluator_Modulo final : public Evaluator_Pair_Operator_Syntax< Evaluator
       : Evaluator_Pair_Operator_Syntax< Evaluator_Modulo >(line_number_, input_attributes) {}
 
   std::string process(const std::string& lhs_result, const std::string& rhs_result) const override;
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 

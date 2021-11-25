@@ -52,6 +52,8 @@ class Area_Constraint final : public Query_Constraint
     void filter(Resource_Manager& rman, Set& into) override;
     void filter(const Statement& query, Resource_Manager& rman, Set& into) override;
     ~Area_Constraint() override = default;
+    const Statement * get_statement() const override { return area; };
+
   private:
     std::ostream& print_constraint( std::ostream &os ) const override {
         return os << (area != nullptr ? area->dump_ql_in_query("") : "area");
@@ -1329,3 +1331,6 @@ Query_Constraint* Area_Query_Statement::get_query_constraint()
   constraints.push_back(new Area_Constraint(*this));
   return constraints.back();
 }
+
+bool Area_Query_Statement::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Area_Query_Statement::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }

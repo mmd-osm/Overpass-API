@@ -91,6 +91,9 @@ class Changed_Statement final : public Output_Statement
     std::vector< Relation_Skeleton::Id_Type > rel_ids;
 
     static bool area_query_exists_;
+
+    bool accept(Statement_Visitor& visitor)  override;
+    bool accept(const Statement_Visitor& visitor) const override;
 };
 
 #endif

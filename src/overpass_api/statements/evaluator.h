@@ -350,6 +350,9 @@ struct Evaluator : public Statement
 
   std::string dump_pretty_ql(const std::string& indent) const override { return dump_compact_ql(indent); }
   virtual int get_operator_priority() const { return std::numeric_limits< int >::max(); }
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 

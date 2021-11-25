@@ -46,6 +46,7 @@ class Bbox_Constraint final : public Query_Constraint
     void filter(Resource_Manager& rman, Set& into) override;
     void filter(const Statement& query, Resource_Manager& rman, Set& into) override;
     ~Bbox_Constraint() override = default;
+    const Statement* get_statement() const override{ return bbox; };
   private:
     std::ostream& print_constraint( std::ostream &os ) const override {
       return os << (bbox != nullptr ? bbox->dump_ql_in_query("") : "bbox");
@@ -258,3 +259,6 @@ Query_Constraint* Bbox_Query_Statement::get_query_constraint()
   constraints.push_back(new Bbox_Constraint(*this));
   return constraints.back();
 }
+
+bool Bbox_Query_Statement::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool Bbox_Query_Statement::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }

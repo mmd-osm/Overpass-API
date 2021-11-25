@@ -131,6 +131,9 @@ class User_Statement final : public Output_Statement
     std::string result_type;
     std::vector< Query_Constraint* > constraints;
     const Bbox_Double* bbox_limitation;
+
+    bool accept(Statement_Visitor& visitor)  override;
+    bool accept(const Statement_Visitor& visitor) const override;
 };
 
 #endif

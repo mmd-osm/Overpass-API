@@ -93,6 +93,9 @@ class Filter_Statement final : public Output_Statement
   private:
     std::vector< Query_Constraint* > constraints;
     Evaluator* criterion;
+
+    bool accept(Statement_Visitor& visitor)  override;
+    bool accept(const Statement_Visitor& visitor) const override;
 };
 
 

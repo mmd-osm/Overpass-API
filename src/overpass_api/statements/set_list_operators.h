@@ -230,6 +230,9 @@ public:
       : Evaluator_Binary_Set_List_Operator_Syntax< Evaluator_Lrs_In >(line_number_, input_attributes) {}
 
   std::string process(const std::string& first_result, const std::string& second_result) const override;
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -245,6 +248,9 @@ public:
       : Evaluator_Binary_Set_List_Operator_Syntax< Evaluator_Lrs_Isect >(line_number_, input_attributes) {}
 
   std::string process(const std::string& first_result, const std::string& second_result) const override;
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -260,6 +266,9 @@ public:
       : Evaluator_Binary_Set_List_Operator_Syntax< Evaluator_Lrs_Union >(line_number_, input_attributes) {}
 
   std::string process(const std::string& first_result, const std::string& second_result) const override;
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -293,6 +302,9 @@ public:
       : Evaluator_Unary_Set_List_Operator_Syntax< Evaluator_Lrs_Max >(line_number_, input_attributes) {}
 
   std::string process(const std::string& rhs_result) const override;
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
@@ -308,6 +320,9 @@ public:
       : Evaluator_Unary_Set_List_Operator_Syntax< Evaluator_Lrs_Min >(line_number_, input_attributes) {}
 
   std::string process(const std::string& rhs_result) const override;
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 

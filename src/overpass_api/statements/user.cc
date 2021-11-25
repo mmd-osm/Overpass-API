@@ -59,6 +59,7 @@ class User_Constraint final : public Query_Constraint
     bool get_ranges(Resource_Manager& rman, std::set< std::pair< Uint32_Index, Uint32_Index > >& ranges) override;
     void filter(const Statement& query, Resource_Manager& rman, Set& into) override;
     ~User_Constraint() override = default;
+    const Statement* get_statement() const override{ return user; };
   private:
     std::ostream& print_constraint( std::ostream &os ) const override {
       return os << (user != nullptr ? user->dump_ql_in_query("") : "user");
@@ -481,3 +482,7 @@ Query_Constraint* User_Statement::get_query_constraint()
   constraints.push_back(new User_Constraint(*this));
   return constraints.back();
 }
+
+bool User_Statement::accept(Statement_Visitor& visitor) { return visitor.visit(*this); }
+bool User_Statement::accept(const Statement_Visitor& visitor) const  { return visitor.visit(*this); }
+

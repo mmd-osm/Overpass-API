@@ -178,6 +178,9 @@ private:
   Evaluator* lhs;
   Evaluator* rhs;
   Statement::Eval_Return_Type return_type_;
+
+  bool accept(Statement_Visitor& visitor)  override;
+  bool accept(const Statement_Visitor& visitor) const override;
 };
 
 

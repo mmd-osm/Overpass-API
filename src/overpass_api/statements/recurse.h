@@ -153,6 +153,9 @@ class Recurse_Statement final : public Output_Statement
         result += "," + to_string(pos[i]);
       return result + "\"";
     }
+
+    bool accept(Statement_Visitor& visitor)  override;
+    bool accept(const Statement_Visitor& visitor) const override;
 };
 
 
