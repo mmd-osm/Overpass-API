@@ -200,7 +200,7 @@ std::map< std::string, std::string > get_xml_cgi(
     if (error_output)
       error_output->add_encoding_remark("The server now removes the CGI character escaping.");
    decode_cgi_to_plain(input).swap(decoded);
-    std::string jsonp = decoded["jsonp"];
+
     input = decoded["data"];
 
     if (!decoded["bbox"].empty())
