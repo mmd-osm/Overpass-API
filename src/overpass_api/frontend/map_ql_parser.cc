@@ -32,6 +32,7 @@
 #include <iostream>
 #include <iterator>
 #include <queue>
+#include <regex>
 #include <set>
 #include <sstream>
 #include <utility>
@@ -39,6 +40,26 @@
 
 
 //-----------------------------------------------------------------------------
+
+std::string sanitize_string(std::string input) {
+
+  std::regex specialChars { R"([-[\]{}()*+?.,\^$|#\s])" };
+  return std::regex_replace(input, specialChars, R"(\$&)" );
+}
+
+std::string string_vector_to_regex(std::vector< std::string > values)
+{
+  if (values.empty())
+    return "";
+
+  auto val_it = values.begin();
+  std::string v = "^(" + sanitize_string(*(val_it++));
+  while (val_it != values.end())
+    v += "|" + sanitize_string(*(val_it++));
+  v += ")$";
+
+  return v;
+}
 
 template< class TStatement >
 TStatement* parse_statement(typename TStatement::Factory& stmt_factory, Parsed_Query& parsed_query,
@@ -1140,14 +1161,34 @@ TStatement* parse_query(typename TStatement::Factory& stmt_factory, Parsed_Query
 	  ++token;
 	else
 	{
-	  Statement_Text clause("has-kv", token.line_col());
-	  clause.attributes.push_back(key);
-	  clause.attributes.push_back(get_text_token(token, error_output, "Value"));
-	  if (!clause.attributes.back().empty())
-	  {
+	  // XAPI style union for values: nwr[key = value1 | value2 | value3 ];
+
+          std::vector<std::string> values;
+	  while (token.good() && *token != "]") {
+	    values.push_back(get_text_token(token, error_output, "Value"));
+	    clear_until_after(token, error_output, "|", "]", false);
+	    if (*token == "|")
+	      ++token;
+	  }
+
+	  if (values.size() == 1) {
+	    Statement_Text clause("has-kv", token.line_col());
+            clause.attributes.push_back(key);
+            clause.attributes.push_back(values.front());
+	    if (!clause.attributes.back().empty())
+	    {
+	      clause.attributes.push_back(straight ? "" : "!");
+	      clauses.push_back(clause);
+	    }
+	  }
+	  else if (values.size() > 1) {
+	    Statement_Text clause("has-kv_regex", token.line_col());
+	    clause.attributes.push_back(key);
+	    clause.attributes.push_back(string_vector_to_regex(values));
 	    clause.attributes.push_back(straight ? "" : "!");
 	    clauses.push_back(clause);
 	  }
+
 	  clear_until_after(token, error_output, "]");
 	}
       }

@@ -12,6 +12,7 @@
 * PBF/OPL format output: setting `[out:pbf]` and `[out:opl]`
 * ICU regular expressions: setting `[regexp:ICU]` 
 * PCRE2 (+JIT) regular expression engine: setting `[regexp:PCREJIT]`
+* XAPI-like union operation for tag values (syntactic sugar): `node[place=city|town|village];` query syntax can be used instead of `node['place'~'^(city|town|village)$'];`
 * Ad-hoc area creation on any closed way/relation
 
 
