@@ -712,11 +712,22 @@ IdSetHybrid<typename Id_Type::Id_Type> Query_Statement::collect_non_ids_hybrid
   {
     if (timestamp == NOW)
     {
-      auto ranges = get_k_req(knrit->first);
+      const auto ranges = get_k_req(knrit->first);
 
-      for (const auto & it2 : tags_db.as_range(ranges)) {
-        if (knrit->second->matches(it2.index().value))
-          new_ids.set(it2.handle().id().val());
+      bool key_val_match = false;
+
+      for (auto it2 = tags_db.range_begin(ranges); it2 != tags_db.range_end(); ++it2)
+      {
+        if (it2.start_of_new_index()) {
+          key_val_match = knrit->second->matches(it2.index().value);
+        }
+
+        if (!key_val_match) {
+          it2.skip_current_index();
+          continue;
+        }
+
+        new_ids.set(it2.handle().id().val());
       }
     }
     else
@@ -781,10 +792,20 @@ std::vector< Id_Type > Query_Statement::collect_non_ids
     {
       auto ranges = get_k_req(knrit->first);
 
-      for (const auto & it2 : tags_db.as_range(ranges))
+      bool key_val_match = false;
+
+      for (auto it2 = tags_db.range_begin(ranges); it2 != tags_db.range_end(); ++it2)
       {
-        if (knrit->second->matches(it2.index().value))
-          new_ids.push_back(it2.handle().id());
+        if (it2.start_of_new_index()) {
+          key_val_match = knrit->second->matches(it2.index().value);
+        }
+
+        if (!key_val_match) {
+          it2.skip_current_index();
+          continue;
+        }
+
+        new_ids.push_back(it2.handle().id());
       }
     }
     else
@@ -822,9 +843,20 @@ std::vector< Id_Type > Query_Statement::collect_non_ids
   {
     auto ranges = get_k_req(knvit->first);
 
-    for (const auto & it2 : tags_db.as_range(ranges)) {
-      if (it2.index().value == knvit->second)
-        new_ids.push_back(it2.object());
+    bool key_val_match = false;
+
+    for (auto it2 = tags_db.range_begin(ranges); it2 != tags_db.range_end(); ++it2) {
+
+      if (it2.start_of_new_index()) {
+        key_val_match = it2.index().value == knvit->second;
+      }
+
+      if (!key_val_match) {
+        it2.skip_current_index();
+        continue;
+      }
+
+      new_ids.push_back(it2.object());
     }
 
     rman.health_check(*this);
@@ -836,9 +868,20 @@ std::vector< Id_Type > Query_Statement::collect_non_ids
   {
     auto ranges = get_k_req(knrit->first);
 
-    for (const auto & it2 : tags_db.as_range(ranges)) {
-      if (it2.index().value != void_tag_value() && knrit->second->matches(it2.index().value))
-        new_ids.push_back(it2.object());
+    bool key_val_match = false;
+
+    for (auto it2 = tags_db.range_begin(ranges); it2 != tags_db.range_end(); ++it2) {
+
+      if (it2.start_of_new_index()) {
+        key_val_match = it2.index().value != void_tag_value() && knrit->second->matches(it2.index().value);
+      }
+
+      if (!key_val_match) {
+        it2.skip_current_index();
+        continue;
+      }
+
+      new_ids.push_back(it2.object());
     }
 
     rman.health_check(*this);
