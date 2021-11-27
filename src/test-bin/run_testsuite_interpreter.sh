@@ -168,7 +168,8 @@ echo "Skipping tests 24..37 for out:custom"
 #echo "data=[out:custom];(node(1);way(1);rel(1););out skel;" >input/interpreter_36/stdin.log
 #echo "data=[out:custom];(node(1);way(1);rel(1););out body;" >input/interpreter_37/stdin.log
 
-echo "data=[out:json];node(1);out;&jsonp=foo" >input/interpreter_38/stdin.log
+echo "Skipping test 38 for jsonp (feature removed)"
+#echo "data=[out:json];node(1);out;&jsonp=foo" >input/interpreter_38/stdin.log
 echo "Skipping tests 39..44 for out:custom"
 #echo "data=[out:custom];way(1);out geom;" >input/interpreter_39/stdin.log
 #echo "data=[out:custom];way(1);out geom;&url=https://www.openstreetmap.org/?{{{type}}}={{{id}}}" >input/interpreter_40/stdin.log
@@ -187,8 +188,9 @@ while [[ $II -lt 24 ]]; do
   II=$(($II + 1))
 }; done
 
-prepare_test_interpreter 38
-perform_test_interpreter 38
+# JSONP test removed
+#prepare_test_interpreter 38
+#perform_test_interpreter 38
 
 prepare_test_interpreter 45
 perform_test_interpreter 45
