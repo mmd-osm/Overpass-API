@@ -41,9 +41,9 @@ void filter_ids_by_tags
   std::vector< std::vector< Id_Type > > matched_ids(key_regexes.size());
 
   while ((!(tag_it == items_db.range_end())) &&
-      (((tag_it.index().index) & bitmask) == coarse_index))
+      (((tag_it.index_handle().get_index()) & bitmask) == coarse_index))
   {
-    if (tag_it.index().key != last_key)
+    if (tag_it.index_handle().get_key() != last_key)
     {
       last_value = void_tag_value_space();
 
@@ -54,7 +54,7 @@ void filter_ids_by_tags
       if (key_it == keys.end() && key_regexes.empty())
 	break;
 
-      last_key = tag_it.index().key;
+      last_key = tag_it.index_handle().get_key();
       if (key_it != keys.end() && last_key >= key_it->first)
       {
 	if (last_key > key_it->first)
@@ -75,17 +75,19 @@ void filter_ids_by_tags
       }
     }
 
-    if (tag_it.index().value != last_value)
+    auto object_value = tag_it.index_handle().get_value();
+
+    if (object_value != last_value)
     {
       if (key_relevant)
       {
-	valid = key_it->second.first.empty() || tag_it.index().value == key_it->second.first;
+	valid = key_it->second.first.empty() || object_value == key_it->second.first;
 	for (auto rit = key_it->second.second.begin();
 	    valid && rit != key_it->second.second.end(); ++rit)
-	  valid &= (*rit)->matches(tag_it.index().value);
+	  valid &= (*rit)->matches(object_value);
       }
 
-      last_value = tag_it.index().value;
+      last_value = object_value;
 
       matched_by_both_regexes.clear();
       for (std::vector< uint64 >::const_iterator reg_it = matched_by_key_regexes.begin();
@@ -96,22 +98,24 @@ void filter_ids_by_tags
       }
     }
 
-    if (key_relevant && valid && std::binary_search(old_ids.begin(), old_ids.end(), tag_it.object()))
-      new_ids.push_back(tag_it.object());
+    Id_Type object_id = tag_it.handle().id();
+
+    if (key_relevant && valid && std::binary_search(old_ids.begin(), old_ids.end(), object_id))
+      new_ids.push_back(object_id);
 
     if (!matched_by_both_regexes.empty() &&
-	(std::binary_search(old_ids.begin(), old_ids.end(), tag_it.object()) ||
-	 std::binary_search(new_ids.begin(), new_ids.end(), tag_it.object())))
+	(std::binary_search(old_ids.begin(), old_ids.end(), object_id) ||
+	 std::binary_search(new_ids.begin(), new_ids.end(), object_id)))
     {
       for (std::vector< uint64 >::const_iterator reg_it = matched_by_both_regexes.begin();
 	  reg_it != matched_by_both_regexes.end(); ++reg_it)
-	matched_ids[*reg_it].push_back(tag_it.object());
+	matched_ids[*reg_it].push_back(object_id);
     }
 
     ++tag_it;
   }
   while ((!(tag_it == items_db.range_end())) &&
-      (((tag_it.index().index) & bitmask) == coarse_index))
+      (((tag_it.index_handle().get_index()) & bitmask) == coarse_index))
     ++tag_it;
 
   if (key_relevant && key_it != keys.end())
@@ -365,26 +369,28 @@ void filter_ids_by_tags
   std::string current_value;
   std::vector< std::pair< uint64, bool > > relevant_listeners;
   while ((!(tag_it == items_db.range_end())) &&
-      ((tag_it.index().index) & 0x7fffff00) == coarse_index)
+      ((tag_it.index_handle().get_index()) & 0x7fffff00) == coarse_index)
   {
-    if (current_key != tag_it.index().key)
+    if (current_key != tag_it.index_handle().get_key())
     {
-      current_key = tag_it.index().key;
+      current_key = tag_it.index_handle().get_key();
       update_listeners_keys(tag_listeners, relevant_listeners, current_key);
       current_value = void_tag_value_space();
     }
 
-    if (current_value != tag_it.index().value)
+    if (current_value != tag_it.index_handle().get_value())
     {
-      current_value = tag_it.index().value;
+      current_value = tag_it.index_handle().get_value();
       update_listeners_values(tag_listeners, relevant_listeners, current_value);
     }
 
     if (!relevant_listeners.empty())
     {
+      auto object_id = tag_it.handle().id();
+
       for (uint64 i = 0; i < relevant_listeners.size(); ++i)
 	tag_listeners[relevant_listeners[i].first]->eval_id(
-	    tag_it.object(), NOW, relevant_listeners[i].second);
+	    object_id, NOW, relevant_listeners[i].second);
     }
 
     ++tag_it;
@@ -392,26 +398,30 @@ void filter_ids_by_tags
 
   current_key = void_tag_value();
   while ((!(attic_tag_it == attic_items_db.range_end())) &&
-      ((attic_tag_it.index().index) & 0x7fffff00) == coarse_index)
+      ((attic_tag_it.index_handle().get_index()) & 0x7fffff00) == coarse_index)
   {
-    if (current_key != attic_tag_it.index().key)
+    if (current_key != attic_tag_it.index_handle().get_key())
     {
-      current_key = attic_tag_it.index().key;
+      current_key = attic_tag_it.index_handle().get_key();
       update_listeners_keys(tag_listeners, relevant_listeners, current_key);
       current_value = void_tag_value_space();
     }
 
-    if (current_value != attic_tag_it.index().value)
+    if (current_value != attic_tag_it.index_handle().get_value())
     {
-      current_value = attic_tag_it.index().value;
+      current_value = attic_tag_it.index_handle().get_value();
       update_listeners_values(tag_listeners, relevant_listeners, current_value);
     }
 
-    if (!relevant_listeners.empty() && timestamp < attic_tag_it.handle().get_timestamp())
+    auto object_timestamp = attic_tag_it.handle().get_timestamp();
+
+    if (!relevant_listeners.empty() && timestamp < object_timestamp)
     {
+      auto object_id = attic_tag_it.handle().id();
+
       for (uint64 i = 0; i < relevant_listeners.size(); ++i)
 	tag_listeners[relevant_listeners[i].first]->eval_id(
-	    attic_tag_it.object(), attic_tag_it.handle().get_timestamp(), relevant_listeners[i].second);
+	    object_id, object_timestamp, relevant_listeners[i].second);
     }
 
     ++attic_tag_it;
