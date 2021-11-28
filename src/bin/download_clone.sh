@@ -23,7 +23,6 @@ REMOTE_DIR=
 SOURCE=
 DONE=
 META=
-MAX_RETRIES=10
 
 if [[ -z $1 ]]; then
 {
@@ -85,18 +84,11 @@ fetch_file()
 
 retry_fetch_file()
 {
-  n=0
-  until [ "$n" -ge "$MAX_RETRIES" ]
-  do
-   fetch_file "$1" "$2" && break
-   n=$((n+1)) 
-   sleep $((10 * n))
-  done
-  if [[ "$n" -ge "$MAX_RETRIES" ]]; then
-    # Some files may have expired on the server in the meantime. There is no point in continuing here.
-    echo "ERROR: Fetching $1 failed after $MAX_RETRIES retries. Stopping now."
-    exit 1
-  fi
+  fetch_file "$1" "$2"
+  until [[ -s "$2" ]]; do {
+    sleep 15
+    fetch_file "$1" "$2"
+  }; done
 };
 
 download_file()
@@ -112,6 +104,8 @@ mkdir -p "$CLONE_DIR"
 fetch_file "$SOURCE/trigger_clone" "$CLONE_DIR/base-url"
 
 REMOTE_DIR=`cat <"$CLONE_DIR/base-url"`
+#echo "Triggered generation of a recent clone"
+#sleep 30
 
 retry_fetch_file "$REMOTE_DIR/replicate_id" "$CLONE_DIR/replicate_id"
 
