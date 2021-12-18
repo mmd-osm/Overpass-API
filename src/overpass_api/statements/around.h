@@ -151,16 +151,21 @@ class Around_Statement final : public Output_Statement
     }
     std::string dump_pretty_ql(const std::string& indent) const override { return indent + dump_compact_ql(indent); }
 
+    void reset_temp_struct();
+
   private:
     std::string input;
     double radius;
     std::vector< Point_Double > points;
 
+    std::vector< Query_Constraint* > constraints;
+
+    // temporary helper structures
+
     std::map< Uint32_Index, std::vector< Point_Double > > radius_lat_lons;
     std::vector< std::pair< Prepared_BBox, Prepared_Point> > simple_lat_lons;
     std::vector< std::pair< Prepared_BBox, Prepared_Segment> > simple_segments;
 
-    std::vector< Query_Constraint* > constraints;
     std::vector< Prepared_BBox > node_bboxes;
     std::vector< Prepared_BBox > way_bboxes;
 };

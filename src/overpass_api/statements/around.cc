@@ -690,6 +690,9 @@ void Around_Constraint::filter(const Statement& query, Resource_Manager& rman, S
   }
 
   //TODO: areas
+
+  // free no longer needed temporary structures as early as possible
+  around->reset_temp_struct();
 }
 
 //-----------------------------------------------------------------------------
@@ -1164,17 +1167,21 @@ void Around_Statement::add_ways(const std::map< Uint31_Index, std::vector< Way_S
   }
 }
 
+void Around_Statement::reset_temp_struct()
+{
+  std::map< Uint32_Index, std::vector< Point_Double > >{}.swap(radius_lat_lons);
+  std::vector< std::pair< Prepared_BBox, Prepared_Point> >{}.swap(simple_lat_lons);
+  std::vector< std::pair< Prepared_BBox, Prepared_Segment> >{}.swap(simple_segments);
+
+  std::vector< Prepared_BBox >{}.swap(node_bboxes);
+  std::vector< Prepared_BBox >{}.swap(way_bboxes);
+}
+
 
 void Around_Statement::calc_lat_lons(const Set& input, Statement& query, Resource_Manager& rman)
 {
-  radius_lat_lons.clear();
-  simple_lat_lons.clear();
 
-  simple_segments.clear();
-  
-  node_bboxes.clear();
-  way_bboxes.clear();
-
+  reset_temp_struct();
 
   if (points.size() == 1)
   {
