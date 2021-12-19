@@ -73,7 +73,7 @@ private:
   bool use_index;
   Index stored_index;
   Ranges< Tag_Index_Local > ranges;
-  IdSetHybrid<typename Object::Id_Type::Id_Type> ids;
+  std::map< uint32, std::vector< typename Object::Id_Type > > ids_by_coarse;
   std::map< uint32, std::vector< Attic< typename Object::Id_Type > > > attic_ids_by_coarse;
   Block_Backend< Tag_Index_Local, typename Object::Id_Type >* items_db;
   typename Block_Backend< Tag_Index_Local, typename Object::Id_Type >::Range_Iterator* tag_it;
@@ -229,13 +229,12 @@ void collect_attic_tags
 }
 
 
-
 template< class Id_Type >
-void collect_tags_new
+void collect_tags
   (std::map< Id_Type, std::vector< std::pair< std::string, std::string > > >& tags_by_id,
    const Block_Backend< Tag_Index_Local, Id_Type >& items_db,
    typename Block_Backend< Tag_Index_Local, Id_Type >::Range_Iterator& tag_it,
-   const IdSetHybrid<typename Id_Type::Id_Type>& ids, uint32 coarse_index)
+   const std::vector< Id_Type >& ids, uint32 coarse_index)
 {
   while ((!(tag_it == items_db.range_end())) &&
       (((tag_it.index_handle().get_index()) & 0x7fffff00) < coarse_index))
@@ -244,7 +243,7 @@ void collect_tags_new
       (((tag_it.index_handle().get_index()) & 0x7fffff00) == coarse_index))
   {
     Id_Type current(tag_it.handle().id());     // avoid creating a new object instance via object()
-    if (ids.get(current.val()))
+    if ((binary_search(ids.begin(), ids.end(), current)))
     {
       auto elem = tag_it.index_handle().get_element();
       tags_by_id[current].push_back
@@ -256,14 +255,16 @@ void collect_tags_new
 
 
 template< class Id_Type >
-void collect_tags_framed_new
+void collect_tags_framed
   (std::map< Id_Type, std::vector< std::pair< std::string, std::string > > >& tags_by_id,
    const Block_Backend< Tag_Index_Local, Id_Type >& items_db,
    typename Block_Backend< Tag_Index_Local, Id_Type >::Range_Iterator& tag_it,
-   IdSetHybrid<typename Id_Type::Id_Type>& ids,
+   std::map< uint32, std::vector< Id_Type > >& ids_by_coarse,
    uint32 coarse_index,
    Id_Type lower_id_bound, Id_Type upper_id_bound)
 {
+  const std::vector< Id_Type > & ids_by_coarse_ref = ids_by_coarse[coarse_index];
+
   while ((!(tag_it == items_db.range_end())) &&
       (((tag_it.index_handle().get_index()) & 0x7fffff00) < coarse_index))
     ++tag_it;
@@ -274,7 +275,7 @@ void collect_tags_framed_new
 
     if (!(current < lower_id_bound) &&
       (current < upper_id_bound) &&
-      ids.get(current.val()))
+       binary_search(ids_by_coarse_ref.begin(), ids_by_coarse_ref.end(), current))
     {
       auto elem = tag_it.index_handle().get_element();
       tags_by_id[current].push_back
@@ -282,26 +283,6 @@ void collect_tags_framed_new
     }
     ++tag_it;
   }
-}
-
-template< class TIndex, class TObject >
-IdSetHybrid<typename TObject::Id_Type::Id_Type> generate_ids
-  (std::set< TIndex >& coarse_indices,
-   const std::map< TIndex, std::vector< TObject > >& items)
-{
-  IdSetHybrid<typename TObject::Id_Type::Id_Type> ids;
-
-  for (auto it(items.begin()); it != items.end(); ++it)
-  {
-    coarse_indices.insert(it->first.val() & 0x7fffff00);
-
-    for (auto it2(it->second.begin()); it2 != it->second.end(); ++it2)
-      ids.set(it2->id.val());
-  }
-
-  ids.sort_unique();
-
-  return ids;
 }
 
 
@@ -314,11 +295,9 @@ template< typename Index, typename Object >
 void Tag_Store< Index, Object >::prefetch_all(const std::map< Index, std::vector< Object > >& elems)
 {
   use_index = true;
+  generate_ids_by_coarse(ids_by_coarse, elems);
 
-  std::set< Index > coarse_indices;
-  ids = generate_ids(coarse_indices, elems);
-
-  ranges = formulate_range_query(coarse_indices);
+  ranges = formulate_range_query(ids_by_coarse);
 
   delete items_db;
   items_db = new Block_Backend< Tag_Index_Local, typename Object::Id_Type >(
@@ -328,11 +307,12 @@ void Tag_Store< Index, Object >::prefetch_all(const std::map< Index, std::vector
   tag_it = new typename Block_Backend< Tag_Index_Local, typename Object::Id_Type >::Range_Iterator(
       items_db->range_begin(ranges));
 
-  if (!coarse_indices.empty())
+  if (!ids_by_coarse.empty())
   {
     tags_by_id.clear();
-    stored_index = *(coarse_indices.begin());
-    collect_tags_new< typename Object::Id_Type >(tags_by_id, *items_db, *tag_it, ids, stored_index.val());
+    stored_index = ids_by_coarse.begin()->first;
+    collect_tags< typename Object::Id_Type >(tags_by_id, *items_db, *tag_it,
+        ids_by_coarse[stored_index.val()], stored_index.val());
   }
 }
 
@@ -343,18 +323,19 @@ void Tag_Store< Index, Object >::prefetch_chunk(const std::map< Index, std::vect
 {
   tags_by_id.clear();
 
-  //generate set of relevant coarse indices
-  std::set< Index > coarse_indices;
-  ids = generate_ids(coarse_indices, elems);
+  //generate std::set of relevant coarse indices
+  generate_ids_by_coarse(ids_by_coarse, elems);
 
   Block_Backend< Tag_Index_Local, typename Object::Id_Type > items_db
       (transaction->data_index(current_local_tags_file_properties< Object >()));
 
-  Ranges< Tag_Index_Local > ranges = formulate_range_query(coarse_indices);
+  Ranges< Tag_Index_Local > ranges = formulate_range_query(ids_by_coarse);
   auto tag_it = items_db.range_begin(ranges);
 
-  for (auto it = coarse_indices.begin(); it != coarse_indices.end(); ++it)
-    collect_tags_framed_new< typename Object::Id_Type >(tags_by_id, items_db, tag_it, ids, it->val(), lower_id_bound, upper_id_bound);
+  for (typename std::map< uint32, std::vector< typename Object::Id_Type > >::const_iterator
+      it = ids_by_coarse.begin(); it != ids_by_coarse.end(); ++it)
+    collect_tags_framed< typename Object::Id_Type >(tags_by_id, items_db, tag_it, ids_by_coarse, it->first,
+		  lower_id_bound, upper_id_bound);
 }
 
 
@@ -428,33 +409,29 @@ template< typename Index, typename Object >
 const std::vector< std::pair< std::string, std::string > >*
     Tag_Store< Index, Object >::get(const Index& index, const Object& elem)
 {
-  if (use_index) {
-    auto current_index = Index(index.val() & 0x7fffff00);
-
-    if (!(stored_index == current_index))
+  if (use_index && !(stored_index == Index(index.val() & 0x7fffff00)))
+  {
+    if (Index(index.val() & 0x7fffff00) < stored_index)
     {
-      if (current_index < stored_index)
-      {
-        delete tag_it;
-        tag_it = new typename Block_Backend< Tag_Index_Local, typename Object::Id_Type >::Range_Iterator(
-            items_db->range_begin(ranges));
-        if (attic_items_db)
-        {
-          delete attic_tag_it;
-          attic_tag_it = new typename Block_Backend< Tag_Index_Local, Attic< typename Object::Id_Type > >::Range_Iterator(
-              attic_items_db->range_begin(ranges));
-        }
-      }
-
-      tags_by_id.clear();
-      stored_index = current_index;
+      delete tag_it;
+      tag_it = new typename Block_Backend< Tag_Index_Local, typename Object::Id_Type >::Range_Iterator(
+          items_db->range_begin(ranges));
       if (attic_items_db)
-        collect_attic_tags< typename Object::Id_Type >(tags_by_id, *items_db, *tag_it, *attic_items_db, *attic_tag_it,
-            attic_ids_by_coarse[stored_index.val()], stored_index.val());
-      else
-        collect_tags_new< typename Object::Id_Type >(tags_by_id, *items_db, *tag_it,
-            ids, stored_index.val());
+      {
+        delete attic_tag_it;
+        attic_tag_it = new typename Block_Backend< Tag_Index_Local, Attic< typename Object::Id_Type > >::Range_Iterator(
+            attic_items_db->range_begin(ranges));
+      }
     }
+
+    tags_by_id.clear();
+    stored_index = Index(index.val() & 0x7fffff00);
+    if (attic_items_db)
+      collect_attic_tags< typename Object::Id_Type >(tags_by_id, *items_db, *tag_it, *attic_items_db, *attic_tag_it,
+          attic_ids_by_coarse[stored_index.val()], stored_index.val());
+    else
+      collect_tags< typename Object::Id_Type >(tags_by_id, *items_db, *tag_it,
+          ids_by_coarse[stored_index.val()], stored_index.val());
   }
 
   auto it = tags_by_id.find(elem.id);
