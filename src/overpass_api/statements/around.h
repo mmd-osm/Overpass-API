@@ -165,6 +165,7 @@ class Around_Statement final : public Output_Statement
     std::map< Uint32_Index, std::vector< Point_Double > > radius_lat_lons;
     std::vector< std::pair< Prepared_BBox, Prepared_Point> > simple_lat_lons;
     std::vector< std::pair< Prepared_BBox, Prepared_Segment> > simple_segments;
+    std::vector< uint32 > single_point_index;    // indexes for single point (around:x,lat,lon)
 
     std::vector< Prepared_BBox > node_bboxes;
     std::vector< Prepared_BBox > way_bboxes;

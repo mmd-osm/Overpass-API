@@ -972,10 +972,13 @@ std::set< std::pair< Uint32_Index, Uint32_Index > > Around_Statement::calc_range
 }
 
 
-void add_coord(double lat, double lon, double radius,
-               std::map< Uint32_Index, std::vector< Point_Double > >& radius_lat_lons,
-               std::vector< std::pair< Prepared_BBox, Prepared_Point> >& simple_lat_lons)
+
+
+std::vector< std::pair< uint32, uint32 > >
+prepare_add_coord(double lat, double lon, double radius,
+                       std::vector< std::pair< Prepared_BBox, Prepared_Point> >& simple_lat_lons)
 {
+
   double south = lat - radius*(360.0/(40000.0*1000.0));
   double north = lat + radius*(360.0/(40000.0*1000.0));
   double scale_lat = lat > 0.0 ? north : south;
@@ -983,14 +986,21 @@ void add_coord(double lat, double lon, double radius,
     scale_lat = 89.9;
   double west = lon - radius*(360.0/(40000.0*1000.0))/cos(scale_lat/90.0*acos(0));
   double east = lon + radius*(360.0/(40000.0*1000.0))/cos(scale_lat/90.0*acos(0));
-  
+
   Prepared_BBox bbox_point = ::lat_lon_bbox(south, west, north, east);
 
   simple_lat_lons.push_back(std::make_pair(bbox_point, Prepared_Point(lat, lon)));
-  
-  std::vector< std::pair< uint32, uint32 > > uint_ranges
 
-      (calc_ranges(south, north, west, east));
+  return calc_ranges(south, north, west, east);
+}
+
+
+void add_coord(double lat, double lon, double radius,
+               std::map< Uint32_Index, std::vector< Point_Double > >& radius_lat_lons,
+               std::vector< std::pair< Prepared_BBox, Prepared_Point> >& simple_lat_lons)
+{
+  auto uint_ranges = prepare_add_coord(lat, lon, radius, simple_lat_lons);
+
   for (std::vector< std::pair< uint32, uint32 > >::const_iterator
       it(uint_ranges.begin()); it != uint_ranges.end(); ++it)
   {
@@ -999,6 +1009,30 @@ void add_coord(double lat, double lon, double radius,
       radius_lat_lons[idx].push_back(Point_Double(lat, lon));
   }
 }
+
+// determine indexes for (around:radius,latitude,longitude)
+void add_coord_point(double lat, double lon, double radius,
+               std::vector< uint32 >& single_point_index,
+               std::vector< std::pair< Prepared_BBox, Prepared_Point> >& simple_lat_lons)
+{
+  auto uint_ranges = prepare_add_coord(lat, lon, radius, simple_lat_lons);
+
+  auto it_hint = single_point_index.begin();
+
+  for (std::vector< std::pair< uint32, uint32 > >::const_iterator
+      it(uint_ranges.begin()); it != uint_ranges.end(); ++it)
+  {
+    for (uint32 idx = Uint32_Index(it->first).val();
+        idx < Uint32_Index(it->second).val(); ++idx)
+    {
+      single_point_index.push_back(idx);
+    }
+  }
+
+  std::sort(single_point_index.begin(), single_point_index.end());
+  single_point_index.erase(std::unique(single_point_index.begin(), single_point_index.end()), single_point_index.end());
+}
+
 
 
 void add_node(Uint32_Index idx, const Node_Skeleton& node, double radius,
@@ -1175,6 +1209,7 @@ void Around_Statement::reset_temp_struct()
 
   std::vector< Prepared_BBox >{}.swap(node_bboxes);
   std::vector< Prepared_BBox >{}.swap(way_bboxes);
+  std::vector< uint32 >{}.swap(single_point_index);
 }
 
 
@@ -1183,18 +1218,19 @@ void Around_Statement::calc_lat_lons(const Set& input, Statement& query, Resourc
 
   reset_temp_struct();
 
-  if (points.size() == 1)
+  if (points.size() == 1)   // (around:radius,latitude,longitude)
   {
-    add_coord(points[0].lat, points[0].lon, radius, radius_lat_lons, simple_lat_lons);
+    add_coord_point(points[0].lat, points[0].lon, radius, single_point_index, simple_lat_lons);
     node_bboxes.push_back(::calc_distance_bbox(points[0].lat, points[0].lon, radius));
     return;
   }
-  else if (points.size() > 1)
+  else if (points.size() > 1)    //(around:radius,latitude,longitude, ... latitude_n, longitude_n)
   {
     add_way(points, radius, radius_lat_lons, simple_lat_lons, simple_segments, way_bboxes);
     return;
   }
 
+  // nodes, ways and relations are taken from inputset
   add_nodes(input.nodes);
   add_ways(input.ways, Way_Geometry_Store(input.ways, query, rman));
 
@@ -1236,31 +1272,49 @@ bool Around_Statement::matches_bboxes(const Prepared_BBox & bbox) const
 }
 
 
+
 bool Around_Statement::is_inside(double lat, double lon) const
 {
-  auto mit = radius_lat_lons.find(::ll_upper_(lat, lon));
-  if (mit != radius_lat_lons.end())
-  {
-    for (auto cit = mit->second.begin();
-        cit != mit->second.end(); ++cit)
+
+  const auto idx = ::ll_upper_(lat, lon);
+
+  if (points.size() == 1) {
+
+    if (std::binary_search(single_point_index.begin(), single_point_index.end(), idx))
     {
-      if ((radius > 0 && great_circle_dist(cit->lat, cit->lon, lat, lon) <= radius)
-          || (std::abs(cit->lat - lat) < 1e-7 && std::abs(cit->lon - lon) < 1e-7))
+
+      if ((radius > 0 && great_circle_dist(points[0].lat, points[0].lon, lat, lon) <= radius)
+          || (std::abs(points[0].lat - lat) < 1e-7 && std::abs(points[0].lon - lon) < 1e-7))
         return true;
+
+    }
+  }
+  else
+  {
+    auto mit = radius_lat_lons.find(idx);
+    if (mit != radius_lat_lons.end())
+    {
+      for (auto cit = mit->second.begin();
+          cit != mit->second.end(); ++cit)
+      {
+        if ((radius > 0 && great_circle_dist(cit->lat, cit->lon, lat, lon) <= radius)
+            || (std::abs(cit->lat - lat) < 1e-7 && std::abs(cit->lon - lon) < 1e-7))
+          return true;
+      }
     }
   }
   
-  std::tuple< double, double, double > coord_cartesian = cartesian(lat, lon);
-  Prepared_BBox bbox_lat_lon = ::lat_lon_bbox(lat, lon);
+  const std::tuple< double, double, double > coord_cartesian = cartesian(lat, lon);
+  const Prepared_BBox bbox_lat_lon = ::lat_lon_bbox(lat, lon);
 
   for (auto it = simple_segments.begin(); it != simple_segments.end(); ++it)
   {
     if (bbox_lat_lon.intersects(it->first) &&
         great_circle_line_dist(it->second, coord_cartesian) <= radius)
     {
-      double gcdist = great_circle_dist
+      const double gcdist = great_circle_dist
           (it->second.first_lat, it->second.first_lon, it->second.second_lat, it->second.second_lon);
-      double limit = sqrt(gcdist*gcdist + radius*radius);
+      const double limit = sqrt(gcdist*gcdist + radius*radius);
       if (great_circle_dist(lat, lon, it->second.first_lat, it->second.first_lon) <= limit &&
           great_circle_dist(lat, lon, it->second.second_lat, it->second.second_lon) <= limit)
 	return true;
