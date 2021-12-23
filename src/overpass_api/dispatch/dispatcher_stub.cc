@@ -126,6 +126,18 @@ void signalHandler_terminate_process(int signum) {
 }
 
 
+uint64 get_max_space_limit() {
+
+  uint64 max_space_limit = 1ull<<33;   // default: 8GiB
+  char const* max_space_limit_c = std::getenv("OVERPASS_MAX_SPACE_LIMIT");
+  if (max_space_limit_c != nullptr) {
+    max_space_limit = atol(max_space_limit_c);
+    if (max_space_limit < 0)
+      max_space_limit = 0;
+  }
+  return max_space_limit;
+}
+
 Dispatcher_Stub::Dispatcher_Stub
     (std::string db_dir_, Error_Output* error_output_, std::string xml_raw, meta_modes meta_, int area_level,
      uint32 max_allowed_time, uint64 max_allowed_space, Parsed_Query& global_settings)
@@ -148,7 +160,7 @@ Dispatcher_Stub::Dispatcher_Stub
     else {
       // FastCGI enabled with IndexCache
       signal(SIGXCPU, signalHandler_terminate_process);  // called when reaching soft CPU limit threshold
-      set_limits_fastcgi(2*max_allowed_time + 60, 17179869184ULL); // 16GB
+      set_limits_fastcgi(2*max_allowed_time + 60, get_max_space_limit());
     }
   }
 
