@@ -93,6 +93,7 @@ public:
   };
   static Evaluator_Maker evaluator_maker;
 
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   {
     return indent + "<eval-point>\n"
@@ -100,6 +101,8 @@ public:
         + (lon ? lon->dump_xml(indent + "  ") : "")
         + indent + "</eval-point>\n";
   }
+#endif
+
   std::string dump_compact_ql(const std::string&) const override
   {
     return std::string("pt(") + (lat ? lat->dump_compact_ql("") : "") + ","
@@ -196,6 +199,7 @@ public:
   };
   static Evaluator_Maker evaluator_maker;
 
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   {
     std::string result = indent + "<eval-linestring>\n";
@@ -203,6 +207,8 @@ public:
       result += (*it)->dump_xml(indent + "  ");
     return result + indent + "</eval-linestring>\n";
   }
+#endif
+
   std::string dump_compact_ql(const std::string&) const override
   {
     std::string result = std::string("lstr(");
@@ -310,6 +316,7 @@ public:
   };
   static Evaluator_Maker evaluator_maker;
 
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   {
     std::string result = indent + "<eval-polygon>\n";
@@ -317,6 +324,8 @@ public:
       result += (*it)->dump_xml(indent + "  ");
     return result + indent + "</eval-polygon>\n";
   }
+#endif
+
   std::string dump_compact_ql(const std::string&) const override
   {
     std::string result = std::string("poly(");

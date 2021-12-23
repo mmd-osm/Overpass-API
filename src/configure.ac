@@ -159,6 +159,15 @@ AC_DEFINE(HAVE_OPENMP, 1, [Define if you have OpenMP])
 #AC_DEFINE(HAVE_CUSTOM_OUTPUT, 1, [Define if you want to have out:custom])
 #AC_DEFINE(HAVE_POPUP_OUTPUT, 1, [Define if you want to have out:popup])
 
+# Overpass XML dialect (enabled by default)
+AC_ARG_ENABLE([overpassxml],
+    AS_HELP_STRING([--disable-overpassxml], [Disable Overpass XML dialect]))
+
+AS_IF([test "x$enable_overpassxml" != "xno"], [
+  AC_DEFINE(HAVE_OVERPASS_XML, 1, [Define if you want Overpass XML support])
+])
+
+
 # Regular expression libs ICU
 ICU_LIBS=""
 ICU_LIBS="-licuuc -licui18n"

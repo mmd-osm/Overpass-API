@@ -69,6 +69,7 @@ class Polygon_Query_Statement final : public Output_Statement
 
     bool covers_large_area() const { return covers_large_area_; }
 
+#ifdef HAVE_OVERPASS_XML
     std::string dump_xml(const std::string& indent) const override
     {
       std::string result = indent + "<polygon-query bounds=\"";
@@ -81,6 +82,7 @@ class Polygon_Query_Statement final : public Output_Statement
       }
       return result + "\"" + dump_xml_result_name() + "/>\n";
     }
+#endif
 
     std::string dump_compact_ql(const std::string&) const override
     {

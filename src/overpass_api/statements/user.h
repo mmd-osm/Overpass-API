@@ -71,6 +71,7 @@ class User_Statement final : public Output_Statement
     // Works only if get_id(Transaction&) has been called before.
     std::set< Uint32_Index > get_ids() const { return user_ids; }
 
+#ifdef HAVE_OVERPASS_XML
     std::string dump_xml(const std::string& indent) const override
     {
       std::string result = indent + "<user" + std::string(" type=\"") + result_type + "\"";
@@ -95,6 +96,7 @@ class User_Statement final : public Output_Statement
 
       return result + dump_xml_result_name() + "/>\n";
     }
+#endif
 
     std::string dump_compact_ql(const std::string&) const override
     {

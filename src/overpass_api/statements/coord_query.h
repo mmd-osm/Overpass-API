@@ -58,6 +58,7 @@ class Coord_Query_Statement final : public Output_Statement
 
     static bool is_used() { return coord_stmt_ref_counter_ > 0; }
 
+#ifdef HAVE_OVERPASS_XML
     std::string dump_xml(const std::string& indent) const override
     {
       return indent + "<coord-query"
@@ -66,6 +67,7 @@ class Coord_Query_Statement final : public Output_Statement
           + (lon != 200. ? std::string(" lon=\"") + to_string(lon) + "\"" : "")
           + dump_xml_result_name() + "/>\n";
     }
+#endif
 
     std::string dump_compact_ql(const std::string&) const override
     {

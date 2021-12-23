@@ -107,6 +107,7 @@ Statement_Dump::Factory* get_factory(Statement_Dump::Factory*)
   return stmt_dump_factory_global;
 }
 
+#ifdef HAVE_OVERPASS_XML
 template< class TStatement >
 void start(const char *el, const char **attr)
 {
@@ -141,6 +142,7 @@ void end(const char *el)
       (statement_stack< TStatement >().front()))
     statement_stack< TStatement >().front()->add_final_text(xml_parser->get_parsed_text());
 }
+#endif
 
 bool parse_and_validate
     (Statement::Factory& stmt_factory, Parsed_Query& parsed_query,
@@ -153,6 +155,7 @@ bool parse_and_validate
   while (pos < xml_raw.size() && isspace(xml_raw[pos]))
     ++pos;
 
+#ifdef HAVE_OVERPASS_XML
   if (pos < xml_raw.size() && xml_raw[pos] == '<')
   {
     Script_Parser xml_parser_;
@@ -160,8 +163,11 @@ bool parse_and_validate
 
     try
     {
-      if (debug_level == parser_dump_xml || debug_level == parser_dump_compact_map_ql
-	  || debug_level == parser_dump_pretty_map_ql || debug_level == parser_dump_bbox_map_ql)
+      if (
+          debug_level == parser_dump_xml ||
+          debug_level == parser_dump_compact_map_ql ||
+          debug_level == parser_dump_pretty_map_ql ||
+          debug_level == parser_dump_bbox_map_ql)
       {
 	Statement_Dump::Factory stmt_dump_factory(stmt_factory);
 	stmt_dump_factory_global = &stmt_dump_factory;
@@ -171,14 +177,15 @@ bool parse_and_validate
 	    statement_stack< Statement_Dump >().begin();
             it != statement_stack< Statement_Dump >().end(); ++it)
 	{
-	  if (debug_level == parser_dump_xml)
-            std::cout<<(*it)->dump_xml();
-	  else if (debug_level == parser_dump_compact_map_ql)
+
+	  if (debug_level == parser_dump_compact_map_ql)
 	    std::cout<<(*it)->dump_compact_map_ql(stmt_factory);
 	  else if (debug_level == parser_dump_bbox_map_ql)
 	    std::cout<<(*it)->dump_bbox_map_ql(stmt_factory);
 	  else if (debug_level == parser_dump_pretty_map_ql)
 	    std::cout<<(*it)->dump_pretty_map_ql(stmt_factory);
+	  else if (debug_level == parser_dump_xml)
+            std::cout<<(*it)->dump_xml();
 	}
         for (auto it = statement_stack< Statement_Dump >().begin();
             it != statement_stack< Statement_Dump >().end(); ++it)
@@ -220,6 +227,7 @@ bool parse_and_validate
     }
   }
   else
+#endif
   {
     if (debug_level == parser_execute)
     {
@@ -229,8 +237,10 @@ bool parse_and_validate
       if (root)
 	root->set_factory(&stmt_factory);
     }
+#ifdef HAVE_OVERPASS_XML
     else if (debug_level == parser_dump_xml)
       parse_and_dump_xml_from_map_ql(stmt_factory, xml_raw, error_output, parsed_query);
+#endif
     else if (debug_level == parser_dump_compact_map_ql)
       parse_and_dump_compact_from_map_ql(stmt_factory, xml_raw, error_output, parsed_query);
     else if (debug_level == parser_dump_bbox_map_ql)

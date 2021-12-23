@@ -72,6 +72,7 @@ public:
   ~Make_Statement() override;
   static Generic_Statement_Maker< Make_Statement > statement_maker;
 
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   {
     std::string result = indent + "<make" + dump_xml_result_name() + " type=\"" + type;
@@ -83,6 +84,7 @@ public:
       result += *it ? (*it)->dump_xml(indent + "  ") : "";
     return result + "</make>\n";
   }
+#endif
 
   std::string dump_compact_ql(const std::string& indent) const override
   {

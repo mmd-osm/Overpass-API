@@ -104,6 +104,7 @@ public:
 
   static Generic_Statement_Maker< Complete_Statement > statement_maker;
 
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   {
     std::string result = indent + "<complete"
@@ -116,6 +117,7 @@ public:
 
     return result + indent + "</complete>\n";
   }
+#endif
 
   std::string dump_compact_ql(const std::string& indent) const override
   {

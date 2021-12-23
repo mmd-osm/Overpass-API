@@ -143,6 +143,7 @@ struct Evaluator_Pair_Operator_Syntax : public Evaluator_Pair_Operator
     eval_attributes_array(Evaluator_::stmt_name(), attributes, input_attributes);
   }
 
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   {
     return indent + "<" + Evaluator_::stmt_name() + ">\n"
@@ -150,6 +151,7 @@ struct Evaluator_Pair_Operator_Syntax : public Evaluator_Pair_Operator
         + (rhs ? rhs->dump_xml(indent + "  ") : "")
         + indent + "</" + Evaluator_::stmt_name() + ">\n";
   }
+#endif
 
   std::string dump_compact_ql(const std::string&) const override
   {

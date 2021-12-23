@@ -77,6 +77,7 @@ public:
   };
   static Statement_Maker statement_maker;
 
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   {
     std::string result = indent + "<if>\n"
@@ -95,6 +96,7 @@ public:
 
     return result + indent + "</if>\n";
   }
+#endif
 
   std::string dump_compact_ql(const std::string& indent) const override
   {
@@ -158,7 +160,10 @@ public:
   };
   static Statement_Maker statement_maker;
 
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override { return indent + "<else/>\n"; }
+#endif
+
   std::string dump_compact_ql(const std::string& indent) const override { return "else\n"; }
   std::string dump_pretty_ql(const std::string& indent) const override { return indent + "else\n"; }
 };

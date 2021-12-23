@@ -79,7 +79,7 @@ std::string indent(const std::string& subresult)
   return result;
 }
 
-
+#ifdef HAVE_OVERPASS_XML
 std::string Statement_Dump::dump_xml() const
 {
   if (non_dump_stmt)
@@ -112,7 +112,7 @@ std::string Statement_Dump::dump_xml() const
 
   return result;
 }
-
+#endif
 
 std::string Statement_Dump::dump_compact_map_ql(Statement::Factory& stmt_factory)
 {

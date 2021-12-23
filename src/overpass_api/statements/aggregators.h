@@ -132,13 +132,14 @@ struct Evaluator_Aggregator_Syntax : public Evaluator_Aggregator
       Parsed_Query& global_settings)
       : Evaluator_Aggregator(Evaluator_::stmt_name(), line_number_, input_attributes, global_settings) {}
 
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   {
     return indent + "<" + Evaluator_::stmt_name() + " from=\"" + input + "\">\n"
         + (rhs ? rhs->dump_xml(indent + "  ") : "")
         + indent + "</" + Evaluator_::stmt_name() + ">\n";
   }
-
+#endif
   std::string dump_compact_ql(const std::string&) const override
   {
     return (input != "_" ? input + "." : "")
@@ -402,8 +403,11 @@ public:
   };
   static Evaluator_Maker evaluator_maker;
 
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-set-count from=\"" + input + "\" type=\"" + to_string(to_count) + "\"/>\n"; }
+#endif
+
   std::string dump_compact_ql(const std::string&) const override
   { return (input != "_" ? input + "." : "") + "count(" + to_string(to_count) + ")"; }
 

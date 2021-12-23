@@ -72,7 +72,7 @@ class Id_Query_Statement final : public Output_Statement
 
       return "";
     }
-
+#ifdef HAVE_OVERPASS_XML
     std::string dump_xml(const std::string& indent) const override
     {
       std::string result = indent + "<id-query" + std::string(" type=\"") + to_string(type) + "\"";
@@ -83,6 +83,7 @@ class Id_Query_Statement final : public Output_Statement
 
       return result + dump_xml_result_name() + "/>\n";
     }
+#endif
 
     std::string dump_compact_ql(const std::string&) const override
     {

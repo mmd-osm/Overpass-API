@@ -58,12 +58,14 @@ public:
 
   uint64 get_timestamp() const { return than_timestamp; }
 
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   {
     return indent + "<newer"
         + (than_timestamp != NOW ? std::string(" than=\"") + iso_string(than_timestamp) + "\"" : "")
         + "/>\n";
   }
+#endif
 
   std::string dump_compact_ql(const std::string&) const override
   {

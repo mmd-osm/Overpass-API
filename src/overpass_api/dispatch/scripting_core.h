@@ -41,7 +41,13 @@
 
 
 typedef enum
-    { parser_execute, parser_dump_xml, parser_dump_pretty_map_ql, parser_dump_compact_map_ql, parser_dump_bbox_map_ql }
+    { parser_execute,
+#ifdef HAVE_OVERPASS_XML
+      parser_dump_xml,
+#endif
+      parser_dump_pretty_map_ql,
+      parser_dump_compact_map_ql,
+      parser_dump_bbox_map_ql }
     Debug_Level;
 
 bool parse_and_validate

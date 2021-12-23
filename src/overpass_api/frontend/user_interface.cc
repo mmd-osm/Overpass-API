@@ -72,6 +72,7 @@ namespace
       return input;
     }
 
+#ifdef HAVE_OVERPASS_XML
     // pos again points at the first non-whitespace character.
     if (input.substr(pos, 1) == "<" && input.substr(pos, 2) != "<?")
     {
@@ -101,6 +102,7 @@ namespace
         input = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + input.substr(pos);
       }
     }
+#endif
 
     return input;
   }

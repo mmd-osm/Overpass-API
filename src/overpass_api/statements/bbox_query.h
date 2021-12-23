@@ -63,6 +63,7 @@ class Bbox_Query_Statement final : public Output_Statement
     double get_east() const { return east; }
     bool matches_bbox(double lat, double lon) const;
 
+ #ifdef HAVE_OVERPASS_XML
     std::string dump_xml(const std::string& indent) const override
     {
       return indent + "<bbox-query"
@@ -72,6 +73,7 @@ class Bbox_Query_Statement final : public Output_Statement
           + " e=\"" + to_string(east) + "\""
           + dump_xml_result_name() + "/>\n";
     }
+#endif
 
     std::string dump_compact_ql(const std::string&) const override
     {

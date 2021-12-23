@@ -94,6 +94,7 @@ class For_Statement : public Statement
 
     static Generic_Statement_Maker< For_Statement > statement_maker;
 
+#ifdef HAVE_OVERPASS_XML
     std::string dump_xml(const std::string& indent) const override
     {
       std::string result = indent + "<for"
@@ -106,6 +107,7 @@ class For_Statement : public Statement
 
       return result + indent + "</for>\n";
     }
+#endif
 
     std::string dump_compact_ql(const std::string& indent) const override
     {

@@ -111,6 +111,7 @@ class Query_Statement final : public Output_Statement
       return "area";
     }
 
+#ifdef HAVE_OVERPASS_XML
     std::string dump_xml(const std::string& indent) const override
     {
       std::string result = indent + "<query" + dump_xml_result_name() + " type=\"" + to_string(type) + "\">\n";
@@ -120,6 +121,7 @@ class Query_Statement final : public Output_Statement
 
       return result + indent + "</query>\n";
     }
+#endif
 
     std::string dump_compact_ql(const std::string& indent) const override { return dump_subquery_map_ql(indent, false); }
     std::string dump_pretty_ql(const std::string& indent) const override { return dump_subquery_map_ql(indent, true); }
@@ -261,6 +263,7 @@ class Has_Kv_Statement : public Statement
     Regular_Expression* get_regex() { return regex; }
     bool get_straight() const { return straight; }
 
+#ifdef HAVE_OVERPASS_XML
     std::string dump_xml(const std::string& indent) const override
     {
       return indent + "<has-kv"
@@ -270,6 +273,7 @@ class Has_Kv_Statement : public Statement
           + (case_sensitive ? "" : " case=\"ignore\"")
           + "/>\n";
     }
+#endif
 
     std::string dump_compact_ql(const std::string&) const override
     {

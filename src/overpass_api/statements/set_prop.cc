@@ -165,7 +165,7 @@ void Set_Prop_Statement::add_statement(Statement* statement, std::string text)
     substatement_error(get_name(), statement);
 }
 
-
+#ifdef HAVE_OVERPASS_XML
 std::string Set_Prop_Statement::dump_xml(const std::string& indent) const
 {
   if (!tag_value)
@@ -188,7 +188,7 @@ std::string Set_Prop_Statement::dump_xml(const std::string& indent) const
       + tag_value->dump_xml(indent + "  ")
       + indent + "</set-prop>\n";
 }
-
+#endif
 
 std::string Set_Prop_Statement::dump_compact_ql(const std::string&) const
 {

@@ -80,8 +80,10 @@ int main(int argc, char *argv[])
       area_level = 2;
       respect_timeout = false;
     }
+#ifdef HAVE_OVERPASS_XML
     else if (!(strcmp(argv[argpos], "--dump-xml")))
       debug_level = parser_dump_xml;
+#endif
     else if (!(strcmp(argv[argpos], "--dump-pretty-ql")))
       debug_level = parser_dump_pretty_map_ql;
     else if (!(strcmp(argv[argpos], "--dump-compact-ql")))
@@ -151,7 +153,9 @@ int main(int argc, char *argv[])
       "Accepted arguments are:\n"
       "  --db-dir=$DB_DIR: The directory where the database resides. If you set this parameter\n"
       "        then osm3s_query will read from the database without using the dispatcher management.\n"
+#ifdef HAVE_OVERPASS_XML
       "  --dump-xml: Don't execute the query but only dump the query in XML format.\n"
+#endif
       "  --dump-pretty-ql: Don't execute the query but only dump the query in pretty QL format.\n"
       "  --dump-compact-ql: Don't execute the query but only dump the query in compact QL format.\n"
       "  --dump-bbox-ql: Don't execute the query but only dump the query in a suitable form\n"

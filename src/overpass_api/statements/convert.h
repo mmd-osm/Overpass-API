@@ -70,6 +70,7 @@ public:
 
   std::string get_source_name() const { return input; }
 
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   {
     std::string result = indent + "<convert"
@@ -83,6 +84,7 @@ public:
       result += *it ? (*it)->dump_xml(indent + "  ") : "";
     return result + "</convert>\n";
   }
+#endif
 
   std::string dump_compact_ql(const std::string& indent) const override
   {

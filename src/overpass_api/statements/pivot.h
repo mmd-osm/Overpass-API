@@ -54,12 +54,14 @@ class Pivot_Statement final : public Output_Statement
     Query_Constraint* get_query_constraint() override;
     std::string get_input() const { return input; }
 
+#ifdef HAVE_OVERPASS_XML
     std::string dump_xml(const std::string& indent) const override
     {
       return indent + "<pivot"
           + (input != "_" ? std::string(" from=\"") + input + "\"" : "")
           + dump_xml_result_name() + "/>\n";
     }
+#endif
 
     std::string dump_compact_ql(const std::string&) const override
     {

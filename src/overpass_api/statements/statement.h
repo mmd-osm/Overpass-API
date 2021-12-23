@@ -210,7 +210,9 @@ class Statement
     int get_tagendpos() const { return tagendpos; }
     void set_tagendpos(int pos) { tagendpos = pos; }
 
+#ifdef HAVE_OVERPASS_XML
     virtual std::string dump_xml(const std::string&) const { return ""; }
+#endif
     virtual std::string dump_compact_ql(const std::string&) const { return ""; }
     virtual std::string dump_pretty_ql(const std::string&) const { return ""; }
     virtual std::string dump_ql_in_query(const std::string& indent) const { return dump_compact_ql(indent); }

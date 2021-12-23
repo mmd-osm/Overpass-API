@@ -155,6 +155,7 @@ class Print_Statement : public Statement
       return (mode & Output_Mode::ID) ? "" : " noids";
     }
 
+#ifdef HAVE_OVERPASS_XML
     std::string dump_xml(const std::string& indent) const override
     {
       return indent + "<print"
@@ -170,6 +171,7 @@ class Print_Statement : public Statement
           + (south > north ? "" : " e=\"" + to_string(east) + "\"")
           + "/>\n";
     }
+#endif
 
     std::string dump_compact_ql(const std::string& indent) const override { return dump_subquery_map_ql(indent, false); }
     std::string dump_pretty_ql(const std::string& indent) const override { return dump_subquery_map_ql(indent, true); }

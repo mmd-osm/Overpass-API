@@ -55,7 +55,10 @@ class Statement_Dump
     ~Statement_Dump();
 
     void add_statement(Statement_Dump* statement, const std::string& text);
+#ifdef HAVE_OVERPASS_XML
     std::string dump_xml() const;
+#endif
+
     std::string dump_pretty_map_ql(Statement::Factory& stmt_factory);
     std::string dump_compact_map_ql(Statement::Factory& stmt_factory);
     std::string dump_bbox_map_ql(Statement::Factory& stmt_factory);

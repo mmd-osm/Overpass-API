@@ -40,10 +40,12 @@ class Item_Statement final : public Output_Statement
 
     Query_Constraint* get_query_constraint() override;
 
+#ifdef HAVE_OVERPASS_XML
     std::string dump_xml(const std::string& indent) const override
     {
       return indent + "<item from=\"" + input + "\"" + dump_xml_result_name() + "/>\n";
     }
+#endif
 
     std::string dump_compact_ql(const std::string&) const override { return "." + input + dump_ql_result_name() + ";"; }
     std::string dump_ql_in_query(const std::string&) const override { return "." + input; }

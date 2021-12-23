@@ -175,7 +175,10 @@ public:
   };
   static Evaluator_Maker evaluator_maker;
 
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override;
+#endif
+
   std::string dump_compact_ql(const std::string&) const override;
   std::string dump_pretty_ql(const std::string&) const override { return dump_compact_ql(""); }
 

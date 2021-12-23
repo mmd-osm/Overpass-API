@@ -63,10 +63,12 @@ public:
   Evaluator_Set_Key(int line_number_, const std::map< std::string, std::string >& input_attributes,
       Parsed_Query& global_settings);// : Evaluator(line_number_) {}
 
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   {
     return indent + "<eval-set-key from=\"" + input + "\" key=\"" + escape_xml(key) + "\"/>\n";
   }
+#endif
 
   std::string dump_compact_ql(const std::string&) const override
   {

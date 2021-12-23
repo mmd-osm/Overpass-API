@@ -46,12 +46,14 @@ struct Per_Member_Aggregator_Syntax : public Per_Member_Aggregator
 {
   Per_Member_Aggregator_Syntax(int line_number_) : Per_Member_Aggregator(line_number_) {}
 
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   {
     return indent + "<" + Evaluator_::stmt_name() + ">\n"
         + (rhs ? rhs->dump_xml(indent + "  ") : "")
         + indent + "</" + Evaluator_::stmt_name() + ">\n";
   }
+#endif
 
   std::string dump_compact_ql(const std::string&) const override
   {
@@ -257,8 +259,12 @@ public:
   static Member_Function_Maker< Evaluator_Pos > evaluator_maker;
 
   static std::string stmt_func_name() { return "pos"; }
+
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-pos/>\n"; }
+#endif
+
   std::string dump_compact_ql(const std::string&) const override { return "pos()"; }
 
   Evaluator_Pos(int line_number_, const std::map< std::string, std::string >& input_attributes,
@@ -314,8 +320,12 @@ public:
   static Member_Function_Maker< Evaluator_Membertype > evaluator_maker;
 
   static std::string stmt_func_name() { return "mtype"; }
+
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-membertype/>\n"; }
+#endif
+
   std::string dump_compact_ql(const std::string&) const override { return "mtype()"; }
 
   Evaluator_Membertype(int line_number_, const std::map< std::string, std::string >& input_attributes,
@@ -358,8 +368,12 @@ public:
   static Member_Function_Maker< Evaluator_Ref > evaluator_maker;
 
   static std::string stmt_func_name() { return "ref"; }
+
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-ref/>\n"; }
+#endif
+
   std::string dump_compact_ql(const std::string&) const override { return "ref()"; }
 
   Evaluator_Ref(int line_number_, const std::map< std::string, std::string >& input_attributes,
@@ -416,8 +430,12 @@ public:
   static Member_Function_Maker< Evaluator_Role > evaluator_maker;
 
   static std::string stmt_func_name() { return "role"; }
+
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-role/>\n"; }
+#endif
+
   std::string dump_compact_ql(const std::string&) const override { return "role()"; }
 
   Evaluator_Role(int line_number_, const std::map< std::string, std::string >& input_attributes,
@@ -478,8 +496,12 @@ public:
   static Member_Function_Maker< Evaluator_Angle > evaluator_maker;
 
   static std::string stmt_func_name() { return "angle"; }
+
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-angle/>\n"; }
+#endif
+
   std::string dump_compact_ql(const std::string&) const override { return "angle()"; }
 
   Evaluator_Angle(int line_number_, const std::map< std::string, std::string >& input_attributes,

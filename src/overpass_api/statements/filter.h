@@ -77,12 +77,14 @@ class Filter_Statement final : public Output_Statement
 
     Evaluator* get_criterion() { return criterion; }
 
+#ifdef HAVE_OVERPASS_XML
     std::string dump_xml(const std::string& indent) const override
     {
       return indent + "<filter>\n"
           + (criterion ? criterion->dump_xml(indent + "  ") : "")
           + indent + "</filter>\n";
     }
+#endif
 
     std::string dump_compact_ql(const std::string&) const override
     {

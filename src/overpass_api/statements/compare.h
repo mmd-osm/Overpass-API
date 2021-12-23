@@ -94,6 +94,7 @@ public:
 
   static Generic_Statement_Maker< Compare_Statement > statement_maker;
 
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   {
     std::string result = indent + "<compare"
@@ -112,6 +113,7 @@ public:
       return result + indent + "</criterion>\n";
     return result + "/>\n";
   }
+#endif
 
   std::string dump_compact_ql(const std::string& indent) const override
   {

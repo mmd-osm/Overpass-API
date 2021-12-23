@@ -1498,6 +1498,7 @@ void parse_and_validate_map_ql
       (stmt_factory, xml_raw, error_output, *get_statement_stack(), parsed_query);
 }
 
+#ifdef HAVE_OVERPASS_XML
 void parse_and_dump_xml_from_map_ql
     (Statement::Factory& stmt_factory_, const std::string& xml_raw, Error_Output* error_output, Parsed_Query& parsed_query)
 {
@@ -1510,6 +1511,7 @@ void parse_and_dump_xml_from_map_ql
   for (auto it = stmt_seq.begin(); it != stmt_seq.end(); ++it)
     delete *it;
 }
+#endif
 
 void parse_and_dump_compact_from_map_ql
     (Statement::Factory& stmt_factory_, const std::string& xml_raw, Error_Output* error_output, Parsed_Query& parsed_query)

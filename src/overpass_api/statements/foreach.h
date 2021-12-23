@@ -39,6 +39,7 @@ class Foreach_Statement : public Statement
 
     static Generic_Statement_Maker< Foreach_Statement > statement_maker;
 
+#ifdef HAVE_OVERPASS_XML
     std::string dump_xml(const std::string& indent) const override
     {
       std::string result = indent + "<foreach"
@@ -50,6 +51,7 @@ class Foreach_Statement : public Statement
 
       return result + indent + "</foreach>\n";
     }
+#endif
 
     std::string dump_compact_ql(const std::string& indent) const override
     {

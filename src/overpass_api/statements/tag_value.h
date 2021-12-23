@@ -59,8 +59,11 @@ public:
   };
   static Evaluator_Maker evaluator_maker;
 
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-fixed v=\"" + escape_xml(value) + "\"/>\n"; }
+#endif
+
   std::string dump_compact_ql(const std::string&) const override;
 
   Evaluator_Fixed(int line_number_, const std::map< std::string, std::string >& input_attributes,
@@ -141,8 +144,12 @@ public:
   static Element_Function_Maker< Evaluator_Id > evaluator_maker;
 
   static std::string stmt_func_name() { return "id"; }
+
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-id/>\n"; }
+#endif
+
   std::string dump_compact_ql(const std::string&) const override { return "id()"; }
 
   Evaluator_Id(int line_number_, const std::map< std::string, std::string >& input_attributes,
@@ -193,7 +200,11 @@ public:
   static Element_Function_Maker< Evaluator_Type > evaluator_maker;
 
   static std::string stmt_func_name() { return "type"; }
+
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override { return indent + "<eval-type/>\n"; }
+#endif
+
   std::string dump_compact_ql(const std::string&) const override { return "type()"; }
 
   Evaluator_Type(int line_number_, const std::map< std::string, std::string >& input_attributes,
@@ -281,12 +292,15 @@ public:
   };
   static Evaluator_Maker evaluator_maker;
 
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   {
     return indent + "<eval-value>\n"
         + (rhs ? rhs->dump_xml(indent + "  ") : "")
         + indent + "</eval-value>\n";
   }
+#endif
+
   std::string dump_compact_ql(const std::string&) const override
   { return std::string("t[\"") + (rhs ? rhs->dump_compact_ql("") : "") + "\"]"; }
 
@@ -356,8 +370,11 @@ public:
   };
   static Evaluator_Maker evaluator_maker;
 
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-is-tag k=\"" + escape_xml(key) + "\"/>\n"; }
+#endif
+
   std::string dump_compact_ql(const std::string&) const override
   { return std::string("is_tag(\"") + escape_cstr(key) + "\")"; }
 
@@ -419,8 +436,11 @@ public:
   };
   static Evaluator_Maker evaluator_maker;
 
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-generic/>\n"; }
+#endif
+
   std::string dump_compact_ql(const std::string&) const override { return "::"; }
 
   Evaluator_Generic(int line_number_, const std::map< std::string, std::string >& input_attributes,
@@ -493,8 +513,12 @@ public:
   static Element_Function_Maker< Evaluator_All_Keys > evaluator_maker;
 
   static std::string stmt_func_name() { return "keys"; }
+
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-all-keys/>\n"; }
+#endif
+
   std::string dump_compact_ql(const std::string&) const override { return "keys()"; }
 
   Evaluator_All_Keys(int line_number_, const std::map< std::string, std::string >& input_attributes,
@@ -583,8 +607,12 @@ public:
   static Element_Function_Maker< Evaluator_Version > evaluator_maker;
 
   static std::string stmt_func_name() { return "version"; }
+
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-version/>\n"; }
+#endif
+
   std::string dump_compact_ql(const std::string&) const override
   { return "version(\"\")"; }
 
@@ -639,8 +667,12 @@ public:
   static Element_Function_Maker< Evaluator_Timestamp > evaluator_maker;
 
   static std::string stmt_func_name() { return "timestamp"; }
+
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-timestamp/>\n"; }
+#endif
+
   std::string dump_compact_ql(const std::string&) const override
   { return "timestamp(\"\")"; }
 
@@ -695,8 +727,12 @@ public:
   static Element_Function_Maker< Evaluator_Changeset > evaluator_maker;
 
   static std::string stmt_func_name() { return "changeset"; }
+
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-changeset/>\n"; }
+#endif
+
   std::string dump_compact_ql(const std::string&) const override
   { return "changeset(\"\")"; }
 
@@ -751,8 +787,12 @@ public:
   static Element_Function_Maker< Evaluator_Uid > evaluator_maker;
 
   static std::string stmt_func_name() { return "uid"; }
+
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-uid/>\n"; }
+#endif
+
   std::string dump_compact_ql(const std::string&) const override
   { return "uid(\"\")"; }
 
@@ -807,8 +847,12 @@ public:
   static Element_Function_Maker< Evaluator_User > evaluator_maker;
 
   static std::string stmt_func_name() { return "user"; }
+
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-user/>\n"; }
+#endif
+
   std::string dump_compact_ql(const std::string&) const override
   { return "user(\"\")"; }
 
@@ -885,6 +929,7 @@ public:
   };
   static Evaluator_Maker evaluator_maker;
 
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   {
     return indent + "<eval-prop-count type=\"" + to_string(to_count) + "\""
@@ -893,6 +938,8 @@ public:
         + (type_to_count != all ?
             std::string(" members_type=\"") + to_string(type_to_count) + "\"" : std::string("")) + "/>\n";
   }
+#endif
+
   std::string dump_compact_ql(const std::string&) const override
   {
     return std::string("count_") + to_string(to_count) + "("

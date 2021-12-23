@@ -123,6 +123,7 @@ class Area_Query_Statement final : public Output_Statement
 
     static bool is_used() { return area_stmt_ref_counter_ > 0; }
 
+#ifdef HAVE_OVERPASS_XML
     std::string dump_xml(const std::string& indent) const override
     {
       return indent + "<area-query"
@@ -130,6 +131,7 @@ class Area_Query_Statement final : public Output_Statement
           + (submitted_id > 0 ? std::string(" ref=\"") + to_string(submitted_id) + "\"" : "")
           + dump_xml_result_name() + "/>\n";
     }
+#endif
 
     std::string dump_compact_ql(const std::string&) const override
     {

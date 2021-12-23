@@ -77,6 +77,7 @@ public:
     return "relation";
   }
 
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   {
     std::string result = indent + "<timeline" + std::string(" type=\"") + to_string(type) + "\""
@@ -86,6 +87,7 @@ public:
 
     return result + dump_xml_result_name() + "/>\n";
   }
+#endif
 
   std::string dump_compact_ql(const std::string& indent) const override
   {

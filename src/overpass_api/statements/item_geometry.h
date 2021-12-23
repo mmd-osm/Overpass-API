@@ -82,7 +82,11 @@ public:
   static Element_Function_Maker< Evaluator_Is_Closed > evaluator_maker;
 
   static std::string stmt_func_name() { return "is_closed"; }
+
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override { return indent + "<eval-is-closed/>\n"; }
+#endif
+
   std::string dump_compact_ql(const std::string&) const override { return "is_closed()"; }
 
   Evaluator_Is_Closed(int line_number_, const std::map< std::string, std::string >& input_attributes,
@@ -146,8 +150,12 @@ public:
   static Element_Function_Maker< Evaluator_Geometry > evaluator_maker;
 
   static std::string stmt_func_name() { return "geom"; }
+
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-geometry/>\n"; }
+#endif
+
   std::string dump_compact_ql(const std::string&) const override
   { return "geom(\"\")"; }
 
@@ -217,8 +225,12 @@ public:
   static Element_Function_Maker< Evaluator_Length > evaluator_maker;
 
   static std::string stmt_func_name() { return "length"; }
+
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-length/>\n"; }
+#endif
+
   std::string dump_compact_ql(const std::string&) const override
   { return "length()"; }
 
@@ -296,8 +308,12 @@ public:
   static Element_Function_Maker< Evaluator_Latitude > evaluator_maker;
 
   static std::string stmt_func_name() { return "lat"; }
+
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-lat/>\n"; }
+#endif
+
   std::string dump_compact_ql(const std::string&) const override
   { return "lat()"; }
 
@@ -360,8 +376,12 @@ public:
   static Element_Function_Maker< Evaluator_Longitude > evaluator_maker;
 
   static std::string stmt_func_name() { return "lon"; }
+
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   { return indent + "<eval-lon/>\n"; }
+#endif
+
   std::string dump_compact_ql(const std::string&) const override
   { return "lon()"; }
 

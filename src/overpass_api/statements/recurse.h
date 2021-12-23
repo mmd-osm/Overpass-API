@@ -87,6 +87,7 @@ class Recurse_Statement final : public Output_Statement
     static std::string to_xml_representation(int type);
     static std::string to_ql_representation(int type);
 
+#ifdef HAVE_OVERPASS_XML
     std::string dump_xml(const std::string& indent) const override
     {
       return indent + "<recurse"
@@ -97,6 +98,7 @@ class Recurse_Statement final : public Output_Statement
           + dump_xml_pos_restrictions()
           + dump_xml_result_name() + "/>\n";
     }
+#endif
 
     std::string dump_ql_in_query(const std::string&) const override
     {

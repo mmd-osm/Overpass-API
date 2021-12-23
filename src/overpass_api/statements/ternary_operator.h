@@ -143,6 +143,7 @@ struct Ternary_Evaluator final : public Evaluator
   static void add_substatements(Statement* result, const std::string& operator_name, const Token_Node_Ptr& tree_it,
       Statement::QL_Context tree_context, Statement::Factory& stmt_factory, Error_Output* error_output);
 
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   {
     return indent + "<" + stmt_name() + ">\n"
@@ -151,6 +152,7 @@ struct Ternary_Evaluator final : public Evaluator
         + (rhs ? rhs->dump_xml(indent + "  ") : "")
         + indent + "</" + stmt_name() + ">\n";
   }
+#endif
 
   std::string dump_compact_ql(const std::string&) const override
   {

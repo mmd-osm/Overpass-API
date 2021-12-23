@@ -64,6 +64,7 @@ public:
 
   static Generic_Statement_Maker< Retro_Statement > statement_maker;
 
+#ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
   {
     std::string result = indent + "<retro>\n"
@@ -74,6 +75,7 @@ public:
 
     return result + indent + "</retro>\n";
   }
+#endif
 
   std::string dump_compact_ql(const std::string& indent) const override
   {

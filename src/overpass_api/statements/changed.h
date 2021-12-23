@@ -64,6 +64,7 @@ class Changed_Statement final : public Output_Statement
     std::vector< Way_Skeleton::Id_Type > & get_way_ids() { return way_ids; }
     std::vector< Relation_Skeleton::Id_Type > & get_rel_ids() { return rel_ids; }
 
+#ifdef HAVE_OVERPASS_XML
     std::string dump_xml(const std::string& indent) const override
     {
       return indent + "<changed"
@@ -71,6 +72,7 @@ class Changed_Statement final : public Output_Statement
           + (until != NOW ? std::string(" until=\"") + iso_string(until) + "\"" : "")
           + dump_xml_result_name() + "/>\n";
     }
+#endif
 
     std::string dump_compact_ql(const std::string&) const override
     {

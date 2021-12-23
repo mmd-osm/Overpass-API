@@ -37,6 +37,7 @@ class Difference_Statement final : public Output_Statement
 
     static Generic_Statement_Maker< Difference_Statement > statement_maker;
 
+#ifdef HAVE_OVERPASS_XML
     std::string dump_xml(const std::string& indent) const override
     {
       std::string result = indent + "<difference" + dump_xml_result_name() + ">\n";
@@ -46,6 +47,7 @@ class Difference_Statement final : public Output_Statement
 
       return result + indent + "</difference>\n";
     }
+#endif
 
     std::string dump_compact_ql(const std::string& indent) const override
     {

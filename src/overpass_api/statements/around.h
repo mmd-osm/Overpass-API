@@ -118,6 +118,7 @@ class Around_Statement final : public Output_Statement
     bool matches_bboxes(double lat, double lon) const;
     bool matches_bboxes(const Prepared_BBox&) const;
 
+#ifdef HAVE_OVERPASS_XML
     std::string dump_xml(const std::string& indent) const override
     {
       std::string result = indent + "<around"
@@ -135,6 +136,7 @@ class Around_Statement final : public Output_Statement
       }
       return result + dump_xml_result_name() + "/>\n";
     }
+#endif
 
     std::string dump_compact_ql(const std::string&) const override
     {
