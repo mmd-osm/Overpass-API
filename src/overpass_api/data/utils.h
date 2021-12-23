@@ -60,9 +60,13 @@ inline std::string to_string(std::string t)
 template < >
 inline std::string to_string(double t)
 {
+  /*
   std::ostringstream out;
   out<<std::setprecision(14)<<t;
   return out.str();
+  */
+
+  return fmt::format("{:.14g}", t);
 }
 
 
