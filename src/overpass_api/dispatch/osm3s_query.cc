@@ -16,6 +16,11 @@
  * along with Overpass_API.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#undef VERSION
+#endif
+
 #include "../../expat/expat_justparse_interface.h"
 #include "../../template_db/dispatcher.h"
 #include "../frontend/console_output.h"

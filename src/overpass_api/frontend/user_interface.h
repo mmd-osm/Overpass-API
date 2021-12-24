@@ -19,6 +19,11 @@
 #ifndef DE__OSM3S___OVERPASS_API__FRONTEND__USER_INTERFACE_H
 #define DE__OSM3S___OVERPASS_API__FRONTEND__USER_INTERFACE_H
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#undef VERSION
+#endif
+
 #include <string>
 
 #include "../core/datatypes.h"

@@ -19,6 +19,11 @@
 #ifndef MAP_QL_PARSER
 #define MAP_QL_PARSER
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#undef VERSION
+#endif
+
 #include "../../expat/map_ql_input.h"
 
 #include <cctype>

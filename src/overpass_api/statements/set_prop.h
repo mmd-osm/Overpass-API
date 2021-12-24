@@ -19,6 +19,10 @@
 #ifndef DE__OSM3S___OVERPASS_API__STATEMENTS__SET_TAG_H
 #define DE__OSM3S___OVERPASS_API__STATEMENTS__SET_TAG_H
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#undef VERSION
+#endif
 
 #include "../../expat/escape_json.h"
 #include "../../expat/escape_xml.h"

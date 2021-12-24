@@ -19,6 +19,10 @@
 #ifndef DE__OSM3S___OVERPASS_API__STATEMENTS__GEOMETRY_ENDOMORPHISMS_H
 #define DE__OSM3S___OVERPASS_API__STATEMENTS__GEOMETRY_ENDOMORPHISMS_H
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#undef VERSION
+#endif
 
 #include "../data/tag_store.h"
 #include "../data/utils.h"

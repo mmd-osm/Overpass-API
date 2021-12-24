@@ -19,6 +19,10 @@
 #ifndef DE__OSM3S___OVERPASS_API__STATEMENTS__COMPARE_H
 #define DE__OSM3S___OVERPASS_API__STATEMENTS__COMPARE_H
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#undef VERSION
+#endif
 
 #include "statement.h"
 
