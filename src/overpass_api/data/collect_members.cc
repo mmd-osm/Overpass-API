@@ -879,8 +879,12 @@ const std::map< uint32, std::string >& relation_member_roles(Transaction& transa
     Block_Backend< Uint32_Index, String_Object > roles_db
         (transaction.data_index(osm_base_settings().RELATION_ROLES));
 
-    for(const auto & it : roles_db.as_flat())
-      roles[it.index().val()] = it.object().val();
+    auto it_hint = roles.begin();
+
+    for(const auto & it : roles_db.as_flat()) {
+      roles.emplace_hint(it_hint, it.index().val(), it.object().val());
+      it_hint = roles.end();
+    }
   }
 
   return roles;

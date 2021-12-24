@@ -190,10 +190,13 @@ Print_Statement::Print_Statement
 
 struct Extra_Data
 {
+  enum class Member_Roles { not_needed, needed };
+
   Extra_Data(
       Resource_Manager& rman, const Statement& stmt, const Set& to_print,
       unsigned int mode_, Output_Handler::Feature_Action action_,
       double south, double north, double west, double east,
+      Member_Roles mr,
       bool lazy_loading = false);
   ~Extra_Data();
 
@@ -217,6 +220,7 @@ Extra_Data::Extra_Data(
     Resource_Manager& rman, const Statement& stmt, const Set& to_print,
     unsigned int mode_, Output_Handler::Feature_Action action_,
     double south, double north, double west, double east,
+    Member_Roles mr,
     bool lazy_loading)
     : mode(mode_), action(action_), way_geometry_store(0), attic_way_geometry_store(0),
     relation_geometry_store(0), attic_relation_geometry_store(0), roles(0), users(0)
@@ -241,7 +245,8 @@ Extra_Data::Extra_Data(
     }
   }
 
-  roles = &relation_member_roles(*rman.get_transaction());
+  if (mr == Member_Roles::needed)
+    roles = &relation_member_roles(*rman.get_transaction());
 
   if (mode & Output_Mode::META)
     users = &rman.users();
@@ -855,7 +860,11 @@ void Print_Statement::execute(Resource_Manager& rman)
 
   const bool use_lazy_loading = order == order_by_quadtile;
 
-  Extra_Data extra_data(rman, *this, *output_items, mode, feature_action, south, north, west, east, use_lazy_loading);
+  // Member roles are only needed if we want to print out relations
+  Extra_Data::Member_Roles mr( (output_items->relations.empty() && output_items->attic_relations.empty()) ?
+                                Extra_Data::Member_Roles::not_needed :  Extra_Data::Member_Roles::needed);
+
+  Extra_Data extra_data(rman, *this, *output_items, mode, feature_action, south, north, west, east, mr, use_lazy_loading);
   Output_Handler& output_handler = *rman.get_global_settings().get_output_handler();
   uint32 element_count = 0;
 
