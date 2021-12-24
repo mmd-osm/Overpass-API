@@ -91,7 +91,9 @@ Statement* Changed_Statement::Criterion_Maker::create_criterion(const Token_Node
   return new Changed_Statement(line_nr, attributes, global_settings);
 }
 
+namespace {
 
+/*
 template< class TIndex, class TObject >
 void filter_elems(const std::vector< typename TObject::Id_Type >& ids, std::map< TIndex, std::vector< TObject > >& elems)
 {
@@ -108,6 +110,7 @@ void filter_elems(const std::vector< typename TObject::Id_Type >& ids, std::map<
     it->second.swap(local_into);
   }
 }
+*/
 
 template< class TIndex, class TObject >
 void filter_elems_fast(const IdSetHybrid<typename TObject::Id_Type::Id_Type>& ids,
@@ -126,8 +129,6 @@ void filter_elems_fast(const IdSetHybrid<typename TObject::Id_Type::Id_Type>& id
     it->second.swap(local_into);
   }
 }
-
-
 
 
 template< typename Index, typename Skeleton, typename Id_Predicate >
@@ -153,6 +154,7 @@ std::vector< typename Skeleton::Id_Type > collect_changed_elements
   return ids;
 }
 
+
 template< typename Index, typename Skeleton, typename Id_Predicate >
 IdSetHybrid<typename Skeleton::Id_Type::Id_Type> collect_changed_elements_fast
     (uint64 since, uint64 until,
@@ -176,6 +178,8 @@ IdSetHybrid<typename Skeleton::Id_Type::Id_Type> collect_changed_elements_fast
   return ids;
 }
 
+}
+
 //-----------------------------------------------------------------------------
 
 template< typename Id_Type >
@@ -184,7 +188,7 @@ struct Trivial_Id_Predicate
   bool operator()(Id_Type id) const { return true; }
 };
 
-
+/*
 template< typename Index, typename Skeleton >
 struct Ids_In_Set_Predicate
 {
@@ -224,6 +228,7 @@ Ids_In_Set_Predicate< Index, Skeleton >::Ids_In_Set_Predicate(
   std::sort(set_ids.begin(), set_ids.end());
   set_ids.erase(std::unique(set_ids.begin(), set_ids.end()), set_ids.end());
 }
+*/
 
 template< typename Index, typename Skeleton >
 struct Ids_Dense_Predicate
@@ -295,6 +300,7 @@ class Changed_Constraint final : public Query_Constraint
     Changed_Statement* stmt;
 };
 
+namespace {
 
 template< typename Index, typename Skeleton >
 std::vector< typename Skeleton::Id_Type > filter_ids_by_changeset(
@@ -343,6 +349,7 @@ std::vector< typename Skeleton::Id_Type > filter_ids_by_changeset(
 
 }
 
+}
 
 bool Changed_Constraint::get_node_ids(Resource_Manager& rman, std::vector< Node_Skeleton::Id_Type >& ids)
 {
@@ -615,6 +622,7 @@ uint64 Changed_Statement::get_until(Resource_Manager& rman) const
     return until + 1;
 }
 
+namespace {
 
 template< typename Index, typename Skeleton >
 void get_elements(Changed_Statement& stmt, Resource_Manager& rman,
@@ -637,6 +645,7 @@ void get_elements(Changed_Statement& stmt, Resource_Manager& rman,
   }
 }
 
+}
 
 void Changed_Statement::execute(Resource_Manager& rman)
 {
