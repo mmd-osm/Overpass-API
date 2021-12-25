@@ -374,9 +374,9 @@ public:
   bool match(const Relation_Skeleton& obj) const
   { return has_a_child_with_id(obj, ids, child_type); }
   bool match(const Handle< Relation_Skeleton >& h) const
-  { return has_a_child_with_id(h.object(), ids, child_type); }
+  { return h.has_child_with_id(ids, child_type); }
   bool match(const Handle< Attic< Relation_Skeleton > >& h) const
-  { return has_a_child_with_id(h.object(), ids, child_type); }
+  { return h.has_child_with_id(ids, child_type); }
   bool is_time_dependent() const { return true; };
 
 private:

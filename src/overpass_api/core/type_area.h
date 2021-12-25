@@ -343,12 +343,31 @@ struct Area_Skeleton_Id_Functor {
    }
 };
 
+template <typename Id_Type >
+struct Area_Skeleton_Add_Element_Functor {
+  Area_Skeleton_Add_Element_Functor(std::vector< Area_Skeleton >& v_) : v(v_) {};
+
+  using reference_type = Area_Skeleton;
+
+  void operator()(const void* data) const
+   {
+     v.emplace_back(data);
+   }
+
+private:
+  std::vector< Area_Skeleton > & v;
+};
+
 
 template <class T, class Object>
 struct Area_Skeleton_Handle_Methods
 {
   typename Object::Id_Type inline id() const {
      return (static_cast<const T*>(this)->apply_func(Area_Skeleton_Id_Functor<typename Object::Id_Type>()));
+  }
+
+  void inline add_element(std::vector< Object > & v) const {
+    static_cast<const T*>(this)->apply_func(Area_Skeleton_Add_Element_Functor<typename Object::Id_Type>(v));
   }
 };
 

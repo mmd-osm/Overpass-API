@@ -274,6 +274,35 @@ private:
   std::vector< Relation_Skeleton > & v;
 };
 
+
+struct Relation_Skeleton_Has_Child_with_Id_Functor {
+  Relation_Skeleton_Has_Child_with_Id_Functor(const std::vector< Global_Id_Type >& ids, uint32 type) : ids(ids), type(type) {};
+
+  using reference_type = Relation_Skeleton;
+
+  bool operator()(const void* data) const
+  {
+    const auto member_count = unalignedLoad<uint32>((uint32*)data + 1);
+
+    for (uint i(0); i < member_count; ++i)
+    {
+      const uint32 member_type = *((uint8*)data + 27 + 12*i);
+
+      if (member_type != type)
+        continue;
+
+      const Global_Id_Type member_ref = unalignedLoad<uint64>((uint32*)data + 4 + 3*i);
+      if (std::binary_search(ids.begin(), ids.end(), member_ref))
+        return true;
+    }
+    return false;
+  }
+
+private:
+  const std::vector< Global_Id_Type >& ids;
+  const uint32 type;
+};
+
 template <class T, class Object>
 struct Relation_Skeleton_Handle_Methods
 {
@@ -287,6 +316,10 @@ struct Relation_Skeleton_Handle_Methods
 
   void inline add_element(std::vector< Object > & v) const {
     static_cast<const T*>(this)->apply_func(Relation_Skeleton_Add_Element_Functor<typename Object::Id_Type>(v));
+  }
+
+  bool inline has_child_with_id(const std::vector< Global_Id_Type >& ids, uint32 type) const {
+    return (static_cast<const T*>(this)->apply_func(Relation_Skeleton_Has_Child_with_Id_Functor(ids, type)));
   }
 };
 
