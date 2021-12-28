@@ -210,7 +210,7 @@ template< typename Id_Type, typename Iterator, typename Key_Regex, typename Val_
 std::vector< std::pair< Id_Type, Uint31_Index > > filter_id_list_fast(
     IdSetHybrid<typename Id_Type::Id_Type, L>& new_ids, bool& filtered,
     Iterator begin, Iterator end, const Key_Regex& key_regex, const Val_Regex& val_regex,
-    Query_Filter_Strategy& check_keys_late, bool final)
+    Query_Filter_Strategy& check_keys_late, bool is_last)
 {
   std::vector< std::pair< Id_Type, Uint31_Index > > new_ids_idx;
 
@@ -244,7 +244,7 @@ std::vector< std::pair< Id_Type, Uint31_Index > > filter_id_list_fast(
 
     if (!filtered || old_ids.get(current_id))
     {
-      if (final)
+      if (is_last)
          new_ids_idx.push_back({current_id, it.handle().get_idx()});
       else
          new_ids.set(current_id);
@@ -271,7 +271,7 @@ std::vector< std::pair< Id_Type, Uint31_Index > > filter_id_list_fast(
   // sort and remove duplicates in small set
   new_ids.sort_unique();
 
-  if (final) {
+  if (is_last) {
     sort(new_ids_idx.begin(), new_ids_idx.end());
     new_ids_idx.erase(unique(new_ids_idx.begin(), new_ids_idx.end()), new_ids_idx.end());
   }
@@ -339,7 +339,7 @@ void filter_id_list(
 template< typename Id_Type, typename Container, unsigned int L >
 std::vector< std::pair< Id_Type, Uint31_Index > > filter_id_list_fast(
     IdSetHybrid<typename Id_Type::Id_Type, L>& new_ids, bool& filtered,
-    const Container& container, bool final)
+    const Container& container, bool is_last)
 {
   std::vector< std::pair< Id_Type, Uint31_Index > > new_ids_result;
 
@@ -350,7 +350,7 @@ std::vector< std::pair< Id_Type, Uint31_Index > > filter_id_list_fast(
   {
     if (!filtered || old_ids.get(it->first.val()))
     {
-     if (final)
+     if (is_last)
        new_ids_result.push_back(std::make_pair(it->first, it->second.second));
      else
        new_ids.set(it->first.val());
@@ -360,7 +360,7 @@ std::vector< std::pair< Id_Type, Uint31_Index > > filter_id_list_fast(
   // sort and remove duplicates in small set
   new_ids.sort_unique();
 
-  if (final)
+  if (is_last)
   {
     sort(new_ids_result.begin(), new_ids_result.end());
     new_ids_result.erase(unique(new_ids_result.begin(), new_ids_result.end()), new_ids_result.end());
@@ -375,14 +375,14 @@ std::vector< std::pair< Id_Type, Uint31_Index > > filter_id_list_fast(
 template< typename Id_Type, typename Container, unsigned int L >
 std::vector< std::pair< Id_Type, Uint31_Index > > filter_id_list_fast2(
     IdSetHybrid<typename Id_Type::Id_Type, L>& new_ids, bool& filtered,
-    Container& container, bool final)
+    Container& container, bool is_last)
 {
   std::vector< std::pair< Id_Type, Uint31_Index > > new_ids_result;
 
   IdSetHybrid<typename Id_Type::Id_Type, L> old_ids(std::move(new_ids));
   new_ids.clear();
 
-  if (!filtered && final) {
+  if (!filtered && is_last) {
     new_ids_result = std::move(container);
   }
   else
@@ -391,7 +391,7 @@ std::vector< std::pair< Id_Type, Uint31_Index > > filter_id_list_fast2(
     {
       if (!filtered || old_ids.get(it->first.val()))
       {
-       if (final)
+       if (is_last)
          new_ids_result.emplace_back(*it);
        else
          new_ids.set(it->first.val());
