@@ -247,34 +247,6 @@ struct Relation_Skeleton_Id_Functor {
    }
 };
 
-template <typename Id_Type >
-struct Relation_Skeleton_Element_Functor {
-  Relation_Skeleton_Element_Functor() = default;
-
-  using reference_type = Relation_Skeleton;
-
-  Relation_Skeleton operator()(const void* data) const
-   {
-     return Relation_Skeleton(data);
-   }
-};
-
-template <typename Id_Type >
-struct Relation_Skeleton_Add_Element_Functor {
-  Relation_Skeleton_Add_Element_Functor(std::vector< Relation_Skeleton >& v_) : v(v_) {};
-
-  using reference_type = Relation_Skeleton;
-
-  void operator()(const void* data) const
-   {
-     v.emplace_back(data);
-   }
-
-private:
-  std::vector< Relation_Skeleton > & v;
-};
-
-
 struct Relation_Skeleton_Has_Child_with_Id_Functor {
   Relation_Skeleton_Has_Child_with_Id_Functor(const std::vector< Global_Id_Type >& ids, uint32 type) : ids(ids), type(type) {};
 
@@ -310,12 +282,12 @@ struct Relation_Skeleton_Handle_Methods
      return (static_cast<const T*>(this)->apply_func(Relation_Skeleton_Id_Functor<typename Object::Id_Type>()));
   }
 
-  Relation_Skeleton inline get_element() const {
-    return (static_cast<const T*>(this)->apply_func(Relation_Skeleton_Element_Functor<typename Object::Id_Type>()));
+  Object inline get_element() const {
+    return (static_cast<const T*>(this)->apply_func(Generic_Element_Functor<Object>()));
   }
 
   void inline add_element(std::vector< Object > & v) const {
-    static_cast<const T*>(this)->apply_func(Relation_Skeleton_Add_Element_Functor<typename Object::Id_Type>(v));
+    static_cast<const T*>(this)->apply_func(Generic_Add_Element_Functor<Object>(v));
   }
 
   bool inline has_child_with_id(const std::vector< Global_Id_Type >& ids, uint32 type) const {

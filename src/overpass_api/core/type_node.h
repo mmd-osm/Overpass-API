@@ -174,33 +174,6 @@ struct Node_Skeleton_ll_lower_Functor {
    }
 };
 
-template <typename Id_Type >
-struct Node_Skeleton_Element_Functor {
-  Node_Skeleton_Element_Functor() = default;
-
-  using reference_type = Node_Skeleton;
-
-  Node_Skeleton operator()(const void* data) const
-   {
-     return Node_Skeleton(data);
-   }
-};
-
-template <typename Id_Type >
-struct Node_Skeleton_Add_Element_Functor {
-  Node_Skeleton_Add_Element_Functor(std::vector< Node_Skeleton >& v_) : v(v_) {};
-
-  using reference_type = Node_Skeleton;
-
-  void operator()(const void* data) const
-   {
-     v.emplace_back(data);
-   }
-
-private:
-  std::vector< Node_Skeleton > & v;
-};
-
 template <class T, class Object>
 struct Node_Skeleton_Handle_Methods
 {
@@ -212,12 +185,12 @@ struct Node_Skeleton_Handle_Methods
      return (static_cast<const T*>(this)->apply_func(Node_Skeleton_ll_lower_Functor<typename Object::Id_Type>()));
   }
 
-  Node_Skeleton inline get_element() const {
-    return (static_cast<const T*>(this)->apply_func(Node_Skeleton_Element_Functor<typename Object::Id_Type>()));
+  Object inline get_element() const {
+    return (static_cast<const T*>(this)->apply_func(Generic_Element_Functor<Object>()));
   }
 
   void inline add_element(std::vector< Object > & v) const {
-    static_cast<const T*>(this)->apply_func(Node_Skeleton_Add_Element_Functor<typename Object::Id_Type>(v));
+    static_cast<const T*>(this)->apply_func(Generic_Add_Element_Functor<Object>(v));
   }
 };
 

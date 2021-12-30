@@ -272,34 +272,6 @@ struct Way_Skeleton_Id_Functor {
    }
 };
 
-template <typename Id_Type >
-struct Way_Skeleton_Element_Functor {
-  Way_Skeleton_Element_Functor() = default;
-
-  using reference_type = Way_Skeleton;
-
-  Way_Skeleton operator()(const void* data) const
-   {
-     return Way_Skeleton(data);
-   }
-};
-
-template <typename Id_Type >
-struct Way_Skeleton_Add_Element_Functor {
-  Way_Skeleton_Add_Element_Functor(std::vector< Way_Skeleton >& v_) : v(v_) {};
-
-  using reference_type = Way_Skeleton;
-
-  void operator()(const void* data) const
-   {
-     v.emplace_back(data);
-   }
-
-private:
-  std::vector< Way_Skeleton > & v;
-};
-
-
 template <class T, class Object>
 struct Way_Skeleton_Handle_Methods
 {
@@ -307,12 +279,12 @@ struct Way_Skeleton_Handle_Methods
      return (static_cast<const T*>(this)->apply_func(Way_Skeleton_Id_Functor<typename Object::Id_Type>()));
   }
 
-  Way_Skeleton inline get_element() const {
-    return (static_cast<const T*>(this)->apply_func(Way_Skeleton_Element_Functor<typename Object::Id_Type>()));
+  Object inline get_element() const {
+    return (static_cast<const T*>(this)->apply_func(Generic_Element_Functor<Object>()));
   }
 
   void inline add_element(std::vector< Object > & v) const {
-    static_cast<const T*>(this)->apply_func(Way_Skeleton_Add_Element_Functor<typename Object::Id_Type>(v));
+    static_cast<const T*>(this)->apply_func(Generic_Add_Element_Functor<Object>(v));
   }
 };
 

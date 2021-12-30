@@ -45,6 +45,34 @@ struct Uint40;
 using Global_Id_Type = Uint40;
 
 
+template <typename Object >
+struct Generic_Element_Functor {
+  Generic_Element_Functor() = default;
+
+  using reference_type = Object;
+
+  inline Object operator()(const void* data) const
+   {
+     return Object(data);
+   }
+};
+
+template <typename Object >
+struct Generic_Add_Element_Functor {
+  Generic_Add_Element_Functor(std::vector< Object >& v_) : v(v_) {};
+
+  using reference_type = Object;
+
+  inline void operator()(const void* data) const
+   {
+     v.emplace_back(data);
+   }
+
+private:
+  std::vector< Object > & v;
+};
+
+
 template <class T, class Object>
 struct Uint32_Index_Handle_Methods;
 
