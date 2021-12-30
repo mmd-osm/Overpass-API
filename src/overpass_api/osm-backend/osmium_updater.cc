@@ -70,9 +70,16 @@
 
 struct Osmium_Updater_Handler: public osmium::handler::Handler {
 
+  enum class Process_State {
+    INITIAL = 0,
+    IN_NODES = 1,
+    IN_WAYS = 2,
+    IN_RELATIONS = 3
+  };
+
   uint32 osm_element_count;
   uint flush_limit;
-  int state;
+  Process_State state;
 
   Node_Updater* node_updater;
   Way_Updater* way_updater;
@@ -80,22 +87,18 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
   Osm_Backend_Callback* callback;
   Cpu_Stopwatch* cpu_stopwatch;
 
-  const int IN_NODES = 1;
-  const int IN_WAYS = 2;
-  const int IN_RELATIONS = 3;
-
   Osmium_Updater_Handler(Node_Updater* node_upd_, Way_Updater* way_upd_,
       Relation_Updater* rel_upd_, Osm_Backend_Callback* cb_, uint flush_limit_,
       Cpu_Stopwatch* cpu_stopwatch_) :
-      osm_element_count(0), flush_limit(flush_limit_), state(0),
+      osm_element_count(0), flush_limit(flush_limit_), state(Process_State::INITIAL),
       node_updater(node_upd_), way_updater(way_upd_),
       relation_updater(rel_upd_), callback(cb_),
       cpu_stopwatch(cpu_stopwatch_){};
 
   void node(const osmium::Node& n) {
 
-    if (state == 0)
-      state = IN_NODES;
+    if (state == Process_State::INITIAL)
+      state = Process_State::IN_NODES;
 
     ++osm_element_count;
 
@@ -225,26 +228,26 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
   }
 
   void finish_updater() {
-    if (state == IN_NODES)
+    if (state == Process_State::IN_NODES)
       callback->nodes_finished();
-    else if (state == IN_WAYS)
+    else if (state == Process_State::IN_WAYS)
       callback->ways_finished();
-    else if (state == IN_RELATIONS)
+    else if (state == Process_State::IN_RELATIONS)
       callback->relations_finished();
 
-    if (state == IN_NODES)
+    if (state == Process_State::IN_NODES)
     {
       node_updater->update(callback, cpu_stopwatch, false);
-      state = IN_WAYS;
+      state = Process_State::IN_WAYS;
     }
-    if (state == IN_WAYS)
+    if (state == Process_State::IN_WAYS)
     {
       way_updater->update(callback, cpu_stopwatch, false, node_updater->get_new_skeletons(),
           node_updater->get_attic_skeletons(),
           node_updater->get_new_attic_skeletons());
-      state = IN_RELATIONS;
+      state = Process_State::IN_RELATIONS;
     }
-    if (state == IN_RELATIONS)
+    if (state == Process_State::IN_RELATIONS)
       relation_updater->update(callback, cpu_stopwatch, node_updater->get_new_skeletons(),
           node_updater->get_attic_skeletons(),
           node_updater->get_new_attic_skeletons(),
@@ -259,29 +262,29 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
 
   void move_to_state_in_ways() {
 
-    if (state == IN_NODES)
+    if (state == Process_State::IN_NODES)
     {
       callback->nodes_finished();
       node_updater->update(callback, cpu_stopwatch, false);
       callback->parser_started();
       osm_element_count = 0;
-      state = IN_WAYS;
+      state = Process_State::IN_WAYS;
     }
-    else if (state == 0)
-      state = IN_WAYS;
+    else if (state == Process_State::INITIAL)
+      state = Process_State::IN_WAYS;
   }
 
   void move_to_state_in_relations() {
 
-    if (state == IN_NODES)
+    if (state == Process_State::IN_NODES)
     {
       callback->nodes_finished();
       node_updater->update(callback, cpu_stopwatch, false);
       callback->parser_started();
       osm_element_count = 0;
-      state = IN_RELATIONS;
+      state = Process_State::IN_RELATIONS;
     }
-    else if (state == IN_WAYS)
+    else if (state == Process_State::IN_WAYS)
     {
       callback->ways_finished();
       way_updater->update(callback, cpu_stopwatch, false, node_updater->get_new_skeletons(),
@@ -289,10 +292,10 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
           node_updater->get_new_attic_skeletons());
       callback->parser_started();
       osm_element_count = 0;
-      state = IN_RELATIONS;
+      state = Process_State::IN_RELATIONS;
     }
-    else if (state == 0)
-      state = IN_RELATIONS;
+    else if (state == Process_State::INITIAL)
+      state = Process_State::IN_RELATIONS;
   }
 };
 
