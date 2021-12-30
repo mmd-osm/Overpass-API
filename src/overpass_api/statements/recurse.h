@@ -33,6 +33,7 @@
 #include <string>
 #include <vector>
 
+enum class Recurse;
 
 class Recurse_Statement final : public Output_Statement
 {
@@ -83,14 +84,14 @@ class Recurse_Statement final : public Output_Statement
     static Criterion_Maker_2 criterion_maker_2;
 
     Query_Constraint* get_query_constraint() override;
-    unsigned int get_type() const { return type; }
+    Recurse get_type() const { return type; }
     std::string get_input() const { return input; }
 
     const std::string* get_role() const { return (restrict_to_role ? &role : 0); }
 
-    static std::string to_target_type(int type);
-    static std::string to_xml_representation(int type);
-    static std::string to_ql_representation(int type);
+    static std::string to_target_type(Recurse type);
+    static std::string to_xml_representation(Recurse type);
+    static std::string to_ql_representation(Recurse type);
 
 #ifdef HAVE_OVERPASS_XML
     std::string dump_xml(const std::string& indent) const override
@@ -135,7 +136,7 @@ class Recurse_Statement final : public Output_Statement
 
   private:
     std::string input;
-    unsigned int type;
+    Recurse type;
     std::string role;
     bool restrict_to_role;
     std::vector< int > pos;
