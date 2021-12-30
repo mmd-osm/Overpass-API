@@ -216,25 +216,20 @@ private:
 };
 
 
-template< typename Pointer >
+template< typename Base >
 struct Owning_Array
 {
   Owning_Array() = default;
-  ~Owning_Array()
-  {
-    for (auto it = content.begin(); it != content.end(); ++it)
-      delete *it;
-  }
+  ~Owning_Array() = default;
 
-  const Pointer& operator[](uint i) const { return content[i]; }
-  void push_back(Pointer ptr) { content.push_back(ptr); }
+  Owning_Array(const Owning_Array&) = delete;
+  Owning_Array& operator=(const Owning_Array&) = delete;
+
+  const Base* operator[](uint i) const { return content[i].get(); }
+  void push_back(Base* ptr) { content.emplace_back(ptr); }
   uint size() const { return content.size(); }
-
 private:
-  Owning_Array(const Owning_Array&);
-  Owning_Array& operator=(const Owning_Array&);
-
-  std::vector< Pointer > content;
+  std::vector< std::unique_ptr< Base > > content;
 };
 
 

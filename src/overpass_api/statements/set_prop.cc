@@ -450,7 +450,7 @@ void Set_Prop_Generic_Task::process(Derived_Structure& result, bool& id_set) con
 
 
 template< typename Object >
-void process_generic(const Owning_Array< Eval_Task* >& rhs, const std::vector< std::string >& keys,
+void process_generic(const Owning_Array< Eval_Task >& rhs, const std::vector< std::string >& keys,
     const Element_With_Context< Object >& data, Derived_Structure& result)
 {
   for (unsigned int i = 0; i < keys.size(); ++i)

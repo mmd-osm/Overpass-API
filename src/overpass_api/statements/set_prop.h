@@ -121,7 +121,7 @@ struct Set_Prop_Generic_Task : public Set_Prop_Task
   void add_key(const std::string& key, Eval_Task* task);
 
 private:
-  Owning_Array< Eval_Task* > rhs;
+  Owning_Array< Eval_Task > rhs;
   std::vector< std::string > keys;
 };
 
