@@ -24,6 +24,7 @@
 #include <iomanip>
 #include <limits>
 #include <map>
+#include <memory>
 #include <set>
 #include <sstream>
 #include <string>
@@ -186,36 +187,6 @@ private:
 };
 
 
-template< typename Object >
-struct Clonable_Owner
-{
-  Clonable_Owner(Object* ptr_) : ptr(ptr_) {}
-  Clonable_Owner(const Clonable_Owner& rhs) : ptr(rhs.ptr ? rhs.ptr->clone() : 0) {}
-  Clonable_Owner& operator=(const Clonable_Owner& rhs)
-  {
-    if (this != &rhs)
-    {
-      delete ptr;
-      ptr = rhs.ptr ? rhs.ptr->clone() : 0;
-    }
-    return *this;
-  }
-  ~Clonable_Owner() { delete ptr; }
-
-  operator bool() const { return ptr; }
-  Object& operator*() const { return *ptr; }
-  void acquire(Object* ptr_)
-  {
-    delete ptr;
-    ptr = ptr_;
-  }
-
-private:
-
-  Object* ptr;
-};
-
-
 template< typename Base >
 struct Owning_Array
 {
@@ -247,7 +218,7 @@ struct Derived_Skeleton
 struct Derived_Structure : public Derived_Skeleton
 {
   Derived_Structure(const std::string& type_name_, Id_Type id_)
-      : Derived_Skeleton(type_name_, id_), geometry(0) {}
+      : Derived_Skeleton(type_name_, id_), geometry(nullptr) {}
   Derived_Structure(const std::string& type_name_, Id_Type id_,
       const std::vector< std::pair< std::string, std::string > >& tags_, Opaque_Geometry* geometry_)
       : Derived_Skeleton(type_name_, id_), tags(tags_), geometry(geometry_) {}
@@ -257,7 +228,7 @@ struct Derived_Structure : public Derived_Skeleton
   const Opaque_Geometry* get_geometry() const { return ((geometry) ? &*geometry : nullptr); }
   void acquire_geometry(Opaque_Geometry* geometry_)
   {
-    geometry.acquire(geometry_);
+    geometry.reset(geometry_);
   }
 
   bool operator<(const Derived_Structure& a) const
@@ -271,7 +242,7 @@ struct Derived_Structure : public Derived_Skeleton
   }
 
 private:
-  Clonable_Owner< Opaque_Geometry > geometry;
+  std::shared_ptr< Opaque_Geometry > geometry;
 };
 
 
