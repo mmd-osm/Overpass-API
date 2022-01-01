@@ -53,10 +53,10 @@ struct OSM_File_Properties final : public File_Properties
 
   uint32 get_block_size() const override { return block_size/8; }
   uint32 get_compression_factor() const override { return 8; }
-  uint32 get_compression_method() const override { return basic_settings().compression_method; }
+  Block_Compression get_compression_method() const override { return basic_settings().compression_method; }
   uint32 get_map_block_size() const override { return map_block_size/8; }
   uint32 get_map_compression_factor() const override { return 8; }
-  uint32 get_map_compression_method() const override { return basic_settings().map_compression_method; }
+  Block_Compression get_map_compression_method() const override { return basic_settings().map_compression_method; }
 
   std::vector< bool > get_data_footprint(const std::string& db_dir) const override
   {
@@ -99,11 +99,11 @@ Basic_Settings::Basic_Settings()
   version("0.7.59_mmd"),
   source_hash(GIT_VERSION),
 #ifdef HAVE_LZ4
-  compression_method(File_Blocks_Index< Uint31_Index >::LZ4_COMPRESSION),
-  map_compression_method(File_Blocks_Index< Uint31_Index >::LZ4_COMPRESSION)
+  compression_method(Block_Compression::LZ4_COMPRESSION),
+  map_compression_method(Block_Compression::LZ4_COMPRESSION)
 #else
-  compression_method(File_Blocks_Index< Uint31_Index >::ZLIB_COMPRESSION),
-  map_compression_method(File_Blocks_Index< Uint31_Index >::NO_COMPRESSION)
+  compression_method(Block_Compression::ZLIB_COMPRESSION),
+  map_compression_method(Block_Compression::NO_COMPRESSION)
 #endif
 
 {}

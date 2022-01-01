@@ -189,7 +189,7 @@ struct File_Blocks_Write_Iterator
   ~File_Blocks_Write_Iterator() = default;
 
   bool is_end() const { return block_it == block_end && !is_empty; }
-  int block_type() const;
+  Index_Block_Type block_type() const;
   void start_segments_mode() { segments_mode = true; }
   void end_segments_mode()
   {
@@ -235,12 +235,10 @@ struct File_Blocks
   //typedef File_Blocks_Range_Iterator< TIndex, TRangeIterator > Range_Iterator;
   typedef File_Blocks_Write_Iterator< TIndex, TIterator > Write_Iterator;
 
-private:
-  File_Blocks(const File_Blocks& f) {}
-
 public:
   File_Blocks(File_Blocks_Index_Base* index);
   ~File_Blocks() = default;
+  File_Blocks(const File_Blocks& f) = delete;
 
   Flat_Iterator flat_begin();
   Flat_Iterator flat_end();
@@ -293,7 +291,7 @@ private:
   File_Blocks_Index< TIndex >* index;
   uint32 block_size;
   uint32 compression_factor;
-  int compression_method;
+  Block_Compression compression_method;
   bool writeable;
   mutable uint read_count_;
 
@@ -576,20 +574,20 @@ void File_Blocks_Range_Iterator< TIndex, TRangeIterator >::find_next_block()
 /** Implementation File_Blocks_Write_Iterator: ---------------------------*/
 
 template< typename TIndex, typename TIterator >
-int File_Blocks_Write_Iterator< TIndex, TIterator >::block_type() const
+Index_Block_Type File_Blocks_Write_Iterator< TIndex, TIterator >::block_type() const
 {
   if ((this->block_it == this->block_end) || (this->is_empty))
-    return File_Block_Index_Entry< TIndex >::EMPTY;
+    return Index_Block_Type::EMPTY;
   typename std::list< File_Block_Index_Entry< TIndex > >::const_iterator
       it(this->block_it);
   if (this->block_it == this->block_begin)
   {
     if (++it == this->block_end)
-      return File_Block_Index_Entry< TIndex >::GROUP;
+      return Index_Block_Type::GROUP;
     else if (this->block_it->index == it->index)
-      return File_Block_Index_Entry< TIndex >::SEGMENT;
+      return Index_Block_Type::SEGMENT;
     else
-      return File_Block_Index_Entry< TIndex >::GROUP;
+      return Index_Block_Type::GROUP;
   }
   ++it;
   if (it == this->block_end)
@@ -597,18 +595,18 @@ int File_Blocks_Write_Iterator< TIndex, TIterator >::block_type() const
     --it;
     --it;
     if (it->index == this->block_it->index)
-      return File_Block_Index_Entry< TIndex >::LAST_SEGMENT;
+      return Index_Block_Type::LAST_SEGMENT;
     else
-      return File_Block_Index_Entry< TIndex >::GROUP;
+      return Index_Block_Type::GROUP;
   }
   if (it->index == this->block_it->index)
-    return File_Block_Index_Entry< TIndex >::SEGMENT;
+    return Index_Block_Type::SEGMENT;
   --it;
   --it;
   if (it->index == this->block_it->index)
-    return File_Block_Index_Entry< TIndex >::LAST_SEGMENT;
+    return Index_Block_Type::LAST_SEGMENT;
   else
-    return File_Block_Index_Entry< TIndex >::GROUP;
+    return Index_Block_Type::GROUP;
 }
 
 
@@ -637,14 +635,14 @@ template< typename TIndex, typename TIterator >
 File_Blocks_Write_Iterator< TIndex, TIterator >&
 File_Blocks_Write_Iterator< TIndex, TIterator >::operator++()
 {
-  int block_type(this->block_type());
-  if (block_type == File_Block_Index_Entry< TIndex >::EMPTY)
+  Index_Block_Type block_type(this->block_type());
+  if (block_type == Index_Block_Type::EMPTY)
   {
     this->is_empty = false;
     find_next_block();
     return *this;
   }
-  if (segments_mode || block_type == File_Block_Index_Entry< TIndex >::SEGMENT)
+  if (segments_mode || block_type == Index_Block_Type::SEGMENT)
   {
     ++(this->block_it);
     return *this;
@@ -722,7 +720,7 @@ void File_Blocks_Write_Iterator< TIndex, TIterator >::find_next_block()
 
 //   std::cout<<"DEBUG O "<<this->is_empty<<' '<<(index_upper == index_end)
 //       <<' '<<(this->block_it == this->block_end ? 0xffffffff : this->block_it->pos)<<'\n';
-  if ((this->block_type() == File_Block_Index_Entry< TIndex >::SEGMENT)
+  if ((this->block_type() == Index_Block_Type::SEGMENT)
     && (*index_lower < this->block_it->index))
   {
     this->is_empty = true;
@@ -750,7 +748,7 @@ void File_Blocks_Write_Iterator< TIndex, TIterator >::find_next_block()
 
   if (next_block == this->block_end)
   {
-    if (this->block_type() == File_Block_Index_Entry< TIndex >::LAST_SEGMENT)
+    if (this->block_type() == Index_Block_Type::LAST_SEGMENT)
     {
       ++(this->block_it);
       this->is_empty = true;
@@ -761,7 +759,7 @@ void File_Blocks_Write_Iterator< TIndex, TIterator >::find_next_block()
 //   std::cout<<"DEBUG Q "<<this->is_empty<<' '<<(index_upper == index_end)
 //       <<' '<<(this->block_it == this->block_end ? 0xffffffff : this->block_it->pos)<<'\n';
 
-  if (this->block_type() == File_Block_Index_Entry< TIndex >::LAST_SEGMENT)
+  if (this->block_type() == Index_Block_Type::LAST_SEGMENT)
   {
     while ((!(index_upper == index_end)) && (*index_upper < next_block->index))
       ++index_upper;
@@ -871,9 +869,9 @@ uint64* File_Blocks< TIndex, TIterator >::read_block
 {
   data_file.seek((int64)(it.block().pos) * block_size, "File_Blocks::read_block::1");
 
-  if (compression_method == File_Blocks_Index< TIndex >::NO_COMPRESSION)
+  if (compression_method == Block_Compression::NO_COMPRESSION)
     data_file.read((uint8*)buffer_, block_size * it.block().size, "File_Blocks::read_block::2");
-  else if (compression_method == File_Blocks_Index< TIndex >::ZLIB_COMPRESSION)
+  else if (compression_method == Block_Compression::ZLIB_COMPRESSION)
   {
     data_file.read((uint8*)temp_buffer, block_size * it.block().size, "File_Blocks::read_block::3");
     try
@@ -891,7 +889,7 @@ uint64* File_Blocks< TIndex, TIterator >::read_block
       throw File_Error(it.block().pos, index->get_data_file_name(), out.str());
     }
   }
-  else if (compression_method == File_Blocks_Index< TIndex >::LZ4_COMPRESSION)
+  else if (compression_method == Block_Compression::LZ4_COMPRESSION)
   {
     data_file.read((uint8*)temp_buffer, block_size * it.block().size, "File_Blocks::read_block::4");
     try
@@ -1038,14 +1036,14 @@ template< typename TIndex, typename TIterator >
 void File_Blocks< TIndex, TIterator >::write_block(uint64* buf, uint32 payload_size, uint32& block_count, uint32& pos)
 {
   void* payload = buf;
-  if (compression_method == File_Blocks_Index< TIndex >::ZLIB_COMPRESSION)
+  if (compression_method == Block_Compression::ZLIB_COMPRESSION)
   {
     payload = buffer.ptr;
     block_count = (
         Zlib_Deflate(1).compress(buf, payload_size, payload, block_size * compression_factor)
         - 1) / block_size + 1;
   }
-  else if (compression_method == File_Blocks_Index< TIndex >::LZ4_COMPRESSION)
+  else if (compression_method == Block_Compression::LZ4_COMPRESSION)
   {
     payload = buffer.ptr;
     block_count = (

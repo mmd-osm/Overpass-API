@@ -86,12 +86,12 @@ int main(int argc, char* argv[])
     else if (!(strncmp(argv[argpos], "--compression-method=", 21)))
     {
       if (std::string(argv[argpos]).substr(21) == "no")
-	basic_settings().compression_method = File_Blocks_Index< Uint31_Index >::NO_COMPRESSION;
+	basic_settings().compression_method = Block_Compression::NO_COMPRESSION;
       else if (std::string(argv[argpos]).substr(21) == "gz")
-	basic_settings().compression_method = File_Blocks_Index< Uint31_Index >::ZLIB_COMPRESSION;
+	basic_settings().compression_method = Block_Compression::ZLIB_COMPRESSION;
 #ifdef HAVE_LZ4
       else if (std::string(argv[argpos]).substr(21) == "lz4")
-        basic_settings().compression_method = File_Blocks_Index< Uint31_Index >::LZ4_COMPRESSION;
+        basic_settings().compression_method = Block_Compression::LZ4_COMPRESSION;
 #endif
       else
       {
@@ -106,12 +106,12 @@ int main(int argc, char* argv[])
     else if (!(strncmp(argv[argpos], "--map-compression-method=", 25)))
     {
       if (std::string(argv[argpos]).substr(25) == "no")
-        basic_settings().map_compression_method = File_Blocks_Index< Uint31_Index >::NO_COMPRESSION;
+        basic_settings().map_compression_method = Block_Compression::NO_COMPRESSION;
       else if (std::string(argv[argpos]).substr(25) == "gz")
-        basic_settings().map_compression_method = File_Blocks_Index< Uint31_Index >::ZLIB_COMPRESSION;
+        basic_settings().map_compression_method = Block_Compression::ZLIB_COMPRESSION;
 #ifdef HAVE_LZ4
       else if (std::string(argv[argpos]).substr(25) == "lz4")
-        basic_settings().map_compression_method = File_Blocks_Index< Uint31_Index >::LZ4_COMPRESSION;
+        basic_settings().map_compression_method = Block_Compression::LZ4_COMPRESSION;
 #endif
       else
       {

@@ -40,8 +40,8 @@ struct Basic_Settings
   const std::string version;
   const std::string source_hash;
 
-  uint32 compression_method;
-  uint32 map_compression_method;
+  Block_Compression compression_method;
+  Block_Compression map_compression_method;
 
   Basic_Settings();
 
@@ -158,13 +158,13 @@ private:
 
 struct Clone_Settings
 {
-  uint32 compression_method;
-  uint32 map_compression_method;
+  Block_Compression compression_method;
+  Block_Compression map_compression_method;
   uint32 parallel_processes;
 
   Clone_Settings()
-      : compression_method(File_Blocks_Index_Base::USE_DEFAULT),
-      map_compression_method(File_Blocks_Index_Base::USE_DEFAULT),
+      : compression_method(Block_Compression::USE_DEFAULT),
+      map_compression_method(Block_Compression::USE_DEFAULT),
       parallel_processes(1) {}
 };
 

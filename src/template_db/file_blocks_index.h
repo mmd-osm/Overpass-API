@@ -33,15 +33,16 @@
 
 /** Declarations: -----------------------------------------------------------*/
 
+enum class Index_Block_Type {
+  EMPTY = 1,
+  GROUP = 2,
+  SEGMENT = 3,
+  LAST_SEGMENT = 4
+};
 
 template< class TIndex >
 struct File_Block_Index_Entry
 {
-  static const int EMPTY = 1;
-  static const int GROUP = 2;
-  static const int SEGMENT = 3;
-  static const int LAST_SEGMENT = 4;
-
   File_Block_Index_Entry(const TIndex& index_, uint32 pos_, uint32 size_, uint32 max_keysize_)
     : index(index_), pos(pos_), size(size_), max_keysize(max_keysize_) {}
 
@@ -59,7 +60,7 @@ public:
   File_Blocks_Index(const File_Properties& file_prop,
 	      bool writeable, bool use_shadow,
 	      const std::string& db_dir, const std::string& file_name_extension,
-              int compression_method_ = USE_DEFAULT);
+	      Block_Compression compression_method_ = Block_Compression::USE_DEFAULT);
   ~File_Blocks_Index() override;
   bool writeable() const override { return (!empty_index_file_name.empty()); }
   const std::string& file_name_extension() const override { return file_name_extension_; }
@@ -67,7 +68,7 @@ public:
   const std::string& get_data_file_name() const override { return data_file_name; }
   uint64 get_block_size() const override { return block_size_; }
   uint32 get_compression_factor() const override { return compression_factor; }
-  uint32 get_compression_method() const override { return compression_method; }
+  Block_Compression get_compression_method() const override { return compression_method; }
   bool empty() const override { return file_size == 0; }
 
   std::list< File_Block_Index_Entry< TIndex > >& get_block_list()
@@ -100,9 +101,6 @@ public:
   }
 
   static const int FILE_FORMAT_VERSION = 7560;
-  static const int NO_COMPRESSION = 0;
-  static const int ZLIB_COMPRESSION = 1;
-  static const int LZ4_COMPRESSION = 2;
 
 private:
   std::string index_file_name;
@@ -120,7 +118,7 @@ private:
 
   uint64 block_size_;
   uint32 compression_factor;
-  int compression_method;
+  Block_Compression compression_method;
 
   void init_structure_params();
   void init_blocks();
@@ -141,7 +139,7 @@ template< class TIndex >
 File_Blocks_Index< TIndex >::File_Blocks_Index
     (const File_Properties& file_prop, bool writeable, bool use_shadow,
      const std::string& db_dir, const std::string& file_name_extension,
-     int compression_method_) :
+     Block_Compression compression_method_) :
      index_file_name(db_dir + file_prop.get_file_name_trunk()
          + file_name_extension + file_prop.get_data_suffix()
          + file_prop.get_index_suffix()
@@ -156,7 +154,7 @@ File_Blocks_Index< TIndex >::File_Blocks_Index
      void_blocks_initialized(false),
      block_size_(file_prop.get_block_size()), // can be overwritten by index file
      compression_factor(file_prop.get_compression_factor()), // can be overwritten by index file
-     compression_method(compression_method_ == USE_DEFAULT ?
+     compression_method(compression_method_ == Block_Compression::USE_DEFAULT ?
         file_prop.get_compression_method() : compression_method_), // can be overwritten by index file
      block_count(0)
 {
@@ -211,7 +209,7 @@ void File_Blocks_Index< TIndex >::init_structure_params()
       compression_factor = 1u<<*(uint8*)(index_buf.get() + 5);
       if (!compression_factor || compression_factor > block_size_)
         throw File_Error(0, index_file_name, "File_Blocks_Index: Illegal compression factor");
-      compression_method = *(uint16*)(index_buf.get() + 6);
+      compression_method = static_cast<Block_Compression>(*(uint16*)(index_buf.get() + 6));
     }
     if (file_size % block_size_)
       throw File_Error(0, index_file_name, "File_Blocks_Index: Data file size does not match block size");
@@ -353,7 +351,7 @@ File_Blocks_Index< TIndex >::~File_Blocks_Index()
   *(uint32*)index_buf.get() = FILE_FORMAT_VERSION;
   *(uint8*)(index_buf.get() + 4) = shift_log(block_size_);
   *(uint8*)(index_buf.get() + 5) = shift_log(compression_factor);
-  *(uint16*)(index_buf.get() + 6) = compression_method;
+  *(uint16*)(index_buf.get() + 6) = static_cast<int>(compression_method);
 
   for (typename std::list< File_Block_Index_Entry< TIndex > >::const_iterator
       it(block_list.begin()); it != block_list.end(); ++it)

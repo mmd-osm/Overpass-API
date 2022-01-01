@@ -174,14 +174,14 @@ struct Test_File : File_Properties
     return 1;
   }
 
-  uint32 get_compression_method() const override
+  Block_Compression get_compression_method() const override
   {
-    return 0;
+    return Block_Compression::NO_COMPRESSION;
   }
 
-  uint32 get_map_compression_method() const override
+  Block_Compression get_map_compression_method() const override
   {
-    return 0;
+    return Block_Compression::NO_COMPRESSION;
   }
 
   uint32 get_map_block_size() const override

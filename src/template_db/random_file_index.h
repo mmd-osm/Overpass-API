@@ -51,7 +51,7 @@ public:
   Random_File_Index(const File_Properties& file_prop,
 	      bool writeable, bool use_shadow,
 	      const std::string& db_dir, const std::string& file_name_extension,
-              int compression_method_ = File_Blocks_Index_Base::USE_DEFAULT);
+	      Block_Compression compression_method_ = Block_Compression::USE_DEFAULT);
   ~Random_File_Index();
   bool writeable() const { return (!empty_index_file_name.empty()); }
   const std::string& file_name_extension() const { return file_name_extension_; }
@@ -59,7 +59,7 @@ public:
   std::string get_map_file_name() const { return map_file_name; }
   uint64 get_block_size() const { return block_size_; }
   uint32 get_compression_factor() const { return compression_factor; }
-  uint32 get_compression_method() const { return compression_method; }
+  Block_Compression get_compression_method() const { return compression_method; }
 
   std::vector< Random_File_Index_Entry >& get_blocks()
   {
@@ -87,7 +87,7 @@ private:
 
   uint64 block_size_;
   uint32 compression_factor;
-  int compression_method;
+  Block_Compression compression_method;
 
   void init_void_blocks();
 
@@ -108,7 +108,7 @@ static const int VOID_BLOCK_ENTRY_SIZE = 8;
 inline Random_File_Index::Random_File_Index
     (const File_Properties& file_prop,
      bool writeable, bool use_shadow,
-     const std::string& db_dir, const std::string& file_name_extension, int compression_method_) :
+     const std::string& db_dir, const std::string& file_name_extension, Block_Compression compression_method_) :
     npos(std::numeric_limits< uint32 >::max()),
     index_file_name(db_dir + file_prop.get_file_name_trunk()
         + file_prop.get_id_suffix()
@@ -123,7 +123,7 @@ inline Random_File_Index::Random_File_Index
     void_blocks_initialized(false),
     block_size_(file_prop.get_map_block_size()),
     compression_factor(file_prop.get_map_compression_factor()),
-    compression_method(compression_method_ == File_Blocks_Index_Base::USE_DEFAULT ?
+    compression_method(compression_method_ == Block_Compression::USE_DEFAULT ?
         file_prop.get_map_compression_method() : compression_method_),
     block_count(0)
 {
@@ -195,7 +195,7 @@ inline Random_File_Index::Random_File_Index
         {
           block_size_ = 1ull<<block_exp;
           compression_factor = guessed_compression_factor;
-          compression_method = guessed_compression_method;
+          compression_method = static_cast<Block_Compression>(guessed_compression_method);
         }
       }
       else
@@ -298,7 +298,7 @@ inline Random_File_Index::~Random_File_Index()
   *(uint32*)index_buf.get() = FILE_FORMAT_VERSION;
   *(uint8*)(index_buf.get() + 4) = shift_log(block_size_);
   *(uint8*)(index_buf.get() + 5) = shift_log(compression_factor);
-  *(uint16*)(index_buf.get() + 6) = compression_method;
+  *(uint16*)(index_buf.get() + 6) = static_cast<int>(compression_method);
 
   for (std::vector< Random_File_Index_Entry >::const_iterator
       it = blocks.begin(); it != blocks.end(); ++it)

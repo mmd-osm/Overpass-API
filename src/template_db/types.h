@@ -89,7 +89,6 @@ inline void unalignedStore(void *ptr, T t)
 
 #undef OVERPASS_HAS_BUILTIN
 
-
 struct Rate_limited_Error : std::exception {
 
 
@@ -159,6 +158,12 @@ struct File_Properties_Exception
   int32 id;
 };
 
+enum class Block_Compression {
+    USE_DEFAULT = -1,
+    NO_COMPRESSION = 0,
+    ZLIB_COMPRESSION = 1,
+    LZ4_COMPRESSION = 2
+};
 
 struct File_Blocks_Index_Base
 {
@@ -171,12 +176,7 @@ struct File_Blocks_Index_Base
   virtual const std::string& get_data_file_name() const = 0;
   virtual uint64 get_block_size() const = 0;
   virtual uint32 get_compression_factor() const = 0;
-  virtual uint32 get_compression_method() const = 0;
-
-  static const int USE_DEFAULT = -1;
-  static const int NO_COMPRESSION = 0;
-  static const int ZLIB_COMPRESSION = 1;
-  static const int LZ4_COMPRESSION = 2;
+  virtual Block_Compression get_compression_method() const = 0;
 };
 
 
@@ -189,10 +189,10 @@ struct File_Properties
   virtual const std::string& get_shadow_suffix() const = 0;
   virtual uint32 get_block_size() const = 0;
   virtual uint32 get_compression_factor() const = 0;
-  virtual uint32 get_compression_method() const = 0;
+  virtual Block_Compression get_compression_method() const = 0;
   virtual uint32 get_map_block_size() const = 0;
   virtual uint32 get_map_compression_factor() const = 0;
-  virtual uint32 get_map_compression_method() const = 0;
+  virtual Block_Compression get_map_compression_method() const = 0;
   virtual std::vector< bool > get_data_footprint(const std::string& db_dir) const = 0;
   virtual std::vector< bool > get_map_footprint(const std::string& db_dir) const = 0;
 

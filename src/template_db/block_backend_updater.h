@@ -168,9 +168,9 @@ void Block_Backend_Updater< TIndex, TObject, TIterator >::update
 
   while (file_it.lower_bound() != relevant_idxs.end())
   {
-    if (file_it.block_type() == File_Block_Index_Entry< TIndex >::EMPTY)
+    if (file_it.block_type() == Index_Block_Type::EMPTY)
       create_from_scratch(file_it, to_insert);
-    else if (file_it.block_type() == File_Block_Index_Entry< TIndex >::GROUP)
+    else if (file_it.block_type() == Index_Block_Type::GROUP)
       update_group(file_it, to_delete, to_insert, update_logger);
     else //if (file_it.block_type() == File_Block_Index_Entry< TIndex >::SEGMENT)
       update_segments(file_it, to_delete, to_insert, update_logger);
