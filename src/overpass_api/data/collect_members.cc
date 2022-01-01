@@ -49,9 +49,7 @@ std::vector< Node::Id_Type > way_nd_ids(
       }
       else
       {
-        for (auto it3 = it2->nds().begin();
-            it3 != it2->nds().end(); ++it3)
-          ids.push_back(*it3);
+        ids.insert(ids.end(), it2->nds().begin(), it2->nds().end());
       }
     }
   }
@@ -94,9 +92,7 @@ std::vector< Node::Id_Type > way_nd_ids(
       }
       else
       {
-        for (auto it3 = it2->nds().begin();
-            it3 != it2->nds().end(); ++it3)
-          ids.push_back(*it3);
+        ids.insert(ids.end(), it2->nds().begin(), it2->nds().end());
       }
     }
   }
