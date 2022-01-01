@@ -1643,9 +1643,8 @@ void Query_Statement::progress_1(std::vector< Id_Type >& ids, std::vector< Index
     invert_ids = true;
     std::vector< Id_Type > id_idxs =
         collect_non_ids< Id_Type >(file_prop, attic_file_prop, rman, timestamp);
-    for (typename std::vector< Id_Type >::const_iterator it = id_idxs.begin();
-        it != id_idxs.end(); ++it)
-      ids.push_back(*it);
+
+    ids.insert(ids.end(), id_idxs.begin(), id_idxs.end());
   }
 }
 

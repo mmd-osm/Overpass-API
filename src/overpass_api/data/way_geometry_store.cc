@@ -46,7 +46,7 @@ std::set< std::pair< Uint32_Index, Uint32_Index > > small_way_nd_indices
   return collect_node_req(stmt, rman, std::vector< Node::Id_Type >(), parents);
 }
 
-
+/*
 template< typename Object >
 std::vector< Node::Id_Type > small_way_nd_ids(const std::map< Uint31_Index, std::vector< Object > >& ways)
 {
@@ -59,9 +59,7 @@ std::vector< Node::Id_Type > small_way_nd_ids(const std::map< Uint31_Index, std:
     for (typename std::vector< Object >::const_iterator it2(it->second.begin());
         it2 != it->second.end(); ++it2)
     {
-      for (auto it3(it2->nds().begin());
-          it3 != it2->nds().end(); ++it3)
-        ids.push_back(*it3);
+      ids.insert(ids.end(), it2->nds().begin(), it2->nds().end());
     }
   }
 
@@ -70,6 +68,7 @@ std::vector< Node::Id_Type > small_way_nd_ids(const std::map< Uint31_Index, std:
 
   return ids;
 }
+*/
 
 template< typename Object >
 IdSetHybrid< Node::Id_Type::Id_Type> small_way_nd_ids_fast(const std::map< Uint31_Index, std::vector< Object > >& ways)

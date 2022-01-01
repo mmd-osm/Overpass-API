@@ -126,9 +126,7 @@ inline void Area_Updater::set_area
   ids_to_modify.insert(id);
 
   std::vector< uint32 > indices;
-  for (auto it(used_indices.begin());
-      it != used_indices.end(); ++it)
-    indices.push_back(*it);
+  indices.insert(indices.end(), used_indices.begin(), used_indices.end());
 
   Area_Location area(id, indices);
   area.tags = tags;

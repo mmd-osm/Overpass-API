@@ -250,9 +250,7 @@ std::vector< Uint31_Index > collect_way_req
   for (auto it(map_ids.begin()); it != map_ids.end(); ++it)
     req.push_back(random.get(*it));
 
-  for (auto it = children_idxs.begin();
-      it != children_idxs.end(); ++it)
-    req.push_back(*it);
+  req.insert(req.end(), children_idxs.begin(), children_idxs.end());
 
   if (stmt)
     rman.health_check(*stmt);

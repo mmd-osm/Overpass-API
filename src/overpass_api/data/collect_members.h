@@ -831,9 +831,7 @@ std::vector< Uint31_Index > relation_way_member_indices
       for (auto it2 = it->second.begin();
           it2 != it->second.end(); ++it2)
       {
-	for (auto it3 = it2->way_idxs().begin();
-	    it3 != it2->way_idxs().end(); ++it3)
-	  children_idxs.push_back(*it3);
+        children_idxs.insert(children_idxs.end(), it2->way_idxs().begin(), it2->way_idxs().end());
       }
     }
     else
@@ -869,9 +867,7 @@ std::vector< Uint31_Index > relation_way_member_indices
       for (auto it2 = it->second.begin();
           it2 != it->second.end(); ++it2)
       {
-        for (auto it3 = it2->way_idxs().begin();
-            it3 != it2->way_idxs().end(); ++it3)
-          children_idxs.push_back(*it3);
+        children_idxs.insert(children_idxs.end(), it2->way_idxs().begin(), it2->way_idxs().end());
       }
     }
     else
@@ -885,9 +881,7 @@ std::vector< Uint31_Index > relation_way_member_indices
       for (auto it2 = it->second.begin();
           it2 != it->second.end(); ++it2)
       {
-        for (auto it3 = it2->way_idxs().begin();
-            it3 != it2->way_idxs().end(); ++it3)
-          children_idxs.push_back(*it3);
+        children_idxs.insert(children_idxs.end(), it2->way_idxs().begin(), it2->way_idxs().end());
       }
     }
     else

@@ -2154,8 +2154,7 @@ void collect_components(
   else if (geometry.has_multiline_geometry())
   {
     const std::vector< std::vector< Point_Double > >& lstrs = *geometry.get_multiline_geometry();
-    for (auto it = lstrs.begin(); it != lstrs.end(); ++it)
-      linestrings.push_back(*it);
+    linestrings.insert(linestrings.end(), lstrs.begin(), lstrs.end());
   }
   else if (geometry.has_center())
     nodes.push_back(Point_Double(geometry.center_lat(), geometry.center_lon()));
@@ -2290,16 +2289,14 @@ void collect_components(std::vector< Point_Double >& nodes, const Opaque_Geometr
   else if (geometry.has_line_geometry())
   {
     const std::vector< Point_Double >& lstrs = *geometry.get_line_geometry();
-    for (auto it = lstrs.begin(); it != lstrs.end(); ++it)
-      nodes.push_back(*it);
+    nodes.insert(nodes.end(), lstrs.begin(), lstrs.end());
   }
   else if (geometry.has_multiline_geometry())
   {
     const std::vector< std::vector< Point_Double > >& lstrs = *geometry.get_multiline_geometry();
     for (auto lit = lstrs.begin(); lit != lstrs.end(); ++lit)
     {
-      for (auto it = lit->begin(); it != lit->end(); ++it)
-        nodes.push_back(*it);
+      nodes.insert(nodes.end(), lit->begin(), lit->end());
     }
   }
   else if (geometry.has_center())
