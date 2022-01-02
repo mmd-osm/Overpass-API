@@ -286,35 +286,23 @@ void add_south_pole_line
   area_blocks[(::ll_upper(10000000, 1800000000) & 0xffffff00) ^ 0x40000000].push_back(Area_Block(id, coors));
 }
 
-/*
- * Tag_Index_Local_Range_Idx_Assessor replaces the default Range_Idx_Assessor in order to avoid
- * expensive instantiation of Tag_Index_Local with its key and value string members.
- * In case of make_area, the index field is the only field which relevant for comparison.
- *
- */
-
-template< typename Index, typename Iterator >
-struct Tag_Index_Local_Range_Idx_Assessor
+template< >
+struct Range_Idx_Assessor<Tag_Index_Local, Ranges< Tag_Index_Local >::Iterator >
 {
-  Tag_Index_Local_Range_Idx_Assessor(const Iterator& index_it_, const Iterator& index_end_)
+  Range_Idx_Assessor(const Ranges< Tag_Index_Local >::Iterator& index_it_, const Ranges< Tag_Index_Local >::Iterator& index_end_)
       : index_it(index_it_), index_end(index_end_) {}
 
-  bool is_relevant(Handle < Index > & handle)
+  bool is_relevant(Handle < Tag_Index_Local > & handle)
   {
-    uint32 idx = handle.get_index();
-
-    while (index_it != index_end && !(idx < index_it.upper_bound().index))
+    while (index_it != index_end && !(handle < index_it.upper_bound()))
       ++index_it;
-    return index_it != index_end && !(idx < index_it.lower_bound().index) && idx < index_it.upper_bound().index;
+    return index_it != index_end && !(handle < index_it.lower_bound()) && handle < index_it.upper_bound();
   }
 
 private:
-  Iterator index_it;
-  Iterator index_end;
+  Ranges< Tag_Index_Local >::Iterator index_it;
+  Ranges< Tag_Index_Local >::Iterator index_end;
 };
-
-
-
 
 void Make_Area_Statement::execute(Resource_Manager& rman)
 {
@@ -358,17 +346,10 @@ void Make_Area_Statement::execute(Resource_Manager& rman)
   else if (pivot_type == RELATION)
     file_prop = osm_base_settings().RELATION_TAGS_LOCAL;
 
-  using Block_Backend_Custom = Block_Backend< Tag_Index_Local,
-                                              Uint32_Index,
-                                              Block_Backend<Tag_Index_Local, Uint32_Index>::default_iterator,
-                                              Tag_Index_Local_Range_Idx_Assessor< Tag_Index_Local, Ranges< Tag_Index_Local >::Iterator >,
-                                              Block_Backend<Tag_Index_Local, Uint32_Index>::default_discrete_assessor >;
+  Block_Backend< Tag_Index_Local, Uint32_Index > items_db
+      (rman.get_transaction()->data_index(file_prop));
 
-  Block_Backend_Custom items_db(rman.get_transaction()->data_index(file_prop));
-
-  Block_Backend_Custom::Range_Iterator
-      tag_it(items_db.range_begin(ranges));
-  for (; !(tag_it == items_db.range_end()); ++tag_it)
+  for (const auto & tag_it : items_db.as_range(ranges))
   {
     if (tag_it.handle().get_val() == pivot_id)
       new_tags.push_back(std::make_pair(tag_it.index().key, tag_it.index().value));
