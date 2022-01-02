@@ -103,10 +103,10 @@ public:
   static const int FILE_FORMAT_VERSION = 7560;
 
 private:
-  std::string index_file_name;
-  std::string empty_index_file_name;
-  std::string data_file_name;
-  std::string file_name_extension_;
+  const std::string index_file_name;
+  const std::string empty_index_file_name;
+  const std::string data_file_name;
+  const std::string file_name_extension_;
   std::unique_ptr<uint8[]> index_buf;
 
   uint64 file_size;

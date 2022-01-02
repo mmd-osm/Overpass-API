@@ -289,9 +289,9 @@ public:
 
 private:
   File_Blocks_Index< TIndex >* index;
-  uint32 block_size;
-  uint32 compression_factor;
-  Block_Compression compression_method;
+  const uint32 block_size;
+  const uint32 compression_factor;
+  const Block_Compression compression_method;
   bool writeable;
   mutable uint read_count_;
 
