@@ -652,14 +652,14 @@ struct Block_Backend
     template <class TIter>
     struct Adapter {
 
-      Adapter(TIter&& b_, const TIter& e_) : b(std::move(b_)), e(e_) {};
+      Adapter(TIter&& b_, const TIter& e_) : b(std::move(b_)), e(&e_) {};
 
       TIter begin() const { return b; }
-      TIter end() const { return e; }
+      const TIter & end() const { return *e; }
 
       private:
        TIter b;
-       TIter e;
+       const TIter* e;
     };
 
     Adapter<Flat_Iterator> as_flat() { return Adapter<Flat_Iterator> (flat_begin(), flat_end()); }
@@ -675,21 +675,22 @@ struct Block_Backend
 
   private:
     File_Blocks_ file_blocks;
-    Flat_Iterator* flat_end_it;
-    Discrete_Iterator* discrete_end_it;
-    Range_Iterator* range_end_it;
-    uint32 block_size;
+    const uint32 block_size;
+    const Flat_Iterator* flat_end_it;
+    const Discrete_Iterator* discrete_end_it;
+    const Range_Iterator* range_end_it;
 };
 
 
 template< class TIndex, class TObject, class TIterator, class TRangeAssessor, class TDiscreteAssessor >
 Block_Backend< TIndex, TObject, TIterator, TRangeAssessor, TDiscreteAssessor >::Block_Backend(File_Blocks_Index_Base* index_)
   : file_blocks(index_),
-    block_size(index_->get_block_size() * index_->get_compression_factor())
+    block_size(index_->get_block_size() * index_->get_compression_factor()),
+    flat_end_it(new Flat_Iterator(file_blocks, block_size, true)),
+    discrete_end_it(new Discrete_Iterator(file_blocks, block_size)),
+    range_end_it(new Range_Iterator(file_blocks, block_size))
 {
-  flat_end_it = new Flat_Iterator(file_blocks, block_size, true);
-  discrete_end_it = new Discrete_Iterator(file_blocks, block_size);
-  range_end_it = new Range_Iterator(file_blocks, block_size);
+
 }
 
 template< class TIndex, class TObject, class TIterator, class TRangeAssessor, class TDiscreteAssessor >
