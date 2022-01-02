@@ -76,10 +76,10 @@ public:
   const uint32 npos;
 
 private:
-  std::string index_file_name;
-  std::string empty_index_file_name;
-  std::string map_file_name;
-  std::string file_name_extension_;
+  const std::string index_file_name;
+  const std::string empty_index_file_name;
+  const std::string map_file_name;
+  const std::string file_name_extension_;
 
   std::vector< Random_File_Index_Entry > blocks;
   std::vector< std::pair< uint32, uint32 > > void_blocks;
