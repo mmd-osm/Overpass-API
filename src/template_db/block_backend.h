@@ -120,6 +120,8 @@ struct Block_Backend_Basic_Iterator
   Block_Backend_Basic_Iterator(
       uint32 block_size, const File_Handle& file_handle, const Idx_Assessor& idx_assessor);
   Block_Backend_Basic_Iterator(const Block_Backend_Basic_Iterator& rhs);
+  Block_Backend_Basic_Iterator(Block_Backend_Basic_Iterator&& rhs);
+
   const Block_Backend_Basic_Iterator& operator=(const Block_Backend_Basic_Iterator& rhs);
 
   Block_Backend_Basic_Iterator& operator++();
@@ -281,6 +283,19 @@ Block_Backend_Basic_Iterator< Index, Object, Idx_Assessor, File_Handle >::
 
 
 template< typename Index, typename Object, typename Idx_Assessor, typename File_Handle >
+Block_Backend_Basic_Iterator< Index, Object, Idx_Assessor, File_Handle >::
+    Block_Backend_Basic_Iterator(Block_Backend_Basic_Iterator&& rhs)
+    : block_size(rhs.block_size), buffer(0), buffer_size(rhs.buffer_size),
+    idx_block_offset(rhs.idx_block_offset), obj_offset(rhs.obj_offset),
+    file_handle(std::move(rhs.file_handle)), idx_assessor(std::move(rhs.idx_assessor)),
+    start_new_index(rhs.start_new_index), skip_current_idx(rhs.skip_current_idx)
+{
+  buffer.swap(rhs.buffer);
+  idx_cache.set_ptr(((uint8*)buffer.ptr) + idx_block_offset + 4);
+  obj_cache.set_ptr(((uint8*)buffer.ptr) + obj_offset);
+}
+
+template< typename Index, typename Object, typename Idx_Assessor, typename File_Handle >
 const Block_Backend_Basic_Iterator< Index, Object, Idx_Assessor, File_Handle >&
     Block_Backend_Basic_Iterator< Index, Object, Idx_Assessor, File_Handle >::
     operator=(const Block_Backend_Basic_Iterator& rhs)
@@ -437,6 +452,9 @@ struct Block_Backend_Flat_Iterator final
   Block_Backend_Flat_Iterator(const Block_Backend_Flat_Iterator& rhs)
       : Block_Backend_Basic_Iterator< Index, Object, Assessor, File_Handle_ >(rhs) {}
 
+  Block_Backend_Flat_Iterator(Block_Backend_Flat_Iterator&& rhs)
+      : Block_Backend_Basic_Iterator< Index, Object, Assessor, File_Handle_ >(std::move(rhs)) {}
+
   typedef Index index_type;
   typedef Object object_type;
 };
@@ -514,6 +532,9 @@ struct Block_Backend_Discrete_Iterator final
 
   Block_Backend_Discrete_Iterator(const Block_Backend_Discrete_Iterator& it)
     : Block_Backend_Basic_Iterator< Index, Object, Assessor, File_Handle_ >(it) {}
+
+  Block_Backend_Discrete_Iterator(Block_Backend_Discrete_Iterator&& it)
+    : Block_Backend_Basic_Iterator< Index, Object, Assessor, File_Handle_ >(std::move(it)) {}
 
   typedef Index index_type;
   typedef Object object_type;
@@ -602,6 +623,10 @@ struct Block_Backend_Range_Iterator final
     : Block_Backend_Basic_Iterator< Index, Object,
         Assessor, File_Handle_ >(it) {}
 
+  Block_Backend_Range_Iterator(Block_Backend_Range_Iterator&& it)
+    : Block_Backend_Basic_Iterator< Index, Object,
+        Assessor, File_Handle_ >(std::move(it)) {}
+
   typedef Index index_type;
   typedef Object object_type;
 };
@@ -653,7 +678,7 @@ struct Block_Backend
 
       Adapter(TIter&& b_, const TIter& e_) : b(std::move(b_)), e(&e_) {};
 
-      TIter begin() const { return b; }
+      TIter && begin() { return std::move(b); }
       const TIter & end() const { return *e; }
 
       private:
@@ -661,13 +686,13 @@ struct Block_Backend
        const TIter* e;
     };
 
-    Adapter<Flat_Iterator> as_flat() { return Adapter<Flat_Iterator> (flat_begin(), flat_end()); }
+    Adapter<Flat_Iterator> as_flat() { return Adapter<Flat_Iterator> (std::move(flat_begin()), flat_end()); }
 
     template <class TObj >
-    Adapter<Range_Iterator> as_range(Ranges< TObj >& s) { return Adapter<Range_Iterator> (range_begin(s), range_end()); }
+    Adapter<Range_Iterator> as_range(Ranges< TObj >& s) { return Adapter<Range_Iterator> (std::move(range_begin(s)), range_end()); }
 
     template <class TContainer>
-    Adapter<Discrete_Iterator> as_discrete(TContainer& s) { return Adapter<Discrete_Iterator>(discrete_begin(s.begin(), s.end()), discrete_end()); }
+    Adapter<Discrete_Iterator> as_discrete(TContainer& s) { return Adapter<Discrete_Iterator>(std::move(discrete_begin(s.begin(), s.end())), discrete_end()); }
 
     uint read_count() const { return file_blocks.read_count(); }
     void reset_read_count() const { file_blocks.reset_read_count(); }
