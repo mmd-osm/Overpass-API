@@ -177,6 +177,9 @@ struct Array
   }
   ~Array() { delete[] ptr; }
 
+  Array(const Array&) = delete;
+  Array& operator=(const Array&) = delete;
+
   const T& operator[](unsigned int i) const { return ptr[i]; }
   T& operator[](unsigned int i) { return ptr[i]; }
   unsigned int size() const { return size_; }
