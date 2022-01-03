@@ -1,0 +1,8 @@
+#cmakedefine HAVE_FASTCGI 1
+#cmakedefine HAVE_PCRE 1
+#cmakedefine HAVE_TCMALLOC 1
+#cmakedefine HAVE_LZ4 1
+#cmakedefine HAVE_OPENMP 1
+#cmakedefine HAVE_ICU 1
+#cmakedefine GIT_VERSION "${GIT_VERSION}"
+

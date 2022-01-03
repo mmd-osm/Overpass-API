@@ -1017,8 +1017,6 @@ void add_coord_point(double lat, double lon, double radius,
 {
   auto uint_ranges = prepare_add_coord(lat, lon, radius, simple_lat_lons);
 
-  auto it_hint = single_point_index.begin();
-
   for (std::vector< std::pair< uint32, uint32 > >::const_iterator
       it(uint_ranges.begin()); it != uint_ranges.end(); ++it)
   {

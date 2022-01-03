@@ -22,6 +22,11 @@
 #include <limits>
 #include <string>
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#undef VERSION
+#endif
+
 #include "../../template_db/types.h"
 
 
