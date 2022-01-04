@@ -357,7 +357,7 @@ int main(int argc, char* args[])
 	  <<it.index().key<<'\t'<<it.index().value<<'\n';
     }
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     report_file_error(e);
   }

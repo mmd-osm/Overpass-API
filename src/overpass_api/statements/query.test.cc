@@ -117,7 +117,7 @@ void perform_query(const std::string& type, const std::string& key, const std::s
       perform_print(rman, "b");
     }
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cerr<<"File error caught: "
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -201,7 +201,7 @@ void perform_query
       perform_print(rman, "d");
     }
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cerr<<"File error caught: "
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -268,7 +268,7 @@ void perform_query
       perform_print(rman, "c");
     }
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cerr<<"File error caught: "
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -313,7 +313,7 @@ void perform_regex_query
     }
     perform_print(rman);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cerr<<"File error caught: "
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -350,7 +350,7 @@ void perform_key_regex_query
     }
     perform_print(rman);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cerr<<"File error caught: "
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -497,7 +497,7 @@ void perform_query_with_around
       perform_print(rman, "c");
     }
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cerr<<"File error caught: "
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -578,7 +578,7 @@ void perform_query_with_around
     }
     perform_print(rman);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cerr<<"File error caught: "
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -635,7 +635,7 @@ void perform_query_with_bbox
       perform_print(rman, "b");
     }
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cerr<<"File error caught: "
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -678,7 +678,7 @@ void perform_filter_with_bbox
     }
     perform_print(rman);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cerr<<"File error caught: "
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -714,7 +714,7 @@ void perform_filter_with_key
     }
     perform_print(rman);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cerr<<"File error caught: "
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -805,7 +805,7 @@ void perform_filter_from_previous_element
       perform_print(rman, "b");
     }
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cerr<<"File error caught: "
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -880,7 +880,7 @@ void perform_multi_query_with_bbox
     }
     perform_print(rman);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cerr<<"File error caught: "
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -989,7 +989,7 @@ void perform_query_with_recurse
     }
     perform_print(rman);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cerr<<"File error caught: "
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1055,7 +1055,7 @@ void perform_query_with_role_recurse
     }
     perform_print(rman);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cerr<<"File error caught: "
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1107,7 +1107,7 @@ void perform_query_with_id_query
     }
     perform_print(rman);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cerr<<"File error caught: "
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1138,7 +1138,7 @@ void perform_query_with_two_ids_query(
     }
     perform_print(rman);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cerr<<"File error caught: "
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';

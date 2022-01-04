@@ -319,7 +319,7 @@ int main(int argc, char* args[])
     dump_relation_tags_local(pattern_size, db_dir);
     dump_relation_tags_global(pattern_size, db_dir);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cerr<<"File error caught: "
 	<<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';

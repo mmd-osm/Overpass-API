@@ -162,7 +162,7 @@ int main(int argc, char* args[])
       ++current_it;
     }
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<e.origin<<' '<<e.filename<<' '<<e.error_number<<'\n';
   }

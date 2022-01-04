@@ -144,7 +144,7 @@ int main(int argc, char* args[])
       Print_Statement(0, Attr()("from", "A").kvs(), global_settings).execute(rman);
     }
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cerr<<"File error caught: "<<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
   }

@@ -51,7 +51,7 @@ void perform_bbox_print(const std::string& south, const std::string& north, cons
       delete stmt1;
     }
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cerr<<"File error caught: "
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';

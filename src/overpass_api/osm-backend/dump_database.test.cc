@@ -641,7 +641,7 @@ int main(int argc, char* argv[])
       check_relations(transaction);
     }
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     report_file_error(e);
   }

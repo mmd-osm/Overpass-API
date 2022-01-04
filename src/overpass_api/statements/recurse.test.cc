@@ -115,7 +115,7 @@ int main(int argc, char* args[])
 	stmt.execute(total_rman);
       }
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -154,7 +154,7 @@ int main(int argc, char* args[])
 	stmt.execute(total_rman);
       }
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -179,7 +179,7 @@ int main(int argc, char* args[])
 	stmt.execute(rman);
       }
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -204,7 +204,7 @@ int main(int argc, char* args[])
 	stmt.execute(rman);
       }
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -250,7 +250,7 @@ int main(int argc, char* args[])
 	stmt.execute(total_rman);
       }
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -286,7 +286,7 @@ int main(int argc, char* args[])
 	stmt.execute(total_rman);
       }
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -311,7 +311,7 @@ int main(int argc, char* args[])
 	stmt.execute(rman);
       }
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -336,7 +336,7 @@ int main(int argc, char* args[])
 	stmt.execute(total_rman);
       }
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -361,7 +361,7 @@ int main(int argc, char* args[])
 	stmt.execute(rman);
       }
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -386,7 +386,7 @@ int main(int argc, char* args[])
 	stmt.execute(total_rman);
       }
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -411,7 +411,7 @@ int main(int argc, char* args[])
 	stmt.execute(total_rman);
       }
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -436,7 +436,7 @@ int main(int argc, char* args[])
 	stmt.execute(total_rman);
       }
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -461,7 +461,7 @@ int main(int argc, char* args[])
 	stmt.execute(total_rman);
       }
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -486,7 +486,7 @@ int main(int argc, char* args[])
 	stmt.execute(total_rman);
       }
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -511,7 +511,7 @@ int main(int argc, char* args[])
 	stmt.execute(total_rman);
       }
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -536,7 +536,7 @@ int main(int argc, char* args[])
 	stmt.execute(total_rman);
       }
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -561,7 +561,7 @@ int main(int argc, char* args[])
 	stmt.execute(total_rman);
       }
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -586,7 +586,7 @@ int main(int argc, char* args[])
 	stmt.execute(total_rman);
       }
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -611,7 +611,7 @@ int main(int argc, char* args[])
 	stmt.execute(total_rman);
       }
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -636,7 +636,7 @@ int main(int argc, char* args[])
 	stmt.execute(total_rman);
       }
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -661,7 +661,7 @@ int main(int argc, char* args[])
 	stmt.execute(total_rman);
       }
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -686,7 +686,7 @@ int main(int argc, char* args[])
 	stmt.execute(total_rman);
       }
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -712,7 +712,7 @@ int main(int argc, char* args[])
         stmt.execute(total_rman);
       }
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -748,7 +748,7 @@ int main(int argc, char* args[])
         stmt.execute(total_rman);
       }
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -773,7 +773,7 @@ int main(int argc, char* args[])
         stmt.execute(total_rman);
       }
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -798,7 +798,7 @@ int main(int argc, char* args[])
         stmt.execute(total_rman);
       }
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -824,7 +824,7 @@ int main(int argc, char* args[])
         stmt.execute(total_rman);
       }
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -860,7 +860,7 @@ int main(int argc, char* args[])
         stmt.execute(total_rman);
       }
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';

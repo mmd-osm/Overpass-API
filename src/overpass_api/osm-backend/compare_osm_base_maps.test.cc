@@ -193,7 +193,7 @@ int main(int argc, char* args[])
   {
     dump_nodes(db_dir);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cerr<<"compare_osm_base_maps: File error caught: "
 	<<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -203,7 +203,7 @@ int main(int argc, char* args[])
   {
     dump_ways(db_dir);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cerr<<"compare_osm_base_maps: File error caught: "
 	<<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -213,7 +213,7 @@ int main(int argc, char* args[])
   {
     dump_relations(db_dir);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cerr<<"compare_osm_base_maps: File error caught: "
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';

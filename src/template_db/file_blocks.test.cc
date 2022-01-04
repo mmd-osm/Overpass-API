@@ -624,7 +624,7 @@ void read_test()
 
     std::cout<<"This block of read tests is complete.\n";
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
 	<<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -660,7 +660,7 @@ void variable_block_read_test()
 
     std::cout<<"This block of read tests is complete.\n";
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
 	<<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -696,7 +696,7 @@ void compressed_read_test()
 
     std::cout<<"This block of read tests is complete.\n";
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
 	<<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -810,7 +810,7 @@ int main(int argc, char* args[])
     blocks.insert_block(blocks.write_end(), buf, max_keysize);
     free(buf);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -837,7 +837,7 @@ int main(int argc, char* args[])
         blocks.write_begin(indices.begin(), indices.end()), buf, max_keysize);
     free(buf);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -869,7 +869,7 @@ int main(int argc, char* args[])
     blocks.insert_block(blocks.write_end(), buf, max_keysize);
     free(buf);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -923,7 +923,7 @@ int main(int argc, char* args[])
     blocks.insert_block(it, buf, max_keysize);
     free(buf);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -973,7 +973,7 @@ int main(int argc, char* args[])
     it = blocks.replace_block(it, buf, max_keysize);
     free(buf);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1004,7 +1004,7 @@ int main(int argc, char* args[])
     it = blocks.erase_block(it);
     it = blocks.erase_block(it);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1033,7 +1033,7 @@ int main(int argc, char* args[])
     it = blocks.erase_block(it);
     it = blocks.erase_block(it);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1071,7 +1071,7 @@ int main(int argc, char* args[])
       free(buf);
     }
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1102,7 +1102,7 @@ int main(int argc, char* args[])
       it = blocks.erase_block(it);
     }
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1139,7 +1139,7 @@ int main(int argc, char* args[])
     blocks.insert_block(blocks.write_end(), buf, max_keysize);
     free(buf);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1207,7 +1207,7 @@ int main(int argc, char* args[])
     it = blocks.insert_block(it, buf, max_keysize);
     free(buf);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1234,7 +1234,7 @@ int main(int argc, char* args[])
         it = blocks.erase_block(it);
     }
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1268,7 +1268,7 @@ int main(int argc, char* args[])
     blocks.insert_block(it, buf, block_size/2+4, block_size-4, *indices.begin());
     free(buf);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1300,7 +1300,7 @@ int main(int argc, char* args[])
     blocks.insert_block(it, buf, max_keysize);
     free(buf);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1333,7 +1333,7 @@ int main(int argc, char* args[])
     blocks.insert_block(it, buf, 1, 1, *indices.begin());
     free(buf);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1386,7 +1386,7 @@ int main(int argc, char* args[])
     blocks.insert_block(it, buf, block_size, block_size, *indices.begin());
     free(buf);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1444,7 +1444,7 @@ int main(int argc, char* args[])
     blocks.insert_block(blocks.write_end(), buf, max_keysize);
     free(buf);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1531,7 +1531,7 @@ int main(int argc, char* args[])
 
     free(buf);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1567,7 +1567,7 @@ int main(int argc, char* args[])
     ++it;
     it = blocks.erase_block(it);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1603,7 +1603,7 @@ int main(int argc, char* args[])
 
     free(buf);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1639,7 +1639,7 @@ int main(int argc, char* args[])
 
     free(buf);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1676,7 +1676,7 @@ int main(int argc, char* args[])
 
     free(buf);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1714,7 +1714,7 @@ int main(int argc, char* args[])
 
     free(buf);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1751,7 +1751,7 @@ int main(int argc, char* args[])
 
     free(buf);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1789,7 +1789,7 @@ int main(int argc, char* args[])
 
     free(buf);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1826,7 +1826,7 @@ int main(int argc, char* args[])
 
     free(buf);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1896,7 +1896,7 @@ int main(int argc, char* args[])
 
     free(buf);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';

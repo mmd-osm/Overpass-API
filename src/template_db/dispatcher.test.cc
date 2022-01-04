@@ -357,7 +357,7 @@ void map_read_test(bool use_shadow = false)
 
     std::cout<<"This block of read tests is complete.\n";
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -409,7 +409,7 @@ void data_read_test(const Test_File& tf, Transaction& transaction)
     read_loop(db_backend, fit);
     std::cout<<"This block of read tests is complete.\n";
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -435,7 +435,7 @@ void put_elem(uint32 idx, uint32 val, const Test_File& tf,
         (transaction.data_index(&tf));
     db_backend.update(to_delete, to_insert);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -473,7 +473,7 @@ int main(int argc, char* args[])
 			    BASE_DIRECTORY + "test-shadow", BASE_DIRECTORY,
 			    5, 180, 1024*1024*1024, 1024*1024, file_properties);
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cout<<"File error catched: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -981,7 +981,7 @@ int main(int argc, char* args[])
 			    BASE_DIRECTORY + "test-shadow", BASE_DIRECTORY,
 			    5, 180, 1024*1024*1024,  1024*1024, file_properties);
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cout<<"File error catched: "
           <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -998,7 +998,7 @@ int main(int argc, char* args[])
     {
       Dispatcher_Client dispatcher_client("osm3s_share_test");
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cout<<"File error catched: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1028,7 +1028,7 @@ int main(int argc, char* args[])
       std::cerr<<"[server] done.\n";
       return 0;
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cout<<"File error catched: "
           <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1046,7 +1046,7 @@ int main(int argc, char* args[])
 			    BASE_DIRECTORY + "test-shadow", BASE_DIRECTORY,
 			    5, 180, 1024*1024*1024,  1024*1024, file_properties);
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cout<<"File error catched: "
           <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1102,7 +1102,7 @@ int main(int argc, char* args[])
       remove((dispatcher_client.get_db_dir() + "Test_File.bin").c_str());
       remove((dispatcher_client.get_db_dir() + "Test_File.bin.idx").c_str());
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cout<<"File error catched: "
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1158,7 +1158,7 @@ int main(int argc, char* args[])
       remove((dispatcher_client.get_db_dir() + "Test_File.bin").c_str());
       remove((dispatcher_client.get_db_dir() + "Test_File.bin.idx").c_str());
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cout<<"File error catched: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1249,7 +1249,7 @@ int main(int argc, char* args[])
       remove((dispatcher_client.get_db_dir() + "Test_File.bin").c_str());
       remove((dispatcher_client.get_db_dir() + "Test_File.bin.idx").c_str());
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cout<<"File error catched: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1293,7 +1293,7 @@ int main(int argc, char* args[])
       dispatcher_client.read_finished();
       //std::cerr<<"read_finished() done.\n"; //Timing with 24w can't be controlled.
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cout<<"File error catched: "
           <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1333,7 +1333,7 @@ int main(int argc, char* args[])
       remove((dispatcher_client.get_db_dir() + "Test_File.bin").c_str());
       remove((dispatcher_client.get_db_dir() + "Test_File.bin.idx").c_str());
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cout<<"File error catched: "
           <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1384,7 +1384,7 @@ int main(int argc, char* args[])
       dispatcher_client.read_finished();
       sync_log("read_finished() done.\n");
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cout<<"File error catched: "
           <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1440,7 +1440,7 @@ int main(int argc, char* args[])
       remove((dispatcher_client.get_db_dir() + "Test_File.bin").c_str());
       remove((dispatcher_client.get_db_dir() + "Test_File.bin.idx").c_str());
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cout<<"File error catched: "
           <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1491,7 +1491,7 @@ int main(int argc, char* args[])
       dispatcher_client.read_finished();
       sync_log("read_finished() done.\n");
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cout<<"File error catched: "
           <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -1532,7 +1532,7 @@ int main(int argc, char* args[])
       remove((dispatcher_client.get_db_dir() + "Test_File.bin").c_str());
       remove((dispatcher_client.get_db_dir() + "Test_File.bin.idx").c_str());
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cout<<"File error catched: "
           <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';

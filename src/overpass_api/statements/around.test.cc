@@ -46,7 +46,7 @@ void perform_around_print(uint pattern_size, const std::string& radius, uint64 g
     Around_Statement(0, Attr()("radius", radius).kvs(), global_settings).execute(rman);
     Print_Statement(0, Attr()("order", "id").kvs(), global_settings).execute(rman);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cerr<<"File error caught: "<<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
   }
@@ -73,7 +73,7 @@ void perform_coord_print(uint pattern_size, const std::string& radius, uint64 gl
     }
     Print_Statement(0, Attr()("order", "id").kvs(), global_settings).execute(rman);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cerr<<"File error caught: "<<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
   }
@@ -94,7 +94,7 @@ void perform_polyline_print(uint pattern_size, const std::string& polyline,
                      global_settings).execute(rman);
     Print_Statement(0, Attr()("order", "id").kvs(), global_settings).execute(rman);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cerr<<"File error caught: "<<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
   }
@@ -123,7 +123,7 @@ void perform_polyline_in_query_print(uint pattern_size,
     query.execute(rman);
     Print_Statement(0, Attr()("order", "id").kvs(), global_settings).execute(rman);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cerr<<"File error caught: "<<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
   }

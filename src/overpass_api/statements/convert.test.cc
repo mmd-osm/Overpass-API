@@ -521,7 +521,7 @@ int main(int argc, char* args[])
 
     std::cout<<"</osm>\n";
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cerr<<"File error: "<<e.error_number<<' '<<e.origin<<' '<<e.filename<<'\n';
     return 1;

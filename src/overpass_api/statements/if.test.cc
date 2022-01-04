@@ -89,7 +89,7 @@ int main(int argc, char* args[])
 
       execute_base_test_case(Attr()("type", "way")("ref", "1").kvs(), stmt0, rman, global_settings, false);
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -112,7 +112,7 @@ int main(int argc, char* args[])
 
       execute_base_test_case(Attr()("type", "way")("ref", "1").kvs(), stmt0, rman, global_settings, false);
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -132,7 +132,7 @@ int main(int argc, char* args[])
       execute_base_test_case(Attr()("type", "way")("ref", "1")("into", "a").kvs(), stmt0,
           rman, global_settings, false);
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -157,7 +157,7 @@ int main(int argc, char* args[])
       execute_base_test_case(Attr()("type", "way")("ref", "1")("into", "a").kvs(), stmt0,
           rman, global_settings, false);
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -176,7 +176,7 @@ int main(int argc, char* args[])
 
       execute_base_test_case(Attr()("type", "way")("ref", "1").kvs(), stmt0, rman, global_settings, true);
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -199,7 +199,7 @@ int main(int argc, char* args[])
 
       execute_base_test_case(Attr()("type", "way")("ref", "1").kvs(), stmt0, rman, global_settings, true);
     }
-    catch (File_Error e)
+    catch (const File_Error& e)
     {
       std::cerr<<"File error caught: "
       <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';

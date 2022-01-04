@@ -194,7 +194,7 @@ void read_test()
 
     std::cout<<"This block of read tests is complete.\n";
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
 	<<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -235,7 +235,7 @@ int main(int argc, char* args[])
       blocks.put(5u, 15);
     }
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
         <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -254,7 +254,7 @@ int main(int argc, char* args[])
 
     blocks.put(6u, 16);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -273,7 +273,7 @@ int main(int argc, char* args[])
 
     blocks.put(2u, 32);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -292,7 +292,7 @@ int main(int argc, char* args[])
 
     blocks.put(16u, 1);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -313,7 +313,7 @@ int main(int argc, char* args[])
     blocks.put(32u, 3);
     blocks.put(48u, 4);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -332,7 +332,7 @@ int main(int argc, char* args[])
 
     blocks.put(80u, 5);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -351,7 +351,7 @@ int main(int argc, char* args[])
 
     blocks.put(64u, 6);
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched: "
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';

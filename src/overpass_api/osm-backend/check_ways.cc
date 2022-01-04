@@ -184,7 +184,7 @@ int main(int argc, char* args[])
       eval_local_key_entries(local_key_entries, last_key);
     }
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cerr<<e.origin<<' '<<e.filename<<' '<<e.error_number<<'\n';
   }

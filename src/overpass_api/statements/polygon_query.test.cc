@@ -51,7 +51,7 @@ void perform_polygon_print(const std::string& bounds, Transaction& transaction)
       delete stmt1;
     }
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cerr<<"File error caught: "
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
@@ -98,7 +98,7 @@ void perform_query_polygon_print(const std::string& bounds, const std::string& t
       delete stmt1;
     }
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cerr<<"File error caught: "
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';

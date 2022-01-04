@@ -516,7 +516,7 @@ int main(int argc, char* args[])
     Block_Backend< IntIndex, IntIndex > db_backend
         (transaction.data_index(&tf));
   }
-  catch (File_Error e)
+  catch (const File_Error& e)
   {
     std::cout<<"File error catched in part 1: "
     <<e.error_number<<' '<<e.filename<<' '<<e.origin<<'\n';
