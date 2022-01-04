@@ -108,7 +108,7 @@ if (HAVE_PCRE)
 endif()
 
 if (HAVE_ICU)
-  find_package(ICU)
+  find_package(ICU COMPONENTS uc i18n)
 endif()
 
 if (HAVE_TCMALLOC)
