@@ -13,7 +13,7 @@ FIND_PATH(FCGI_INCLUDE_DIR
   "$ENV{LIB_DIR}/include"
   $ENV{INCLUDE}
   )
-FIND_LIBRARY(FCGI_LIBRARY NAMES fcgi libfcgi PATHS 
+FIND_LIBRARY(FCGI_LIBRARY NAMES fcgi++ libfcgi++ PATHS 
   /usr/local/lib 
   /usr/lib 
   "$ENV{LIB_DIR}/lib"

@@ -82,7 +82,6 @@ set(data_SOURCES
   overpass_api/data/set_comparison.cc
   overpass_api/data/way_geometry_store.cc
 )
- 
 
 set(dispatcherclient_SOURCES
   template_db/dispatcher_client.cc
@@ -98,7 +97,8 @@ set(expatwrapper_SOURCES
 )
 
 set(frontend_SOURCES
-  overpass_api/frontend/cgi-helper.cc overpass_api/frontend/user_interface.cc
+  overpass_api/frontend/cgi-helper.cc
+  overpass_api/frontend/user_interface.cc
 )
  
 set(output_SOURCES
@@ -121,58 +121,54 @@ set(osm_updater_SOURCES
   overpass_api/core/four_field_index.cc
   overpass_api/core/geometry.cc
   expat/escape_xml.cc
+  template_db/types.cc
+  template_db/zlib_wrapper.cc
+  template_db/lz4_wrapper.cc  
 )
 
 set(update_database_SOURCES
-  ${osm_updater_SOURCES}
   overpass_api/osm-backend/update_database.cc
-  template_db/types.cc
-  template_db/zlib_wrapper.cc
-  template_db/lz4_wrapper.cc
 )
 
 set(update_from_dir_SOURCES
-  ${osm_updater_SOURCES}
   overpass_api/osm-backend/update_from_dir.cc
-  template_db/types.cc
-  template_db/zlib_wrapper.cc
-  template_db/lz4_wrapper.cc
 )
 
+ 
 set(osm3s_query_SOURCES
   overpass_api/frontend/basic_formats.cc
-  overpass_api/frontend/output_handler.cc
+  overpass_api/frontend/output_handler.cc  
+  overpass_api/dispatch/dispatcher_stub.cc
+  template_db/types.cc
+  overpass_api/frontend/decode_text.cc
+  overpass_api/frontend/map_ql_parser.cc
+  overpass_api/frontend/tokenizer_utils.cc  
+  template_db/zlib_wrapper.cc
+  template_db/lz4_wrapper.cc
+  overpass_api/dispatch/scripting_core.cc
+  overpass_api/core/geometry.cc  
+  overpass_api/core/four_field_index.cc  
   overpass_api/frontend/console_output.cc
   overpass_api/frontend/web_output.cc
   overpass_api/dispatch/osm3s_query.cc
   overpass_api/osm-backend/clone_database.cc
-  overpass_api/core/four_field_index.cc
-  overpass_api/core/geometry.cc
-  overpass_api/dispatch/scripting_core.cc
-  overpass_api/dispatch/dispatcher_stub.cc
-  template_db/types.cc
-  overpass_api/frontend/decode_text.cc
-  overpass_api/frontend/map_ql_parser.cc
-  overpass_api/frontend/tokenizer_utils.cc
-  template_db/zlib_wrapper.cc
-  template_db/lz4_wrapper.cc
 )
 
 set(interpreter_SOURCES
   overpass_api/frontend/basic_formats.cc
-  overpass_api/frontend/output_handler.cc
-  overpass_api/dispatch/web_query.cc
-  overpass_api/core/four_field_index.cc
-  overpass_api/core/geometry.cc
-  overpass_api/dispatch/scripting_core.cc
+  overpass_api/frontend/output_handler.cc  
   overpass_api/dispatch/dispatcher_stub.cc
   template_db/types.cc
   overpass_api/frontend/decode_text.cc
   overpass_api/frontend/map_ql_parser.cc
-  overpass_api/frontend/tokenizer_utils.cc
-  overpass_api/frontend/web_output.cc
+  overpass_api/frontend/tokenizer_utils.cc  
   template_db/zlib_wrapper.cc
   template_db/lz4_wrapper.cc
+  overpass_api/dispatch/scripting_core.cc
+  overpass_api/core/geometry.cc  
+  overpass_api/core/four_field_index.cc  
+  overpass_api/dispatch/web_query.cc
+  overpass_api/frontend/web_output.cc
 )
 
 set(tagged_nodes_SOURCES
@@ -181,8 +177,7 @@ set(tagged_nodes_SOURCES
   template_db/zlib_wrapper.cc
   template_db/lz4_wrapper.cc
 )  
-  
-  
+
 set(dispatcher_SOURCES
   template_db/dispatcher.cc
   template_db/file_tools.cc
@@ -199,14 +194,13 @@ add_library(expatwrapper_lib STATIC ${expatwrapper_SOURCES})
 add_library(frontend_lib STATIC ${frontend_SOURCES})
 add_library(output_lib STATIC ${output_SOURCES})
 add_library(settings_lib STATIC ${settings_SOURCES})
-add_library(stmt_output_fmt_lib STATIC ${statements_cc_SOURCES} ${output_formats_SOURCES})
+add_library(osm_updater_lib STATIC ${osm_updater_SOURCES})
  
 target_link_libraries(dispatcherclient_lib ${LIBRT})
 target_link_libraries(dispatcher_lib dispatcherclient_lib)
 target_link_libraries(core_lib dispatcher_lib expatwrapper_lib settings_lib frontend_lib)
 target_link_libraries(frontend_lib output_lib)
 target_link_libraries(expatwrapper_lib ${EXPAT})
-target_link_libraries(stmt_output_fmt_lib data_lib ${LIBS})
 
 add_executable(uncgi pt_diagrams/uncgi.cc)
 add_executable(tocgi pt_diagrams/tocgi.cc)
@@ -214,16 +208,16 @@ add_executable(escape_xml expat/escape_xml.cc expat/escape_xml_main.cc)
 
 
 add_executable(update_database ${update_database_SOURCES})
-target_link_libraries(update_database INTERFACE data_lib dispatcher_lib expatwrapper_lib output_lib settings_lib ${LIBS} PRIVATE OpenMP::OpenMP_CXX)
+target_link_libraries(update_database PUBLIC data_lib osm_updater_lib dispatcher_lib expatwrapper_lib output_lib settings_lib ${LIBS} PRIVATE OpenMP::OpenMP_CXX)
 
 add_executable(update_from_dir ${update_from_dir_SOURCES})
-target_link_libraries(update_from_dir INTERFACE data_lib dispatcher_lib expatwrapper_lib output_lib settings_lib ${LIBS} PRIVATE OpenMP::OpenMP_CXX)
+target_link_libraries(update_from_dir PUBLIC data_lib osm_updater_lib dispatcher_lib expatwrapper_lib output_lib settings_lib ${LIBS} PRIVATE OpenMP::OpenMP_CXX)
 
-add_executable(osm3s_query ${osm3s_query_SOURCES})
-target_link_libraries(osm3s_query core_lib data_lib stmt_output_fmt_lib dispatcherclient_lib ${LIBS})
+add_executable(osm3s_query ${osm3s_query_SOURCES} ${statements_cc_SOURCES} ${output_formats_SOURCES})
+target_link_libraries(osm3s_query core_lib data_lib dispatcherclient_lib ${LIBS})
 
-add_executable(interpreter ${osm3s_query_SOURCES})
-target_link_libraries(interpreter core_lib data_lib stmt_output_fmt_lib dispatcherclient_lib ${LIBS})
+add_executable(interpreter ${interpreter_SOURCES} ${statements_cc_SOURCES} ${output_formats_SOURCES})
+target_link_libraries(interpreter core_lib data_lib dispatcherclient_lib ${LIBS})
 
 add_executable(dispatcher ${dispatcher_SOURCES})
 target_link_libraries(dispatcher dispatcher_lib frontend_lib settings_lib ${LIBRT})
@@ -232,14 +226,5 @@ target_link_libraries(dispatcher dispatcher_lib frontend_lib settings_lib ${LIBR
 #add_executable(tagged_nodes ${tagged_nodes_SOURCES})
 #target_link_libraries(tagged_nodes core_lib data_lib ${LIBS})
 
-
-####
-
-#list(APPEND osm2pgsql_lib_SOURCES ${PROJECT_BINARY_DIR}/src/version.cpp)
-
-
-#add_library(osm2pgsql_lib STATIC ${osm2pgsql_lib_SOURCES})
-#set_target_properties(osm2pgsql_lib PROPERTIES OUTPUT_NAME osm2pgsql)
-#target_link_libraries(osm2pgsql_lib ${LIBS})
 
 
