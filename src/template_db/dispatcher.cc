@@ -567,8 +567,10 @@ Dispatcher::Dispatcher
 #endif
 
   std::string db_dir = transaction_insulator.db_dir();
-  int foo = ftruncate(dispatcher_shm_fd,
-                      SHM_SIZE + db_dir.size() + shadow_name.size());
+  if (ftruncate(dispatcher_shm_fd,
+                      SHM_SIZE + db_dir.size() + shadow_name.size() < 0))
+    throw File_Error
+        (errno, dispatcher_share_name, "Dispatcher_Server::2");
 
   auto* disp_shm = (uint8*)mmap
         (0, SHM_SIZE + db_dir.size() + shadow_name.size(),
