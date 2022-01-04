@@ -13,12 +13,14 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 option(HAVE_OVERPASS_XML "Build with Overpass XML dialect" ON)
 option(HAVE_POPUP_OUTPUT "Build with [out:popup] support" OFF)
 option(HAVE_CUSTOM_OUTPUT "Build with [out:custom] support" OFF)
+option(HAVE_LIBOSMIUM "Build with libosmium library" ON)
 option(HAVE_FASTCGI   "Build with FastCGI library" ON)
 option(HAVE_PCRE      "Build with PCRE library" ON)
 option(HAVE_ICU       "BUild with ICU library" OFF)
 option(HAVE_TCMALLOC  "Build with tcmalloc library" ON)
 option(HAVE_LZ4       "Build with lz4 library" ON)
 option(HAVE_OPENMP    "Build with OpenMP" ON)
+option(BUILD_TESTS    "Build test suite" OFF)
 
 
 if (PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
@@ -154,6 +156,15 @@ add_compile_options("-DHAVE_CONFIG_H=1")
 add_subdirectory(src)
 
 #############################################################
+# Build tests
+#############################################################
+
+if (BUILD_TESTS)
+ enable_testing()
+ add_subdirectory(src/test-bin)
+endif()
+
+#############################################################
 # Install
 #############################################################
 
@@ -170,7 +181,7 @@ set(CPACK_PACKAGE_VERSION_MAJOR "0")
 set(CPACK_PACKAGE_VERSION_MINOR "7")
 set(CPACK_PACKAGE_VERSION_PATCH "59")
 SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "mmd.osm@gmail.com")
-set(CPACK_PACKAGE_DESCRIPTION "Overpass API fork, includes soem performance and functional enhancements")
+set(CPACK_PACKAGE_DESCRIPTION "Overpass API fork, includes a few performance and functional enhancements")
 SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libfcgi-bin,zlib1g,expat,libicu66,liblz4-1,libpcre2-8-0,libgomp1,libgoogle-perftools4")
 INCLUDE(CPack)
 

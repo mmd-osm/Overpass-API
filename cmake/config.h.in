@@ -7,5 +7,6 @@
 #cmakedefine HAVE_OVERPASS_XML 1
 #cmakedefine HAVE_POPUP_OUTPUT 1
 #cmakedefine HAVE_CUSTOM_OUTPUT 1
+#cmakedefine HAVE_LIBOSMIUM 1
 #cmakedefine GIT_VERSION "${GIT_VERSION}"
 
