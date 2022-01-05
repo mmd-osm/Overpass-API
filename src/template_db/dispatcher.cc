@@ -567,14 +567,22 @@ Dispatcher::Dispatcher
 #endif
 
   std::string db_dir = transaction_insulator.db_dir();
-  if (ftruncate(dispatcher_shm_fd,
-                      SHM_SIZE + db_dir.size() + shadow_name.size() < 0))
+  int rc = ftruncate(dispatcher_shm_fd, SHM_SIZE + db_dir.size() + shadow_name.size());
+
+  if (rc < 0)
     throw File_Error
         (errno, dispatcher_share_name, "Dispatcher_Server::2");
 
-  auto* disp_shm = (uint8*)mmap
+  void* disp_shm_void = mmap
         (0, SHM_SIZE + db_dir.size() + shadow_name.size(),
          PROT_READ|PROT_WRITE, MAP_SHARED, dispatcher_shm_fd, 0);
+
+  if (disp_shm_void == MAP_FAILED) {
+    throw File_Error
+        (errno, dispatcher_share_name, "Dispatcher_Server::3");
+  }
+
+  uint8* disp_shm = (uint8*)disp_shm_void;
 
   // copy db_dir and shadow_name
   unalignedStore(disp_shm + 3*sizeof(uint32), (uint32)db_dir.size());

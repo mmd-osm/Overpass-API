@@ -50,11 +50,16 @@ Dispatcher_Client::Dispatcher_Client
 
   dispatcher_shm_ptr = nullptr;
 
-  uint8* disp_shm;
-
-  disp_shm = (uint8*)mmap
+  void* disp_shm_void = mmap
       (0, stat_buf.st_size,
        PROT_READ, MAP_SHARED, dispatcher_shm_fd, 0);
+
+  if (disp_shm_void == MAP_FAILED) {
+    throw File_Error
+        (errno, dispatcher_share_name, "Dispatcher_Client::2");
+  }
+
+  uint8* disp_shm = (uint8*) disp_shm_void;
 
   // get db_dir and shadow_name
   db_dir = std::string((const char *)(disp_shm + 4*sizeof(uint32)),
