@@ -220,17 +220,16 @@ target_link_libraries(update_from_dir PUBLIC data_lib osm_updater_lib dispatcher
 
 
 add_executable(osm3s_query ${osm3s_query_SOURCES} ${statements_cc_SOURCES} ${output_formats_SOURCES})
-target_link_libraries(osm3s_query core_lib data_lib dispatcherclient_lib ${LIBS})
+target_link_libraries(osm3s_query core_lib data_lib ${LIBS})
 
 add_executable(interpreter ${interpreter_SOURCES} ${statements_cc_SOURCES} ${output_formats_SOURCES})
-target_link_libraries(interpreter core_lib data_lib dispatcherclient_lib ${LIBS})
+target_link_libraries(interpreter core_lib data_lib ${LIBS})
 
 add_executable(dispatcher ${dispatcher_SOURCES})
 target_link_libraries(dispatcher dispatcher_lib frontend_lib settings_lib ${LIBRT})
 
-
-#add_executable(tagged_nodes ${tagged_nodes_SOURCES})
-#target_link_libraries(tagged_nodes core_lib data_lib ${LIBS})
+add_executable(tagged_nodes ${tagged_nodes_SOURCES})
+target_link_libraries(tagged_nodes core_lib data_lib ${LIBS})
 
 
 
