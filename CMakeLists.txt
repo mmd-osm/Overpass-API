@@ -13,7 +13,6 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 option(HAVE_OVERPASS_XML "Build with Overpass XML dialect" ON)
 option(HAVE_POPUP_OUTPUT "Build with [out:popup] support" OFF)
 option(HAVE_CUSTOM_OUTPUT "Build with [out:custom] support" OFF)
-option(HAVE_LIBOSMIUM "Build with libosmium library" ON)
 option(HAVE_FASTCGI   "Build with FastCGI library" ON)
 option(HAVE_PCRE      "Build with PCRE library" ON)
 option(HAVE_ICU       "BUild with ICU library" OFF)
@@ -45,7 +44,6 @@ if (CMAKE_VERSION VERSION_LESS 3.1)
   add_definitions(-std=c++17)
 endif()
 
-
 option(EXTERNAL_LIBOSMIUM "Do not use the bundled libosmium" OFF)
 option(EXTERNAL_PROTOZERO "Do not use the bundled protozero" OFF)
 
@@ -67,11 +65,6 @@ if (GIT_FOUND)
     endif()
 endif()
 
-#configure_file(
-#    ${PROJECT_SOURCE_DIR}/src/version.cpp.in
-#    ${PROJECT_BINARY_DIR}/src/version.cpp
-#)
-
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
 #############################################################
@@ -80,31 +73,33 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/config.h.in ${CMAKE_CURRENT_BIN
 
 include(CheckIncludeFiles)
 
+add_compile_options("-DHAVE_CONFIG_H=1")
+
 #############################################################
 # Find necessary libraries
 #############################################################
 
-find_package(Threads)
-find_package(EXPAT)
+find_package(Threads REQUIRED)
+find_package(EXPAT REQUIRED)
 find_package(ZLIB REQUIRED)
 find_library(LIBRT rt) 
-find_package(fmt)
+find_package(fmt REQUIRED)
 
 if (HAVE_OPENMP)
   find_package(OpenMP)
-endif()  
+endif()
 
 if (HAVE_LZ4)
-  find_package(LZ4)
-endif()  
+  find_package(LZ4 REQUIRED)
+endif()
 
 
 if (HAVE_FASTCGI)
-  find_package(FCGI++)
+  find_package(FCGI++ REQUIRED)
 endif()
 
 if (HAVE_PCRE)
-  find_package(PCRE2)
+  find_package(PCRE2 REQUIRED)
 endif()
 
 if (HAVE_ICU)
@@ -112,7 +107,7 @@ if (HAVE_ICU)
 endif()
 
 if (HAVE_TCMALLOC)
-  find_package(Tcmalloc)
+  find_package(Tcmalloc REQUIRED)
 endif()
 
 if (NOT EXTERNAL_LIBOSMIUM)
@@ -127,20 +122,42 @@ endif()
 #    set(FMT_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/contrib/fmt/include")
 #endif()
 
-
+set(HAVE_LIBOSMIUM 1)
 find_package(Osmium 2.17.0 REQUIRED COMPONENTS io)
-include_directories(SYSTEM ${OSMIUM_INCLUDE_DIRS} ${PROTOZERO_INCLUDE_DIR} ${FMT_INCLUDE_DIR})
+include_directories(SYSTEM ${OSMIUM_INCLUDE_DIRS} ${PROTOZERO_INCLUDE_DIR})
+
 
 ############### Libraries are found now ########################
 
-set(LIBS ${OSMIUM_LIBRARIES} ${LIBRT} ${LZ4_LIBRARY}
-    ${ICU_LIBRARIES}
-    ${fmt_LIBRARY}
-    ${Tcmalloc_LIBRARY}
-    ${PCRE2_LIBRARIES}
-    ${FCGI_LIBRARY}
-    ${FCGIPP_LIBRARY}
-    ${BZIP2_LIBRARIES})
+list(APPEND LIBS ${LIBRT})
+
+list(APPEND LIBS ${OSMIUM_LIBRARIES})
+
+if (HAVE_LZ4)
+  list(APPEND LIBS ${LZ4_LIBRARY})
+endif()  
+
+list(APPEND LIBS ${fmt_LIBRARY})
+
+if (HAVE_ICU)
+  list(APPEND LIBS ${ICU_LIBRARIES})
+endif()
+
+if (HAVE_TCMALLOC)
+  list(APPEND LIBS ${Tcmalloc_LIBRARY})
+endif()
+
+if (HAVE_PCRE)
+  list(APPEND LIBS ${PCRE2_LIBRARIES})
+endif()
+
+if (HAVE_FASTCGI)
+  list(APPEND LIBS ${FCGI_LIBRARY})
+  list(APPEND LIBS ${FCGIPP_LIBRARY})  
+endif()  
+
+
+list(APPEND LIBS ${BZIP2_LIBRARIES})
 
 message(STATUS "Libraries used to build: ${LIBS}")
 
@@ -151,8 +168,6 @@ message(STATUS "Libraries used to build: ${LIBS}")
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/src")
 
-add_compile_options("-DHAVE_CONFIG_H=1")
-
 add_subdirectory(src)
 
 #############################################################
@@ -160,8 +175,8 @@ add_subdirectory(src)
 #############################################################
 
 if (BUILD_TESTS)
- enable_testing()
- add_subdirectory(src/test-bin)
+  enable_testing()
+  add_subdirectory(src/test-bin)
 endif()
 
 #############################################################

@@ -207,11 +207,17 @@ add_executable(tocgi pt_diagrams/tocgi.cc)
 add_executable(escape_xml expat/escape_xml.cc expat/escape_xml_main.cc)
 
 
+if (HAVE_OPENMP)
+  set(OPENMP_TARGET_LINK PRIVATE OpenMP::OpenMP_CXX)
+endif()  
+
+
 add_executable(update_database ${update_database_SOURCES})
-target_link_libraries(update_database PUBLIC data_lib osm_updater_lib dispatcher_lib expatwrapper_lib output_lib settings_lib ${LIBS} PRIVATE OpenMP::OpenMP_CXX)
+target_link_libraries(update_database PUBLIC data_lib osm_updater_lib dispatcher_lib expatwrapper_lib output_lib settings_lib ${LIBS} ${OPENMP_TARGET_LINK})
 
 add_executable(update_from_dir ${update_from_dir_SOURCES})
-target_link_libraries(update_from_dir PUBLIC data_lib osm_updater_lib dispatcher_lib expatwrapper_lib output_lib settings_lib ${LIBS} PRIVATE OpenMP::OpenMP_CXX)
+target_link_libraries(update_from_dir PUBLIC data_lib osm_updater_lib dispatcher_lib expatwrapper_lib output_lib settings_lib ${LIBS} ${OPENMP_TARGET_LINK})
+
 
 add_executable(osm3s_query ${osm3s_query_SOURCES} ${statements_cc_SOURCES} ${output_formats_SOURCES})
 target_link_libraries(osm3s_query core_lib data_lib dispatcherclient_lib ${LIBS})
