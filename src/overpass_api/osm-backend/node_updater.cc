@@ -685,6 +685,7 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
   new_data.data.clear();
   ids_to_modify.clear();
   nodes_to_insert.clear();
+
 //   nodes_meta_to_insert.clear();
 //   nodes_meta_to_delete.clear();
 
@@ -696,10 +697,13 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
     new_skeletons.clear();
     attic_skeletons.clear();
     new_attic_skeletons.clear();
+    new_tagged_skeletons.clear();
+    attic_tagged_skeletons.clear();
   }
 
   if (partial_possible && !partial && (update_counter > 0))
   {
+    release_mem();
     callback->partial_started();
 
     std::vector< std::string > froms;
@@ -743,6 +747,7 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
     ++update_counter;
     if (update_counter % 16 == 0)
     {
+      release_mem();
       callback->partial_started();
 
       std::string to(".1a");
@@ -760,6 +765,7 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
     }
     if (update_counter % 256 == 0)
     {
+      release_mem();
       callback->partial_started();
 
       std::vector< std::string > froms;
@@ -850,4 +856,12 @@ void Node_Updater::merge_files(const std::vector< std::string >& froms, const st
   }
 
   process_package(f, parallel_processes);
+}
+
+void Node_Updater::release_mem()
+{
+  // release more memory before starting "Reorganizing database..."
+  decltype(new_data.data){}.swap(new_data.data);
+  decltype(ids_to_modify){}.swap(ids_to_modify);
+  decltype(nodes_to_insert){}.swap(nodes_to_insert);
 }

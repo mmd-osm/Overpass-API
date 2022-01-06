@@ -139,6 +139,8 @@ private:
 
   void merge_files(const std::vector< std::string >& froms, const std::string& into);
 
+  void release_mem();
+
   unsigned int parallel_processes;
   bool initial_load;
 };

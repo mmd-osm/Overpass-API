@@ -1067,6 +1067,7 @@ void Way_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_stop
   callback->update_finished();
 
   new_data.data.clear();
+
 //   ways_meta_to_insert.clear();
 //   ways_meta_to_delete.clear();
 
@@ -1082,6 +1083,7 @@ void Way_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_stop
 
   if (partial_possible && !partial && (update_counter > 0))
   {
+    release_mem();
     callback->partial_started();
 
     std::vector< std::string > froms;
@@ -1124,6 +1126,7 @@ void Way_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_stop
     ++update_counter;
     if (update_counter % 16 == 0)
     {
+      release_mem();
       callback->partial_started();
 
       std::string to(".1a");
@@ -1141,6 +1144,7 @@ void Way_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_stop
     }
     if (update_counter % 256 == 0)
     {
+      release_mem();
       callback->partial_started();
 
       std::vector< std::string > froms;
@@ -1195,4 +1199,10 @@ void Way_Updater::merge_files(const std::vector< std::string >& froms, const std
   }
 
   process_package(f, parallel_processes);
+}
+
+void Way_Updater::release_mem()
+{
+  // release more memory before starting "Reorganizing database..."
+  decltype(new_data.data){}.swap(new_data.data);
 }
