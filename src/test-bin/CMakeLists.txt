@@ -13,8 +13,6 @@ function(set_test test_name)
 endfunction()
 
 
-
-
 set(statements_cc_SOURCES
   ../expat/escape_json.cc
   ../expat/escape_xml.cc
@@ -133,6 +131,8 @@ set(random_file_SOURCES
 )
 
 
+add_library(statements_obj OBJECT ${statements_cc_SOURCES})
+add_library(testenv_obj ${testenv_SOURCES})
 
 # Define test cases
 

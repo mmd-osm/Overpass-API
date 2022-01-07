@@ -1,6 +1,4 @@
 
-
-
 set(statements_cc_SOURCES
   overpass_api/data/bbox_filter.cc
   overpass_api/statements/aggregators.cc
@@ -121,9 +119,6 @@ set(osm_updater_SOURCES
   overpass_api/core/four_field_index.cc
   overpass_api/core/geometry.cc
   expat/escape_xml.cc
-  template_db/types.cc
-  template_db/zlib_wrapper.cc
-  template_db/lz4_wrapper.cc  
 )
 
 set(update_database_SOURCES
@@ -134,102 +129,133 @@ set(update_from_dir_SOURCES
   overpass_api/osm-backend/update_from_dir.cc
 )
 
- 
-set(osm3s_query_SOURCES
+set(types_SOURCES
+  template_db/types.cc
+)
+
+set(compression_SOURCES
+  template_db/zlib_wrapper.cc
+  template_db/lz4_wrapper.cc
+)
+
+set(query_common_SOURCES
   overpass_api/frontend/basic_formats.cc
   overpass_api/frontend/output_handler.cc  
   overpass_api/dispatch/dispatcher_stub.cc
-  template_db/types.cc
   overpass_api/frontend/decode_text.cc
   overpass_api/frontend/map_ql_parser.cc
   overpass_api/frontend/tokenizer_utils.cc  
-  template_db/zlib_wrapper.cc
-  template_db/lz4_wrapper.cc
+  overpass_api/frontend/decode_text.cc
+  overpass_api/frontend/map_ql_parser.cc
+  overpass_api/frontend/tokenizer_utils.cc  
   overpass_api/dispatch/scripting_core.cc
   overpass_api/core/geometry.cc  
   overpass_api/core/four_field_index.cc  
-  overpass_api/frontend/console_output.cc
   overpass_api/frontend/web_output.cc
+)
+ 
+set(osm3s_query_SOURCES
+  overpass_api/frontend/console_output.cc
   overpass_api/dispatch/osm3s_query.cc
   overpass_api/osm-backend/clone_database.cc
 )
 
 set(interpreter_SOURCES
-  overpass_api/frontend/basic_formats.cc
-  overpass_api/frontend/output_handler.cc  
-  overpass_api/dispatch/dispatcher_stub.cc
-  template_db/types.cc
-  overpass_api/frontend/decode_text.cc
-  overpass_api/frontend/map_ql_parser.cc
-  overpass_api/frontend/tokenizer_utils.cc  
-  template_db/zlib_wrapper.cc
-  template_db/lz4_wrapper.cc
-  overpass_api/dispatch/scripting_core.cc
-  overpass_api/core/geometry.cc  
-  overpass_api/core/four_field_index.cc  
   overpass_api/dispatch/web_query.cc
-  overpass_api/frontend/web_output.cc
 )
 
-set(tagged_nodes_SOURCES
+set(create_tagged_nodes_SOURCES
   overpass_api/osm-backend/create_tagged_nodes.cc
-  template_db/types.cc
-  template_db/zlib_wrapper.cc
-  template_db/lz4_wrapper.cc
 )  
 
 set(dispatcher_SOURCES
   template_db/dispatcher.cc
   template_db/file_tools.cc
   template_db/transaction_insulator.cc
-  template_db/types.cc
   overpass_api/dispatch/dispatcher_server.cc
 )
+
+set(timestamp_SOURCES
+  overpass_api/dispatch/db_timestamp.cc
+  overpass_api/frontend/web_output.cc
+  overpass_api/frontend/basic_formats.cc
+  overpass_api/frontend/decode_text.cc
+  expat/escape_xml.cc
+)
+
+set(map_demo_SOURCES
+  overpass_api/osm-backend/map_demo.cc
+  overpass_api/frontend/console_output.cc
+)
+
+set(export_tables_SOURCES
+  overpass_api/osm-backend/export_tables.cc
+)
+
+set(import_tables_SOURCES
+  overpass_api/osm-backend/import_tables.cc
+)
+
+set(dump_file_SOURCES
+  overpass_api/osm-backend/dump_file.cc
+)
  
-add_library(core_lib STATIC ${core_SOURCES})
-add_library(data_lib STATIC ${data_SOURCES})
-add_library(dispatcherclient_lib STATIC ${dispatcherclient_SOURCES})
-add_library(dispatcher_lib STATIC ${dispatcher_lib_SOURCES})
-add_library(expatwrapper_lib STATIC ${expatwrapper_SOURCES})
-add_library(frontend_lib STATIC ${frontend_SOURCES})
-add_library(output_lib STATIC ${output_SOURCES})
-add_library(settings_lib STATIC ${settings_SOURCES})
-add_library(osm_updater_lib STATIC ${osm_updater_SOURCES})
+add_library(core STATIC ${core_SOURCES})
+add_library(data STATIC ${data_SOURCES})
+add_library(dispatch STATIC ${dispatcher_lib_SOURCES} ${dispatcherclient_SOURCES})
+
+add_library(frontend OBJECT ${frontend_SOURCES})
+add_library(output OBJECT ${output_SOURCES})
+add_library(types OBJECT ${types_SOURCES})
+
+add_library(osm_updater OBJECT ${osm_updater_SOURCES} ${types_SOURCES})
+add_library(statements OBJECT ${statements_cc_SOURCES})
+add_library(output_formats OBJECT ${output_formats_SOURCES})
+add_library(query_common OBJECT ${query_common_SOURCES})
+add_library(compression OBJECT ${compression_SOURCES})
+add_library(expatwrapper OBJECT ${expatwrapper_SOURCES})
+add_library(settings OBJECT ${settings_SOURCES})
  
-target_link_libraries(dispatcherclient_lib ${LIBRT})
-target_link_libraries(dispatcher_lib dispatcherclient_lib)
-target_link_libraries(core_lib dispatcher_lib expatwrapper_lib settings_lib frontend_lib)
-target_link_libraries(frontend_lib output_lib)
-target_link_libraries(expatwrapper_lib ${EXPAT})
+target_link_libraries(dispatch ${LIBRT})
+target_link_libraries(core dispatch)
 
 add_executable(uncgi pt_diagrams/uncgi.cc)
 add_executable(tocgi pt_diagrams/tocgi.cc)
 add_executable(escape_xml expat/escape_xml.cc expat/escape_xml_main.cc)
 
-
 if (HAVE_OPENMP)
   set(OPENMP_TARGET_LINK PRIVATE OpenMP::OpenMP_CXX)
 endif()  
 
+add_executable(update_database ${update_database_SOURCES} $<TARGET_OBJECTS:osm_updater> $<TARGET_OBJECTS:compression> $<TARGET_OBJECTS:expatwrapper> $<TARGET_OBJECTS:settings> $<TARGET_OBJECTS:output>)
+target_link_libraries(update_database PUBLIC data dispatch ${LIBS} ${OPENMP_TARGET_LINK})
 
-add_executable(update_database ${update_database_SOURCES})
-target_link_libraries(update_database PUBLIC data_lib osm_updater_lib dispatcher_lib expatwrapper_lib output_lib settings_lib ${LIBS} ${OPENMP_TARGET_LINK})
+add_executable(update_from_dir ${update_from_dir_SOURCES} $<TARGET_OBJECTS:osm_updater> $<TARGET_OBJECTS:compression> $<TARGET_OBJECTS:expatwrapper> $<TARGET_OBJECTS:settings> $<TARGET_OBJECTS:output>)
+target_link_libraries(update_from_dir PUBLIC data dispatch ${LIBS} ${OPENMP_TARGET_LINK})
 
-add_executable(update_from_dir ${update_from_dir_SOURCES})
-target_link_libraries(update_from_dir PUBLIC data_lib osm_updater_lib dispatcher_lib expatwrapper_lib output_lib settings_lib ${LIBS} ${OPENMP_TARGET_LINK})
+add_executable(osm3s_query ${osm3s_query_SOURCES} $<TARGET_OBJECTS:types> $<TARGET_OBJECTS:query_common> $<TARGET_OBJECTS:compression> $<TARGET_OBJECTS:output_formats> $<TARGET_OBJECTS:statements> $<TARGET_OBJECTS:expatwrapper> $<TARGET_OBJECTS:settings> $<TARGET_OBJECTS:frontend>) 
+target_link_libraries(osm3s_query core data ${LIBS})
 
+add_executable(interpreter ${interpreter_SOURCES} $<TARGET_OBJECTS:types> $<TARGET_OBJECTS:query_common> $<TARGET_OBJECTS:compression> $<TARGET_OBJECTS:output_formats> $<TARGET_OBJECTS:statements> $<TARGET_OBJECTS:expatwrapper> $<TARGET_OBJECTS:settings> $<TARGET_OBJECTS:frontend>)
+target_link_libraries(interpreter core data ${LIBS})
 
-add_executable(osm3s_query ${osm3s_query_SOURCES} ${statements_cc_SOURCES} ${output_formats_SOURCES})
-target_link_libraries(osm3s_query core_lib data_lib ${LIBS})
+add_executable(dispatcher ${dispatcher_SOURCES} $<TARGET_OBJECTS:types> $<TARGET_OBJECTS:settings> $<TARGET_OBJECTS:frontend>)
+target_link_libraries(dispatcher dispatch ${LIBS})
 
-add_executable(interpreter ${interpreter_SOURCES} ${statements_cc_SOURCES} ${output_formats_SOURCES})
-target_link_libraries(interpreter core_lib data_lib ${LIBS})
+add_executable(create_tagged_nodes ${create_tagged_nodes_SOURCES} $<TARGET_OBJECTS:types> $<TARGET_OBJECTS:compression> $<TARGET_OBJECTS:expatwrapper> $<TARGET_OBJECTS:settings> $<TARGET_OBJECTS:frontend>)
+target_link_libraries(create_tagged_nodes core data ${LIBS})
 
-add_executable(dispatcher ${dispatcher_SOURCES})
-target_link_libraries(dispatcher dispatcher_lib frontend_lib settings_lib ${LIBRT})
+add_executable(timestamp ${timestamp_SOURCES} $<TARGET_OBJECTS:types> $<TARGET_OBJECTS:settings> $<TARGET_OBJECTS:compression>)
+target_link_libraries(timestamp dispatch ${LIBS})
 
-add_executable(tagged_nodes ${tagged_nodes_SOURCES})
-target_link_libraries(tagged_nodes core_lib data_lib ${LIBS})
+add_executable(map_demo ${map_demo_SOURCES} $<TARGET_OBJECTS:types> $<TARGET_OBJECTS:query_common> $<TARGET_OBJECTS:compression> $<TARGET_OBJECTS:output_formats> $<TARGET_OBJECTS:statements> $<TARGET_OBJECTS:expatwrapper> $<TARGET_OBJECTS:settings> $<TARGET_OBJECTS:frontend>)
+target_link_libraries(map_demo core data ${LIBS})
 
+add_executable(export_tables ${export_tables_SOURCES} $<TARGET_OBJECTS:compression> $<TARGET_OBJECTS:settings> $<TARGET_OBJECTS:types>)
+target_link_libraries(export_tables data ${LIBS})
 
+add_executable(import_tables ${import_tables_SOURCES} $<TARGET_OBJECTS:compression> $<TARGET_OBJECTS:settings> $<TARGET_OBJECTS:types>)
+target_link_libraries(import_tables data ${LIBS})
 
+add_executable(dump_file ${dump_file_SOURCES} $<TARGET_OBJECTS:compression> $<TARGET_OBJECTS:settings> $<TARGET_OBJECTS:types>)
+target_link_libraries(dump_file core data ${LIBS})

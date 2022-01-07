@@ -35,7 +35,7 @@ endif()
 if (NOT "${CMAKE_CXX_STANDARD}")
     set(CMAKE_CXX_STANDARD 17)
 endif()
-message(STATUS "Building in C++${CMAKE_CXX_STANDARD} mode")
+
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -183,20 +183,50 @@ endif()
 # Install
 #############################################################
 
-install(TARGETS osm3s_query update_database update_from_dir dispatcher uncgi tocgi escape_xml DESTINATION "/opt/overpass/bin")
-install(TARGETS interpreter DESTINATION "/opt/overpass/cgi-bin")
-install(FILES   src/rules/areas.osm3s src/rules/areas_delta.osm3s src/rules/areas.ql src/rules/areas_delta.ql DESTINATION "/opt/overpass/rules")
+install(TARGETS osm3s_query update_database update_from_dir dispatcher uncgi tocgi escape_xml map_demo
+                export_tables import_tables dump_file
+        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+        DESTINATION "overpass/bin")
+install(TARGETS interpreter timestamp DESTINATION "overpass/cgi-bin")
+install(FILES   src/rules/areas.osm3s src/rules/areas_delta.osm3s src/rules/areas.ql src/rules/areas_delta.ql
+        PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
+        DESTINATION "overpass/rules")
+install(FILES   src/cgi-bin/kill_my_queries src/cgi-bin/map src/cgi-bin/status src/cgi-bin/trigger_clone
+                src/cgi-bin/augmented_diff src/cgi-bin/augmented_diff_status src/cgi-bin/augmented_state_by_date
+        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+        DESTINATION "overpass/cgi-bin")
+install(FILES   src/bin/apply_osc_to_db.sh src/bin/download_clone.sh src/bin/fetch_osc.sh src/bin/rules_delta_loop.sh
+                src/bin/rules_loop.sh src/bin/compress_clone.sh src/bin/clone.sh
+                src/bin/fetch_osc_and_apply.sh src/bin/init_osm3s.sh src/bin/run_osm3s_minutely.sh
+        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE                
+        DESTINATION "overpass/bin")
+install(FILES COPYING
+        PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
+        DESTINATION "overpass/")
+
 
 #############################################################
 # Debian packaging
 #############################################################
 
-SET(CPACK_GENERATOR "DEB")
+set(CPACK_GENERATOR "DEB")
 set(CPACK_PACKAGE_VERSION_MAJOR "0")
 set(CPACK_PACKAGE_VERSION_MINOR "7")
 set(CPACK_PACKAGE_VERSION_PATCH "59")
-SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "mmd.osm@gmail.com")
-set(CPACK_PACKAGE_DESCRIPTION "Overpass API fork, includes a few performance and functional enhancements")
-SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libfcgi-bin,zlib1g,expat,libicu66,liblz4-1,libpcre2-8-0,libgomp1,libgoogle-perftools4")
+set(CPACK_DEBIAN_PACKAGE_NAME "overpassapi")
+set(CPACK_PACKAGE_CONTACT "mmd.osm@gmail.com")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "mmd.osm@gmail.com")
+set(CPACK_INSTALL_DEFAULT_DIRECTORY_PERMISSIONS
+    OWNER_READ OWNER_WRITE OWNER_EXECUTE
+    GROUP_READ GROUP_EXECUTE
+    WORLD_READ WORLD_EXECUTE
+)
+set(CPACK_PACKAGE_DESCRIPTION "A comprehensive list of changes and enhancements can be found at https://github.com/mmd-osm/Overpass-API. Refer to https://overpass-api.de for the original Overpass API project. This fork is based on release 0.7.57.")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Overpass API fork, includes a few performance and functional enhancements")
+set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS YES)
+set(CPACK_PACKAGING_INSTALL_PREFIX "/opt")
+set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/mmd-osm/Overpass-API")
+set(CPACK_STRIP_FILES "TRUE")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/COPYING")
 INCLUDE(CPack)
 
