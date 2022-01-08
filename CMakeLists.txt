@@ -20,6 +20,7 @@ option(HAVE_TCMALLOC  "Build with tcmalloc library" ON)
 option(HAVE_LZ4       "Build with lz4 library" ON)
 option(HAVE_OPENMP    "Build with OpenMP" ON)
 option(BUILD_TESTS    "Build test suite" OFF)
+option(USE_UNITY_BUILD "Enable Unity Build" OFF)
 
 
 if (PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)

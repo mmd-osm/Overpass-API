@@ -30,6 +30,7 @@
 #include "../../template_db/block_backend.h"
 #include "../../template_db/random_file.h"
 #include "../data/collect_members.h"
+#include "../data/tag_store.h"
 #include "../osm-backend/area_updater.h"
 #include "make_area.h"
 #include "print.h"
@@ -286,23 +287,6 @@ void add_south_pole_line
   area_blocks[(::ll_upper(10000000, 1800000000) & 0xffffff00) ^ 0x40000000].push_back(Area_Block(id, coors));
 }
 
-template< >
-struct Range_Idx_Assessor<Tag_Index_Local, Ranges< Tag_Index_Local >::Iterator >
-{
-  Range_Idx_Assessor(const Ranges< Tag_Index_Local >::Iterator& index_it_, const Ranges< Tag_Index_Local >::Iterator& index_end_)
-      : index_it(index_it_), index_end(index_end_) {}
-
-  bool is_relevant(Handle < Tag_Index_Local > & handle)
-  {
-    while (index_it != index_end && !(handle < index_it.upper_bound()))
-      ++index_it;
-    return index_it != index_end && !(handle < index_it.lower_bound()) && handle < index_it.upper_bound();
-  }
-
-private:
-  Ranges< Tag_Index_Local >::Iterator index_it;
-  Ranges< Tag_Index_Local >::Iterator index_end;
-};
 
 void Make_Area_Statement::execute(Resource_Manager& rman)
 {

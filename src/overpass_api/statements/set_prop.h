@@ -16,8 +16,8 @@
  * along with Overpass_API.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DE__OSM3S___OVERPASS_API__STATEMENTS__SET_TAG_H
-#define DE__OSM3S___OVERPASS_API__STATEMENTS__SET_TAG_H
+#ifndef DE__OSM3S___OVERPASS_API__STATEMENTS__SET_PROP_H
+#define DE__OSM3S___OVERPASS_API__STATEMENTS__SET_PROP_H
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>

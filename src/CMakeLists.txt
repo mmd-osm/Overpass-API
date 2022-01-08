@@ -1,8 +1,12 @@
 
+# List of source files in statements_cc_SOURCES not sorted due to Unity Build dependencies
+# btw area_query and polygon_query: we need to ensure both files are processed in the same batch
+
 set(statements_cc_SOURCES
+  overpass_api/statements/area_query.cc
+  overpass_api/statements/polygon_query.cc
   overpass_api/data/bbox_filter.cc
   overpass_api/statements/aggregators.cc
-  overpass_api/statements/area_query.cc
   overpass_api/statements/around.cc
   overpass_api/statements/bbox_query.cc
   overpass_api/statements/binary_operators.cc
@@ -30,7 +34,6 @@ set(statements_cc_SOURCES
   overpass_api/statements/osm_script.cc
   overpass_api/statements/per_member.cc
   overpass_api/statements/pivot.cc
-  overpass_api/statements/polygon_query.cc
   overpass_api/statements/print.cc
   overpass_api/statements/query.cc
   overpass_api/statements/recurse.cc
@@ -215,6 +218,20 @@ add_library(query_common OBJECT ${query_common_SOURCES})
 add_library(compression OBJECT ${compression_SOURCES})
 add_library(expatwrapper OBJECT ${expatwrapper_SOURCES})
 add_library(settings OBJECT ${settings_SOURCES})
+
+# more infos: https://onqtam.com/programming/2019-12-20-pch-unity-cmake-3-16/
+if (USE_UNITY_BUILD)
+  set_target_properties(core PROPERTIES UNITY_BUILD ON)
+  set_target_properties(data PROPERTIES UNITY_BUILD ON)
+  set_target_properties(frontend PROPERTIES UNITY_BUILD ON)
+  set_target_properties(statements PROPERTIES UNITY_BUILD ON)
+#  set_target_properties(statements PROPERTIES UNITY_BUILD_BATCH_SIZE 100)
+
+  set_target_properties(osm_updater PROPERTIES UNITY_BUILD ON)
+  set_target_properties(output_formats PROPERTIES UNITY_BUILD ON)
+#  set_target_properties(output_formats PROPERTIES UNITY_BUILD_BATCH_SIZE 100)
+  set_target_properties(query_common PROPERTIES UNITY_BUILD ON)
+endif()
  
 target_link_libraries(dispatch ${LIBRT})
 target_link_libraries(core dispatch)

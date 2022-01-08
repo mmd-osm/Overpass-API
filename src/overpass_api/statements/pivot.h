@@ -16,8 +16,8 @@
  * along with Overpass_API.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DE__OSM3S___OVERPASS_API__STATEMENTS__AREA_QUERY_H
-#define DE__OSM3S___OVERPASS_API__STATEMENTS__AREA_QUERY_H
+#ifndef DE__OSM3S___OVERPASS_API__STATEMENTS__PIVOT_H
+#define DE__OSM3S___OVERPASS_API__STATEMENTS__PIVOT_H
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
