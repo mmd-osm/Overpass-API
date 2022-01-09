@@ -96,7 +96,11 @@ Basic_Settings::Basic_Settings()
   logfile_name("transactions.log"),
   shared_name_base("/osm3s_v0.7.59_mmd"),
   shared_name_suffix(get_shared_name_suffix()),
+#ifndef PACKAGE_VERSION
   version("0.7.59_mmd"),
+#else
+  version(PACKAGE_VERSION),
+#endif
   source_hash(GIT_VERSION),
 #ifdef HAVE_LZ4
   compression_method(Block_Compression::LZ4_COMPRESSION),

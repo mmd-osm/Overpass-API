@@ -1,10 +1,15 @@
 set(PACKAGE overpass_api)
 set(PACKAGE_NAME overpass_api)
-set(PACKAGE_VERSION 0.7.59_mmd)
 
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.0.0)
 
-project(overpass_api)
+if (POLICY CMP0048)
+  cmake_policy(SET CMP0048 NEW)
+endif (POLICY CMP0048)
+
+project(overpass_api VERSION 0.7.59.100)
+
+set(PACKAGE_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}.${PROJECT_VERSION_TWEAK} (mmd)")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -50,6 +55,7 @@ option(EXTERNAL_LIBOSMIUM "Do not use the bundled libosmium" OFF)
 option(EXTERNAL_PROTOZERO "Do not use the bundled protozero" OFF)
 
 set(HAVE_LIBOSMIUM 1)
+set(PACKAGE_VERSION ${PACKAGE_VERSION})
 
 #############################################################
 # Version
@@ -214,9 +220,9 @@ endif()
 #############################################################
 
 set(CPACK_GENERATOR "DEB")
-set(CPACK_PACKAGE_VERSION_MAJOR "0")
-set(CPACK_PACKAGE_VERSION_MINOR "7")
-set(CPACK_PACKAGE_VERSION_PATCH "59")
+set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
 set(CPACK_DEBIAN_PACKAGE_NAME "overpassapi")
 set(CPACK_PACKAGE_CONTACT "mmd.osm@gmail.com")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "mmd.osm@gmail.com")
