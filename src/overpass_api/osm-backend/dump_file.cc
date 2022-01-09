@@ -27,11 +27,11 @@
 #include <sstream>
 
 #include "../../expat/expat_justparse_interface.h"
+#include "../../template_db/block_backend.h"
 #include "../../template_db/random_file.h"
 #include "../../template_db/transaction.h"
 #include "../core/settings.h"
 #include "../frontend/output.h"
-#include "node_updater.h"
 
 
 int main(int argc, char* args[])

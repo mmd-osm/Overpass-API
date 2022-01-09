@@ -21,6 +21,7 @@ option(HAVE_LZ4       "Build with lz4 library" ON)
 option(HAVE_OPENMP    "Build with OpenMP" ON)
 option(BUILD_TESTS    "Build test suite" OFF)
 option(USE_UNITY_BUILD "Enable Unity Build" OFF)
+option(ENABLE_INSTALL "Enable installation" ON)
 
 
 if (PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
@@ -184,26 +185,28 @@ endif()
 # Install
 #############################################################
 
-install(TARGETS osm3s_query update_database update_from_dir dispatcher uncgi tocgi escape_xml map_demo
-                export_tables import_tables dump_file
-        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-        DESTINATION "overpass/bin")
-install(TARGETS interpreter timestamp DESTINATION "overpass/cgi-bin")
-install(FILES   src/rules/areas.osm3s src/rules/areas_delta.osm3s src/rules/areas.ql src/rules/areas_delta.ql
-        PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
-        DESTINATION "overpass/rules")
-install(FILES   src/cgi-bin/kill_my_queries src/cgi-bin/map src/cgi-bin/status src/cgi-bin/trigger_clone
-                src/cgi-bin/augmented_diff src/cgi-bin/augmented_diff_status src/cgi-bin/augmented_state_by_date
-        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-        DESTINATION "overpass/cgi-bin")
-install(FILES   src/bin/apply_osc_to_db.sh src/bin/download_clone.sh src/bin/fetch_osc.sh src/bin/rules_delta_loop.sh
-                src/bin/rules_loop.sh src/bin/compress_clone.sh src/bin/clone.sh
-                src/bin/fetch_osc_and_apply.sh src/bin/init_osm3s.sh src/bin/run_osm3s_minutely.sh
-        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE                
-        DESTINATION "overpass/bin")
-install(FILES COPYING
-        PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
-        DESTINATION "overpass/")
+if (ENABLE_INSTALL)
+  install(TARGETS osm3s_query update_database update_from_dir dispatcher uncgi tocgi escape_xml map_demo
+                  export_tables import_tables dump_file
+          PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+          DESTINATION "overpass/bin")
+  install(TARGETS interpreter timestamp DESTINATION "overpass/cgi-bin")
+  install(FILES   src/rules/areas.osm3s src/rules/areas_delta.osm3s src/rules/areas.ql src/rules/areas_delta.ql
+          PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
+          DESTINATION "overpass/rules")
+  install(FILES   src/cgi-bin/kill_my_queries src/cgi-bin/map src/cgi-bin/status src/cgi-bin/trigger_clone
+                  src/cgi-bin/augmented_diff src/cgi-bin/augmented_diff_status src/cgi-bin/augmented_state_by_date
+          PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+          DESTINATION "overpass/cgi-bin")
+  install(FILES   src/bin/apply_osc_to_db.sh src/bin/download_clone.sh src/bin/fetch_osc.sh src/bin/rules_delta_loop.sh
+                  src/bin/rules_loop.sh src/bin/compress_clone.sh src/bin/clone.sh
+                  src/bin/fetch_osc_and_apply.sh src/bin/init_osm3s.sh src/bin/run_osm3s_minutely.sh
+          PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+          DESTINATION "overpass/bin")
+  install(FILES COPYING
+          PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
+          DESTINATION "overpass/")
+endif()
 
 
 #############################################################
