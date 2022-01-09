@@ -1,15 +1,14 @@
 
+function(build_template_test test_name)
+  cmake_parse_arguments(test_param "" "" "" "")
+  add_executable(${test_name} ${${test_name}_SOURCES} $<TARGET_OBJECTS:types_test> $<TARGET_OBJECTS:compression_test>)
+  target_link_libraries(${test_name} ${LIBS})
+endfunction()
 
-function(set_test test_name)
-    cmake_parse_arguments(test_param "" "" "LABELS" ${ARGN})
-
-    add_executable(${test_name} ${${test_name}_SOURCES})
-    target_link_libraries(${test_name} ${LIBS})
-    add_test(NAME ${test_name} COMMAND ${test_name})
-
-    set_tests_properties(${test_name} PROPERTIES ENVIRONMENT SRCPATH=${CMAKE_CURRENT_SOURCE_DIR})
-
-    message(STATUS "Added test: ${test_name}...")
+function(build_stmt_test test_name)
+  cmake_parse_arguments(test_param "" "" "" "")
+  add_executable(${test_name} ${${test_name}_SOURCES} $<TARGET_OBJECTS:types_test> $<TARGET_OBJECTS:compression_test> $<TARGET_OBJECTS:statements_test> $<TARGET_OBJECTS:testenv_test>)
+  target_link_libraries(${test_name} ${LIBS})
 endfunction()
 
 
@@ -74,9 +73,6 @@ set(statements_cc_SOURCES
   ../overpass_api/statements/unary_operators.cc
   ../overpass_api/statements/union.cc
   ../overpass_api/statements/user.cc
-  ../template_db/lz4_wrapper.cc
-  ../template_db/types.cc
-  ../template_db/zlib_wrapper.cc
 )
 
 set(settings_SOURCES
@@ -109,37 +105,133 @@ set(testenv_SOURCES
   ../overpass_api/output_formats/output_xml_factory.cc
 )
 
-set(file_blocks_SOURCES
-  ../template_db/file_blocks.test.cc
+set(types_SOURCES
   ../template_db/types.cc
+)
+
+set(compression_SOURCES
   ../template_db/zlib_wrapper.cc
   ../template_db/lz4_wrapper.cc
 )
 
+set(file_blocks_SOURCES
+  ../template_db/file_blocks.test.cc
+ )
+
 set(block_backend_SOURCES
   ../template_db/block_backend.test.cc
-  ../template_db/types.cc
-  ../template_db/zlib_wrapper.cc
-  ../template_db/lz4_wrapper.cc
 )
 
 set(random_file_SOURCES
   ../template_db/random_file.test.cc
-  ../template_db/types.cc
-  ../template_db/zlib_wrapper.cc
-  ../template_db/lz4_wrapper.cc
 )
 
+set(test_dispatcher_SOURCES
+  ../template_db/dispatcher.test.cc
+  ../template_db/dispatcher_client.cc
+  ../template_db/dispatcher.cc
+  ../template_db/file_tools.cc
+  ../template_db/transaction_insulator.cc
+)
 
-add_library(statements_obj OBJECT ${statements_cc_SOURCES})
-add_library(testenv_obj ${testenv_SOURCES})
+set(area_query_SOURCES
+   ../overpass_api/statements/area_query.test.cc
+)
 
-# Define test cases
+set(around_SOURCES
+  ../overpass_api/statements/around.test.cc
+)
 
-set_test(file_blocks LABELS group_file)
-set_test(block_backend LABELS group_file)
-set_test(random_file LABELS group_file)
+set(bbox_query_SOURCES
+  ../overpass_api/statements/bbox_query.test.cc
+)
 
+set(complete_SOURCES
+  ../overpass_api/statements/complete.test.cc
+)
 
+set(convert_SOURCES
+  ../overpass_api/statements/convert.test.cc
+)
+
+set(difference_SOURCES
+  ../overpass_api/statements/difference.test.cc
+)
+
+set(foreach_SOURCES
+  ../overpass_api/statements/foreach.test.cc
+)
+
+set(if_SOURCES
+  ../overpass_api/statements/if.test.cc
+)
+
+set(make_SOURCES
+  ../overpass_api/statements/make.test.cc
+)
+
+set(make_area_SOURCES
+  ../overpass_api/statements/make_area.test.cc
+)
+
+set(polygon_query_SOURCES
+  ../overpass_api/statements/polygon_query.test.cc
+)
+
+set(print_SOURCES
+  ../overpass_api/statements/print.test.cc
+)
+
+set(query_SOURCES
+  ../overpass_api/statements/query.test.cc
+)
+
+set(recurse_SOURCES
+  ../overpass_api/statements/recurse.test.cc
+)
+
+set(union_SOURCES
+  ../overpass_api/statements/union.test.cc
+)
+
+set(make_area_SOURCES
+  ../overpass_api/statements/make_area.test.cc
+)
+
+add_library(statements_test OBJECT ${statements_cc_SOURCES})
+add_library(testenv_test OBJECT ${testenv_SOURCES})
+add_library(compression_test OBJECT ${compression_SOURCES})
+add_library(types_test OBJECT ${types_SOURCES})
+
+if (USE_UNITY_BUILD)
+  set_target_properties(statements_test PROPERTIES UNITY_BUILD ON)
+endif()
+
+# Build template test binaries
+
+build_template_test(file_blocks)
+build_template_test(block_backend)
+build_template_test(random_file)
+build_template_test(test_dispatcher)
+
+# Build statement test binaries
+
+build_stmt_test(area_query)
+build_stmt_test(around)
+build_stmt_test(bbox_query)
+build_stmt_test(complete)
+build_stmt_test(convert)
+build_stmt_test(difference)
+build_stmt_test(foreach)
+build_stmt_test(if)
+build_stmt_test(make)
+build_stmt_test(make_area)
+build_stmt_test(polygon_query)
+build_stmt_test(print)
+build_stmt_test(query)
+build_stmt_test(recurse)
+build_stmt_test(union)
+
+# Build node/way/relation/diff_updater
 
 
