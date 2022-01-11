@@ -1,0 +1,68 @@
+# vim:set ft=dockerfile:
+FROM ubuntu:20.04 AS builder
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update -qq && \
+    apt-get install -y g++ git make autoconf automake ca-certificates libtool \
+       libfcgi-dev libxml2-dev zlib1g-dev \
+       expat libexpat1-dev liblz4-dev libbz2-dev libicu-dev \
+       libfmt-dev libpcre2-dev libcereal-dev libtcmalloc-minimal4 libgoogle-perftools-dev \
+       cmake dpkg-dev \
+      --no-install-recommends && \
+    update-ca-certificates && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+
+RUN git clone --depth 1 --single-branch --branch test7591 https://github.com/mmd-osm/Overpass-API.git overpass && \
+    cd overpass && \
+    git submodule init && \
+    git submodule update && \
+    cd ..
+
+WORKDIR /overpass
+
+# Compile sources
+RUN cd src/ && \
+    chmod u+x test-bin/*.sh && \
+    cd .. && \
+    mkdir -p build && \
+    cd build && \
+    cmake .. -DUSE_UNITY_BUILD=ON -DCMAKE_BUILD_TYPE=Release -DHAVE_ICU=ON -DBUILD_TESTS=OFF -DCMAKE_CXX_FLAGS="-flto" -DCMAKE_EXE_LINKER_FLAGS="-flto -fwhole-program" -DCMAKE_INSTALL_PREFIX="/root/" && \
+    make -j$(nproc) && \
+    make install && \
+    cpack
+
+# Prepare and execute unit tests
+#RUN ln -sf /overpass/build/src/test-bin/* /overpass/src/test-bin/ && \
+#    ln -sf /overpass/build/src/interpreter /overpass/src/cgi-bin && \
+#    ln -sf /overpass/build/src/* /overpass/src/bin/ && \
+#    export PATH=/overpass/build/src:/overpass/build/src/test-bin:$PATH && \
+#    cd /overpass/osm-3s_testing && \
+#    ../src/test-bin/run_testsuite.sh 200 notimes
+
+# Compile export tool for 0.7.56.9 database files
+#RUN tar xfz upstream/osm-3s_v0.7.56.9.patched.tar.gz && \
+#    cd osm-3s_v0.7.56.9 && \
+#    ./configure && \
+#    make V=0 -j$(nproc) bin/export_tables && \
+#    strip bin/export_tables && \
+#    cp bin/export_tables /root/overpass/bin/export_tables_0756 && \
+#    cd .. && \
+#    rm -rf osm-3s_v0.7.56.9/
+
+FROM ubuntu:20.04
+
+COPY --from=builder /overpass/build/overpass*.deb /tmp/
+
+RUN apt-get update -qq && \
+    apt-get install -y /tmp/overpass*.deb \ 
+       --no-install-recommends && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*  /tmp/overpass*.deb
+
+RUN groupadd -g 62000 overpass && \
+    useradd -g 62000 -l -M -s /bin/false -u 62000 overpass
+
+USER overpass
