@@ -6,7 +6,7 @@ endif()
 function(build_template_test test_name)
   cmake_parse_arguments(test_param "" "" "" "")
   add_executable(${test_name} ${${test_name}_SOURCES} $<TARGET_OBJECTS:types_test> $<TARGET_OBJECTS:compression_test>)
-  target_link_libraries(${test_name} PUBLIC ${LIBS})
+  target_link_libraries(${test_name} PUBLIC  ${LIBRT} ${COMPRESSION_LIBS})
 endfunction()
 
 function(build_stmt_test test_name)
@@ -16,15 +16,6 @@ function(build_stmt_test test_name)
   target_link_libraries(${test_name} PUBLIC ${LIBS})
 endfunction()
 
-function(build_updater_test test_name)
-  cmake_parse_arguments(test_param "" "" "" "")
-  add_executable(${test_name} ${${test_name}_SOURCES} $<TARGET_OBJECTS:testenv_test>
-                              $<TARGET_OBJECTS:types_test> $<TARGET_OBJECTS:compression_test> 
-                              $<TARGET_OBJECTS:updater_common>
-                              $<TARGET_OBJECTS:statements_test>
-                              )
-  target_link_libraries(${test_name} PUBLIC ${LIBS} ${OPENMP_TARGET_LINK})
-endfunction()
 
 set(statements_cc_SOURCES
   ../expat/escape_json.cc
@@ -203,12 +194,13 @@ set(make_area_SOURCES
 )
 
 set(updater_common_SOURCES
+  ../expat/expat_justparse_interface.cc
+  ../overpass_api/core/settings.cc
+  ../overpass_api/frontend/output.cc
+  ../overpass_api/osm-backend/area_updater.cc
   ../overpass_api/osm-backend/meta_updater.cc
   ../overpass_api/osm-backend/basic_updater.cc
   ../overpass_api/osm-backend/node_updater.cc
-  ../overpass_api/osm-backend/way_updater.cc
-  ../overpass_api/osm-backend/relation_updater.cc
-  ../expat/expat_justparse_interface.cc
 )
 
 set(node_updater_SOURCES
@@ -261,7 +253,7 @@ add_library(statements_test OBJECT ${statements_cc_SOURCES})
 add_library(testenv_test OBJECT ${testenv_SOURCES})
 add_library(compression_test OBJECT ${compression_SOURCES})
 add_library(types_test OBJECT ${types_SOURCES})
-add_library(updater_common OBJECT ${updater_common_SOURCES})
+add_library(updater_common_test OBJECT ${updater_common_SOURCES})
 add_library(settings_test OBJECT ${settings_SOURCES})
 
 if (USE_UNITY_BUILD)
@@ -291,16 +283,13 @@ build_stmt_test(query)
 build_stmt_test(recurse)
 build_stmt_test(union)
 
-# Build node/way/relation_updater
-build_updater_test(node_updater)
-build_updater_test(way_updater)
-build_updater_test(relation_updater)
+
 
 add_executable(diff_updater ${diff_updater_SOURCES} ${settings_SOURCES} $<TARGET_OBJECTS:types_test>  $<TARGET_OBJECTS:compression_test>)
-target_link_libraries(diff_updater ${LIBS})
+target_link_libraries(diff_updater PUBLIC ${EXPAT_LIBRARIES} ${LIBRT} ${COMPRESSION_LIBS} ${OPENMP_TARGET_LINK})
 
 add_executable(compare_osm_base_maps ${compare_osm_base_maps_SOURCES} $<TARGET_OBJECTS:types_test> $<TARGET_OBJECTS:compression_test> $<TARGET_OBJECTS:settings_test>)
-target_link_libraries(compare_osm_base_maps ${LIBS})
+target_link_libraries(compare_osm_base_maps PUBLIC ${EXPAT_LIBRARIES} ${LIBRT} ${COMPRESSION_LIBS} ${OPENMP_TARGET_LINK})
 
 add_executable(consistency_check ${consistency_check_SOURCES}
                                  $<TARGET_OBJECTS:statements_test> $<TARGET_OBJECTS:types_test>
@@ -313,3 +302,22 @@ add_executable(generate_test_file ../overpass_api/osm-backend/generate_test_file
 add_executable(generate_test_file_areas ../overpass_api/osm-backend/generate_test_file_areas.cc)
 add_executable(generate_test_file_interpreter ../overpass_api/osm-backend/generate_test_file_interpreter.cc $<TARGET_OBJECTS:settings_test>)
 add_executable(generate_test_file_meta ../overpass_api/osm-backend/generate_test_file_meta.cc $<TARGET_OBJECTS:settings_test>)
+
+add_executable(node_updater $<TARGET_OBJECTS:updater_common_test>
+                            $<TARGET_OBJECTS:types_test> $<TARGET_OBJECTS:compression_test>
+                            ../overpass_api/osm-backend/node_updater.test.cc)
+target_link_libraries(node_updater PUBLIC ${EXPAT_LIBRARIES} ${LIBRT} ${COMPRESSION_LIBS} ${OPENMP_TARGET_LINK})
+
+
+add_executable(way_updater $<TARGET_OBJECTS:updater_common_test>
+                            ../overpass_api/osm-backend/way_updater.test.cc
+                            ../overpass_api/osm-backend/way_updater.cc
+                            $<TARGET_OBJECTS:types_test> $<TARGET_OBJECTS:compression_test>)
+target_link_libraries(way_updater PUBLIC ${EXPAT_LIBRARIES} ${LIBRT} ${COMPRESSION_LIBS} ${OPENMP_TARGET_LINK})
+
+add_executable(relation_updater $<TARGET_OBJECTS:updater_common_test>
+                            ../overpass_api/osm-backend/relation_updater.test.cc
+                            ../overpass_api/osm-backend/way_updater.cc
+                            ../overpass_api/osm-backend/relation_updater.cc
+                            $<TARGET_OBJECTS:types_test> $<TARGET_OBJECTS:compression_test>)
+target_link_libraries(relation_updater PUBLIC ${EXPAT_LIBRARIES} ${LIBRT} ${COMPRESSION_LIBS} ${OPENMP_TARGET_LINK})
