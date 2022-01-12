@@ -158,7 +158,7 @@ struct Block_Backend_Basic_Iterator
     return obj_cache;
   }
 
-  const bool start_of_new_index() const
+  bool start_of_new_index() const
   {
      return start_new_index;
   }

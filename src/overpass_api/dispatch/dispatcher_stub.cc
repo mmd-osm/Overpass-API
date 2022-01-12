@@ -131,9 +131,7 @@ uint64 get_max_space_limit() {
   uint64 max_space_limit = 1ull<<33;   // default: 8GiB
   char const* max_space_limit_c = std::getenv("OVERPASS_MAX_SPACE_LIMIT");
   if (max_space_limit_c != nullptr) {
-    max_space_limit = atol(max_space_limit_c);
-    if (max_space_limit < 0)
-      max_space_limit = 0;
+    max_space_limit = std::max(0l, atol(max_space_limit_c));
   }
   return max_space_limit;
 }
