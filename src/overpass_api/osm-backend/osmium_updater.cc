@@ -49,6 +49,7 @@
 #include <iostream>
 #include <list>
 #include <sstream>
+#include <stdexcept>
 
 #include <osmium/io/any_input.hpp>
 #include <osmium/io/detail/output_format.hpp>
@@ -67,6 +68,8 @@
 #include <osmium/osm/way.hpp>
 #include <osmium/thread/pool.hpp>
 #include <osmium/visitor.hpp>
+
+#include <fmt/core.h>
 
 struct Osmium_Updater_Handler: public osmium::handler::Handler {
 
@@ -100,6 +103,9 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
     if (state == Process_State::INITIAL)
       state = Process_State::IN_NODES;
 
+    if (n.id() < 1 || n.id() > Node_Skeleton::Id_Type::max_value())
+      throw std::runtime_error(fmt::format("Node id {} outside of permitted range 1..{}", n.id(), Node_Skeleton::Id_Type::max_value()));
+
     ++osm_element_count;
 
     OSM_Element_Metadata meta;
@@ -126,6 +132,9 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
   }
 
   void way(const osmium::Way& w) {
+
+    if (w.id() < 1 || w.id() > Way_Skeleton::Id_Type::max_value())
+      throw std::runtime_error(fmt::format("Way id {} outside of permitted range 1..{}", w.id(), Way_Skeleton::Id_Type::max_value()));
 
     move_to_state_in_ways();
     ++osm_element_count;
@@ -160,6 +169,9 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
   }
 
   void relation(const osmium::Relation& r) {
+
+    if (r.id() < 1 || r.id() > Relation_Skeleton::Id_Type::max_value())
+      throw std::runtime_error(fmt::format("Relation id {} outside of permitted range 1..{}", r.id(), Relation_Skeleton::Id_Type::max_value()));
 
     move_to_state_in_relations();
     ++osm_element_count;

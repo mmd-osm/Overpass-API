@@ -94,6 +94,8 @@ struct Uint32_Index
     return 4;
   }
 
+  static uint64 max_value() noexcept { return (1ull  << (8 * max_size_of())) - 1; }
+
   static uint32 size_of(const void* ) noexcept
   {
     return 4;
@@ -301,6 +303,7 @@ struct Uint64
 
   uint32 size_of() const noexcept { return 8; }
   static uint32 max_size_of() noexcept { return 8; }
+  static uint64 max_value() noexcept { return (1ull  << (8 * max_size_of())) - 1; }
   static uint32 size_of(const void* ) noexcept { return 8; }
 
   void to_data(void* data) const noexcept
@@ -393,6 +396,7 @@ struct Uint40
 
   uint32 size_of() const noexcept { return 5; }
   static uint32 max_size_of() noexcept { return 5; }
+  static uint64 max_value() noexcept { return (1ull  << (8 * max_size_of())) - 1; }
   static uint32 size_of(const void* ) noexcept { return 5; }
 
   void to_data(void* data) const noexcept
