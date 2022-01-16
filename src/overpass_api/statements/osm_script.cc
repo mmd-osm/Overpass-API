@@ -78,12 +78,12 @@ Osm_Script_Statement::Osm_Script_Statement
   
   eval_attributes_array(get_name(), attributes, input_attributes);
 
-  int64 timeout = eval_number_with_suffix(attributes["timeout"]);
+  int32 timeout(atoi(attributes["timeout"].c_str()));
   if (timeout <= 0)
   {
     std::ostringstream temp;
     temp<<"For the attribute \"timeout\" of the element \"osm-script\""
-        <<" the only allowed values are positive integers optionally with suffix \"ki\", \"Mi\", or \"Gi\".";
+        <<" the only allowed values are positive integers.";
     add_static_error(temp.str());
   }
 
