@@ -5080,6 +5080,17 @@ int main(int argc, char* args[])
       "  <test-ternary id=\"1\">\n"
       "    <point lat=\"52.5000000\" lon=\"10.0000000\"/>\n"
       "  </test-ternary>\n";
+    if (std::string(args[2]) == "make_133")
+      std::cout<<
+      "  <test-abs id=\"1\">\n"
+      "    <tag k=\"nan\" v=\"NaN\"/>\n"
+      "    <tag k=\"pi\" v=\"3.14\"/>\n"
+      "    <tag k=\"minus_pi\" v=\"3.14\"/>\n"
+      "    <tag k=\"one_trillion\" v=\"1000000000000\"/>\n"
+      "    <tag k=\"minus_one_trillion\" v=\"1000000000000\"/>\n"
+      "    <tag k=\"fourty-two\" v=\"42\"/>\n"
+      "    <tag k=\"minus_fourty-two\" v=\"42\"/>\n"
+      "  </test-abs>\n";
 
     std::cout<<"</osm>\n";
   }
