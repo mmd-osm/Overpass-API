@@ -863,7 +863,7 @@ int main(int argc, char* args[])
     }
     else if (std::string("--attic-rel-tags-global") == args[2] || step == 43)
     {
- //     import_bin< Tag_Index_Global, Attic< Tag_Object_Global< Relation_Skeleton::Id_Type > > >(transaction, attic_settings().RELATION_TAGS_GLOBAL);
+      import_bin< Tag_Index_Global, Attic< Tag_Object_Global< Relation_Skeleton::Id_Type > > >(transaction, attic_settings().RELATION_TAGS_GLOBAL);
     }
     else if (std::string("--attic-rels-meta") == args[2] || step == 44)
     {
