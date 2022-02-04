@@ -456,7 +456,7 @@ struct OSM_Element_Metadata
   OSM_Element_Metadata() : version(0), timestamp(0), changeset(0), user_id(0) {}
 
   uint32 version;
-  uint64 timestamp;
+  timestamp_t timestamp;
   uint32 changeset;
   uint32 user_id;
   std::string user_name;
@@ -475,7 +475,7 @@ struct OSM_Element_Metadata_Skeleton
 
   Id_Type ref;
   uint32 version;
-  uint64 timestamp;
+  timestamp_t timestamp;
   uint32 changeset;
   uint32 user_id;
 
@@ -489,7 +489,7 @@ struct OSM_Element_Metadata_Skeleton
       version(meta.version), timestamp(meta.timestamp),
       changeset(meta.changeset), user_id(meta.user_id) {}
 
-  OSM_Element_Metadata_Skeleton(Id_Type ref_, uint64 timestamp_)
+  OSM_Element_Metadata_Skeleton(Id_Type ref_, timestamp_t timestamp_)
     : ref(ref_), version(0), timestamp(timestamp_),
       changeset(0), user_id(0) {}
 
@@ -497,19 +497,19 @@ struct OSM_Element_Metadata_Skeleton
     : ref(data)
   {
     version = unalignedLoad<uint32>((int8*)data + Id_Type::max_size_of());
-    timestamp = (unalignedLoad<uint64>((int8*)data + Id_Type::max_size_of() + 4) & 0xffffffffffull);
-    changeset = unalignedLoad<uint32>((int8*)data + Id_Type::max_size_of() + 9);
-    user_id = unalignedLoad<uint32>((int8*)data + Id_Type::max_size_of() + 13);
+    timestamp = (unalignedLoad<timestamp_t>((int8*)data + Id_Type::max_size_of() + 4));
+    changeset = unalignedLoad<uint32>((int8*)data + Id_Type::max_size_of() + 8);
+    user_id = unalignedLoad<uint32>((int8*)data + Id_Type::max_size_of() + 12);
   }
 
   uint32 size_of() const
   {
-    return 17 + Id_Type::max_size_of();
+    return 16 + Id_Type::max_size_of();
   }
 
   static uint32 size_of(const void* data)
   {
-    return 17 + Id_Type::max_size_of();
+    return 16 + Id_Type::max_size_of();
   }
 
   void to_data(void* data) const
@@ -517,8 +517,8 @@ struct OSM_Element_Metadata_Skeleton
     ref.to_data(data);
     unalignedStore((int8*)data + Id_Type::max_size_of(), version);
     unalignedStore((int8*)data + Id_Type::max_size_of() + 4, timestamp);
-    unalignedStore((int8*)data + Id_Type::max_size_of() + 9, changeset);
-    unalignedStore((int8*)data + Id_Type::max_size_of() + 13, user_id);
+    unalignedStore((int8*)data + Id_Type::max_size_of() + 8, changeset);
+    unalignedStore((int8*)data + Id_Type::max_size_of() + 12, user_id);
   }
 
   bool operator<(const OSM_Element_Metadata_Skeleton& a) const
@@ -545,10 +545,9 @@ struct Metadata_Timestamp_Functor {
 
   using reference_type = OSM_Element_Metadata_Skeleton<Id_Type>;
 
-  uint64 operator()(const void* data) const
+  uint32 operator()(const void* data) const
    {
-     uint64 _timestamp((unalignedLoad<uint64>((int8*)data + Id_Type::max_size_of() + 4) & 0xffffffffffull));
-     return _timestamp;
+     return unalignedLoad<uint32>((int8*)data + Id_Type::max_size_of() + 4);
    }
 };
 
@@ -585,7 +584,7 @@ struct Metadata_Changeset_Functor {
 
   uint32 operator()(const void* data) const
    {
-     return unalignedLoad<uint32>((int8*)data + Id_Type::max_size_of() + 9);
+     return unalignedLoad<uint32>((int8*)data + Id_Type::max_size_of() + 8);
    }
 };
 
@@ -593,7 +592,7 @@ struct Metadata_Changeset_Functor {
 template <class T, class Object>
 struct Metadata_Handle_Methods
 {
-  uint64 inline get_timestamp() const {
+  timestamp_t inline get_timestamp() const {
      return (static_cast<const T*>(this)->apply_func(Metadata_Timestamp_Functor<typename Object::Id_Type>()));
   }
 
@@ -712,22 +711,59 @@ struct Change_Entry_Handle_Methods
   }
 };
 
+namespace {
 
-struct Timestamp
+// source: https://github.com/osmcode/libosmium/blob/master/include/osmium/osm/timestamp.hpp
+
+void add_2digit_int_to_string(int value, std::string& out)  {
+    assert(value >= 0 && value <= 99);
+    if (value > 9) {
+        const int dec = value / 10;
+        out += static_cast<char>('0' + dec);
+        value -= dec * 10;
+    } else {
+        out += '0';
+    }
+    out += static_cast<char>('0' + value);
+}
+
+void add_4digit_int_to_string(int value, std::string& out)  {
+    assert(value >= 0 && value <= 9999);
+
+    const int dec1 = value / 1000;
+    out += static_cast<char>('0' + dec1);
+    value -= dec1 * 1000;
+
+    const int dec2 = value / 100;
+    out += static_cast<char>('0' + dec2);
+    value -= dec2 * 100;
+
+    const int dec3 = value / 10;
+    out += static_cast<char>('0' + dec3);
+    value -= dec3 * 10;
+
+    out += static_cast<char>('0' + value);
+}
+
+}
+
+struct Timestamp;
+
+struct Timestamp_64
 {
-  Timestamp() : timestamp(0) {}
+  Timestamp_64() : timestamp(0) {}
 
-  Timestamp(uint64 timestamp_) : timestamp(timestamp_) {}
+  Timestamp_64(uint64 timestamp_) : timestamp(timestamp_) {}
 
   uint64 timestamp;
 
-  Timestamp(const void* data) {
+  Timestamp_64(const void* data) {
 
     timestamp = (uint64) (unalignedLoad<uint32>(data));
     timestamp |= (uint64)(*(uint8*)((uint8*)data+4)) << 32;
   }
 
-  Timestamp(int year, int month, int day, int hour, int minute, int second)
+  Timestamp_64(int year, int month, int day, int hour, int minute, int second)
     : timestamp(0)
   {
     timestamp |= (uint64(year & 0x3fff)<<26); //year
@@ -738,7 +774,7 @@ struct Timestamp
     timestamp |= (second & 0x3f); //second
   }
 
-  Timestamp(const std::string& input) : timestamp(0)
+  Timestamp_64(const std::string& input) : timestamp(0)
   {
     if (input.size() < 19
         || !isdigit(input[0]) || !isdigit(input[1])
@@ -758,6 +794,8 @@ struct Timestamp
     timestamp |= (two_digits(&input[17]) & 0x3f); //second
   }
 
+  Timestamp_64(const Timestamp& ts);
+
   static int two_digits(const char* input) { return (input[0] - '0')*10 + (input[1] - '0'); }
   static int four_digits(const char* input)
   { return (input[0] - '0')*1000 + (input[1] - '0')*100 + (input[2] - '0')*10 + (input[3] - '0'); }
@@ -775,38 +813,6 @@ struct Timestamp
   int hour() const { return hour(timestamp); }
   int minute() const { return minute(timestamp); }
   int second() const { return second(timestamp); }
-
-  // source: https://github.com/osmcode/libosmium/blob/master/include/osmium/osm/timestamp.hpp
-
-  inline void add_2digit_int_to_string(int value, std::string& out) const {
-      assert(value >= 0 && value <= 99);
-      if (value > 9) {
-          const int dec = value / 10;
-          out += static_cast<char>('0' + dec);
-          value -= dec * 10;
-      } else {
-          out += '0';
-      }
-      out += static_cast<char>('0' + value);
-  }
-
-  inline void add_4digit_int_to_string(int value, std::string& out) const {
-      assert(value >= 0 && value <= 9999);
-
-      const int dec1 = value / 1000;
-      out += static_cast<char>('0' + dec1);
-      value -= dec1 * 1000;
-
-      const int dec2 = value / 100;
-      out += static_cast<char>('0' + dec2);
-      value -= dec2 * 100;
-
-      const int dec3 = value / 10;
-      out += static_cast<char>('0' + dec3);
-      value -= dec3 * 10;
-
-      out += static_cast<char>('0' + value);
-  }
 
   std::string str() const
   {
@@ -849,6 +855,139 @@ struct Timestamp
     *(uint8*)((uint8*)pos+4) = ((timestamp & 0xff00000000ull)>>32);
   }
 
+  bool operator<(const Timestamp_64& rhs) const
+  {
+    return (timestamp < rhs.timestamp);
+  }
+
+  bool operator==(const Timestamp_64& rhs) const
+  {
+    return (timestamp == rhs.timestamp);
+  }
+
+  static uint32 max_size_of()
+  {
+    throw Unsupported_Error("static uint32 Timestamp::max_size_of()");
+    return 0;
+  }
+
+  friend std::ostream & operator<<(std::ostream &os, const Timestamp_64& t);
+};
+
+inline std::ostream & operator<<(std::ostream &os, const Timestamp_64& p)
+{
+    return os << "[ " << p.str() << " ]";
+}
+
+
+
+struct Timestamp
+{
+  Timestamp() : timestamp(0) {}
+
+  Timestamp(timestamp_t timestamp_) : timestamp(timestamp_) {}
+
+  static const uint32 YEAR_OFFSET = 2000;
+
+  timestamp_t timestamp;
+
+  Timestamp(const void* data) {
+
+    timestamp = unalignedLoad<uint32>(data);
+  }
+
+  Timestamp(int year, int month, int day, int hour, int minute, int second)
+    : timestamp(0)
+  {
+    timestamp |= (((year - YEAR_OFFSET) & 0x3f)<<26); //year
+    timestamp |= ((month & 0xf)<<22); //month
+    timestamp |= ((day & 0x1f)<<17); //day
+    timestamp |= ((hour & 0x1f)<<12); //hour
+    timestamp |= ((minute & 0x3f)<<6); //minute
+    timestamp |= (second & 0x3f); //second
+  }
+
+  Timestamp(const std::string& input) : timestamp(0)
+  {
+    if (input.size() < 19
+        || !isdigit(input[0]) || !isdigit(input[1])
+        || !isdigit(input[2]) || !isdigit(input[3])
+        || !isdigit(input[5]) || !isdigit(input[6])
+        || !isdigit(input[8]) || !isdigit(input[9])
+        || !isdigit(input[11]) || !isdigit(input[12])
+        || !isdigit(input[14]) || !isdigit(input[15])
+        || !isdigit(input[17]) || !isdigit(input[18]))
+      return;
+
+    timestamp |= ((four_digits(&input[0]) - YEAR_OFFSET) & 0x3f)<<26; //year
+    timestamp |= ((two_digits(&input[5]) & 0xf)<<22); //month
+    timestamp |= ((two_digits(&input[8]) & 0x1f)<<17); //day
+    timestamp |= ((two_digits(&input[11]) & 0x1f)<<12); //hour
+    timestamp |= ((two_digits(&input[14]) & 0x3f)<<6); //minute
+    timestamp |= (two_digits(&input[17]) & 0x3f); //second
+  }
+
+  Timestamp(const Timestamp_64& ts) :
+     Timestamp(ts.year(), ts.month(), ts.day(), ts.hour(), ts.minute(), ts.second()) {}
+
+  static int two_digits(const char* input) { return (input[0] - '0')*10 + (input[1] - '0'); }
+  static int four_digits(const char* input)
+  { return (input[0] - '0')*1000 + (input[1] - '0')*100 + (input[2] - '0')*10 + (input[3] - '0'); }
+
+  static int year(uint32 timestamp) { return YEAR_OFFSET + ((timestamp>>26) & 0x3f); }
+  static int month(uint32 timestamp) { return ((timestamp>>22) & 0xf); }
+  static int day(uint32 timestamp) { return ((timestamp>>17) & 0x1f); }
+  static int hour(uint32 timestamp) { return ((timestamp>>12) & 0x1f); }
+  static int minute(uint32 timestamp) { return ((timestamp>>6) & 0x3f); }
+  static int second(uint32 timestamp) { return (timestamp & 0x3f); }
+
+  int year() const { return year(timestamp); }
+  int month() const { return month(timestamp); }
+  int day() const { return day(timestamp); }
+  int hour() const { return hour(timestamp); }
+  int minute() const { return minute(timestamp); }
+  int second() const { return second(timestamp); }
+
+  std::string str() const
+  {
+    if (timestamp == std::numeric_limits< unsigned long >::max())
+      return "NOW";
+
+    std::string s;
+    s.reserve(20);
+
+    add_4digit_int_to_string(year(), s);
+    s += '-';
+    add_2digit_int_to_string(month(), s);
+    s += '-';
+    add_2digit_int_to_string(day(), s);
+    s += 'T';
+    add_2digit_int_to_string(hour(), s);
+    s += ':';
+    add_2digit_int_to_string(minute(), s);
+    s += ':';
+    add_2digit_int_to_string(second(), s);
+    s += 'Z';
+
+    return s;
+  }
+
+  uint32 size_of() const
+  {
+    return 4;
+  }
+
+  static uint32 size_of(void* data)
+  {
+    return 4;
+  }
+
+  void to_data(void* data) const
+  {
+    void* pos = (uint8*)data;
+    unalignedStore(pos, timestamp);
+  }
+
   bool operator<(const Timestamp& rhs) const
   {
     return (timestamp < rhs.timestamp);
@@ -872,6 +1011,10 @@ inline std::ostream & operator<<(std::ostream &os, const Timestamp& p)
 {
     return os << "[ " << p.str() << " ]";
 }
+
+
+inline Timestamp_64::Timestamp_64(const Timestamp& ts) :
+         Timestamp_64(ts.year(), ts.month(), ts.day(), ts.hour(), ts.minute(), ts.second()) {}
 
 
 

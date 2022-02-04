@@ -57,7 +57,7 @@ protected:
 template <typename Id_Type>
 struct extract_key_val_functor {
 
-  std::pair<Id_Type, Uint31_Index> operator()(const typename std::map< Id_Type, std::pair< uint64, Uint31_Index > >::iterator& it) const {
+  std::pair<Id_Type, Uint31_Index> operator()(const typename std::map< Id_Type, std::pair< timestamp_t, Uint31_Index > >::iterator& it) const {
       return  std::pair<Id_Type, Uint31_Index>(it->first, it->second.second);
   }
 };
@@ -168,11 +168,11 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kv(
 
 template< class Id_Type >
 std::vector< std::pair< Id_Type, Uint31_Index > > collect_attic_kv2(
-    std::vector< std::pair< std::string, std::string > >::const_iterator kvit, uint64 timestamp,
+    std::vector< std::pair< std::string, std::string > >::const_iterator kvit, timestamp_t timestamp,
     Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > >& tags_db,
     Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >& attic_tags_db)
 {
-  std::map< Id_Type, std::pair< uint64, Uint31_Index > > timestamp_per_id;
+  std::map< Id_Type, std::pair< timestamp_t, Uint31_Index > > timestamp_per_id;
   std::set< Tag_Index_Global > tag_req = get_kv_req(kvit->first, kvit->second);
 
   const uint32 DELETED = 0xffffffff;
@@ -201,7 +201,7 @@ std::vector< std::pair< Id_Type, Uint31_Index > > collect_attic_kv2(
         }
       }
 
-      std::pair< uint64, Uint31_Index >& ref = timestamp_per_id[it2.handle().id()];
+      std::pair< timestamp_t, Uint31_Index >& ref = timestamp_per_id[it2.handle().id()];
       if (ref.first == 0 || current_timestamp < ref.first)
         ref = std::make_pair(current_timestamp, it2.handle().get_idx());
     }
@@ -241,7 +241,7 @@ std::vector< std::pair< Id_Type, Uint31_Index > > collect_attic_kv2(
   std::vector< std::pair < Id_Type, Uint31_Index > > result;
   result.reserve(ts_now.size() + timestamp_per_id.size());
 
-  using map_iterator = typename std::map< Id_Type, std::pair< uint64, Uint31_Index > >::iterator;
+  using map_iterator = typename std::map< Id_Type, std::pair< timestamp_t, Uint31_Index > >::iterator;
   using extract_functor = extract_key_val_functor<Id_Type>;
 
   // merge set and vector into vector
@@ -306,13 +306,13 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_k(
 
 template< class Id_Type >
 std::vector< std::pair < Id_Type, Uint31_Index > > collect_attic_k2(
-    std::vector< std::string >::const_iterator kit, uint64 timestamp,
+    std::vector< std::string >::const_iterator kit, timestamp_t timestamp,
     Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > >& tags_db,
     Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >& attic_tags_db)
 {
   const uint32 DELETED = 0xffffffff;
 
-  std::map< Id_Type, std::pair< uint64, Uint31_Index > > timestamp_per_id;
+  std::map< Id_Type, std::pair< timestamp_t, Uint31_Index > > timestamp_per_id;
   std::vector< std::pair < Id_Type, Uint31_Index > > ts_now;
 
   auto range_req = get_k_req(*kit);
@@ -338,7 +338,7 @@ std::vector< std::pair < Id_Type, Uint31_Index > > collect_attic_k2(
         }
       }
 
-      std::pair< uint64, Uint31_Index >& ref = timestamp_per_id[it2.handle().id()];
+      std::pair< timestamp_t, Uint31_Index >& ref = timestamp_per_id[it2.handle().id()];
       if (ref.first == 0 || current_timestamp < ref.first)
         ref = std::make_pair(current_timestamp, it2.handle().get_idx());
     }
@@ -375,7 +375,7 @@ std::vector< std::pair < Id_Type, Uint31_Index > > collect_attic_k2(
   std::vector< std::pair < Id_Type, Uint31_Index > > result;
   result.reserve(ts_now.size() + timestamp_per_id.size());
 
-  using map_iterator = typename std::map< Id_Type, std::pair< uint64, Uint31_Index > >::iterator;
+  using map_iterator = typename std::map< Id_Type, std::pair< timestamp_t, Uint31_Index > >::iterator;
   using extract_functor = extract_key_val_functor<Id_Type>;
 
   // merge set and vector into vector
@@ -437,13 +437,13 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_kregv(
 
 template< class Id_Type >
 std::vector< std::pair < Id_Type, Uint31_Index > > collect_attic_kregv2(
-    std::vector< std::pair< std::string, Regular_Expression* > >::const_iterator krit, uint64 timestamp,
+    std::vector< std::pair< std::string, Regular_Expression* > >::const_iterator krit, timestamp_t timestamp,
     Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > >& tags_db,
     Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >& attic_tags_db)
 {
   const uint32 DELETED = 0xffffffff;
 
-  std::map< Id_Type, std::pair< uint64, Uint31_Index > > timestamp_per_id;
+  std::map< Id_Type, std::pair< timestamp_t, Uint31_Index > > timestamp_per_id;
   std::vector< std::pair < Id_Type, Uint31_Index > > ts_now;
 
   auto range_req = get_k_req(krit->first);
@@ -472,7 +472,7 @@ std::vector< std::pair < Id_Type, Uint31_Index > > collect_attic_kregv2(
         }
       }
 
-      std::pair< uint64, Uint31_Index >& ref = timestamp_per_id[it2.handle().id()];
+      std::pair< timestamp_t, Uint31_Index >& ref = timestamp_per_id[it2.handle().id()];
       if (ref.first == 0 || current_timestamp < ref.first)
         ref = std::make_pair(current_timestamp, it2.handle().get_idx());
     }
@@ -509,7 +509,7 @@ std::vector< std::pair < Id_Type, Uint31_Index > > collect_attic_kregv2(
   std::vector< std::pair < Id_Type, Uint31_Index > > result;
   result.reserve(ts_now.size() + timestamp_per_id.size());
 
-  using map_iterator = typename std::map< Id_Type, std::pair< uint64, Uint31_Index > >::iterator;
+  using map_iterator = typename std::map< Id_Type, std::pair< timestamp_t, Uint31_Index > >::iterator;
   using extract_functor = extract_key_val_functor<Id_Type>;
 
   // merge set and vector into vector
@@ -523,13 +523,13 @@ std::vector< std::pair < Id_Type, Uint31_Index > > collect_attic_kregv2(
 
 
 template< typename Skeleton, typename Id_Type >
-std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_regkregv(
-    std::vector< std::pair< Regular_Expression*, Regular_Expression* > >::const_iterator krit, uint64 timestamp,
+std::map< Id_Type, std::pair< timestamp_t, Uint31_Index > > collect_attic_regkregv(
+    std::vector< std::pair< Regular_Expression*, Regular_Expression* > >::const_iterator krit, timestamp_t timestamp,
     Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > >& tags_db,
     Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >& attic_tags_db,
     Resource_Manager& rman, Statement& stmt)
 {
-  std::map< Id_Type, std::map< std::string, std::pair< uint64, Uint31_Index > > > timestamp_per_id;
+  std::map< Id_Type, std::map< std::string, std::pair< timestamp_t, Uint31_Index > > > timestamp_per_id;
   auto range_req = get_regk_req< Skeleton >(krit->first, rman, stmt);
 
   std::string last_key = void_tag_value();
@@ -564,7 +564,7 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_regkregv(
         matches && it2.index().value != void_tag_value()
         && krit->second->matches(it2.index().value))
     {
-      std::pair< uint64, Uint31_Index >& ref = timestamp_per_id[it2.handle().id()][last_key];
+      std::pair< timestamp_t, Uint31_Index >& ref = timestamp_per_id[it2.handle().id()][last_key];
       if (ref.first == 0 || current_timestamp < ref.first)
         ref = std::make_pair(current_timestamp, it2.object().idx);
     }
@@ -598,8 +598,8 @@ std::map< Id_Type, std::pair< uint64, Uint31_Index > > collect_attic_regkregv(
     }
   }
 
-  std::map< Id_Type, std::pair< uint64, Uint31_Index > > result;
-  for (typename std::map< Id_Type, std::map< std::string, std::pair< uint64, Uint31_Index > > >::const_iterator
+  std::map< Id_Type, std::pair< timestamp_t, Uint31_Index > > result;
+  for (typename std::map< Id_Type, std::map< std::string, std::pair< timestamp_t, Uint31_Index > > >::const_iterator
       it = timestamp_per_id.begin(); it != timestamp_per_id.end(); ++it)
   {
     if (!it->second.empty())

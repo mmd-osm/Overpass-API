@@ -34,14 +34,14 @@ template <typename Id_Type >
 class Newer_Functor {
 public:
   Newer_Functor() = delete;
-  Newer_Functor(uint64 timestamp) : m_timestamp(timestamp) {}
+  Newer_Functor(timestamp_t timestamp) : m_timestamp(timestamp) {}
 
    bool operator()(const OSM_Element_Metadata_Skeleton< Id_Type > & obj) const {
      return (obj.timestamp >= m_timestamp);
    }
 
 private:
-   uint64 m_timestamp = 0;
+   timestamp_t m_timestamp = 0;
 };
 
 class Newer_Constraint final : public Query_Constraint
@@ -58,14 +58,14 @@ class Newer_Constraint final : public Query_Constraint
       return os << "(newer:\"" << Timestamp(timestamp).str() << "\")";
     }
 
-    uint64 timestamp;
+    timestamp_t timestamp;
 };
 
 
 template< typename TIndex, typename TObject >
 void newer_filter_map
     (std::map< TIndex, std::vector< TObject > >& modify,
-     Resource_Manager& rman, uint64 timestamp, File_Properties* file_properties)
+     Resource_Manager& rman, timestamp_t timestamp, File_Properties* file_properties)
 {
   if (modify.empty())
     return;
@@ -94,7 +94,7 @@ void newer_filter_map
 template< typename TIndex, typename TObject >
 void newer_filter_map_attic
     (std::map< TIndex, std::vector< TObject > >& modify,
-     Resource_Manager& rman, uint64 timestamp,
+     Resource_Manager& rman, timestamp_t timestamp,
      File_Properties* current_file_properties, File_Properties* attic_file_properties)
 {
   if (modify.empty())

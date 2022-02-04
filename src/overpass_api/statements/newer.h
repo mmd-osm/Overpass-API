@@ -61,7 +61,7 @@ public:
 
   Query_Constraint* get_query_constraint() override;
 
-  uint64 get_timestamp() const { return than_timestamp; }
+  timestamp_t get_timestamp() const { return than_timestamp; }
 
 #ifdef HAVE_OVERPASS_XML
   std::string dump_xml(const std::string& indent) const override
@@ -85,7 +85,7 @@ public:
   std::string dump_pretty_ql(const std::string& indent) const override { return indent + dump_compact_ql(indent); }
 
 private:
-  uint64 than_timestamp;
+  timestamp_t than_timestamp;
   std::vector< Query_Constraint* > constraints;
 };
 

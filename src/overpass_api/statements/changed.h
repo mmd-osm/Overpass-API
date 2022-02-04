@@ -58,8 +58,8 @@ class Changed_Statement final : public Output_Statement
     static Criterion_Maker criterion_maker;
 
     Query_Constraint* get_query_constraint() override;
-    uint64 get_since(Resource_Manager& rman) const;
-    uint64 get_until(Resource_Manager& rman) const;
+    timestamp_t get_since(Resource_Manager& rman) const;
+    timestamp_t get_until(Resource_Manager& rman) const;
 
     static bool area_query_exists() { return area_query_exists_; }
     bool trivial() const { return behave_trivial; }
@@ -89,7 +89,7 @@ class Changed_Statement final : public Output_Statement
     std::string dump_pretty_ql(const std::string& indent) const override { return dump_compact_ql(indent); }
 
   private:
-    uint64 since, until;
+    timestamp_t since, until;
     std::vector< Query_Constraint* > constraints;
     bool behave_trivial;
     uint32 filter_changeset;

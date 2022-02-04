@@ -133,7 +133,7 @@ void filter_elems_fast(const IdSetHybrid<typename TObject::Id_Type::Id_Type>& id
 
 template< typename Index, typename Skeleton, typename Id_Predicate >
 std::vector< typename Skeleton::Id_Type > collect_changed_elements
-    (uint64 since, uint64 until,
+    (timestamp_t since, timestamp_t until,
      const Id_Predicate& relevant, Resource_Manager& rman)
 {
   Ranges< Timestamp > ranges{ Timestamp(since), Timestamp(until) };
@@ -157,7 +157,7 @@ std::vector< typename Skeleton::Id_Type > collect_changed_elements
 
 template< typename Index, typename Skeleton, typename Id_Predicate >
 IdSetHybrid<typename Skeleton::Id_Type::Id_Type> collect_changed_elements_fast
-    (uint64 since, uint64 until,
+    (timestamp_t since, timestamp_t until,
      const Id_Predicate& relevant, Resource_Manager& rman)
 {
   Ranges< Timestamp > ranges{ Timestamp(since), Timestamp(until) };
@@ -539,7 +539,7 @@ Changed_Statement::Changed_Statement
 }
 
 
-uint64 Changed_Statement::get_since(Resource_Manager& rman) const
+timestamp_t Changed_Statement::get_since(Resource_Manager& rman) const
 {
   if (since == NOW && until == NOW)
     // We have zero arguments on changed.
@@ -581,7 +581,7 @@ uint64 Changed_Statement::get_since(Resource_Manager& rman) const
 }
 
 
-uint64 Changed_Statement::get_until(Resource_Manager& rman) const
+timestamp_t Changed_Statement::get_until(Resource_Manager& rman) const
 {
   if (since == NOW && until == NOW)
     // We have zero arguments on changed.

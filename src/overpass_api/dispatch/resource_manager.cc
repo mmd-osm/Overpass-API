@@ -684,7 +684,7 @@ bool Resource_Manager::health_check(const Statement& stmt, uint32 extra_time, ui
 }
 
 
-uint64 Resource_Manager::get_desired_timestamp() const
+timestamp_t Resource_Manager::get_desired_timestamp() const
 {
   return runtime_stack.empty() ? NOW : runtime_stack.back()->get_desired_timestamp();
 }
@@ -696,19 +696,19 @@ Diff_Action::_ Resource_Manager::get_desired_action() const
 }
 
 
-uint64 Resource_Manager::get_diff_from_timestamp() const
+timestamp_t Resource_Manager::get_diff_from_timestamp() const
 {
   return runtime_stack.empty() ? NOW : runtime_stack.back()->get_diff_from_timestamp();
 }
 
 
-uint64 Resource_Manager::get_diff_to_timestamp() const
+timestamp_t Resource_Manager::get_diff_to_timestamp() const
 {
   return runtime_stack.empty() ? NOW : runtime_stack.back()->get_diff_to_timestamp();
 }
 
 
-void Resource_Manager::start_diff(uint64 comparison_timestamp, uint64 desired_timestamp)
+void Resource_Manager::start_diff(timestamp_t comparison_timestamp, timestamp_t desired_timestamp)
 {
   if (!runtime_stack.empty())
   {
@@ -766,7 +766,7 @@ void Resource_Manager::switch_diff_show_to(const std::string& diff_set_name)
 }
 
 
-void Resource_Manager::set_desired_timestamp(uint64 timestamp)
+void Resource_Manager::set_desired_timestamp(timestamp_t timestamp)
 {
   if (!runtime_stack.empty())
     runtime_stack.back()->set_desired_timestamp(timestamp);

@@ -70,15 +70,15 @@ public:
 
   bool set_exists_in_parents(const std::string& inner_set_name) const;
 
-  uint64 get_desired_timestamp() const { return desired_timestamp; }
+  timestamp_t get_desired_timestamp() const { return desired_timestamp; }
   Diff_Action::_ get_desired_action() const { return desired_action; }
-  uint64 get_diff_from_timestamp() const { return diff_from_timestamp; }
-  uint64 get_diff_to_timestamp() const { return diff_to_timestamp; }
+  timestamp_t get_diff_from_timestamp() const { return diff_from_timestamp; }
+  timestamp_t get_diff_to_timestamp() const { return diff_to_timestamp; }
 
-  void set_desired_timestamp(uint64 timestamp) { desired_timestamp = (timestamp == 0 ? NOW : timestamp); }
+  void set_desired_timestamp(timestamp_t timestamp) { desired_timestamp = (timestamp == 0 ? NOW : timestamp); }
   void set_desired_action(Diff_Action::_ action) { desired_action = action; }
-  void set_diff_from_timestamp(uint64 timestamp) { diff_from_timestamp = timestamp; }
-  void set_diff_to_timestamp(uint64 timestamp) { diff_to_timestamp = timestamp; }
+  void set_diff_from_timestamp(timestamp_t timestamp) { diff_from_timestamp = timestamp; }
+  void set_diff_to_timestamp(timestamp_t timestamp) { diff_to_timestamp = timestamp; }
 
   uint64 total_size();
   std::vector< std::pair< uint, uint > > stack_progress() const;
@@ -94,10 +94,10 @@ private:
   uint loop_count;
   uint loop_size;
 
-  uint64 desired_timestamp;
+  timestamp_t desired_timestamp;
   Diff_Action::_ desired_action;
-  uint64 diff_from_timestamp;
-  uint64 diff_to_timestamp;
+  timestamp_t diff_from_timestamp;
+  timestamp_t diff_to_timestamp;
 };
 
 
@@ -170,13 +170,13 @@ public:
   Transaction* get_transaction() { return transaction; }
   Transaction* get_area_transaction() { return area_transaction; }
 
-  uint64 get_desired_timestamp() const;
+  timestamp_t get_desired_timestamp() const;
   Diff_Action::_ get_desired_action() const;
-  uint64 get_diff_from_timestamp() const;
-  uint64 get_diff_to_timestamp() const;
+  timestamp_t get_diff_from_timestamp() const;
+  timestamp_t get_diff_to_timestamp() const;
 
-  void set_desired_timestamp(uint64 timestamp);
-  void start_diff(uint64 comparison_timestamp, uint64 desired_timestamp);
+  void set_desired_timestamp(timestamp_t timestamp);
+  void start_diff(timestamp_t comparison_timestamp, timestamp_t desired_timestamp);
   void switch_diff_rhs(bool add_deletion_information);
   void switch_diff_show_from(const std::string& diff_set_name);
   void switch_diff_show_to(const std::string& diff_set_name);

@@ -332,7 +332,7 @@ void Set_Comparison::tags_quadtile_attic
 
 template< typename Index, typename Skeleton >
 std::vector< typename Skeleton::Id_Type > find_still_existing_skeletons
-    (Resource_Manager& rman, uint64 timestamp, const std::vector< Index >& req,
+    (Resource_Manager& rman, timestamp_t timestamp, const std::vector< Index >& req,
      const std::vector< typename Skeleton::Id_Type >& searched_ids)
 {
   std::vector< typename Skeleton::Id_Type > found_ids;
@@ -370,7 +370,7 @@ std::vector< typename Skeleton::Id_Type > find_still_existing_skeletons
 template< typename Index, typename Skeleton >
 std::map< typename Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type > >
     find_meta_elements
-    (Resource_Manager& rman, uint64 timestamp, const std::vector< Index >& idx_set,
+    (Resource_Manager& rman, timestamp_t timestamp, const std::vector< Index >& idx_set,
      const std::vector< typename Skeleton::Id_Type >& searched_ids)
 {
   std::map< typename Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type > > result;
@@ -421,7 +421,7 @@ std::map< typename Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< typename Sk
 
 void Set_Comparison::store_item(uint32 ll_upper, const Node_Skeleton& skel,
                             const std::vector< std::pair< std::string, std::string > >* tags,
-                            uint64 timestamp, const OSM_Element_Metadata_Skeleton< Node::Id_Type >* meta,
+                            timestamp_t timestamp, const OSM_Element_Metadata_Skeleton< Node::Id_Type >* meta,
                             const std::map< uint32, std::string >* users, const Output_Handler::Feature_Action& action,
 			    const OSM_Element_Metadata_Skeleton< Node::Id_Type >* new_meta)
 {
@@ -433,7 +433,7 @@ void Set_Comparison::store_item(uint32 ll_upper, const Node_Skeleton& skel,
 
 void Set_Comparison::compare_item(uint32 ll_upper, const Node_Skeleton& skel,
                             const std::vector< std::pair< std::string, std::string > >* tags,
-                            uint64 timestamp, const OSM_Element_Metadata_Skeleton< Node::Id_Type >* meta,
+                            timestamp_t timestamp, const OSM_Element_Metadata_Skeleton< Node::Id_Type >* meta,
                             const std::map< uint32, std::string >* users, const Output_Handler::Feature_Action& action,
 			    const OSM_Element_Metadata_Skeleton< Node::Id_Type >* new_meta)
 {
@@ -541,7 +541,7 @@ void Set_Comparison::store_item(uint32 ll_upper, const Way_Skeleton& skel,
                             const std::vector< std::pair< std::string, std::string > >* tags,
                             const std::pair< Quad_Coord, Quad_Coord* >* bounds,
                             const std::vector< Quad_Coord >* geometry,
-                            uint64 timestamp, const OSM_Element_Metadata_Skeleton< Way::Id_Type >* meta,
+                            timestamp_t timestamp, const OSM_Element_Metadata_Skeleton< Way::Id_Type >* meta,
                             const std::map< uint32, std::string >* users, const Output_Handler::Feature_Action& action,
 			    const OSM_Element_Metadata_Skeleton< Way::Id_Type >* new_meta)
 {
@@ -556,7 +556,7 @@ void Set_Comparison::compare_item(uint32 ll_upper, const Way_Skeleton& skel,
                             const std::vector< std::pair< std::string, std::string > >* tags,
                             const std::pair< Quad_Coord, Quad_Coord* >* bounds,
                             const std::vector< Quad_Coord >* geometry,
-                            uint64 timestamp, const OSM_Element_Metadata_Skeleton< Way::Id_Type >* meta,
+                            timestamp_t timestamp, const OSM_Element_Metadata_Skeleton< Way::Id_Type >* meta,
                             const std::map< uint32, std::string >* users, const Output_Handler::Feature_Action& action,
 			    const OSM_Element_Metadata_Skeleton< Way::Id_Type >* new_meta)
 {
@@ -672,7 +672,7 @@ void Set_Comparison::store_item(uint32 ll_upper, const Relation_Skeleton& skel,
                             const std::vector< std::pair< std::string, std::string > >* tags,
                             const std::pair< Quad_Coord, Quad_Coord* >* bounds,
                             const std::vector< std::vector< Quad_Coord > >* geometry,
-                            uint64 timestamp, const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* meta,
+                            timestamp_t timestamp, const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* meta,
                             const std::map< uint32, std::string >* users, const Output_Handler::Feature_Action& action,
 			    const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* new_meta)
 {
@@ -687,7 +687,7 @@ void Set_Comparison::compare_item(uint32 ll_upper, const Relation_Skeleton& skel
                             const std::vector< std::pair< std::string, std::string > >* tags,
                             const std::pair< Quad_Coord, Quad_Coord* >* bounds,
                             const std::vector< std::vector< Quad_Coord > >* geometry,
-                            uint64 timestamp, const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* meta,
+                            timestamp_t timestamp, const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* meta,
                             const std::map< uint32, std::string >* users, const Output_Handler::Feature_Action& action,
 			    const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* new_meta)
 {
@@ -1052,7 +1052,7 @@ Diff_Set Set_Comparison::compare_to_lhs(Resource_Manager& rman, const Statement&
 {
   result.clear();
 
-  uint64 rhs_timestamp = rman.get_desired_timestamp();
+  timestamp_t rhs_timestamp = rman.get_desired_timestamp();
   rman.set_desired_timestamp(lhs_timestamp_);
 
   Extra_Data_For_Diff extra_data_lhs(rman, stmt, lhs_set_, Output_Mode::ID
@@ -1202,7 +1202,7 @@ Diff_Set Set_Comparison::compare_to_lhs(Resource_Manager& rman, const Statement&
 {
   result.clear();
 
-  uint64 rhs_timestamp = rman.get_desired_timestamp();
+  timestamp_t rhs_timestamp = rman.get_desired_timestamp();
   rman.set_desired_timestamp(lhs_timestamp_);
 
   {

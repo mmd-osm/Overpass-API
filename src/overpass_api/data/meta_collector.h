@@ -66,7 +66,7 @@ public:
   const OSM_Element_Metadata_Skeleton< Id_Type >* get
       (const Index& index, Id_Type ref);
   const OSM_Element_Metadata_Skeleton< Id_Type >* get
-      (const Index& index, Id_Type ref, uint64 timestamp);
+      (const Index& index, Id_Type ref, timestamp_t timestamp);
 
   ~Meta_Collector()
   {
@@ -103,7 +103,7 @@ public:
                        Transaction& transaction, bool turn_on);
 
   const OSM_Element_Metadata_Skeleton< typename Object::Id_Type >* get
-      (const Index& index, typename Object::Id_Type ref, uint64 timestamp = NOW);
+      (const Index& index, typename Object::Id_Type ref, timestamp_t timestamp = NOW);
 
 private:
   Meta_Collector< Index, typename Object::Id_Type > current;
@@ -331,7 +331,7 @@ const OSM_Element_Metadata_Skeleton< Id_Type >* Meta_Collector< Index, Id_Type, 
 
 template< typename Index, typename Id_Type, class Functor >
 const OSM_Element_Metadata_Skeleton< Id_Type >* Meta_Collector< Index, Id_Type, Functor >::get
-    (const Index& index, Id_Type ref, uint64 timestamp)
+    (const Index& index, Id_Type ref, timestamp_t timestamp)
 {
   if (!meta_db)
     return 0;
@@ -364,7 +364,7 @@ Attic_Meta_Collector< Index, Object >::Attic_Meta_Collector(
 
 template< typename Index, typename Object >
 const OSM_Element_Metadata_Skeleton< typename Object::Id_Type >* Attic_Meta_Collector< Index, Object >::get(
-    const Index& index, typename Object::Id_Type ref, uint64 timestamp)
+    const Index& index, typename Object::Id_Type ref, timestamp_t timestamp)
 {
   const OSM_Element_Metadata_Skeleton< typename Object::Id_Type >* meta
       = current.get(index, ref, timestamp);

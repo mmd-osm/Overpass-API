@@ -51,6 +51,7 @@ typedef unsigned short int uint16;
 typedef unsigned int uint32;
 typedef unsigned long long uint64;
 
+typedef uint32 timestamp_t;
 
 const int S_666 = S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH;
 const int S_664 = S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH;

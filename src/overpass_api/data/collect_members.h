@@ -189,7 +189,7 @@ bool get_elements_by_id_from_db
      const Statement& query, Resource_Manager& rman,
      File_Properties& file_prop, File_Properties& attic_file_prop)
 {
-  uint64 timestamp = rman.get_desired_timestamp();
+  timestamp_t timestamp = rman.get_desired_timestamp();
 
   elements.clear();
   attic_elements.clear();
@@ -262,7 +262,7 @@ bool get_elements_by_id_from_db
 
 template< typename Index, typename Skeleton >
 void filter_attic_elements
-    (Resource_Manager& rman, uint64 timestamp,
+    (Resource_Manager& rman, timestamp_t timestamp,
      std::map< Index, std::vector< Skeleton > >& current,
      std::map< Index, std::vector< Attic< Skeleton > > >& attic)
 {
@@ -327,12 +327,12 @@ void filter_attic_elements
     // Confirm elements that are backed by meta data
     // Update element's expiration timestamp if a meta exists that is older than the current
     // expiration date and younger than timestamp
-    std::map< Index, std::map< typename Skeleton::Id_Type, std::pair< uint64, uint64 > > >
+    std::map< Index, std::map< typename Skeleton::Id_Type, std::pair< timestamp_t, timestamp_t > > >
         timestamp_by_id_by_idx;
     for (typename std::map< Index, std::vector< Skeleton > >::const_iterator it = current.begin();
          it != current.end(); ++it)
     {
-      std::map< typename Skeleton::Id_Type, std::pair< uint64, uint64 > >& entry
+      std::map< typename Skeleton::Id_Type, std::pair< timestamp_t, timestamp_t > >& entry
           = timestamp_by_id_by_idx[it->first];
       for (auto it2 = it->second.begin();
            it2 != it->second.end(); ++it2)
@@ -341,7 +341,7 @@ void filter_attic_elements
     for (typename std::map< Index, std::vector< Attic< Skeleton > > >::const_iterator it = attic.begin();
          it != attic.end(); ++it)
     {
-      std::map< typename Skeleton::Id_Type, std::pair< uint64, uint64 > >& entry
+      std::map< typename Skeleton::Id_Type, std::pair< timestamp_t, timestamp_t > >& entry
           = timestamp_by_id_by_idx[it->first];
       for (auto it2 = it->second.begin();
            it2 != it->second.end(); ++it2)
@@ -355,7 +355,7 @@ void filter_attic_elements
 
     for (const auto & it : attic_meta_db.as_discrete(idx_set))
     {
-      std::map< typename Skeleton::Id_Type, std::pair< uint64, uint64 > >& entry =
+      std::map< typename Skeleton::Id_Type, std::pair< timestamp_t, timestamp_t > >& entry =
           timestamp_by_id_by_idx[it.index_handle().id()];
 
       auto tit = entry.find(it.handle().get_ref());
@@ -379,7 +379,7 @@ void filter_attic_elements
 
     for (const auto & it : meta_db.as_discrete(idx_set))
     {
-      std::map< typename Skeleton::Id_Type, std::pair< uint64, uint64 > >& entry
+      std::map< typename Skeleton::Id_Type, std::pair< timestamp_t, timestamp_t > >& entry
           = timestamp_by_id_by_idx[it.index_handle().id()];
 
       auto tit = entry.find(it.handle().get_ref());
@@ -397,7 +397,7 @@ void filter_attic_elements
          it != current.end(); ++it)
     {
       std::vector< Skeleton > result;
-      std::map< typename Skeleton::Id_Type, std::pair< uint64, uint64 > >& entry
+      std::map< typename Skeleton::Id_Type, std::pair< timestamp_t, timestamp_t > >& entry
           = timestamp_by_id_by_idx[it->first];
 
       for (typename std::vector< Skeleton >::const_iterator it2 = it->second.begin();
@@ -420,7 +420,7 @@ void filter_attic_elements
          it != attic.end(); ++it)
     {
       std::vector< Attic< Skeleton > > result;
-      std::map< typename Skeleton::Id_Type, std::pair< uint64, uint64 > >& entry
+      std::map< typename Skeleton::Id_Type, std::pair< timestamp_t, timestamp_t > >& entry
           = timestamp_by_id_by_idx[it->first];
 
       for (typename std::vector< Attic< Skeleton > >::const_iterator it2 = it->second.begin();
@@ -580,9 +580,9 @@ template< typename Index, typename Skeleton >
 void keep_matching_skeletons
     (std::map< Index, std::vector< Skeleton > >& current,
      std::map< Index, std::vector< Attic< Skeleton > > >& attic,
-     uint64 timestamp)
+     timestamp_t timestamp)
 {
-  std::map< typename Skeleton::Id_Type, uint64 > timestamp_by_id;
+  std::map< typename Skeleton::Id_Type, timestamp_t > timestamp_by_id;
 
   for (typename std::map< Index, std::vector< Skeleton > >::const_iterator it = current.begin();
        it != current.end(); ++it)
@@ -598,7 +598,7 @@ void keep_matching_skeletons
     for (auto it2 = it->second.begin();
          it2 != it->second.end(); ++it2)
     {
-      uint64& stored_timestamp = timestamp_by_id[it2->id];
+      timestamp_t& stored_timestamp = timestamp_by_id[it2->id];
       if (it2->timestamp > timestamp && (stored_timestamp == 0 || stored_timestamp > it2->timestamp))
         stored_timestamp = it2->timestamp;
     }
@@ -637,9 +637,9 @@ void keep_matching_skeletons
     (std::map< Index, std::vector< Attic< Skeleton > > >& result,
      const std::map< Index, std::vector< Skeleton > >& current,
      const std::map< Index, std::vector< Attic< Skeleton > > >& attic,
-     uint64 timestamp)
+     timestamp_t timestamp)
 {
-  std::map< typename Skeleton::Id_Type, uint64 > timestamp_by_id;
+  std::map< typename Skeleton::Id_Type, timestamp_t > timestamp_by_id;
 
   result.clear();
 
@@ -656,7 +656,7 @@ void keep_matching_skeletons
     for (auto it2 = it->second.begin();
          it2 != it->second.end(); ++it2)
     {
-      uint64& stored_timestamp = timestamp_by_id[it2->id];
+      timestamp_t& stored_timestamp = timestamp_by_id[it2->id];
       if (it2->timestamp > timestamp && (stored_timestamp == 0 || stored_timestamp > it2->timestamp))
         stored_timestamp = it2->timestamp;
     }
@@ -689,7 +689,7 @@ void keep_matching_skeletons
     (std::vector< Node_Base >& result,
      const std::map< Uint32_Index, std::vector< Node_Skeleton > >& current,
      const std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > >& attic,
-     uint64 timestamp);
+     timestamp_t timestamp);
 
 
 template< typename TIndex, typename TObject >

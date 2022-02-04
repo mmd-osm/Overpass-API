@@ -58,20 +58,35 @@
 // Attic
 
 template<class Archive>
-void serialize(Archive & archive,
-               Attic<Relation_Skeleton> & m)
+void save(Archive & archive,
+               const Attic<Relation_Skeleton> & m)
 {
   archive(cereal::make_nvp("id",m.id),
           cereal::make_nvp("members",m.members()),
           cereal::make_nvp("node_idxs",m.node_idxs()),
           cereal::make_nvp("way_idxs",m.way_idxs()),
-          cereal::make_nvp("timestamp",m.timestamp));
+          cereal::make_nvp("timestamp",Timestamp_64(m.timestamp).timestamp));
+}
+
+template<class Archive>
+void load(Archive & archive,
+               Attic<Relation_Skeleton> & m)
+{
+  uint64 ts;
+
+  archive(cereal::make_nvp("id",m.id),
+          cereal::make_nvp("members",m.members()),
+          cereal::make_nvp("node_idxs",m.node_idxs()),
+          cereal::make_nvp("way_idxs",m.way_idxs()),
+          cereal::make_nvp("timestamp",ts));
+
+  m.timestamp = Timestamp(Timestamp_64(ts)).timestamp;
 }
 
 
 template<class Archive>
-void serialize(Archive & archive,
-               Attic<Way_Delta> & m)
+void save(Archive & archive,
+               const Attic<Way_Delta> & m)
 {
   archive(cereal::make_nvp("id",m.id),
           cereal::make_nvp("full",m.full),
@@ -79,14 +94,31 @@ void serialize(Archive & archive,
           cereal::make_nvp("nds_added",m.nds_added),
           cereal::make_nvp("geometry_removed",m.geometry_removed),
           cereal::make_nvp("geometry_added",m.geometry_added),
-          cereal::make_nvp("timestamp",m.timestamp));
+          cereal::make_nvp("timestamp",Timestamp_64(m.timestamp).timestamp));
 }
 
 
+template<class Archive>
+void load(Archive & archive,
+               Attic<Way_Delta> & m)
+{
+  uint64 ts;
+
+  archive(cereal::make_nvp("id",m.id),
+          cereal::make_nvp("full",m.full),
+          cereal::make_nvp("nds_removed",m.nds_removed),
+          cereal::make_nvp("nds_added",m.nds_added),
+          cereal::make_nvp("geometry_removed",m.geometry_removed),
+          cereal::make_nvp("geometry_added",m.geometry_added),
+          cereal::make_nvp("timestamp",ts));
+
+  m.timestamp = Timestamp(Timestamp_64(ts)).timestamp;
+}
+
 
 template<class Archive>
-void serialize(Archive & archive,
-          Attic<Relation_Delta> & m)
+void save(Archive & archive,
+          const Attic<Relation_Delta> & m)
 {
   archive(cereal::make_nvp("id",m.id),
           cereal::make_nvp("full",m.full),
@@ -96,27 +128,74 @@ void serialize(Archive & archive,
           cereal::make_nvp("node_idxs_added",m.node_idxs_added),
           cereal::make_nvp("way_idxs_removed",m.way_idxs_removed),
           cereal::make_nvp("way_idxs_added",m.way_idxs_added),
-          cereal::make_nvp("timestamp",m.timestamp));
+          cereal::make_nvp("timestamp",Timestamp_64(m.timestamp).timestamp));
 
+}
+
+template<class Archive>
+void load(Archive & archive,
+          Attic<Relation_Delta> & m)
+{
+  uint64 ts;
+
+  archive(cereal::make_nvp("id",m.id),
+          cereal::make_nvp("full",m.full),
+          cereal::make_nvp("members_removed",m.members_removed),
+          cereal::make_nvp("members_added",m.members_added),
+          cereal::make_nvp("node_idxs_removed",m.node_idxs_removed),
+          cereal::make_nvp("node_idxs_added",m.node_idxs_added),
+          cereal::make_nvp("way_idxs_removed",m.way_idxs_removed),
+          cereal::make_nvp("way_idxs_added",m.way_idxs_added),
+          cereal::make_nvp("timestamp",ts));
+
+  m.timestamp = Timestamp(Timestamp_64(ts)).timestamp;
 }
 
 
 template<class Archive>
-void serialize(Archive & archive,
-               Attic< Node_Skeleton > & m)
+void save(Archive & archive,
+               const Attic< Node_Skeleton > & m)
 {
+  uint64 ts = Timestamp_64(m.timestamp).timestamp;
+
   archive(cereal::make_nvp("id",m.id),
           cereal::make_nvp("ll_lower",m.ll_lower),
-          cereal::make_nvp("timestamp",m.timestamp));
+          cereal::make_nvp("timestamp",ts));
 }
 
+
 template<class Archive>
-void serialize(Archive & archive,
-    Attic<Tag_Object_Global<Uint32_Index> >& m)
+void load(Archive & archive,
+               Attic< Node_Skeleton > & m)
+{
+  uint64 ts;
+
+  archive(cereal::make_nvp("id",m.id),
+          cereal::make_nvp("ll_lower",m.ll_lower),
+          cereal::make_nvp("timestamp",ts));
+
+  m.timestamp = Timestamp(Timestamp_64(ts)).timestamp;
+}
+
+
+
+template<class Archive>
+void save(Archive & archive,
+    const Attic<Tag_Object_Global<Uint32_Index> >& m)
 {
   archive( cereal::make_nvp("idx",m.idx),
            cereal::make_nvp("id",m.id),
-           cereal::make_nvp("timestamp",m.timestamp) );
+           cereal::make_nvp("timestamp",Timestamp_64(m.timestamp).timestamp) );
+}
+
+
+template<class Archive>
+void load(Archive & archive,
+    Attic<Tag_Object_Global<Uint32_Index> >& m)
+{
+  uint64 ts;
+  archive( m.idx, m.id, ts);
+  m.timestamp = Timestamp(Timestamp_64(ts)).timestamp;
 }
 
 
@@ -124,7 +203,7 @@ template<class Archive>
 void save(Archive & archive,
     Attic<Uint32_Index> const & m)
 {
-  archive(m.val(), cereal::make_nvp("timestamp",m.timestamp));
+  archive(m.val(), cereal::make_nvp("timestamp",Timestamp_64(m.timestamp).timestamp));
 }
 
 template<class Archive>
@@ -134,7 +213,7 @@ void load(Archive & archive,
     uint32 v;
     uint64 ts;
     archive( v, ts );
-    m = Attic<Uint32_Index>(v, ts);
+    m = Attic<Uint32_Index>(v, Timestamp(Timestamp_64(ts)).timestamp);
 }
 
 template<class Archive>
@@ -142,7 +221,7 @@ void save(Archive & archive,
                Attic<Uint64> const & m)
 {
   auto val = m.val();
-  archive(val, cereal::make_nvp("timestamp",m.timestamp));
+  archive(val, cereal::make_nvp("timestamp",Timestamp_64(m.timestamp).timestamp));
 }
 
 template<class Archive>
@@ -152,7 +231,7 @@ void load(Archive & archive,
     uint64 v;
     uint64 ts;
     archive( v, ts );
-    m = Attic<Uint64>(v, ts);
+    m = Attic<Uint64>(v, Timestamp(Timestamp_64(ts)).timestamp);
 }
 
 
@@ -161,7 +240,7 @@ void save(Archive & archive,
                Attic<Uint40> const & m)
 {
   auto val = m.val();
-  archive(val, cereal::make_nvp("timestamp",m.timestamp));
+  archive(val, cereal::make_nvp("timestamp",Timestamp_64(m.timestamp).timestamp));
 }
 
 template<class Archive>
@@ -171,61 +250,123 @@ void load(Archive & archive,
     uint64 v;
     uint64 ts;
     archive( v, ts );
-    m = Attic<Uint40>(v, ts);
+    m = Attic<Uint40>(v, Timestamp(Timestamp_64(ts)).timestamp);
 }
 
 
 
 template<class Archive>
-void serialize(Archive & archive,
-    Attic< Tag_Object_Global< Uint40 > >& m)
+void save(Archive & archive,
+    const Attic< Tag_Object_Global< Uint40 > >& m)
 {
   archive( cereal::make_nvp("idx",m.idx),
            cereal::make_nvp("id",m.id),
-           cereal::make_nvp("timestamp",m.timestamp));
+           cereal::make_nvp("timestamp",Timestamp_64(m.timestamp).timestamp));
 }
 
+template<class Archive>
+void load(Archive & archive,
+    Attic< Tag_Object_Global< Uint40 > >& m)
+{
+
+  uint64 ts;
+  archive( cereal::make_nvp("idx",m.idx),
+           cereal::make_nvp("id",m.id),
+           cereal::make_nvp("timestamp",ts));
+  m.timestamp = Timestamp(Timestamp_64(ts)).timestamp;
+}
 
 
 //
 
 
 template<class Archive>
-void serialize(Archive & archive,
+void save(Archive & archive,
+               const OSM_Element_Metadata_Skeleton< Node_Skeleton::Id_Type > & m)
+{
+  archive( cereal::make_nvp("ref",m.ref),
+           cereal::make_nvp("version",m.version),
+           cereal::make_nvp("timestamp",Timestamp_64(m.timestamp).timestamp),
+           cereal::make_nvp("user_id",m.user_id),
+           cereal::make_nvp("changeset",m.changeset ));
+}
+
+template<class Archive>
+void load(Archive & archive,
                OSM_Element_Metadata_Skeleton< Node_Skeleton::Id_Type > & m)
 {
+  uint64 ts;
+
   archive( cereal::make_nvp("ref",m.ref),
            cereal::make_nvp("version",m.version),
-           cereal::make_nvp("timestamp",m.timestamp),
+           cereal::make_nvp("timestamp",ts),
            cereal::make_nvp("user_id",m.user_id),
-           cereal::make_nvp("changeset",m.changeset ));
+           cereal::make_nvp("changeset",m.changeset));
+
+  m.timestamp = Timestamp(Timestamp_64(ts)).timestamp;
 }
 
 template<class Archive>
-void serialize(Archive & archive,
-               OSM_Element_Metadata_Skeleton<Uint32_Index> & m)
+void save(Archive & archive,
+               const OSM_Element_Metadata_Skeleton<Uint32_Index> & m)
 {
   archive( cereal::make_nvp("ref",m.ref),
            cereal::make_nvp("version",m.version),
-           cereal::make_nvp("timestamp",m.timestamp),
+           cereal::make_nvp("timestamp",Timestamp_64(m.timestamp).timestamp),
            cereal::make_nvp("user_id",m.user_id),
            cereal::make_nvp("changeset",m.changeset ));
 }
 
+template<class Archive>
+void load(Archive & archive,
+               OSM_Element_Metadata_Skeleton<Uint32_Index> & m)
+{
+  uint64 ts;
+
+  archive( cereal::make_nvp("ref",m.ref),
+           cereal::make_nvp("version",m.version),
+           cereal::make_nvp("timestamp",ts),
+           cereal::make_nvp("user_id",m.user_id),
+           cereal::make_nvp("changeset",m.changeset ));
+
+  m.timestamp = Timestamp(Timestamp_64(ts)).timestamp;
+}
+
+
 
 template<class Archive>
-void serialize(Archive & archive,
-               Tag_Index_Global & m)
+void save(Archive & archive,
+               const Tag_Index_Global & m)
 {
  archive(cereal::make_nvp("key",m.key),
          cereal::make_nvp("value",m.value));
 }
 
 template<class Archive>
-void serialize(Archive & archive,
+void load(Archive & archive,
+               Tag_Index_Global & m)
+{
+ archive(cereal::make_nvp("key",m.key),
+         cereal::make_nvp("value",m.value));
+}
+
+
+template<class Archive>
+void save(Archive & archive,
+    const Timestamp & m)
+{
+  archive( cereal::make_nvp("timestamp",Timestamp_64(m.timestamp).timestamp));
+}
+
+template<class Archive>
+void load(Archive & archive,
     Timestamp & m)
 {
-  archive( cereal::make_nvp("timestamp",m.timestamp));
+  uint64 ts;
+
+  archive( cereal::make_nvp("timestamp",ts));
+
+  m.timestamp = Timestamp(Timestamp_64(ts)).timestamp;
 }
 
 template<class Archive>
@@ -246,7 +387,15 @@ void load(Archive & archive,
 
 
 template<class Archive>
-void serialize(Archive & archive,
+void save(Archive & archive,
+    const Tag_Object_Global< Node_Skeleton::Id_Type >& m)
+{
+  archive( cereal::make_nvp("idx",m.idx),
+           cereal::make_nvp("id",m.id) );
+}
+
+template<class Archive>
+void load(Archive & archive,
     Tag_Object_Global< Node_Skeleton::Id_Type >& m)
 {
   archive( cereal::make_nvp("idx",m.idx),
@@ -254,15 +403,33 @@ void serialize(Archive & archive,
 }
 
 template<class Archive>
-void serialize(Archive & archive,
-    Tag_Object_Global<Uint32_Index>& m)
+void save(Archive & archive,
+    const Tag_Object_Global<Uint32_Index>& m)
 {
   archive( cereal::make_nvp("idx",m.idx),
            cereal::make_nvp("id",m.id) );
 }
 
 template<class Archive>
-void serialize(Archive & archive,
+void load(Archive & archive,
+    Tag_Object_Global<Uint32_Index>& m)
+{
+  archive( cereal::make_nvp("idx",m.idx),
+           cereal::make_nvp("id",m.id) );
+}
+
+
+template<class Archive>
+void save(Archive & archive,
+    const Tag_Index_Local& m)
+{
+  archive(cereal::make_nvp("index",m.index),
+          cereal::make_nvp("key",m.key),
+          cereal::make_nvp("value",m.value));
+}
+
+template<class Archive>
+void load(Archive & archive,
     Tag_Index_Local& m)
 {
   archive(cereal::make_nvp("index",m.index),
@@ -338,15 +505,32 @@ void load(Archive & archive,
 }
 
 template<class Archive>
-void serialize(Archive & archive,
-    Quad_Coord & m)
+void save(Archive & archive,
+    const Quad_Coord & m)
 {
   archive(cereal::make_nvp("ll_upper",m.ll_upper),
           cereal::make_nvp("ll_lower",m.ll_lower));
 }
 
 template<class Archive>
-void serialize(Archive & archive,
+void load(Archive & archive,
+    Quad_Coord & m)
+{
+  archive(cereal::make_nvp("ll_upper",m.ll_upper),
+          cereal::make_nvp("ll_lower",m.ll_lower));
+}
+
+
+template<class Archive>
+void save(Archive & archive,
+               const Node_Skeleton & m)
+{
+  archive(cereal::make_nvp("id",m.id),
+          cereal::make_nvp("ll_lower", m.ll_lower));
+}
+
+template<class Archive>
+void load(Archive & archive,
                Node_Skeleton & m)
 {
   archive(cereal::make_nvp("id",m.id),
@@ -355,7 +539,16 @@ void serialize(Archive & archive,
 
 
 template<class Archive>
-void serialize(Archive & archive,
+void save(Archive & archive,
+               const Way_Skeleton & m)
+{
+  archive(cereal::make_nvp("id",m.id),
+          cereal::make_nvp("nds",m.nds()),
+          cereal::make_nvp("geometry",m.geometry()));
+}
+
+template<class Archive>
+void load(Archive & archive,
                Way_Skeleton & m)
 {
   archive(cereal::make_nvp("id",m.id),
@@ -670,7 +863,7 @@ int main(int argc, char* args[])
     }
     else if (std::string("--attic-rel-tags-global") == args[2] || step == 43)
     {
-      import_bin< Tag_Index_Global, Attic< Tag_Object_Global< Relation_Skeleton::Id_Type > > >(transaction, attic_settings().RELATION_TAGS_GLOBAL);
+ //     import_bin< Tag_Index_Global, Attic< Tag_Object_Global< Relation_Skeleton::Id_Type > > >(transaction, attic_settings().RELATION_TAGS_GLOBAL);
     }
     else if (std::string("--attic-rels-meta") == args[2] || step == 44)
     {

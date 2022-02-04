@@ -55,7 +55,7 @@ void Retro_Statement::add_statement(Statement* statement, std::string text)
 }
 
 
-uint64 eval_timestamp(Evaluator& criterion, const Statement& stmt, Resource_Manager& rman)
+timestamp_t eval_timestamp(Evaluator& criterion, const Statement& stmt, Resource_Manager& rman)
 {
   Prepare_Task_Context context(criterion.request_context(), stmt, rman);
   std::unique_ptr< Eval_Task > task(criterion.get_string_task(context, 0));
@@ -70,7 +70,7 @@ void Retro_Statement::execute(Resource_Manager& rman)
   if (!timestamp)
     return;
 
-  uint64 retro_timestamp = eval_timestamp(*timestamp, *this, rman);
+  timestamp_t retro_timestamp = eval_timestamp(*timestamp, *this, rman);
   if (!retro_timestamp)
     return;
 

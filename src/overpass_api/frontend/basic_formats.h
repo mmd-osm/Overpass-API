@@ -23,7 +23,7 @@
 #include "../core/datatypes.h"
 
 
-std::string iso_string(uint64 timestamp);
+std::string iso_string(timestamp_t timestamp);
 
 
 typedef enum { http_get, http_post, http_head, http_options } Http_Methods;

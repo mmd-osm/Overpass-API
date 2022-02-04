@@ -1157,7 +1157,7 @@ std::map< std::pair< typename Element_Skeleton::Id_Type, std::string >, std::vec
       std::vector< Attic< std::string > > > result;
 
   // Contains for each OSM object its oldest appearing timestamp.
-  std::map< typename Element_Skeleton::Id_Type, uint64 > timestamp_per_id;
+  std::map< typename Element_Skeleton::Id_Type, timestamp_t > timestamp_per_id;
 
   // Convert new_data into a list of pairs of tag values and their expiration date.
 
@@ -1170,7 +1170,7 @@ std::map< std::pair< typename Element_Skeleton::Id_Type, std::string >, std::vec
   for (auto it = new_data.data.begin(); it != new_data.data.end(); ++it)
   {
     // The expiration date of this version.
-    uint64 next_timestamp = NOW;
+    timestamp_t next_timestamp = NOW;
 
     if (next_it != new_data.data.end())
     {
@@ -1207,7 +1207,7 @@ std::map< std::pair< typename Element_Skeleton::Id_Type, std::string >, std::vec
          it2 != it->second.end(); ++it2)
     {
       std::vector< Attic< std::string > >& result_ref = result[std::make_pair(*it2, it->first.key)];
-      uint64 timestamp = (timestamp_per_id[*it2] == 0 ? NOW : timestamp_per_id[*it2]);
+      timestamp_t timestamp = (timestamp_per_id[*it2] == 0 ? NOW : timestamp_per_id[*it2]);
       if (result_ref.empty() || result_ref.back().timestamp < timestamp_per_id[*it2]
           || result_ref.back() != void_tag_value_space())
         result_ref.push_back(Attic< std::string >(it->first.value, timestamp));

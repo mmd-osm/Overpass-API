@@ -174,7 +174,7 @@ struct Tag_Entry_Listener
 public:
   virtual bool notify_key(const std::string& key) = 0;
   virtual bool value_relevant(const std::string& value) const = 0;
-  virtual void eval_id(Id_Type id, uint64 timestamp, bool value_relevant) = 0;
+  virtual void eval_id(Id_Type id, timestamp_t timestamp, bool value_relevant) = 0;
   virtual void filter_ids(std::vector< Id_Type >& new_ids) = 0;
   virtual ~Tag_Entry_Listener() = default;
 };
@@ -202,11 +202,11 @@ public:
     return valid;
   }
 
-  void eval_id(Id_Type id, uint64 timestamp, bool value_relevant) override
+  void eval_id(Id_Type id, timestamp_t timestamp, bool value_relevant) override
   {
     if (std::binary_search(old_ids_->begin(), old_ids_->end(), id))
     {
-      std::pair< uint64, uint64 >& timestamp_ref = timestamps[id];
+      std::pair< timestamp_t, timestamp_t >& timestamp_ref = timestamps[id];
       if (timestamp_ref.second == 0 || timestamp <= timestamp_ref.second)
       {
         timestamp_ref.second = timestamp;
@@ -222,7 +222,7 @@ public:
     std::vector< Id_Type > result;
     for (typename std::vector< Id_Type >::const_iterator it = new_ids.begin(); it != new_ids.end(); ++it)
     {
-      std::pair< uint64, uint64 >& timestamp_ref = timestamps[*it];
+      std::pair< timestamp_t, timestamp_t >& timestamp_ref = timestamps[*it];
       if (0 < timestamp_ref.first && timestamp_ref.first <= timestamp_ref.second)
         result.push_back(*it);
     }
@@ -235,7 +235,7 @@ private:
   std::string value_;
   std::vector< Regular_Expression* > conditions_;
   const std::vector< Id_Type >* old_ids_;
-  std::map< Id_Type, std::pair< uint64, uint64 > > timestamps;
+  std::map< Id_Type, std::pair< timestamp_t, timestamp_t > > timestamps;
 };
 
 
@@ -261,11 +261,11 @@ public:
     return value != void_tag_value() && value_->matches(value);
   }
 
-  void eval_id(Id_Type id, uint64 timestamp, bool value_relevant) override
+  void eval_id(Id_Type id, timestamp_t timestamp, bool value_relevant) override
   {
     if (std::binary_search(old_ids_->begin(), old_ids_->end(), id))
     {
-      std::pair< uint64, uint64 >& timestamp_ref = timestamps[id];
+      std::pair< timestamp_t, timestamp_t >& timestamp_ref = timestamps[id];
       timestamp_ref.second = timestamp;
 
       if (value_relevant)
@@ -289,7 +289,7 @@ public:
 
   void commit_ids()
   {
-    for (typename std::map< Id_Type, std::pair< uint64, uint64 > >::const_iterator it = timestamps.begin();
+    for (typename std::map< Id_Type, std::pair< timestamp_t, timestamp_t > >::const_iterator it = timestamps.begin();
 	it != timestamps.end(); ++it)
     {
       if (0 < it->second.first && it->second.first <= it->second.second)
@@ -304,7 +304,7 @@ private:
   Regular_Expression* value_;
   const std::vector< Id_Type >* old_ids_;
   std::vector< Id_Type > new_ids_;
-  std::map< Id_Type, std::pair< uint64, uint64 > > timestamps;
+  std::map< Id_Type, std::pair< timestamp_t, timestamp_t > > timestamps;
 };
 
 

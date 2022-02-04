@@ -62,7 +62,7 @@ struct Evaluator;
 class Set_Comparison
 {
 public:
-  Set_Comparison(Transaction& transaction, const Set& lhs_set, uint64 lhs_timestamp)
+  Set_Comparison(Transaction& transaction, const Set& lhs_set, timestamp_t lhs_timestamp)
       : final_target(0), lhs_set_(lhs_set), lhs_timestamp_(lhs_timestamp) {}
 
   Diff_Set compare_to_lhs(Resource_Manager& rman, const Statement& stmt, const Set& input_set,
@@ -81,13 +81,13 @@ private:
                     const std::map< uint32, std::string >* users);
   void store_item(uint32 ll_upper, const Node_Skeleton& skel,
                             const std::vector< std::pair< std::string, std::string > >* tags,
-                            uint64 timestamp, const OSM_Element_Metadata_Skeleton< Node::Id_Type >* meta = 0,
+                            timestamp_t timestamp, const OSM_Element_Metadata_Skeleton< Node::Id_Type >* meta = 0,
                             const std::map< uint32, std::string >* users = 0,
                             const Output_Handler::Feature_Action& action = Output_Handler::keep,
                             const OSM_Element_Metadata_Skeleton< Node::Id_Type >* new_meta = 0);
   void compare_item(uint32 ll_upper, const Node_Skeleton& skel,
                             const std::vector< std::pair< std::string, std::string > >* tags,
-                            uint64 timestamp, const OSM_Element_Metadata_Skeleton< Node::Id_Type >* meta = 0,
+                            timestamp_t timestamp, const OSM_Element_Metadata_Skeleton< Node::Id_Type >* meta = 0,
                             const std::map< uint32, std::string >* users = 0,
                             const Output_Handler::Feature_Action& action = Output_Handler::keep,
                             const OSM_Element_Metadata_Skeleton< Node::Id_Type >* new_meta = 0);
@@ -104,7 +104,7 @@ private:
                             const std::vector< std::pair< std::string, std::string > >* tags,
                             const std::pair< Quad_Coord, Quad_Coord* >* bounds,
                             const std::vector< Quad_Coord >* geometry,
-                            uint64 timestamp, const OSM_Element_Metadata_Skeleton< Way::Id_Type >* meta = 0,
+                            timestamp_t timestamp, const OSM_Element_Metadata_Skeleton< Way::Id_Type >* meta = 0,
                             const std::map< uint32, std::string >* users = 0,
                             const Output_Handler::Feature_Action& action = Output_Handler::keep,
                             const OSM_Element_Metadata_Skeleton< Way::Id_Type >* new_meta = 0);
@@ -112,7 +112,7 @@ private:
                             const std::vector< std::pair< std::string, std::string > >* tags,
                             const std::pair< Quad_Coord, Quad_Coord* >* bounds,
                             const std::vector< Quad_Coord >* geometry,
-                            uint64 timestamp, const OSM_Element_Metadata_Skeleton< Way::Id_Type >* meta = 0,
+                            timestamp_t timestamp, const OSM_Element_Metadata_Skeleton< Way::Id_Type >* meta = 0,
                             const std::map< uint32, std::string >* users = 0,
                             const Output_Handler::Feature_Action& action = Output_Handler::keep,
                             const OSM_Element_Metadata_Skeleton< Way::Id_Type >* new_meta = 0);
@@ -129,7 +129,7 @@ private:
                             const std::vector< std::pair< std::string, std::string > >* tags,
                             const std::pair< Quad_Coord, Quad_Coord* >* bounds,
                             const std::vector< std::vector< Quad_Coord > >* geometry,
-                            uint64 timestamp, const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* meta = 0,
+                            timestamp_t timestamp, const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* meta = 0,
                             const std::map< uint32, std::string >* users = 0,
                             const Output_Handler::Feature_Action& action = Output_Handler::keep,
                             const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* new_meta = 0);
@@ -137,7 +137,7 @@ private:
                             const std::vector< std::pair< std::string, std::string > >* tags,
                             const std::pair< Quad_Coord, Quad_Coord* >* bounds,
                             const std::vector< std::vector< Quad_Coord > >* geometry,
-                            uint64 timestamp, const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* meta = 0,
+                            timestamp_t timestamp, const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* meta = 0,
                             const std::map< uint32, std::string >* users = 0,
                             const Output_Handler::Feature_Action& action = Output_Handler::keep,
                             const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* new_meta = 0);
@@ -151,7 +151,7 @@ private:
   void compute_deriveds(std::map< Uint31_Index, std::vector< Derived_Structure > > rhs_deriveds);
 
   const Set& lhs_set() const { return lhs_set_; }
-  uint64 lhs_timestamp() const { return lhs_timestamp_; }
+  timestamp_t lhs_timestamp() const { return lhs_timestamp_; }
 
   template< class Index, class Object >
   void tags_quadtile
@@ -183,7 +183,7 @@ private:
   std::vector< std::pair< Relation_Skeleton::Id_Type, std::string > > relation_values;
 
   Set lhs_set_;
-  uint64 lhs_timestamp_;
+  timestamp_t lhs_timestamp_;
 
   Diff_Set result;
 };

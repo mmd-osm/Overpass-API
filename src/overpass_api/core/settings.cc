@@ -401,7 +401,7 @@ const std::string& get_logfile_name()
 
 const Logger::LEVEL Logger::log_level = Logger::get_env_log_level();
 
-const uint64 NOW = std::numeric_limits< unsigned long long >::max();
+const timestamp_t NOW = std::numeric_limits< timestamp_t >::max();
 
 const std::string void_tag::void_tag_value =  { (char) 0xff };
 const std::string void_tag::void_tag_value_space = { (char) 0xff, (char) 0x20 };

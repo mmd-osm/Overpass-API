@@ -44,6 +44,9 @@ struct Uint40;
 // needs to be large enough to store node, way and relation object ids
 using Global_Id_Type = Uint40;
 
+typedef uint32 timestamp_t;
+
+
 
 template <typename Object >
 struct Generic_Element_Functor {
@@ -519,37 +522,35 @@ struct Attic : public Element_Skeleton
 
   Attic() = default;
 
-  Attic(const Element_Skeleton& elem, uint64 timestamp_) : Element_Skeleton(elem), timestamp(timestamp_) {}
+  Attic(const Element_Skeleton& elem, timestamp_t timestamp_) : Element_Skeleton(elem), timestamp(timestamp_) {}
 
-  Attic(Element_Skeleton&& elem, uint64 timestamp_) : Element_Skeleton(std::move(elem)), timestamp(timestamp_) {}
+  Attic(Element_Skeleton&& elem, timestamp_t timestamp_) : Element_Skeleton(std::move(elem)), timestamp(timestamp_) {}
 
-  uint64 timestamp;
+  timestamp_t timestamp;
 
   Attic(const void* data)
     : Element_Skeleton(data) {
 
     const void* pos = (uint8*)data + Element_Skeleton::size_of(data);
 
-    timestamp = (uint64) (unalignedLoad<uint32>(pos));
-    timestamp |= (uint64)(*(uint8*)((uint8*)pos+4)) << 32;
+    timestamp = unalignedLoad<timestamp_t>(pos);
   }
 
   uint32 size_of() const noexcept
   {
-    return Element_Skeleton::size_of() + 5;
+    return Element_Skeleton::size_of() + 4;
   }
 
   static uint32 size_of(const void* data)
   {
-    return Element_Skeleton::size_of(data) + 5;
+    return Element_Skeleton::size_of(data) + 4;
   }
 
   void to_data(void* data) const noexcept
   {
     Element_Skeleton::to_data(data);
     void* pos = (uint8*)data + Element_Skeleton::size_of();
-    unalignedStore(pos, (uint32)(timestamp & 0xffffffffull));
-    *(uint8*)((uint8*)pos+4) = ((timestamp & 0xff00000000ull)>>32);
+    unalignedStore(pos, timestamp);
   }
 
   bool operator<(const Attic& rhs) const noexcept
@@ -576,16 +577,11 @@ struct Attic_Timestamp_Functor {
 
   using reference_type = Attic< Element_Skeleton >;
 
-  uint64 operator()(const void* data) const
+  timestamp_t operator()(const void* data) const
    {
     const void* pos = (uint8*)data + Element_Skeleton::size_of(data);
 
-    uint64 ts;
-
-    ts = (uint64) (unalignedLoad<uint32>(pos));
-    ts |= (uint64)(*(uint8*)((uint8*)pos+4)) << 32;
-
-    return ts;
+    return unalignedLoad<timestamp_t>(pos);
    }
 };
 
@@ -631,7 +627,7 @@ struct Element_Base<Object,  void_t<decltype( typename Object::template Handle_M
 template <class T, class Object, class Element_Skeleton>
 struct Attic_Handle_Methods : public Element_Base<Element_Skeleton>::type
 {
-  uint64 inline get_timestamp() const {
+  timestamp_t inline get_timestamp() const {
      return (static_cast<const T*>(this)->apply_func(Attic_Timestamp_Functor< Element_Skeleton >()));
   }
 

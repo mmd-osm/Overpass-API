@@ -118,9 +118,9 @@ void collect_attic_tags
   {
     auto it_id = std::lower_bound(id_vec.begin(), id_vec.end(), Attic< Id_Type >(current_tag_it.handle().id(), 0ull));
     auto it_id_end = std::upper_bound(id_vec.begin(), id_vec.end(), Attic< Id_Type >
-            (current_tag_it.handle().id(), 0xffffffffffffffffull));
+            (current_tag_it.handle().id(), NOW));
     if (it_id != it_id_end)
-      found_tags[Attic< Id_Type >(current_tag_it.handle().id(), 0xffffffffffffffffull)].push_back
+      found_tags[Attic< Id_Type >(current_tag_it.handle().id(), NOW)].push_back
           (std::make_pair(current_tag_it.index().key, current_tag_it.index().value));
     ++current_tag_it;
   }

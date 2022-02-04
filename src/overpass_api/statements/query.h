@@ -179,7 +179,7 @@ class Query_Statement final : public Output_Statement
     template< typename Skeleton, typename Id_Type >
     std::vector< std::pair< Id_Type, Uint31_Index > > collect_ids
         (const File_Properties& file_prop, const File_Properties& attic_file_prop,
-         Resource_Manager& rman, uint64 timestamp, Query_Filter_Strategy& check_keys_late, bool& result_valid);
+         Resource_Manager& rman, timestamp_t timestamp, Query_Filter_Strategy& check_keys_late, bool& result_valid);
 
     template< class Id_Type >
     std::vector< Id_Type > collect_ids
@@ -189,12 +189,12 @@ class Query_Statement final : public Output_Statement
     template< class Id_Type >
     IdSetHybrid<typename Id_Type::Id_Type> collect_non_ids_hybrid
        (const File_Properties& file_prop, const File_Properties& attic_file_prop,
-        Resource_Manager& rman, uint64 timestamp);
+        Resource_Manager& rman, timestamp_t timestamp);
 
     template< class Id_Type >
     std::vector< Id_Type > collect_non_ids
         (const File_Properties& file_prop, const File_Properties& attic_file_prop,
-         Resource_Manager& rman, uint64 timestamp);
+         Resource_Manager& rman, timestamp_t timestamp);
 
     template< class Id_Type >
     std::vector< Id_Type > collect_non_ids
@@ -209,7 +209,7 @@ class Query_Statement final : public Output_Statement
     void filter_by_tags
         (std::map< TIndex, std::vector< TObject > >& items,
          std::map< TIndex, std::vector< Attic< TObject > > >* attic_items,
-         uint64 timestamp,
+         timestamp_t timestamp,
          const File_Properties& file_prop, const File_Properties* attic_file_prop,
          Resource_Manager& rman, Transaction& transaction);
 
@@ -223,7 +223,7 @@ class Query_Statement final : public Output_Statement
 
     template< typename Skeleton, typename Id_Type, typename Index >
     void progress_1(std::vector< Id_Type >& ids, std::vector< Index >& range_req,
-                    bool& invert_ids, uint64 timestamp,
+                    bool& invert_ids, timestamp_t timestamp,
                     Answer_State& answer_state, Query_Filter_Strategy& check_keys_late,
                     const File_Properties& file_prop, const File_Properties& attic_file_prop,
                     Resource_Manager& rman);
@@ -246,7 +246,7 @@ class Query_Statement final : public Output_Statement
 
     void collect_elems(Answer_State& answer_state, Set& into, Resource_Manager& rman);
     void apply_all_filters(
-        Resource_Manager& rman, uint64 timestamp, Query_Filter_Strategy check_keys_late, Set& into);
+        Resource_Manager& rman, timestamp_t timestamp, Query_Filter_Strategy check_keys_late, Set& into);
 };
 
 

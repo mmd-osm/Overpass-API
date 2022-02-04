@@ -44,12 +44,12 @@ class Osm_Script_Statement : public Statement
 
     uint32 get_max_allowed_time() const { return max_allowed_time; }
     uint64 get_max_allowed_space() const { return max_allowed_space; }
-    uint64 get_desired_timestamp() const { return desired_timestamp; }
+    timestamp_t get_desired_timestamp() const { return desired_timestamp; }
 
   private:
     std::vector< Statement* > substatements;
-    uint64 desired_timestamp;
-    uint64 comparison_timestamp;
+    timestamp_t desired_timestamp;
+    timestamp_t comparison_timestamp;
     bool add_deletion_information;
     uint32 max_allowed_time;
     uint64 max_allowed_space;

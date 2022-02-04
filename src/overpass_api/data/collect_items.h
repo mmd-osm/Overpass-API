@@ -25,44 +25,44 @@
 #include <functional>
 
 
-inline uint64 timestamp_of(const Attic< Node_Skeleton >& skel) { return skel.timestamp; }
-inline uint64 timestamp_of(const Attic< Way_Skeleton >& skel) { return skel.timestamp; }
-inline uint64 timestamp_of(const Attic< Relation_Skeleton >& skel) { return skel.timestamp; }
+inline timestamp_t timestamp_of(const Attic< Node_Skeleton >& skel) { return skel.timestamp; }
+inline timestamp_t timestamp_of(const Attic< Way_Skeleton >& skel) { return skel.timestamp; }
+inline timestamp_t timestamp_of(const Attic< Relation_Skeleton >& skel) { return skel.timestamp; }
 
-inline uint64 timestamp_of(const Node_Skeleton& ) { return NOW; }
-inline uint64 timestamp_of(const Way_Skeleton& ) { return NOW; }
-inline uint64 timestamp_of(const Relation_Skeleton& ) { return NOW; }
+inline timestamp_t timestamp_of(const Node_Skeleton& ) { return NOW; }
+inline timestamp_t timestamp_of(const Way_Skeleton& ) { return NOW; }
+inline timestamp_t timestamp_of(const Relation_Skeleton& ) { return NOW; }
 
 template< typename TObject, class TIterator>
-inline typename std::enable_if< std::is_same< TObject, Attic < Node_Skeleton > >::value, uint64 >::type
+inline typename std::enable_if< std::is_same< TObject, Attic < Node_Skeleton > >::value, timestamp_t >::type
   timestamp_of_it(TIterator& it) { return it.handle().get_timestamp(); }
 
 template< typename TObject, class TIterator>
-inline typename std::enable_if< std::is_same< TObject, Attic < Way_Skeleton > >::value, uint64 >::type
+inline typename std::enable_if< std::is_same< TObject, Attic < Way_Skeleton > >::value, timestamp_t >::type
   timestamp_of_it(TIterator& it) { return it.handle().get_timestamp(); }
 
 template< typename TObject, class TIterator>
-inline typename std::enable_if< std::is_same< TObject, Attic < Relation_Skeleton > >::value, uint64 >::type
+inline typename std::enable_if< std::is_same< TObject, Attic < Relation_Skeleton > >::value, timestamp_t >::type
   timestamp_of_it(TIterator& it) { return it.handle().get_timestamp(); }
 
 template< typename TObject, class TIterator>
-inline typename std::enable_if< std::is_same< TObject, Attic < Way_Delta > >::value, uint64 >::type
+inline typename std::enable_if< std::is_same< TObject, Attic < Way_Delta > >::value, timestamp_t >::type
   timestamp_of_it(TIterator& it) { return it.handle().get_timestamp(); }
 
 template< typename TObject, class TIterator>
-inline typename std::enable_if< std::is_same< TObject, Attic < Relation_Delta > >::value, uint64 >::type
+inline typename std::enable_if< std::is_same< TObject, Attic < Relation_Delta > >::value, timestamp_t >::type
   timestamp_of_it(TIterator& it) { return it.handle().get_timestamp(); }
 
 template< typename TObject, class TIterator>
-inline typename std::enable_if< std::is_same< TObject, Node_Skeleton >::value, uint64 >::type
+inline typename std::enable_if< std::is_same< TObject, Node_Skeleton >::value, timestamp_t >::type
   timestamp_of_it(TIterator& ) { return NOW; }
 
 template< typename TObject, class TIterator>
-inline typename std::enable_if< std::is_same< TObject, Way_Skeleton >::value, uint64 >::type
+inline typename std::enable_if< std::is_same< TObject, Way_Skeleton >::value, timestamp_t >::type
   timestamp_of_it(TIterator& ) { return NOW; }
 
 template< typename TObject, class TIterator>
-inline typename std::enable_if< std::is_same< TObject, Relation_Skeleton >::value, uint64 >::type
+inline typename std::enable_if< std::is_same< TObject, Relation_Skeleton >::value, timestamp_t >::type
   timestamp_of_it(TIterator& ) { return NOW; }
 
 
@@ -73,9 +73,9 @@ void reconstruct_items(
     Iterator& it, Iterator& end, Index& index,
     const Predicate& predicate,
     std::vector< Object >& result,
-    std::vector< std::pair< typename Object::Id_Type, uint64 > >& timestamp_by_id_attic,
+    std::vector< std::pair< typename Object::Id_Type, timestamp_t > >& timestamp_by_id_attic,
     std::vector< typename Object::Id_Type >& timestamp_by_id_current,
-    uint64 timestamp, uint32& count)
+    timestamp_t timestamp, uint32& count)
 {
   bool time_dependent = predicate.is_time_dependent();
 
@@ -108,13 +108,13 @@ void reconstruct_items(const Statement* stmt, Resource_Manager& rman,
     Attic_Iterator& attic_it, Attic_Iterator& attic_end, Index& idx,
     const Predicate& predicate,
     std::vector< Object >& result, std::vector< Attic< Object > > & attic_result,
-    std::vector< std::pair< typename Object::Id_Type, uint64 > >& timestamp_by_id_attic,
+    std::vector< std::pair< typename Object::Id_Type, timestamp_t > >& timestamp_by_id_attic,
     std::vector< typename Object::Id_Type >& timestamp_by_id_current,
-    uint64 timestamp)
+    timestamp_t timestamp)
 {
     std::vector< Object > skels;
     std::vector< Attic< typename Object::Delta > > deltas;
-    std::vector< std::pair< typename Object::Id_Type, uint64 > > local_timestamp_by_id;
+    std::vector< std::pair< typename Object::Id_Type, timestamp_t > > local_timestamp_by_id;
 
     while (!(current_it == current_end) && current_it.index() == idx)
     {
@@ -166,9 +166,9 @@ void reconstruct_items(const Statement* stmt, Resource_Manager& rman,
 	Attic< Object > attic_obj = Attic< Object >((*it)->expand_fast(reference), (*it)->timestamp);
         if (attic_obj.id.val() != 0)
 	{
-          typename std::vector< std::pair< typename Object::Id_Type, uint64 > >::const_iterator
+          typename std::vector< std::pair< typename Object::Id_Type, timestamp_t > >::const_iterator
               tit = std::lower_bound(local_timestamp_by_id.begin(), local_timestamp_by_id.end(),
-				     std::make_pair((*it)->id, 0ull));
+				     std::make_pair((*it)->id, timestamp_t{0}));
 	  if (tit != local_timestamp_by_id.end() && tit->first == (*it)->id && tit->second == (*it)->timestamp)
 	    attics.push_back(attic_obj);
           reference = std::move(attic_obj);
@@ -207,7 +207,7 @@ void reconstruct_items(const Statement* stmt, Resource_Manager& rman,
 
 template < class Object >
 void filter_items_by_timestamp(
-    const std::vector< std::pair< typename Object::Id_Type, uint64 > >& timestamp_by_id_attic,
+    const std::vector< std::pair< typename Object::Id_Type, timestamp_t > >& timestamp_by_id_attic,
     const std::vector< typename Object::Id_Type >& timestamp_by_id_current,
     std::vector< Object > & result)
 {
@@ -216,7 +216,7 @@ void filter_items_by_timestamp(
          it2 != result.end(); ++it2)
     {
       auto tit_attic = std::lower_bound(timestamp_by_id_attic.begin(), timestamp_by_id_attic.end(),
-          std::make_pair(it2->id, 0ull));
+          std::make_pair(it2->id, timestamp_t{0}));
       if (tit_attic != timestamp_by_id_attic.end() && tit_attic->first == it2->id)
       {
          if (tit_attic->second == timestamp_of(*it2))
@@ -240,10 +240,10 @@ void filter_items_by_timestamp(
 
 template< typename Object >
 void check_for_duplicated_objects(
-    const std::vector< std::pair< typename Object::Id_Type, uint64 > >& timestamp_by_id, Resource_Manager& rman)
+    const std::vector< std::pair< typename Object::Id_Type, timestamp_t > >& timestamp_by_id, Resource_Manager& rman)
 {
   // Debug-Feature. Can be disabled once no further bugs appear
-  for (typename std::vector< std::pair< typename Object::Id_Type, uint64 > >::size_type i = 0;
+  for (typename std::vector< std::pair< typename Object::Id_Type, timestamp_t > >::size_type i = 0;
       i+1 < timestamp_by_id.size(); ++i)
   {
     if (timestamp_by_id[i].second == timestamp_by_id[i+1].second
@@ -262,7 +262,7 @@ template < class Index, class Object, class Current_Iterator, class Attic_Iterat
 bool collect_items_by_timestamp(const Statement* stmt, Resource_Manager& rman,
                    Current_Iterator current_begin, Current_Iterator current_end,
                    Attic_Iterator attic_begin, Attic_Iterator attic_end,
-                   const Predicate& predicate, Index* cur_idx, uint64 timestamp,
+                   const Predicate& predicate, Index* cur_idx, timestamp_t timestamp,
                    std::map< Index, std::vector< Object > >& result,
                    std::map< Index, std::vector< Attic< Object > > >& attic_result)
 {
@@ -272,7 +272,7 @@ bool collect_items_by_timestamp(const Statement* stmt, Resource_Manager& rman,
   uint32 count = 0;
   while (!(current_begin == current_end) || !(attic_begin == attic_end))
   {
-    std::vector< std::pair< typename Object::Id_Type, uint64 > > timestamp_by_id_attic;
+    std::vector< std::pair< typename Object::Id_Type, timestamp_t > > timestamp_by_id_attic;
     std::vector< typename Object::Id_Type > timestamp_by_id_current;
 
     bool too_much_data = false;
@@ -319,7 +319,7 @@ template < class Index, class Current_Iterator, class Attic_Iterator, class Pred
 bool collect_items_by_timestamp(const Statement* stmt, Resource_Manager& rman,
                    Current_Iterator current_begin, Current_Iterator current_end,
                    Attic_Iterator attic_begin, Attic_Iterator attic_end,
-                   const Predicate& predicate, Index* cur_idx, uint64 timestamp,
+                   const Predicate& predicate, Index* cur_idx, timestamp_t timestamp,
                    std::map< Index, std::vector< Relation_Skeleton > >& result,
                    std::map< Index, std::vector< Attic< Relation_Skeleton > > >& attic_result)
 {
@@ -329,7 +329,7 @@ bool collect_items_by_timestamp(const Statement* stmt, Resource_Manager& rman,
   uint32 count = 0;
   while (!(current_begin == current_end) || !(attic_begin == attic_end))
   {
-    std::vector< std::pair< Relation_Skeleton::Id_Type, uint64 > > timestamp_by_id_attic;
+    std::vector< std::pair< Relation_Skeleton::Id_Type, timestamp_t > > timestamp_by_id_attic;
     std::vector< Relation_Skeleton::Id_Type > timestamp_by_id_current;
 
     bool too_much_data = false;
@@ -378,7 +378,7 @@ template < class Index, class Current_Iterator, class Attic_Iterator, class Pred
 bool collect_items_by_timestamp(const Statement* stmt, Resource_Manager& rman,
                    Current_Iterator current_begin, Current_Iterator current_end,
                    Attic_Iterator attic_begin, Attic_Iterator attic_end,
-                   const Predicate& predicate, Index* cur_idx, uint64 timestamp,
+                   const Predicate& predicate, Index* cur_idx, timestamp_t timestamp,
                    std::map< Index, std::vector< Way_Skeleton > >& result,
                    std::map< Index, std::vector< Attic< Way_Skeleton > > >& attic_result)
 {
@@ -388,7 +388,7 @@ bool collect_items_by_timestamp(const Statement* stmt, Resource_Manager& rman,
   uint32 count = 0;
   while (!(current_begin == current_end) || !(attic_begin == attic_end))
   {
-    std::vector< std::pair< Relation_Skeleton::Id_Type, uint64 > > timestamp_by_id;
+    std::vector< std::pair< Relation_Skeleton::Id_Type, timestamp_t > > timestamp_by_id;
 
     bool too_much_data = false;
     if (++count >= 128*1024)
@@ -413,7 +413,7 @@ bool collect_items_by_timestamp(const Statement* stmt, Resource_Manager& rman,
     auto prev_result_size = result.size();
     auto prev_attic_result_size = attic_result.size();
 
-    std::vector< std::pair< Way_Skeleton::Id_Type, uint64 > > timestamp_by_id_attic;
+    std::vector< std::pair< Way_Skeleton::Id_Type, timestamp_t > > timestamp_by_id_attic;
     std::vector< Way_Skeleton::Id_Type > timestamp_by_id_current;
 
     reconstruct_items(stmt, rman, current_begin, current_end, attic_begin, attic_end, index,
@@ -505,7 +505,7 @@ void collect_items_discrete_by_timestamp(const Statement* stmt, Resource_Manager
 
 template < class Index, class Object, class Container, class Predicate >
 void collect_items_discrete_by_timestamp(const Statement* stmt, Resource_Manager& rman,
-                   const Container& req, const Predicate& predicate, uint64 timestamp,
+                   const Container& req, const Predicate& predicate, timestamp_t timestamp,
                    std::map< Index, std::vector< Object > >& result,
                    std::map< Index, std::vector< Attic< Object > > >& attic_result)
 {

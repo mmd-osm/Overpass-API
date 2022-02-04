@@ -68,7 +68,7 @@ bool geometrically_equal(const Way_Skeleton& a, const Way_Skeleton& b)
 
 void compute_idx_and_geometry
     (Uint31_Index& idx, Way_Skeleton& skeleton,
-     uint64 expiration_timestamp,
+     timestamp_t expiration_timestamp,
      const std::map< Node_Skeleton::Id_Type,
          std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > > >& nodes_by_id)
 {
@@ -110,15 +110,15 @@ void compute_idx_and_geometry
  */
 Way_Skeleton add_intermediate_versions
     (const Way_Skeleton& skeleton, const Way_Skeleton& reference,
-     const uint64 old_timestamp, const uint64 new_timestamp,
+     const timestamp_t old_timestamp, const timestamp_t new_timestamp,
      const std::map< Node_Skeleton::Id_Type,
-         std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > > >& nodes_by_id,
+     std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > > >& nodes_by_id,
      bool add_last_version, Uint31_Index attic_idx, Uint31_Index& last_idx,
      std::map< Uint31_Index, std::set< Attic< Way_Delta > > >& full_attic,
      std::map< Uint31_Index, std::set< Attic< Way_Skeleton::Id_Type > > >& new_undeleted,
      std::map< Way_Skeleton::Id_Type, std::set< Uint31_Index > >& idx_lists)
 {
-  std::vector< uint64 > relevant_timestamps;
+  std::vector< timestamp_t > relevant_timestamps;
   for (auto it = skeleton.nds().begin();
        it != skeleton.nds().end(); ++it)
   {
@@ -172,7 +172,7 @@ Way_Skeleton add_intermediate_versions
   last_idx = idx;
   Way_Skeleton last_skeleton = cur_skeleton;
 
-  for (std::vector< uint64 >::const_iterator it = relevant_timestamps.end();
+  for (std::vector< timestamp_t >::const_iterator it = relevant_timestamps.end();
        it != relevant_timestamps.begin(); )
   {
     --it;
@@ -207,13 +207,13 @@ Way_Skeleton add_intermediate_versions
  * If yes, the necessary intermediate versions are generated.
  */
 void add_intermediate_changelog_entries
-    (const Way_Skeleton& skeleton, const uint64 old_timestamp, const uint64 new_timestamp,
+    (const Way_Skeleton& skeleton, const timestamp_t old_timestamp, const timestamp_t new_timestamp,
      const std::map< Node_Skeleton::Id_Type,
-         std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > > >& nodes_by_id,
+     std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > > >& nodes_by_id,
      bool add_last_version, Uint31_Index attic_idx, Uint31_Index new_idx,
      std::map< Timestamp, std::set< Change_Entry< Way_Skeleton::Id_Type > > >& result)
 {
-  std::vector< uint64 > relevant_timestamps;
+  std::vector< timestamp_t > relevant_timestamps;
   for (auto it = skeleton.nds().begin();
        it != skeleton.nds().end(); ++it)
   {
@@ -237,7 +237,7 @@ void add_intermediate_changelog_entries
 
   std::vector< Uint31_Index > idxs;
 
-  for (std::vector< uint64 >::const_iterator it = relevant_timestamps.begin();
+  for (std::vector< timestamp_t >::const_iterator it = relevant_timestamps.begin();
        it != relevant_timestamps.end(); ++it)
   {
     Uint31_Index idx = attic_idx;
@@ -255,7 +255,7 @@ void add_intermediate_changelog_entries
   idxs.push_back(idx);
 
   int i = 0;
-  for (std::vector< uint64 >::const_iterator it = relevant_timestamps.begin();
+  for (std::vector< timestamp_t >::const_iterator it = relevant_timestamps.begin();
        it != relevant_timestamps.end(); ++it)
   {
     result[Timestamp(*it)].insert(

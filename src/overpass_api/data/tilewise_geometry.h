@@ -382,12 +382,12 @@ public:
   
   struct Full_Way_Ref
   {
-    Full_Way_Ref(Uint31_Index idx_, Way_Skeleton* way_, uint64 timestamp_)
+    Full_Way_Ref(Uint31_Index idx_, Way_Skeleton* way_, timestamp_t timestamp_)
         : idx(idx_), way(way_), timestamp(timestamp_) {}
     
     Uint31_Index idx;
     Way_Skeleton* way;
-    uint64 timestamp;
+    timestamp_t timestamp;
     
     bool operator<(const Full_Way_Ref& rhs) const
     {
@@ -511,12 +511,12 @@ class Tilewise_Const_Area_Iterator
 public:
   struct Full_Way_Ref
   {
-    Full_Way_Ref(Uint31_Index idx_, const Way_Skeleton* way_, uint64 timestamp_)
+    Full_Way_Ref(Uint31_Index idx_, const Way_Skeleton* way_, timestamp_t timestamp_)
         : idx(idx_), way(way_), timestamp(timestamp_) {}
     
     Uint31_Index idx;
     const Way_Skeleton* way;
-    uint64 timestamp;
+    timestamp_t timestamp;
     
     bool operator<(const Full_Way_Ref& rhs) const
     {

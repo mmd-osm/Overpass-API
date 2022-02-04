@@ -234,7 +234,7 @@ std::map< Tag_Index_Local, std::set< Attic< Node_Skeleton::Id_Type > > >
      const std::map< Tag_Index_Local, std::set< Node_Skeleton::Id_Type > >& attic_local_tags)
 {
   std::map< Tag_Index_Local, std::set< Attic< Node_Skeleton::Id_Type > > > result;
-  std::map< Node_Skeleton::Id_Type, uint64 > timestamp_of;
+  std::map< Node_Skeleton::Id_Type, timestamp_t > timestamp_of;
   std::map< Node_Skeleton::Id_Type, std::map< std::string, std::string > > unmatched_tags;
   std::map< Node_Skeleton::Id_Type, Uint31_Index > idx_by_id;
 

@@ -241,7 +241,7 @@ class Logger
 };
 
 
-extern const uint64 NOW;
+extern const timestamp_t NOW;
 
 
 #endif

@@ -450,7 +450,7 @@ private:
 template< typename Skeleton, typename Id_Type >
 std::vector< std::pair< Id_Type, Uint31_Index > > Query_Statement::collect_ids
   (const File_Properties& file_prop, const File_Properties& attic_file_prop, Resource_Manager& rman,
-   uint64 timestamp, Query_Filter_Strategy& check_keys_late, bool& result_valid)
+      timestamp_t timestamp, Query_Filter_Strategy& check_keys_late, bool& result_valid)
 {
   if (key_values.empty() && keys.empty() && key_regexes.empty() && regkey_regexes.empty())
     return std::vector< std::pair< Id_Type, Uint31_Index > >();
@@ -671,7 +671,7 @@ std::vector< Id_Type > Query_Statement::collect_ids
 template< class Id_Type >
 IdSetHybrid<typename Id_Type::Id_Type> Query_Statement::collect_non_ids_hybrid
   (const File_Properties& file_prop, const File_Properties& attic_file_prop,
-   Resource_Manager& rman, uint64 timestamp)
+   Resource_Manager& rman, timestamp_t timestamp)
 {
   if (key_nvalues.empty() && key_nregexes.empty())
     return IdSetHybrid<typename Id_Type::Id_Type>();
@@ -749,7 +749,7 @@ IdSetHybrid<typename Id_Type::Id_Type> Query_Statement::collect_non_ids_hybrid
 template< class Id_Type >
 std::vector< Id_Type > Query_Statement::collect_non_ids
   (const File_Properties& file_prop, const File_Properties& attic_file_prop,
-   Resource_Manager& rman, uint64 timestamp)
+   Resource_Manager& rman, timestamp_t timestamp)
 {
   if (key_nvalues.empty() && key_nregexes.empty())
     return std::vector< Id_Type >();
@@ -1018,7 +1018,7 @@ void filter_ids_by_ntags
 template< typename Id_Type >
 void filter_ids_by_ntags
   (const std::map< std::string, std::pair< std::vector< Regular_Expression* >, std::vector< std::string > > >& keys,
-   uint64 timestamp,
+   timestamp_t timestamp,
    const Block_Backend< Tag_Index_Local, Id_Type >& items_db,
    typename Block_Backend< Tag_Index_Local, Id_Type >::Range_Iterator& tag_it,
    const Block_Backend< Tag_Index_Local, Attic< Id_Type > >& attic_items_db,
@@ -1028,7 +1028,7 @@ void filter_ids_by_ntags
 {
   for (auto key_it = keys.begin(); key_it != keys.end(); ++key_it)
   {
-    std::map< Id_Type, std::pair< uint64, uint64 > > timestamps;
+    std::map< Id_Type, std::pair< timestamp_t, timestamp_t > > timestamps;
     for (typename std::vector< Id_Type >::const_iterator it = new_ids.begin(); it != new_ids.end(); ++it)
       timestamps[*it];
 
@@ -1049,7 +1049,7 @@ void filter_ids_by_ntags
     {
       if (std::binary_search(new_ids.begin(), new_ids.end(), tag_it.object()))
       {
-        std::pair< uint64, uint64 >& timestamp_ref = timestamps[tag_it.object()];
+        std::pair< timestamp_t, timestamp_t >& timestamp_ref = timestamps[tag_it.object()];
         timestamp_ref.second = NOW;
 
         if (tag_it.index().value != last_value)
@@ -1077,7 +1077,7 @@ void filter_ids_by_ntags
     {
       if (std::binary_search(new_ids.begin(), new_ids.end(), Id_Type(attic_tag_it.object())))
       {
-        std::pair< uint64, uint64 >& timestamp_ref = timestamps[attic_tag_it.object()];
+        std::pair< timestamp_t, timestamp_t >& timestamp_ref = timestamps[attic_tag_it.object()];
         if (timestamp < attic_tag_it.object().timestamp &&
             (timestamp_ref.second == 0 || timestamp_ref.second > attic_tag_it.object().timestamp))
           timestamp_ref.second = attic_tag_it.object().timestamp;
@@ -1107,7 +1107,7 @@ void filter_ids_by_ntags
 
     new_ids.clear();
     new_ids.reserve(timestamps.size());
-    for (typename std::map< Id_Type, std::pair< uint64, uint64 > >::const_iterator
+    for (typename std::map< Id_Type, std::pair< timestamp_t, timestamp_t > >::const_iterator
         it = timestamps.begin(); it != timestamps.end(); ++it)
     {
       if (!(0 < it->second.first && it->second.first <= it->second.second))
@@ -1194,7 +1194,7 @@ template< class TIndex, class TObject >
 void Query_Statement::filter_by_tags
     (std::map< TIndex, std::vector< TObject > >& items,
      std::map< TIndex, std::vector< Attic< TObject > > >* attic_items,
-     uint64 timestamp, const File_Properties& file_prop, const File_Properties* attic_file_prop,
+     timestamp_t timestamp, const File_Properties& file_prop, const File_Properties* attic_file_prop,
      Resource_Manager& rman, Transaction& transaction)
 {
   if (keys.empty() && key_values.empty() && key_regexes.empty() && regkey_regexes.empty()
@@ -1568,7 +1568,7 @@ struct comparator
 
 template< typename Skeleton, typename Id_Type, typename Index >
 void Query_Statement::progress_1(std::vector< Id_Type >& ids, std::vector< Index >& range_vec,
-                                 bool& invert_ids, uint64 timestamp,
+                                 bool& invert_ids, timestamp_t timestamp,
                                  Answer_State& answer_state, Query_Filter_Strategy& check_keys_late,
                                  const File_Properties& file_prop, const File_Properties& attic_file_prop,
                                  Resource_Manager& rman)
@@ -1762,7 +1762,7 @@ std::set< std::pair< Index, Index > > intersect_ranges
 
 
 void Query_Statement::apply_all_filters(
-    Resource_Manager& rman, uint64 timestamp, Query_Filter_Strategy check_keys_late, Set& into)
+    Resource_Manager& rman, timestamp_t timestamp, Query_Filter_Strategy check_keys_late, Set& into)
 {
   set_progress(5);
   rman.health_check(*this);
@@ -1824,7 +1824,7 @@ void Query_Statement::execute(Resource_Manager& rman)
 
   Set into;
   Set filtered;
-  uint64 timestamp = rman.get_desired_timestamp();
+  timestamp_t timestamp = rman.get_desired_timestamp();
   if (timestamp == 0)
     timestamp = NOW;
 

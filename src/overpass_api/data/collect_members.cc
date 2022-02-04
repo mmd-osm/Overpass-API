@@ -1054,9 +1054,9 @@ void keep_matching_skeletons
     (std::vector< Node_Base >& result,
      const std::map< Uint32_Index, std::vector< Node_Skeleton > >& current,
      const std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > >& attic,
-     uint64 timestamp)
+     timestamp_t timestamp)
 {
-  std::map< Node_Skeleton::Id_Type, uint64 > timestamp_by_id;
+  std::map< Node_Skeleton::Id_Type, timestamp_t > timestamp_by_id;
 
   result.clear();
 
@@ -1073,7 +1073,7 @@ void keep_matching_skeletons
     for (auto it2 = it->second.begin();
          it2 != it->second.end(); ++it2)
     {
-      uint64& stored_timestamp = timestamp_by_id[it2->id];
+      timestamp_t& stored_timestamp = timestamp_by_id[it2->id];
       if (it2->timestamp > timestamp && (stored_timestamp == 0 || stored_timestamp > it2->timestamp))
         stored_timestamp = it2->timestamp;
     }

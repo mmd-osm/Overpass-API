@@ -225,7 +225,7 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
     auto sse = object.timestamp().seconds_since_epoch();
     gmtime_r(&sse, &tm);
 
-    uint64 timestamp = Timestamp(tm.tm_year + 1900,
+    timestamp_t timestamp = Timestamp(tm.tm_year + 1900,
                                  tm.tm_mon + 1,
                                  tm.tm_mday,
                                  tm.tm_hour,

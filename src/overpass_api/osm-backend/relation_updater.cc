@@ -477,7 +477,7 @@ void compute_geometry
 
 void compute_idx_and_geometry
     (Uint31_Index& idx, Relation_Skeleton& skeleton,
-     uint64 expiration_timestamp,
+     timestamp_t expiration_timestamp,
      const std::map< Node_Skeleton::Id_Type,
          std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > > >& nodes_by_id,
      const std::map< Way_Skeleton::Id_Type,
@@ -551,7 +551,7 @@ void compute_idx_and_geometry
  */
 Relation_Skeleton add_intermediate_versions
     (const Relation_Skeleton& skeleton, const Relation_Skeleton& reference,
-     const uint64 old_timestamp, const uint64 new_timestamp,
+     const timestamp_t old_timestamp, const timestamp_t new_timestamp,
      const std::map< Node_Skeleton::Id_Type,
          std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > > >& nodes_by_id,
      const std::map< Way_Skeleton::Id_Type,
@@ -561,7 +561,7 @@ Relation_Skeleton add_intermediate_versions
      std::map< Uint31_Index, std::set< Attic< Relation_Skeleton::Id_Type > > >& new_undeleted,
      std::map< Relation_Skeleton::Id_Type, std::set< Uint31_Index > >& idx_lists)
 {
-  std::vector< uint64 > relevant_timestamps;
+  std::vector< timestamp_t > relevant_timestamps;
   for (auto mit = skeleton.members().begin();
        mit != skeleton.members().end(); ++mit)
   {
@@ -631,7 +631,7 @@ Relation_Skeleton add_intermediate_versions
   last_idx = idx;
   Relation_Skeleton last_skeleton = cur_skeleton;
 
-  for (std::vector< uint64 >::const_iterator it = relevant_timestamps.end();
+  for (std::vector< timestamp_t >::const_iterator it = relevant_timestamps.end();
        it != relevant_timestamps.begin(); )
   {
     --it;
@@ -666,7 +666,7 @@ Relation_Skeleton add_intermediate_versions
  * If yes, the necessary intermediate versions are generated.
  */
 void add_intermediate_changelog_entries
-    (const Relation_Skeleton& skeleton, const uint64 old_timestamp, const uint64 new_timestamp,
+    (const Relation_Skeleton& skeleton, const timestamp_t old_timestamp, const timestamp_t new_timestamp,
      const std::map< Node_Skeleton::Id_Type,
          std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > > >& nodes_by_id,
      const std::map< Way_Skeleton::Id_Type,
@@ -674,7 +674,7 @@ void add_intermediate_changelog_entries
      bool add_last_version, Uint31_Index attic_idx, Uint31_Index new_idx,
      std::map< Timestamp, std::set< Change_Entry< Relation_Skeleton::Id_Type > > >& result)
 {
-  std::vector< uint64 > relevant_timestamps;
+  std::vector< timestamp_t > relevant_timestamps;
   for (auto mit = skeleton.members().begin();
        mit != skeleton.members().end(); ++mit)
   {
@@ -714,7 +714,7 @@ void add_intermediate_changelog_entries
 
   std::vector< Uint31_Index > idxs;
 
-  for (std::vector< uint64 >::const_iterator it = relevant_timestamps.begin();
+  for (std::vector< timestamp_t >::const_iterator it = relevant_timestamps.begin();
        it != relevant_timestamps.end(); ++it)
   {
     Uint31_Index idx = attic_idx;
@@ -732,7 +732,7 @@ void add_intermediate_changelog_entries
   idxs.push_back(idx);
 
   int i = 0;
-  for (std::vector< uint64 >::const_iterator it = relevant_timestamps.begin();
+  for (std::vector< timestamp_t >::const_iterator it = relevant_timestamps.begin();
        it != relevant_timestamps.end(); ++it)
   {
     result[Timestamp(*it)].insert(
@@ -883,7 +883,7 @@ void compute_new_attic_skeletons
     Relation_Skeleton oldest_new =
         add_intermediate_versions(*it_attic, it->elem,
 			      it_attic_time == existing_attic_skeleton_timestamps.end() ?
-			          uint64(0u) : it_attic_time->second.second.timestamp,
+			          timestamp_t(0u) : it_attic_time->second.second.timestamp,
 			      it->meta.timestamp, nodes_by_id, ways_by_id,
                               (it->idx.val() == 0 || !geometrically_equal(*it_attic, it->elem)),
                               *idx, it_idx, full_attic, new_undeleted, idx_lists);
@@ -904,7 +904,7 @@ void compute_new_attic_skeletons
       Relation_Skeleton oldest_new =
         add_intermediate_versions(*it2, *it2,
 			        it_attic_time == existing_attic_skeleton_timestamps.end() ?
-			            uint64(0u) : it_attic_time->second.second.timestamp,
+			            timestamp_t(0u) : it_attic_time->second.second.timestamp,
 				NOW, nodes_by_id, ways_by_id,
                                 false, it->first,
                                 dummy, full_attic, new_undeleted, idx_lists);

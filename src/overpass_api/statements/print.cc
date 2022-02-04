@@ -477,12 +477,12 @@ template< typename Index, typename Object >
 struct Maybe_Attic_Ref
 {
 public:
-  Maybe_Attic_Ref(Index idx_, const Object* obj_, uint64 timestamp_)
+  Maybe_Attic_Ref(Index idx_, const Object* obj_, timestamp_t timestamp_)
   : idx(idx_), obj(obj_), timestamp(timestamp_) {}
 
   Index idx;
   const Object* obj;
-  uint64 timestamp;
+  timestamp_t timestamp;
 
   bool operator<(const Maybe_Attic_Ref& rhs) const { return obj->id < rhs.obj->id; }
 };
@@ -621,7 +621,7 @@ template< typename Id_Type >
 typename std::set< OSM_Element_Metadata_Skeleton< Id_Type > >::const_iterator
     find_matching_metadata
     (const std::set< OSM_Element_Metadata_Skeleton< Id_Type > >& metadata,
-     Id_Type ref, uint64 timestamp)
+     Id_Type ref, timestamp_t timestamp)
 {
   auto it = metadata.lower_bound(OSM_Element_Metadata_Skeleton< Id_Type >(ref, timestamp));
   if (it == metadata.begin())
