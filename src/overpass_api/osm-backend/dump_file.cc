@@ -88,6 +88,8 @@ int main(int argc, char* args[])
       {
         std::cout<<std::hex<<it.index().val()<<'\t'
             <<std::dec<<it.object().ref.val()<<'\t'
+            <<std::dec<<it.object().version<<'\t'
+            <<std::dec<<it.object().user_id<<'\t'
             <<it.object().timestamp<<'\n';
       }
     }
@@ -202,8 +204,11 @@ int main(int argc, char* args[])
       for (Block_Backend< Timestamp, Change_Entry< Node_Skeleton::Id_Type > >::Flat_Iterator
            it(db.flat_begin()); !(it == db.flat_end()); ++it)
       {
-        std::cout<<std::dec<<it.index().timestamp<<'\t'
+
+        std::cout<<std::dec<<Timestamp(it.index().timestamp).str()<<'\t'
+#ifdef USE_ORIGINAL_CHANGE_ENTRY
             <<std::hex<<it.object().old_idx.val()<<'\t'<<it.object().new_idx.val()<<'\t'
+#endif
             <<std::dec<<it.object().elem_id.val()<<'\n';
       }
     }
@@ -439,8 +444,10 @@ int main(int argc, char* args[])
       for (Block_Backend< Timestamp, Change_Entry< Way_Skeleton::Id_Type > >::Flat_Iterator
            it(db.flat_begin()); !(it == db.flat_end()); ++it)
       {
-        std::cout<<std::dec<<it.index().timestamp<<'\t'
+        std::cout<<std::dec<<Timestamp(it.index().timestamp).str()<<'\t'
+#ifdef USE_ORIGINAL_CHANGE_ENTRY
             <<std::hex<<it.object().old_idx.val()<<'\t'<<it.object().new_idx.val()<<'\t'
+#endif
             <<std::dec<<it.object().elem_id.val()<<'\n';
       }
     }
@@ -587,8 +594,10 @@ int main(int argc, char* args[])
       for (Block_Backend< Timestamp, Change_Entry< Relation_Skeleton::Id_Type > >::Flat_Iterator
            it(db.flat_begin()); !(it == db.flat_end()); ++it)
       {
-        std::cout<<std::dec<<it.index().timestamp<<'\t'
+        std::cout<<std::dec<<Timestamp(it.index().timestamp).str()<<'\t'
+#ifdef USE_ORIGINAL_CHANGE_ENTRY
             <<std::hex<<it.object().old_idx.val()<<'\t'<<it.object().new_idx.val()<<'\t'
+#endif
             <<std::dec<<it.object().elem_id.val()<<'\n';
       }
     }

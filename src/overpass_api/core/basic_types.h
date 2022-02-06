@@ -220,7 +220,7 @@ struct Uint31_Index : Uint32_Index
 {
   Uint31_Index() noexcept {}
   Uint31_Index(uint32 i) noexcept : Uint32_Index(i) {}
-  Uint31_Index(void* data) noexcept : Uint32_Index(unalignedLoad<uint32>(data)) {}
+  Uint31_Index(const void* data) noexcept : Uint32_Index(unalignedLoad<uint32>(data)) {}
 
   bool operator<(const Uint31_Index& index) const noexcept
   {

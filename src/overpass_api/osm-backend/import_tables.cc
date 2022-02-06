@@ -566,6 +566,8 @@ void serialize(Archive & archive,
           cereal::make_nvp("way_idxs",m.way_idxs()));
 }
 
+#ifdef USE_ORIGINAL_CHANGE_ENTRY
+
 template<class Archive>
 void serialize(Archive & archive,
                Change_Entry<Node::Id_Type> & m)
@@ -584,6 +586,35 @@ void serialize(Archive & archive,
           cereal::make_nvp("new_idx",m.new_idx),
           cereal::make_nvp("elem_id",m.elem_id));
 }
+
+#else
+
+template<class Archive>
+void serialize(Archive & archive,
+               Change_Entry<Node::Id_Type> & m)
+{
+  Uint31_Index old_idx{};
+  Uint31_Index new_idx{};
+
+  archive(cereal::make_nvp("old_idx",old_idx),
+          cereal::make_nvp("new_idx",new_idx),
+          cereal::make_nvp("elem_id",m.elem_id));
+}
+
+
+template<class Archive>
+void serialize(Archive & archive,
+               Change_Entry<Uint32_Index> & m)
+{
+  Uint31_Index old_idx{};
+  Uint31_Index new_idx{};
+
+  archive(cereal::make_nvp("old_idx",old_idx),
+          cereal::make_nvp("new_idx",new_idx),
+          cereal::make_nvp("elem_id",m.elem_id));
+}
+
+#endif
 
 template<class Archive>
 void serialize(Archive & archive,
@@ -630,7 +661,7 @@ void import_bin(Transaction& transaction, const File_Properties* fp) {
         std::cerr << "total_objcount: " << total_objcount << "\n";
         std::cerr << "export_total_objcount: " << export_total_objcount << "\n";
         std::cerr << "last_entry: " << last_entry << "\n";
-        throw std::runtime_error ("import_tables: mismatch total object count");
+//        throw std::runtime_error ("import_tables: mismatch total object count");
       }
 
       if (!res.empty()) {
