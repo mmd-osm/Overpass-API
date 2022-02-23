@@ -23,6 +23,8 @@
 #include <vector>
 #include <type_traits>
 
+#include <protozero/varint.hpp>
+
 #include "../../template_db/types.h"
 
 typedef unsigned int uint;
@@ -938,6 +940,92 @@ void SharedDataPointer<T>::detach_helper()
   if (!(--d->ref))
     delete d;
   d = x;
+}
+
+
+namespace {
+
+template <typename Id_Type >
+inline uint32 calculate_ids_compressed_size(const std::vector< Id_Type >& ids_)
+{
+  Id_Type prev = (uint64) 0;
+  uint32 compressed_size = 0;
+
+  for (auto it = ids_.begin();
+      it != ids_.end(); ++it)
+  {
+    int64_t diff = (int64_t) it->val() - (int64_t) prev.val();
+    compressed_size += protozero::length_of_varint(protozero::encode_zigzag64(diff));
+    prev = it->val();
+  }
+  compressed_size += compressed_size & 1;
+  return compressed_size;
+}
+
+
+template <typename Id_Type >
+uint8* compress_ids(const std::vector< Id_Type >& ids_, uint8* buffer_)
+{
+  char* current = (char*) buffer_;
+  char* buffer = (char*) buffer_;
+  Id_Type prev = (uint64) 0;
+
+  for (auto it = ids_.begin();
+       it != ids_.end(); ++it)
+  {
+    int64_t delta = (int64_t) it->val() - (int64_t) prev.val();
+    uint64 zigzag = protozero::encode_zigzag64(delta);
+    int size = protozero::add_varint_to_buffer(current, zigzag);
+    current += size;
+    prev = it->val();
+  }
+
+  if ((current - buffer) & 1)    // add padding byte
+    *current++ = 0;
+
+  return (uint8*) current;
+}
+
+template <typename Id_Type, typename Functor >
+uint8* decompress_ids(const uint16 ids_count, const uint16 ids_bytes, uint8* buffer_, Functor& f)
+{
+  const char* current = (char*) buffer_;
+  const char* end = (char*)(buffer_ + ids_bytes);
+
+  Id_Type id = (uint64) 0;
+
+  for (int i=0; i<ids_count;i++)
+  {
+    auto value = protozero::decode_varint(&current, end);
+    int64_t delta = protozero::decode_zigzag64(value);
+    id += delta;
+    f(id);   // Call functor as callback
+  }
+  if ((current - (char*) buffer_) & 1)    // add padding byte
+    current++;
+  return (uint8*) current;
+}
+
+template <typename Id_Type >
+uint8* decompress_ids(std::vector< Id_Type >& ids_, const uint16 ids_count, const uint16 ids_bytes, uint8* buffer_)
+{
+  const char* current = (char*) buffer_;
+  const char* end = (char*)(buffer_ + ids_bytes);
+
+  Id_Type id = (uint64) 0;
+
+  for (int i=0; i<ids_count;i++)
+  {
+    auto value = protozero::decode_varint(&current, end);
+    int64_t delta = protozero::decode_zigzag64(value);
+    id += delta;
+    ids_.push_back(id);
+  }
+  if ((current - (char*) buffer_) & 1)    // add padding byte
+    current++;
+  return (uint8*) current;
+}
+
 }
 
 

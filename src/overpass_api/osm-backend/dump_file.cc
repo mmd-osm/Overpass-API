@@ -26,6 +26,8 @@
 #include <list>
 #include <sstream>
 
+#include <protozero/varint.hpp>
+
 #include "../../expat/expat_justparse_interface.h"
 #include "../../template_db/block_backend.h"
 #include "../../template_db/random_file.h"
@@ -210,6 +212,13 @@ int main(int argc, char* args[])
             <<std::hex<<it.object().old_idx.val()<<'\t'<<it.object().new_idx.val()<<'\t'
 #endif
             <<std::dec<<it.object().elem_id.val()<<'\n';
+      }
+    }
+    else if (std::string("--node-changepack") == args[2])
+    {
+      Block_Backend< Timestamp, Change_Package > db   (transaction.data_index(attic_settings().NODE_CHANGEPACK));
+      for (Block_Backend< Timestamp, Change_Package >::Flat_Iterator it(db.flat_begin()); !(it == db.flat_end()); ++it)  {
+          std::cout<< it.index() << '\t'   <<std::dec<<it.object().nds.size()<<'\n';
       }
     }
     else if (std::string("--ways") == args[2])

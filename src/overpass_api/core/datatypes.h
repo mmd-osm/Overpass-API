@@ -785,9 +785,134 @@ struct Change_Entry_Handle_Methods
   }
 };
 
+// Space efficient storage of a group of Change_Entries
+
+template <class T, class Object>
+struct Change_Package_Handle_Methods;
+
+struct Change_Package
+{
+  /*
+   * On disk structure
+   *
+   * Byte offset   Length     Description
+   * ----------------------------------------------
+   * 0             2 Bytes    Number of elements in nds
+   * 2             2 Bytes    Size of compressed nds (in bytes)
+   * 4             ...        Compressed nds
+   *
+   */
+
+  std::vector< Node::Id_Type > nds;
+
+  Change_Package() = default;
+
+  Change_Package(std::vector< Node::Id_Type> && ids) : nds(std::move(ids)) {}
+
+  Change_Package(const std::vector< Node::Id_Type> & ids)  : nds(ids) {}
+
+  Change_Package(std::vector< Change_Entry< Node_Skeleton::Id_Type > >::const_iterator it,
+      std::vector< Change_Entry< Node_Skeleton::Id_Type > >::const_iterator end)  {
+
+    while (it != end) {
+      nds.emplace_back(it->elem_id);
+      ++it;
+    }
+  }
+
+  Change_Package(const void* data) {
+
+    auto elems = unalignedLoad<uint16>((uint16*)data + 0);
+    auto bytes = unalignedLoad<uint16>((uint16*)data + 1);
+
+    nds.reserve(elems);
+
+    decompress_ids(nds, elems, bytes, ((uint8*)data + 4));
+  }
+
+
+  uint32 size_of() const
+  {
+    uint32 compress_size = ::calculate_ids_compressed_size(nds);
+    return 2 + 2 + compress_size;
+  }
+
+  static uint32 size_of(const void* data)
+  {
+    auto bytes = unalignedLoad<uint16>((uint16*)data + 1);
+    return 2 + 2 + bytes;  // nds_compressed_size (in bytes)
+  }
+
+  void to_data(void* data) const
+  {
+    unalignedStore(((uint16*)data + 0), (uint16) nds.size());
+
+    auto* end_ptr = (uint16*) compress_ids(nds, (uint8*)data + 4);
+    auto nds_compressed_size = (uint16) ((uint8*)end_ptr - ((uint8*)data + 4));
+    unalignedStore(((uint16*)data + 1), (uint16) nds_compressed_size);
+  }
+
+  bool operator<(const Change_Package& a) const noexcept
+  {
+    return this->nds < a.nds;
+  }
+
+  bool operator==(const Change_Package& a) const noexcept
+  {
+    return this->nds == a.nds;
+  }
+
+  static std::set<Change_Package> build_packages(const std::vector< Change_Entry< Node_Skeleton::Id_Type > > & ce, int chunkSize)
+  {
+    std::set< Change_Package > result;
+
+    auto start = ce.begin();
+    auto end = ce.end();
+
+    while (start != end) {
+      auto next = std::distance(start, end) >= chunkSize ? start + chunkSize : end;
+      result.insert(Change_Package(start, next));
+      start = next;
+    }
+    return result;
+  }
+
+  template <class T, class Object>
+  using Handle_Methods = Change_Package_Handle_Methods<T, Object>;
+};
+
+template <typename Object, typename Id_Type, typename Functor>
+struct Change_Package_Process_Ids_Functor {
+  Change_Package_Process_Ids_Functor(Functor& f_) :  f(f_) {};
+
+  using reference_type = Object;
+
+  inline void operator()(const void* data) const
+  {
+    auto elems = unalignedLoad<uint16>((uint16*)data + 0);
+    auto bytes = unalignedLoad<uint16>((uint16*)data + 1);
+
+    decompress_ids<Id_Type>(elems, bytes, ((uint8*)data + 4), f);
+  }
+
+private:
+  Functor& f;
+};
+
+template <class T, class Object>
+struct Change_Package_Handle_Methods
+{
+  template <typename Id_Type, typename Functor>
+  void inline process_ids(Functor& f) const {
+    static_cast<const T*>(this)->apply_func(Change_Package_Process_Ids_Functor<Object, Id_Type, Functor>(f));
+  }
+};
+
+
 namespace {
 
 // source: https://github.com/osmcode/libosmium/blob/master/include/osmium/osm/timestamp.hpp
+
 
 void add_2digit_int_to_string(int value, std::string& out)  {
     assert(value >= 0 && value <= 99);

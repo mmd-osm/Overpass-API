@@ -398,6 +398,19 @@ std::map< Timestamp, std::set< Change_Entry< Node_Skeleton::Id_Type > > > comput
   return result;
 }
 
+std::map< Timestamp, std::set< Change_Package > > compute_changepack(
+    const std::map< Timestamp, std::set< Change_Entry< Node_Skeleton::Id_Type > > > & changelog)
+{
+  std::map< Timestamp, std::set< Change_Package > > result;
+
+  for (const auto & cl : changelog) {
+    std::vector< Change_Entry < Node_Skeleton::Id_Type > > change_entries(cl.second.begin(), cl.second.end());
+    result[cl.first] = Change_Package::build_packages(change_entries, 10000);
+  }
+
+  return result;
+}
+
 
 Node_Updater::Node_Updater(Transaction& transaction_, meta_modes meta_, unsigned int parallel_processes_, bool initial_load_)
   : update_counter(0), transaction(&transaction_),
@@ -610,6 +623,10 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
     std::map< Timestamp, std::set< Change_Entry< Node_Skeleton::Id_Type > > > changelog
         = compute_changelog(new_data, existing_map_positions, attic_skeletons);
 
+    // Compute changepack
+    std::map< Timestamp, std::set< Change_Package > > changepack = compute_changepack(changelog);
+
+
     // Prepare user indices
     copy_idxs_by_id(attic_meta, idxs_by_id);
 
@@ -670,6 +687,13 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
       // Write changelog
       update_elements(std::map< Timestamp, std::set< Change_Entry< Node_Skeleton::Id_Type > > >(), changelog,
             *transaction, *attic_settings().NODE_CHANGELOG);
+    });
+
+    f.push_back( [&]
+    {
+      // Write changepack
+      update_elements(std::map< Timestamp, std::set< Change_Package > >(), changepack,
+            *transaction, *attic_settings().NODE_CHANGEPACK);
     });
 
     process_package(f, parallel_processes);

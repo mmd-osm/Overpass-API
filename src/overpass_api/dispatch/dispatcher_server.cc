@@ -443,6 +443,7 @@ int main(int argc, char* argv[])
     file_target->push_back(attic_settings().RELATION_TAGS_GLOBAL);
     file_target->push_back(attic_settings().RELATIONS_META);
     file_target->push_back(attic_settings().RELATION_CHANGELOG);
+    file_target->push_back(attic_settings().NODE_CHANGEPACK);
 
     suspicious_files_present |= assure_files_absent(db_dir, files_to_avoid, "--attic");
   }

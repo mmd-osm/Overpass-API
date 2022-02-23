@@ -171,6 +171,10 @@ set(create_tagged_nodes_SOURCES
   overpass_api/osm-backend/create_tagged_nodes.cc
 )  
 
+set(create_node_changepack_SOURCES
+  overpass_api/osm-backend/create_node_changepack.cc
+)
+
 set(dispatcher_SOURCES
   template_db/dispatcher.cc
   template_db/file_tools.cc
@@ -261,6 +265,9 @@ target_link_libraries(dispatcher dispatch ${LIBS})
 
 add_executable(create_tagged_nodes ${create_tagged_nodes_SOURCES} $<TARGET_OBJECTS:types> $<TARGET_OBJECTS:compression> $<TARGET_OBJECTS:expatwrapper> $<TARGET_OBJECTS:settings> $<TARGET_OBJECTS:frontend>)
 target_link_libraries(create_tagged_nodes core data ${LIBS})
+
+add_executable(create_node_changepack ${create_node_changepack_SOURCES} $<TARGET_OBJECTS:types> $<TARGET_OBJECTS:compression> $<TARGET_OBJECTS:expatwrapper> $<TARGET_OBJECTS:settings> $<TARGET_OBJECTS:frontend>)
+target_link_libraries(create_node_changepack core data ${LIBS})
 
 add_executable(timestamp ${timestamp_SOURCES} $<TARGET_OBJECTS:types> $<TARGET_OBJECTS:settings> $<TARGET_OBJECTS:compression>)
 target_link_libraries(timestamp dispatch ${LIBS})

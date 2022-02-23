@@ -31,8 +31,6 @@
 #include <string>
 #include <vector>
 
-#include <protozero/varint.hpp>
-
 
 struct Way
 {
@@ -82,66 +80,6 @@ struct Way_Equal_Id {
 };
 
 
-namespace {
-
-inline uint32 calculate_nds_compressed_size(const std::vector< Node::Id_Type >& nds_)
-{
-  Node::Id_Type prev = (uint64) 0;
-  uint32 compressed_size = 0;
-
-  for (auto it = nds_.begin();
-      it != nds_.end(); ++it)
-  {
-    int64_t diff = (int64_t) it->val() - (int64_t) prev.val();
-    compressed_size += protozero::length_of_varint(protozero::encode_zigzag64(diff));
-    prev = it->val();
-  }
-  compressed_size += compressed_size & 1;
-  return compressed_size;
-}
-
-uint8* compress_nds(const std::vector< Node::Id_Type >& nds_, uint8* buffer_)
-{
-  char* current = (char*) buffer_;
-  char* buffer = (char*) buffer_;
-  Node::Id_Type prev = (uint64) 0;
-
-  for (auto it = nds_.begin();
-       it != nds_.end(); ++it)
-  {
-    int64_t delta = (int64_t) it->val() - (int64_t) prev.val();
-    uint64 zigzag = protozero::encode_zigzag64(delta);
-    int size = protozero::add_varint_to_buffer(current, zigzag);
-    current += size;
-    prev = it->val();
-  }
-
-  if ((current - buffer) & 1)    // add padding byte
-    *current++ = 0;
-
-  return (uint8*) current;
-}
-
-uint8* decompress_nds(std::vector< Node::Id_Type >& nds_, const uint16 nodes_count, const uint16 nodes_bytes, uint8* buffer_)
-{
-  const char* current = (char*) buffer_;
-  const char* end = (char*)(buffer_ + nodes_bytes);
-
-  Node::Id_Type nodeid = (uint64) 0;
-
-  for (int i=0; i<nodes_count;i++)
-  {
-    auto value = protozero::decode_varint(&current, end);
-    int64_t delta = protozero::decode_zigzag64(value);
-    nodeid += delta;
-    nds_.push_back(nodeid);
-  }
-  if ((current - (char*) buffer_) & 1)    // add padding byte
-    current++;
-  return (uint8*) current;
-}
-
-}
 
 struct Way_Delta;
 
@@ -176,7 +114,7 @@ struct Way_Skeleton
   {
     d->nds.reserve(*((uint16*)data + 2));
 
-    auto* start_ptr = (uint16*) decompress_nds(d->nds, *((uint16*)data + 2), *((uint16*)data + 4), ((uint8*)data + 10));
+    auto* start_ptr = (uint16*) decompress_ids(d->nds, *((uint16*)data + 2), *((uint16*)data + 4), ((uint8*)data + 10));
 
     const auto geometry_count = unalignedLoad<uint16>((uint16*)data + 3);
 
@@ -215,7 +153,7 @@ struct Way_Skeleton
 
   uint32 size_of() const
   {
-    uint32 compress_size = calculate_nds_compressed_size(d->nds);
+    uint32 compress_size = calculate_ids_compressed_size(d->nds);
     return 8 + 2 + compress_size + 8*d->geometry.size();
   }
 
@@ -232,7 +170,7 @@ struct Way_Skeleton
     unalignedStore(((uint16*)data + 2), (uint16) d->nds.size());
     unalignedStore(((uint16*)data + 3), (uint16) d->geometry.size());
 
-    auto* start_ptr = (uint16*) compress_nds(d->nds, (uint8*)data + 10);
+    auto* start_ptr = (uint16*) compress_ids(d->nds, (uint8*)data + 10);
     auto nds_compressed_size = (uint16) ((uint8*)start_ptr - ((uint8*)data + 10));
     unalignedStore(((uint16*)data + 4), (uint16) nds_compressed_size);
 

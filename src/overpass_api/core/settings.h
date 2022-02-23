@@ -134,6 +134,7 @@ struct Attic_Settings
   File_Properties* const NODE_TAGS_GLOBAL;
   File_Properties* const NODES_META;
   File_Properties* const NODE_CHANGELOG;
+  File_Properties* const NODE_CHANGEPACK;
   File_Properties* const WAYS;
   File_Properties* const WAYS_UNDELETED;
   File_Properties* const WAY_IDX_LIST;

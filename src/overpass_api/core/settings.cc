@@ -260,6 +260,8 @@ Attic_Settings::Attic_Settings()
       ("nodes_meta_attic", 128*1024, 0)),
   NODE_CHANGELOG(new OSM_File_Properties< Timestamp >
       ("node_changelog", 128*1024, 0)),
+  NODE_CHANGEPACK(new OSM_File_Properties< Timestamp >
+      ("node_changepack", 128*1024, 0)),
 
   WAYS(new OSM_File_Properties< Uint31_Index >("ways_attic", 128*1024, 256*1024)),
   WAYS_UNDELETED(new OSM_File_Properties< Uint31_Index >("ways_attic_undeleted", 128*1024, 64*1024)),
@@ -288,7 +290,9 @@ Attic_Settings::Attic_Settings()
       ("relation_changelog", 128*1024, 0)),
   idxs_{NODES,     NODES_UNDELETED,     NODE_IDX_LIST,     NODE_TAGS_LOCAL,     NODE_TAGS_GLOBAL,     NODES_META,     NODE_CHANGELOG,
         WAYS,      WAYS_UNDELETED,      WAY_IDX_LIST,      WAY_TAGS_LOCAL,      WAY_TAGS_GLOBAL,      WAYS_META,      WAY_CHANGELOG,
-        RELATIONS, RELATIONS_UNDELETED, RELATION_IDX_LIST, RELATION_TAGS_LOCAL, RELATION_TAGS_GLOBAL, RELATIONS_META, RELATION_CHANGELOG }
+        RELATIONS, RELATIONS_UNDELETED, RELATION_IDX_LIST, RELATION_TAGS_LOCAL, RELATION_TAGS_GLOBAL, RELATIONS_META, RELATION_CHANGELOG,
+        NODE_CHANGEPACK
+        }
 { }
 
 

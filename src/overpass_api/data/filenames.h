@@ -25,10 +25,7 @@
 
 
 template< typename Skeleton >
-File_Properties* current_skeleton_file_properties()
-{
-  return 0;
-}
+File_Properties* current_skeleton_file_properties() = delete;
 
 template< > inline File_Properties* current_skeleton_file_properties< Node_Skeleton >()
 { return osm_base_settings().NODES; }
@@ -59,10 +56,7 @@ template< > inline File_Properties* current_meta_file_properties< Relation_Skele
 
 
 template< typename Skeleton >
-File_Properties* attic_skeleton_file_properties()
-{
-  return 0;
-}
+File_Properties* attic_skeleton_file_properties() = delete;
 
 template< > inline File_Properties* attic_skeleton_file_properties< Node_Skeleton >()
 { return attic_settings().NODES; }
@@ -76,10 +70,7 @@ template< > inline File_Properties* attic_skeleton_file_properties< Relation_Ske
 
 
 template< typename Skeleton >
-File_Properties* current_local_tags_file_properties()
-{
-  return 0;
-}
+File_Properties* current_local_tags_file_properties() = delete;
 
 template< > inline File_Properties* current_local_tags_file_properties< Node_Skeleton >()
 { return osm_base_settings().NODE_TAGS_LOCAL; }
@@ -96,10 +87,7 @@ template< > inline File_Properties* current_local_tags_file_properties< Area_Ske
 
 
 template< typename Skeleton >
-File_Properties* key_file_properties()
-{
-  return 0;
-}
+File_Properties* key_file_properties() = delete;
 
 template< > inline File_Properties* key_file_properties< Node_Skeleton >()
 { return osm_base_settings().NODE_KEYS; }
@@ -113,10 +101,7 @@ template< > inline File_Properties* key_file_properties< Relation_Skeleton >()
 
 
 template< typename Skeleton >
-File_Properties* attic_idx_list_properties()
-{
-  return 0;
-}
+File_Properties* attic_idx_list_properties() = delete;
 
 template< > inline File_Properties* attic_idx_list_properties< Node_Skeleton >()
 { return attic_settings().NODE_IDX_LIST; }
@@ -130,10 +115,7 @@ template< > inline File_Properties* attic_idx_list_properties< Relation_Skeleton
 
 
 template< typename Skeleton >
-File_Properties* attic_undeleted_file_properties()
-{
-  return 0;
-}
+File_Properties* attic_undeleted_file_properties() = delete;
 
 template< > inline File_Properties* attic_undeleted_file_properties< Node_Skeleton >()
 { return attic_settings().NODES_UNDELETED; }
@@ -147,10 +129,7 @@ template< > inline File_Properties* attic_undeleted_file_properties< Relation_Sk
 
 
 template< typename Skeleton >
-File_Properties* attic_meta_file_properties()
-{
-  return 0;
-}
+File_Properties* attic_meta_file_properties() = delete;
 
 template< > inline File_Properties* attic_meta_file_properties< Node_Skeleton >()
 { return attic_settings().NODES_META; }
@@ -164,10 +143,7 @@ template< > inline File_Properties* attic_meta_file_properties< Relation_Skeleto
 
 
 template< typename Skeleton >
-File_Properties* attic_local_tags_file_properties()
-{
-  return 0;
-}
+File_Properties* attic_local_tags_file_properties() = delete;
 
 template< > inline File_Properties* attic_local_tags_file_properties< Node_Skeleton >()
 { return attic_settings().NODE_TAGS_LOCAL; }
@@ -181,10 +157,7 @@ template< > inline File_Properties* attic_local_tags_file_properties< Relation_S
 
 
 template< typename Skeleton >
-File_Properties* changelog_file_properties()
-{
-  return 0;
-}
+File_Properties* changelog_file_properties() = delete;
 
 template< > inline File_Properties* changelog_file_properties< Node_Skeleton >()
 { return attic_settings().NODE_CHANGELOG; }

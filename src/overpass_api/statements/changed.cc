@@ -156,7 +156,7 @@ std::vector< typename Skeleton::Id_Type > collect_changed_elements
 
 
 template< typename Index, typename Skeleton, typename Id_Predicate >
-IdSetHybrid<typename Skeleton::Id_Type::Id_Type> collect_changed_elements_fast
+IdSetHybrid<typename Skeleton::Id_Type::Id_Type> collect_changed_elements_hybrid
     (timestamp_t since, timestamp_t until,
      const Id_Predicate& relevant, Resource_Manager& rman)
 {
@@ -171,6 +171,60 @@ IdSetHybrid<typename Skeleton::Id_Type::Id_Type> collect_changed_elements_fast
   {
     if (relevant(it.handle().id()))
       ids.set(it.handle().id().val());
+  }
+
+  ids.sort_unique();
+
+  return ids;
+}
+
+
+template< typename Index, typename Id_Predicate >
+std::vector< Node_Skeleton::Id_Type > collect_changed_package
+    (timestamp_t since, timestamp_t until,
+     const Id_Predicate& relevant, Resource_Manager& rman)
+{
+  Ranges< Timestamp > ranges{ Timestamp(since), Timestamp(until) };
+
+  std::vector< Node_Skeleton::Id_Type > ids;
+
+  auto id_functor = [&] (Node_Skeleton::Id_Type id) {
+    if (relevant(id)) {
+      ids.push_back(id.val());
+    }
+  };
+
+  Block_Backend< Timestamp, Change_Package > changepack_db(rman.get_transaction()->data_index(attic_settings().NODE_CHANGEPACK));
+
+  for (const auto & it : changepack_db.as_range(ranges)) {
+    it.handle().process_ids< Node_Skeleton::Id_Type >(id_functor);
+  }
+
+  std::sort(ids.begin(), ids.end());
+  ids.erase(std::unique(ids.begin(), ids.end()), ids.end());
+  return ids;
+}
+
+
+template< typename Index, typename Id_Predicate >
+IdSetHybrid<Node_Skeleton::Id_Type::Id_Type> collect_changed_package_hybrid
+    (timestamp_t since, timestamp_t until,
+     const Id_Predicate& relevant, Resource_Manager& rman)
+{
+  IdSetHybrid<Node_Skeleton::Id_Type::Id_Type> ids;
+
+  auto id_functor = [&] (Node_Skeleton::Id_Type id) {
+    if (relevant(id)) {
+      ids.set(id.val());
+    }
+  };
+
+  Ranges< Timestamp > ranges{ Timestamp(since), Timestamp(until) };
+
+  Block_Backend< Timestamp, Change_Package > changepack_db(rman.get_transaction()->data_index(attic_settings().NODE_CHANGEPACK));
+
+  for (const auto & it : changepack_db.as_range(ranges)) {
+    it.handle().process_ids< Node_Skeleton::Id_Type >(id_functor);
   }
 
   ids.sort_unique();
@@ -238,7 +292,9 @@ struct Ids_Dense_Predicate
       const std::map< Index, std::vector< Attic< Skeleton > > >& attic);
 
   bool operator()(typename Skeleton::Id_Type id) const
-  { return ids.get(id.val()); }
+  {
+    return ids.get(id.val());
+  }
 
 private:
   IdSetHybrid<typename Skeleton::Id_Type::Id_Type> ids;
@@ -360,7 +416,7 @@ bool Changed_Constraint::get_node_ids(Resource_Manager& rman, std::vector< Node_
   if (!ids.empty())
     return true;
 
-  ids = collect_changed_elements< Uint32_Index, Node_Skeleton >(
+  ids = collect_changed_package< Uint32_Index >(
       stmt->get_since(rman), stmt->get_until(rman), Trivial_Id_Predicate< Node_Skeleton::Id_Type >(), rman);
   if (changeset != 0)
     ids = filter_ids_by_changeset< Uint32_Index, Node_Skeleton >(ids, changeset, stmt, rman);
@@ -452,10 +508,9 @@ void Changed_Constraint::filter(Resource_Manager& rman, Set& into)
 
   if (!stmt->trivial())
   {
-    auto ids =
-        collect_changed_elements_fast< Uint32_Index, Node_Skeleton >
-        (stmt->get_since(rman), stmt->get_until(rman),
-            Ids_Dense_Predicate< Uint32_Index, Node_Skeleton >(into.nodes, into.attic_nodes), rman);
+    auto ids = collect_changed_package_hybrid< Uint32_Index >
+                 (stmt->get_since(rman), stmt->get_until(rman),
+                  Ids_Dense_Predicate< Uint32_Index, Node_Skeleton >(into.nodes, into.attic_nodes), rman);
 
     filter_elems_fast(ids, into.nodes);
     filter_elems_fast(ids, into.attic_nodes);
@@ -465,7 +520,7 @@ void Changed_Constraint::filter(Resource_Manager& rman, Set& into)
   if (!stmt->trivial())
   {
     auto ids =
-        collect_changed_elements_fast< Uint31_Index, Way_Skeleton >
+        collect_changed_elements_hybrid< Uint31_Index, Way_Skeleton >
         (stmt->get_since(rman), stmt->get_until(rman),
             Ids_Dense_Predicate< Uint31_Index, Way_Skeleton >(into.ways, into.attic_ways), rman);
 
@@ -476,7 +531,7 @@ void Changed_Constraint::filter(Resource_Manager& rman, Set& into)
   if (!stmt->trivial())
   {
     auto ids =
-        collect_changed_elements_fast< Uint31_Index, Relation_Skeleton >
+        collect_changed_elements_hybrid< Uint31_Index, Relation_Skeleton >
         (stmt->get_since(rman), stmt->get_until(rman),
             Ids_Dense_Predicate< Uint31_Index, Relation_Skeleton >(into.relations, into.attic_relations), rman);
 
