@@ -428,7 +428,7 @@ int main(int argc, char* argv[])
     file_target->push_back(attic_settings().NODE_TAGS_LOCAL);
     file_target->push_back(attic_settings().NODE_TAGS_GLOBAL);
     file_target->push_back(attic_settings().NODES_META);
-    file_target->push_back(attic_settings().NODE_CHANGELOG);
+//    file_target->push_back(attic_settings().NODE_CHANGELOG);
     file_target->push_back(attic_settings().WAYS);
     file_target->push_back(attic_settings().WAYS_UNDELETED);
     file_target->push_back(attic_settings().WAY_IDX_LIST);

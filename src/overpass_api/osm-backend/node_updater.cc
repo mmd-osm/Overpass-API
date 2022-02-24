@@ -682,13 +682,14 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
             new_attic_global_tags, *transaction, *attic_settings().NODE_TAGS_GLOBAL);
     });
 
+/*
     f.push_back( [&]
     {
       // Write changelog
       update_elements(std::map< Timestamp, std::set< Change_Entry< Node_Skeleton::Id_Type > > >(), changelog,
             *transaction, *attic_settings().NODE_CHANGELOG);
     });
-
+*/
     f.push_back( [&]
     {
       // Write changepack

@@ -298,10 +298,12 @@ void clone_database(Transaction& transaction, const std::string& dest_db_dir, co
         transaction, dest_db_dir, clone_settings);
   });
 
+  /*
   f.push_back( [&] {
     clone_bin_file< Timestamp, Change_Entry< Node_Skeleton::Id_Type > >(*attic_settings().NODE_CHANGELOG, *attic_settings().NODE_CHANGELOG,
         transaction, dest_db_dir, clone_settings);
   });
+  */
 
   f.push_back( [&] {
     clone_bin_file< Timestamp, Change_Package >(*attic_settings().NODE_CHANGEPACK, *attic_settings().NODE_CHANGEPACK,
