@@ -304,6 +304,11 @@ void clone_database(Transaction& transaction, const std::string& dest_db_dir, co
   });
 
   f.push_back( [&] {
+    clone_bin_file< Timestamp, Change_Package >(*attic_settings().NODE_CHANGEPACK, *attic_settings().NODE_CHANGEPACK,
+        transaction, dest_db_dir, clone_settings);
+  });
+
+  f.push_back( [&] {
 
     clone_bin_file< Uint31_Index, Attic< Way_Delta > >(*attic_settings().WAYS, *attic_settings().WAYS,
         transaction, dest_db_dir, clone_settings);
