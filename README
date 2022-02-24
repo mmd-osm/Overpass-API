@@ -9,6 +9,10 @@
 
 ### :tada: New features
 
+- Supporting CMake based build, in additional to autotools.
+   - Unity builds (USE_UNITY_BUILD = ON) for faster compilation
+   - `cpack`: creates debian packages
+   - Various HAVE_* flags to control libraries and features in use
 - PBF/OPL format output: setting `[out:pbf]` and `[out:opl]`
 - ICU regular expressions: setting `[regexp:ICU]`
 - PCRE2 (+JIT) regular expression engine: setting `[regexp:PCREJIT]`
@@ -80,6 +84,7 @@ foreach .result -> .area {
 - Fix Change_Entry comparison operator bug ([upstream issue 623](https://github.com/drolbr/Overpass-API/issues/623))
 - Avoid accumulating area_blocks in foreach loop ([upstream issue 568](https://github.com/drolbr/Overpass-API/issues/568))
 - Fixed some memory leaks in test classes
+- Validate object ids during import (when using osmium based importer), rejecting object ids which are too large to be stored in 40 bits / 32 bits respectively.
 
 ### :boom: Incompatible database format changes
 
@@ -87,11 +92,16 @@ foreach .result -> .area {
   - Due to [upstream issue 465](https://github.com/drolbr/Overpass-API/issues/465), node ids were already limited to 42 bits before.
   - LZ4 can no longer compress 40 bit node ids, resulting in a slightly worse compression ratio (average 69% before --> 75% fixed now).
 - Way nodes stored as varint using protozero (original idea: https://github.com/drolbr/Overpass-API/pull/250)
+- Node changelog is replaced by node change packages. They form a timestamp based delta encoded list of node ids, similar to way nodes. Also, old_idx and new_idx fields in Change_Entry have been removed ([upstream issue 654](https://github.com/drolbr/Overpass-API/issues/654)). Both changes result in an overall size reduction from >60GB down to 6.5GB for node changelog details.
+- Timestamp data type has been changed from 40 bit to 32 bit, with year 2000 as baseline. Supporting 16384 years for OSM object metadata seemed a bit excessive. The new data type still covers years 2000..2063.
 
-Two conversion tools are available for easy conversion from the official database file format to the custom one.
+Three conversion tools are available for easy conversion from the official database file format to the custom one.
 
-- Conversion tool to convert 0.7.56 clone database into 0.7.59_mmd format (runtime ~3h)
-- Conversion tool to created tagged nodes table absent in 0.7.56 database
+- Conversion tool to convert 0.7.56 clone database into 0.7.59_mmd format (runtime ~3h). See upstream/README_0_7_57_1_patched.md for details.
+- Conversion tool to created tagged nodes table absent in 0.7.56 database (`create_tagged_nodes [db_dir]`)
+- Conversion tool to create node_changepack.bin based on an existing node_changelog.bin  (`create_node_changepack [db_dir]`)
+
+All conversion tools need to be executed without an active dispatcher instance.
 
 ### :hourglass: Performance
 

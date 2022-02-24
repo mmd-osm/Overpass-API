@@ -23,7 +23,7 @@ sem --wait
 
 where:
 * export_tables: binary provided by patched 0.7.57.1
-* import_tables: bianry provided by 0.7.59_mmd
+* import_tables: binary provided by 0.7.59_mmd
 
 ## Building
 
