@@ -218,7 +218,10 @@ int main(int argc, char* args[])
     {
       Block_Backend< Timestamp, Change_Package > db   (transaction.data_index(attic_settings().NODE_CHANGEPACK));
       for (Block_Backend< Timestamp, Change_Package >::Flat_Iterator it(db.flat_begin()); !(it == db.flat_end()); ++it)  {
-          std::cout<< it.index() << '\t'   <<std::dec<<it.object().nds.size()<<'\n';
+        auto timestamp = Timestamp(it.index().timestamp).str();
+        for (const auto el : it.object().nds) {
+          std::cout<<std::dec<<timestamp<<'\t'<<el.val() << '\n';
+        }
       }
     }
     else if (std::string("--ways") == args[2])
