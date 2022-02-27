@@ -1149,7 +1149,7 @@ struct Timestamp
 
   std::string str() const
   {
-    if (timestamp == std::numeric_limits< unsigned long >::max())
+    if (timestamp == std::numeric_limits< uint32 >::max())
       return "NOW";
 
     std::string s;
