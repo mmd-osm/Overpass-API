@@ -1,21 +1,21 @@
-# Experimental Overpass API branch
+# Experimental Overpass API fork
 
 :wave: Welcome!
 
 ## Overview
 
-- Performance optimized experimental Overpass API branch _0.7.59_mmd_
+- Performance optimized experimental Overpass API fork _0.7.59_mmd_
 - Based on 0.7.57.0
 
 ### :tada: New features
 
-- Supporting CMake based build, in additional to autotools.
-   - Unity builds (USE_UNITY_BUILD = ON) for faster compilation
+- Supporting CMake based build, in addition to autotools.
+   - [Unity builds](https://cmake.org/cmake/help/latest/prop_tgt/UNITY_BUILD.html) (USE_UNITY_BUILD = ON) for faster compilation
    - `cpack`: creates debian packages
-   - Various HAVE_* flags to control libraries and features in use
+   - Various `HAVE_*` flags to control libraries and features in use
 - PBF/OPL format output: setting `[out:pbf]` and `[out:opl]`
 - ICU regular expressions: setting `[regexp:ICU]`
-- PCRE2 (+JIT) regular expression engine: setting `[regexp:PCREJIT]`
+- PCRE2 (+JIT) regular expression engine: setting `[regexp:PCRE]` or `[regexp:PCREJIT]`
 - XAPI-like union operation for tag values (syntactic sugar): `node[place=city|town|village];` query syntax can be used instead of `node['place'~'^(city|town|village)$'];`
 - Ad-hoc area creation on any closed way/relation
 
@@ -60,19 +60,19 @@ foreach .result -> .area {
 
 - Dockerfile to facilitate building 0.7.59_mmd and 0.7.56 binaries (see `docker/` directory)
 
-- PBF support for `update_from_dir` and `update_database` now allows direct processing of planet and diff pbf files. Currently, this feature needs to be enabled by using parameter `--use-osmium`. Assuming the correct file format is provided using the `-f` input file format parameter, formats supported by libosmium can be imported.
+- PBF planet and diff files can be imported without any external PBF->XML conversion tools. By avoiding expensive XML parsing, and leveraging _libosmium_ parallel file processing, imports see a significant speedup. To enable this new file importer, add command line parameter `--use-osmium` when calling `update_from_dir` or `update_database`. Command line parameter `-f` can be used to override the default input file format (PBF). See https://osmcode.org/file-formats-manual/ for permitted values.
 - map_demo: alternative implementation for API 0.6 /map call for very large areas with > 100 million nodes. Returns PBF file format.
 - Improved dispatcher process security for use in multi-user environments ([upstream issue 247](https://github.com/drolbr/Overpass-API/issues/247))
 - Improved dispatcher signal handling for SIGTERM and SIGINT, same behavior as `--terminate` command line parameter
 - Environment variables:
-  - OVERPASS_MAX_TIMEOUT: global override for maximum permitted `[timeout:...]` value.
-  - OVERPASS_MAX_ELEMENT_LIMIT: global override for maximum permitted `[maxsize:...]` value.
-  - OVERPASS_FCGI_MAX_REQUESTS: number of FastCGI requests before `interpreter` process is being terminated (when idle)
-  - OVERPASS_FCGI_MAX_ELAPSED_TIME: maximum time after which FastCGI process is being terminated (when idle)
-  - OVERPASS_REGEXP_ENGINE: default regexp engine to use if none is specified in Overpass QL settings. POSIX, ICU, PCREJIT
-  - OVERPASS_LOG_LEVEL: define transactions.log log level. Available levels: 0 (error), 1 (warn), 2 (info), 3 (debug, default value), 4 (trace)
-  - OVERPASS*SHARED_NAME_SUFFIX: define /dev/shm/osm3s*... shared memory file suffix, allowing multiple parallel Overpass instances on one system
-  - OVERPASS_MAX_SPACE_LIMIT: maximum size of a FastCGI process's virtual memory (address space), in bytes. Default value: 2^33 (=8 GiB)
+  - `OVERPASS_MAX_TIMEOUT`: global override for maximum permitted `[timeout:...]` value.
+  - `OVERPASS_MAX_ELEMENT_LIMIT`: global override for maximum permitted `[maxsize:...]` value.
+  - `OVERPASS_FCGI_MAX_REQUESTS`: number of FastCGI requests before `interpreter` process is being terminated (when idle)
+  - `OVERPASS_FCGI_MAX_ELAPSED_TIME`: maximum time after which FastCGI process is being terminated (when idle)
+  - `OVERPASS_REGEXP_ENGINE`: default regexp engine to use if none is specified in Overpass QL settings. Possible values include: `POSIX`, `ICU`, `PCRE` and `PCREJIT`. PCREJIT is recommended for best performance.
+  - `OVERPASS_LOG_LEVEL`: define transactions.log log level. Available levels: 0 (error), 1 (warn), 2 (info), 3 (debug, default value), 4 (trace)
+  - `OVERPASS_SHARED_NAME_SUFFIX`: define /dev/shm/osm3s*... shared memory file suffix, allowing multiple parallel Overpass instances on one system
+  - `OVERPASS_MAX_SPACE_LIMIT`: maximum size of a FastCGI process's virtual memory (address space), in bytes. Default value: 2^33 (=8 GiB)
 
 ### :bug: Bugfixes
 
@@ -111,7 +111,7 @@ All conversion tools need to be executed without an active dispatcher instance.
 - Index and username caching: further taking advantage of FastCGI, database indices and usernames are only updated once per minute, and can be reused for many queries.
 - epoll based dispatcher processing for better scalability. This replaces round robin based unix domain socket polling with 10ms..100ms time intervals.
 - Hybrid array/bitmap container for better memory efficiency of large query statements (subset of features found in roaring bitmaps, https://arxiv.org/pdf/1603.06549.pdf)
-- Avoid object instantiation to access node/way/rel properties wherever possible in template backend using CRTP and C++11 move semantics
+- Avoid object instantiation to access node/way/relation properties wherever possible in _osm3s template db backend_ by leveraging [CRTP](https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern).
 - Attic: speed up object reconstruction, avoid expensive copying of objects
 - Parallel processing support for update_from_dir/update_database. New parameter `--parallel=n`, where n denotes the max. number of parallel processes
 - `around` statement:
@@ -123,8 +123,8 @@ All conversion tools need to be executed without an active dispatcher instance.
 
 - Lazy way geometry store loading for "out qt" to reduce memory consumption, also in attic mode. In addition avoid recalculation of loop invariants in Way_Geometry_Store.
 - Ignore bounding box if it covers the whole globe.
-- Lazy (if: ) filter evaluation to short circuit boolean expression evaluation.
-- Changeset based (changed: ) filtering to process huge changesets in Achavi. Additional caching in `changed` to avoid recalculation of already available results.
+- Lazy `(if: )` filter evaluation to short circuit boolean expression evaluation.
+- Changeset based `(changed: )` filtering to process huge changesets in Achavi. Additional caching in `changed` to avoid recalculation of already available results.
 
 Example syntax for changeset 46503970: (syntax is subject to change)
 
@@ -143,6 +143,7 @@ Example syntax for changeset 46503970: (syntax is subject to change)
 - Use of SharedDataPointer to reduce cost of copying large objects (ways, relations, areas, etc.)
 - Parallel clone generation. Number of parallel threads can be set using the `--clone-parallel=n` command line parameter.
 - Use of C++17 string_view to execute key value checks on raw data, avoiding copying altogether. This includes ICU and PCRE(JIT) regular expressions.
+  Note: POSIX regular expressions still require additional copying due to API limitations.
 - Key value queries to validate first element of a new index only. Immediately skip all elements, in case key value pairs are not matching.
 
 ### :x: Removed features
