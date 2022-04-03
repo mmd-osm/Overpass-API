@@ -210,6 +210,17 @@ struct Way_Skeleton_Id_Functor {
    }
 };
 
+struct Way_Skeleton_Nds_Size_Functor {
+  Way_Skeleton_Nds_Size_Functor() = default;
+
+  using reference_type = Way_Skeleton;
+
+  uint16 operator()(const void* data) const
+   {
+     return unalignedLoad<uint16>((uint16*)data + 2);
+   }
+};
+
 template <class T, class Object>
 struct Way_Skeleton_Handle_Methods
 {
@@ -223,6 +234,10 @@ struct Way_Skeleton_Handle_Methods
 
   void inline add_element(std::vector< Object > & v) const {
     static_cast<const T*>(this)->apply_func(Generic_Add_Element_Functor<Object>(v));
+  }
+
+  uint16 inline get_nds_size() const {
+    return (static_cast<const T*>(this)->apply_func(Way_Skeleton_Nds_Size_Functor()));
   }
 };
 

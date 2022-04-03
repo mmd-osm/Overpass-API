@@ -275,6 +275,19 @@ private:
   const uint32 type;
 };
 
+struct Relation_Skeleton_Member_Count_Functor {
+  Relation_Skeleton_Member_Count_Functor() = default;
+
+  using reference_type = Relation_Skeleton;
+
+  uint32 operator()(const void* data) const
+   {
+     return unalignedLoad<uint32>((uint32*)data + 1);
+   }
+};
+
+
+
 template <class T, class Object>
 struct Relation_Skeleton_Handle_Methods
 {
@@ -292,6 +305,10 @@ struct Relation_Skeleton_Handle_Methods
 
   bool inline has_child_with_id(const std::vector< Global_Id_Type >& ids, uint32 type) const {
     return (static_cast<const T*>(this)->apply_func(Relation_Skeleton_Has_Child_with_Id_Functor(ids, type)));
+  }
+
+  uint32 inline get_member_count() const {
+    return (static_cast<const T*>(this)->apply_func(Relation_Skeleton_Member_Count_Functor()));
   }
 };
 
