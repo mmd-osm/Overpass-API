@@ -114,7 +114,7 @@ void create_timeline_entries(uint64 ref, uint32 version, Statement* stmt, Resour
     if (version == 0 || version == metas[i].version)
     {
       Derived_Structure result("timeline", rman.get_global_settings().dispense_derived_id());
-      result.tags.push_back(std::make_pair(std::string("reftype"), to_string(reftype)));
+      result.tags.push_back(std::make_pair(std::string("reftype"), reftype));
       result.tags.push_back(std::make_pair(std::string("ref"), to_string(metas[i].ref.val())));
       result.tags.push_back(std::make_pair(std::string("refversion"), to_string(metas[i].version)));
       result.tags.push_back(std::make_pair(std::string("created"), Timestamp(metas[i].timestamp).str()));
