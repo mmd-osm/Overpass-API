@@ -40,6 +40,26 @@ class Map_To_Area_Statement final : public Output_Statement
 
     static bool is_used() { return map_stmt_ref_counter_ > 0; }
 
+
+#ifdef HAVE_OVERPASS_XML
+  std::string dump_xml(const std::string& indent) const override
+  {
+    std::string result = indent + "<map-to-area " + "from=\"" + input + "\"";
+
+    return result + dump_xml_result_name() + "/>\n";
+  }
+#endif
+
+  std::string dump_compact_ql(const std::string& indent) const override
+  {
+   return (input != "_" ? "." + input + " " : "") + "map_to_area"+ dump_ql_result_name() + ";";
+  }
+
+  std::string dump_pretty_ql(const std::string& indent) const override
+  {
+    return indent + (input != "_" ? "." + input + " " : "") + "map_to_area"+ dump_ql_result_name() + ";";
+  }
+
   private:
     std::string input;
 
