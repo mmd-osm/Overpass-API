@@ -312,6 +312,11 @@ struct Relation_Skeleton_Handle_Methods
   }
 };
 
+inline std::ostream & operator<<(std::ostream &os, const Relation_Skeleton & p)
+{
+  return os << "Rel(" << p.id << ", " << p.members().size() << " mbr)";
+}
+
 template <class T, class Object>
 struct Relation_Delta_Handle_Methods;
 

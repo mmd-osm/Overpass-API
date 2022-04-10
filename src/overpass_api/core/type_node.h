@@ -195,4 +195,12 @@ struct Node_Skeleton_Handle_Methods
 };
 
 
+inline std::ostream & operator<<(std::ostream &os, const Node_Skeleton & p)
+{
+
+  return os << "Node(" << p.id << ',' << p.ll_lower << ')';
+}
+
+
+
 #endif

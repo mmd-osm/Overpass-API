@@ -28,8 +28,11 @@
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
+#include <iostream>
+#include <map>
 #include <sstream>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 #ifdef NATIVE_LARGE_FILES
@@ -89,6 +92,35 @@ inline void unalignedStore(void *ptr, T t)
 }
 
 #undef OVERPASS_HAS_BUILTIN
+
+// Generic helper functions to print contents of std::mao and std::vector
+
+template < typename... Args >
+std::ostream& operator << (std::ostream& stream, const std::vector <Args...> & container)
+{
+  stream << "{ ";
+  for (auto&& elem : container) stream << elem << " ";
+  stream << "}";
+  return stream;
+}
+
+template < typename... Args >
+std::ostream& operator << (std::ostream& stream, const std::map <Args...> & container)
+{
+  stream << "{ ";
+  for (auto&& elem : container) stream << elem << " ";
+  stream << "}";
+  return stream;
+}
+
+template<typename T1, typename T2>
+std::ostream& operator << (std::ostream& stream, const std::pair <T1, T2> & val)
+{
+  stream << "{" << val.first << " " << val.second << "}";
+  return stream;
+}
+
+
 
 struct Rate_limited_Error : std::exception {
 

@@ -638,6 +638,15 @@ struct Attic_Handle_Methods : public Element_Base<Element_Skeleton>::type
   }
 };
 
+template< typename Element_Skeleton >
+inline std::ostream & operator<<(std::ostream &os, const Attic<  Element_Skeleton >& p)
+{
+  auto skel = dynamic_cast<const Element_Skeleton*>(&p);
+
+  return os << "Attic(" << p.timestamp << ": " << (skel != nullptr ? *skel : "(null)") << ")";
+}
+
+
 
 template< typename Attic >
 struct Delta_Comparator

@@ -241,6 +241,12 @@ struct Way_Skeleton_Handle_Methods
   }
 };
 
+inline std::ostream & operator<<(std::ostream &os, const Way_Skeleton & p)
+{
+  return os << "Way(" << p.id << ", " << p.nds().size() << " elm)";
+}
+
+
 
 template <class T, class Object>
 struct Way_Delta_Handle_Methods;
