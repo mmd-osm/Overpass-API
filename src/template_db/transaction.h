@@ -30,7 +30,7 @@ class Index_Cache
 {
 
 public:
-  Index_Cache() : replicate_id("") {};
+  Index_Cache() : replicate_id{} {};
   ~Index_Cache() {
 
     for (auto it = data_files.begin(); it != data_files.end(); ++it)
@@ -48,7 +48,7 @@ private:
   std::map< const File_Properties*, Random_File_Index* >
     random_files;
 
-  std::string replicate_id;
+  uint32 replicate_id;
 
   friend class Nonsynced_Transaction;
 };
@@ -62,8 +62,8 @@ class Transaction
     virtual File_Blocks_Index_Base* data_index(const File_Properties*) = 0;
     virtual Random_File_Index* random_index(const File_Properties*) = 0;
     virtual std::string get_db_dir() const = 0;
-    virtual std::string get_replicate_id() const = 0;
-    virtual void set_replicate_id(std::string replicate_id) = 0;
+    virtual uint32 get_replicate_id() const = 0;
+    virtual void set_replicate_id(uint32 replicate_id) = 0;
 };
 
 
@@ -88,8 +88,8 @@ class Nonsynced_Transaction : public Transaction
     void flush_outdated_index_cache();
     std::string get_db_dir() const override { return db_dir; }
 
-    std::string get_replicate_id() const override { return replicate_id; }
-    void set_replicate_id(std::string replicate_id_) override { replicate_id = replicate_id_; };
+    uint32 get_replicate_id() const override { return replicate_id; }
+    void set_replicate_id(uint32 replicate_id_) override { replicate_id = replicate_id_; };
     
   private:
     std::map< const File_Properties*, File_Blocks_Index_Base* >
@@ -100,7 +100,7 @@ class Nonsynced_Transaction : public Transaction
     std::string file_name_extension, db_dir;
     std::mutex transaction_mutex;
     Index_Cache* ic;
-    std::string replicate_id;
+    uint32 replicate_id;
 };
 
 
@@ -115,7 +115,7 @@ inline Nonsynced_Transaction::Nonsynced_Transaction
      const std::string& db_dir_, const std::string& file_name_extension_,
      Index_Cache* ic_)
   : writeable(writeable_), use_shadow(use_shadow_),
-    file_name_extension(file_name_extension_), db_dir(db_dir_), ic(ic_), replicate_id("")
+    file_name_extension(file_name_extension_), db_dir(db_dir_), ic(ic_), replicate_id{}
 {
   if (!db_dir.empty() && db_dir[db_dir.size()-1] != '/')
     db_dir += "/";

@@ -208,7 +208,7 @@ Dispatcher_Stub::Dispatcher_Stub
       std::ifstream replicate_id_stream((dispatcher_client->get_db_dir() + "replicate_id").c_str());
       std::string replicate_id;
       getline(replicate_id_stream, replicate_id);
-      transaction->set_replicate_id(replicate_id);
+      transaction->set_replicate_id(atol(replicate_id.c_str()));
     }
 
     transaction->flush_outdated_index_cache();

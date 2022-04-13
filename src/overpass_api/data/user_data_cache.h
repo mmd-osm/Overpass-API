@@ -41,7 +41,7 @@ inline const std::map< uint32, std::string >& User_Data_Cache::users(
 {
   static std::map< uint32, std::string > users_;
   static bool loaded;
-  static std::string replicate_id;
+  static uint32 replicate_id;
 
   if (replicate_id != transaction.get_replicate_id())
   {
