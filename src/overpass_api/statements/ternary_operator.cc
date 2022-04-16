@@ -20,6 +20,7 @@
 #include "../data/utils.h"
 #include "ternary_operator.h"
 
+using namespace std::string_literals;
 
 void Ternary_Evaluator::add_statement(Statement* statement, std::string text)
 {
@@ -107,133 +108,133 @@ Eval_Task* Ternary_Evaluator::get_string_task(Prepare_Task_Context& context, con
 }
 
 
-std::string Ternary_Eval_Task::eval(const std::string* key) const
+Eval_Variant Ternary_Eval_Task::eval(const std::string* key) const
 {
   if (!condition)
-    return "0";
-  if (string_represents_boolean_true(condition->eval(key)))
-    return lhs ? lhs->eval(key) : "";
-  return rhs ? rhs->eval(key) : "";
+    return false;
+  if (eval_variant_represents_boolean_true(condition->eval(key)))
+    return lhs ? lhs->eval(key) : ""s;
+  return rhs ? rhs->eval(key) : ""s;
 }
 
 
-std::string Ternary_Eval_Task::eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
+Eval_Variant Ternary_Eval_Task::eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
 {
   if (!condition)
-    return "0";
-  if (string_represents_boolean_true(condition->eval(data, key)))
-    return lhs ? lhs->eval(data, key) : "";
-  return rhs ? rhs->eval(data, key) : "";
+    return false;
+  if (eval_variant_represents_boolean_true(condition->eval(data, key)))
+    return lhs ? lhs->eval(data, key) : ""s;
+  return rhs ? rhs->eval(data, key) : ""s;
 }
 
 
-std::string Ternary_Eval_Task::eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
+Eval_Variant Ternary_Eval_Task::eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
 {
   if (!condition)
-    return "0";
-  if (string_represents_boolean_true(condition->eval(data, key)))
-    return lhs ? lhs->eval(data, key) : "";
-  return rhs ? rhs->eval(data, key) : "";
+    return false;
+  if (eval_variant_represents_boolean_true(condition->eval(data, key)))
+    return lhs ? lhs->eval(data, key) : ""s;
+  return rhs ? rhs->eval(data, key) : ""s;
 }
 
 
-std::string Ternary_Eval_Task::eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
+Eval_Variant Ternary_Eval_Task::eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
 {
   if (!condition)
-    return "0";
-  if (string_represents_boolean_true(condition->eval(data, key)))
-    return lhs ? lhs->eval(data, key) : "";
-  return rhs ? rhs->eval(data, key) : "";
+    return false;
+  if (eval_variant_represents_boolean_true(condition->eval(data, key)))
+    return lhs ? lhs->eval(data, key) : ""s;
+  return rhs ? rhs->eval(data, key) : ""s;
 }
 
 
-std::string Ternary_Eval_Task::eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
+Eval_Variant Ternary_Eval_Task::eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
 {
   if (!condition)
-    return "0";
-  if (string_represents_boolean_true(condition->eval(data, key)))
-    return lhs ? lhs->eval(data, key) : "";
-  return rhs ? rhs->eval(data, key) : "";
+    return false;
+  if (eval_variant_represents_boolean_true(condition->eval(data, key)))
+    return lhs ? lhs->eval(data, key) : ""s;
+  return rhs ? rhs->eval(data, key) : ""s;
 }
 
 
-std::string Ternary_Eval_Task::eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
+Eval_Variant Ternary_Eval_Task::eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
 {
   if (!condition)
-    return "0";
-  if (string_represents_boolean_true(condition->eval(data, key)))
-    return lhs ? lhs->eval(data, key) : "";
-  return rhs ? rhs->eval(data, key) : "";
+    return false;
+  if (eval_variant_represents_boolean_true(condition->eval(data, key)))
+    return lhs ? lhs->eval(data, key) : ""s;
+  return rhs ? rhs->eval(data, key) : ""s;
 }
 
 
-std::string Ternary_Eval_Task::eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
+Eval_Variant Ternary_Eval_Task::eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
 {
   if (!condition)
-    return "0";
-  if (string_represents_boolean_true(condition->eval(data, key)))
-    return lhs ? lhs->eval(data, key) : "";
-  return rhs ? rhs->eval(data, key) : "";
+    return false;
+  if (eval_variant_represents_boolean_true(condition->eval(data, key)))
+    return lhs ? lhs->eval(data, key) : ""s;
+  return rhs ? rhs->eval(data, key) : ""s;
 }
 
 
-std::string Ternary_Eval_Task::eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
+Eval_Variant Ternary_Eval_Task::eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
 {
   if (!condition)
-    return "0";
-  if (string_represents_boolean_true(condition->eval(data, key)))
-    return lhs ? lhs->eval(data, key) : "";
-  return rhs ? rhs->eval(data, key) : "";
+    return false;
+  if (eval_variant_represents_boolean_true(condition->eval(data, key)))
+    return lhs ? lhs->eval(data, key) : ""s;
+  return rhs ? rhs->eval(data, key) : ""s;
 }
 
 
-std::string Ternary_Eval_Task::eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
+Eval_Variant Ternary_Eval_Task::eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
 {
   if (!condition)
-    return "0";
-  if (string_represents_boolean_true(condition->eval(data, key)))
-    return lhs ? lhs->eval(data, key) : "";
-  return rhs ? rhs->eval(data, key) : "";
+    return false;
+  if (eval_variant_represents_boolean_true(condition->eval(data, key)))
+    return lhs ? lhs->eval(data, key) : ""s;
+  return rhs ? rhs->eval(data, key) : ""s;
 }
 
 
-std::string Ternary_Eval_Task::eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
+Eval_Variant Ternary_Eval_Task::eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
 {
   if (!condition)
-    return "0";
-  if (string_represents_boolean_true(condition->eval(pos, data, key)))
-    return lhs ? lhs->eval(pos, data, key) : "";
-  return rhs ? rhs->eval(pos, data, key) : "";
+    return false;
+  if (eval_variant_represents_boolean_true(condition->eval(pos, data, key)))
+    return lhs ? lhs->eval(pos, data, key) : ""s;
+  return rhs ? rhs->eval(pos, data, key) : ""s;
 }
 
 
-std::string Ternary_Eval_Task::eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
+Eval_Variant Ternary_Eval_Task::eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
 {
   if (!condition)
-    return "0";
-  if (string_represents_boolean_true(condition->eval(pos, data, key)))
-    return lhs ? lhs->eval(pos, data, key) : "";
-  return rhs ? rhs->eval(pos, data, key) : "";
+    return false;
+  if (eval_variant_represents_boolean_true(condition->eval(pos, data, key)))
+    return lhs ? lhs->eval(pos, data, key) : ""s;
+  return rhs ? rhs->eval(pos, data, key) : ""s;
 }
 
 
-std::string Ternary_Eval_Task::eval(uint pos, const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
+Eval_Variant Ternary_Eval_Task::eval(uint pos, const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
 {
   if (!condition)
-    return "0";
-  if (string_represents_boolean_true(condition->eval(pos, data, key)))
-    return lhs ? lhs->eval(pos, data, key) : "";
-  return rhs ? rhs->eval(pos, data, key) : "";
+    return false;
+  if (eval_variant_represents_boolean_true(condition->eval(pos, data, key)))
+    return lhs ? lhs->eval(pos, data, key) : ""s;
+  return rhs ? rhs->eval(pos, data, key) : ""s;
 }
 
 
-std::string Ternary_Eval_Task::eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
+Eval_Variant Ternary_Eval_Task::eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
 {
   if (!condition)
-    return "0";
-  if (string_represents_boolean_true(condition->eval(pos, data, key)))
-    return lhs ? lhs->eval(pos, data, key) : "";
-  return rhs ? rhs->eval(pos, data, key) : "";
+    return false;
+  if (eval_variant_represents_boolean_true(condition->eval(pos, data, key)))
+    return lhs ? lhs->eval(pos, data, key) : ""s;
+  return rhs ? rhs->eval(pos, data, key) : ""s;
 }
 
 
@@ -250,7 +251,7 @@ Opaque_Geometry* Ternary_Eval_Geometry_Task::eval() const
 {
   if (!condition)
     return 0;
-  if (string_represents_boolean_true(condition->eval(0)))
+  if (eval_variant_represents_boolean_true(condition->eval(0)))
     return lhs ? lhs->eval() : 0;
   return rhs ? rhs->eval() : 0;
 }
@@ -260,7 +261,7 @@ Opaque_Geometry* Ternary_Eval_Geometry_Task::eval(const Element_With_Context< No
 {
   if (!condition)
     return 0;
-  if (string_represents_boolean_true(condition->eval(data, 0)))
+  if (eval_variant_represents_boolean_true(condition->eval(data, 0)))
     return lhs ? lhs->eval(data) : 0;
   return rhs ? rhs->eval(data) : 0;
 }
@@ -270,7 +271,7 @@ Opaque_Geometry* Ternary_Eval_Geometry_Task::eval(const Element_With_Context< At
 {
   if (!condition)
     return 0;
-  if (string_represents_boolean_true(condition->eval(data, 0)))
+  if (eval_variant_represents_boolean_true(condition->eval(data, 0)))
     return lhs ? lhs->eval(data) : 0;
   return rhs ? rhs->eval(data) : 0;
 }
@@ -280,7 +281,7 @@ Opaque_Geometry* Ternary_Eval_Geometry_Task::eval(const Element_With_Context< Wa
 {
   if (!condition)
     return 0;
-  if (string_represents_boolean_true(condition->eval(data, 0)))
+  if (eval_variant_represents_boolean_true(condition->eval(data, 0)))
     return lhs ? lhs->eval(data) : 0;
   return rhs ? rhs->eval(data) : 0;
 }
@@ -290,7 +291,7 @@ Opaque_Geometry* Ternary_Eval_Geometry_Task::eval(const Element_With_Context< At
 {
   if (!condition)
     return 0;
-  if (string_represents_boolean_true(condition->eval(data, 0)))
+  if (eval_variant_represents_boolean_true(condition->eval(data, 0)))
     return lhs ? lhs->eval(data) : 0;
   return rhs ? rhs->eval(data) : 0;
 }
@@ -300,7 +301,7 @@ Opaque_Geometry* Ternary_Eval_Geometry_Task::eval(const Element_With_Context< Re
 {
   if (!condition)
     return 0;
-  if (string_represents_boolean_true(condition->eval(data, 0)))
+  if (eval_variant_represents_boolean_true(condition->eval(data, 0)))
     return lhs ? lhs->eval(data) : 0;
   return rhs ? rhs->eval(data) : 0;
 }
@@ -310,7 +311,7 @@ Opaque_Geometry* Ternary_Eval_Geometry_Task::eval(const Element_With_Context< At
 {
   if (!condition)
     return 0;
-  if (string_represents_boolean_true(condition->eval(data, 0)))
+  if (eval_variant_represents_boolean_true(condition->eval(data, 0)))
     return lhs ? lhs->eval(data) : 0;
   return rhs ? rhs->eval(data) : 0;
 }
@@ -320,7 +321,7 @@ Opaque_Geometry* Ternary_Eval_Geometry_Task::eval(const Element_With_Context< Ar
 {
   if (!condition)
     return 0;
-  if (string_represents_boolean_true(condition->eval(data, 0)))
+  if (eval_variant_represents_boolean_true(condition->eval(data, 0)))
     return lhs ? lhs->eval(data) : 0;
   return rhs ? rhs->eval(data) : 0;
 }
@@ -330,7 +331,7 @@ Opaque_Geometry* Ternary_Eval_Geometry_Task::eval(const Element_With_Context< De
 {
   if (!condition)
     return 0;
-  if (string_represents_boolean_true(condition->eval(data, 0)))
+  if (eval_variant_represents_boolean_true(condition->eval(data, 0)))
     return lhs ? lhs->eval(data) : 0;
   return rhs ? rhs->eval(data) : 0;
 }

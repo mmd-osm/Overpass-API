@@ -56,7 +56,7 @@ void eval_elems(Value_Aggregator& aggregator, Eval_Task& task,
   {
     for (auto elem_it = idx_it->second.begin();
         elem_it != idx_it->second.end(); ++elem_it)
-      aggregator.update_value(task.eval(input_set.get_context(idx_it->first, *elem_it), key));
+      aggregator.update_value(eval_variant_to_string(task.eval(input_set.get_context(idx_it->first, *elem_it), key)));
   }
 }
 

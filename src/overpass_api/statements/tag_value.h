@@ -35,6 +35,7 @@
 #include <string>
 #include <vector>
 
+using namespace std::string_literals;
 
 /* === Fixed Value evaluator ===
 
@@ -116,24 +117,24 @@ resp.
 
 struct Id_Eval_Task final : public Eval_Task
 {
-  std::string eval(const std::string* key) const override { return ""; }
+  Eval_Variant eval(const std::string* key) const override { return ""; }
 
-  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
-      { return data.object ? to_string(data.object->id.val()) : ""; }
-  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
-      { return data.object ? to_string(data.object->id.val()) : ""; }
-  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
-      { return data.object ? to_string(data.object->id.val()) : ""; }
-  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
-      { return data.object ? to_string(data.object->id.val()) : ""; }
-  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
-      { return data.object ? to_string(data.object->id.val()) : ""; }
-  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
-      { return data.object ? to_string(data.object->id.val()) : ""; }
-  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
-      { return data.object ? to_string(data.object->id.val()) : ""; }
-  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
-      { return data.object ? to_string(data.object->id.val()) : ""; }
+  Eval_Variant eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
+      { return data.object ? (int64)(data.object->id.val()) : 0; }
+  Eval_Variant eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
+      { return data.object ? (int64)(data.object->id.val()) : 0; }
+  Eval_Variant eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
+      { return data.object ? (int64)(data.object->id.val()) : 0; }
+  Eval_Variant eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
+      { return data.object ? (int64)(data.object->id.val()) : 0; }
+  Eval_Variant eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
+      { return data.object ? (int64)(data.object->id.val()) : 0; }
+  Eval_Variant eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
+      { return data.object ? (int64)(data.object->id.val()) : 0; }
+  Eval_Variant eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
+      { return data.object ? (int64)(data.object->id.val()) : 0; }
+  Eval_Variant eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
+      { return data.object ? (int64)(data.object->id.val()) : 0; }
 };
 
 
@@ -172,24 +173,24 @@ public:
 
 struct Type_Eval_Task final : public Eval_Task
 {
-  std::string eval(const std::string* key) const override { return ""; }
+  Eval_Variant eval(const std::string* key) const override { return ""s; }
 
-  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
-      { return "node"; }
-  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
-      { return "node"; }
-  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
-      { return "way"; }
-  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
-      { return "way"; }
-  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
-      { return "relation"; }
-  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
-      { return "relation"; }
-  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
-      { return "area"; }
-  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
-      { return data.object ? data.object->type_name : ""; }
+  Eval_Variant eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
+      { return "node"s; }
+  Eval_Variant eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
+      { return "node"s; }
+  Eval_Variant eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
+      { return "way"s; }
+  Eval_Variant eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
+      { return "way"s; }
+  Eval_Variant eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
+      { return "relation"s; }
+  Eval_Variant eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
+      { return "relation"s; }
+  Eval_Variant eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
+      { return "area"s; }
+  Eval_Variant eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
+      { return data.object ? data.object->type_name : ""s; }
 };
 
 
@@ -263,16 +264,16 @@ struct Value_Eval_Task final : public Eval_Task
   Value_Eval_Task(Eval_Task* rhs_) : rhs(rhs_) {}
   ~Value_Eval_Task() override { delete rhs; }
 
-  std::string eval(const std::string* key) const override;
+  Eval_Variant eval(const std::string* key) const override;
 
-  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override;
-  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override;
-  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override;
-  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override;
-  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override;
-  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override;
-  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override;
-  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override;
+  Eval_Variant eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override;
+  Eval_Variant eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override;
+  Eval_Variant eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override;
+  Eval_Variant eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override;
+  Eval_Variant eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override;
+  Eval_Variant eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override;
+  Eval_Variant eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override;
+  Eval_Variant eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override;
 
 private:
   Eval_Task* rhs;
@@ -333,23 +334,23 @@ struct Is_Tag_Eval_Task final : public Eval_Task
 {
   Is_Tag_Eval_Task(const std::string& key_) : key(key_) {}
 
-  std::string eval(const std::string* key) const override { return ""; }
+  Eval_Variant eval(const std::string* key) const override { return ""; }
 
-  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
       { return exists_value(data.tags, this->key); }
-  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
       { return exists_value(data.tags, this->key); }
-  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
       { return exists_value(data.tags, this->key); }
-  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
       { return exists_value(data.tags, this->key); }
-  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
       { return exists_value(data.tags, this->key); }
-  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
       { return exists_value(data.tags, this->key); }
-  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
       { return exists_value(data.tags, this->key); }
-  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
       { return exists_value(data.tags, this->key); }
 
 private:
@@ -402,24 +403,24 @@ private:
 
 struct Generic_Eval_Task final : public Eval_Task
 {
-  std::string eval(const std::string* key) const override { return ""; }
+  Eval_Variant eval(const std::string* key) const override { return ""s; }
 
-  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
-      { return key ? find_value(data.tags, *key) : ""; }
-  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
-      { return key ? find_value(data.tags, *key) : ""; }
-  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
-      { return key ? find_value(data.tags, *key) : ""; }
-  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
-      { return key ? find_value(data.tags, *key) : ""; }
-  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
-      { return key ? find_value(data.tags, *key) : ""; }
-  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
-      { return key ? find_value(data.tags, *key) : ""; }
-  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
-      { return key ? find_value(data.tags, *key) : ""; }
-  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
-      { return key ? find_value(data.tags, *key) : ""; }
+  Eval_Variant eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
+      { return key ? find_value(data.tags, *key) : ""s; }
+  Eval_Variant eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
+      { return key ? find_value(data.tags, *key) : ""s; }
+  Eval_Variant eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
+      { return key ? find_value(data.tags, *key) : ""s; }
+  Eval_Variant eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
+      { return key ? find_value(data.tags, *key) : ""s; }
+  Eval_Variant eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
+      { return key ? find_value(data.tags, *key) : ""s; }
+  Eval_Variant eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
+      { return key ? find_value(data.tags, *key) : ""s; }
+  Eval_Variant eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
+      { return key ? find_value(data.tags, *key) : ""s; }
+  Eval_Variant eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
+      { return key ? find_value(data.tags, *key) : ""s; }
 };
 
 
@@ -579,24 +580,24 @@ struct Version_Eval_Task final : public Eval_Task
 {
   Version_Eval_Task() = default;
 
-  std::string eval(const std::string* key) const override { return ""; }
+  Eval_Variant eval(const std::string* key) const override { return ""; }
 
-  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
-      { return data.meta ? to_string(data.meta->version) : ""; }
-  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
-      { return data.meta ? to_string(data.meta->version) : ""; }
-  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
-      { return data.meta ? to_string(data.meta->version) : ""; }
-  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
-      { return data.meta ? to_string(data.meta->version) : ""; }
-  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
-      { return data.meta ? to_string(data.meta->version) : ""; }
-  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
-      { return data.meta ? to_string(data.meta->version) : ""; }
-  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
-      { return data.meta ? to_string(data.meta->version) : ""; }
-  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
-      { return data.meta ? to_string(data.meta->version) : ""; }
+  Eval_Variant eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
+      { return data.meta ? (int64)(data.meta->version) : 0; }
+  Eval_Variant eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
+      { return data.meta ? (int64)(data.meta->version) : 0; }
+  Eval_Variant eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
+      { return data.meta ? (int64)(data.meta->version) : 0; }
+  Eval_Variant eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
+      { return data.meta ? (int64)(data.meta->version) : 0; }
+  Eval_Variant eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
+      { return data.meta ? (int64)(data.meta->version) : 0; }
+  Eval_Variant eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
+      { return data.meta ? (int64)(data.meta->version) : 0; }
+  Eval_Variant eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
+      { return data.meta ? (int64)(data.meta->version) : 0; }
+  Eval_Variant eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
+      { return data.meta ? (int64)(data.meta->version) : 0; }
 };
 
 
@@ -639,24 +640,24 @@ struct Timestamp_Eval_Task final : public Eval_Task
 {
   Timestamp_Eval_Task() = default;
 
-  std::string eval(const std::string* key) const override { return ""; }
+  Eval_Variant eval(const std::string* key) const override { return ""s; }
 
-  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
-      { return data.meta ? Timestamp(data.meta->timestamp).str() : ""; }
-  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
-      { return data.meta ? Timestamp(data.meta->timestamp).str() : ""; }
-  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
-      { return data.meta ? Timestamp(data.meta->timestamp).str() : ""; }
-  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
-      { return data.meta ? Timestamp(data.meta->timestamp).str() : ""; }
-  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
-      { return data.meta ? Timestamp(data.meta->timestamp).str() : ""; }
-  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
-      { return data.meta ? Timestamp(data.meta->timestamp).str() : ""; }
-  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
-      { return data.meta ? Timestamp(data.meta->timestamp).str() : ""; }
-  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
-      { return data.meta ? Timestamp(data.meta->timestamp).str() : ""; }
+  Eval_Variant eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
+      { return data.meta ? Timestamp(data.meta->timestamp).str() : ""s; }
+  Eval_Variant eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
+      { return data.meta ? Timestamp(data.meta->timestamp).str() : ""s; }
+  Eval_Variant eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
+      { return data.meta ? Timestamp(data.meta->timestamp).str() : ""s; }
+  Eval_Variant eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
+      { return data.meta ? Timestamp(data.meta->timestamp).str() : ""s; }
+  Eval_Variant eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
+      { return data.meta ? Timestamp(data.meta->timestamp).str() : ""s; }
+  Eval_Variant eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
+      { return data.meta ? Timestamp(data.meta->timestamp).str() : ""s; }
+  Eval_Variant eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
+      { return data.meta ? Timestamp(data.meta->timestamp).str() : ""s; }
+  Eval_Variant eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
+      { return data.meta ? Timestamp(data.meta->timestamp).str() : ""s; }
 };
 
 
@@ -699,23 +700,23 @@ struct Changeset_Eval_Task final : public Eval_Task
 {
   Changeset_Eval_Task() = default;
 
-  std::string eval(const std::string* key) const override { return ""; }
+  Eval_Variant eval(const std::string* key) const override { return ""; }
 
-  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->changeset) : ""; }
-  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->changeset) : ""; }
-  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->changeset) : ""; }
-  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->changeset) : ""; }
-  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->changeset) : ""; }
-  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->changeset) : ""; }
-  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->changeset) : ""; }
-  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->changeset) : ""; }
 };
 
@@ -759,23 +760,23 @@ struct Uid_Eval_Task final : public Eval_Task
 {
   Uid_Eval_Task() = default;
 
-  std::string eval(const std::string* key) const override { return ""; }
+  Eval_Variant eval(const std::string* key) const override { return ""; }
 
-  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->user_id) : ""; }
-  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->user_id) : ""; }
-  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->user_id) : ""; }
-  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->user_id) : ""; }
-  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->user_id) : ""; }
-  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->user_id) : ""; }
-  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->user_id) : ""; }
-  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
       { return data.meta ? to_string(data.meta->user_id) : ""; }
 };
 
@@ -819,23 +820,23 @@ struct User_Eval_Task final : public Eval_Task
 {
   User_Eval_Task() = default;
 
-  std::string eval(const std::string* key) const override { return ""; }
+  Eval_Variant eval(const std::string* key) const override { return ""s; }
 
-  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
       { return data.user_name ? *data.user_name : ""; }
-  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
       { return data.user_name ? *data.user_name : ""; }
-  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
       { return data.user_name ? *data.user_name : ""; }
-  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
       { return data.user_name ? *data.user_name : ""; }
-  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
       { return data.user_name ? *data.user_name : ""; }
-  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
       { return data.user_name ? *data.user_name : ""; }
-  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
       { return data.user_name ? *data.user_name : ""; }
-  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
       { return data.user_name ? *data.user_name : ""; }
 };
 
@@ -979,16 +980,16 @@ struct Prop_Count_Eval_Task final : public Eval_Task
       uint32 role_id_ = std::numeric_limits< uint32 >::max())
       : to_count(to_count_), type_to_count(type_to_count_), role_id(role_id_) {}
 
-  std::string eval(const std::string* key) const override { return "0"; }
+  Eval_Variant eval(const std::string* key) const override { return "0"s; }
 
-  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override;
-  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override;
-  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override;
-  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override;
-  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override;
-  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override;
-  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override;
-  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override;
+  Eval_Variant eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override;
+  Eval_Variant eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override;
+  Eval_Variant eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override;
+  Eval_Variant eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override;
+  Eval_Variant eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override;
+  Eval_Variant eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override;
+  Eval_Variant eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override;
+  Eval_Variant eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override;
 
 private:
   Evaluator_Properties_Count::Objects to_count;

@@ -1122,9 +1122,12 @@ void eval_lhs_elems(const std::map< Index, std::vector< Maybe_Attic > >& items,
       it_idx != items.end(); ++it_idx)
   {
     for (auto it_elem = it_idx->second.begin();
-        it_elem != it_idx->second.end(); ++it_elem)
+        it_elem != it_idx->second.end(); ++it_elem) {
+      auto res = eval_variant_to_string(task.eval(into_context.get_context(it_idx->first, *it_elem), 0));
+
       result.push_back(std::make_pair(
-          it_elem->id, task.eval(into_context.get_context(it_idx->first, *it_elem), 0)));
+          it_elem->id,res));
+    }
   }
 
   std::sort(result.begin(), result.end(), First_Comparator< Id_Type, std::string >());
@@ -1142,7 +1145,7 @@ void eval_rhs_elems(const std::map< Index, std::vector< Maybe_Attic > >& items,
     for (auto it_elem = it_idx->second.begin();
         it_elem != it_idx->second.end(); ++it_elem)
     {
-      std::string rhs_val = task.eval(into_context.get_context(it_idx->first, *it_elem), 0);
+      auto rhs_val = eval_variant_to_string(task.eval(into_context.get_context(it_idx->first, *it_elem), 0));
       auto it_lhs =
           std::lower_bound(lhs_set.begin(), lhs_set.end(), std::make_pair(it_elem->id, ""),
               First_Comparator< Id_Type, std::string >());

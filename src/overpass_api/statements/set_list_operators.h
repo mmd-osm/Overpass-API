@@ -237,7 +237,7 @@ public:
   Evaluator_Lrs_In(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_Binary_Set_List_Operator_Syntax< Evaluator_Lrs_In >(line_number_, input_attributes) {}
 
-  std::string process(const std::string& first_result, const std::string& second_result) const override;
+  Eval_Variant process(const Eval_Variant& first_result, const Eval_Variant& second_result) const override;
 };
 
 
@@ -252,7 +252,7 @@ public:
   Evaluator_Lrs_Isect(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_Binary_Set_List_Operator_Syntax< Evaluator_Lrs_Isect >(line_number_, input_attributes) {}
 
-  std::string process(const std::string& first_result, const std::string& second_result) const override;
+  Eval_Variant process(const Eval_Variant& first_result, const Eval_Variant& second_result) const override;
 };
 
 
@@ -267,7 +267,7 @@ public:
   Evaluator_Lrs_Union(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_Binary_Set_List_Operator_Syntax< Evaluator_Lrs_Union >(line_number_, input_attributes) {}
 
-  std::string process(const std::string& first_result, const std::string& second_result) const override;
+  Eval_Variant process(const Eval_Variant& first_result, const Eval_Variant& second_result) const override;
 };
 
 
@@ -300,7 +300,7 @@ public:
   Evaluator_Lrs_Max(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_Unary_Set_List_Operator_Syntax< Evaluator_Lrs_Max >(line_number_, input_attributes) {}
 
-  std::string process(const std::string& rhs_result) const override;
+  Eval_Variant process(const Eval_Variant& rhs_result) const override;
 };
 
 
@@ -315,7 +315,7 @@ public:
   Evaluator_Lrs_Min(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_Unary_Set_List_Operator_Syntax< Evaluator_Lrs_Min >(line_number_, input_attributes) {}
 
-  std::string process(const std::string& rhs_result) const override;
+  Eval_Variant process(const Eval_Variant& rhs_result) const override;
 };
 
 

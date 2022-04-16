@@ -20,6 +20,8 @@
 #include "../data/utils.h"
 #include "unary_operators.h"
 
+using namespace std::string_literals;
+
 
 Evaluator_Prefix_Operator::Evaluator_Prefix_Operator(int line_number_)
     : Evaluator_Unary_Function(line_number_) {}
@@ -49,9 +51,9 @@ Operator_Stmt_Maker< Evaluator_Not > Evaluator_Not::statement_maker;
 Operator_Eval_Maker< Evaluator_Not > Evaluator_Not::evaluator_maker;
 
 
-std::string Evaluator_Not::process(const std::string& rhs_s) const
+Eval_Variant Evaluator_Not::process(const Eval_Variant& rhs_s) const
 {
-  return string_represents_boolean_true(rhs_s) ? "0" : "1";
+  return !(eval_variant_represents_boolean_true(rhs_s));
 }
 
 
@@ -62,15 +64,15 @@ Operator_Stmt_Maker< Evaluator_Negate > Evaluator_Negate::statement_maker;
 Operator_Eval_Maker< Evaluator_Negate > Evaluator_Negate::evaluator_maker;
 
 
-std::string Evaluator_Negate::process(const std::string& rhs_s) const
+Eval_Variant Evaluator_Negate::process(const Eval_Variant& rhs_s) const
 {
   int64 rhs_l = 0;
   if (try_int64(rhs_s, rhs_l))
-    return to_string(-rhs_l);
+    return (-rhs_l);
 
   double rhs_d = 0;
   if (try_double(rhs_s, rhs_d))
-    return to_string(-rhs_d);
+    return (-rhs_d);
 
-  return "NaN";
+  return "NaN"s;
 }

@@ -60,53 +60,53 @@ Eval_Task* Evaluator_Per_Member::get_string_task(Prepare_Task_Context& context, 
 }
 
 
-std::string Per_Member_Eval_Task::eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
+Eval_Variant Per_Member_Eval_Task::eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
 {
   std::string result;
   if (!data.object->nds().empty())
   {
-    result = rhs_task->eval(0, data, key);
+    result = eval_variant_to_string(rhs_task->eval(0, data, key));
     for (uint i = 1; i < data.object->nds().size(); ++i)
-      result += ";" + rhs_task->eval(i, data, key);
+      result += ";" + eval_variant_to_string(rhs_task->eval(i, data, key));
   }
   return result;
 }
 
 
-std::string Per_Member_Eval_Task::eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
+Eval_Variant Per_Member_Eval_Task::eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
 {
   std::string result;
   if (!data.object->nds().empty())
   {
-    result = rhs_task->eval(0, data, key);
+    result = eval_variant_to_string(rhs_task->eval(0, data, key));
     for (uint i = 1; i < data.object->nds().size(); ++i)
-      result += ";" + rhs_task->eval(i, data, key);
+      result += ";" + eval_variant_to_string(rhs_task->eval(i, data, key));
   }
   return result;
 }
 
 
-std::string Per_Member_Eval_Task::eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
+Eval_Variant Per_Member_Eval_Task::eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
 {
   std::string result;
   if (!data.object->members().empty())
   {
-    result = rhs_task->eval(0, data, key);
+    result = eval_variant_to_string(rhs_task->eval(0, data, key));
     for (uint i = 1; i < data.object->members().size(); ++i)
-      result += ";" + rhs_task->eval(i, data, key);
+      result += ";" + eval_variant_to_string(rhs_task->eval(i, data, key));
   }
   return result;
 }
 
 
-std::string Per_Member_Eval_Task::eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
+Eval_Variant Per_Member_Eval_Task::eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
 {
   std::string result;
   if (!data.object->members().empty())
   {
-    result = rhs_task->eval(0, data, key);
+    result = eval_variant_to_string(rhs_task->eval(0, data, key));
     for (uint i = 1; i < data.object->members().size(); ++i)
-      result += ";" + rhs_task->eval(i, data, key);
+      result += ";" + eval_variant_to_string(rhs_task->eval(i, data, key));
   }
   return result;
 }
@@ -139,31 +139,31 @@ Eval_Task* Evaluator_Per_Vertex::get_string_task(Prepare_Task_Context& context, 
 }
 
 
-std::string Per_Vertex_Eval_Task::eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
+Eval_Variant Per_Vertex_Eval_Task::eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
 {
   std::string result;
   if (data.object->nds().size() > 2)
   {
-    result = rhs_task->eval(1, data, key);
+    result = eval_variant_to_string(rhs_task->eval(1, data, key));
     for (uint i = 2; i < data.object->nds().size() - 1; ++i)
-      result += ";" + rhs_task->eval(i, data, key);
+      result += ";" + eval_variant_to_string(rhs_task->eval(i, data, key));
     if (data.object->nds().front() == data.object->nds().back())
-      result += ";" + rhs_task->eval(data.object->nds().size() - 1, data, key);
+      result += ";" + eval_variant_to_string(rhs_task->eval(data.object->nds().size() - 1, data, key));
   }
   return result;
 }
 
 
-std::string Per_Vertex_Eval_Task::eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
+Eval_Variant Per_Vertex_Eval_Task::eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
 {
   std::string result;
   if (data.object->nds().size() > 2)
   {
-    result = rhs_task->eval(1, data, key);
+    result = eval_variant_to_string(rhs_task->eval(1, data, key));
     for (uint i = 2; i < data.object->nds().size() - 1; ++i)
-      result += ";" + rhs_task->eval(i, data, key);
+      result += ";" + eval_variant_to_string(rhs_task->eval(i, data, key));
     if (data.object->nds().front() == data.object->nds().back())
-      result += ";" + rhs_task->eval(data.object->nds().size() - 1, data, key);
+      result += ";" + eval_variant_to_string(rhs_task->eval(data.object->nds().size() - 1, data, key));
   }
   return result;
 }
@@ -239,34 +239,35 @@ Evaluator_Angle::Evaluator_Angle
 }
 
 
-std::string Angle_Eval_Task::eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
+Eval_Variant Angle_Eval_Task::eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
 {
   if (!data.geometry)
     return "";
   keep_cartesians_up_to_date(data.object->id, data.geometry);
 
-  if (pos+1 < data.object->nds().size() || data.object->nds().front() == data.object->nds().back())
-    return prettyprinted_angle(pos);
+  if (pos+1 < data.object->nds().size() || data.object->nds().front() == data.object->nds().back()) {
+    if (pos != 0)
+      return calc_angle(pos);
+  }
   return "";
 }
 
 
-std::string Angle_Eval_Task::eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
+Eval_Variant Angle_Eval_Task::eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
 {
   if (!data.geometry)
     return "";
   keep_cartesians_up_to_date(data.object->id, data.geometry);
 
-  if (pos+1 < data.object->nds().size() || data.object->nds().front() == data.object->nds().back())
-    return prettyprinted_angle(pos);
+  if (pos+1 < data.object->nds().size() || data.object->nds().front() == data.object->nds().back()) {
+    if (pos != 0)
+      return calc_angle(pos);
+  }
   return "";
 }
 
-
-std::string Angle_Eval_Task::prettyprinted_angle(uint pos) const
+Fixed_Point_3 Angle_Eval_Task::calc_angle(uint pos) const
 {
-  if (pos == 0)
-    return "";
   const Cartesian& prev = cached[pos-1];
   const Cartesian& mid = cached[pos];
   const Cartesian& next = (pos+1 < cached.size() ? cached[pos+1] : cached[1]);
@@ -276,10 +277,19 @@ std::string Angle_Eval_Task::prettyprinted_angle(uint pos) const
   Cartesian out(next.y*mid.z - next.z*mid.y, next.z*mid.x - next.x*mid.z, next.x*mid.y - next.y*mid.x);
   double lg_out = sqrt(out.x*out.x + out.y*out.y + out.z*out.z);
   if (lg_in < 1e-10 || lg_out < 1e-10)
-    return "NaN";
+    return NAN;
   double prod = (in.x*out.x + in.y*out.y + in.z*out.z)/lg_in/lg_out;
   double cw = (mid.x-prev.x)*out.x + (mid.y-prev.y)*out.y + (mid.z-prev.z)*out.z;
-  return fabs(prod) > 1 ? "0.000" : fixed_to_string(copysign(acos(prod)/acos(0)*90., cw), 3);
+  return fabs(prod) > 1 ? Fixed_Point_3(0.000) : Fixed_Point_3(copysign(acos(prod)/acos(0)*90., cw));
+}
+
+
+std::string Angle_Eval_Task::prettyprinted_angle(uint pos) const
+{
+  if (pos == 0)
+    return "";
+
+  return to_string(calc_angle(pos));
 }
 
 

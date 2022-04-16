@@ -227,44 +227,65 @@ struct Eval_Task
 {
   virtual ~Eval_Task() = default;
 
-  virtual std::string eval(const std::string* key) const = 0;
+  virtual Eval_Variant eval(const std::string* key) const = 0;
 
-  virtual std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
+  virtual Eval_Variant eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
       { return eval(key); }
-  virtual std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
+  virtual Eval_Variant eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
       { return eval(key); }
-  virtual std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
+  virtual Eval_Variant eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
       { return eval(key); }
-  virtual std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
+  virtual Eval_Variant eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
       { return eval(key); }
-  virtual std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
+  virtual Eval_Variant eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
       { return eval(key); }
-  virtual std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
+  virtual Eval_Variant eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
       { return eval(key); }
-  virtual std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
+  virtual Eval_Variant eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
       { return eval(key); }
-  virtual std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
+  virtual Eval_Variant eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
       { return eval(key); }
 
-  virtual std::string eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
+  virtual Eval_Variant eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
       { return eval(data, key); }
-  virtual std::string eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
+  virtual Eval_Variant eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
       { return eval(data, key); }
-  virtual std::string eval(uint pos, const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
+  virtual Eval_Variant eval(uint pos, const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
       { return eval(data, key); }
-  virtual std::string eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
+  virtual Eval_Variant eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
       { return eval(data, key); }
 };
 
 
 struct Const_Eval_Task final : public Eval_Task
 {
-  Const_Eval_Task(const std::string& value_) : value(value_) {}
+  Const_Eval_Task(const std::string& value_) {
 
-  std::string eval(const std::string* key) const override { return value; }
+    int64 value_l{};
+    double value_d{};
+
+    // we have to be a bit stricter here and accept strings with digits, decimal separator and minus only
+    // otherwise, test case make_55 no longer passes due to a leading space in " 1", which try_int64 would remove
+
+    auto permitted_chars = [] (unsigned char c) { return (c == '.' || c == '-' || std::isdigit(c)); };
+
+    bool is_num = std::all_of(value_.begin(), value_.end(), permitted_chars);
+
+    if (is_num && try_int64(value_, value_l)) {
+      value = value_l;
+    }
+    else if (is_num && try_double(value_, value_d)) {
+      value = value_d;
+    }
+    else {
+      value = value_;
+    }
+  }
+
+  Eval_Variant eval(const std::string* key) const override { return value; }
 
 private:
-  std::string value;
+  Eval_Variant value;
 };
 
 

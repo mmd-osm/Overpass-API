@@ -71,10 +71,13 @@ Binary_Set_List_Operator_Statement_Maker< Evaluator_Lrs_In > Evaluator_Lrs_In::s
 Binary_Set_List_Operator_Evaluator_Maker< Evaluator_Lrs_In > Evaluator_Lrs_In::evaluator_maker;
 
 
-std::string Evaluator_Lrs_In::process(const std::string& first_s, const std::string& second_s) const
+Eval_Variant Evaluator_Lrs_In::process(const Eval_Variant& first_v, const Eval_Variant& second_v) const
 {
+  std::string first_s = eval_variant_to_string(first_v);
+  std::string second_s = eval_variant_to_string(second_v);
+
   if (second_s.empty())
-    return "0";
+    return false;
 
   std::string first = trim(first_s);
 
@@ -86,15 +89,15 @@ std::string Evaluator_Lrs_In::process(const std::string& first_s, const std::str
       break;
 
     if (first == trim(second_s.substr(from, to - from)))
-      return "1";
+      return true;
 
     from = to + 1;
   }
 
   if (first == trim(second_s.substr(from)))
-    return "1";
+    return true;
 
-  return "0";
+  return false;
 }
 
 
@@ -105,8 +108,11 @@ Binary_Set_List_Operator_Statement_Maker< Evaluator_Lrs_Isect > Evaluator_Lrs_Is
 Binary_Set_List_Operator_Evaluator_Maker< Evaluator_Lrs_Isect > Evaluator_Lrs_Isect::evaluator_maker;
 
 
-std::string Evaluator_Lrs_Isect::process(const std::string& first_s, const std::string& second_s) const
+Eval_Variant Evaluator_Lrs_Isect::process(const Eval_Variant& first_v, const Eval_Variant& second_v) const
 {
+  std::string first_s = eval_variant_to_string(first_v);
+  std::string second_s = eval_variant_to_string(second_v);
+
   std::vector< std::string > first;
   members(first_s).swap(first);
   std::vector< std::string > second;
@@ -133,8 +139,11 @@ Binary_Set_List_Operator_Statement_Maker< Evaluator_Lrs_Union > Evaluator_Lrs_Un
 Binary_Set_List_Operator_Evaluator_Maker< Evaluator_Lrs_Union > Evaluator_Lrs_Union::evaluator_maker;
 
 
-std::string Evaluator_Lrs_Union::process(const std::string& first_s, const std::string& second_s) const
+Eval_Variant Evaluator_Lrs_Union::process(const Eval_Variant& first_v, const Eval_Variant& second_v) const
 {
+  std::string first_s = eval_variant_to_string(first_v);
+  std::string second_s = eval_variant_to_string(second_v);
+
   std::vector< std::string > first;
   members(first_s).swap(first);
   std::vector< std::string > second;
@@ -190,8 +199,10 @@ void update_maximum(const std::string& elem, Type_Indicator& relevant_type,
 }
 
 
-std::string Evaluator_Lrs_Max::process(const std::string& rhs_s) const
+Eval_Variant Evaluator_Lrs_Max::process(const Eval_Variant& rhs) const
 {
+  std::string rhs_s = eval_variant_to_string(rhs);
+
   if (rhs_s.empty())
     return "";
 
@@ -256,8 +267,10 @@ void update_minimum(const std::string& elem, Type_Indicator& relevant_type,
 }
 
 
-std::string Evaluator_Lrs_Min::process(const std::string& rhs_s) const
+Eval_Variant Evaluator_Lrs_Min::process(const Eval_Variant& rhs) const
 {
+  std::string rhs_s = eval_variant_to_string(rhs);
+
   if (rhs_s.empty())
     return "";
 

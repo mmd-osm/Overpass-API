@@ -207,57 +207,57 @@ Eval_Task* Evaluator_Value::get_string_task(Prepare_Task_Context& context, const
 }
 
 
-std::string Value_Eval_Task::eval(const std::string* key) const
+Eval_Variant Value_Eval_Task::eval(const std::string* key) const
 {
   return "";
 }
 
 
-std::string Value_Eval_Task::eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
+Eval_Variant Value_Eval_Task::eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
 {
-  return find_value(data.tags, rhs ? rhs->eval(data, key) : "");
+  return find_value(data.tags, rhs ? eval_variant_to_string(rhs->eval(data, key)) : "");
 }
 
 
-std::string Value_Eval_Task::eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
+Eval_Variant Value_Eval_Task::eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
 {
-  return find_value(data.tags, rhs ? rhs->eval(data, key) : "");
+  return find_value(data.tags, rhs ? eval_variant_to_string(rhs->eval(data, key)) : "");
 }
 
 
-std::string Value_Eval_Task::eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
+Eval_Variant Value_Eval_Task::eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
 {
-  return find_value(data.tags, rhs ? rhs->eval(data, key) : "");
+  return find_value(data.tags, rhs ? eval_variant_to_string(rhs->eval(data, key)) : "");
 }
 
 
-std::string Value_Eval_Task::eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
+Eval_Variant Value_Eval_Task::eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
 {
-  return find_value(data.tags, rhs ? rhs->eval(data, key) : "");
+  return find_value(data.tags, rhs ? eval_variant_to_string(rhs->eval(data, key)) : "");
 }
 
 
-std::string Value_Eval_Task::eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
+Eval_Variant Value_Eval_Task::eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
 {
-  return find_value(data.tags, rhs ? rhs->eval(data, key) : "");
+  return find_value(data.tags, rhs ? eval_variant_to_string(rhs->eval(data, key)) : "");
 }
 
 
-std::string Value_Eval_Task::eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
+Eval_Variant Value_Eval_Task::eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
 {
-  return find_value(data.tags, rhs ? rhs->eval(data, key) : "");
+  return find_value(data.tags, rhs ? eval_variant_to_string(rhs->eval(data, key)) : "");
 }
 
 
-std::string Value_Eval_Task::eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
+Eval_Variant Value_Eval_Task::eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
 {
-  return find_value(data.tags, rhs ? rhs->eval(data, key) : "");
+  return find_value(data.tags, rhs ? eval_variant_to_string(rhs->eval(data, key)) : "");
 }
 
 
-std::string Value_Eval_Task::eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
+Eval_Variant Value_Eval_Task::eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
 {
-  return find_value(data.tags, rhs ? rhs->eval(data, key) : "");
+  return find_value(data.tags, rhs ? eval_variant_to_string(rhs->eval(data, key)) : "");
 }
 
 
@@ -642,58 +642,58 @@ Eval_Task* Evaluator_Properties_Count::get_string_task(Prepare_Task_Context& con
 }
 
 
-std::string Prop_Count_Eval_Task::eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
+Eval_Variant Prop_Count_Eval_Task::eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
 {
   if (to_count == Evaluator_Properties_Count::tags && data.tags)
-    return to_string(data.tags->size());
-  return "0";
+    return ((int64)data.tags->size());
+  return (int64) 0;
 }
 
 
-std::string Prop_Count_Eval_Task::eval(const Element_With_Context< Attic< Node_Skeleton > >& data,
+Eval_Variant Prop_Count_Eval_Task::eval(const Element_With_Context< Attic< Node_Skeleton > >& data,
     const std::string* key) const
 {
   if (to_count == Evaluator_Properties_Count::tags && data.tags)
-    return to_string(data.tags->size());
-  return "0";
+    return ((int64)data.tags->size());
+  return (int64) 0;
 }
 
 
-std::string Prop_Count_Eval_Task::eval(const Element_With_Context< Way_Skeleton >& data,
+Eval_Variant Prop_Count_Eval_Task::eval(const Element_With_Context< Way_Skeleton >& data,
     const std::string* key) const
 {
   if (to_count == Evaluator_Properties_Count::members
       && type_to_count == Evaluator_Properties_Count::all && data.object)
-    return to_string(data.object->nds().size());
+    return (int64)(data.object->nds().size());
   else if (to_count == Evaluator_Properties_Count::distinct_members
       && type_to_count == Evaluator_Properties_Count::all && data.object)
   {
     std::vector< Node::Id_Type > distinct = data.object->nds();
     std::sort(distinct.begin(), distinct.end());
-    return to_string(std::distance(distinct.begin(), std::unique(distinct.begin(), distinct.end())));
+    return (int64)(std::distance(distinct.begin(), std::unique(distinct.begin(), distinct.end())));
   }
   else if (to_count == Evaluator_Properties_Count::tags && data.tags)
-    return to_string(data.tags->size());
-  return "0";
+    return ((int64)data.tags->size());
+  return (int64) 0;
 }
 
 
-std::string Prop_Count_Eval_Task::eval(const Element_With_Context< Attic< Way_Skeleton > >& data,
+Eval_Variant Prop_Count_Eval_Task::eval(const Element_With_Context< Attic< Way_Skeleton > >& data,
     const std::string* key) const
 {
   if (to_count == Evaluator_Properties_Count::members
       && type_to_count == Evaluator_Properties_Count::all && data.object)
-    return to_string(data.object->nds().size());
+    return (int64)(data.object->nds().size());
   else if (to_count == Evaluator_Properties_Count::distinct_members
       && type_to_count == Evaluator_Properties_Count::all && data.object)
   {
     std::vector< Node::Id_Type > distinct = data.object->nds();
     std::sort(distinct.begin(), distinct.end());
-    return to_string(std::distance(distinct.begin(), std::unique(distinct.begin(), distinct.end())));
+    return (int64)(std::distance(distinct.begin(), std::unique(distinct.begin(), distinct.end())));
   }
   else if (to_count == Evaluator_Properties_Count::tags && data.tags)
-    return to_string(data.tags->size());
-  return "0";
+    return ((int64)data.tags->size());
+  return (int64) 0;
 }
 
 
@@ -730,16 +730,16 @@ struct Relation_Member_Comparer
 };
 
 
-std::string Prop_Count_Eval_Task::eval(const Element_With_Context< Relation_Skeleton >& data,
+Eval_Variant Prop_Count_Eval_Task::eval(const Element_With_Context< Relation_Skeleton >& data,
     const std::string* key) const
 {
   if (to_count == Evaluator_Properties_Count::members || to_count == Evaluator_Properties_Count::by_role)
   {
     if (!data.object)
-      return "0";
+      return (int64) 0;
 
     if (to_count == Evaluator_Properties_Count::members && type_to_count == Evaluator_Properties_Count::all)
-      return to_string(data.object->members().size());
+      return ((int64)data.object->members().size());
 
     uint counter = 0;
     for (auto it = data.object->members().begin(); it != data.object->members().end(); ++it)
@@ -747,13 +747,13 @@ std::string Prop_Count_Eval_Task::eval(const Element_With_Context< Relation_Skel
       if (matches_criterion(*it, to_count, type_to_count, role_id))
         ++counter;
     }
-    return to_string(counter);
+    return (int64)(counter);
   }
   else if (to_count == Evaluator_Properties_Count::distinct_members
       || to_count == Evaluator_Properties_Count::distinct_by_role)
   {
     if (!data.object)
-      return "0";
+      return (int64) 0;
 
     std::vector< Relation_Entry > distinct = data.object->members();
 
@@ -770,24 +770,24 @@ std::string Prop_Count_Eval_Task::eval(const Element_With_Context< Relation_Skel
     }
 
     std::sort(distinct.begin(), distinct.end(), Relation_Member_Comparer());
-    return to_string(std::distance(distinct.begin(), std::unique(distinct.begin(), distinct.end())));
+    return (int64)(std::distance(distinct.begin(), std::unique(distinct.begin(), distinct.end())));
   }
   else if (to_count == Evaluator_Properties_Count::tags && data.tags)
-    return to_string(data.tags->size());
-  return "0";
+    return ((int64)data.tags->size());
+  return (int64) 0;
 }
 
 
-std::string Prop_Count_Eval_Task::eval(const Element_With_Context< Attic< Relation_Skeleton > >& data,
+Eval_Variant Prop_Count_Eval_Task::eval(const Element_With_Context< Attic< Relation_Skeleton > >& data,
     const std::string* key) const
 {
   if (to_count == Evaluator_Properties_Count::members || to_count == Evaluator_Properties_Count::by_role)
   {
     if (!data.object)
-      return "0";
+      return (int64) 0;
 
     if (to_count == Evaluator_Properties_Count::members && type_to_count == Evaluator_Properties_Count::all)
-      return to_string(data.object->members().size());
+      return (int64)(data.object->members().size());
 
     uint counter = 0;
     for (auto it = data.object->members().begin(); it != data.object->members().end(); ++it)
@@ -795,13 +795,13 @@ std::string Prop_Count_Eval_Task::eval(const Element_With_Context< Attic< Relati
       if (matches_criterion(*it, to_count, type_to_count, role_id))
         ++counter;
     }
-    return to_string(counter);
+    return (int64)(counter);
   }
   else if (to_count == Evaluator_Properties_Count::distinct_members
       || to_count == Evaluator_Properties_Count::distinct_by_role)
   {
     if (!data.object)
-      return "0";
+      return (int64) 0;
 
     std::vector< Relation_Entry > distinct = data.object->members();
 
@@ -818,25 +818,25 @@ std::string Prop_Count_Eval_Task::eval(const Element_With_Context< Attic< Relati
     }
 
     std::sort(distinct.begin(), distinct.end(), Relation_Member_Comparer());
-    return to_string(std::distance(distinct.begin(), std::unique(distinct.begin(), distinct.end())));
+    return (int64)(std::distance(distinct.begin(), std::unique(distinct.begin(), distinct.end())));
   }
   else if (to_count == Evaluator_Properties_Count::tags && data.tags)
-    return to_string(data.tags->size());
-  return "0";
+    return ((int64)data.tags->size());
+  return (int64) 0;
 }
 
 
-std::string Prop_Count_Eval_Task::eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
+Eval_Variant Prop_Count_Eval_Task::eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
 {
   if (to_count == Evaluator_Properties_Count::tags && data.tags)
-    return to_string(data.tags->size());
-  return "0";
+    return ((int64)data.tags->size());
+  return (int64) 0;
 }
 
 
-std::string Prop_Count_Eval_Task::eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
+Eval_Variant Prop_Count_Eval_Task::eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
 {
   if (to_count == Evaluator_Properties_Count::tags && data.tags)
-    return to_string(data.tags->size());
-  return "0";
+    return ((int64)data.tags->size());
+  return (int64) 0;
 }

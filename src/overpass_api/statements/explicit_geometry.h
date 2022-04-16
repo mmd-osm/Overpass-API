@@ -72,7 +72,7 @@ struct Eval_Point_Geometry_Task final : Eval_Geometry_Task
   Opaque_Geometry* eval(const Element_With_Context< Derived_Skeleton >& data) const override
       { return make_point(lat->eval(data, 0), lon->eval(data, 0)); }
 
-  static Opaque_Geometry* make_point(const std::string& lat, const std::string& lon);
+  static Opaque_Geometry* make_point(const Eval_Variant& lat, const Eval_Variant& lon);
 
 private:
   Eval_Task* lat;

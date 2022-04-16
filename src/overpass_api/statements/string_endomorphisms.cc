@@ -20,22 +20,24 @@
 #include "../data/utils.h"
 #include "string_endomorphisms.h"
 
+using namespace std::string_literals;
+
 
 String_Endom_Statement_Maker< Evaluator_Number > Evaluator_Number::statement_maker;
 String_Endom_Evaluator_Maker< Evaluator_Number > Evaluator_Number::evaluator_maker;
 
 
-std::string Evaluator_Number::process(const std::string& rhs_s) const
+Eval_Variant Evaluator_Number::process(const Eval_Variant& rhs_s) const
 {
   int64 rhs_l = 0;
   if (try_int64(rhs_s, rhs_l))
-    return to_string(rhs_l);
+    return (rhs_l);
 
   double rhs_d = 0;
   if (try_starts_with_double(rhs_s, rhs_d))
-    return to_string(rhs_d);
+    return (rhs_d);
 
-  return "NaN";
+  return "NaN"s;
 }
 
 
@@ -46,17 +48,17 @@ String_Endom_Statement_Maker< Evaluator_Is_Num > Evaluator_Is_Num::statement_mak
 String_Endom_Evaluator_Maker< Evaluator_Is_Num > Evaluator_Is_Num::evaluator_maker;
 
 
-std::string Evaluator_Is_Num::process(const std::string& rhs_s) const
+Eval_Variant Evaluator_Is_Num::process(const Eval_Variant& rhs_s) const
 {
   int64 rhs_l = 0;
   if (try_int64(rhs_s, rhs_l))
-    return "1";
+    return true;
 
   double rhs_d = 0;
   if (try_starts_with_double(rhs_s, rhs_d))
-    return "1";
+    return true;
 
-  return "0";
+  return false;
 }
 
 
@@ -67,7 +69,7 @@ String_Endom_Statement_Maker< Evaluator_Suffix > Evaluator_Suffix::statement_mak
 String_Endom_Evaluator_Maker< Evaluator_Suffix > Evaluator_Suffix::evaluator_maker;
 
 
-std::string Evaluator_Suffix::process(const std::string& rhs_s) const
+Eval_Variant Evaluator_Suffix::process(const Eval_Variant& rhs_s) const
 {
   return double_suffix(rhs_s);
 }
@@ -80,17 +82,17 @@ String_Endom_Statement_Maker< Evaluator_Abs > Evaluator_Abs::statement_maker;
 String_Endom_Evaluator_Maker< Evaluator_Abs > Evaluator_Abs::evaluator_maker;
 
 
-std::string Evaluator_Abs::process(const std::string& rhs_s) const
+Eval_Variant Evaluator_Abs::process(const Eval_Variant& rhs_s) const
 {
   int64 rhs_l = 0;
   if (try_int64(rhs_s, rhs_l))
-    return to_string(std::abs(rhs_l));
+    return (std::abs(rhs_l));
 
   double rhs_d = 0;
   if (try_starts_with_double(rhs_s, rhs_d))
-    return to_string(std::abs(rhs_d));
+    return (std::abs(rhs_d));
 
-  return "NaN";
+  return "NaN"s;
 }
 
 
@@ -101,8 +103,10 @@ String_Endom_Statement_Maker< Evaluator_Date > Evaluator_Date::statement_maker;
 String_Endom_Evaluator_Maker< Evaluator_Date > Evaluator_Date::evaluator_maker;
 
 
-std::string Evaluator_Date::process(const std::string& rhs_s) const
+Eval_Variant Evaluator_Date::process(const Eval_Variant& v) const
 {
+  std::string rhs_s = eval_variant_to_string(v);
+
   //First run: try for year, month, day, hour, minute, second
   std::string::size_type pos = 0;
 
@@ -161,7 +165,7 @@ std::string Evaluator_Date::process(const std::string& rhs_s) const
   }
 
   if (year < 1000 || month > 12 || day > 31 || hour > 23 || minute > 59 || second > 60)
-    return "NaD";
+    return "NaD"s;
 
   return to_string(year + month/16. + day/(16.*32)
       + hour/(16.*32*32) + minute/(16.*32*32*64) + second/(16.*32*32*64*64));
@@ -175,8 +179,10 @@ String_Endom_Statement_Maker< Evaluator_Is_Date > Evaluator_Is_Date::statement_m
 String_Endom_Evaluator_Maker< Evaluator_Is_Date > Evaluator_Is_Date::evaluator_maker;
 
 
-std::string Evaluator_Is_Date::process(const std::string& rhs_s) const
+Eval_Variant Evaluator_Is_Date::process(const Eval_Variant& v) const
 {
+  std::string rhs_s = eval_variant_to_string(v);
+
   //First run: try for year, month, day, hour, minute, second
   std::string::size_type pos = 0;
 
@@ -235,7 +241,7 @@ std::string Evaluator_Is_Date::process(const std::string& rhs_s) const
   }
 
   if (year < 1000 || month > 12 || day > 31 || hour > 23 || minute > 59 || second > 60)
-    return "0";
+    return false;
 
-  return "1";
+  return true;
 }

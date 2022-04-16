@@ -35,6 +35,7 @@
 #include <string>
 #include <vector>
 
+using namespace std::string_literals;
 
 struct Per_Member_Aggregator : public Evaluator
 {
@@ -130,12 +131,12 @@ struct Per_Member_Eval_Task final : public Eval_Task
 {
   Per_Member_Eval_Task(Eval_Task* rhs) : rhs_task(rhs) {}
 
-  std::string eval(const std::string* key) const override { return ""; }
+  Eval_Variant eval(const std::string* key) const override { return ""s; }
 
-  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override;
-  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override;
-  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override;
-  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override;
+  Eval_Variant eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override;
+  Eval_Variant eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override;
+  Eval_Variant eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override;
+  Eval_Variant eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override;
 
 private:
   std::unique_ptr< Eval_Task > rhs_task;
@@ -186,10 +187,10 @@ struct Per_Vertex_Eval_Task final : public Eval_Task
 {
   Per_Vertex_Eval_Task(Eval_Task* rhs) : rhs_task(rhs) {}
 
-  std::string eval(const std::string* key) const override { return ""; }
+  Eval_Variant eval(const std::string* key) const override { return ""s; }
 
-  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override;
-  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override;
+  Eval_Variant eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override;
+  Eval_Variant eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override;
 
 private:
   std::unique_ptr< Eval_Task > rhs_task;
@@ -239,16 +240,16 @@ The syntax is
 
 struct Pos_Eval_Task final : public Eval_Task
 {
-  std::string eval(const std::string* key) const override { return ""; }
+  Eval_Variant eval(const std::string* key) const override { return ""s; }
 
-  std::string eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
-      { return to_string(pos+1); }
-  std::string eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
-      { return to_string(pos+1); }
-  std::string eval(uint pos, const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
-      { return to_string(pos+1); }
-  std::string eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
-      { return to_string(pos+1); }
+  Eval_Variant eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
+      { return (int64)(pos+1); }
+  Eval_Variant eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
+      { return (int64)(pos+1); }
+  Eval_Variant eval(uint pos, const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
+      { return (int64)(pos+1); }
+  Eval_Variant eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
+      { return (int64)(pos+1); }
 };
 
 
@@ -300,15 +301,15 @@ resp.
 
 struct Membertype_Eval_Task final : public Eval_Task
 {
-  std::string eval(const std::string* key) const override { return ""; }
+  Eval_Variant eval(const std::string* key) const override { return ""s; }
 
-  std::string eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
-      { return "node"; }
-  std::string eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
-      { return "node"; }
-  std::string eval(uint pos, const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
+  Eval_Variant eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
+      { return "node"s; }
+  Eval_Variant eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
+      { return "node"s; }
+  Eval_Variant eval(uint pos, const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
       { return member_type_name(data.object->members()[pos].type); }
-  std::string eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
+  Eval_Variant eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
       { return member_type_name(data.object->members()[pos].type); }
 };
 
@@ -348,16 +349,16 @@ public:
 
 struct Ref_Eval_Task final : public Eval_Task
 {
-  std::string eval(const std::string* key) const override { return ""; }
+  Eval_Variant eval(const std::string* key) const override { return ""s; }
 
-  std::string eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
-      { return to_string(data.object->nds()[pos].val()); }
-  std::string eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
-      { return to_string(data.object->nds()[pos].val()); }
-  std::string eval(uint pos, const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
-      { return to_string(data.object->members()[pos].ref.val()); }
-  std::string eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
-      { return to_string(data.object->members()[pos].ref.val()); }
+  Eval_Variant eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
+      { return (int64)(data.object->nds()[pos].val()); }
+  Eval_Variant eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
+      { return (int64)(data.object->nds()[pos].val()); }
+  Eval_Variant eval(uint pos, const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
+      { return (int64)(data.object->members()[pos].ref.val()); }
+  Eval_Variant eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
+      { return (int64)(data.object->members()[pos].ref.val()); }
 };
 
 
@@ -407,15 +408,15 @@ struct Role_Eval_Task final : public Eval_Task
 {
   Role_Eval_Task(const std::map< uint32, std::string >* roles_) : roles(roles_) {}
 
-  std::string eval(const std::string* key) const override { return ""; }
+  Eval_Variant eval(const std::string* key) const override { return ""s; }
 
-  std::string eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
-      { return ""; }
-  std::string eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
-      { return ""; }
-  std::string eval(uint pos, const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
+  Eval_Variant eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
+      { return ""s; }
+  Eval_Variant eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
+      { return ""s; }
+  Eval_Variant eval(uint pos, const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
       { return roles ? roles->find(data.object->members()[pos].role)->second : std::string(); }
-  std::string eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
+  Eval_Variant eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
       { return roles ? roles->find(data.object->members()[pos].role)->second : std::string(); }
 
 private:
@@ -474,10 +475,10 @@ struct Angle_Eval_Task final : public Eval_Task
 {
   Angle_Eval_Task() : cache_way_ref(0u), cache_geom_ref(0) {}
 
-  std::string eval(const std::string* key) const override { return ""; }
+  Eval_Variant eval(const std::string* key) const override { return ""s; }
 
-  std::string eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override;
-  std::string eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override;
+  Eval_Variant eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override;
+  Eval_Variant eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override;
 
 private:
   mutable Way_Skeleton::Id_Type cache_way_ref;
@@ -485,6 +486,7 @@ private:
   mutable std::vector< Cartesian > cached;
 
   std::string prettyprinted_angle(uint pos) const;
+  Fixed_Point_3 calc_angle(uint pos) const;
   void keep_cartesians_up_to_date(Way_Skeleton::Id_Type, const Opaque_Geometry*) const;
 };
 

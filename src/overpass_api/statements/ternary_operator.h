@@ -65,21 +65,21 @@ struct Ternary_Eval_Task final : public Eval_Task
     delete rhs;
   }
 
-  std::string eval(const std::string* key) const override;
+  Eval_Variant eval(const std::string* key) const override;
 
-  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override;
-  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override;
-  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override;
-  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override;
-  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override;
-  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override;
-  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override;
-  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override;
+  Eval_Variant eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override;
+  Eval_Variant eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override;
+  Eval_Variant eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override;
+  Eval_Variant eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override;
+  Eval_Variant eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override;
+  Eval_Variant eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override;
+  Eval_Variant eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override;
+  Eval_Variant eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override;
 
-  std::string eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override;
-  std::string eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override;
-  std::string eval(uint pos, const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override;
-  std::string eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override;
+  Eval_Variant eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override;
+  Eval_Variant eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override;
+  Eval_Variant eval(uint pos, const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override;
+  Eval_Variant eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override;
 
 private:
   Eval_Task* condition;

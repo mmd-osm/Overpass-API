@@ -35,6 +35,7 @@
 #include <string>
 #include <vector>
 
+using namespace std::string_literals;
 
 /* === Geometry Related Operators ===
 
@@ -54,24 +55,24 @@ The syntax is
 
 struct Is_Closed_Eval_Task final : public Eval_Task
 {
-  std::string eval(const std::string* key) const override { return ""; }
+  Eval_Variant eval(const std::string* key) const override { return ""s; }
 
-  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
-      { return "NaW"; }
-  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
-      { return "NaW"; }
-  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
-      { return !data.object->nds().empty() && data.object->nds().front() == data.object->nds().back() ? "1" : "0"; }
-  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
-      { return !data.object->nds().empty() && data.object->nds().front() == data.object->nds().back() ? "1" : "0"; }
-  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
-      { return "NaW"; }
-  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
-      { return "NaW"; }
-  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
-      { return "NaW"; }
-  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
-      { return "NaW"; }
+  Eval_Variant eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
+      { return "NaW"s; }
+  Eval_Variant eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
+      { return "NaW"s; }
+  Eval_Variant eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
+      { return !data.object->nds().empty() && data.object->nds().front() == data.object->nds().back(); }
+  Eval_Variant eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
+      { return !data.object->nds().empty() && data.object->nds().front() == data.object->nds().back(); }
+  Eval_Variant eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
+      { return "NaW"s; }
+  Eval_Variant eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
+      { return "NaW"s; }
+  Eval_Variant eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
+      { return "NaW"s; }
+  Eval_Variant eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
+      { return "NaW"s; }
 };
 
 
@@ -197,24 +198,24 @@ struct Length_Eval_Task final : public Eval_Task
 {
   Length_Eval_Task() = default;
 
-  std::string eval(const std::string* key) const override { return ""; }
+  Eval_Variant eval(const std::string* key) const override { return ""s; }
 
-  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
-      { return "0"; }
-  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
-      { return "0"; }
-  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
-      { return data.geometry ? fixed_to_string(length(*data.geometry), 3) : "0"; }
-  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
-      { return data.geometry ? fixed_to_string(length(*data.geometry), 3) : "0"; }
-  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
-      { return data.geometry ? fixed_to_string(length(*data.geometry), 3) : "0"; }
-  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
-      { return data.geometry ? fixed_to_string(length(*data.geometry), 3) : "0"; }
-  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
-      { return "0"; }
-  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
-      { return "0"; }
+  Eval_Variant eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
+      { return (int64) 0; }
+  Eval_Variant eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
+      { return (int64) 0; }
+  Eval_Variant eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
+      { return data.geometry ? Fixed_Point_3(length(*data.geometry)) : (int64) 0; }
+  Eval_Variant eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
+      { return data.geometry ? Fixed_Point_3(length(*data.geometry)) : (int64) 0; }
+  Eval_Variant eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
+      { return data.geometry ? Fixed_Point_3(length(*data.geometry)) : (int64) 0; }
+  Eval_Variant eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
+      { return data.geometry ? Fixed_Point_3(length(*data.geometry)) : (int64) 0; }
+  Eval_Variant eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
+      { return (int64) 0; }
+  Eval_Variant eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
+      { return (int64) 0; }
 };
 
 
@@ -272,32 +273,32 @@ struct Latitude_Eval_Task final : public Eval_Task
 {
   Latitude_Eval_Task() = default;
 
-  std::string eval(const std::string* key) const override { return ""; }
+  Eval_Variant eval(const std::string* key) const override { return ""s; }
 
-  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
       { return data.geometry &&
-          data.geometry->has_center() ? fixed_to_string(data.geometry->center_lat(), 7) : "NaN"; }
-  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
+          data.geometry->has_center() ? Fixed_Point_7(data.geometry->center_lat()) : Eval_Variant("NaN"s); }
+  Eval_Variant eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
       { return data.geometry &&
-          data.geometry->has_center() ? fixed_to_string(data.geometry->center_lat(), 7) : "NaN"; }
-  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
+          data.geometry->has_center() ? Fixed_Point_7(data.geometry->center_lat()) : Eval_Variant("NaN"s); }
+  Eval_Variant eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
       { return data.geometry &&
-          data.geometry->has_center() ? fixed_to_string(data.geometry->center_lat(), 7) : "NaN"; }
-  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
+          data.geometry->has_center() ? Fixed_Point_7(data.geometry->center_lat()) : Eval_Variant("NaN"s); }
+  Eval_Variant eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
       { return data.geometry &&
-          data.geometry->has_center() ? fixed_to_string(data.geometry->center_lat(), 7) : "NaN"; }
-  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
+          data.geometry->has_center() ? Fixed_Point_7(data.geometry->center_lat()) : Eval_Variant("NaN"s); }
+  Eval_Variant eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
       { return data.geometry &&
-          data.geometry->has_center() ? fixed_to_string(data.geometry->center_lat(), 7) : "NaN"; }
-  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
+          data.geometry->has_center() ? Fixed_Point_7(data.geometry->center_lat()) : Eval_Variant("NaN"s); }
+  Eval_Variant eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
       { return data.geometry &&
-          data.geometry->has_center() ? fixed_to_string(data.geometry->center_lat(), 7) : "NaN"; }
-  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
+          data.geometry->has_center() ? Fixed_Point_7(data.geometry->center_lat()) : Eval_Variant("NaN"s); }
+  Eval_Variant eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
       { return data.geometry &&
-          data.geometry->has_center() ? fixed_to_string(data.geometry->center_lat(), 7) : "NaN"; }
-  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
+          data.geometry->has_center() ? Fixed_Point_7(data.geometry->center_lat()) : Eval_Variant("NaN"s); }
+  Eval_Variant eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
       { return data.geometry &&
-          data.geometry->has_center() ? fixed_to_string(data.geometry->center_lat(), 7) : "NaN"; }
+          data.geometry->has_center() ? Fixed_Point_7(data.geometry->center_lat()) : Eval_Variant("NaN"s); }
 };
 
 
@@ -340,32 +341,32 @@ struct Longitude_Eval_Task final : public Eval_Task
 {
   Longitude_Eval_Task() = default;
 
-  std::string eval(const std::string* key) const override { return ""; }
+  Eval_Variant eval(const std::string* key) const override { return ""s; }
 
-  std::string eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
+  Eval_Variant eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const override
       { return data.geometry &&
-          data.geometry->has_center() ? fixed_to_string(data.geometry->center_lon(), 7) : "NaN"; }
-  std::string eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
+          data.geometry->has_center() ? Fixed_Point_7(data.geometry->center_lon()) : Eval_Variant("NaN"s); }
+  Eval_Variant eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const override
       { return data.geometry &&
-          data.geometry->has_center() ? fixed_to_string(data.geometry->center_lon(), 7) : "NaN"; }
-  std::string eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
+          data.geometry->has_center() ? Fixed_Point_7(data.geometry->center_lon()) : Eval_Variant("NaN"s); }
+  Eval_Variant eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override
       { return data.geometry &&
-          data.geometry->has_center() ? fixed_to_string(data.geometry->center_lon(), 7) : "NaN"; }
-  std::string eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
+          data.geometry->has_center() ? Fixed_Point_7(data.geometry->center_lon()) : Eval_Variant("NaN"s); }
+  Eval_Variant eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override
       { return data.geometry &&
-          data.geometry->has_center() ? fixed_to_string(data.geometry->center_lon(), 7) : "NaN"; }
-  std::string eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
+          data.geometry->has_center() ? Fixed_Point_7(data.geometry->center_lon()) : Eval_Variant("NaN"s); }
+  Eval_Variant eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const override
       { return data.geometry &&
-          data.geometry->has_center() ? fixed_to_string(data.geometry->center_lon(), 7) : "NaN"; }
-  std::string eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
+          data.geometry->has_center() ? Fixed_Point_7(data.geometry->center_lon()) : Eval_Variant("NaN"s); }
+  Eval_Variant eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override
       { return data.geometry &&
-          data.geometry->has_center() ? fixed_to_string(data.geometry->center_lon(), 7) : "NaN"; }
-  std::string eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
+          data.geometry->has_center() ? Fixed_Point_7(data.geometry->center_lon()) : Eval_Variant("NaN"s); }
+  Eval_Variant eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const override
       { return data.geometry &&
-          data.geometry->has_center() ? fixed_to_string(data.geometry->center_lon(), 7) : "NaN"; }
-  std::string eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
+          data.geometry->has_center() ? Fixed_Point_7(data.geometry->center_lon()) : Eval_Variant("NaN"s); }
+  Eval_Variant eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const override
       { return data.geometry &&
-          data.geometry->has_center() ? fixed_to_string(data.geometry->center_lon(), 7) : "NaN"; }
+          data.geometry->has_center() ? Fixed_Point_7(data.geometry->center_lon()) : Eval_Variant("NaN"s); }
 };
 
 

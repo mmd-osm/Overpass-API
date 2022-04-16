@@ -18,6 +18,7 @@
 
 #include "unary_functions.h"
 
+using namespace std::string_literals;
 
 Evaluator_Unary_Function::Evaluator_Unary_Function(int line_number_) : Evaluator(line_number_), rhs(0) {}
 
@@ -49,81 +50,81 @@ Requested_Context Evaluator_Unary_Function::request_context() const
 }
 
 
-std::string Unary_Eval_Task::eval(const std::string* key) const
+Eval_Variant Unary_Eval_Task::eval(const std::string* key) const
 {
-  return evaluator->process(rhs ? rhs->eval(key) : "");
+  return evaluator->process(rhs ? rhs->eval(key) : ""s);
 }
 
 
-std::string Unary_Eval_Task::eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
+Eval_Variant Unary_Eval_Task::eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process(rhs ? rhs->eval(data, key) : "");
+  return evaluator->process(rhs ? rhs->eval(data, key) : ""s);
 }
 
 
-std::string Unary_Eval_Task::eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
+Eval_Variant Unary_Eval_Task::eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
 {
-  return evaluator->process(rhs ? rhs->eval(data, key) : "");
+  return evaluator->process(rhs ? rhs->eval(data, key) : ""s);
 }
 
 
-std::string Unary_Eval_Task::eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
+Eval_Variant Unary_Eval_Task::eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process(rhs ? rhs->eval(data, key) : "");
+  return evaluator->process(rhs ? rhs->eval(data, key) : ""s);
 }
 
 
-std::string Unary_Eval_Task::eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
+Eval_Variant Unary_Eval_Task::eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
 {
-  return evaluator->process(rhs ? rhs->eval(data, key) : "");
+  return evaluator->process(rhs ? rhs->eval(data, key) : ""s);
 }
 
 
-std::string Unary_Eval_Task::eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
+Eval_Variant Unary_Eval_Task::eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process(rhs ? rhs->eval(data, key) : "");
+  return evaluator->process(rhs ? rhs->eval(data, key) : ""s);
 }
 
 
-std::string Unary_Eval_Task::eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
+Eval_Variant Unary_Eval_Task::eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
 {
-  return evaluator->process(rhs ? rhs->eval(data, key) : "");
+  return evaluator->process(rhs ? rhs->eval(data, key) : ""s);
 }
 
 
-std::string Unary_Eval_Task::eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
+Eval_Variant Unary_Eval_Task::eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process(rhs ? rhs->eval(data, key) : "");
+  return evaluator->process(rhs ? rhs->eval(data, key) : ""s);
 }
 
 
-std::string Unary_Eval_Task::eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
+Eval_Variant Unary_Eval_Task::eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process(rhs ? rhs->eval(data, key) : "");
+  return evaluator->process(rhs ? rhs->eval(data, key) : ""s);
 }
 
 
-std::string Unary_Eval_Task::eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
+Eval_Variant Unary_Eval_Task::eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process(rhs ? rhs->eval(pos, data, key) : "");
+  return evaluator->process(rhs ? rhs->eval(pos, data, key) : ""s);
 }
 
 
-std::string Unary_Eval_Task::eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
+Eval_Variant Unary_Eval_Task::eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
 {
-  return evaluator->process(rhs ? rhs->eval(pos, data, key) : "");
+  return evaluator->process(rhs ? rhs->eval(pos, data, key) : ""s);
 }
 
 
-std::string Unary_Eval_Task::eval(uint pos, const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
+Eval_Variant Unary_Eval_Task::eval(uint pos, const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process(rhs ? rhs->eval(pos, data, key) : "");
+  return evaluator->process(rhs ? rhs->eval(pos, data, key) : ""s);
 }
 
 
-std::string Unary_Eval_Task::eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
+Eval_Variant Unary_Eval_Task::eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
 {
-  return evaluator->process(rhs ? rhs->eval(pos, data, key) : "");
+  return evaluator->process(rhs ? rhs->eval(pos, data, key) : ""s);
 }
 
 
@@ -261,79 +262,79 @@ Requested_Context Evaluator_Binary_Function::request_context() const
 }
 
 
-std::string Binary_Func_Eval_Task::eval(const std::string* key) const
+Eval_Variant Binary_Func_Eval_Task::eval(const std::string* key) const
 {
-  return evaluator->process(first ? first->eval(key) : "", second ? second->eval(key) : "");
+  return evaluator->process(first ? first->eval(key) : ""s, second ? second->eval(key) : ""s);
 }
 
 
-std::string Binary_Func_Eval_Task::eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
+Eval_Variant Binary_Func_Eval_Task::eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process(first ? first->eval(data, key) : "", second ? second->eval(data, key) : "");
+  return evaluator->process(first ? first->eval(data, key) : ""s, second ? second->eval(data, key) : ""s);
 }
 
 
-std::string Binary_Func_Eval_Task::eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
+Eval_Variant Binary_Func_Eval_Task::eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
 {
-  return evaluator->process(first ? first->eval(data, key) : "", second ? second->eval(data, key) : "");
+  return evaluator->process(first ? first->eval(data, key) : ""s, second ? second->eval(data, key) : ""s);
 }
 
 
-std::string Binary_Func_Eval_Task::eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
+Eval_Variant Binary_Func_Eval_Task::eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process(first ? first->eval(data, key) : "", second ? second->eval(data, key) : "");
+  return evaluator->process(first ? first->eval(data, key) : ""s, second ? second->eval(data, key) : ""s);
 }
 
 
-std::string Binary_Func_Eval_Task::eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
+Eval_Variant Binary_Func_Eval_Task::eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
 {
-  return evaluator->process(first ? first->eval(data, key) : "", second ? second->eval(data, key) : "");
+  return evaluator->process(first ? first->eval(data, key) : ""s, second ? second->eval(data, key) : ""s);
 }
 
 
-std::string Binary_Func_Eval_Task::eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
+Eval_Variant Binary_Func_Eval_Task::eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process(first ? first->eval(data, key) : "", second ? second->eval(data, key) : "");
+  return evaluator->process(first ? first->eval(data, key) : ""s, second ? second->eval(data, key) : ""s);
 }
 
 
-std::string Binary_Func_Eval_Task::eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
+Eval_Variant Binary_Func_Eval_Task::eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
 {
-  return evaluator->process(first ? first->eval(data, key) : "", second ? second->eval(data, key) : "");
+  return evaluator->process(first ? first->eval(data, key) : ""s, second ? second->eval(data, key) : ""s);
 }
 
 
-std::string Binary_Func_Eval_Task::eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
+Eval_Variant Binary_Func_Eval_Task::eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process(first ? first->eval(data, key) : "", second ? second->eval(data, key) : "");
+  return evaluator->process(first ? first->eval(data, key) : ""s, second ? second->eval(data, key) : ""s);
 }
 
 
-std::string Binary_Func_Eval_Task::eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
+Eval_Variant Binary_Func_Eval_Task::eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process(first ? first->eval(data, key) : "", second ? second->eval(data, key) : "");
+  return evaluator->process(first ? first->eval(data, key) : ""s, second ? second->eval(data, key) : ""s);
 }
 
 
-std::string Binary_Func_Eval_Task::eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
+Eval_Variant Binary_Func_Eval_Task::eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process(first ? first->eval(pos, data, key) : "", second ? second->eval(pos, data, key) : "");
+  return evaluator->process(first ? first->eval(pos, data, key) : ""s, second ? second->eval(pos, data, key) : ""s);
 }
 
 
-std::string Binary_Func_Eval_Task::eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
+Eval_Variant Binary_Func_Eval_Task::eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
 {
-  return evaluator->process(first ? first->eval(pos, data, key) : "", second ? second->eval(pos, data, key) : "");
+  return evaluator->process(first ? first->eval(pos, data, key) : ""s, second ? second->eval(pos, data, key) : ""s);
 }
 
 
-std::string Binary_Func_Eval_Task::eval(uint pos, const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
+Eval_Variant Binary_Func_Eval_Task::eval(uint pos, const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process(first ? first->eval(pos, data, key) : "", second ? second->eval(pos, data, key) : "");
+  return evaluator->process(first ? first->eval(pos, data, key) : ""s, second ? second->eval(pos, data, key) : ""s);
 }
 
 
-std::string Binary_Func_Eval_Task::eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
+Eval_Variant Binary_Func_Eval_Task::eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
 {
-  return evaluator->process(first ? first->eval(pos, data, key) : "", second ? second->eval(pos, data, key) : "");
+  return evaluator->process(first ? first->eval(pos, data, key) : ""s, second ? second->eval(pos, data, key) : ""s);
 }

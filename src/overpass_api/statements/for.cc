@@ -78,7 +78,7 @@ void collect_for_targets_by_string(
     for (auto it_elem = it_idx->second.begin();
         it_elem != it_idx->second.end(); ++it_elem)
     {
-      std::string valuation = task.eval(context_from.get_context(it_idx->first, *it_elem), 0);
+      std::string valuation = eval_variant_to_string(task.eval(context_from.get_context(it_idx->first, *it_elem), 0));
       target(valuation)[it_idx->first].push_back(*it_elem);
     }
   }

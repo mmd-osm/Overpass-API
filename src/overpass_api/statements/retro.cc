@@ -59,7 +59,7 @@ timestamp_t eval_timestamp(Evaluator& criterion, const Statement& stmt, Resource
 {
   Prepare_Task_Context context(criterion.request_context(), stmt, rman);
   std::unique_ptr< Eval_Task > task(criterion.get_string_task(context, 0));
-  std::string valuation = (*task).eval(0);
+  std::string valuation = eval_variant_to_string((*task).eval(0));
 
   return Timestamp(valuation).timestamp;
 }

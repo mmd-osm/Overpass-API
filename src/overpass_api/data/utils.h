@@ -30,20 +30,33 @@
 #include <sstream>
 #include <string>
 #include <type_traits> // For std::decay
+#include <variant>
 #include <vector>
 
 #include <fmt/core.h>
 
-template< typename Index, typename Skeleton >
-unsigned int count(const std::map< Index, std::vector< Skeleton > >& elems)
-{
-  uint result = 0;
-  for (auto it = elems.begin();
-       it != elems.end(); ++it)
-    result += it->second.size();
-  return result;
-}
+// Simple wrapper struct to indicate that double value should be formatted with 3 decimal digits
+// currently only used by Angle_Eval_Task::calc_angle
+struct Fixed_Point_3 {
 
+  Fixed_Point_3(double value) : value(value) {}
+
+  double value{};
+};
+
+struct Fixed_Point_7 {
+
+  Fixed_Point_7(double value) : value(value) {}
+
+  double value{};
+};
+
+
+template < typename T >
+std::string fixed_to_string(T t, unsigned int precision)
+{
+  return fmt::format("{:.{}f}", t, precision);
+}
 
 template < typename T >
 inline std::string to_string(T t)
@@ -61,11 +74,88 @@ inline std::string to_string(double t)
   return fmt::format("{:.14g}", t);
 }
 
-template < typename T >
-std::string fixed_to_string(T t, unsigned int precision)
+template < >
+inline std::string to_string(Fixed_Point_3 v)
 {
-  return fmt::format("{:.{}f}", t, precision);
+  return fixed_to_string(v.value, 3);
 }
+
+template < >
+inline std::string to_string(Fixed_Point_7 v)
+{
+  return fixed_to_string(v.value, 7);
+}
+
+
+// Note: careful with std::string and bool when using Eval_Variant
+// Always define string literals with ""s suffix, otherwise string will be implicitly converted to bool
+// https://stackoverflow.com/questions/44086269/why-does-my-variant-convert-a-stdstring-to-a-bool
+// Fixed in C++20
+
+using Eval_Variant = std::variant<int64, double, bool, std::string, Fixed_Point_3, Fixed_Point_7>;
+
+inline std::string eval_variant_to_string(Eval_Variant&& v) {
+
+  switch (v.index()) {
+
+    case 0:
+      return to_string(std::get<0>(v));
+
+    case 1:
+      return to_string(std::get<1>(v));
+
+    case 2:
+      return to_string(std::get<2>(v));
+
+    case 3:
+      return std::get<3>(v);
+
+    case 4:
+      return to_string(std::get<4>(v));
+
+    case 5:
+      return to_string(std::get<5>(v));
+  }
+
+  return "";
+}
+
+inline std::string eval_variant_to_string(const Eval_Variant& v) {
+
+  switch (v.index()) {
+
+    case 0:
+      return to_string(std::get<0>(v));
+
+    case 1:
+      return to_string(std::get<1>(v));
+
+    case 2:
+      return to_string(std::get<2>(v));
+
+    case 3:
+      return std::get<3>(v);
+
+    case 4:
+      return to_string(std::get<4>(v));
+
+    case 5:
+      return to_string(std::get<5>(v));
+  }
+
+  return "";
+}
+
+template< typename Index, typename Skeleton >
+unsigned int count(const std::map< Index, std::vector< Skeleton > >& elems)
+{
+  uint result = 0;
+  for (auto it = elems.begin();
+       it != elems.end(); ++it)
+    result += it->second.size();
+  return result;
+}
+
 
 
 inline bool try_double(const std::string& input, double& result)
@@ -81,6 +171,38 @@ inline bool try_double(const std::string& input, double& result)
 }
 
 
+inline bool try_double(const Eval_Variant& v, double& result)
+{
+  switch(v.index()) {
+
+  case 0:
+    result = std::get<int64>(v);
+    return true;
+
+  case 1:
+    result = std::get<double>(v);
+    return true;
+
+  case 2:
+    result = std::get<bool>(v);
+    return true;
+
+  case 3:
+    return try_double(std::get<std::string>(v), result);
+
+  case 4:
+    result = std::get<Fixed_Point_3>(v).value;
+    return true;
+
+  case 5:
+    result = std::get<Fixed_Point_7>(v).value;
+    return true;
+  }
+
+  return false;
+}
+
+
 inline bool try_starts_with_double(const std::string& input, double& result)
 {
   if (input.empty())
@@ -91,6 +213,37 @@ inline bool try_starts_with_double(const std::string& input, double& result)
   errno = 0;
   result = strtod(input_c, &end_c);
   return !errno && input_c != end_c;
+}
+
+inline bool try_starts_with_double(const Eval_Variant& v, double& result)
+{
+  switch(v.index()) {
+
+  case 0:
+    result = std::get<int64>(v);
+    return true;
+
+  case 1:
+    result = std::get<double>(v);
+    return true;
+
+  case 2:
+    result = std::get<bool>(v);
+    return true;
+
+  case 3:
+    return try_starts_with_double(std::get<std::string>(v), result);
+
+  case 4:
+    result = std::get<Fixed_Point_3>(v).value;
+    return true;
+
+  case 5:
+    result = std::get<Fixed_Point_7>(v).value;
+    return true;
+  }
+
+  return false;
 }
 
 
@@ -114,6 +267,33 @@ inline std::string double_suffix(const std::string& input)
   return "";
 }
 
+inline std::string double_suffix(const Eval_Variant& v)
+{
+  switch(v.index()) {
+
+  case 0:
+    return "";
+
+  case 1:
+    return "";
+
+  case 2:
+    return "";
+
+  case 3:
+    return double_suffix(std::get<std::string>(v));
+
+  case 4:
+    return "";
+
+  case 5:
+    return "";
+  }
+
+  return "";
+}
+
+
 
 inline bool try_int64(const std::string& input, int64& result)
 {
@@ -126,6 +306,35 @@ inline bool try_int64(const std::string& input, int64& result)
   result = strtoll(input_c, &end_c, 0);
   return input_c + input.size() == end_c;
 }
+
+inline bool try_int64(const Eval_Variant& v, int64& result)
+{
+  switch(v.index()) {
+
+  case 0:
+    result = std::get<int64>(v);
+    return true;
+
+  case 1:
+    return false;
+
+  case 2:
+    result = std::get<bool>(v);
+    return true;
+
+  case 3:
+    return try_int64(std::get<std::string>(v), result);
+
+  case 4:
+    return false;
+
+  case 5:
+    return false;
+  }
+
+  return false;
+}
+
 
 
 inline bool string_represents_boolean_true(const std::string& val)
@@ -141,6 +350,32 @@ inline bool string_represents_boolean_true(const std::string& val)
   if (try_double(val, val_d))
     return val_d != 0;
   return !val.empty();
+}
+
+inline bool eval_variant_represents_boolean_true(const Eval_Variant& v)
+{
+  switch(v.index()) {
+  case 0:  //int64
+    return std::get<int64>(v) == 1;
+
+  case 1:  // double
+    return std::get<double>(v) == 1;
+
+  case 2:  // bool
+    return std::get<bool>(v);
+
+  case 3: // String
+    return string_represents_boolean_true(std::get<std::string>(v));
+
+  case 4:
+    return std::get<Fixed_Point_3>(v).value == 1;
+
+  case 5:
+    return std::get<Fixed_Point_7>(v).value == 1;
+
+  }
+
+  return false;
 }
 
 

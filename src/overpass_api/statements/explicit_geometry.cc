@@ -19,7 +19,7 @@
 #include "explicit_geometry.h"
 
 
-Opaque_Geometry* Eval_Point_Geometry_Task::make_point(const std::string& lat_s, const std::string& lon_s)
+Opaque_Geometry* Eval_Point_Geometry_Task::make_point(const Eval_Variant& lat_s, const Eval_Variant& lon_s)
 {
   double lat_d = 0;
   double lon_d = 0;

@@ -146,7 +146,7 @@ public:
   Evaluator_Number(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_String_Endom_Syntax< Evaluator_Number >(line_number_, input_attributes) {}
 
-  std::string process(const std::string& rhs_result) const override;
+  Eval_Variant process(const Eval_Variant& rhs_result) const override;
 };
 
 
@@ -161,7 +161,7 @@ public:
   Evaluator_Is_Num(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_String_Endom_Syntax< Evaluator_Is_Num >(line_number_, input_attributes) {}
 
-  std::string process(const std::string& rhs_result) const override;
+  Eval_Variant process(const Eval_Variant& rhs_result) const override;
 };
 
 
@@ -176,7 +176,7 @@ public:
   Evaluator_Suffix(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_String_Endom_Syntax< Evaluator_Suffix >(line_number_, input_attributes) {}
 
-  std::string process(const std::string& rhs_result) const override;
+  Eval_Variant process(const Eval_Variant& rhs_result) const override;
 };
 
 
@@ -203,7 +203,7 @@ public:
   Evaluator_Abs(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_String_Endom_Syntax< Evaluator_Abs >(line_number_, input_attributes) {}
 
-  virtual std::string process(const std::string& rhs_result) const override;
+  virtual Eval_Variant process(const Eval_Variant& rhs_result) const override;
 };
 
 /* ==== Date Check and Normalizer ====
@@ -247,7 +247,7 @@ public:
   Evaluator_Date(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_String_Endom_Syntax< Evaluator_Date >(line_number_, input_attributes) {}
 
-  std::string process(const std::string& rhs_result) const override;
+  Eval_Variant process(const Eval_Variant& rhs_result) const override;
 };
 
 
@@ -262,7 +262,7 @@ public:
   Evaluator_Is_Date(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_String_Endom_Syntax< Evaluator_Is_Date >(line_number_, input_attributes) {}
 
-  std::string process(const std::string& rhs_result) const override;
+  Eval_Variant process(const Eval_Variant& rhs_result) const override;
 };
 
 

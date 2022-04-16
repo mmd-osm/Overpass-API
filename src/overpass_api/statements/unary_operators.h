@@ -133,7 +133,7 @@ public:
   Evaluator_Not(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_Prefix_Operator_Syntax< Evaluator_Not >(line_number_, input_attributes) {}
 
-  std::string process(const std::string& rhs_result) const override;
+  Eval_Variant process(const Eval_Variant& rhs_result) const override;
 };
 
 
@@ -161,7 +161,7 @@ public:
   Evaluator_Negate(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
       : Evaluator_Prefix_Operator_Syntax< Evaluator_Negate >(line_number_, input_attributes) {}
 
-  std::string process(const std::string& rhs_result) const override;
+  Eval_Variant process(const Eval_Variant& rhs_result) const override;
 };
 
 

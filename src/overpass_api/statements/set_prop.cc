@@ -324,7 +324,7 @@ void Set_Prop_Plain_Task::process(Derived_Structure& result, bool& id_set) const
     return;
 
   if (mode == single_key)
-    result.tags.push_back(std::make_pair(key, rhs->eval(0)));
+    result.tags.push_back(std::make_pair(key, eval_variant_to_string(rhs->eval(0))));
   else if (mode == set_id)
   {
     if (!id_set)
@@ -347,7 +347,7 @@ void process(const std::string& key, Set_Prop_Task::Mode mode, Eval_Task* rhs,
     return;
 
   if (mode == Set_Prop_Task::single_key)
-    result.tags.push_back(std::make_pair(key, rhs->eval(data, &key)));
+    result.tags.push_back(std::make_pair(key, eval_variant_to_string(rhs->eval(data, &key))));
   else if (mode == Set_Prop_Task::generic)
   {
     if (data.tags)
@@ -363,7 +363,7 @@ void process(const std::string& key, Set_Prop_Task::Mode mode, Eval_Task* rhs,
 
       for (std::vector< std::string >::const_iterator it_keys = found_keys.begin();
           it_keys != found_keys.end(); ++it_keys)
-        result.tags.push_back(std::make_pair(*it_keys, rhs->eval(data, &*it_keys)));
+        result.tags.push_back(std::make_pair(*it_keys, eval_variant_to_string(rhs->eval(data, &*it_keys))));
     }
   }
   else if (mode == Set_Prop_Task::set_id)
@@ -445,7 +445,7 @@ void Set_Prop_Generic_Task::add_key(const std::string& key, Eval_Task* task)
 void Set_Prop_Generic_Task::process(Derived_Structure& result, bool& id_set) const
 {
   for (unsigned int i = 0; i < keys.size(); ++i)
-    result.tags.push_back(std::make_pair(keys[i], rhs[i]->eval(&keys[i])));
+    result.tags.push_back(std::make_pair(keys[i], eval_variant_to_string(rhs[i]->eval(&keys[i]))));
 }
 
 
@@ -454,7 +454,7 @@ void process_generic(const Owning_Array< Eval_Task >& rhs, const std::vector< st
     const Element_With_Context< Object >& data, Derived_Structure& result)
 {
   for (unsigned int i = 0; i < keys.size(); ++i)
-    result.tags.push_back(std::make_pair(keys[i], rhs[i]->eval(data, &keys[i])));
+    result.tags.push_back(std::make_pair(keys[i], eval_variant_to_string(rhs[i]->eval(data, &keys[i]))));
 }
 
 
