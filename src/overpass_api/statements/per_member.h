@@ -223,6 +223,63 @@ public:
   Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override;
 };
 
+/* ==== All Vertex ====
+
+For each element, the aggregator executes its argument once per (inner) vertex of the element.
+all_vertex evaluates to true, only if the argument evaluates to true for all (inner) vertices of the elements.
+
+For closed ways, this means that it is executed once for all vertices but the first member.
+For open ways, it is executed once for all vertices but the first and last member.
+For relations its behaviour is currently undefined.
+
+NaN is returned for ways with one or two nodes, because the calculation result is undefined in that case.
+
+The syntax is
+
+  all_vertex(<Evaluator>)
+*/
+
+struct All_Vertex_Eval_Task final : public Eval_Task
+{
+  All_Vertex_Eval_Task(Eval_Task* rhs) : rhs_task(rhs) {}
+
+  Eval_Variant eval(const std::string* key) const override { return ""s; }
+
+  Eval_Variant eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const override;
+  Eval_Variant eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const override;
+
+private:
+  std::unique_ptr< Eval_Task > rhs_task;
+};
+
+
+class Evaluator_All_Vertex final : public Per_Member_Aggregator_Syntax< Evaluator_All_Vertex >
+{
+public:
+  struct Statement_Maker : public Generic_Statement_Maker< Evaluator_All_Vertex >
+  {
+    Statement_Maker() : Generic_Statement_Maker< Evaluator_All_Vertex >("eval-all-vertex") {}
+  };
+  static Statement_Maker statement_maker;
+  static Per_Member_Aggregator_Maker< Evaluator_All_Vertex > evaluator_maker;
+
+  static std::string stmt_func_name() { return "all_vertex"; }
+  static std::string stmt_name() { return "eval-all-vertex"; }
+
+  Evaluator_All_Vertex(int line_number_, const std::map< std::string, std::string >& input_attributes,
+                   Parsed_Query& global_settings);
+  std::string get_result_name() const override { return ""; }
+  void execute(Resource_Manager& rman) override {}
+  ~Evaluator_All_Vertex() override = default;
+
+  Requested_Context request_context() const override
+  { return (rhs ? rhs->request_context() : Requested_Context()).add_usage(Set_Usage::SKELETON); }
+
+  Statement::Eval_Return_Type return_type() const override { return Statement::string; };
+  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override;
+};
+
+
 
 /* === Member Dependend Functions ===
 

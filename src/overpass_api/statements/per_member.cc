@@ -170,6 +170,64 @@ Eval_Variant Per_Vertex_Eval_Task::eval(const Element_With_Context< Attic< Way_S
 
 //-----------------------------------------------------------------------------
 
+Evaluator_All_Vertex::Statement_Maker Evaluator_All_Vertex::statement_maker;
+Per_Member_Aggregator_Maker< Evaluator_All_Vertex > Evaluator_All_Vertex::evaluator_maker;
+
+
+Evaluator_All_Vertex::Evaluator_All_Vertex
+    (int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
+    : Per_Member_Aggregator_Syntax< Evaluator_All_Vertex >(line_number_)
+{
+  std::map< std::string, std::string > attributes;
+  eval_attributes_array(get_name(), attributes, input_attributes);
+}
+
+
+Eval_Task* Evaluator_All_Vertex::get_string_task(Prepare_Task_Context& context, const std::string* key)
+{
+  if (!rhs)
+    return 0;
+
+  Eval_Task* rhs_task = rhs->get_string_task(context, key);
+  if (!rhs_task)
+    return 0;
+
+  return new All_Vertex_Eval_Task(rhs_task);
+}
+
+
+Eval_Variant All_Vertex_Eval_Task::eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
+{
+  if (data.object->nds().size() > 2)
+  {
+    bool result = eval_variant_represents_boolean_true(rhs_task->eval(1, data, key));
+    for (uint i = 2; result && i < data.object->nds().size() - 1; ++i)
+      result &= eval_variant_represents_boolean_true(rhs_task->eval(i, data, key));
+    if (result && data.object->nds().front() == data.object->nds().back())
+      result &= eval_variant_represents_boolean_true(rhs_task->eval(data.object->nds().size() - 1, data, key));
+    return result;
+  }
+
+  return "NaN"s;
+}
+
+
+Eval_Variant All_Vertex_Eval_Task::eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
+{
+  if (data.object->nds().size() > 2)
+  {
+    bool result = eval_variant_represents_boolean_true(rhs_task->eval(1, data, key));
+    for (uint i = 2; result && i < data.object->nds().size() - 1; ++i)
+      result &= eval_variant_represents_boolean_true(rhs_task->eval(i, data, key));
+    if (result && data.object->nds().front() == data.object->nds().back())
+      result &= eval_variant_represents_boolean_true(rhs_task->eval(data.object->nds().size() - 1, data, key));
+    return result;
+  }
+  return "NaN"s;
+}
+
+//-----------------------------------------------------------------------------
+
 Evaluator_Pos::Statement_Maker Evaluator_Pos::statement_maker;
 Member_Function_Maker< Evaluator_Pos > Evaluator_Pos::evaluator_maker;
 
