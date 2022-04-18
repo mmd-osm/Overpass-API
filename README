@@ -58,6 +58,16 @@ foreach .result -> .area {
 
 </details>
 
+- New function `all_vertex()` which evaluates to true, if all vertices of a way fulfill a given expression.
+
+  Query
+
+   ```way({{bbox}})[building] (if:lrs_in(1,per_vertex(abs(angle()) > 170)));```
+
+   can now be rewritten as:
+
+   ```way({{bbox}})[building] (if:!all_vertex(abs(angle()) <= 170));```
+
 - Dockerfile to facilitate building 0.7.59_mmd and 0.7.56 binaries (see `docker/` directory)
 
 - PBF planet and diff files can be imported without any external PBF->XML conversion tools. By avoiding expensive XML parsing, and leveraging _libosmium_ parallel file processing, imports see a significant speedup. To enable this new file importer, add command line parameter `--use-osmium` when calling `update_from_dir` or `update_database`. Command line parameter `-f` can be used to override the default input file format (PBF). See https://osmcode.org/file-formats-manual/ for permitted values.
@@ -124,6 +134,7 @@ All conversion tools need to be executed without an active dispatcher instance.
 - Lazy way geometry store loading for "out qt" to reduce memory consumption, also in attic mode. In addition avoid recalculation of loop invariants in Way_Geometry_Store.
 - Ignore bounding box if it covers the whole globe.
 - Lazy `(if: )` filter evaluation to short circuit boolean expression evaluation.
+- `(if: )` expression evaluation now uses std::variant for intermediate results to avoid back and forth conversions from number to string types, resulting in significant speedups for `angle()` et al.
 - Changeset based `(changed: )` filtering to process huge changesets in Achavi. Additional caching in `changed` to avoid recalculation of already available results.
 
 Example syntax for changeset 46503970: (syntax is subject to change)
