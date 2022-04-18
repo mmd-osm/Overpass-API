@@ -74,92 +74,92 @@ Eval_Task* Evaluator_Pair_Operator::get_string_task(Prepare_Task_Context& contex
 
 Eval_Variant Binary_Eval_Task::eval(const std::string* key) const
 {
-  return evaluator->process([&] { return (lhs ? lhs->eval(key) : ""); },
-                            [&] { return (rhs ? rhs->eval(key) : ""); });
+  return evaluator->process([&] { return (lhs ? lhs->eval(key) : ""s); },
+                            [&] { return (rhs ? rhs->eval(key) : ""s); });
 }
 
 
 Eval_Variant Binary_Eval_Task::eval(const Element_With_Context< Node_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process([&] { return (lhs ? lhs->eval(data, key) : ""); },
-                            [&] { return (rhs ? rhs->eval(data, key) : ""); });
+  return evaluator->process([&] { return (lhs ? lhs->eval(data, key) : ""s); },
+                            [&] { return (rhs ? rhs->eval(data, key) : ""s); });
 }
 
 
 Eval_Variant Binary_Eval_Task::eval(const Element_With_Context< Attic< Node_Skeleton > >& data, const std::string* key) const
 {
-  return evaluator->process([&] { return (lhs ? lhs->eval(data, key) : ""); },
-                            [&] { return (rhs ? rhs->eval(data, key) : ""); });
+  return evaluator->process([&] { return (lhs ? lhs->eval(data, key) : ""s); },
+                            [&] { return (rhs ? rhs->eval(data, key) : ""s); });
 }
 
 
 Eval_Variant Binary_Eval_Task::eval(const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process([&] { return (lhs ? lhs->eval(data, key) : ""); },
-                            [&] { return (rhs ? rhs->eval(data, key) : ""); });
+  return evaluator->process([&] { return (lhs ? lhs->eval(data, key) : ""s); },
+                            [&] { return (rhs ? rhs->eval(data, key) : ""s); });
 }
 
 
 Eval_Variant Binary_Eval_Task::eval(const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
 {
-  return evaluator->process([&] { return (lhs ? lhs->eval(data, key) : ""); },
-                            [&] { return (rhs ? rhs->eval(data, key) : ""); });
+  return evaluator->process([&] { return (lhs ? lhs->eval(data, key) : ""s); },
+                            [&] { return (rhs ? rhs->eval(data, key) : ""s); });
 }
 
 
 Eval_Variant Binary_Eval_Task::eval(const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process([&] { return (lhs ? lhs->eval(data, key) : ""); },
-                            [&] { return (rhs ? rhs->eval(data, key) : ""); });
+  return evaluator->process([&] { return (lhs ? lhs->eval(data, key) : ""s); },
+                            [&] { return (rhs ? rhs->eval(data, key) : ""s); });
 }
 
 
 Eval_Variant Binary_Eval_Task::eval(const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
 {
-  return evaluator->process([&] { return (lhs ? lhs->eval(data, key) : ""); },
-                            [&] { return (rhs ? rhs->eval(data, key) : ""); });
+  return evaluator->process([&] { return (lhs ? lhs->eval(data, key) : ""s); },
+                            [&] { return (rhs ? rhs->eval(data, key) : ""s); });
 }
 
 
 Eval_Variant Binary_Eval_Task::eval(const Element_With_Context< Area_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process([&] { return (lhs ? lhs->eval(data, key) : ""); },
-                            [&] { return (rhs ? rhs->eval(data, key) : ""); });
+  return evaluator->process([&] { return (lhs ? lhs->eval(data, key) : ""s); },
+                            [&] { return (rhs ? rhs->eval(data, key) : ""s); });
 }
 
 
 Eval_Variant Binary_Eval_Task::eval(const Element_With_Context< Derived_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process([&] { return (lhs ? lhs->eval(data, key) : ""); },
-                            [&] { return (rhs ? rhs->eval(data, key) : ""); });
+  return evaluator->process([&] { return (lhs ? lhs->eval(data, key) : ""s); },
+                            [&] { return (rhs ? rhs->eval(data, key) : ""s); });
 }
 
 
 Eval_Variant Binary_Eval_Task::eval(uint pos, const Element_With_Context< Way_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process([&] { return (lhs ? lhs->eval(pos, data, key) : ""); },
-                            [&] { return (rhs ? rhs->eval(pos, data, key) : ""); });
+  return evaluator->process([&] { return (lhs ? lhs->eval(pos, data, key) : ""s); },
+                            [&] { return (rhs ? rhs->eval(pos, data, key) : ""s); });
 }
 
 
 Eval_Variant Binary_Eval_Task::eval(uint pos, const Element_With_Context< Attic< Way_Skeleton > >& data, const std::string* key) const
 {
-  return evaluator->process([&] { return (lhs ? lhs->eval(pos, data, key) : ""); },
-                            [&] { return (rhs ? rhs->eval(pos, data, key) : ""); });
+  return evaluator->process([&] { return (lhs ? lhs->eval(pos, data, key) : ""s); },
+                            [&] { return (rhs ? rhs->eval(pos, data, key) : ""s); });
 }
 
 
 Eval_Variant Binary_Eval_Task::eval(uint pos, const Element_With_Context< Relation_Skeleton >& data, const std::string* key) const
 {
-  return evaluator->process([&] { return (lhs ? lhs->eval(pos, data, key) : ""); },
-                            [&] { return (rhs ? rhs->eval(pos, data, key) : ""); });
+  return evaluator->process([&] { return (lhs ? lhs->eval(pos, data, key) : ""s); },
+                            [&] { return (rhs ? rhs->eval(pos, data, key) : ""s); });
 }
 
 
 Eval_Variant Binary_Eval_Task::eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const
 {
-  return evaluator->process([&] { return (lhs ? lhs->eval(pos, data, key) : ""); },
-                            [&] { return (rhs ? rhs->eval(pos, data, key) : ""); });
+  return evaluator->process([&] { return (lhs ? lhs->eval(pos, data, key) : ""s); },
+                            [&] { return (rhs ? rhs->eval(pos, data, key) : ""s); });
 }
 
 
