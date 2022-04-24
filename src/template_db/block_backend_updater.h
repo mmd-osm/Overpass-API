@@ -503,7 +503,7 @@ void Block_Backend_Updater< TIndex, TObject, TIterator  >::update_group
     if (ic_it == index_values.end())
     {
       index_values.insert(std::make_pair(it->first,
-          Index_Collection< TIndex, TObject >(0, 0, it, to_insert.end())));
+          Index_Collection< TIndex, TObject >(nullptr, nullptr, it, to_insert.end())));
     }
     else
       ic_it->second.delete_it = it;
@@ -519,7 +519,7 @@ void Block_Backend_Updater< TIndex, TObject, TIterator  >::update_group
     if (ic_it == index_values.end())
     {
       index_values.insert(std::make_pair(it->first,
-          Index_Collection< TIndex, TObject >(0, 0, to_delete.end(), it)));
+          Index_Collection< TIndex, TObject >(nullptr, nullptr, to_delete.end(), it)));
     }
     else
       ic_it->second.insert_it = it;
@@ -532,7 +532,7 @@ void Block_Backend_Updater< TIndex, TObject, TIterator  >::update_group
   {
     uint32 current_size(0);
 
-    if (it->second.source_begin != 0)
+    if (it->second.source_begin != nullptr)
     {
       uint8* pos(it->second.source_begin + 4);
       pos = pos + TIndex::size_of((it->second.source_begin) + 4);
@@ -599,7 +599,7 @@ void Block_Backend_Updater< TIndex, TObject, TIterator  >::update_group
       it->first.to_data(pos + 4);
       pos += it->first.size_of() + 4;
 
-      if (it->second.source_begin != 0)
+      if (it->second.source_begin != nullptr)
       {
         uint8* spos(it->second.source_begin + 4);
         spos = spos + TIndex::size_of((it->second.source_begin) + 4);
@@ -635,7 +635,7 @@ void Block_Backend_Updater< TIndex, TObject, TIterator  >::update_group
       pos += it->first.size_of() + 4;
 
       // can never overflow - we have read only one block
-      if (it->second.source_begin != 0)
+      if (it->second.source_begin != nullptr)
       {
         uint8* spos(it->second.source_begin + 4);
         spos = spos + TIndex::size_of((it->second.source_begin) + 4);

@@ -99,7 +99,7 @@ class Filter_Statement final : public Output_Statement
 
   private:
     std::vector< Query_Constraint* > constraints;
-    Evaluator* criterion;
+    Evaluator* criterion = nullptr;
 };
 
 

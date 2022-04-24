@@ -675,7 +675,7 @@ int main(int argc, char *argv[])
       return 0;
 
 
-    Osm_Script_Statement* osm_script = 0;
+    Osm_Script_Statement* osm_script = nullptr;
     if (!get_statement_stack()->empty())
       osm_script = dynamic_cast< Osm_Script_Statement* >(get_statement_stack()->front());
 

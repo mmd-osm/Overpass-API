@@ -26,7 +26,7 @@ Else_Statement::Statement_Maker Else_Statement::statement_maker;
 
 If_Statement::If_Statement
     (int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
-    : Statement(line_number_), criterion(0), else_reached(false)
+    : Statement(line_number_), else_reached(false)
 {
   std::map< std::string, std::string > attributes;
 
@@ -63,8 +63,8 @@ void If_Statement::add_statement(Statement* statement, std::string text)
 bool evals_to_true(Evaluator& criterion, const Statement& stmt, Resource_Manager& rman)
 {
   Prepare_Task_Context context(criterion.request_context(), stmt, rman);
-  std::unique_ptr< Eval_Task > task(criterion.get_string_task(context, 0));
-  std::string valuation = eval_variant_to_string((*task).eval(0));
+  std::unique_ptr< Eval_Task > task(criterion.get_string_task(context, nullptr));
+  std::string valuation = eval_variant_to_string((*task).eval(nullptr));
   double val_d = 0;
   return (!valuation.empty())  && (!try_double(valuation, val_d) || val_d != 0);
 }

@@ -419,7 +419,7 @@ Node_Updater::Node_Updater(Transaction& transaction_, meta_modes meta_, unsigned
 {}
 
 Node_Updater::Node_Updater(std::string db_dir_, meta_modes meta_, unsigned int parallel_processes_, bool initial_load_)
-  : update_counter(0), transaction(0),
+  : update_counter(0),
     external_transaction(false), partial_possible(meta_ == only_data || meta_ == keep_meta),
     db_dir(std::move(db_dir_)), meta(meta_), keys(*osm_base_settings().NODE_KEYS),
     parallel_processes(parallel_processes_), initial_load(initial_load_)

@@ -164,7 +164,7 @@ Statement* Newer_Statement::Criterion_Maker::create_criterion(const Token_Node_P
     return new Newer_Statement(line_nr, attributes, global_settings);
   }
 
-  return 0;
+  return nullptr;
 }
 
 

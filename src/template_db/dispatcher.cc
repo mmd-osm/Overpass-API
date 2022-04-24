@@ -181,7 +181,7 @@ void Dispatcher_Socket::init_signal_handling()
   sigemptyset(&mask);
   sigaddset(&mask, SIGTERM);
   sigaddset(&mask, SIGINT);
-  int r = sigprocmask(SIG_BLOCK, &mask, 0);
+  int r = sigprocmask(SIG_BLOCK, &mask, nullptr);
   if (r == -1) {
     throw File_Error
           (errno, "(socket)", "Dispatcher_Server::21");
@@ -277,8 +277,8 @@ bool Global_Resource_Planner::is_active(pid_t pid) const
 int Global_Resource_Planner::probe(pid_t pid, uint32 client_token, uint32 time_units, uint64 max_space)
 {
   auto pending_it = pending.find(client_token);
-  Pending_Client* handle = 0;
-  uint32 cur_time = time(0);
+  Pending_Client* handle = nullptr;
+  uint32 cur_time = time(nullptr);
 
   if (rate_limit > 0 && client_token > 0)
   {
@@ -320,7 +320,7 @@ int Global_Resource_Planner::probe(pid_t pid, uint32 client_token, uint32 time_u
       }
     }
 
-    uint32 current_time = time(0);
+    uint32 current_time = time(nullptr);
     for (auto it = afterwards.begin(); it != afterwards.end(); )
     {
       if (it->expiration_time < current_time)
@@ -370,7 +370,7 @@ int Global_Resource_Planner::probe(pid_t pid, uint32 client_token, uint32 time_u
       pending.erase(pending_it);
   }
 
-  active.push_back(Reader_Entry(pid, max_space, time_units, client_token, time(0)));
+  active.push_back(Reader_Entry(pid, max_space, time_units, client_token, time(nullptr)));
 
   global_used_space += max_space;
   global_used_time += time_units;
@@ -380,7 +380,7 @@ int Global_Resource_Planner::probe(pid_t pid, uint32 client_token, uint32 time_u
 
 void Global_Resource_Planner::remove_entry(std::vector< Reader_Entry >::iterator& it)
 {
-  uint32 end_time = time(0);
+  uint32 end_time = time(nullptr);
   if (last_update_time < end_time && last_counted > 0)
   {
     if (end_time - last_update_time < 15)
@@ -493,7 +493,7 @@ void Global_Resource_Planner::purge(Connection_Per_Pid_Map& connection_per_pid)
 {
   for (auto it = active.begin(); it != active.end(); )
   {
-    if (connection_per_pid.get(it->client_pid) == 0)
+    if (connection_per_pid.get(it->client_pid) == nullptr)
       remove_entry(it);
     else
       ++it;
@@ -505,7 +505,7 @@ void Global_Resource_Planner::purge(Connection_Per_Pid_Map& connection_per_pid)
     for (auto handle_it = pending_it->second.begin();
         handle_it != pending_it->second.end(); )
     {
-      if (connection_per_pid.get(handle_it->pid) == 0)
+      if (connection_per_pid.get(handle_it->pid) == nullptr)
       {
         *handle_it = pending_it->second.back();
         pending_it->second.pop_back();
@@ -574,7 +574,7 @@ Dispatcher::Dispatcher
         (errno, dispatcher_share_name, "Dispatcher_Server::2");
 
   void* disp_shm_void = mmap
-        (0, SHM_SIZE + db_dir.size() + shadow_name.size(),
+        (nullptr, SHM_SIZE + db_dir.size() + shadow_name.size(),
          PROT_READ|PROT_WRITE, MAP_SHARED, dispatcher_shm_fd, 0);
 
   if (disp_shm_void == MAP_FAILED) {
@@ -796,7 +796,7 @@ void Dispatcher::standby_loop(uint64 milliseconds)
              command == TERMINATE))
         {
           connection_per_pid.get(client_pid)->send_result(0);
-          connection_per_pid.set(client_pid, 0);
+          connection_per_pid.set(client_pid, nullptr);
           continue;
         }
 
@@ -807,7 +807,7 @@ void Dispatcher::standby_loop(uint64 milliseconds)
             output_status();
 
           connection_per_pid.get(client_pid)->send_result(command);
-          connection_per_pid.set(client_pid, 0);
+          connection_per_pid.set(client_pid, nullptr);
 
           if (command == TERMINATE)
             return;
@@ -844,12 +844,12 @@ void Dispatcher::standby_loop(uint64 milliseconds)
             read_finished(client_pid);
             connection_per_pid.get(client_pid)->send_result(command);
           }
-          connection_per_pid.set(client_pid, 0);
+          connection_per_pid.set(client_pid, nullptr);
         }
         else if (command == READ_IDX_FINISHED)
         {
           read_idx_finished(client_pid);
-          if (connection_per_pid.get(client_pid) != 0)
+          if (connection_per_pid.get(client_pid) != nullptr)
             connection_per_pid.get(client_pid)->send_result(command);
         }
         else if (command == REQUEST_READ_AND_IDX)
@@ -884,10 +884,10 @@ void Dispatcher::standby_loop(uint64 milliseconds)
           uint32 target_pid = arguments[0];
 
           read_aborted(target_pid);
-          if (connection_per_pid.get(target_pid) != 0)
+          if (connection_per_pid.get(target_pid) != nullptr)
           {
             connection_per_pid.get(target_pid)->send_result(READ_FINISHED);
-            connection_per_pid.set(target_pid, 0);
+            connection_per_pid.set(target_pid, nullptr);
           }
 
           connection_per_pid.get(client_pid)->send_result(command);
@@ -976,7 +976,7 @@ void Dispatcher::standby_loop(uint64 milliseconds)
         else
         {
           // Unknown command, terminate connection
-          connection_per_pid.set(client_pid, 0);
+          connection_per_pid.set(client_pid, nullptr);
           hangup(client_pid);
         }
       }

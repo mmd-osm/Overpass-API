@@ -39,10 +39,10 @@ using namespace std::string_literals;
 
 struct Per_Member_Aggregator : public Evaluator
 {
-  Per_Member_Aggregator(int line_number_) : Evaluator(line_number_), rhs(0) {}
+  Per_Member_Aggregator(int line_number_) : Evaluator(line_number_) {}
   void add_statement(Statement* statement, std::string text) override;
 
-  Evaluator* rhs;
+  Evaluator* rhs = nullptr;
 };
 
 
@@ -82,7 +82,7 @@ struct Per_Member_Aggregator_Maker final : Statement::Evaluator_Maker
     if (!tree_it.assert_is_function(error_output) || !tree_it.assert_has_input_set(error_output, false)
         || !tree_it.assert_has_arguments(error_output, true)
         || !assert_element_in_context(error_output, tree_it, tree_context))
-      return 0;
+      return nullptr;
 
     Statement* result = new Evaluator_(
         tree_it->line_col.first, std::map< std::string, std::string >(), global_settings);
@@ -530,7 +530,7 @@ The syntax is
 
 struct Angle_Eval_Task final : public Eval_Task
 {
-  Angle_Eval_Task() : cache_way_ref(0u), cache_geom_ref(0) {}
+  Angle_Eval_Task() : cache_way_ref(0u) {}
 
   Eval_Variant eval(const std::string* key) const override { return ""s; }
 
@@ -539,7 +539,7 @@ struct Angle_Eval_Task final : public Eval_Task
 
 private:
   mutable Way_Skeleton::Id_Type cache_way_ref;
-  mutable const Opaque_Geometry* cache_geom_ref;
+  mutable const Opaque_Geometry* cache_geom_ref = nullptr;
   mutable std::vector< Cartesian > cached;
 
   std::string prettyprinted_angle(uint pos) const;

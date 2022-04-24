@@ -40,12 +40,12 @@ Set* Runtime_Stack_Frame::get_set(const std::string& set_name)
 
   auto it_diff = diff_sets.find(set_name);
   if (it_diff != diff_sets.end())
-    return 0;
+    return nullptr;
 
   if (parent)
     return parent->get_set(set_name);
 
-  return 0;
+  return nullptr;
 }
 
 
@@ -57,12 +57,12 @@ Diff_Set* Runtime_Stack_Frame::get_diff_set(const std::string& set_name)
 
   auto it_set = sets.find(set_name);
   if (it_set != sets.end())
-    return 0;
+    return nullptr;
 
   if (parent)
     return parent->get_diff_set(set_name);
 
-  return 0;
+  return nullptr;
 }
 
 
@@ -91,9 +91,9 @@ const std::string* Runtime_Stack_Frame::get_value(const std::string& set_name, c
   if (key_values)
   {
     auto kvit = key_values->find(key);
-    return kvit == key_values->end() ? 0 : &kvit->second;
+    return kvit == key_values->end() ? nullptr : &kvit->second;
   }
-  return 0;
+  return nullptr;
 }
 
 
@@ -105,15 +105,15 @@ const std::map< std::string, std::string >* Runtime_Stack_Frame::get_set_key_val
 
   auto it_set = sets.find(set_name);
   if (it_set != sets.end())
-    return 0;
+    return nullptr;
   auto it_diff = diff_sets.find(set_name);
   if (it_diff != diff_sets.end())
-    return 0;
+    return nullptr;
 
   if (parent)
     return parent->get_set_key_values(set_name);
 
-  return 0;
+  return nullptr;
 }
 
 
@@ -143,7 +143,7 @@ void Runtime_Stack_Frame::clear_sets()
 
 void Runtime_Stack_Frame::copy_outward(const std::string& inner_set_name, const std::string& top_set_name)
 {
-  Set* from = 0;
+  Set* from = nullptr;
 
   if (parent)
     from = parent->get_set(inner_set_name);
@@ -386,7 +386,6 @@ Resource_Manager::Resource_Manager(
     Transaction& transaction_, Parsed_Query* global_settings_,
     Error_Output* error_output_)
       : transaction(&transaction_), error_output(error_output_),
-        area_transaction(0), area_updater_(0),
         global_settings(global_settings_), global_settings_owned(false),
 	start_time(time(NULL)), last_ping_time(0), last_report_time(0),
 	max_allowed_time(0), max_allowed_space(0)
@@ -417,7 +416,7 @@ Resource_Manager::Resource_Manager(
 const Set* Resource_Manager::get_set(const std::string& set_name)
 {
   if (runtime_stack.empty())
-    return 0;
+    return nullptr;
 
   return runtime_stack.back()->get_set(set_name);
 }
@@ -426,7 +425,7 @@ const Set* Resource_Manager::get_set(const std::string& set_name)
 const Diff_Set* Resource_Manager::get_diff_set(const std::string& set_name)
 {
   if (runtime_stack.empty())
-    return 0;
+    return nullptr;
 
   return runtime_stack.back()->get_diff_set(set_name);
 }
@@ -454,7 +453,7 @@ void Resource_Manager::swap_diff_set(const std::string& set_name, Diff_Set& set_
 const std::string* Resource_Manager::get_value(const std::string& set_name, const std::string& key)
 {
   if (runtime_stack.empty())
-    return 0;
+    return nullptr;
 
   return runtime_stack.back()->get_value(set_name, key);
 }
@@ -463,7 +462,7 @@ const std::string* Resource_Manager::get_value(const std::string& set_name, cons
 const std::map< std::string, std::string >* Resource_Manager::get_set_key_values(const std::string& set_name)
 {
   if (runtime_stack.empty())
-    return 0;
+    return nullptr;
 
   return runtime_stack.back()->get_set_key_values(set_name);
 }
@@ -497,7 +496,7 @@ void Resource_Manager::clear_sets()
 
 void Resource_Manager::push_stack_frame()
 {
-  runtime_stack.push_back(new Runtime_Stack_Frame(runtime_stack.empty() ? 0 : runtime_stack.back()));
+  runtime_stack.push_back(new Runtime_Stack_Frame(runtime_stack.empty() ? nullptr : runtime_stack.back()));
 }
 
 

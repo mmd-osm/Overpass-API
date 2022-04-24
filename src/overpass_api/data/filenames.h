@@ -41,7 +41,7 @@ template< > inline File_Properties* current_skeleton_file_properties< Relation_S
 template< typename Skeleton >
 File_Properties* current_meta_file_properties()
 {
-  return 0;
+  return nullptr;
 }
 
 template< > inline File_Properties* current_meta_file_properties< Node_Skeleton >()

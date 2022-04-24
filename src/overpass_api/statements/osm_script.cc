@@ -32,7 +32,7 @@ Generic_Statement_Maker< Osm_Script_Statement > Osm_Script_Statement::statement_
 
 int64 eval_number_with_suffix(const std::string& arg)
 {
-  char* pos = 0;
+  char* pos = nullptr;
   errno = 0;
   int64 result = strtoll(&arg[0], &pos, 0);
   if (errno)
@@ -61,8 +61,7 @@ Osm_Script_Statement::Osm_Script_Statement
     (int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
     : Statement(line_number_),
        desired_timestamp(NOW), comparison_timestamp(0), add_deletion_information(false),
-       max_allowed_time(0), max_allowed_space(0),
-       factory(0)
+       max_allowed_time(0), max_allowed_space(0)
 {
   std::map< std::string, std::string > attributes;
 
@@ -115,12 +114,12 @@ Osm_Script_Statement::Osm_Script_Statement
     else
     {
       if (attributes["output-config"].empty())
-        global_settings.set_output_handler(format_parser, 0, 0);
+        global_settings.set_output_handler(format_parser, nullptr, nullptr);
       else
       {
         std::istringstream in(attributes["output-config"]);
         Tokenizer_Wrapper token(in);
-        global_settings.set_output_handler(format_parser, &token, 0);
+        global_settings.set_output_handler(format_parser, &token, nullptr);
       }
     }
   }

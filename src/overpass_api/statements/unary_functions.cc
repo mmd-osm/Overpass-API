@@ -20,7 +20,7 @@
 
 using namespace std::string_literals;
 
-Evaluator_Unary_Function::Evaluator_Unary_Function(int line_number_) : Evaluator(line_number_), rhs(0) {}
+Evaluator_Unary_Function::Evaluator_Unary_Function(int line_number_) : Evaluator(line_number_) {}
 
 
 void Evaluator_Unary_Function::add_statement(Statement* statement, std::string text)
@@ -37,7 +37,7 @@ void Evaluator_Unary_Function::add_statement(Statement* statement, std::string t
 
 Eval_Task* Evaluator_Unary_Function::get_string_task(Prepare_Task_Context& context, const std::string* key)
 {
-  Eval_Task* rhs_task = rhs ? rhs->get_string_task(context, key) : 0;
+  Eval_Task* rhs_task = rhs ? rhs->get_string_task(context, key) : nullptr;
   return new Unary_Eval_Task(rhs_task, this);
 }
 
@@ -132,7 +132,7 @@ Eval_Variant Unary_Eval_Task::eval(uint pos, const Element_With_Context< Attic< 
 
 
 Evaluator_Geometry_Unary_Function::Evaluator_Geometry_Unary_Function(int line_number_)
-    : Evaluator(line_number_), rhs(0) {}
+    : Evaluator(line_number_) {}
 
 
 void Evaluator_Geometry_Unary_Function::add_statement(Statement* statement, std::string text)
@@ -149,7 +149,7 @@ void Evaluator_Geometry_Unary_Function::add_statement(Statement* statement, std:
 
 Eval_Geometry_Task* Evaluator_Geometry_Unary_Function::get_geometry_task(Prepare_Task_Context& context)
 {
-  Eval_Geometry_Task* rhs_task = rhs ? rhs->get_geometry_task(context) : 0;
+  Eval_Geometry_Task* rhs_task = rhs ? rhs->get_geometry_task(context) : nullptr;
   return new Unary_Geometry_Eval_Task(rhs_task, this);
 }
 
@@ -164,63 +164,62 @@ Requested_Context Evaluator_Geometry_Unary_Function::request_context() const
 
 Opaque_Geometry* Unary_Geometry_Eval_Task::eval() const
 {
-  return evaluator->process(rhs ? rhs->eval() : 0);
+  return evaluator->process(rhs ? rhs->eval() : nullptr);
 }
 
 
 Opaque_Geometry* Unary_Geometry_Eval_Task::eval(const Element_With_Context< Node_Skeleton >& data) const
 {
-  return evaluator->process(rhs ? rhs->eval(data) : 0);
+  return evaluator->process(rhs ? rhs->eval(data) : nullptr);
 }
 
 
 Opaque_Geometry* Unary_Geometry_Eval_Task::eval(const Element_With_Context< Attic< Node_Skeleton > >& data) const
 {
-  return evaluator->process(rhs ? rhs->eval(data) : 0);
+  return evaluator->process(rhs ? rhs->eval(data) : nullptr);
 }
 
 
 Opaque_Geometry* Unary_Geometry_Eval_Task::eval(const Element_With_Context< Way_Skeleton >& data) const
 {
-  return evaluator->process(rhs ? rhs->eval(data) : 0);
+  return evaluator->process(rhs ? rhs->eval(data) : nullptr);
 }
 
 
 Opaque_Geometry* Unary_Geometry_Eval_Task::eval(const Element_With_Context< Attic< Way_Skeleton > >& data) const
 {
-  return evaluator->process(rhs ? rhs->eval(data) : 0);
+  return evaluator->process(rhs ? rhs->eval(data) : nullptr);
 }
 
 
 Opaque_Geometry* Unary_Geometry_Eval_Task::eval(const Element_With_Context< Relation_Skeleton >& data) const
 {
-  return evaluator->process(rhs ? rhs->eval(data) : 0);
+  return evaluator->process(rhs ? rhs->eval(data) : nullptr);
 }
 
 
 Opaque_Geometry* Unary_Geometry_Eval_Task::eval(const Element_With_Context< Attic< Relation_Skeleton > >& data) const
 {
-  return evaluator->process(rhs ? rhs->eval(data) : 0);
+  return evaluator->process(rhs ? rhs->eval(data) : nullptr);
 }
 
 
 Opaque_Geometry* Unary_Geometry_Eval_Task::eval(const Element_With_Context< Area_Skeleton >& data) const
 {
-  return evaluator->process(rhs ? rhs->eval(data) : 0);
+  return evaluator->process(rhs ? rhs->eval(data) : nullptr);
 }
 
 
 Opaque_Geometry* Unary_Geometry_Eval_Task::eval(const Element_With_Context< Derived_Skeleton >& data) const
 {
-  return evaluator->process(rhs ? rhs->eval(data) : 0);
+  return evaluator->process(rhs ? rhs->eval(data) : nullptr);
 }
 
 
 //-----------------------------------------------------------------------------
 
 
-Evaluator_Binary_Function::Evaluator_Binary_Function(int line_number_) : Evaluator(line_number_),
-    first(0), second(0) {}
+Evaluator_Binary_Function::Evaluator_Binary_Function(int line_number_) : Evaluator(line_number_) {}
 
 
 void Evaluator_Binary_Function::add_statement(Statement* statement, std::string text)
@@ -239,8 +238,8 @@ void Evaluator_Binary_Function::add_statement(Statement* statement, std::string 
 
 Eval_Task* Evaluator_Binary_Function::get_string_task(Prepare_Task_Context& context, const std::string* key)
 {
-  Eval_Task* first_task = first ? first->get_string_task(context, key) : 0;
-  Eval_Task* second_task = second ? second->get_string_task(context, key) : 0;
+  Eval_Task* first_task = first ? first->get_string_task(context, key) : nullptr;
+  Eval_Task* second_task = second ? second->get_string_task(context, key) : nullptr;
   return new Binary_Func_Eval_Task(first_task, second_task, this);
 }
 

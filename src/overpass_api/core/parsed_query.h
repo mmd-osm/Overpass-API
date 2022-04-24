@@ -32,7 +32,7 @@
 class Parsed_Query
 {
 public:
-  Parsed_Query() : output_handler(0), global_bbox_limitation(Bbox_Double::invalid), last_dispensed_id(0ull), regexp_engine(""), use_nodes_tagged(true)  {
+  Parsed_Query() : global_bbox_limitation(Bbox_Double::invalid), last_dispensed_id(0ull), regexp_engine(""), use_nodes_tagged(true)  {
 
     default_regexp_engine = "POSIX";
     char const* default_regexp_engine_c = std::getenv("OVERPASS_REGEXP_ENGINE");
@@ -104,7 +104,7 @@ private:
   Parsed_Query(const Parsed_Query&);
   Parsed_Query& operator=(const Parsed_Query&);
 
-  Output_Handler* output_handler;
+  Output_Handler* output_handler = nullptr;
   Bbox_Double global_bbox_limitation;
   std::map< std::string, std::string > input_params;
   Derived_Skeleton::Id_Type last_dispensed_id;

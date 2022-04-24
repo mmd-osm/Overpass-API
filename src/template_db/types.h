@@ -302,7 +302,7 @@ class Void64_Pointer
 public:
   explicit Void64_Pointer(int block_size)
   { 
-    ptr = block_size > 0 ? (T*)aligned_alloc(8, block_size) : 0;
+    ptr = block_size > 0 ? (T*)aligned_alloc(8, block_size) : nullptr;
   }
   ~Void64_Pointer() { clear(); }
 
@@ -310,7 +310,7 @@ public:
   {
     if (ptr)
       free(ptr);
-    ptr = 0;
+    ptr = nullptr;
   }
   void resize(int block_size)
   {

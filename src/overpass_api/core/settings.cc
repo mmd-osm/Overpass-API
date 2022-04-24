@@ -375,7 +375,7 @@ void Logger::annotated_log(LEVEL l, const std::string& message)
 void Logger::annotated_log(const std::string& message)
 {
   // Collect current time in a user-readable form.
-  time_t time_t_ = time(0);
+  time_t time_t_ = time(nullptr);
   struct tm* tm_ = gmtime(&time_t_);
   char strftime_buf[21];
   strftime_buf[0] = 0;

@@ -125,7 +125,7 @@ struct Ternary_Evaluator final : public Evaluator
   static std::string stmt_name() { return "eval-ternary"; }
 
   Ternary_Evaluator(int line_number_, const std::map< std::string, std::string >& input_attributes,
-      Parsed_Query& global_settings) : Evaluator(line_number_), condition(0), lhs(0), rhs(0),
+      Parsed_Query& global_settings) : Evaluator(line_number_),
       return_type_(Statement::string)
   {
     std::map< std::string, std::string > attributes;
@@ -180,9 +180,9 @@ struct Ternary_Evaluator final : public Evaluator
   int get_operator_priority() const override { return operator_priority(stmt_operator(), false); }
 
 private:
-  Evaluator* condition;
-  Evaluator* lhs;
-  Evaluator* rhs;
+  Evaluator* condition = nullptr;
+  Evaluator* lhs = nullptr;
+  Evaluator* rhs = nullptr;
   Statement::Eval_Return_Type return_type_;
 };
 

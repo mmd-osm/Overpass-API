@@ -29,6 +29,7 @@
 struct Point_Double
 {
 public:
+  Point_Double() = delete;
   Point_Double(double lat_, double lon_) : lat(lat_), lon(lon_) {}
   Point_Double(Quad_Coord arg) : lat(::lat(arg.ll_upper, arg.ll_lower)), lon(::lon(arg.ll_upper, arg.ll_lower)) {}
 
@@ -48,6 +49,8 @@ public:
 struct Bbox_Double
 {
 public:
+  Bbox_Double() = delete;
+
   Bbox_Double(double south_, double west_, double north_, double east_)
       : south(south_), west(west_), north(north_), east(east_) {}
 
@@ -97,14 +100,14 @@ public:
   virtual double east() const = 0;
 
   virtual bool has_line_geometry() const = 0;
-  virtual const std::vector< Point_Double >* get_line_geometry() const { return 0; }
+  virtual const std::vector< Point_Double >* get_line_geometry() const { return nullptr; }
 
   virtual bool has_multiline_geometry() const = 0;
-  virtual const std::vector< std::vector< Point_Double > >* get_multiline_geometry() const { return 0; }
+  virtual const std::vector< std::vector< Point_Double > >* get_multiline_geometry() const { return nullptr; }
 
   virtual bool has_components() const = 0;
-  virtual const std::vector< Opaque_Geometry* >* get_components() const { return 0; }
-  virtual std::vector< Opaque_Geometry* >* move_components() { return 0; }
+  virtual const std::vector< Opaque_Geometry* >* get_components() const { return nullptr; }
+  virtual std::vector< Opaque_Geometry* >* move_components() { return nullptr; }
 
   virtual unsigned int way_size() const = 0;
   virtual bool has_faithful_way_geometry() const = 0;
@@ -258,7 +261,7 @@ private:
 class Linestring_Geometry final : public Opaque_Geometry
 {
 public:
-  Linestring_Geometry(const std::vector< Point_Double >& points_) : points(points_), bounds(0) {}
+  Linestring_Geometry(const std::vector< Point_Double >& points_) : points(points_) {}
   ~Linestring_Geometry() override { delete bounds; }
   Opaque_Geometry* clone() const override { return new Linestring_Geometry(points); }
 
@@ -297,14 +300,14 @@ public:
 
 private:
   std::vector< Point_Double > points;
-  mutable Bbox_Double* bounds;
+  mutable Bbox_Double* bounds = nullptr;
 };
 
 
 class Partial_Way_Geometry final : public Opaque_Geometry
 {
 public:
-  Partial_Way_Geometry() : bounds(0), has_coords(false) {}
+  Partial_Way_Geometry() = default;
   Partial_Way_Geometry(const std::vector< Point_Double >& points_);
   ~Partial_Way_Geometry() override { delete bounds; }
   Opaque_Geometry* clone() const override { return new Partial_Way_Geometry(points); }
@@ -321,7 +324,7 @@ public:
 
   bool has_line_geometry() const override { return valid_segments.size() == 1; }
   const std::vector< Point_Double >* get_line_geometry() const override
-  { return valid_segments.size() == 1 ? &valid_segments.front() : 0; }
+  { return valid_segments.size() == 1 ? &valid_segments.front() : nullptr; }
 
   bool has_multiline_geometry() const override { return true; }
   const std::vector< std::vector< Point_Double > >* get_multiline_geometry() const override
@@ -351,15 +354,15 @@ public:
 private:
   std::vector< Point_Double > points;
   std::vector< std::vector< Point_Double > > valid_segments;
-  mutable Bbox_Double* bounds;
-  bool has_coords;
+  mutable Bbox_Double* bounds = nullptr;
+  bool has_coords = false;
 };
 
 
 class Free_Polygon_Geometry final : public Opaque_Geometry
 {
 public:
-  Free_Polygon_Geometry() : bounds(0) {}
+  Free_Polygon_Geometry() = default;
   Free_Polygon_Geometry(const std::vector< std::vector< Point_Double > >& linestrings_);
   ~Free_Polygon_Geometry() override { delete bounds; }
   Opaque_Geometry* clone() const override { return new Free_Polygon_Geometry(linestrings); }
@@ -400,7 +403,7 @@ public:
 
 private:
   std::vector< std::vector< Point_Double > > linestrings;
-  mutable Bbox_Double* bounds;
+  mutable Bbox_Double* bounds = nullptr;
 };
 
 
@@ -447,18 +450,18 @@ public:
 
 private:
   RHR_Polygon_Geometry(const std::vector< std::vector< Point_Double > >& linestrings_)
-      : linestrings(linestrings_), bounds(0) {}
+      : linestrings(linestrings_) {}
 
   std::vector< std::vector< Point_Double > > linestrings;
-  mutable Bbox_Double* bounds;
+  mutable Bbox_Double* bounds = nullptr;
 };
 
 
 class Compound_Geometry final : public Opaque_Geometry
 {
 public:
-  Compound_Geometry() : bounds(0) {}
-  Compound_Geometry(const std::vector< Opaque_Geometry* >& components_) : components(components_), bounds(0) {}
+  Compound_Geometry() = default;
+  Compound_Geometry(const std::vector< Opaque_Geometry* >& components_) : components(components_) {}
   ~Compound_Geometry() override
   {
     delete bounds;
@@ -506,16 +509,16 @@ public:
 
 private:
   std::vector< Opaque_Geometry* > components;
-  mutable Bbox_Double* bounds;
+  mutable Bbox_Double* bounds = nullptr;
 };
 
 
 class Partial_Relation_Geometry final : public Opaque_Geometry
 {
 public:
-  Partial_Relation_Geometry() : bounds(0), has_coords(false) {}
+  Partial_Relation_Geometry() = default;
   Partial_Relation_Geometry(const std::vector< Opaque_Geometry* >& components_)
-      : components(components_), bounds(0), has_coords(false)
+      : components(components_)
   {
     for (std::vector< Opaque_Geometry* >::const_iterator it = components.begin();
         it != components.end() && !has_coords; ++it)
@@ -578,8 +581,8 @@ public:
 
 private:
   std::vector< Opaque_Geometry* > components;
-  mutable Bbox_Double* bounds;
-  bool has_coords;
+  mutable Bbox_Double* bounds = nullptr;
+  bool has_coords = false;
 };
 
 
@@ -596,12 +599,12 @@ struct Cartesian
     z = c*cos(lon*deg_to_arc);
   }
 
-  Cartesian() : x(0), y(0), z(0) {}
+  Cartesian() = default;
 
 public:
-  double x;
-  double y;
-  double z;
+  double x = 0;
+  double y = 0;
+  double z = 0;
 };
 
 
@@ -655,7 +658,7 @@ public:
 //         <<asin(ortho_s)/M_PI*180.<<' '<<asin(ortho_cs/sqrt(1 - ortho_s*ortho_s))/M_PI*180.<<'\n';
   }
 
-  double lat_of(double lon)
+  double lat_of(double lon) const
   {
     //rotate ortho such that the longitude to use for cartesian computation is always zero
     double g_cc = ortho_cc*cos(lon/180.*M_PI) + ortho_cs*sin(lon/180.*M_PI);

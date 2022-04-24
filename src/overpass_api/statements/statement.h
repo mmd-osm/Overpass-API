@@ -202,7 +202,7 @@ class Statement
 
     // May return 0. The ownership of the Query_Constraint remains at the called
     // object.
-    virtual Query_Constraint* get_query_constraint() { return 0; }
+    virtual Query_Constraint* get_query_constraint() { return nullptr; }
 
     virtual ~Statement() = default;
 

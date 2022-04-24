@@ -103,17 +103,7 @@ private:
   Set_With_Context& operator=(const Set_With_Context&);
 
 public:
-  Set_With_Context() : base(0), set_key_values(0), parent(0),
-      tag_store_nodes(0), tag_store_attic_nodes(0),
-      tag_store_ways(0), tag_store_attic_ways(0),
-      tag_store_relations(0), tag_store_attic_relations(0),
-      tag_store_areas(0), tag_store_deriveds(0),
-      use_geometry(false), current_geometry(0),
-      way_geometry_store(0), attic_way_geometry_store(0),
-      relation_geometry_store(0), attic_relation_geometry_store(0),
-      meta_collector_nodes(0), meta_collector_attic_nodes(0),
-      meta_collector_ways(0), meta_collector_attic_ways(0),
-      meta_collector_relations(0), meta_collector_attic_relations(0) {}
+  Set_With_Context() = default;
 
   ~Set_With_Context()
   {
@@ -155,32 +145,32 @@ public:
   void prefetch(uint usage, const Set& set, const Statement& query, Resource_Manager& rman);
 
   std::string name;
-  const Set* base;
-  const std::map< std::string, std::string >* set_key_values;
-  const Prepare_Task_Context* parent;
+  const Set* base = nullptr;
+  const std::map< std::string, std::string >* set_key_values = nullptr;
+  const Prepare_Task_Context* parent = nullptr;
 
-  Tag_Store< Uint32_Index, Node_Skeleton >* tag_store_nodes;
-  Tag_Store< Uint32_Index, Node_Skeleton >* tag_store_attic_nodes;
-  Tag_Store< Uint31_Index, Way_Skeleton >* tag_store_ways;
-  Tag_Store< Uint31_Index, Way_Skeleton >* tag_store_attic_ways;
-  Tag_Store< Uint31_Index, Relation_Skeleton >* tag_store_relations;
-  Tag_Store< Uint31_Index, Relation_Skeleton >* tag_store_attic_relations;
-  Tag_Store< Uint31_Index, Area_Skeleton >* tag_store_areas;
-  Tag_Store< Uint31_Index, Derived_Structure >* tag_store_deriveds;
+  Tag_Store< Uint32_Index, Node_Skeleton >* tag_store_nodes = nullptr;
+  Tag_Store< Uint32_Index, Node_Skeleton >* tag_store_attic_nodes = nullptr;
+  Tag_Store< Uint31_Index, Way_Skeleton >* tag_store_ways = nullptr;
+  Tag_Store< Uint31_Index, Way_Skeleton >* tag_store_attic_ways = nullptr;
+  Tag_Store< Uint31_Index, Relation_Skeleton >* tag_store_relations = nullptr;
+  Tag_Store< Uint31_Index, Relation_Skeleton >* tag_store_attic_relations = nullptr;
+  Tag_Store< Uint31_Index, Area_Skeleton >* tag_store_areas = nullptr;
+  Tag_Store< Uint31_Index, Derived_Structure >* tag_store_deriveds = nullptr;
 
-  bool use_geometry;
-  Opaque_Geometry* current_geometry;
-  Way_Geometry_Store* way_geometry_store;
-  Way_Geometry_Store* attic_way_geometry_store;
-  Relation_Geometry_Store* relation_geometry_store;
-  Relation_Geometry_Store* attic_relation_geometry_store;
+  bool use_geometry = false;
+  Opaque_Geometry* current_geometry = nullptr;
+  Way_Geometry_Store* way_geometry_store = nullptr;
+  Way_Geometry_Store* attic_way_geometry_store = nullptr;
+  Relation_Geometry_Store* relation_geometry_store = nullptr;
+  Relation_Geometry_Store* attic_relation_geometry_store = nullptr;
 
-  Meta_Collector< Uint32_Index, Node_Skeleton::Id_Type >* meta_collector_nodes;
-  Attic_Meta_Collector< Uint32_Index, Node_Skeleton >* meta_collector_attic_nodes;
-  Meta_Collector< Uint31_Index, Way_Skeleton::Id_Type >* meta_collector_ways;
-  Attic_Meta_Collector< Uint31_Index, Way_Skeleton >* meta_collector_attic_ways;
-  Meta_Collector< Uint31_Index, Relation_Skeleton::Id_Type >* meta_collector_relations;
-  Attic_Meta_Collector< Uint31_Index, Relation_Skeleton >* meta_collector_attic_relations;
+  Meta_Collector< Uint32_Index, Node_Skeleton::Id_Type >* meta_collector_nodes = nullptr;
+  Attic_Meta_Collector< Uint32_Index, Node_Skeleton >* meta_collector_attic_nodes = nullptr;
+  Meta_Collector< Uint31_Index, Way_Skeleton::Id_Type >* meta_collector_ways = nullptr;
+  Attic_Meta_Collector< Uint31_Index, Way_Skeleton >* meta_collector_attic_ways = nullptr;
+  Meta_Collector< Uint31_Index, Relation_Skeleton::Id_Type >* meta_collector_relations = nullptr;
+  Attic_Meta_Collector< Uint31_Index, Relation_Skeleton >* meta_collector_attic_relations = nullptr;
 };
 
 
@@ -195,8 +185,8 @@ struct Prepare_Task_Context
 
 private:
   Array< Set_With_Context > contexts;
-  const std::map< uint32, std::string >* relation_member_roles_;
-  const std::map< uint32, std::string >* users;
+  const std::map< uint32, std::string >* relation_member_roles_ = nullptr;
+  const std::map< uint32, std::string >* users = nullptr;
 };
 
 
@@ -351,7 +341,7 @@ struct Const_Eval_Geometry_Task final : public Eval_Geometry_Task
 {
   Const_Eval_Geometry_Task(Opaque_Geometry* geometry_) : geometry(geometry_) {}
 
-  Opaque_Geometry* eval() const override { return geometry ? geometry->clone() : 0; }
+  Opaque_Geometry* eval() const override { return geometry ? geometry->clone() : nullptr; }
 
 private:
   std::unique_ptr< Opaque_Geometry > geometry;
@@ -365,8 +355,8 @@ struct Evaluator : public Statement
   virtual Requested_Context request_context() const = 0;
 
   virtual Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) = 0;
-  virtual Eval_Container_Task* get_container_task(Prepare_Task_Context& context, const std::string* key) { return 0; }
-  virtual Eval_Geometry_Task* get_geometry_task(Prepare_Task_Context& context) { return 0; }
+  virtual Eval_Container_Task* get_container_task(Prepare_Task_Context& context, const std::string* key) { return nullptr; }
+  virtual Eval_Geometry_Task* get_geometry_task(Prepare_Task_Context& context) { return nullptr; }
   virtual Statement::Eval_Return_Type return_type() const = 0;
 
   std::string dump_pretty_ql(const std::string& indent) const override { return dump_compact_ql(indent); }
@@ -383,7 +373,7 @@ struct Element_Function_Maker final : public Statement::Evaluator_Maker
     if (!tree_it.assert_is_function(error_output) || !tree_it.assert_has_input_set(error_output, false)
         || !tree_it.assert_has_arguments(error_output, false)
         || !assert_element_in_context(error_output, tree_it, tree_context))
-      return 0;
+      return nullptr;
 
     return new Evaluator_(tree_it->line_col.first, std::map< std::string, std::string >(), global_settings);
   }
@@ -400,7 +390,7 @@ struct Member_Function_Maker final : public Statement::Evaluator_Maker
     if (!tree_it.assert_is_function(error_output) || !tree_it.assert_has_input_set(error_output, false)
         || !tree_it.assert_has_arguments(error_output, false)
         || !assert_member_in_context(error_output, tree_it, tree_context))
-      return 0;
+      return nullptr;
 
     return new Evaluator_(tree_it->line_col.first, std::map< std::string, std::string >(), global_settings);
   }
@@ -423,9 +413,9 @@ struct Operator_Eval_Maker final : public Statement::Evaluator_Maker
   {
     if (tree_context != Statement::evaluator_expected && tree_context != Statement::elem_eval_possible
         && tree_context != Statement::member_eval_possible)
-      return 0;
+      return nullptr;
     if (!Evaluator_::applicable_by_subtree_structure(tree_it))
-      return 0;
+      return nullptr;
 
     std::map< std::string, std::string > attributes;
     Statement* result = new Evaluator_(tree_it->line_col.first, attributes, global_settings);

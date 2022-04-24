@@ -41,7 +41,7 @@ Statement* Evaluator_Point::Evaluator_Maker::create_evaluator(
 {
   if (!tree_it.assert_is_function(error_output) || !tree_it.assert_has_input_set(error_output, false)
       || !tree_it.assert_has_arguments(error_output, true))
-    return 0;
+    return nullptr;
 
   std::map< std::string, std::string > attributes;
   auto* result = new Evaluator_Point(tree_it->line_col.first, attributes, global_settings);
@@ -70,7 +70,7 @@ Statement* Evaluator_Point::Evaluator_Maker::create_evaluator(
 
 Evaluator_Point::Evaluator_Point
     (int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
-    : Evaluator(line_number_), lat(0), lon(0)
+    : Evaluator(line_number_)
 {
   std::map< std::string, std::string > attributes;
   eval_attributes_array(get_name(), attributes, input_attributes);
@@ -149,7 +149,7 @@ Statement* Evaluator_Linestring::Evaluator_Maker::create_evaluator(
 {
   if (!tree_it.assert_is_function(error_output) || !tree_it.assert_has_input_set(error_output, false)
       || !tree_it.assert_has_arguments(error_output, true))
-    return 0;
+    return nullptr;
 
   std::map< std::string, std::string > attributes;
   auto* result = new Evaluator_Linestring(tree_it->line_col.first, attributes, global_settings);
@@ -254,7 +254,7 @@ Statement* Evaluator_Polygon::Evaluator_Maker::create_evaluator(
 {
   if (!tree_it.assert_is_function(error_output) || !tree_it.assert_has_input_set(error_output, false)
       || !tree_it.assert_has_arguments(error_output, true))
-    return 0;
+    return nullptr;
 
   std::map< std::string, std::string > attributes;
   auto* result = new Evaluator_Polygon(tree_it->line_col.first, attributes, global_settings);

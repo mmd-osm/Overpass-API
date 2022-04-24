@@ -51,19 +51,18 @@ class Osmium_Updater
     void parse_multiple_files(const std::string& source_dir, const std::vector< std::string >& source_file_names);
     
   private:
-    Nonsynced_Transaction* transaction;
-    Dispatcher_Client* dispatcher_client;
-    Node_Updater* node_updater_;
-    Way_Updater* way_updater_;
-    Relation_Updater* relation_updater_;
-    Osm_Backend_Callback* callback_;
+    Nonsynced_Transaction* transaction = nullptr;
+    Dispatcher_Client* dispatcher_client = nullptr;
+    Node_Updater* node_updater_ = nullptr;
+    Way_Updater* way_updater_ = nullptr;
+    Relation_Updater* relation_updater_ = nullptr;
+    Osm_Backend_Callback* callback_ = nullptr;
     uint flush_limit = 4*1024*1024;
     string db_dir_;
     meta_modes meta;
     unsigned int parallel_processes;
-    Cpu_Stopwatch* cpu_stopwatch;
+    Cpu_Stopwatch* cpu_stopwatch = nullptr;
     bool initial_load;
-
 
     void flush();
 };

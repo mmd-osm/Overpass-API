@@ -50,11 +50,11 @@ Evaluator_Per_Member::Evaluator_Per_Member
 Eval_Task* Evaluator_Per_Member::get_string_task(Prepare_Task_Context& context, const std::string* key)
 {
   if (!rhs)
-    return 0;
+    return nullptr;
 
   Eval_Task* rhs_task = rhs->get_string_task(context, key);
   if (!rhs_task)
-    return 0;
+    return nullptr;
 
   return new Per_Member_Eval_Task(rhs_task);
 }
@@ -129,11 +129,11 @@ Evaluator_Per_Vertex::Evaluator_Per_Vertex
 Eval_Task* Evaluator_Per_Vertex::get_string_task(Prepare_Task_Context& context, const std::string* key)
 {
   if (!rhs)
-    return 0;
+    return nullptr;
 
   Eval_Task* rhs_task = rhs->get_string_task(context, key);
   if (!rhs_task)
-    return 0;
+    return nullptr;
 
   return new Per_Vertex_Eval_Task(rhs_task);
 }
@@ -186,11 +186,11 @@ Evaluator_All_Vertex::Evaluator_All_Vertex
 Eval_Task* Evaluator_All_Vertex::get_string_task(Prepare_Task_Context& context, const std::string* key)
 {
   if (!rhs)
-    return 0;
+    return nullptr;
 
   Eval_Task* rhs_task = rhs->get_string_task(context, key);
   if (!rhs_task)
-    return 0;
+    return nullptr;
 
   return new All_Vertex_Eval_Task(rhs_task);
 }

@@ -123,7 +123,7 @@ struct Geometry_Geometry_Task final : Eval_Geometry_Task
 {
   Geometry_Geometry_Task() = default;
 
-  Opaque_Geometry* eval() const override { return 0; }
+  Opaque_Geometry* eval() const override { return nullptr; }
 
   Opaque_Geometry* eval(const Element_With_Context< Node_Skeleton >& data) const override
       { return data.geometry ? data.geometry->clone() : new Null_Geometry(); }

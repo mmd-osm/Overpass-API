@@ -47,7 +47,7 @@ Way_Updater::Way_Updater(Transaction& transaction_, meta_modes meta_, unsigned i
 {}
 
 Way_Updater::Way_Updater(std::string db_dir_, meta_modes meta_, unsigned int parallel_processes_, bool initial_load_)
-  : update_counter(0), transaction(0),
+  : update_counter(0),
     external_transaction(false), partial_possible(true), db_dir(std::move(db_dir_)), meta(meta_),
     keys(*osm_base_settings().WAY_KEYS), parallel_processes(parallel_processes_),
     initial_load(initial_load_)
@@ -630,7 +630,6 @@ void compute_geometry
 void new_implicit_skeletons
     (const std::map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id,
      const std::map< Uint31_Index, std::set< Way_Skeleton > >& existing_skeletons,
-     bool record_minuscule_moves,
      std::map< Uint31_Index, std::set< Way_Skeleton > >& attic_skeletons,
      std::map< Uint31_Index, std::set< Way_Skeleton > >& new_skeletons,
      std::vector< std::pair< Way::Id_Type, Uint31_Index > >& moved_ways)
@@ -857,7 +856,7 @@ void Way_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_stop
 
   // Compute and add implicitly moved ways
   new_implicit_skeletons(new_node_idx_by_id, implicitly_moved_skeletons,
-      0, attic_skeletons, new_skeletons, moved_ways);
+      attic_skeletons, new_skeletons, moved_ways);
 
   // Compute which meta data really has changed
   std::map< Uint31_Index, std::set< OSM_Element_Metadata_Skeleton< Way_Skeleton::Id_Type > > > attic_meta;

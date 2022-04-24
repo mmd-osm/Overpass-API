@@ -48,7 +48,7 @@ public:
 private:
   std::vector< Node_Base > nodes;
   std::vector< Way_Skeleton > ways;
-  Way_Geometry_Store* way_geometry_store;
+  Way_Geometry_Store* way_geometry_store = nullptr;
 
   uint32 south;
   uint32 north;

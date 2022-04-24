@@ -116,7 +116,7 @@ Statement::Factory::~Factory()
 Statement* Statement::Factory::create_statement
     (const std::string& element, int line_number, const std::map< std::string, std::string >& attributes)
 {
-  Statement* statement = 0;
+  Statement* statement = nullptr;
 
   auto maker_it = Statement::maker_by_name().find(element);
 
@@ -155,7 +155,7 @@ Statement* stmt_from_tree_node(const Token_Node_Ptr& tree_it,
     const std::vector< Statement::Evaluator_Maker* >& makers, Statement::Factory& stmt_factory,
     Parsed_Query& global_settings, Error_Output* error_output)
 {
-  Statement* statement = 0;
+  Statement* statement = nullptr;
 
   auto maker_it = makers.begin();
 
@@ -175,7 +175,7 @@ Statement* stmt_from_tree_node(const Token_Node_Ptr& tree_it,
             tree_it->line_col.first);
       delete bis;
       delete statement;
-      statement = 0;
+      statement = nullptr;
     }
     ++maker_it;
   }
@@ -189,7 +189,7 @@ Statement* stmt_from_tree_node(const Token_Node_Ptr& tree_it,
         error_output->add_static_error(std::string("Evaluator expected, but function \"") + tree_it.lhs()->token
             + "\" is not an evaluator.", tree_it->line_col.first);
       delete statement;
-      statement = 0;
+      statement = nullptr;
     }
     else if (!eval_type.matches(eval->return_type()))
     {
@@ -198,7 +198,7 @@ Statement* stmt_from_tree_node(const Token_Node_Ptr& tree_it,
             + " expected, but function \"" + statement->get_name() + "\" is an evaluator for "
             + Statement::eval_to_string(eval->return_type()) + ".", tree_it->line_col.first);
       delete statement;
-      statement = 0;
+      statement = nullptr;
     }
   }
 
@@ -210,7 +210,7 @@ Statement* Statement::Factory::create_evaluator(
     const Token_Node_Ptr& tree_it, Statement::QL_Context tree_context,
     const Statement::Return_Type_Checker& eval_type)
 {
-  Statement* statement = 0;
+  Statement* statement = nullptr;
 
   if (tree_it->token == "(")
   {
@@ -229,7 +229,7 @@ Statement* Statement::Factory::create_evaluator(
     else
     {
       Statement::error_output->add_static_error("Empty parentheses cannot be evaluated.", tree_it->line_col.first);
-      return 0;
+      return nullptr;
     }
   }
   else if (tree_it->token == ".")
@@ -322,11 +322,11 @@ Statement* Statement::Factory::create_criterion(const Token_Node_Ptr& tree_it,
 
   if (error_output)
     error_output->add_parse_error("Unknown query clause", line_nr);
-  return 0;
+  return nullptr;
 }
 
 
-Error_Output* Statement::error_output = 0;
+Error_Output* Statement::error_output = nullptr;
 
 
 void Statement::add_static_error(const std::string& error)

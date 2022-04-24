@@ -28,9 +28,9 @@ Geometry_Endom_Evaluator_Maker< Evaluator_Center > Evaluator_Center::evaluator_m
 Opaque_Geometry* Evaluator_Center::process(Opaque_Geometry* geom) const
 {
   if (!geom)
-    return 0;
+    return nullptr;
 
-  Opaque_Geometry* result = 0;
+  Opaque_Geometry* result = nullptr;
   if (geom->has_center())
     result = new Point_Geometry(geom->center_lat(), geom->center_lon());
   else
@@ -51,7 +51,7 @@ Geometry_Endom_Evaluator_Maker< Evaluator_Trace > Evaluator_Trace::evaluator_mak
 Opaque_Geometry* Evaluator_Trace::process(Opaque_Geometry* geom) const
 {
   if (!geom)
-    return 0;
+    return nullptr;
 
   Opaque_Geometry* result = make_trace(*geom);
 
@@ -70,7 +70,7 @@ Geometry_Endom_Evaluator_Maker< Evaluator_Hull > Evaluator_Hull::evaluator_maker
 Opaque_Geometry* Evaluator_Hull::process(Opaque_Geometry* geom) const
 {
   if (!geom)
-    return 0;
+    return nullptr;
 
   Opaque_Geometry* result = make_hull(*geom);
 

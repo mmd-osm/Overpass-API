@@ -58,7 +58,7 @@ namespace
   std::vector< Statement* > statement_stack_;
   std::vector< Statement_Dump* > statement_dump_stack_;
   std::vector< std::string > text_stack;
-  Script_Parser* xml_parser = 0;
+  Script_Parser* xml_parser = nullptr;
 
   template< class TStatement >
   std::vector< TStatement* >& statement_stack();
@@ -94,8 +94,8 @@ int determine_area_level(Error_Output* error_output, int area_level)
 }
 
 
-Statement::Factory* stmt_factory_global = 0;
-Statement_Dump::Factory* stmt_dump_factory_global = 0;
+Statement::Factory* stmt_factory_global = nullptr;
+Statement_Dump::Factory* stmt_dump_factory_global = nullptr;
 
 Statement::Factory* get_factory(Statement::Factory*)
 {
@@ -275,7 +275,7 @@ void initialize()
 {
   // initializes all static variables which are used throughout the application
   // this way, we can safely reuse the existing interpreter process via fastcgi
-  xml_parser = 0;
+  xml_parser = nullptr;
 
   statement_stack_.clear();
   statement_dump_stack_.clear();

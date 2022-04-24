@@ -83,5 +83,5 @@ Output_Handler* Output_CSV_Generator::new_output_handler(const std::map< std::st
     return new Output_CSV(csv_settings);
   }
 
-  return 0;
+  return nullptr;
 }

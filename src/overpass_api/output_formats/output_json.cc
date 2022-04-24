@@ -94,7 +94,7 @@ void print_meta_json(const OSM_Element_Metadata_Skeleton< Id_Type >& meta,
 
 void print_tags(const std::vector< std::pair< std::string, std::string > >* tags)
 {
-  if (tags != 0 && !tags->empty())
+  if (tags != nullptr && !tags->empty())
   {
     auto it = tags->begin();
     std::cout<<",\n  \"tags\": {"

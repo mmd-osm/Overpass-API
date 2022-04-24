@@ -80,13 +80,13 @@ public:
 private:
   std::set< Index > used_indices;
   std::set< std::pair< Index, Index > > used_ranges;
-  Block_Backend< Index, OSM_Element_Metadata_Skeleton< Id_Type > >* meta_db;
+  Block_Backend< Index, OSM_Element_Metadata_Skeleton< Id_Type > >* meta_db = nullptr;
   typename Block_Backend< Index, OSM_Element_Metadata_Skeleton< Id_Type > >
-      ::Discrete_Iterator* db_it;
+      ::Discrete_Iterator* db_it = nullptr;
   typename Block_Backend< Index, OSM_Element_Metadata_Skeleton< Id_Type > >
-      ::Range_Iterator* range_it;
-  Index* current_index;
-  Index* last_index;
+      ::Range_Iterator* range_it = nullptr;
+  Index* current_index = nullptr;
+  Index* last_index = nullptr;
   std::vector< OSM_Element_Metadata_Skeleton< Id_Type > > current_objects;
 
   Functor m_functor;
@@ -128,7 +128,6 @@ template< typename Object >
 Meta_Collector< Index, Id_Type, Functor >::Meta_Collector
     (const std::map< Index, std::vector< Object > >& items,
      Transaction& transaction, const File_Properties* meta_file_prop)
-  : meta_db(0), db_it(0), range_it(0), current_index(0), last_index(0)
 {
   if (!meta_file_prop)
     return;
@@ -145,7 +144,7 @@ template< typename Index, typename Id_Type, class Functor >
 Meta_Collector< Index, Id_Type, Functor >::Meta_Collector
     (const std::set< std::pair< Index, Index > >& used_ranges_,
      Transaction& transaction, const File_Properties* meta_file_prop)
-  : used_ranges(used_ranges_), meta_db(0), db_it(0), range_it(0), current_index(0), last_index(0)
+  : used_ranges(used_ranges_)
 {
   if (!meta_file_prop)
     return;
@@ -162,8 +161,7 @@ template< typename Object >
 Meta_Collector< Index, Id_Type, Functor >::Meta_Collector
     (const std::map< Index, std::vector< Object > >& items,
      Transaction& transaction,  Functor functor,
-     const File_Properties* meta_file_prop) :
-     meta_db(0), db_it(0), range_it(0), current_index(0), last_index(0), m_functor(functor)
+     const File_Properties* meta_file_prop) : m_functor(functor)
 {
   if (!meta_file_prop)
     return;
@@ -180,8 +178,7 @@ Meta_Collector< Index, Id_Type, Functor >::Meta_Collector
     (const std::set< std::pair< Index, Index > >& used_ranges_,
      Transaction& transaction, Functor functor,
      const File_Properties* meta_file_prop) :
-     used_ranges(used_ranges_), meta_db(0), db_it(0), range_it(0), current_index(0),
-     last_index(0), m_functor(functor)
+     used_ranges(used_ranges_), m_functor(functor)
 
 {
   if (!meta_file_prop)
@@ -201,13 +198,13 @@ void Meta_Collector< Index, Id_Type, Functor >::reset()
     return;
 
   delete db_it;
-  db_it = 0;
+  db_it = nullptr;
   delete range_it;
-  range_it = 0;
+  range_it = nullptr;
   delete current_index;
-  current_index = 0;
+  current_index = nullptr;
   delete last_index;
-  last_index = 0;
+  last_index = nullptr;
 
   if (used_ranges.empty())
   {
@@ -312,7 +309,7 @@ const OSM_Element_Metadata_Skeleton< Id_Type >* Meta_Collector< Index, Id_Type, 
     (const Index& index, Id_Type ref)
 {
   if (!meta_db)
-    return 0;
+    return nullptr;
 
   if (current_index && index < *last_index)
     reset();
@@ -325,7 +322,7 @@ const OSM_Element_Metadata_Skeleton< Id_Type >* Meta_Collector< Index, Id_Type, 
   if (it != current_objects.end() && it->ref == ref)
     return &*it;
   else
-    return 0;
+    return nullptr;
 }
 
 
@@ -334,7 +331,7 @@ const OSM_Element_Metadata_Skeleton< Id_Type >* Meta_Collector< Index, Id_Type, 
     (const Index& index, Id_Type ref, timestamp_t timestamp)
 {
   if (!meta_db)
-    return 0;
+    return nullptr;
 
   if (current_index && index < *last_index)
     reset();
@@ -345,20 +342,20 @@ const OSM_Element_Metadata_Skeleton< Id_Type >* Meta_Collector< Index, Id_Type, 
       = std::lower_bound(current_objects.begin(), current_objects.end(),
                          OSM_Element_Metadata_Skeleton< Id_Type >(ref, timestamp));
   if (it == current_objects.begin())
-    return 0;
+    return nullptr;
   --it;
   if (it->ref == ref)
     return &*it;
   else
-    return 0;
+    return nullptr;
 }
 
 
 template< typename Index, typename Object >
 Attic_Meta_Collector< Index, Object >::Attic_Meta_Collector(
     const std::map< Index, std::vector< Attic< Object > > >& items, Transaction& transaction, bool turn_on)
-    : current(items, transaction, turn_on ? current_meta_file_properties< Object >() : 0),
-    attic(items, transaction, turn_on ? attic_meta_file_properties< Object >() : 0)
+    : current(items, transaction, turn_on ? current_meta_file_properties< Object >() : nullptr),
+    attic(items, transaction, turn_on ? attic_meta_file_properties< Object >() : nullptr)
 {}
 
 

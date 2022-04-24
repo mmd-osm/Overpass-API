@@ -25,7 +25,7 @@ Evaluator_Aggregator::Evaluator_Aggregator
     (const std::string& func_name, int line_number_,
      const std::map< std::string, std::string >& input_attributes,
       Parsed_Query& global_settings)
-    : Evaluator(line_number_), rhs(0)
+    : Evaluator(line_number_)
 {
   std::map< std::string, std::string > attributes;
   attributes["from"] = "_";
@@ -78,19 +78,19 @@ void eval_elems(Geometry_Aggregator& aggregator, Eval_Geometry_Task& task,
 Eval_Task* Evaluator_Aggregator::get_string_task(Prepare_Task_Context& context, const std::string* key)
 {
   if (!rhs)
-    return 0;
+    return nullptr;
 
   std::unique_ptr< Eval_Task > rhs_task(rhs->get_string_task(context, key));
   if (!rhs_task)
-    return 0;
+    return nullptr;
 
   Set_With_Context* input_set = context.get_set(input);
   if (!input_set || !input_set->base)
-    return 0;
+    return nullptr;
 
   std::unique_ptr< Value_Aggregator > value_agg(get_aggregator());
   if (!value_agg)
-    return 0;
+    return nullptr;
 
   eval_elems(*value_agg, *rhs_task, input_set->base->nodes, *input_set, key);
   eval_elems(*value_agg, *rhs_task, input_set->base->attic_nodes, *input_set, key);
@@ -108,19 +108,19 @@ Eval_Task* Evaluator_Aggregator::get_string_task(Prepare_Task_Context& context, 
 Eval_Geometry_Task* Evaluator_Aggregator::get_geometry_task(Prepare_Task_Context& context)
 {
   if (!rhs)
-    return 0;
+    return nullptr;
 
   std::unique_ptr< Eval_Geometry_Task > rhs_task(rhs->get_geometry_task(context));
   if (!rhs_task)
-    return 0;
+    return nullptr;
 
   Set_With_Context* input_set = context.get_set(input);
   if (!input_set || !input_set->base)
-    return 0;
+    return nullptr;
 
   std::unique_ptr< Geometry_Aggregator > value_agg(get_geometry_aggregator());
   if (!value_agg)
-    return 0;
+    return nullptr;
 
   eval_elems(*value_agg, *rhs_task, input_set->base->nodes, *input_set);
   eval_elems(*value_agg, *rhs_task, input_set->base->attic_nodes, *input_set);
@@ -405,7 +405,7 @@ Statement* Evaluator_Set_Count::Evaluator_Maker::create_evaluator(
 {
   if (!tree_it.assert_is_function(error_output)
       || !tree_it.assert_has_arguments(error_output, true))
-    return 0;
+    return nullptr;
 
   std::map< std::string, std::string > attributes;
 
@@ -429,7 +429,7 @@ Statement* Evaluator_Set_Count::Evaluator_Maker::create_evaluator(
         " \"nwr\", \"nw\", \"wr\", or \"nr\" as type argument.",
         tree_it->line_col.first);
 
-  return 0;
+  return nullptr;
 }
 
 
@@ -531,6 +531,6 @@ void Evaluator_Geom_Concat_Value::Aggregator::consume_value(Opaque_Geometry* geo
 Opaque_Geometry* Evaluator_Geom_Concat_Value::Aggregator::move_value()
 {
   Opaque_Geometry* result_ = result;
-  result = 0;
+  result = nullptr;
   return result_;
 }

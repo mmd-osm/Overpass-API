@@ -38,7 +38,7 @@ struct Node_Updater
 
   Node_Updater(std::string db_dir, meta_modes meta, unsigned int parallel_processes = 1, bool initial_load = false);
 
-  void set_id_deleted(Node::Id_Type id, const OSM_Element_Metadata* meta = 0)
+  void set_id_deleted(Node::Id_Type id, const OSM_Element_Metadata* meta = nullptr)
   {
     if (meta)
       new_data.data.push_back(Data_By_Id< Node_Skeleton >::Entry
@@ -55,7 +55,7 @@ struct Node_Updater
   }
 
 
-  void set_node(const Node& node, const OSM_Element_Metadata* meta = 0)
+  void set_node(const Node& node, const OSM_Element_Metadata* meta = nullptr)
   {
     if (meta)
       new_data.data.push_back(Data_By_Id< Node_Skeleton >::Entry
@@ -74,7 +74,7 @@ struct Node_Updater
       user_by_id[meta->user_id] = meta->user_name;
   }
 
-  void set_node(Node&& node, const OSM_Element_Metadata* meta = 0)
+  void set_node(Node&& node, const OSM_Element_Metadata* meta = nullptr)
   {
     if (meta)
       new_data.data.push_back(Data_By_Id< Node_Skeleton >::Entry
@@ -109,7 +109,7 @@ struct Node_Updater
 
 private:
   uint32 update_counter;
-  Transaction* transaction;
+  Transaction* transaction = nullptr;
   bool external_transaction;
   bool partial_possible;
   static Node_Comparator_By_Id node_comparator_by_id;

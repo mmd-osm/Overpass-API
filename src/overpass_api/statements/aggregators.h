@@ -79,7 +79,7 @@ struct Evaluator_Aggregator : public Evaluator
   virtual Geometry_Aggregator* get_geometry_aggregator() = 0;
 
   std::string input;
-  Evaluator* rhs;
+  Evaluator* rhs = nullptr;
 };
 
 
@@ -105,7 +105,7 @@ struct Aggregator_Evaluator_Maker final : Statement::Evaluator_Maker
     bool input_set = false;
     if (!try_parse_input_set(tree_it, error_output, Evaluator_::stmt_func_name() + "(...) needs an argument",
         attributes["from"], input_set))
-      return 0;
+      return nullptr;
 
     Statement* result = new Evaluator_(tree_it->line_col.first, attributes, global_settings);
     if (result)
@@ -203,7 +203,7 @@ public:
     std::string agg_value;
   };
   Value_Aggregator* get_aggregator() override { return new Aggregator(); }
-  Geometry_Aggregator* get_geometry_aggregator() override { return 0; }
+  Geometry_Aggregator* get_geometry_aggregator() override { return nullptr; }
 };
 
 
@@ -227,7 +227,7 @@ public:
     std::set< std::string > values;
   };
   Value_Aggregator* get_aggregator() override { return new Aggregator(); }
-  Geometry_Aggregator* get_geometry_aggregator() override { return 0; }
+  Geometry_Aggregator* get_geometry_aggregator() override { return nullptr; }
 };
 
 
@@ -282,7 +282,7 @@ public:
     std::string result_s;
   };
   Value_Aggregator* get_aggregator() override { return new Aggregator(); }
-  Geometry_Aggregator* get_geometry_aggregator() override { return 0; }
+  Geometry_Aggregator* get_geometry_aggregator() override { return nullptr; }
 };
 
 
@@ -311,7 +311,7 @@ public:
     std::string result_s;
   };
   Value_Aggregator* get_aggregator() override { return new Aggregator(); }
-  Geometry_Aggregator* get_geometry_aggregator() override { return 0; }
+  Geometry_Aggregator* get_geometry_aggregator() override { return nullptr; }
 };
 
 
@@ -353,7 +353,7 @@ public:
     double result_d;
   };
   Value_Aggregator* get_aggregator() override { return new Aggregator(); }
-  Geometry_Aggregator* get_geometry_aggregator() override { return 0; }
+  Geometry_Aggregator* get_geometry_aggregator() override { return nullptr; }
 };
 
 
@@ -465,12 +465,12 @@ public:
 
   struct Aggregator : Geometry_Aggregator
   {
-    Aggregator() : result(0) {}
+    Aggregator() = default;
     void consume_value(Opaque_Geometry* geom) override;
     Opaque_Geometry* move_value() override;
-    Compound_Geometry* result;
+    Compound_Geometry* result = nullptr;
   };
-  Value_Aggregator* get_aggregator() override { return 0; }
+  Value_Aggregator* get_aggregator() override { return nullptr; }
   Geometry_Aggregator* get_geometry_aggregator() override { return new Aggregator(); }
 };
 

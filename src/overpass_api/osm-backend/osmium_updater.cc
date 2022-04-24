@@ -366,7 +366,7 @@ void Osmium_Updater::parse_multiple_files(const std::string& source_dir, const s
 Osmium_Updater::Osmium_Updater(Osm_Backend_Callback* callback_,
     const string& data_version_, meta_modes meta_, unsigned int flush_limit_,
     unsigned int parallel_processes_, bool initial_load_) :
-    dispatcher_client(0), meta(meta_),
+    meta(meta_),
     parallel_processes(parallel_processes_),
     initial_load(initial_load_)
 {
@@ -396,7 +396,7 @@ Osmium_Updater::Osmium_Updater(Osm_Backend_Callback* callback_,
 Osmium_Updater::Osmium_Updater(Osm_Backend_Callback* callback_, string db_dir,
     const string& data_version_, meta_modes meta_, unsigned int flush_limit_,
     unsigned int parallel_processes_, bool initial_load_) :
-    transaction(0), dispatcher_client(0), db_dir_(db_dir), meta(meta_),
+    db_dir_(db_dir), meta(meta_),
     parallel_processes(parallel_processes_),
     initial_load(initial_load_) {
   {
@@ -429,7 +429,7 @@ void Osmium_Updater::flush() {
   if (dispatcher_client)
   {
     delete transaction;
-    transaction = 0;
+    transaction = nullptr;
     Logger logger(dispatcher_client->get_db_dir());
     std::ostringstream out;
     logger.annotated_log("write_commit() start");
@@ -443,7 +443,7 @@ void Osmium_Updater::flush() {
         (dispatcher_client->get_db_dir() + "osm_base_version").c_str());
     logger.annotated_log("write_commit() end");
     delete dispatcher_client;
-    dispatcher_client = 0;
+    dispatcher_client = nullptr;
   }
 }
 

@@ -38,7 +38,7 @@ Area_Updater::Area_Updater(Transaction& transaction_)
 {}
 
 Area_Updater::Area_Updater(std::string db_dir_)
-  : transaction(0), external_transaction(false),
+  : external_transaction(false),
     db_dir(std::move(db_dir_)), total_area_blocks_count(0)
 {}
 
@@ -213,7 +213,7 @@ Area_Location* binary_search_for_id
     else
       lower = pos + 1;
   }
-  return 0;
+  return nullptr;
 }
 
 void Area_Updater::prepare_tags
@@ -271,7 +271,7 @@ void Area_Updater::prepare_tags
     if (handle.find(it.object().val()) != handle.end())
     {
       Area_Location* area(binary_search_for_id(areas_to_insert, it.object().val()));
-      if (area != 0)
+      if (area != nullptr)
         area->tags.push_back(std::make_pair(it.index().key, it.index().value));
       tag_entry.ids.push_back(it.object().val());
     }

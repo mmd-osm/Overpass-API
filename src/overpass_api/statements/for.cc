@@ -33,7 +33,7 @@ Generic_Statement_Maker< For_Statement > For_Statement::statement_maker("for");
 
 For_Statement::For_Statement
     (int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
-    : Statement(line_number_), evaluator(0)
+    : Statement(line_number_)
 {
   std::map< std::string, std::string > attributes;
 
@@ -78,7 +78,7 @@ void collect_for_targets_by_string(
     for (auto it_elem = it_idx->second.begin();
         it_elem != it_idx->second.end(); ++it_elem)
     {
-      std::string valuation = eval_variant_to_string(task.eval(context_from.get_context(it_idx->first, *it_elem), 0));
+      std::string valuation = eval_variant_to_string(task.eval(context_from.get_context(it_idx->first, *it_elem), nullptr));
       target(valuation)[it_idx->first].push_back(*it_elem);
     }
   }
@@ -96,7 +96,7 @@ void collect_for_targets_by_container(
     for (auto it_elem = it_idx->second.begin();
         it_elem != it_idx->second.end(); ++it_elem)
     {
-      std::vector< std::string > valuation = task.eval(context_from.get_context(it_idx->first, *it_elem), 0);
+      std::vector< std::string > valuation = task.eval(context_from.get_context(it_idx->first, *it_elem), nullptr);
       for (std::vector< std::string >::const_iterator it_val = valuation.begin();
           it_val != valuation.end(); ++it_val)
         target(*it_val)[it_idx->first].push_back(*it_elem);
@@ -205,7 +205,7 @@ void For_Statement::execute(Resource_Manager& rman)
 
   if (evaluator->return_type() == Statement::string)
   {
-    std::unique_ptr< Eval_Task > task(evaluator->get_string_task(context, 0));
+    std::unique_ptr< Eval_Task > task(evaluator->get_string_task(context, nullptr));
 
     collect_for_targets_by_string(base_set->nodes, Node_Valuation_Target(element_groups),
         *task, *context_from);
@@ -226,7 +226,7 @@ void For_Statement::execute(Resource_Manager& rman)
   }
   else
   {
-    std::unique_ptr< Eval_Container_Task > task(evaluator->get_container_task(context, 0));
+    std::unique_ptr< Eval_Container_Task > task(evaluator->get_container_task(context, nullptr));
 
     collect_for_targets_by_container(base_set->nodes, Node_Valuation_Target(element_groups),
         *task, *context_from);

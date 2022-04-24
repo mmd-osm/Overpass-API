@@ -74,14 +74,14 @@ Statement* Changed_Statement::Criterion_Maker::create_criterion(const Token_Node
     if (error_output)
       error_output->add_parse_error("Date required after \"changed\" with colon",
           tree_it->line_col.first);
-    return 0;
+    return nullptr;
   }
   else
   {
     if (error_output)
       error_output->add_parse_error("Unexpected token \"" + tree_it->token + "\" after \"changed\"",
           tree_it->line_col.first);
-    return 0;
+    return nullptr;
   }
 
   std::map< std::string, std::string > attributes;

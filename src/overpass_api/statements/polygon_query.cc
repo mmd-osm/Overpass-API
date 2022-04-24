@@ -247,7 +247,7 @@ Statement* Polygon_Query_Statement::Criterion_Maker::create_criterion(const Toke
   error_output->add_parse_error("For the attribute \"bounds\" of the element \"polygon-query\""
       " at least 3 lat/lon float value pairs must be provided.", line_nr);
 
-  return 0;
+  return nullptr;
 }
 
 
@@ -558,7 +558,7 @@ void Polygon_Query_Statement::execute(Resource_Manager& rman)
   constraint.get_ranges(rman, ranges);
   get_elements_by_id_from_db< Uint32_Index, Node_Skeleton >
       (into.nodes, into.attic_nodes,
-       std::vector< Node::Id_Type >(), false, ranges, 0, *this, rman,
+       std::vector< Node::Id_Type >(), false, ranges, nullptr, *this, rman,
        *osm_base_settings().NODES, *attic_settings().NODES);
   constraint.filter(rman, into);
   filter_attic_elements(rman, rman.get_desired_timestamp(), into.nodes, into.attic_nodes);

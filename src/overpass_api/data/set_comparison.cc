@@ -29,8 +29,7 @@
 Extra_Data_For_Diff::Extra_Data_For_Diff(
     Resource_Manager& rman, const Statement& stmt, const Set& to_print, unsigned int mode_,
     double south, double north, double west, double east)
-    : mode(mode_), way_geometry_store(0), attic_way_geometry_store(0),
-    relation_geometry_store(0), attic_relation_geometry_store(0), roles(0), users(0)
+    : mode(mode_)
 {
   if (mode & (Output_Mode::GEOMETRY | Output_Mode::BOUNDS | Output_Mode::CENTER))
   {
@@ -118,21 +117,21 @@ void Set_Comparison::print_item(Extra_Data_For_Diff& extra_data, uint32 ll_upper
     Double_Coords double_coords(geometry);
     if (final_target)
       compare_item(ll_upper, skel, tags,
-          geometry.empty() ? 0 : bound_variant(double_coords, extra_data.mode),
-          ((extra_data.mode & Output_Mode::GEOMETRY) && geometry.size() == skel.nds().size()) ? &geometry : 0,
+          geometry.empty() ? nullptr : bound_variant(double_coords, extra_data.mode),
+          ((extra_data.mode & Output_Mode::GEOMETRY) && geometry.size() == skel.nds().size()) ? &geometry : nullptr,
           NOW, meta, users);
     else
       store_item(ll_upper, skel, tags,
-          geometry.empty() ? 0 : bound_variant(double_coords, extra_data.mode),
-          ((extra_data.mode & Output_Mode::GEOMETRY) && geometry.size() == skel.nds().size()) ? &geometry : 0,
+          geometry.empty() ? nullptr : bound_variant(double_coords, extra_data.mode),
+          ((extra_data.mode & Output_Mode::GEOMETRY) && geometry.size() == skel.nds().size()) ? &geometry : nullptr,
           NOW, meta, users);
   }
   else
   {
     if (final_target)
-      compare_item(ll_upper, skel, tags, 0, 0, NOW, meta, users);
+      compare_item(ll_upper, skel, tags, nullptr, nullptr, NOW, meta, users);
     else
-      store_item(ll_upper, skel, tags, 0, 0, NOW, meta, users);
+      store_item(ll_upper, skel, tags, nullptr, nullptr, NOW, meta, users);
   }
 }
 
@@ -148,21 +147,21 @@ void Set_Comparison::print_item(Extra_Data_For_Diff& extra_data, uint32 ll_upper
     Double_Coords double_coords(geometry);
     if (final_target)
       compare_item(ll_upper, skel, tags,
-          geometry.empty() ? 0 : bound_variant(double_coords, extra_data.mode),
-          ((extra_data.mode & Output_Mode::GEOMETRY) && geometry.size() == skel.nds().size()) ? &geometry : 0,
+          geometry.empty() ? nullptr : bound_variant(double_coords, extra_data.mode),
+          ((extra_data.mode & Output_Mode::GEOMETRY) && geometry.size() == skel.nds().size()) ? &geometry : nullptr,
           skel.timestamp, meta, users);
     else
       store_item(ll_upper, skel, tags,
-          geometry.empty() ? 0 : bound_variant(double_coords, extra_data.mode),
-          ((extra_data.mode & Output_Mode::GEOMETRY) && geometry.size() == skel.nds().size()) ? &geometry : 0,
+          geometry.empty() ? nullptr : bound_variant(double_coords, extra_data.mode),
+          ((extra_data.mode & Output_Mode::GEOMETRY) && geometry.size() == skel.nds().size()) ? &geometry : nullptr,
           skel.timestamp, meta, users);
   }
   else
   {
     if (final_target)
-      compare_item(ll_upper, skel, tags, 0, 0, skel.timestamp, meta, users);
+      compare_item(ll_upper, skel, tags, nullptr, nullptr, skel.timestamp, meta, users);
     else
-      store_item(ll_upper, skel, tags, 0, 0, skel.timestamp, meta, users);
+      store_item(ll_upper, skel, tags, nullptr, nullptr, skel.timestamp, meta, users);
   }
 }
 
@@ -178,21 +177,21 @@ void Set_Comparison::print_item(Extra_Data_For_Diff& extra_data, uint32 ll_upper
     Double_Coords double_coords(geometry);
     if (final_target)
       compare_item(ll_upper, skel, tags,
-          geometry.empty() ? 0 : bound_variant(double_coords, extra_data.mode),
-          ((extra_data.mode & Output_Mode::GEOMETRY) && geometry.size() == skel.members().size()) ? &geometry : 0,
+          geometry.empty() ? nullptr : bound_variant(double_coords, extra_data.mode),
+          ((extra_data.mode & Output_Mode::GEOMETRY) && geometry.size() == skel.members().size()) ? &geometry : nullptr,
           NOW, meta, users);
     else
       store_item(ll_upper, skel, tags,
-          geometry.empty() ? 0 : bound_variant(double_coords, extra_data.mode),
-          ((extra_data.mode & Output_Mode::GEOMETRY) && geometry.size() == skel.members().size()) ? &geometry : 0,
+          geometry.empty() ? nullptr : bound_variant(double_coords, extra_data.mode),
+          ((extra_data.mode & Output_Mode::GEOMETRY) && geometry.size() == skel.members().size()) ? &geometry : nullptr,
           NOW, meta, users);
   }
   else
   {
     if (final_target)
-      compare_item(ll_upper, skel, tags, 0, 0, NOW, meta, users);
+      compare_item(ll_upper, skel, tags, nullptr, nullptr, NOW, meta, users);
     else
-      store_item(ll_upper, skel, tags, 0, 0, NOW, meta, users);
+      store_item(ll_upper, skel, tags, nullptr, nullptr, NOW, meta, users);
   }
 }
 
@@ -208,21 +207,21 @@ void Set_Comparison::print_item(Extra_Data_For_Diff& extra_data, uint32 ll_upper
     Double_Coords double_coords(geometry);
     if (final_target)
       compare_item(ll_upper, skel, tags,
-        geometry.empty() ? 0 : bound_variant(double_coords, extra_data.mode),
-        ((extra_data.mode & Output_Mode::GEOMETRY) && geometry.size() == skel.members().size()) ? &geometry : 0,
+        geometry.empty() ? nullptr : bound_variant(double_coords, extra_data.mode),
+        ((extra_data.mode & Output_Mode::GEOMETRY) && geometry.size() == skel.members().size()) ? &geometry : nullptr,
         skel.timestamp, meta, users);
     else
       store_item(ll_upper, skel, tags,
-        geometry.empty() ? 0 : bound_variant(double_coords, extra_data.mode),
-        ((extra_data.mode & Output_Mode::GEOMETRY) && geometry.size() == skel.members().size()) ? &geometry : 0,
+        geometry.empty() ? nullptr : bound_variant(double_coords, extra_data.mode),
+        ((extra_data.mode & Output_Mode::GEOMETRY) && geometry.size() == skel.members().size()) ? &geometry : nullptr,
         skel.timestamp, meta, users);
   }
   else
   {
     if (final_target)
-      compare_item(ll_upper, skel, tags, 0, 0, skel.timestamp, meta, users);
+      compare_item(ll_upper, skel, tags, nullptr, nullptr, skel.timestamp, meta, users);
     else
-      store_item(ll_upper, skel, tags, 0, 0, skel.timestamp, meta, users);
+      store_item(ll_upper, skel, tags, nullptr, nullptr, skel.timestamp, meta, users);
   }
 }
 
@@ -236,7 +235,7 @@ void Set_Comparison::tags_quadtile
 
   // formulate meta query if meta data shall be printed
   Meta_Collector< Index, typename Object::Id_Type > meta_printer(items, *rman.get_transaction(),
-      (extra_data.mode & Output_Mode::META) ? current_meta_file_properties< Object >() : 0);
+      (extra_data.mode & Output_Mode::META) ? current_meta_file_properties< Object >() : nullptr);
 
   auto item_it(items.begin());
   // print the result
@@ -286,7 +285,7 @@ void Set_Comparison::tags_quadtile
 
   // formulate meta query if meta data shall be printed
   Meta_Collector< Index, typename Object::Id_Type > meta_printer(items, *rman.get_transaction(),
-      (extra_data.mode & Output_Mode::META) ? current_meta_file_properties< Object >() : 0);
+      (extra_data.mode & Output_Mode::META) ? current_meta_file_properties< Object >() : nullptr);
 
   auto item_it(items.begin());
   // print the result
@@ -339,11 +338,11 @@ std::vector< typename Skeleton::Id_Type > find_still_existing_skeletons
   std::map< Index, std::vector< Skeleton > > current_result;
   std::map< Index, std::vector< Attic< Skeleton > > > attic_result;
   if (timestamp == NOW)
-    collect_items_discrete(0, rman, *current_skeleton_file_properties< Skeleton >(), req,
+    collect_items_discrete(nullptr, rman, *current_skeleton_file_properties< Skeleton >(), req,
         Id_Predicate< Skeleton >(searched_ids), current_result);
   else
   {
-    collect_items_discrete_by_timestamp(0, rman, req,
+    collect_items_discrete_by_timestamp(nullptr, rman, req,
         Id_Predicate< Skeleton >(searched_ids), timestamp, current_result, attic_result);
     filter_attic_elements(rman, timestamp, current_result, attic_result);
   }
@@ -1123,7 +1122,7 @@ void eval_lhs_elems(const std::map< Index, std::vector< Maybe_Attic > >& items,
   {
     for (auto it_elem = it_idx->second.begin();
         it_elem != it_idx->second.end(); ++it_elem) {
-      auto res = eval_variant_to_string(task.eval(into_context.get_context(it_idx->first, *it_elem), 0));
+      auto res = eval_variant_to_string(task.eval(into_context.get_context(it_idx->first, *it_elem), nullptr));
 
       result.push_back(std::make_pair(
           it_elem->id,res));
@@ -1145,7 +1144,7 @@ void eval_rhs_elems(const std::map< Index, std::vector< Maybe_Attic > >& items,
     for (auto it_elem = it_idx->second.begin();
         it_elem != it_idx->second.end(); ++it_elem)
     {
-      auto rhs_val = eval_variant_to_string(task.eval(into_context.get_context(it_idx->first, *it_elem), 0));
+      auto rhs_val = eval_variant_to_string(task.eval(into_context.get_context(it_idx->first, *it_elem), nullptr));
       auto it_lhs =
           std::lower_bound(lhs_set.begin(), lhs_set.end(), std::make_pair(it_elem->id, ""),
               First_Comparator< Id_Type, std::string >());
@@ -1212,7 +1211,7 @@ Diff_Set Set_Comparison::compare_to_lhs(Resource_Manager& rman, const Statement&
     Requested_Context requested_context = evaluator->request_context();
     Prepare_Task_Context context(requested_context, stmt, rman);
 
-    std::unique_ptr< Eval_Task > task(evaluator->get_string_task(context, 0));
+    std::unique_ptr< Eval_Task > task(evaluator->get_string_task(context, nullptr));
 
     Set_With_Context into_context;
     into_context.name = "";
@@ -1244,7 +1243,7 @@ Diff_Set Set_Comparison::compare_to_lhs(Resource_Manager& rman, const Statement&
     Requested_Context requested_context = evaluator->request_context();
     Prepare_Task_Context context(requested_context, stmt, rman);
 
-    std::unique_ptr< Eval_Task > task(evaluator->get_string_task(context, 0));
+    std::unique_ptr< Eval_Task > task(evaluator->get_string_task(context, nullptr));
 
     Set_With_Context into_context;
     into_context.name = "";

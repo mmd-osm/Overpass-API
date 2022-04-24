@@ -53,30 +53,30 @@ struct Eval_Point_Geometry_Task final : Eval_Geometry_Task
     delete lon;
   }
 
-  Opaque_Geometry* eval() const override { return make_point(lat->eval(0), lon->eval(0)); }
+  Opaque_Geometry* eval() const override { return make_point(lat->eval(nullptr), lon->eval(nullptr)); }
 
   Opaque_Geometry* eval(const Element_With_Context< Node_Skeleton >& data) const override
-      { return make_point(lat->eval(data, 0), lon->eval(data, 0)); }
+      { return make_point(lat->eval(data, nullptr), lon->eval(data, nullptr)); }
   Opaque_Geometry* eval(const Element_With_Context< Attic< Node_Skeleton > >& data) const override
-      { return make_point(lat->eval(data, 0), lon->eval(data, 0)); }
+      { return make_point(lat->eval(data, nullptr), lon->eval(data, nullptr)); }
   Opaque_Geometry* eval(const Element_With_Context< Way_Skeleton >& data) const override
-      { return make_point(lat->eval(data, 0), lon->eval(data, 0)); }
+      { return make_point(lat->eval(data, nullptr), lon->eval(data, nullptr)); }
   Opaque_Geometry* eval(const Element_With_Context< Attic< Way_Skeleton > >& data) const override
-      { return make_point(lat->eval(data, 0), lon->eval(data, 0)); }
+      { return make_point(lat->eval(data, nullptr), lon->eval(data, nullptr)); }
   Opaque_Geometry* eval(const Element_With_Context< Relation_Skeleton >& data) const override
-      { return make_point(lat->eval(data, 0), lon->eval(data, 0)); }
+      { return make_point(lat->eval(data, nullptr), lon->eval(data, nullptr)); }
   Opaque_Geometry* eval(const Element_With_Context< Attic< Relation_Skeleton > >& data) const override
-      { return make_point(lat->eval(data, 0), lon->eval(data, 0)); }
+      { return make_point(lat->eval(data, nullptr), lon->eval(data, nullptr)); }
   Opaque_Geometry* eval(const Element_With_Context< Area_Skeleton >& data) const override
-      { return make_point(lat->eval(data, 0), lon->eval(data, 0)); }
+      { return make_point(lat->eval(data, nullptr), lon->eval(data, nullptr)); }
   Opaque_Geometry* eval(const Element_With_Context< Derived_Skeleton >& data) const override
-      { return make_point(lat->eval(data, 0), lon->eval(data, 0)); }
+      { return make_point(lat->eval(data, nullptr), lon->eval(data, nullptr)); }
 
   static Opaque_Geometry* make_point(const Eval_Variant& lat, const Eval_Variant& lon);
 
 private:
-  Eval_Task* lat;
-  Eval_Task* lon;
+  Eval_Task* lat = nullptr;
+  Eval_Task* lon = nullptr;
 };
 
 
@@ -127,12 +127,12 @@ public:
   Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override
   { return new Const_Eval_Task("<Point_Geometry>"); }
   Eval_Geometry_Task* get_geometry_task(Prepare_Task_Context& context) override
-  { return new Eval_Point_Geometry_Task(lat->get_string_task(context, 0), lon->get_string_task(context, 0)); }
+  { return new Eval_Point_Geometry_Task(lat->get_string_task(context, nullptr), lon->get_string_task(context, nullptr)); }
   virtual bool returns_geometry() const { return true; }
 
 private:
-  Evaluator* lat;
-  Evaluator* lon;
+  Evaluator* lat = nullptr;
+  Evaluator* lon = nullptr;
 };
 
 

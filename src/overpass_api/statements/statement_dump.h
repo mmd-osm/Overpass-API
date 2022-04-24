@@ -54,7 +54,7 @@ class Statement_Dump
     };
 
     Statement_Dump(std::string name, const std::map< std::string, std::string >& attributes_, int line_number_,
-        Statement* stmt = 0)
+        Statement* stmt = nullptr)
         : name_(std::move(name)), attributes(attributes_), line_number(line_number_), non_dump_stmt(stmt) {}
     ~Statement_Dump();
 

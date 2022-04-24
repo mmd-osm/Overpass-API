@@ -101,9 +101,9 @@ void Ternary_Evaluator::add_substatements(Statement* result, const std::string& 
 
 Eval_Task* Ternary_Evaluator::get_string_task(Prepare_Task_Context& context, const std::string* key)
 {
-  Eval_Task* cond_task = condition ? condition->get_string_task(context, key) : 0;
-  Eval_Task* lhs_task = lhs ? lhs->get_string_task(context, key) : 0;
-  Eval_Task* rhs_task = rhs ? rhs->get_string_task(context, key) : 0;
+  Eval_Task* cond_task = condition ? condition->get_string_task(context, key) : nullptr;
+  Eval_Task* lhs_task = lhs ? lhs->get_string_task(context, key) : nullptr;
+  Eval_Task* rhs_task = rhs ? rhs->get_string_task(context, key) : nullptr;
   return new Ternary_Eval_Task(cond_task, lhs_task, rhs_task);
 }
 
@@ -240,9 +240,9 @@ Eval_Variant Ternary_Eval_Task::eval(uint pos, const Element_With_Context< Attic
 
 Eval_Geometry_Task* Ternary_Evaluator::get_geometry_task(Prepare_Task_Context& context)
 {
-  Eval_Task* cond_task = condition ? condition->get_string_task(context, 0) : 0;
-  Eval_Geometry_Task* lhs_task = lhs ? lhs->get_geometry_task(context) : 0;
-  Eval_Geometry_Task* rhs_task = rhs ? rhs->get_geometry_task(context) : 0;
+  Eval_Task* cond_task = condition ? condition->get_string_task(context, nullptr) : nullptr;
+  Eval_Geometry_Task* lhs_task = lhs ? lhs->get_geometry_task(context) : nullptr;
+  Eval_Geometry_Task* rhs_task = rhs ? rhs->get_geometry_task(context) : nullptr;
   return new Ternary_Eval_Geometry_Task(cond_task, lhs_task, rhs_task);
 }
 
@@ -250,90 +250,90 @@ Eval_Geometry_Task* Ternary_Evaluator::get_geometry_task(Prepare_Task_Context& c
 Opaque_Geometry* Ternary_Eval_Geometry_Task::eval() const
 {
   if (!condition)
-    return 0;
-  if (eval_variant_represents_boolean_true(condition->eval(0)))
-    return lhs ? lhs->eval() : 0;
-  return rhs ? rhs->eval() : 0;
+    return nullptr;
+  if (eval_variant_represents_boolean_true(condition->eval(nullptr)))
+    return lhs ? lhs->eval() : nullptr;
+  return rhs ? rhs->eval() : nullptr;
 }
 
 
 Opaque_Geometry* Ternary_Eval_Geometry_Task::eval(const Element_With_Context< Node_Skeleton >& data) const
 {
   if (!condition)
-    return 0;
-  if (eval_variant_represents_boolean_true(condition->eval(data, 0)))
-    return lhs ? lhs->eval(data) : 0;
-  return rhs ? rhs->eval(data) : 0;
+    return nullptr;
+  if (eval_variant_represents_boolean_true(condition->eval(data, nullptr)))
+    return lhs ? lhs->eval(data) : nullptr;
+  return rhs ? rhs->eval(data) : nullptr;
 }
 
 
 Opaque_Geometry* Ternary_Eval_Geometry_Task::eval(const Element_With_Context< Attic< Node_Skeleton > >& data) const
 {
   if (!condition)
-    return 0;
-  if (eval_variant_represents_boolean_true(condition->eval(data, 0)))
-    return lhs ? lhs->eval(data) : 0;
-  return rhs ? rhs->eval(data) : 0;
+    return nullptr;
+  if (eval_variant_represents_boolean_true(condition->eval(data, nullptr)))
+    return lhs ? lhs->eval(data) : nullptr;
+  return rhs ? rhs->eval(data) : nullptr;
 }
 
 
 Opaque_Geometry* Ternary_Eval_Geometry_Task::eval(const Element_With_Context< Way_Skeleton >& data) const
 {
   if (!condition)
-    return 0;
-  if (eval_variant_represents_boolean_true(condition->eval(data, 0)))
-    return lhs ? lhs->eval(data) : 0;
-  return rhs ? rhs->eval(data) : 0;
+    return nullptr;
+  if (eval_variant_represents_boolean_true(condition->eval(data, nullptr)))
+    return lhs ? lhs->eval(data) : nullptr;
+  return rhs ? rhs->eval(data) : nullptr;
 }
 
 
 Opaque_Geometry* Ternary_Eval_Geometry_Task::eval(const Element_With_Context< Attic< Way_Skeleton > >& data) const
 {
   if (!condition)
-    return 0;
-  if (eval_variant_represents_boolean_true(condition->eval(data, 0)))
-    return lhs ? lhs->eval(data) : 0;
-  return rhs ? rhs->eval(data) : 0;
+    return nullptr;
+  if (eval_variant_represents_boolean_true(condition->eval(data, nullptr)))
+    return lhs ? lhs->eval(data) : nullptr;
+  return rhs ? rhs->eval(data) : nullptr;
 }
 
 
 Opaque_Geometry* Ternary_Eval_Geometry_Task::eval(const Element_With_Context< Relation_Skeleton >& data) const
 {
   if (!condition)
-    return 0;
-  if (eval_variant_represents_boolean_true(condition->eval(data, 0)))
-    return lhs ? lhs->eval(data) : 0;
-  return rhs ? rhs->eval(data) : 0;
+    return nullptr;
+  if (eval_variant_represents_boolean_true(condition->eval(data, nullptr)))
+    return lhs ? lhs->eval(data) : nullptr;
+  return rhs ? rhs->eval(data) : nullptr;
 }
 
 
 Opaque_Geometry* Ternary_Eval_Geometry_Task::eval(const Element_With_Context< Attic< Relation_Skeleton > >& data) const
 {
   if (!condition)
-    return 0;
-  if (eval_variant_represents_boolean_true(condition->eval(data, 0)))
-    return lhs ? lhs->eval(data) : 0;
-  return rhs ? rhs->eval(data) : 0;
+    return nullptr;
+  if (eval_variant_represents_boolean_true(condition->eval(data, nullptr)))
+    return lhs ? lhs->eval(data) : nullptr;
+  return rhs ? rhs->eval(data) : nullptr;
 }
 
 
 Opaque_Geometry* Ternary_Eval_Geometry_Task::eval(const Element_With_Context< Area_Skeleton >& data) const
 {
   if (!condition)
-    return 0;
-  if (eval_variant_represents_boolean_true(condition->eval(data, 0)))
-    return lhs ? lhs->eval(data) : 0;
-  return rhs ? rhs->eval(data) : 0;
+    return nullptr;
+  if (eval_variant_represents_boolean_true(condition->eval(data, nullptr)))
+    return lhs ? lhs->eval(data) : nullptr;
+  return rhs ? rhs->eval(data) : nullptr;
 }
 
 
 Opaque_Geometry* Ternary_Eval_Geometry_Task::eval(const Element_With_Context< Derived_Skeleton >& data) const
 {
   if (!condition)
-    return 0;
-  if (eval_variant_represents_boolean_true(condition->eval(data, 0)))
-    return lhs ? lhs->eval(data) : 0;
-  return rhs ? rhs->eval(data) : 0;
+    return nullptr;
+  if (eval_variant_represents_boolean_true(condition->eval(data, nullptr)))
+    return lhs ? lhs->eval(data) : nullptr;
+  return rhs ? rhs->eval(data) : nullptr;
 }
 
 

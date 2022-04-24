@@ -205,7 +205,7 @@ Blocking_Client_Socket* Connection_Per_Pid_Map::get(pid_t pid)
   if (it != connection_per_pid.end())
     return it->second;
   else
-    return 0;
+    return nullptr;
 }
 
 
@@ -214,7 +214,7 @@ void Connection_Per_Pid_Map::set(pid_t pid, Blocking_Client_Socket* socket)
   auto it = connection_per_pid.find(pid);
   if (it != connection_per_pid.end())
     delete it->second;
-  if (socket != 0)
+  if (socket != nullptr)
     connection_per_pid[pid] = socket;
   else
     connection_per_pid.erase(pid);

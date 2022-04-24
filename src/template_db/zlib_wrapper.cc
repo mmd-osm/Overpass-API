@@ -45,9 +45,9 @@ Zlib_Deflate::Error::Error(int error_code_)
 
 Zlib_Deflate::Zlib_Deflate(int level) : strm{}
 {
-  strm.zalloc = Z_NULL;
-  strm.zfree = Z_NULL;
-  strm.opaque = Z_NULL;
+  strm.zalloc = nullptr;
+  strm.zfree = nullptr;
+  strm.opaque = nullptr;
   int ret = deflateInit(&strm, level);
   if (ret != Z_OK)
     throw Error(ret);
@@ -83,11 +83,11 @@ Zlib_Inflate::Error::Error(int error_code_)
 
 Zlib_Inflate::Zlib_Inflate() : strm{}
 {
-  strm.zalloc = Z_NULL;
-  strm.zfree = Z_NULL;
-  strm.opaque = Z_NULL;
+  strm.zalloc = nullptr;
+  strm.zfree = nullptr;
+  strm.opaque = nullptr;
   strm.avail_in = 0;
-  strm.next_in = Z_NULL;
+  strm.next_in = nullptr;
   int ret = inflateInit(&strm);
   if (ret != Z_OK)
     throw Error(ret);

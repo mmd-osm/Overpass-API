@@ -143,7 +143,7 @@ public:
   }
 
 private:
-  Evaluator* criterion;
+  Evaluator* criterion = nullptr;
   bool else_reached;
   std::vector< Statement* > substatements;
   std::vector< Statement* > else_statements;

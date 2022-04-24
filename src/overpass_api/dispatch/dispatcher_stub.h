@@ -76,15 +76,15 @@ class Dispatcher_Stub
   private:
     std::string db_dir, timestamp, area_timestamp;
 
-    Error_Output* error_output;
-    Dispatcher_Client* dispatcher_client;
-    Dispatcher_Client* area_dispatcher_client;
-    Nonsynced_Transaction* transaction;
-    Nonsynced_Transaction* area_transaction;
-    Resource_Manager* rman;
+    Error_Output* error_output = nullptr;
+    Dispatcher_Client* dispatcher_client = nullptr;
+    Dispatcher_Client* area_dispatcher_client = nullptr;
+    Nonsynced_Transaction* transaction = nullptr;
+    Nonsynced_Transaction* area_transaction = nullptr;
+    Resource_Manager* rman = nullptr;
     meta_modes meta;
 
-    uint32 client_token;
+    uint32 client_token = 0;
     std::chrono::time_point<std::chrono::system_clock> t1;
 };
 

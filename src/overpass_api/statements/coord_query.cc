@@ -221,7 +221,7 @@ void Coord_Query_Statement::execute(Resource_Manager& rman)
   std::set< Uint31_Index > node_idxs;
   std::map< Uint31_Index, std::vector< std::pair< double, double > > > coord_per_req;
 
-  const Set* input_set = 0;
+  const Set* input_set = nullptr;
   if (lat != 100.0)
   {
     node_idxs.insert(::ll_upper_(lat, lon));

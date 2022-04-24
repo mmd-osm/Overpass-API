@@ -226,7 +226,7 @@ Four_Field_Entry& Four_Field_Index::make_available(uint32 lat, int32 lon, int si
 void Four_Field_Index::compute_inside_parts()
 {
   if (area_oracle && !tree.empty())
-    compute_inside_parts(base_lat, base_lon, base_significant_bits, 0, 0, 0, 0);
+    compute_inside_parts(base_lat, base_lon, base_significant_bits, 0, 0, nullptr, nullptr);
 }
 
 
@@ -314,9 +314,9 @@ void Four_Field_Index::compute_inside_parts(uint32 lat, int32 lon, int significa
 
     if (tree[pos].se < 0)
       compute_inside_parts(lat, lon + (0x80000000u>>significant_bits), significant_bits+1, -tree[pos].se,
-          se, r_se, 0);
+          se, r_se, nullptr);
     else if (tree[pos].se > 0)
-      area_oracle->build_area(se, tree[pos].se, r_se, 0);
+      area_oracle->build_area(se, tree[pos].se, r_se, nullptr);
     else
     {
       tree[pos].se = se;
@@ -339,9 +339,9 @@ void Four_Field_Index::compute_inside_parts(uint32 lat, int32 lon, int significa
 
     if (tree[pos].ne < 0)
       compute_inside_parts(lat + (0x80000000u>>significant_bits), lon + (0x80000000u>>significant_bits),
-          significant_bits+1, -tree[pos].ne, ne, 0, 0);
+          significant_bits+1, -tree[pos].ne, ne, nullptr, nullptr);
     else if (tree[pos].ne > 0)
-      area_oracle->build_area(ne, tree[pos].ne, 0, 0);
+      area_oracle->build_area(ne, tree[pos].ne, nullptr, nullptr);
     else
       tree[pos].ne = ne;
   }
@@ -363,9 +363,9 @@ void Four_Field_Index::compute_inside_parts(uint32 lat, int32 lon, int significa
 
     if (tree[pos].ne < 0)
       compute_inside_parts(lat + (0x80000000u>>significant_bits), lon + (0x80000000u>>significant_bits),
-          significant_bits+1, -tree[pos].ne, ne, 0, r_nw);
+          significant_bits+1, -tree[pos].ne, ne, nullptr, r_nw);
     else if (tree[pos].ne > 0)
-      area_oracle->build_area(ne, tree[pos].ne, 0, r_nw);
+      area_oracle->build_area(ne, tree[pos].ne, nullptr, r_nw);
     else
     {
       tree[pos].ne = ne;

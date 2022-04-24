@@ -1072,7 +1072,7 @@ typename File_Blocks< TIndex, TIterator >::Write_Iterator
     File_Blocks< TIndex, TIterator >::insert_block
     (const Write_Iterator& it, uint64* buf, uint32 payload_size, uint32 max_keysize, const TIndex& block_idx)
 {
-  if (buf == 0)
+  if (buf == nullptr)
     return it;
 
   uint32 data_size = payload_size == 0 ? 0 : (payload_size - 1) / block_size + 1;

@@ -50,11 +50,11 @@
 
 namespace
 {
-  Node_Updater* node_updater(0);
+  Node_Updater* node_updater = nullptr;
   Node current_node;
-  Way_Updater* way_updater(0);
+  Way_Updater* way_updater = nullptr;
   Way current_way;
-  Relation_Updater* relation_updater(0);
+  Relation_Updater* relation_updater = nullptr;
   Relation current_relation;
   int state;
   const int IN_NODES = 1;
@@ -66,8 +66,8 @@ namespace
   OSM_Element_Metadata* meta;
 
   uint32 osm_element_count;
-  Osm_Backend_Callback* callback(0);
-  Cpu_Stopwatch* cpu_stopwatch(0);
+  Osm_Backend_Callback* callback = nullptr;
+  Cpu_Stopwatch* cpu_stopwatch = nullptr;
 
   std::string data_version;
 
@@ -492,7 +492,7 @@ void parse_relations_only(FILE* in)
 
 Osm_Updater::Osm_Updater(Osm_Backend_Callback* callback_, const std::string& data_version_,
 			 meta_modes meta_, unsigned int flush_limit_, unsigned int parallel_processes_)
-  : dispatcher_client(0), meta(meta_), parallel_processes(parallel_processes_)
+  : meta(meta_), parallel_processes(parallel_processes_)
 {
   dispatcher_client = new Dispatcher_Client(osm_base_settings().shared_name);
   Logger logger(dispatcher_client->get_db_dir());
@@ -529,8 +529,7 @@ Osm_Updater::Osm_Updater(Osm_Backend_Callback* callback_, const std::string& dat
 Osm_Updater::Osm_Updater
     (Osm_Backend_Callback* callback_, const std::string& db_dir, const std::string& data_version_,
      meta_modes meta_, unsigned int flush_limit_, unsigned int parallel_processes_)
-  : transaction(0), dispatcher_client(0), db_dir_(db_dir), meta(meta_),
-    parallel_processes(parallel_processes_)
+  : db_dir_(db_dir), meta(meta_), parallel_processes(parallel_processes_)
 {
   if (file_present(db_dir + osm_base_settings().shared_name))
     throw Context_Error("File " + db_dir + osm_base_settings().shared_name + " present, "
@@ -574,7 +573,7 @@ void Osm_Updater::flush()
   if (dispatcher_client)
   {
     delete transaction;
-    transaction = 0;
+    transaction = nullptr;
 
     Logger logger(dispatcher_client->get_db_dir());
     std::ostringstream out;
@@ -589,7 +588,7 @@ void Osm_Updater::flush()
 
     logger.annotated_log("write_commit() end");
     delete dispatcher_client;
-    dispatcher_client = 0;
+    dispatcher_client = nullptr;
   }
 }
 

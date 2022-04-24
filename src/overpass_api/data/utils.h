@@ -164,7 +164,7 @@ inline bool try_double(const std::string& input, double& result)
     return false;
 
   const char* input_c = input.c_str();
-  char* end_c = 0;
+  char* end_c = nullptr;
   errno = 0;
   result = strtod(input_c, &end_c);
   return input_c + input.size() == end_c;
@@ -209,7 +209,7 @@ inline bool try_starts_with_double(const std::string& input, double& result)
     return false;
 
   const char* input_c = input.c_str();
-  char* end_c = 0;
+  char* end_c = nullptr;
   errno = 0;
   result = strtod(input_c, &end_c);
   return !errno && input_c != end_c;
@@ -253,7 +253,7 @@ inline std::string double_suffix(const std::string& input)
     return "";
 
   const char* input_c = input.c_str();
-  char* end_c = 0;
+  char* end_c = nullptr;
   errno = 0;
   strtod(input_c, &end_c);
 
@@ -301,7 +301,7 @@ inline bool try_int64(const std::string& input, int64& result)
     return false;
 
   const char* input_c = input.c_str();
-  char* end_c = 0;
+  char* end_c = nullptr;
   errno = 0;
   result = strtoll(input_c, &end_c, 0);
   return input_c + input.size() == end_c;

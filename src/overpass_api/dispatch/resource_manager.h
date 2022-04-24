@@ -39,7 +39,7 @@ namespace Diff_Action
 class Runtime_Stack_Frame
 {
 public:
-  Runtime_Stack_Frame(Runtime_Stack_Frame* parent_ = 0)
+  Runtime_Stack_Frame(Runtime_Stack_Frame* parent_ = nullptr)
     : parent(parent_), loop_count(0), loop_size(0),
     desired_timestamp(parent_ ? parent_->desired_timestamp : NOW),
     desired_action(parent_ ? parent_->desired_action : Diff_Action::positive),
@@ -104,8 +104,8 @@ private:
 class Resource_Manager
 {
 public:
-  Resource_Manager(Transaction& transaction_, Parsed_Query* global_settings_ = 0,
-		   Error_Output* error_output_ = 0);
+  Resource_Manager(Transaction& transaction_, Parsed_Query* global_settings_ = nullptr,
+		   Error_Output* error_output_ = nullptr);
 
   Resource_Manager(Transaction& transaction_, Parsed_Query& global_settings_, Error_Output* error_output_,
 		   Transaction& area_transaction_,
@@ -190,11 +190,11 @@ public:
 private:
   std::vector< Runtime_Stack_Frame* > runtime_stack;
 
-  Transaction* transaction;
-  Error_Output* error_output;
-  Transaction* area_transaction;
-  Area_Usage_Listener* area_updater_;
-  Parsed_Query* global_settings;
+  Transaction* transaction = nullptr;
+  Error_Output* error_output = nullptr;
+  Transaction* area_transaction = nullptr;
+  Area_Usage_Listener* area_updater_ = nullptr;
+  Parsed_Query* global_settings = nullptr;
   bool global_settings_owned;
   User_Data_Cache user_data_cache;
   int start_time;

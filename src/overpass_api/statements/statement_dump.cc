@@ -337,7 +337,7 @@ Statement_Dump* Statement_Dump::Factory::create_evaluator(
   if (stmt)
     return new Statement_Dump("universal_dump", std::map< std::string, std::string >(), tree_it->line_col.first, stmt);
 
-  return 0;
+  return nullptr;
 }
 
 
@@ -348,7 +348,7 @@ Statement_Dump* Statement_Dump::Factory::create_criterion(const Token_Node_Ptr& 
   if (stmt)
     return new Statement_Dump("universal_dump", std::map< std::string, std::string >(), tree_it->line_col.first, stmt);
 
-  return 0;
+  return nullptr;
 }
 
 

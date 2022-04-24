@@ -192,7 +192,7 @@ void Output_Osmium::print_item(const Node_Skeleton& skel,
 
   std::vector<pair_of_cstrings> tag_list;
 
-  if ((tags != 0) && (!tags->empty()))
+  if ((tags != nullptr) && (!tags->empty()))
   {
     for (std::vector< std::pair< std::string, std::string > >::const_iterator it(tags->begin());
         it != tags->end(); ++it)
@@ -242,7 +242,7 @@ void Output_Osmium::print_item(const Way_Skeleton& skel,
 
   std::vector<osmium::NodeRef> nrvec;
 
-  if (((tags == 0) || (tags->empty())) &&
+  if (((tags == nullptr) || (tags->empty())) &&
       ((mode & (Output_Mode::NDS | Output_Mode::GEOMETRY | Output_Mode::BOUNDS | Output_Mode::CENTER)) == 0))
     ;
   else
@@ -268,7 +268,7 @@ void Output_Osmium::print_item(const Way_Skeleton& skel,
 
   std::vector<pair_of_cstrings> tag_list;
 
-  if ((tags != 0) && (!tags->empty()))
+  if ((tags != nullptr) && (!tags->empty()))
   {
     for (std::vector< std::pair< std::string, std::string > >::const_iterator it(tags->begin());
         it != tags->end(); ++it)
@@ -320,7 +320,7 @@ void Output_Osmium::print_item(const Relation_Skeleton& skel,
 
   std::vector<member_type> members;
 
-  if (((tags == 0) || (tags->empty())) &&
+  if (((tags == nullptr) || (tags->empty())) &&
       ((mode & (Output_Mode::NDS | Output_Mode::GEOMETRY | Output_Mode::BOUNDS | Output_Mode::CENTER)) == 0))
     ;
   else
@@ -357,7 +357,7 @@ void Output_Osmium::print_item(const Relation_Skeleton& skel,
 
   std::vector<pair_of_cstrings> tag_list;
 
-  if ((tags != 0) && (!tags->empty()))
+  if ((tags != nullptr) && (!tags->empty()))
   {
     for (std::vector< std::pair< std::string, std::string > >::const_iterator it(tags->begin());
         it != tags->end(); ++it)

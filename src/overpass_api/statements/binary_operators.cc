@@ -22,7 +22,7 @@
 
 using namespace std::string_literals;
 
-Evaluator_Pair_Operator::Evaluator_Pair_Operator(int line_number_) : Evaluator(line_number_), lhs(0), rhs(0) {}
+Evaluator_Pair_Operator::Evaluator_Pair_Operator(int line_number_) : Evaluator(line_number_) {}
 
 
 void Evaluator_Pair_Operator::add_statement(Statement* statement, std::string text)
@@ -66,8 +66,8 @@ void Evaluator_Pair_Operator::add_substatements(Statement* result, const std::st
 
 Eval_Task* Evaluator_Pair_Operator::get_string_task(Prepare_Task_Context& context, const std::string* key)
 {
-  Eval_Task* lhs_task = lhs ? lhs->get_string_task(context, key) : 0;
-  Eval_Task* rhs_task = rhs ? rhs->get_string_task(context, key) : 0;
+  Eval_Task* lhs_task = lhs ? lhs->get_string_task(context, key) : nullptr;
+  Eval_Task* rhs_task = rhs ? rhs->get_string_task(context, key) : nullptr;
   return new Binary_Eval_Task(lhs_task, rhs_task, this);
 }
 

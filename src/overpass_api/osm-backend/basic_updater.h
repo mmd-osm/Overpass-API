@@ -1013,7 +1013,7 @@ std::map< Tag_Index_Local, std::set< Attic< Id_Type > > > compute_new_attic_loca
       }
 
       const Uint31_Index* idx_ptr = binary_pair_search(existing_map_positions, it->first);
-      if (idx_ptr != 0)
+      if (idx_ptr != nullptr)
         existing_attic_idxs.insert(Uint31_Index(idx_ptr->val() & 0x7fffff00));
 
       Uint31_Index last_idx = *it2;

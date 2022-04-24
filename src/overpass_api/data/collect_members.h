@@ -37,54 +37,54 @@ class Statement;
 std::map< Uint31_Index, std::vector< Relation_Skeleton > > relation_relation_members
     (const Statement& stmt, Resource_Manager& rman,
      const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& parents,
-     const std::set< std::pair< Uint31_Index, Uint31_Index > >* children_ranges = 0,
-     const std::vector< Relation::Id_Type >* children_ids = 0, bool invert_ids = false, const uint32* role_id = 0);
+     const std::set< std::pair< Uint31_Index, Uint31_Index > >* children_ranges = nullptr,
+     const std::vector< Relation::Id_Type >* children_ids = nullptr, bool invert_ids = false, const uint32* role_id = nullptr);
 
 std::pair< std::map< Uint31_Index, std::vector< Relation_Skeleton > >,
     std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > > > relation_relation_members
     (const Statement& stmt, Resource_Manager& rman,
      const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& parents,
      const std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > >& attic_parents,
-     const std::set< std::pair< Uint31_Index, Uint31_Index > >* children_ranges = 0,
-     const std::vector< Relation::Id_Type >* children_ids = 0, bool invert_ids = false, const uint32* role_id = 0);
+     const std::set< std::pair< Uint31_Index, Uint31_Index > >* children_ranges = nullptr,
+     const std::vector< Relation::Id_Type >* children_ids = nullptr, bool invert_ids = false, const uint32* role_id = nullptr);
 
 std::map< Uint31_Index, std::vector< Way_Skeleton > > relation_way_members
     (const Statement* stmt, Resource_Manager& rman,
      const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& relations,
-     const std::set< std::pair< Uint31_Index, Uint31_Index > >* way_ranges = 0,
-     const std::vector< Way::Id_Type >* way_ids = 0, bool invert_ids = false, const uint32* role_id = 0);
+     const std::set< std::pair< Uint31_Index, Uint31_Index > >* way_ranges = nullptr,
+     const std::vector< Way::Id_Type >* way_ids = nullptr, bool invert_ids = false, const uint32* role_id = nullptr);
 
 std::pair< std::map< Uint31_Index, std::vector< Way_Skeleton > >,
     std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > > > relation_way_members
     (const Statement* stmt, Resource_Manager& rman,
      const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& relations,
      const std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > >& attic_relations,
-     const std::set< std::pair< Uint31_Index, Uint31_Index > >* way_ranges = 0,
-     const std::vector< Way::Id_Type >* way_ids = 0, bool invert_ids = false, const uint32* role_id = 0);
+     const std::set< std::pair< Uint31_Index, Uint31_Index > >* way_ranges = nullptr,
+     const std::vector< Way::Id_Type >* way_ids = nullptr, bool invert_ids = false, const uint32* role_id = nullptr);
 
 std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > > relation_way_members
     (const Statement* stmt, Resource_Manager& rman,
      const std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > >& relations,
-     const std::set< std::pair< Uint31_Index, Uint31_Index > >* way_ranges = 0);
+     const std::set< std::pair< Uint31_Index, Uint31_Index > >* way_ranges = nullptr);
 
 std::map< Uint32_Index, std::vector< Node_Skeleton > > relation_node_members
     (const Statement* stmt, Resource_Manager& rman,
      const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& relations,
-     const std::set< std::pair< Uint32_Index, Uint32_Index > >* node_ranges = 0,
-     const std::vector< Node::Id_Type >* node_ids = 0, bool invert_ids = false, const uint32* role_id = 0);
+     const std::set< std::pair< Uint32_Index, Uint32_Index > >* node_ranges = nullptr,
+     const std::vector< Node::Id_Type >* node_ids = nullptr, bool invert_ids = false, const uint32* role_id = nullptr);
 
 std::pair< std::map< Uint32_Index, std::vector< Node_Skeleton > >,
     std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > > > relation_node_members
     (const Statement* stmt, Resource_Manager& rman,
      const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& relations,
      const std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > >& attic_relations,
-     const std::set< std::pair< Uint32_Index, Uint32_Index > >* node_ranges = 0,
-     const std::vector< Node::Id_Type >* node_ids = 0, bool invert_ids = false, const uint32* role_id = 0);
+     const std::set< std::pair< Uint32_Index, Uint32_Index > >* node_ranges = nullptr,
+     const std::vector< Node::Id_Type >* node_ids = nullptr, bool invert_ids = false, const uint32* role_id = nullptr);
 
 std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > > relation_node_members
     (const Statement* stmt, Resource_Manager& rman,
      const std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > >& relations,
-     const std::set< std::pair< Uint32_Index, Uint32_Index > >* node_ranges = 0);
+     const std::set< std::pair< Uint32_Index, Uint32_Index > >* node_ranges = nullptr);
 
 std::pair< std::map< Uint32_Index, std::vector< Node_Skeleton > >,
     std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > > > way_members
@@ -92,42 +92,42 @@ std::pair< std::map< Uint32_Index, std::vector< Node_Skeleton > >,
      const std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
      const std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >& attic_ways,
      const std::vector< int >* pos,
-     const std::set< std::pair< Uint32_Index, Uint32_Index > >* node_ranges = 0,
-     const std::vector< Node::Id_Type >* node_ids = 0, bool invert_ids = false);
+     const std::set< std::pair< Uint32_Index, Uint32_Index > >* node_ranges = nullptr,
+     const std::vector< Node::Id_Type >* node_ids = nullptr, bool invert_ids = false);
 
 template< typename Relation_Skeleton >
 std::vector< Node::Id_Type > relation_node_member_ids
     (Resource_Manager& rman, const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& rels,
-     const uint32* role_id = 0);
+     const uint32* role_id = nullptr);
 
 template< typename Relation_Skeleton >
 std::vector< Node::Id_Type > relation_node_member_ids
     (Resource_Manager& rman,
      const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& rels,
      const std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > >& attic_rels,
-     const uint32* role_id = 0);
+     const uint32* role_id = nullptr);
 
 template< typename Relation_Skeleton >
 std::vector< Way::Id_Type > relation_way_member_ids
     (Resource_Manager& rman, const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& rels,
-     const uint32* role_id = 0);
+     const uint32* role_id = nullptr);
 
 template< typename Relation_Skeleton >
 std::vector< Way::Id_Type > relation_way_member_ids
     (Resource_Manager& rman,
      const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& rels,
      const std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > >& attic_rels,
-     const uint32* role_id = 0);
+     const uint32* role_id = nullptr);
 
 std::vector< Relation::Id_Type > relation_relation_member_ids
     (Resource_Manager& rman, const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& rels,
-     const uint32* role_id = 0);
+     const uint32* role_id = nullptr);
 
 std::vector< Relation::Id_Type > relation_relation_member_ids
     (Resource_Manager& rman,
      const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& rels,
      const std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > >& attic_rels,
-     const uint32* role_id = 0);
+     const uint32* role_id = nullptr);
 
 std::vector< Node::Id_Type > way_nd_ids(
     const std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
@@ -1153,8 +1153,8 @@ void collect_ways
 
 
 void add_nw_member_objects(Resource_Manager& rman, const Statement* stmt, const Set& input_set, Set& into,
-    const std::set< std::pair< Uint32_Index, Uint32_Index > >* ranges_32 = 0,
-    const std::set< std::pair< Uint31_Index, Uint31_Index > >* ranges_31 = 0);
+    const std::set< std::pair< Uint32_Index, Uint32_Index > >* ranges_32 = nullptr,
+    const std::set< std::pair< Uint31_Index, Uint31_Index > >* ranges_31 = nullptr);
 
 
 template< typename Index, typename Object >

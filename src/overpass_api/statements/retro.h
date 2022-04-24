@@ -110,7 +110,7 @@ public:
   }
 
 private:
-  Evaluator* timestamp;
+  Evaluator* timestamp = nullptr;
   std::vector< Statement* > substatements;
 };
 

@@ -142,7 +142,7 @@ class For_Statement : public Statement
 
   private:
     std::string input, output;
-    Evaluator* evaluator;
+    Evaluator* evaluator = nullptr;
     std::vector< Statement* > substatements;
 };
 

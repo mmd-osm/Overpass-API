@@ -39,7 +39,7 @@ struct Way_Updater
 
   Way_Updater(std::string db_dir, meta_modes meta, unsigned int parallel_processes = 1, bool initial_load = false);
 
-  void set_id_deleted(Way::Id_Type id, const OSM_Element_Metadata* meta = 0)
+  void set_id_deleted(Way::Id_Type id, const OSM_Element_Metadata* meta = nullptr)
   {
     if (meta)
       new_data.data.push_back(Data_By_Id< Way_Skeleton >::Entry
@@ -55,7 +55,7 @@ struct Way_Updater
   }
 
   void set_way(const Way& way,
-	       const OSM_Element_Metadata* meta = 0)
+	       const OSM_Element_Metadata* meta = nullptr)
   {
     if (meta)
       new_data.data.push_back(Data_By_Id< Way_Skeleton >::Entry
@@ -73,7 +73,7 @@ struct Way_Updater
   }
 
   void set_way(Way&& way,
-               const OSM_Element_Metadata* meta = 0)
+               const OSM_Element_Metadata* meta = nullptr)
   {
     if (meta)
       new_data.data.push_back(Data_By_Id< Way_Skeleton >::Entry
@@ -110,7 +110,7 @@ struct Way_Updater
 
 private:
   uint32 update_counter;
-  Transaction* transaction;
+  Transaction* transaction = nullptr;
   bool external_transaction;
   bool partial_possible;
   std::vector< std::pair< Way::Id_Type, Uint31_Index > > moved_ways;

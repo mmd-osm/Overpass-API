@@ -313,7 +313,7 @@ double Partial_Way_Geometry::east() const
 
 
 Partial_Way_Geometry::Partial_Way_Geometry(const std::vector< Point_Double >& points_)
-    : points(points_), bounds(0), has_coords(false)
+    : points(points_)
 {
   for (std::vector< Point_Double >::const_iterator it = points.begin(); it != points.end() && !has_coords; ++it)
     has_coords |= (it->lat < 100.);
@@ -338,7 +338,7 @@ Partial_Way_Geometry::Partial_Way_Geometry(const std::vector< Point_Double >& po
 void Partial_Way_Geometry::add_point(const Point_Double& point)
 {
   delete bounds;
-  bounds = 0;
+  bounds = nullptr;
   if (point.lat < 100.)
   {
     if (points.empty() || (points.back().lat >= 100.))
@@ -422,7 +422,7 @@ Bbox_Double* calc_bounds(const std::vector< std::vector< Point_Double > >& lines
 }
 
 
-Free_Polygon_Geometry::Free_Polygon_Geometry(const std::vector< std::vector< Point_Double > >& linestrings_) : linestrings(linestrings_), bounds(0)
+Free_Polygon_Geometry::Free_Polygon_Geometry(const std::vector< std::vector< Point_Double > >& linestrings_) : linestrings(linestrings_)
 {
   for (auto it = linestrings.begin(); it != linestrings.end();
       ++it)
@@ -493,7 +493,7 @@ void Free_Polygon_Geometry::add_linestring(const std::vector< Point_Double >& li
     return;
 
   delete bounds;
-  bounds = 0;
+  bounds = nullptr;
   linestrings.push_back(linestring);
   if (linestrings.back().front() != linestrings.back().back())
     linestrings.back().push_back(linestrings.back().front());
@@ -1472,7 +1472,7 @@ bool weakly_west_of(double lhs, double rhs)
 }
 
 
-RHR_Polygon_Geometry::RHR_Polygon_Geometry(const Free_Polygon_Geometry& rhs) : bounds(0)
+RHR_Polygon_Geometry::RHR_Polygon_Geometry(const Free_Polygon_Geometry& rhs)
 {
   std::vector< std::vector< Point_Double > > input(*rhs.get_multiline_geometry());
 
@@ -1857,7 +1857,7 @@ double Compound_Geometry::relation_pos_lon(unsigned int member_pos, unsigned int
 void Compound_Geometry::add_component(Opaque_Geometry* component)
 {
   delete bounds;
-  bounds = 0;
+  bounds = nullptr;
   components.push_back(component);
 }
 
@@ -2042,7 +2042,7 @@ void Partial_Relation_Geometry::add_placeholder()
 void Partial_Relation_Geometry::add_point(const Point_Double& point)
 {
   delete bounds;
-  bounds = 0;
+  bounds = nullptr;
   if (point.lat < 100.)
   {
     has_coords = true;
@@ -2062,7 +2062,7 @@ void Partial_Relation_Geometry::start_way()
 void Partial_Relation_Geometry::add_way_point(const Point_Double& point)
 {
   delete bounds;
-  bounds = 0;
+  bounds = nullptr;
 
   auto* geom = dynamic_cast< Partial_Way_Geometry* >(components.back());
   if (geom)
@@ -2317,7 +2317,7 @@ struct Point_Double_By_Lon
 
 struct Spherical_Vector
 {
-  Spherical_Vector() : x(0), y(0), z(0) {}
+  Spherical_Vector() = default;
 
   Spherical_Vector(const Point_Double& pt) : x(sin(pt.lat*deg_to_arc()))
   {
@@ -2335,9 +2335,9 @@ struct Spherical_Vector
     z /= length;
   }
 
-  double x;
-  double y;
-  double z;
+  double x = 0;
+  double y = 0;
+  double z = 0;
 
   double operator==(const Spherical_Vector& rhs) const { return x == rhs.x && y == rhs.y && z == rhs.z; }
   double operator*(const Spherical_Vector& rhs) const { return x*rhs.x + y*rhs.y + z*rhs.z; }

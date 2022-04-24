@@ -718,7 +718,7 @@ Statement* Around_Statement::Criterion_Maker::create_criterion(const Token_Node_
     {
       if (error_output)
         error_output->add_parse_error("around requires an odd number of arguments", line_nr);
-      return 0;
+      return nullptr;
     }
 
     coords.push_back(std::make_pair(tree_it.rhs()->token, lon));
@@ -760,7 +760,7 @@ Statement* Around_Statement::Criterion_Maker::create_criterion(const Token_Node_
   else if (error_output)
     error_output->add_parse_error("around requires the radius as first argument", line_nr);
 
-  return 0;
+  return nullptr;
 }
 
 
@@ -1395,7 +1395,7 @@ void Around_Statement::execute(Resource_Manager& rman)
   constraint.get_ranges(rman, ranges);
   get_elements_by_id_from_db< Uint32_Index, Node_Skeleton >
       (into.nodes, into.attic_nodes,
-       std::vector< Node::Id_Type >(), false, ranges, 0, *this, rman,
+       std::vector< Node::Id_Type >(), false, ranges, nullptr, *this, rman,
        *osm_base_settings().NODES, *attic_settings().NODES);
   constraint.filter(*this, rman, into);
   filter_attic_elements(rman, rman.get_desired_timestamp(), into.nodes, into.attic_nodes);

@@ -26,7 +26,7 @@ Generic_Statement_Maker< Compare_Statement > Compare_Statement::statement_maker(
 
 Compare_Statement::Compare_Statement
     (int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
-    : Output_Statement(line_number_), criterion(0), set_comparison(0)
+    : Output_Statement(line_number_)
 {
   std::map< std::string, std::string > attributes;
 

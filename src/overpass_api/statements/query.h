@@ -172,7 +172,7 @@ class Query_Statement final : public Output_Statement
     std::vector< std::pair< Regular_Expression*, Regular_Expression* > > regkey_nregexes;
     std::vector< Query_Constraint* > constraints;
     std::vector< Statement* > substatements;
-    Bbox_Query_Statement* global_bbox_statement;
+    Bbox_Query_Statement* global_bbox_statement = nullptr;
 
     static int area_query_ref_counter_;
 
@@ -292,8 +292,8 @@ class Has_Kv_Statement : public Statement
 
   private:
     std::string key, value;
-    Regular_Expression* regex;
-    Regular_Expression* key_regex;
+    Regular_Expression* regex = nullptr;
+    Regular_Expression* key_regex = nullptr;
     bool straight;
     bool case_sensitive;
 };

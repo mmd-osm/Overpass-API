@@ -123,7 +123,7 @@ const T* binary_search_for_id(const std::vector< T >& vect, typename T::Id_Type 
     else
       lower = pos + 1;
   }
-  return 0;
+  return nullptr;
 }
 
 
@@ -143,7 +143,7 @@ TObject* binary_ptr_search_for_id(const std::vector< TObject* >& vect, typename 
     else
       lower = pos + 1;
   }
-  return 0;
+  return nullptr;
 }
 
 
@@ -163,14 +163,14 @@ const TObject* binary_pair_search(const std::vector< std::pair< Id_Type, TObject
     else
       lower = pos + 1;
   }
-  return 0;
+  return nullptr;
 }
 
 
 template< typename T >
 struct Array
 {
-  Array(unsigned int size) : ptr(0), size_(size)
+  Array(unsigned int size) : size_(size)
   {
     if (size > 0)
       ptr = new T[size];
@@ -185,7 +185,7 @@ struct Array
   unsigned int size() const { return size_; }
 
 private:
-  T* ptr;
+  T* ptr = nullptr;
   unsigned int size_;
 };
 
@@ -627,7 +627,7 @@ const std::pair< TIndex, const TObject* >* binary_search_for_pair_id
     else
       lower = pos + 1;
   }
-  return 0;
+  return nullptr;
 }
 
 

@@ -323,7 +323,7 @@ public:
   Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* target_key) override;
 
 private:
-  Evaluator* rhs;
+  Evaluator* rhs = nullptr;
 };
 
 
@@ -536,7 +536,7 @@ public:
   Requested_Context request_context() const override { return Requested_Context().add_usage(Set_Usage::TAGS); }
 
   Statement::Eval_Return_Type return_type() const override { return Statement::container; };
-  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* target_key) override { return 0; }
+  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* target_key) override { return nullptr; }
   Eval_Container_Task* get_container_task(Prepare_Task_Context& context, const std::string* key) override
   { return new All_Keys_Eval_Task(); }
 

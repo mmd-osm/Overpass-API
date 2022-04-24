@@ -47,12 +47,12 @@ struct Extra_Data_For_Diff
   const std::map< uint32, std::string >* get_users() const;
 
   unsigned int mode;
-  Way_Bbox_Geometry_Store* way_geometry_store;
-  Way_Bbox_Geometry_Store* attic_way_geometry_store;
-  Relation_Geometry_Store* relation_geometry_store;
-  Relation_Geometry_Store* attic_relation_geometry_store;
-  const std::map< uint32, std::string >* roles;
-  const std::map< uint32, std::string >* users;
+  Way_Bbox_Geometry_Store* way_geometry_store = nullptr;
+  Way_Bbox_Geometry_Store* attic_way_geometry_store = nullptr;
+  Relation_Geometry_Store* relation_geometry_store = nullptr;
+  Relation_Geometry_Store* attic_relation_geometry_store = nullptr;
+  const std::map< uint32, std::string >* roles = nullptr;
+  const std::map< uint32, std::string >* users = nullptr;
 };
 
 
@@ -81,16 +81,16 @@ private:
                     const std::map< uint32, std::string >* users);
   void store_item(uint32 ll_upper, const Node_Skeleton& skel,
                             const std::vector< std::pair< std::string, std::string > >* tags,
-                            timestamp_t timestamp, const OSM_Element_Metadata_Skeleton< Node::Id_Type >* meta = 0,
-                            const std::map< uint32, std::string >* users = 0,
+                            timestamp_t timestamp, const OSM_Element_Metadata_Skeleton< Node::Id_Type >* meta = nullptr,
+                            const std::map< uint32, std::string >* users = nullptr,
                             const Output_Handler::Feature_Action& action = Output_Handler::keep,
-                            const OSM_Element_Metadata_Skeleton< Node::Id_Type >* new_meta = 0);
+                            const OSM_Element_Metadata_Skeleton< Node::Id_Type >* new_meta = nullptr);
   void compare_item(uint32 ll_upper, const Node_Skeleton& skel,
                             const std::vector< std::pair< std::string, std::string > >* tags,
-                            timestamp_t timestamp, const OSM_Element_Metadata_Skeleton< Node::Id_Type >* meta = 0,
-                            const std::map< uint32, std::string >* users = 0,
+                            timestamp_t timestamp, const OSM_Element_Metadata_Skeleton< Node::Id_Type >* meta = nullptr,
+                            const std::map< uint32, std::string >* users = nullptr,
                             const Output_Handler::Feature_Action& action = Output_Handler::keep,
-                            const OSM_Element_Metadata_Skeleton< Node::Id_Type >* new_meta = 0);
+                            const OSM_Element_Metadata_Skeleton< Node::Id_Type >* new_meta = nullptr);
 
   void print_item(Extra_Data_For_Diff& extra_data, uint32 ll_upper, const Way_Skeleton& skel,
                     const std::vector< std::pair< std::string, std::string > >* tags,
@@ -104,18 +104,18 @@ private:
                             const std::vector< std::pair< std::string, std::string > >* tags,
                             const std::pair< Quad_Coord, Quad_Coord* >* bounds,
                             const std::vector< Quad_Coord >* geometry,
-                            timestamp_t timestamp, const OSM_Element_Metadata_Skeleton< Way::Id_Type >* meta = 0,
-                            const std::map< uint32, std::string >* users = 0,
+                            timestamp_t timestamp, const OSM_Element_Metadata_Skeleton< Way::Id_Type >* meta = nullptr,
+                            const std::map< uint32, std::string >* users = nullptr,
                             const Output_Handler::Feature_Action& action = Output_Handler::keep,
-                            const OSM_Element_Metadata_Skeleton< Way::Id_Type >* new_meta = 0);
+                            const OSM_Element_Metadata_Skeleton< Way::Id_Type >* new_meta = nullptr);
   void compare_item(uint32 ll_upper, const Way_Skeleton& skel,
                             const std::vector< std::pair< std::string, std::string > >* tags,
                             const std::pair< Quad_Coord, Quad_Coord* >* bounds,
                             const std::vector< Quad_Coord >* geometry,
-                            timestamp_t timestamp, const OSM_Element_Metadata_Skeleton< Way::Id_Type >* meta = 0,
-                            const std::map< uint32, std::string >* users = 0,
+                            timestamp_t timestamp, const OSM_Element_Metadata_Skeleton< Way::Id_Type >* meta = nullptr,
+                            const std::map< uint32, std::string >* users = nullptr,
                             const Output_Handler::Feature_Action& action = Output_Handler::keep,
-                            const OSM_Element_Metadata_Skeleton< Way::Id_Type >* new_meta = 0);
+                            const OSM_Element_Metadata_Skeleton< Way::Id_Type >* new_meta = nullptr);
 
   void print_item(Extra_Data_For_Diff& extra_data, uint32 ll_upper, const Relation_Skeleton& skel,
                     const std::vector< std::pair< std::string, std::string > >* tags,
@@ -129,18 +129,18 @@ private:
                             const std::vector< std::pair< std::string, std::string > >* tags,
                             const std::pair< Quad_Coord, Quad_Coord* >* bounds,
                             const std::vector< std::vector< Quad_Coord > >* geometry,
-                            timestamp_t timestamp, const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* meta = 0,
-                            const std::map< uint32, std::string >* users = 0,
+                            timestamp_t timestamp, const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* meta = nullptr,
+                            const std::map< uint32, std::string >* users = nullptr,
                             const Output_Handler::Feature_Action& action = Output_Handler::keep,
-                            const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* new_meta = 0);
+                            const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* new_meta = nullptr);
   void compare_item(uint32 ll_upper, const Relation_Skeleton& skel,
                             const std::vector< std::pair< std::string, std::string > >* tags,
                             const std::pair< Quad_Coord, Quad_Coord* >* bounds,
                             const std::vector< std::vector< Quad_Coord > >* geometry,
-                            timestamp_t timestamp, const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* meta = 0,
-                            const std::map< uint32, std::string >* users = 0,
+                            timestamp_t timestamp, const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* meta = nullptr,
+                            const std::map< uint32, std::string >* users = nullptr,
                             const Output_Handler::Feature_Action& action = Output_Handler::keep,
-                            const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* new_meta = 0);
+                            const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* new_meta = nullptr);
 
   void set_target(bool target);
 

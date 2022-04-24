@@ -38,10 +38,8 @@
 template< typename Key, typename Value >
 struct Random_File
 {
-private:
-  Random_File(const Random_File& f) {}
-
 public:
+  Random_File(const Random_File& f) = delete;
   Random_File(Random_File_Index*);
   ~Random_File();
 

@@ -91,7 +91,7 @@ public:
   }
 
   Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string*) override;
-  Eval_Geometry_Task* get_geometry_task(Prepare_Task_Context& context) override { return 0; }
+  Eval_Geometry_Task* get_geometry_task(Prepare_Task_Context& context) override { return nullptr; }
 
 private:
   std::string input;

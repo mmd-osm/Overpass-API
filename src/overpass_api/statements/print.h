@@ -198,7 +198,7 @@ class Print_Statement : public Statement
     Output_Mode mode;
     enum { order_by_id, order_by_quadtile } order;
     unsigned int limit;
-    Set_Comparison* collection_print_target;
+    Set_Comparison* collection_print_target = nullptr;
     bool diff_valid;
 
     double south;

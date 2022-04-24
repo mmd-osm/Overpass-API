@@ -87,7 +87,7 @@ class Recurse_Statement final : public Output_Statement
     Recurse get_type() const { return type; }
     std::string get_input() const { return input; }
 
-    const std::string* get_role() const { return (restrict_to_role ? &role : 0); }
+    const std::string* get_role() const { return (restrict_to_role ? &role : nullptr); }
 
     static std::string to_target_type(Recurse type);
     static std::string to_xml_representation(Recurse type);
@@ -132,7 +132,7 @@ class Recurse_Statement final : public Output_Statement
     }
     std::string dump_pretty_ql(const std::string& indent) const override { return indent + dump_compact_ql(indent); }
 
-    const std::vector< int >* get_pos() const { return pos.empty() ? 0 : &pos; }
+    const std::vector< int >* get_pos() const { return pos.empty() ? nullptr : &pos; }
 
   private:
     std::string input;

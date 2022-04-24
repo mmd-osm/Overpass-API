@@ -25,7 +25,7 @@ Generic_Statement_Maker< Retro_Statement > Retro_Statement::statement_maker("ret
 
 Retro_Statement::Retro_Statement
     (int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
-    : Statement(line_number_), timestamp(0)
+    : Statement(line_number_)
 {
   std::map< std::string, std::string > attributes;
 
@@ -58,8 +58,8 @@ void Retro_Statement::add_statement(Statement* statement, std::string text)
 timestamp_t eval_timestamp(Evaluator& criterion, const Statement& stmt, Resource_Manager& rman)
 {
   Prepare_Task_Context context(criterion.request_context(), stmt, rman);
-  std::unique_ptr< Eval_Task > task(criterion.get_string_task(context, 0));
-  std::string valuation = eval_variant_to_string((*task).eval(0));
+  std::unique_ptr< Eval_Task > task(criterion.get_string_task(context, nullptr));
+  std::string valuation = eval_variant_to_string((*task).eval(nullptr));
 
   return Timestamp(valuation).timestamp;
 }

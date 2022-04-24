@@ -80,7 +80,7 @@ int handle_request(const std::string & content, bool is_cgi, Index_Cache* ic)
 
     error_output.set_output_handler(global_settings.get_output_handler());
 
-    Osm_Script_Statement* osm_script = 0;
+    Osm_Script_Statement* osm_script = nullptr;
     if (!get_statement_stack()->empty())
       osm_script = dynamic_cast< Osm_Script_Statement* >(get_statement_stack()->front());
 
@@ -263,7 +263,7 @@ int main(int argc, char *argv[])
   else
   {
     int request_counter = 0;
-    time_t start_time = time(0);
+    time_t start_time = time(nullptr);
 
     char const* max_requests_c = std::getenv("OVERPASS_FCGI_MAX_REQUESTS");
     char const* max_elapsed_time_c = std::getenv("OVERPASS_FCGI_MAX_ELAPSED_TIME");

@@ -39,14 +39,14 @@ Statement* Set_Prop_Statement::Evaluator_Maker::create_evaluator(
   }
 
   if (tree_context != Statement::generic && tree_context != Statement::in_convert)
-    return 0;
+    return nullptr;
 
   if (!tree_it->lhs)
   {
     if (error_output)
       error_output->add_parse_error("To set a property it must have a name to the left of the equal sign",
           tree_it->line_col.first);
-    return 0;
+    return nullptr;
   }
 
   if (!tree_it->rhs)
@@ -54,7 +54,7 @@ Statement* Set_Prop_Statement::Evaluator_Maker::create_evaluator(
     if (error_output)
       error_output->add_parse_error("To set a property it must have a value to the right of the equal sign",
           tree_it->line_col.first);
-    return 0;
+    return nullptr;
   }
 
   Statement::Eval_Return_Type eval_type = Statement::string;
@@ -93,7 +93,7 @@ Statement* Set_Prop_Statement::Evaluator_Maker::create_evaluator(
         error_output->add_parse_error(std::string("if special character \"") + tree_it.lhs()->token
             + "\" is present in property name then the property name must be in quotes",
             tree_it->line_col.first);
-      return 0;
+      return nullptr;
     }
     attributes["k"] = decode_json(tree_it.lhs()->token, error_output);
     attributes["keytype"] = "tag";
@@ -115,7 +115,7 @@ Statement* Set_Prop_Statement::Evaluator_Maker::create_evaluator(
 
 Set_Prop_Statement::Set_Prop_Statement
     (int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
-    : Statement(line_number_), key(0), mode(Set_Prop_Task::single_key), tag_value(0)
+    : Statement(line_number_), mode(Set_Prop_Task::single_key)
 {
   std::map< std::string, std::string > attributes;
 
@@ -288,9 +288,9 @@ Set_Prop_Task* Set_Prop_Statement::get_task(
   if (input.empty())
   {
     if (mode == Set_Prop_Task::set_geometry)
-      return new Set_Prop_Geometry_Task(tag_value ? tag_value->get_geometry_task(context) : 0);
+      return new Set_Prop_Geometry_Task(tag_value ? tag_value->get_geometry_task(context) : nullptr);
 
-    return new Set_Prop_Plain_Task(tag_value ? tag_value->get_string_task(context, key) : 0,
+    return new Set_Prop_Plain_Task(tag_value ? tag_value->get_string_task(context, key) : nullptr,
         key ? *key : "", mode);
   }
 
@@ -311,7 +311,7 @@ Set_Prop_Task* Set_Prop_Statement::get_task(
     eval_elems(existing_keys, *input_set, input_set->base->deriveds, otherwise_set_keys);
 
     for (auto it = existing_keys.begin(); it != existing_keys.end(); ++it)
-      result->add_key(*it, tag_value ? tag_value->get_string_task(context, &*it) : 0);
+      result->add_key(*it, tag_value ? tag_value->get_string_task(context, &*it) : nullptr);
   }
 
   return result;
@@ -324,13 +324,13 @@ void Set_Prop_Plain_Task::process(Derived_Structure& result, bool& id_set) const
     return;
 
   if (mode == single_key)
-    result.tags.push_back(std::make_pair(key, eval_variant_to_string(rhs->eval(0))));
+    result.tags.push_back(std::make_pair(key, eval_variant_to_string(rhs->eval(nullptr))));
   else if (mode == set_id)
   {
     if (!id_set)
     {
       int64 id = 0;
-      id_set |= try_int64(rhs->eval(0), id);
+      id_set |= try_int64(rhs->eval(nullptr), id);
       if (id_set)
         result.id = Uint64(id);
     }
@@ -371,7 +371,7 @@ void process(const std::string& key, Set_Prop_Task::Mode mode, Eval_Task* rhs,
     if (!id_set)
     {
       int64 id = 0;
-      id_set |= try_int64(rhs->eval(data, 0), id);
+      id_set |= try_int64(rhs->eval(data, nullptr), id);
       if (id_set)
         result.id = Uint64(id);
     }

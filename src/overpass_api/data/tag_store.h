@@ -69,16 +69,16 @@ public:
 
 private:
   std::map< typename Object::Id_Type, std::vector< std::pair< std::string, std::string > > > tags_by_id;
-  Transaction* transaction;
-  bool use_index;
+  Transaction* transaction = nullptr;
+  bool use_index = false;
   Index stored_index;
   Ranges< Tag_Index_Local > ranges;
   std::map< uint32, std::vector< typename Object::Id_Type > > ids_by_coarse;
   std::map< uint32, std::vector< Attic< typename Object::Id_Type > > > attic_ids_by_coarse;
-  Block_Backend< Tag_Index_Local, typename Object::Id_Type >* items_db;
-  typename Block_Backend< Tag_Index_Local, typename Object::Id_Type >::Range_Iterator* tag_it;
-  Block_Backend< Tag_Index_Local, Attic< typename Object::Id_Type > >* attic_items_db;
-  typename Block_Backend< Tag_Index_Local, Attic< typename Object::Id_Type > >::Range_Iterator* attic_tag_it;
+  Block_Backend< Tag_Index_Local, typename Object::Id_Type >* items_db = nullptr;
+  typename Block_Backend< Tag_Index_Local, typename Object::Id_Type >::Range_Iterator* tag_it = nullptr;
+  Block_Backend< Tag_Index_Local, Attic< typename Object::Id_Type > >* attic_items_db = nullptr;
+  typename Block_Backend< Tag_Index_Local, Attic< typename Object::Id_Type > >::Range_Iterator* attic_tag_it = nullptr;
 };
 
 
@@ -288,7 +288,7 @@ void collect_tags_framed
 
 template< typename Index, typename Object >
 Tag_Store< Index, Object >::Tag_Store(Transaction& transaction_)
-    : transaction(&transaction_), use_index(false), ranges({}), items_db(0), tag_it(0), attic_items_db(0), attic_tag_it(0) {}
+    : transaction(&transaction_), use_index(false), ranges({}) {}
 
 
 template< typename Index, typename Object >
@@ -438,7 +438,7 @@ const std::vector< std::pair< std::string, std::string > >*
   if (it != tags_by_id.end())
     return &it->second;
   else
-    return 0;
+    return nullptr;
 }
 
 

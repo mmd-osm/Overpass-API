@@ -147,8 +147,7 @@ Dispatcher_Stub::Dispatcher_Stub
     (std::string db_dir_, Error_Output* error_output_, const std::string& xml_raw, meta_modes meta_, int area_level,
      uint32 max_allowed_time, uint64 max_allowed_space, Parsed_Query& global_settings, Index_Cache* ic)
     : db_dir(std::move(db_dir_)), error_output(error_output_),
-      dispatcher_client(0), area_dispatcher_client(0),
-      transaction(0), area_transaction(0), rman(0), meta(meta_), client_token(0)
+      meta(meta_)
 {
   t1 = std::chrono::high_resolution_clock::now();
 
@@ -343,8 +342,8 @@ Dispatcher_Stub::Dispatcher_Stub
 	}
       }
 
-      rman = new Resource_Manager(*transaction, global_settings, area_level == 2 ? error_output : 0,
-	  *area_transaction, area_level == 2 ? new Area_Updater(*area_transaction) : 0);
+      rman = new Resource_Manager(*transaction, global_settings, area_level == 2 ? error_output : nullptr,
+	  *area_transaction, area_level == 2 ? new Area_Updater(*area_transaction) : nullptr);
     }
     else
       rman = new Resource_Manager(*transaction, &global_settings,  error_output);
@@ -359,8 +358,8 @@ Dispatcher_Stub::Dispatcher_Stub
     if (area_level > 0)
     {
       area_transaction = new Nonsynced_Transaction(area_level == 2, false, db_dir, "");
-      rman = new Resource_Manager(*transaction, global_settings, area_level == 2 ? error_output : 0,
-	  *area_transaction, area_level == 2 ? new Area_Updater(*area_transaction) : 0);
+      rman = new Resource_Manager(*transaction, global_settings, area_level == 2 ? error_output : nullptr,
+	  *area_transaction, area_level == 2 ? new Area_Updater(*area_transaction) : nullptr);
     }
     else
       rman = new Resource_Manager(*transaction, &global_settings, error_output);
@@ -450,7 +449,7 @@ bool Dispatcher_Stub::is_attic_file(const std::string& filename) const
 
 Dispatcher_Stub::~Dispatcher_Stub()
 {
-  bool areas_written = (rman ? (rman->area_updater() != 0) : false);
+  bool areas_written = (rman ? (rman->area_updater() != nullptr) : false);
   std::vector< std::chrono::milliseconds > cpu_runtime = rman ? rman->cpu_time() : std::vector< std::chrono::milliseconds >();
   delete rman;
   if (transaction)

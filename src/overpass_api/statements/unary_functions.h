@@ -41,7 +41,7 @@ public:
   virtual Eval_Variant process(const Eval_Variant& rhs_result) const = 0;
 
 protected:
-  Evaluator* rhs;
+  Evaluator* rhs = nullptr;
 };
 
 
@@ -67,7 +67,7 @@ struct Unary_Eval_Task : public Eval_Task
   Eval_Variant eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override;
 
 private:
-  Eval_Task* rhs;
+  Eval_Task* rhs = nullptr;
   Evaluator_Unary_Function* evaluator;
 };
 
@@ -83,12 +83,12 @@ public:
   Requested_Context request_context() const override;
   Statement::Eval_Return_Type return_type() const override { return Statement::geometry; };
   Eval_Geometry_Task* get_geometry_task(Prepare_Task_Context& context) override;
-  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override { return 0; }
+  Eval_Task* get_string_task(Prepare_Task_Context& context, const std::string* key) override { return nullptr; }
 
   virtual Opaque_Geometry* process(Opaque_Geometry* geom) const = 0;
 
 protected:
-  Evaluator* rhs;
+  Evaluator* rhs = nullptr;
 };
 
 
@@ -110,8 +110,8 @@ struct Unary_Geometry_Eval_Task : public Eval_Geometry_Task
   Opaque_Geometry* eval(const Element_With_Context< Derived_Skeleton >& data) const override;
 
 private:
-  Eval_Geometry_Task* rhs;
-  Evaluator_Geometry_Unary_Function* evaluator;
+  Eval_Geometry_Task* rhs = nullptr;
+  Evaluator_Geometry_Unary_Function* evaluator = nullptr;
 };
 
 
@@ -131,8 +131,8 @@ public:
   static bool needs_an_element_to_eval() { return false; }
 
 protected:
-  Evaluator* first;
-  Evaluator* second;
+  Evaluator* first = nullptr;
+  Evaluator* second = nullptr;
 };
 
 
@@ -163,9 +163,9 @@ struct Binary_Func_Eval_Task : public Eval_Task
   Eval_Variant eval(uint pos, const Element_With_Context< Attic< Relation_Skeleton > >& data, const std::string* key) const override;
 
 private:
-  Eval_Task* first;
-  Eval_Task* second;
-  Evaluator_Binary_Function* evaluator;
+  Eval_Task* first = nullptr;
+  Eval_Task* second = nullptr;
+  Evaluator_Binary_Function* evaluator = nullptr;
 };
 
 

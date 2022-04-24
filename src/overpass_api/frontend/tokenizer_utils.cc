@@ -360,7 +360,7 @@ const std::string* Token_Node_Ptr::function_name() const
     return &rhs().lhs()->token;
   }
 
-  return 0;
+  return nullptr;
 }
 
 

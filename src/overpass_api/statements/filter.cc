@@ -58,7 +58,7 @@ void eval_elems(std::map< Index, std::vector< Maybe_Attic > >& items,
         it_elem != it_idx->second.end(); ++it_elem)
     {
       if (eval_variant_represents_boolean_true(
-          task.eval(into_context.get_context(it_idx->first, *it_elem), 0)))
+          task.eval(into_context.get_context(it_idx->first, *it_elem), nullptr)))
         local_into.push_back(*it_elem);
     }
 
@@ -75,7 +75,7 @@ void Filter_Constraint::filter(const Statement& query, Resource_Manager& rman, S
   Requested_Context requested_context = stmt->get_criterion()->request_context();
   Prepare_Task_Context context(requested_context, query, rman);
 
-  std::unique_ptr< Eval_Task > task(stmt->get_criterion()->get_string_task(context, 0));
+  std::unique_ptr< Eval_Task > task(stmt->get_criterion()->get_string_task(context, nullptr));
 
   Set_With_Context into_context;
   into_context.name = "";
@@ -107,10 +107,10 @@ Statement* Filter_Statement::Criterion_Maker::create_criterion(const Token_Node_
     const std::string& type, const std::string& into,
     Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output)
 {
-  Statement* filter = 0;
+  Statement* filter = nullptr;
   uint line_nr = tree_it->line_col.first;
 
-  Statement* criterion = 0;
+  Statement* criterion = nullptr;
   if (tree_it->token == ":" && tree_it->rhs && tree_it->lhs && tree_it.lhs()->token == "if")
     criterion = stmt_factory.create_evaluator(
         tree_it.rhs(), Statement::elem_eval_possible, Statement::Single_Return_Type_Checker(Statement::string));
@@ -135,7 +135,7 @@ Statement* Filter_Statement::Criterion_Maker::create_criterion(const Token_Node_
 
 Filter_Statement::Filter_Statement
     (int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
-    : Output_Statement(line_number_), criterion(0)
+    : Output_Statement(line_number_)
 {
   std::map< std::string, std::string > attributes;
 

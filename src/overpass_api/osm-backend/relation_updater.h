@@ -39,7 +39,7 @@ struct Relation_Updater
 
   Relation_Updater(std::string db_dir, meta_modes meta, unsigned int parallel_processes = 1, bool initial_load = false);
 
-  void set_id_deleted(Relation::Id_Type id, const OSM_Element_Metadata* meta = 0)
+  void set_id_deleted(Relation::Id_Type id, const OSM_Element_Metadata* meta = nullptr)
   {
     if (meta)
       new_data.data.push_back(Data_By_Id< Relation_Skeleton >::Entry
@@ -55,7 +55,7 @@ struct Relation_Updater
   }
 
   void set_relation(const Relation& rel,
-		    const OSM_Element_Metadata* meta = 0)
+		    const OSM_Element_Metadata* meta = nullptr)
   {
     if (meta)
       new_data.data.push_back(Data_By_Id< Relation_Skeleton >::Entry
@@ -73,7 +73,7 @@ struct Relation_Updater
   }
 
   void set_relation(Relation&& rel,
-                    const OSM_Element_Metadata* meta = 0)
+                    const OSM_Element_Metadata* meta = nullptr)
   {
     if (meta)
       new_data.data.push_back(Data_By_Id< Relation_Skeleton >::Entry
@@ -102,7 +102,7 @@ struct Relation_Updater
               const std::map< Uint31_Index, std::set< Attic< Way_Delta > > >& new_attic_way_skeletons);
 
 private:
-  Transaction* transaction;
+  Transaction* transaction = nullptr;
   bool external_transaction;
   std::map< std::string, uint32 > role_ids;
   uint32 max_role_id;

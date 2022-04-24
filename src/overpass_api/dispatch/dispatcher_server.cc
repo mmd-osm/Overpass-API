@@ -350,7 +350,7 @@ int main(int argc, char* argv[])
   {
     try
     {
-      time_t now = time(0);
+      time_t now = time(nullptr);
       uint32 client_token = probe_client_token();
       std::cout<<"Connected as: "<<client_token<<'\n';
       std::cout<<"Current time: "<<to_date(now)<<'\n';

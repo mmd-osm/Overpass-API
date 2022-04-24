@@ -174,7 +174,7 @@ inline File_Blocks_Index_Base* Nonsynced_Transaction::data_index
 
   File_Blocks_Index_Base* data_index = fp->new_data_index
       (writeable, use_shadow, db_dir, file_name_extension);
-  if (data_index != 0)
+  if (data_index != nullptr)
     (*df)[fp] = data_index;
   return data_index;
 }

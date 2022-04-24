@@ -285,5 +285,5 @@ void Output_CSV::print_item(const Derived_Skeleton& skel,
       const Feature_Action& action)
 {
   process_csv_line< Derived_Skeleton::Id_Type, int >(
-      4, skel.type_name, skel.id, geometry, 0, tags, 0, csv_settings, mode);
+      4, skel.type_name, skel.id, geometry, nullptr, tags, nullptr, csv_settings, mode);
 }

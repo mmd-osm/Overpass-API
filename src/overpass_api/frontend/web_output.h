@@ -28,8 +28,7 @@
 struct Web_Output : public Error_Output
 {
   Web_Output(uint log_level_) : http_method(http_get), has_origin(false), header_written(not_yet),
-      encoding_errors(false), parse_errors(false), static_errors(false), log_level(log_level_),
-      output_handler(0) {}
+      encoding_errors(false), parse_errors(false), static_errors(false), log_level(log_level_) {}
 
   virtual ~Web_Output() {
     try {
@@ -80,7 +79,7 @@ private:
   uint log_level;
   std::string messages;
 
-  Output_Handler* output_handler;
+  Output_Handler* output_handler = nullptr;
 
   void display_remark(const std::string& text);
   void display_error(const std::string& text, uint write_mime);

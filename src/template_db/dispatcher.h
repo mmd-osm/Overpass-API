@@ -220,7 +220,7 @@ class Dispatcher
 	       uint64 total_available_space,
 	       uint64 total_available_time_units,
 	       const std::vector< File_Properties* >& controlled_files,
-	       Dispatcher_Logger* logger = 0);
+	       Dispatcher_Logger* logger = nullptr);
 
     ~Dispatcher();
 

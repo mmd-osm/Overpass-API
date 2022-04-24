@@ -204,9 +204,9 @@ public:
 
 private:
   std::string input;
-  std::string* key;
+  std::string* key = nullptr;
   Set_Prop_Task::Mode mode;
-  Evaluator* tag_value;
+  Evaluator* tag_value = nullptr;
 };
 
 

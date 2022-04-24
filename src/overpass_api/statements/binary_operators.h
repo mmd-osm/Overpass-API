@@ -99,8 +99,8 @@ public:
       Statement::QL_Context tree_context, Statement::Factory& stmt_factory, Error_Output* error_output);
 
 protected:
-  Evaluator* lhs;
-  Evaluator* rhs;
+  Evaluator* lhs = nullptr;
+  Evaluator* rhs = nullptr;
 };
 
 

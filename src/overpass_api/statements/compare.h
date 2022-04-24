@@ -158,10 +158,10 @@ public:
   }
 
 private:
-  Evaluator* criterion;
+  Evaluator* criterion = nullptr;
   std::vector< Statement* > substatements;
   std::string input;
-  Set_Comparison* set_comparison;
+  Set_Comparison* set_comparison = nullptr;
 };
 
 

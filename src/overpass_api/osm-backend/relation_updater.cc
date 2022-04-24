@@ -45,8 +45,7 @@ Relation_Updater::Relation_Updater(Transaction& transaction_, meta_modes meta_, 
 {}
 
 Relation_Updater::Relation_Updater(std::string db_dir_, meta_modes meta_, unsigned int parallel_processes_, bool initial_load_)
-  : transaction(0),
-    external_transaction(false),
+  : external_transaction(false),
     max_role_id(0), max_written_role_id(0), db_dir(std::move(db_dir_)), meta(meta_),
     keys(*osm_base_settings().RELATION_KEYS), parallel_processes(parallel_processes_),
     initial_load(initial_load_)

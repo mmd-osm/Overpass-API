@@ -30,7 +30,7 @@ Statement* Evaluator_Fixed::Evaluator_Maker::create_evaluator(
     Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output)
 {
   if (tree_it->lhs || tree_it->rhs)
-    return 0;
+    return nullptr;
 
   int64 value_l = 0;
   double value_d = 0;
@@ -41,7 +41,7 @@ Statement* Evaluator_Fixed::Evaluator_Maker::create_evaluator(
     if (error_output)
       error_output->add_parse_error(std::string("Put quotation marks around \"") + tree_it->token
           + "\" if it should be a constant and not a tag evaluation.", tree_it->line_col.first);
-    return 0;
+    return nullptr;
   }
 
   std::map< std::string, std::string > attributes;
@@ -139,20 +139,20 @@ Statement* Evaluator_Value::Evaluator_Maker::create_evaluator(
     Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output)
 {
   if (!assert_element_in_context(error_output, tree_it, tree_context))
-    return 0;
+    return nullptr;
 
   if (!tree_it->lhs || tree_it.lhs()->lhs || tree_it.lhs()->rhs || tree_it.lhs()->token != "t")
   {
     if (error_output)
       error_output->add_parse_error("Tag evaulation needs function name \"t\" before the left bracket",
           tree_it->line_col.first);
-    return 0;
+    return nullptr;
   }
   if (!tree_it->rhs)
   {
     if (error_output)
       error_output->add_parse_error("Operator \"[\" needs a tag key as argument", tree_it->line_col.first);
-    return 0;
+    return nullptr;
   }
 
   std::map< std::string, std::string > attributes;
@@ -173,7 +173,7 @@ Statement* Evaluator_Value::Evaluator_Maker::create_evaluator(
 
 Evaluator_Value::Evaluator_Value
     (int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
-    : Evaluator(line_number_), rhs(0)
+    : Evaluator(line_number_)
 {
   std::map< std::string, std::string > attributes;
   eval_attributes_array(get_name(), attributes, input_attributes);
@@ -202,7 +202,7 @@ Requested_Context Evaluator_Value::request_context() const
 
 Eval_Task* Evaluator_Value::get_string_task(Prepare_Task_Context& context, const std::string* key)
 {
-  Eval_Task* rhs_task = rhs ? rhs->get_string_task(context, key) : 0;
+  Eval_Task* rhs_task = rhs ? rhs->get_string_task(context, key) : nullptr;
   return new Value_Eval_Task(rhs_task);
 }
 
@@ -291,13 +291,13 @@ Statement* Evaluator_Is_Tag::Evaluator_Maker::create_evaluator(
   if (!tree_it.assert_is_function(error_output) || !tree_it.assert_has_input_set(error_output, false)
       || !tree_it.assert_has_arguments(error_output, true)
       || !assert_element_in_context(error_output, tree_it, tree_context))
-    return 0;
+    return nullptr;
 
   if (tree_it.rhs()->lhs || tree_it.rhs()->rhs)
   {
     if (error_output)
       error_output->add_parse_error("is_tag(key) needs a simple string as argument", tree_it->line_col.first);
-    return 0;
+    return nullptr;
   }
   std::map< std::string, std::string > attributes;
   attributes["k"] = decode_json(tree_it.rhs()->token, error_output);
@@ -432,7 +432,7 @@ Statement* Evaluator_Generic::Evaluator_Maker::create_evaluator(
     Statement::Factory& stmt_factory, Parsed_Query& global_settings, Error_Output* error_output)
 {
   if (tree_it->lhs || tree_it->rhs)
-    return 0;
+    return nullptr;
   std::map< std::string, std::string > attributes;
   return new Evaluator_Generic(tree_it->line_col.first, attributes, global_settings);
 }
@@ -461,7 +461,7 @@ Statement* Evaluator_Properties_Count::Evaluator_Maker::create_evaluator(
 {
   if (!tree_it.assert_is_function(error_output) || !tree_it.assert_has_input_set(error_output, false)
       || !assert_element_in_context(error_output, tree_it, tree_context))
-    return 0;
+    return nullptr;
 
   std::map< std::string, std::string > attributes;
 
@@ -481,7 +481,7 @@ Statement* Evaluator_Properties_Count::Evaluator_Maker::create_evaluator(
           if (error_output)
             error_output->add_parse_error(tree_it.lhs()->token
                 + "() needs a single literal expression as argument for the wanted role", tree_it->line_col.first);
-          return 0;
+          return nullptr;
         }
 
         if (tree_it.rhs().rhs()->lhs || tree_it.rhs().rhs()->rhs
@@ -492,7 +492,7 @@ Statement* Evaluator_Properties_Count::Evaluator_Maker::create_evaluator(
             error_output->add_parse_error(tree_it.lhs()->token
                 + "(...) can only have one of the words nodes, ways, or relations as second argument",
                 tree_it->line_col.first);
-          return 0;
+          return nullptr;
         }
         else
           attributes["members_type"] = tree_it.rhs().rhs()->token;
@@ -504,7 +504,7 @@ Statement* Evaluator_Properties_Count::Evaluator_Maker::create_evaluator(
         if (error_output)
           error_output->add_parse_error(tree_it.lhs()->token
               + "() needs a single literal expression as argument for the wanted role", tree_it->line_col.first);
-        return 0;
+        return nullptr;
       }
     }
     else
@@ -512,7 +512,7 @@ Statement* Evaluator_Properties_Count::Evaluator_Maker::create_evaluator(
       if (error_output)
         error_output->add_parse_error(tree_it.lhs()->token
             + "() must have the name of the wanted role as argument", tree_it->line_col.first);
-      return 0;
+      return nullptr;
     }
   }
   else if (*func_name == "count_members" || *func_name == "count_distinct_members")
@@ -527,7 +527,7 @@ Statement* Evaluator_Properties_Count::Evaluator_Maker::create_evaluator(
           error_output->add_parse_error(tree_it.lhs()->token
               + "(...) can only have one of the words nodes, ways, or relations as an argument",
               tree_it->line_col.first);
-        return 0;
+        return nullptr;
       }
       else
         attributes["members_type"] = tree_it.rhs()->token;
@@ -536,7 +536,7 @@ Statement* Evaluator_Properties_Count::Evaluator_Maker::create_evaluator(
   else
   {
     if (!tree_it.assert_has_arguments(error_output, false))
-      return 0;
+      return nullptr;
   }
 
   return new Evaluator_Properties_Count(tree_it->line_col.first, attributes, global_settings);

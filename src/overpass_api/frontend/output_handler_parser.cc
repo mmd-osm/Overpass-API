@@ -29,7 +29,7 @@ Output_Handler_Parser* Output_Handler_Parser::get_format_parser(const std::strin
 {
   auto it = registry().find(format_name);
   if (it == registry().end())
-    return 0;
+    return nullptr;
   else
     return it->second;
 }

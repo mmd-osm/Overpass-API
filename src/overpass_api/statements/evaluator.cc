@@ -226,11 +226,11 @@ Element_With_Context< Node_Skeleton > Set_With_Context::get_context(
     current_geometry = new Point_Geometry(::lat(index.val(), elem.ll_lower), ::lon(index.val(), elem.ll_lower));
   }
   const OSM_Element_Metadata_Skeleton< Node_Skeleton::Id_Type >* meta
-      = (meta_collector_nodes ? meta_collector_nodes->get(index, elem.id) : 0);
+      = (meta_collector_nodes ? meta_collector_nodes->get(index, elem.id) : nullptr);
   return Element_With_Context< Node_Skeleton >(&elem,
-      tag_store_nodes ? tag_store_nodes->get(index, elem) : 0,
+      tag_store_nodes ? tag_store_nodes->get(index, elem) : nullptr,
       current_geometry,
-      meta, meta && parent ? parent->get_user_name(meta->user_id) : 0);
+      meta, meta && parent ? parent->get_user_name(meta->user_id) : nullptr);
 }
 
 
@@ -243,11 +243,11 @@ Element_With_Context< Attic< Node_Skeleton > > Set_With_Context::get_context(
     current_geometry = new Point_Geometry(::lat(index.val(), elem.ll_lower), ::lon(index.val(), elem.ll_lower));
   }
   const OSM_Element_Metadata_Skeleton< Node_Skeleton::Id_Type >* meta
-      = (meta_collector_attic_nodes ? meta_collector_attic_nodes->get(index, elem.id, elem.timestamp) : 0);
+      = (meta_collector_attic_nodes ? meta_collector_attic_nodes->get(index, elem.id, elem.timestamp) : nullptr);
   return Element_With_Context< Attic< Node_Skeleton > >(&elem,
-      tag_store_attic_nodes ? tag_store_attic_nodes->get(index, elem) : 0,
+      tag_store_attic_nodes ? tag_store_attic_nodes->get(index, elem) : nullptr,
       current_geometry,
-      meta, meta && parent ? parent->get_user_name(meta->user_id) : 0);
+      meta, meta && parent ? parent->get_user_name(meta->user_id) : nullptr);
 }
 
 
@@ -369,11 +369,11 @@ Element_With_Context< Way_Skeleton > Set_With_Context::get_context(
     current_geometry = new_opaque_geometry(way_geometry_store->get_geometry(elem));
   }
   const OSM_Element_Metadata_Skeleton< Way_Skeleton::Id_Type >* meta
-      = (meta_collector_ways ? meta_collector_ways->get(index, elem.id) : 0);
+      = (meta_collector_ways ? meta_collector_ways->get(index, elem.id) : nullptr);
   return Element_With_Context< Way_Skeleton >(&elem,
-      tag_store_ways ? tag_store_ways->get(index, elem) : 0,
+      tag_store_ways ? tag_store_ways->get(index, elem) : nullptr,
       current_geometry,
-      meta, meta && parent ? parent->get_user_name(meta->user_id) : 0);
+      meta, meta && parent ? parent->get_user_name(meta->user_id) : nullptr);
 }
 
 
@@ -386,11 +386,11 @@ Element_With_Context< Attic< Way_Skeleton > > Set_With_Context::get_context(
     current_geometry = new_opaque_geometry(attic_way_geometry_store->get_geometry(elem));
   }
   const OSM_Element_Metadata_Skeleton< Way_Skeleton::Id_Type >* meta
-      = (meta_collector_attic_ways ? meta_collector_attic_ways->get(index, elem.id, elem.timestamp) : 0);
+      = (meta_collector_attic_ways ? meta_collector_attic_ways->get(index, elem.id, elem.timestamp) : nullptr);
   return Element_With_Context< Attic< Way_Skeleton > >(&elem,
-      tag_store_attic_ways ? tag_store_attic_ways->get(index, elem) : 0,
+      tag_store_attic_ways ? tag_store_attic_ways->get(index, elem) : nullptr,
       current_geometry,
-      meta, meta && parent ? parent->get_user_name(meta->user_id) : 0);
+      meta, meta && parent ? parent->get_user_name(meta->user_id) : nullptr);
 }
 
 
@@ -403,11 +403,11 @@ Element_With_Context< Relation_Skeleton > Set_With_Context::get_context(
     current_geometry = new_opaque_geometry(relation_geometry_store->get_geometry(elem));
   }
   const OSM_Element_Metadata_Skeleton< Relation_Skeleton::Id_Type >* meta
-      = (meta_collector_relations ? meta_collector_relations->get(index, elem.id) : 0);
+      = (meta_collector_relations ? meta_collector_relations->get(index, elem.id) : nullptr);
   return Element_With_Context< Relation_Skeleton >(&elem,
-      tag_store_relations ? tag_store_relations->get(index, elem) : 0,
+      tag_store_relations ? tag_store_relations->get(index, elem) : nullptr,
       current_geometry,
-      meta, meta && parent ? parent->get_user_name(meta->user_id) : 0);
+      meta, meta && parent ? parent->get_user_name(meta->user_id) : nullptr);
 }
 
 
@@ -420,11 +420,11 @@ Element_With_Context< Attic< Relation_Skeleton > > Set_With_Context::get_context
     current_geometry = new_opaque_geometry(attic_relation_geometry_store->get_geometry(elem));
   }
   const OSM_Element_Metadata_Skeleton< Relation_Skeleton::Id_Type >* meta
-      = (meta_collector_attic_relations ? meta_collector_attic_relations->get(index, elem.id, elem.timestamp) : 0);
+      = (meta_collector_attic_relations ? meta_collector_attic_relations->get(index, elem.id, elem.timestamp) : nullptr);
   return Element_With_Context< Attic< Relation_Skeleton > >(&elem,
-      tag_store_attic_relations ? tag_store_attic_relations->get(index, elem) : 0,
+      tag_store_attic_relations ? tag_store_attic_relations->get(index, elem) : nullptr,
       current_geometry,
-      meta, meta && parent ? parent->get_user_name(meta->user_id) : 0);
+      meta, meta && parent ? parent->get_user_name(meta->user_id) : nullptr);
 }
 
 
@@ -432,7 +432,7 @@ Element_With_Context< Area_Skeleton > Set_With_Context::get_context(
     const Uint31_Index& index, const Area_Skeleton& elem)
 {
   return Element_With_Context< Area_Skeleton >(&elem,
-      tag_store_areas ? tag_store_areas->get(index, elem) : 0, 0, 0, 0);
+      tag_store_areas ? tag_store_areas->get(index, elem) : nullptr, nullptr, nullptr, nullptr);
 }
 
 
@@ -440,13 +440,13 @@ Element_With_Context< Derived_Skeleton > Set_With_Context::get_context(
     const Uint31_Index& index, const Derived_Structure& elem)
 {
   return Element_With_Context< Derived_Skeleton >(&elem,
-      tag_store_deriveds ? tag_store_deriveds->get(index, elem) : 0, elem.get_geometry(), 0, 0);
+      tag_store_deriveds ? tag_store_deriveds->get(index, elem) : nullptr, elem.get_geometry(), nullptr, nullptr);
 }
 
 
 Prepare_Task_Context::Prepare_Task_Context(
     const Requested_Context& requested, const Statement& stmt, Resource_Manager& rman)
-    : contexts(requested.set_usage.size()), relation_member_roles_(0), users(0)
+    : contexts(requested.set_usage.size())
 {
   for (auto it = requested.set_usage.begin(); it != requested.set_usage.end(); ++it)
   {
@@ -476,7 +476,7 @@ Set_With_Context* Prepare_Task_Context::get_set(const std::string& set_name)
     if (contexts[i].name == set_name)
       return &contexts[i];
   }
-  return 0;
+  return nullptr;
 }
 
 
@@ -498,9 +498,9 @@ uint32 Prepare_Task_Context::get_role_id(const std::string& role) const
 const std::string* Prepare_Task_Context::get_user_name(uint32 user_id) const
 {
   if (!users)
-    return 0;
+    return nullptr;
   auto it = users->find(user_id);
   if (it == users->end())
-    return 0;
+    return nullptr;
   return &it->second;
 }

@@ -171,7 +171,7 @@ TStatement* parse_value_tree(typename TStatement::Factory& stmt_factory, Tokeniz
 {
   Token_Tree tree(token, error_output, parenthesis_expected);
   if (tree.tree.empty())
-    return 0;
+    return nullptr;
 
   return stmt_factory.create_evaluator(Token_Node_Ptr(tree, tree.tree[0].rhs), tree_context,
       eval_type);
@@ -513,7 +513,7 @@ TStatement* parse_union(typename TStatement::Factory& stmt_factory, Parsed_Query
   std::string into = probe_into(token, error_output);
   clear_until_after(token, error_output, ";");
 
-  TStatement* statement = 0;
+  TStatement* statement = nullptr;
   if (is_difference)
     statement = create_difference_statement< TStatement >(stmt_factory, into, line_col.first);
   else
@@ -756,7 +756,7 @@ TStatement* parse_compare(typename TStatement::Factory& stmt_factory, Parsed_Que
   std::pair< uint, uint > line_col = token.line_col();
   ++token;
 
-  TStatement* condition = 0;
+  TStatement* condition = nullptr;
   if (*token == "(")
   {
     clear_until_after(token, error_output, "(");
@@ -797,7 +797,7 @@ template< class TStatement >
 TStatement* parse_output(typename TStatement::Factory& stmt_factory,
 			 const std::string& from, Tokenizer_Wrapper& token, Error_Output* error_output)
 {
-  TStatement* statement = 0;
+  TStatement* statement = nullptr;
   if (*token == "out")
   {
     ++token;
@@ -861,7 +861,7 @@ TStatement* parse_output(typename TStatement::Factory& stmt_factory,
       ++token;
     }
 
-    if (statement == 0)
+    if (statement == nullptr)
     {
       statement = create_print_statement< TStatement >
           (stmt_factory, from.empty() ? "_" : from, mode, order, limit, geometry, show_ids,
@@ -895,7 +895,7 @@ template< class TStatement >
 TStatement* parse_make(typename TStatement::Factory& stmt_factory, const std::string& from,
                        Tokenizer_Wrapper& token, Error_Output* error_output, const std::string& strategy)
 {
-  TStatement* statement = 0;
+  TStatement* statement = nullptr;
   std::vector< TStatement* > evaluators;
   std::string type = "";
   if (*token == strategy)
@@ -1032,7 +1032,7 @@ TStatement* create_query_substatement
   else if (clause.statement == "item")
     return create_item_statement< TStatement >
         (stmt_factory, clause.attributes[0], "_", clause.line_col.first);
-  return 0;
+  return nullptr;
 }
 
 template< class TStatement >
@@ -1054,7 +1054,7 @@ TStatement* parse_full_recurse(typename TStatement::Factory& stmt_factory,
   else if (type == "<<")
     return create_recurse_statement< TStatement >(stmt_factory, "up-rel", from, into, line_col);
   else
-    return 0;
+    return nullptr;
 }
 
 template< class TStatement >
@@ -1264,7 +1264,7 @@ TStatement* parse_query(typename TStatement::Factory& stmt_factory, Parsed_Query
 
   std::string into = probe_into(token, error_output);
 
-  TStatement* statement = 0;
+  TStatement* statement = nullptr;
   if (clauses.empty() && subtrees.empty())
   {
     if (from.empty())
@@ -1331,7 +1331,7 @@ TStatement* parse_query(typename TStatement::Factory& stmt_factory, Parsed_Query
   {
     statement = create_query_statement< TStatement >(stmt_factory, type, into, query_line_col.first);
     if (!statement)
-      return 0;
+      return nullptr;
 
     if (!from.empty())
     {
@@ -1369,13 +1369,13 @@ TStatement* parse_statement(typename TStatement::Factory& stmt_factory, Parsed_Q
 			    Tokenizer_Wrapper& token, Error_Output* error_output, int depth)
 {
   if (!token.good())
-    return 0;
+    return nullptr;
 
   if (depth >= 1024)
   {
     if (error_output)
       error_output->add_parse_error("Nesting of statements is limited to 1023 levels", token.line_col().first);
-    return 0;
+    return nullptr;
   }
 
   if (*token == "(")

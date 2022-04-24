@@ -66,7 +66,7 @@ struct Area_Updater : public Area_Usage_Listener
   void flush() override;
 
 private:
-  Transaction* transaction;
+  Transaction* transaction = nullptr;
   bool external_transaction;
   std::string db_dir;
   std::map< Uint31_Index, std::vector< Area_Block > > area_blocks;

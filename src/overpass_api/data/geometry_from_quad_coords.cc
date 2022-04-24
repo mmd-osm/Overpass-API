@@ -44,7 +44,7 @@ Opaque_Geometry* make_linestring_way_geom(const std::vector< Quad_Coord >& geome
     }
     return pw_geom;
   }
-  return 0;
+  return nullptr;
 }
 
 
@@ -52,7 +52,7 @@ const Opaque_Geometry& Geometry_From_Quad_Coords::make_way_geom(
     const Way_Skeleton& skel, unsigned int mode, Way_Bbox_Geometry_Store* store)
 {
   delete geom;
-  geom = 0;
+  geom = nullptr;
 
   if (store && (mode & Output_Mode::GEOMETRY))
     geom = make_linestring_way_geom(store->get_geometry(skel));
@@ -96,7 +96,7 @@ const Opaque_Geometry& Geometry_From_Quad_Coords::make_way_geom(
     const std::vector< Quad_Coord >* geometry, const std::pair< Quad_Coord, Quad_Coord* >* bounds)
 {
   delete geom;
-  geom = 0;
+  geom = nullptr;
 
   if (geometry && !geometry->empty())
     geom = make_linestring_way_geom(*geometry);
@@ -186,7 +186,7 @@ Opaque_Geometry* make_verbatim_rel_geom(const std::vector< std::vector< Quad_Coo
     }
     return pr_geom;
   }
-  return 0;
+  return nullptr;
 }
 
 
@@ -194,7 +194,7 @@ const Opaque_Geometry& Geometry_From_Quad_Coords::make_relation_geom(
     const Relation_Skeleton& skel, unsigned int mode, Relation_Geometry_Store* store)
 {
   delete geom;
-  geom = 0;
+  geom = nullptr;
 
   if (store && (mode & Output_Mode::GEOMETRY))
     geom = make_verbatim_rel_geom(store->get_geometry(skel));
@@ -284,7 +284,7 @@ const Opaque_Geometry& Geometry_From_Quad_Coords::make_relation_geom(
     const std::vector< std::vector< Quad_Coord > >* geometry, const std::pair< Quad_Coord, Quad_Coord* >* bounds)
 {
   delete geom;
-  geom = 0;
+  geom = nullptr;
 
   if (geometry)
     geom = make_verbatim_rel_geom(*geometry);

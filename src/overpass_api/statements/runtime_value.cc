@@ -30,9 +30,9 @@ Statement* Evaluator_Set_Key::Evaluator_Maker::create_evaluator(
 {
   if (tree_context != Statement::evaluator_expected && tree_context != Statement::elem_eval_possible
       && tree_context != Statement::member_eval_possible)
-    return 0;
+    return nullptr;
   if (!tree_it->lhs || !tree_it->rhs || tree_it.lhs()->token.empty() || tree_it.rhs()->token.empty())
-    return 0;
+    return nullptr;
 
   std::map< std::string, std::string > attributes;
   attributes["from"] = tree_it.lhs()->token;

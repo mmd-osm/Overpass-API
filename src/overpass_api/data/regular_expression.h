@@ -134,7 +134,7 @@ class Regular_Expression_POSIX : public Regular_Expression
       if (use_buffer && is_cache_available && line == prev_line)
         return prev_result;
 
-      bool result = (regexec(&preg, line.c_str(), 0, 0, 0) == 0);
+      bool result = (regexec(&preg, line.c_str(), 0, nullptr, 0) == 0);
 
       if (use_buffer) {
         is_cache_available = true;
@@ -164,7 +164,7 @@ class Regular_Expression_ICU : public Regular_Expression
   public:
 
     Regular_Expression_ICU(const std::string& regex, bool case_sensitive) :
-        Regular_Expression(regex, case_sensitive), matcher(0)
+        Regular_Expression(regex, case_sensitive)
     {
 
       if (strategy == Strategy::call_library)
@@ -260,7 +260,7 @@ class Regular_Expression_ICU : public Regular_Expression
     }
 
   private:
-    RegexMatcher *matcher;
+    RegexMatcher *matcher = nullptr;
 };
 
 #endif

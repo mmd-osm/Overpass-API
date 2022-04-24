@@ -53,7 +53,7 @@ class Osm_Script_Statement : public Statement
     bool add_deletion_information;
     uint32 max_allowed_time;
     uint64 max_allowed_space;
-    Statement::Factory* factory;
+    Statement::Factory* factory = nullptr;
 };
 
 #endif

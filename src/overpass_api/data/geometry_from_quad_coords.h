@@ -26,7 +26,7 @@
 
 struct Geometry_From_Quad_Coords
 {
-  Geometry_From_Quad_Coords() : geom(0) {}
+  Geometry_From_Quad_Coords() = default;
   ~Geometry_From_Quad_Coords() { delete geom; }
 
   const Opaque_Geometry& make_way_geom(const Way_Skeleton& skel, unsigned int mode, Way_Bbox_Geometry_Store* store);
@@ -39,7 +39,7 @@ struct Geometry_From_Quad_Coords
       const std::vector< std::vector< Quad_Coord > >* geometry, const std::pair< Quad_Coord, Quad_Coord* >* bounds);
 
 private:
-  Opaque_Geometry* geom;
+  Opaque_Geometry* geom = nullptr;
 };
 
 

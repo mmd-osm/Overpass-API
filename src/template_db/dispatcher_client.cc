@@ -51,7 +51,7 @@ Dispatcher_Client::Dispatcher_Client
   dispatcher_shm_ptr = nullptr;
 
   void* disp_shm_void = mmap
-      (0, stat_buf.st_size,
+      (nullptr, stat_buf.st_size,
        PROT_READ, MAP_SHARED, dispatcher_shm_fd, 0);
 
   if (disp_shm_void == MAP_FAILED) {

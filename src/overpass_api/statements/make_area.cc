@@ -322,7 +322,7 @@ void Make_Area_Statement::execute(Resource_Manager& rman)
 
   // iterate over the result
   std::vector< std::pair< std::string, std::string > > new_tags;
-  File_Properties* file_prop = 0;
+  File_Properties* file_prop = nullptr;
   if (pivot_type == NODE)
     file_prop = osm_base_settings().NODE_TAGS_LOCAL;
   else if (pivot_type == WAY)

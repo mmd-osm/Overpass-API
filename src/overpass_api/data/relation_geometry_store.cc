@@ -30,7 +30,7 @@ Relation_Geometry_Store::Relation_Geometry_Store
     (const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& relations,
      const Statement& query, Resource_Manager& rman,
      double south_, double north_, double west_, double east_)
-    : way_geometry_store(0), south(ilat_(south_)), north(ilat_(north_)), west(ilon_(west_)), east(ilon_(east_))
+    : south(ilat_(south_)), north(ilat_(north_)), west(ilon_(west_)), east(ilon_(east_))
 {
   if (relations.empty())
   {
@@ -45,7 +45,7 @@ Relation_Geometry_Store::Relation_Geometry_Store
 
   // Retrieve all nodes referred by the relations.
   std::map< Uint32_Index, std::vector< Node_Skeleton > > node_members
-      = relation_node_members(&query, rman, relations, north < south ? 0 : &node_ranges);
+      = relation_node_members(&query, rman, relations, north < south ? nullptr : &node_ranges);
 
   // Order node ids by id.
   for (auto it = node_members.begin();
@@ -63,7 +63,7 @@ Relation_Geometry_Store::Relation_Geometry_Store
 
   // Retrieve all ways referred by the relations.
   std::map< Uint31_Index, std::vector< Way_Skeleton > > way_members
-      = relation_way_members(&query, rman, relations, north < south ? 0 : &way_ranges);
+      = relation_way_members(&query, rman, relations, north < south ? nullptr : &way_ranges);
 
   way_geometry_store = new Way_Geometry_Store(way_members, query, rman);
 
@@ -83,7 +83,7 @@ Relation_Geometry_Store::Relation_Geometry_Store
     (const std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > >& relations,
      const Statement& query, Resource_Manager& rman,
      double south_, double north_, double west_, double east_)
-    : way_geometry_store(0), south(ilat_(south_)), north(ilat_(north_)), west(ilon_(west_)), east(ilon_(east_))
+    : south(ilat_(south_)), north(ilat_(north_)), west(ilon_(west_)), east(ilon_(east_))
 {
   if (relations.empty())
   {
@@ -101,7 +101,7 @@ Relation_Geometry_Store::Relation_Geometry_Store
       std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > > > nodes_by_idx
       = relation_node_members(&query, rman,
           std::map< Uint31_Index, std::vector< Relation_Skeleton > >(), relations,
-          north < south ? 0 : &node_ranges);
+          north < south ? nullptr : &node_ranges);
 
   // Order node ids by id.
   for (auto it = nodes_by_idx.first.begin();
@@ -129,7 +129,7 @@ Relation_Geometry_Store::Relation_Geometry_Store
       std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > > > ways_by_idx_pair
       = relation_way_members(&query, rman,
           std::map< Uint31_Index, std::vector< Relation_Skeleton > >(), relations,
-          north < south ? 0 : &way_ranges);
+          north < south ? nullptr : &way_ranges);
   std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > > ways_by_idx;
   keep_matching_skeletons(ways_by_idx, ways_by_idx_pair.first, ways_by_idx_pair.second,
       rman.get_desired_timestamp());
@@ -169,7 +169,7 @@ std::vector< std::vector< Quad_Coord > > Relation_Geometry_Store::get_geometry
     if (it->type == Relation_Entry::NODE)
     {
       const Node_Base* node = binary_search_for_id(nodes, Node::Id_Type(it->ref.val()));
-      if (node == 0 || !matches_bbox(node->index, node->ll_lower_))
+      if (node == nullptr || !matches_bbox(node->index, node->ll_lower_))
         result.push_back(std::vector< Quad_Coord >(1, Quad_Coord(0u, 0u)));
       else
         result.push_back(std::vector< Quad_Coord >(1, Quad_Coord(node->index, node->ll_lower_)));
@@ -177,7 +177,7 @@ std::vector< std::vector< Quad_Coord > > Relation_Geometry_Store::get_geometry
     else if (it->type == Relation_Entry::WAY)
     {
       const Way_Skeleton* way = binary_search_for_id(ways, Way_Skeleton::Id_Type(it->ref.val()));
-      if (way == 0)
+      if (way == nullptr)
         result.push_back(std::vector< Quad_Coord >());
       else
       {

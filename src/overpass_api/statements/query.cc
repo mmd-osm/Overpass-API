@@ -43,7 +43,7 @@ Generic_Statement_Maker< Query_Statement > Query_Statement::statement_maker("que
 
 Query_Statement::Query_Statement
     (int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
-    : Output_Statement(line_number_), global_bbox_statement(0)
+    : Output_Statement(line_number_)
 {
   std::map< std::string, std::string > attributes;
 
@@ -458,7 +458,7 @@ std::vector< std::pair< Id_Type, Uint31_Index > > Query_Statement::collect_ids
   Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > > tags_db
       (rman.get_transaction()->data_index(&file_prop));
   Optional< Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > > > attic_tags_db
-      (timestamp == NOW ? 0 :
+      (timestamp == NOW ? nullptr :
         new Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >
         (rman.get_transaction()->data_index(&attic_file_prop)));
 
@@ -679,7 +679,7 @@ IdSetHybrid<typename Id_Type::Id_Type> Query_Statement::collect_non_ids_hybrid
   Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > > tags_db
       (rman.get_transaction()->data_index(&file_prop));
   Optional< Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > > > attic_tags_db
-      (timestamp == NOW ? 0 :
+      (timestamp == NOW ? nullptr :
         new Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >
         (rman.get_transaction()->data_index(&attic_file_prop)));
 
@@ -757,7 +757,7 @@ std::vector< Id_Type > Query_Statement::collect_non_ids
   Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > > tags_db
       (rman.get_transaction()->data_index(&file_prop));
   Optional< Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > > > attic_tags_db
-      (timestamp == NOW ? 0 :
+      (timestamp == NOW ? nullptr :
         new Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >
         (rman.get_transaction()->data_index(&attic_file_prop)));
 
@@ -2177,7 +2177,7 @@ void Query_Statement::execute(Resource_Manager& rman)
         if (range_req_32.empty())
           ::get_elements_by_id_from_db< Uint32_Index, Node_Skeleton >
               (into.nodes, into.attic_nodes,
-               node_ids, invert_ids, range_req_32, 0, *this, rman,
+               node_ids, invert_ids, range_req_32, nullptr, *this, rman,
                (use_nodes_tagged ? *osm_base_settings().NODES_TAGGED : *osm_base_settings().NODES), *attic_settings().NODES);
         else
         {
@@ -2213,7 +2213,7 @@ void Query_Statement::execute(Resource_Manager& rman)
 	{
   	  ::get_elements_by_id_from_db< Uint31_Index, Way_Skeleton >
 	      (into.ways, into.attic_ways,
-               way_ids, invert_ids, way_range_req_31, 0, *this, rman,
+               way_ids, invert_ids, way_range_req_31, nullptr, *this, rman,
                *osm_base_settings().WAYS, *attic_settings().WAYS);
           if (type & QUERY_CLOSED_WAY)
             filter_elems_for_closed_ways(into);
@@ -2254,7 +2254,7 @@ void Query_Statement::execute(Resource_Manager& rman)
 	if (relation_range_req_31.empty())
 	  ::get_elements_by_id_from_db< Uint31_Index, Relation_Skeleton >
 	      (into.relations, into.attic_relations,
-               relation_ids, invert_ids, relation_range_req_31, 0, *this, rman,
+               relation_ids, invert_ids, relation_range_req_31, nullptr, *this, rman,
                *osm_base_settings().RELATIONS, *attic_settings().RELATIONS);
         else
         {
@@ -2322,7 +2322,7 @@ Generic_Statement_Maker< Has_Kv_Statement > Has_Kv_Statement::statement_maker("h
 
 Has_Kv_Statement::Has_Kv_Statement
     (int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
-    : Statement(line_number_), regex(0), key_regex(0), straight(true), case_sensitive(false)
+    : Statement(line_number_), straight(true), case_sensitive(false)
 {
   std::map< std::string, std::string > attributes;
 
