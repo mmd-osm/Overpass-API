@@ -206,6 +206,31 @@ public:
   virtual Eval_Variant process(const Eval_Variant& rhs_result) const override;
 };
 
+/*
+
+The function <em>sin</em> returns the sin() value of its argument.
+Otherwise it returns "NaN".
+
+Its syntax is
+
+  sin(<Evaluator>)
+
+*/
+
+class Evaluator_Sin final : public Evaluator_String_Endom_Syntax< Evaluator_Sin >
+{
+public:
+  static String_Endom_Statement_Maker< Evaluator_Sin > statement_maker;
+  static String_Endom_Evaluator_Maker< Evaluator_Sin > evaluator_maker;
+  static std::string stmt_func_name() { return "sin"; }
+  static std::string stmt_name() { return "eval-sin"; }
+
+  Evaluator_Sin(int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
+      : Evaluator_String_Endom_Syntax< Evaluator_Sin >(line_number_, input_attributes) {}
+
+  virtual Eval_Variant process(const Eval_Variant& rhs_result) const override;
+};
+
 /* ==== Date Check and Normalizer ====
 
 The function <em>date</em> turns its argument into a number representing a date.

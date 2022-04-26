@@ -99,6 +99,26 @@ Eval_Variant Evaluator_Abs::process(const Eval_Variant& rhs_s) const
 //-----------------------------------------------------------------------------
 
 
+String_Endom_Statement_Maker< Evaluator_Sin > Evaluator_Sin::statement_maker;
+String_Endom_Evaluator_Maker< Evaluator_Sin > Evaluator_Sin::evaluator_maker;
+
+
+Eval_Variant Evaluator_Sin::process(const Eval_Variant& rhs_s) const
+{
+  int64 rhs_l = 0;
+  if (try_int64(rhs_s, rhs_l))
+    return (sin(rhs_l));
+
+  double rhs_d = 0;
+  if (try_starts_with_double(rhs_s, rhs_d))
+    return (sin(rhs_d));
+
+  return "NaN"s;
+}
+
+//-----------------------------------------------------------------------------
+
+
 String_Endom_Statement_Maker< Evaluator_Date > Evaluator_Date::statement_maker;
 String_Endom_Evaluator_Maker< Evaluator_Date > Evaluator_Date::evaluator_maker;
 
