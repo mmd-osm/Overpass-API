@@ -125,146 +125,178 @@ const std::pair< Quad_Coord, Quad_Coord* >* bound_variant(Double_Coords& double_
 
 
 void print_nodes(const std::vector< std::pair< Node_With_Context, Node_With_Context > >& different_nodes,
-    uint32 output_mode, Output_Handler* output,
-    const std::map< uint32, std::string >& users, bool add_deletion_information)
+    const uint32 output_mode, Output_Handler* output,
+    const std::map< uint32, std::string >& users,
+    const bool add_deletion_information)
 {
-  for (auto it = different_nodes.begin(); it != different_nodes.end(); ++it)
+  auto t = [output_mode](const Tag_Container& ref) -> const Tag_Container* {
+     if (output_mode & Output_Mode::TAGS) {
+       return &ref;
+     }
+     return nullptr;
+  };
+
+  auto m = [output_mode](const OSM_Element_Metadata_Skeleton< Node_Skeleton::Id_Type >& ref)
+         -> const OSM_Element_Metadata_Skeleton< Node_Skeleton::Id_Type >* {
+     if (output_mode & Output_Mode::META) {
+       return &ref;
+     }
+     return nullptr;
+  };
+
+  for (const auto & [first, second] : different_nodes)
   {
-    if ((it->second.idx.val() | 2) == 0xffu)
+    if ((second.idx.val() | 2) == 0xffu)
     {
       if (add_deletion_information)
       {
-        Node_Skeleton new_skel(it->first.elem.id);
-        output->print_item(it->first.elem,
-            Point_Geometry(::lat(it->first.idx.val(), it->first.elem.ll_lower),
-                ::lon(it->first.idx.val(), it->first.elem.ll_lower)),
-            (output_mode & Output_Mode::TAGS) ? &it->first.tags : nullptr,
-            (output_mode & Output_Mode::META) ? &it->first.meta : nullptr,
+        Node_Skeleton new_skel(first.elem.id);
+        output->print_item(first.elem,
+            Point_Geometry(first.idx, first.elem),
+            t(first.tags),
+            m(first.meta),
             &users, output_mode,
-            it->second.idx.val() == 0xfdu ? Output_Handler::push_away : Output_Handler::erase,
-            &new_skel, nullptr, nullptr, &it->second.meta);
+            second.idx.val() == 0xfdu ? Output_Handler::push_away : Output_Handler::erase,
+            &new_skel, nullptr, nullptr, &second.meta);
       }
       else
-        output->print_item(it->first.elem,
-            Point_Geometry(::lat(it->first.idx.val(), it->first.elem.ll_lower),
-                ::lon(it->first.idx.val(), it->first.elem.ll_lower)),
-            (output_mode & Output_Mode::TAGS) ? &it->first.tags : nullptr,
-            (output_mode & Output_Mode::META) ? &it->first.meta : nullptr,
+        output->print_item(first.elem,
+            Point_Geometry(first.idx, first.elem),
+            t(first.tags),
+            m(first.meta),
             &users, output_mode, Output_Handler::erase);
     }
-    else if (it->first.idx.val() == 0xfdu && it->first.meta.ref.val() == 0)
+    else if (first.idx.val() == 0xfdu && first.meta.ref.val() == 0)
     {
       // Old element with empty metadata -> create
-      output->print_item(it->second.elem,
-          Point_Geometry(::lat(it->second.idx.val(), it->second.elem.ll_lower),
-              ::lon(it->second.idx.val(), it->second.elem.ll_lower)),
-          (output_mode & Output_Mode::TAGS) ? &it->second.tags : nullptr,
-          (output_mode & Output_Mode::META) ? &it->second.meta : nullptr,
+      output->print_item(second.elem,
+          Point_Geometry(second.idx, second.elem),
+          t(second.tags),
+          m(second.meta),
           &users, output_mode, Output_Handler::create);
     }
-    else if (it->first.idx.val() != 0xffu)
+    else if (first.idx.val() != 0xffu)
     {
       // The elements differ
       Null_Geometry null_geom;
-      Point_Geometry old_geom(::lat(it->first.idx.val(), it->first.elem.ll_lower),
-          ::lon(it->first.idx.val(), it->first.elem.ll_lower));
-      Point_Geometry new_geom(::lat(it->second.idx.val(), it->second.elem.ll_lower),
-          ::lon(it->second.idx.val(), it->second.elem.ll_lower));
+      Point_Geometry old_geom(first.idx, first.elem);
+      Point_Geometry new_geom(second.idx, second.elem);
       Opaque_Geometry* old_opaque = &null_geom;
-      if (it->first.idx.val() != 0xfdu)
+      if (first.idx.val() != 0xfdu)
         old_opaque = &old_geom;
-      output->print_item(it->first.elem, *old_opaque,
-          (output_mode & Output_Mode::TAGS) ? &it->first.tags : nullptr,
-          (output_mode & Output_Mode::META) ? &it->first.meta : nullptr,
+      output->print_item(first.elem, *old_opaque,
+          t(first.tags),
+          m(first.meta),
           &users, output_mode, Output_Handler::modify,
-          &it->second.elem, &new_geom,
-          (output_mode & Output_Mode::TAGS) ? &it->second.tags : nullptr,
-          (output_mode & Output_Mode::META) ? &it->second.meta : nullptr);
+          &second.elem, &new_geom,
+          t(second.tags),
+          m(second.meta));
     }
     else
       // No old element exists
-      output->print_item(it->second.elem,
-          Point_Geometry(::lat(it->second.idx.val(), it->second.elem.ll_lower),
-              ::lon(it->second.idx.val(), it->second.elem.ll_lower)),
-          (output_mode & Output_Mode::TAGS) ? &it->second.tags : nullptr,
-          (output_mode & Output_Mode::META) ? &it->second.meta : nullptr,
+      output->print_item(second.elem,
+          Point_Geometry(second.idx, second.elem),
+          t(second.tags),
+          m(second.meta),
           &users, output_mode, Output_Handler::create);
   }
 }
 
 
 void print_ways(const std::vector< std::pair< Way_With_Context, Way_With_Context > >& different_ways,
-    uint32 output_mode, Output_Handler* output,
-    const std::map< uint32, std::string >& users, bool add_deletion_information)
+    const uint32 output_mode, Output_Handler* output,
+    const std::map< uint32, std::string >& users,
+    const bool add_deletion_information)
 {
-  for (auto it = different_ways.begin();
-      it != different_ways.end(); ++it)
+  auto g = [output_mode](const std::vector< Quad_Coord >& ref) -> const std::vector< Quad_Coord >* {
+     if (output_mode & Output_Mode::GEOMETRY) {
+       return &ref;
+     }
+     return nullptr;
+  };
+
+  auto t = [output_mode](const Tag_Container& ref) -> const Tag_Container* {
+     if (output_mode & Output_Mode::TAGS) {
+       return &ref;
+     }
+     return nullptr;
+  };
+
+  auto m = [output_mode](const OSM_Element_Metadata_Skeleton< Way_Skeleton::Id_Type >& ref)
+         -> const OSM_Element_Metadata_Skeleton< Way_Skeleton::Id_Type >* {
+     if (output_mode & Output_Mode::META) {
+       return &ref;
+     }
+     return nullptr;
+  };
+
+  for (const auto & [first, second] :  different_ways)
   {
-    if ((it->second.idx.val() | 2) == 0xffu)
+    if ((second.idx.val() | 2) == 0xffu)
     {
-      Double_Coords double_coords(it->first.geometry);
+      Double_Coords double_coords(first.geometry);
       Geometry_From_Quad_Coords broker;
       if (add_deletion_information)
       {
-        Way_Skeleton new_skel(it->first.elem.id);
-        output->print_item(it->first.elem,
-            broker.make_way_geom((output_mode & Output_Mode::GEOMETRY) ? &it->first.geometry : nullptr,
+        Way_Skeleton new_skel(first.elem.id);
+        output->print_item(first.elem,
+            broker.make_way_geom( g(first.geometry),
                 bound_variant(double_coords, output_mode)),
-            (output_mode & Output_Mode::TAGS) ? &it->first.tags : nullptr,
-            (output_mode & Output_Mode::META) ? &it->first.meta : nullptr,
+                t(first.tags),
+                m(first.meta),
             &users, output_mode,
-            it->second.idx.val() == 0xfdu ? Output_Handler::push_away : Output_Handler::erase,
-            &new_skel, nullptr, nullptr, &it->second.meta);
+            second.idx.val() == 0xfdu ? Output_Handler::push_away : Output_Handler::erase,
+            &new_skel, nullptr, nullptr, &second.meta);
       }
       else
-        output->print_item(it->first.elem,
-            broker.make_way_geom((output_mode & Output_Mode::GEOMETRY) ? &it->first.geometry : nullptr,
+        output->print_item(first.elem,
+            broker.make_way_geom(g(first.geometry),
                 bound_variant(double_coords, output_mode)),
-            (output_mode & Output_Mode::TAGS) ? &it->first.tags : nullptr,
-            (output_mode & Output_Mode::META) ? &it->first.meta : nullptr,
+                t(first.tags),
+                m(first.meta),
             &users, output_mode, Output_Handler::erase);
     }
-    else if (it->first.idx.val() == 0xfdu && it->first.meta.ref.val() == 0)
+    else if (first.idx.val() == 0xfdu && first.meta.ref.val() == 0)
     {
       // Old element with empty metadata -> create
-      Double_Coords double_coords(it->second.geometry);
+      Double_Coords double_coords(second.geometry);
       Geometry_From_Quad_Coords broker;
-      output->print_item(it->second.elem,
-          broker.make_way_geom((output_mode & Output_Mode::GEOMETRY) ? &it->second.geometry : nullptr,
+      output->print_item(second.elem,
+          broker.make_way_geom(g(second.geometry),
               bound_variant(double_coords, output_mode)),
-          (output_mode & Output_Mode::TAGS) ? &it->second.tags : nullptr,
-          (output_mode & Output_Mode::META) ? &it->second.meta : nullptr,
+              t(second.tags),
+              m(second.meta),
           &users, output_mode, Output_Handler::create);
     }
-    else if (it->first.idx.val() != 0xffu)
+    else if (first.idx.val() != 0xffu)
     {
       // The elements differ
-      Double_Coords double_coords(it->first.geometry);
-      Double_Coords double_coords_new(it->second.geometry);
+      Double_Coords double_coords(first.geometry);
+      Double_Coords double_coords_new(second.geometry);
       Geometry_From_Quad_Coords broker;
       Geometry_From_Quad_Coords new_broker;
-      output->print_item(it->first.elem,
-          broker.make_way_geom((output_mode & Output_Mode::GEOMETRY) ? &it->first.geometry : nullptr,
+      output->print_item(first.elem,
+          broker.make_way_geom(g(first.geometry),
               bound_variant(double_coords, output_mode)),
-          (output_mode & Output_Mode::TAGS) ? &it->first.tags : nullptr,
-          (output_mode & Output_Mode::META) ? &it->first.meta : nullptr,
+              t(first.tags),
+              m(first.meta),
           &users, output_mode, Output_Handler::modify,
-          &it->second.elem,
-          &new_broker.make_way_geom((output_mode & Output_Mode::GEOMETRY) ? &it->second.geometry : nullptr,
+          &second.elem,
+          &new_broker.make_way_geom(g(second.geometry),
               bound_variant(double_coords_new, output_mode)),
-          (output_mode & Output_Mode::TAGS) ? &it->second.tags : nullptr,
-          (output_mode & Output_Mode::META) ? &it->second.meta : nullptr);
+          t(second.tags),
+          m(second.meta));
     }
     else
     {
       // No old element exists
-      Double_Coords double_coords(it->second.geometry);
+      Double_Coords double_coords(second.geometry);
       Geometry_From_Quad_Coords broker;
-      output->print_item(it->second.elem,
-          broker.make_way_geom((output_mode & Output_Mode::GEOMETRY) ? &it->second.geometry : nullptr,
+      output->print_item(second.elem,
+          broker.make_way_geom(g(second.geometry),
               bound_variant(double_coords, output_mode)),
-          (output_mode & Output_Mode::TAGS) ? &it->second.tags : nullptr,
-          (output_mode & Output_Mode::META) ? &it->second.meta : nullptr,
+              t(second.tags),
+              m(second.meta),
           &users, output_mode, Output_Handler::create);
     }
   }
@@ -273,78 +305,100 @@ void print_ways(const std::vector< std::pair< Way_With_Context, Way_With_Context
 
 void print_relations(
     const std::vector< std::pair< Relation_With_Context, Relation_With_Context > >& different_relations,
-    uint32 output_mode, Output_Handler* output,
+    const uint32 output_mode, Output_Handler* output,
     const std::map< uint32, std::string >& users, const std::map< uint32, std::string >& roles,
     bool add_deletion_information)
 {
-  for (auto it = different_relations.begin();
-      it != different_relations.end(); ++it)
+  auto g = [output_mode](const std::vector< std::vector< Quad_Coord > >& ref)
+          -> const std::vector< std::vector< Quad_Coord > > * {
+     if (output_mode & Output_Mode::GEOMETRY) {
+       return &ref;
+     }
+     return nullptr;
+  };
+
+  auto t = [output_mode](const Tag_Container& ref) -> const Tag_Container* {
+     if (output_mode & Output_Mode::TAGS) {
+       return &ref;
+     }
+     return nullptr;
+  };
+
+  auto m = [output_mode](const OSM_Element_Metadata_Skeleton< Relation_Skeleton::Id_Type >& ref)
+         -> const OSM_Element_Metadata_Skeleton< Relation_Skeleton::Id_Type >* {
+     if (output_mode & Output_Mode::META) {
+       return &ref;
+     }
+     return nullptr;
+  };
+
+  for (const auto & [first, second] : different_relations)
   {
-    if ((it->second.idx.val() | 2) == 0xffu)
+    if ((second.idx.val() | 2) == 0xffu)
     {
-      Double_Coords double_coords(it->first.geometry);
+      Double_Coords double_coords(first.geometry);
       Geometry_From_Quad_Coords broker;
       if (add_deletion_information)
       {
-        Relation_Skeleton new_skel(it->first.elem.id);
-        output->print_item(it->first.elem,
-            broker.make_relation_geom((output_mode & Output_Mode::GEOMETRY) ? &it->first.geometry : nullptr,
+        Relation_Skeleton new_skel(first.elem.id);
+        output->print_item(first.elem,
+            broker.make_relation_geom(g(first.geometry),
                 bound_variant(double_coords, output_mode)),
-            (output_mode & Output_Mode::TAGS) ? &it->first.tags : nullptr,
-            (output_mode & Output_Mode::META) ? &it->first.meta : nullptr,
+                t(first.tags),
+                m(first.meta),
             &roles, &users, output_mode,
-            it->second.idx.val() == 0xfdu ? Output_Handler::push_away : Output_Handler::erase,
-            &new_skel, nullptr, nullptr, &it->second.meta);
+            second.idx.val() == 0xfdu ? Output_Handler::push_away : Output_Handler::erase,
+            &new_skel, nullptr, nullptr, &second.meta);
       }
       else
-        output->print_item(it->first.elem,
-            broker.make_relation_geom((output_mode & Output_Mode::GEOMETRY) ? &it->first.geometry : nullptr,
+        output->print_item(first.elem,
+            broker.make_relation_geom(g(first.geometry),
                 bound_variant(double_coords, output_mode)),
-            (output_mode & Output_Mode::TAGS) ? &it->first.tags : nullptr,
-            (output_mode & Output_Mode::META) ? &it->first.meta : nullptr,
+                t(first.tags),
+                m(first.meta),
             &roles, &users, output_mode, Output_Handler::erase);
     }
-    else if (it->first.idx.val() == 0xfdu && it->first.meta.ref.val() == 0)
+    else if (first.idx.val() == 0xfdu && first.meta.ref.val() == 0)
     {
       // Old element with empty metadata -> create
-      Double_Coords double_coords(it->second.geometry);
+      Double_Coords double_coords(second.geometry);
       Geometry_From_Quad_Coords broker;
-      output->print_item(it->second.elem,
-          broker.make_relation_geom((output_mode & Output_Mode::GEOMETRY) ? &it->second.geometry : nullptr,
+      output->print_item(second.elem,
+          broker.make_relation_geom(g(second.geometry),
               bound_variant(double_coords, output_mode)),
-          (output_mode & Output_Mode::TAGS) ? &it->second.tags : nullptr,
-          (output_mode & Output_Mode::META) ? &it->second.meta : nullptr,
+              t(second.tags),
+              m(second.meta),
           &roles, &users, output_mode, Output_Handler::create);
     }
-    else if (it->first.idx.val() != 0xffu)
+    else if (first.idx.val() != 0xffu)
     {
       // The elements differ
-      Double_Coords double_coords(it->first.geometry);
-      Double_Coords double_coords_new(it->second.geometry);
+      Double_Coords double_coords(first.geometry);
+      Double_Coords double_coords_new(second.geometry);
       Geometry_From_Quad_Coords broker;
       Geometry_From_Quad_Coords new_broker;
-      output->print_item(it->first.elem,
-          broker.make_relation_geom((output_mode & Output_Mode::GEOMETRY) ? &it->first.geometry : nullptr,
+      output->print_item(first.elem,
+          broker.make_relation_geom(g(first.geometry),
               bound_variant(double_coords, output_mode)),
-          (output_mode & Output_Mode::TAGS) ? &it->first.tags : nullptr,
-          (output_mode & Output_Mode::META) ? &it->first.meta : nullptr,
+              t(first.tags),
+              m(first.meta),
           &roles, &users, output_mode, Output_Handler::modify,
-          &it->second.elem,
-          &new_broker.make_relation_geom((output_mode & Output_Mode::GEOMETRY) ? &it->second.geometry : nullptr,
+          &second.elem,
+          &new_broker.make_relation_geom(g(second.geometry),
               bound_variant(double_coords_new, output_mode)),
-          (output_mode & Output_Mode::TAGS) ? &it->second.tags : nullptr,
-          (output_mode & Output_Mode::META) ? &it->second.meta : nullptr);
+              t(second.tags),
+              m(second.meta));
     }
     else
     {
       // No old element exists
-      Double_Coords double_coords(it->second.geometry);
+      Double_Coords double_coords(second.geometry);
       Geometry_From_Quad_Coords broker;
-      output->print_item(it->second.elem,
-          broker.make_relation_geom((output_mode & Output_Mode::GEOMETRY) ? &it->second.geometry : nullptr,
+      output->print_item(second.elem,
+          broker.make_relation_geom(g(second.geometry),
               bound_variant(double_coords, output_mode)),
-          (output_mode & Output_Mode::TAGS) ? &it->second.tags : nullptr,
-          (output_mode & Output_Mode::META) ? &it->second.meta : nullptr,
+              t(second.tags),
+              m(second.meta),
           &roles, &users, output_mode, Output_Handler::create);
     }
   }

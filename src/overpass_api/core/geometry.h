@@ -23,6 +23,7 @@
 #include <cmath>
 #include <vector>
 
+#include "type_node.h"
 #include "index_computations.h"
 
 
@@ -173,6 +174,10 @@ class Point_Geometry final : public Opaque_Geometry
 {
 public:
   Point_Geometry(double lat_, double lon_) : pt(lat_, lon_) {}
+  Point_Geometry(const Uint31_Index idx, const Node_Skeleton& node) :
+       pt(::lat(idx.val(), node.ll_lower),
+          ::lon(idx.val(), node.ll_lower)) { }
+
   Opaque_Geometry* clone() const override { return new Point_Geometry(pt.lat, pt.lon); }
 
   ~Point_Geometry() override = default;
