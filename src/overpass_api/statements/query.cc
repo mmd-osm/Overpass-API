@@ -617,10 +617,9 @@ std::vector< Id_Type > Query_Statement::collect_ids
   std::vector< Id_Type > new_ids;
   bool filtered = false;
 
-  for (std::vector< std::pair< std::string, std::string > >::const_iterator kvit = key_values.begin();
-       kvit != key_values.end(); ++kvit)
+  for (const auto & [key, value] : key_values)
   {
-    std::set< Tag_Index_Global > tag_req = get_kv_req(kvit->first, kvit->second);
+    std::set< Tag_Index_Global > tag_req = get_kv_req(key, value);
     filter_id_list(new_ids, filtered,
 	tags_db.discrete_begin(tag_req.begin(), tag_req.end()), tags_db.discrete_end(),
 	    Trivial_Regex(), Trivial_Regex());
@@ -631,9 +630,9 @@ std::vector< Id_Type > Query_Statement::collect_ids
   // Handle simple Keys Only
   if (check_keys_late != prefer_ranges)
   {
-    for (std::vector< std::string >::const_iterator kit = keys.begin(); kit != keys.end(); ++kit)
+    for (const auto & key : keys)
     {
-      auto ranges = get_k_req(*kit);
+      auto ranges = get_k_req(key);
       filter_id_list(new_ids, filtered,
 	  tags_db.range_begin(ranges), tags_db.range_end(),
 	      Trivial_Regex(), Trivial_Regex());
@@ -642,23 +641,21 @@ std::vector< Id_Type > Query_Statement::collect_ids
     }
 
     // Handle Key-Regular-Expression-Value pairs
-    for (std::vector< std::pair< std::string, Regular_Expression* > >::const_iterator krit = key_regexes.begin();
-	 krit != key_regexes.end(); ++krit)
+    for (const auto & [key, regex] : key_regexes)
     {
-      auto ranges = get_k_req(krit->first);
+      auto ranges = get_k_req(key);
       filter_id_list(new_ids, filtered,
 	  tags_db.range_begin(ranges), tags_db.range_end(),
-	      Trivial_Regex(), *krit->second);
+	      Trivial_Regex(), *regex);
 
       rman.health_check(*this);
     }
 
     // Handle Key-Regular-Expression-Value pairs
-    for (std::vector< std::pair< Regular_Expression*, Regular_Expression* > >::const_iterator it = regkey_regexes.begin();
-	 it != regkey_regexes.end(); ++it)
+    for (const auto & [regkey, regex] : regkey_regexes)
     {
       filter_id_list(new_ids, filtered,
-	  tags_db.flat_begin(), tags_db.flat_end(), *it->first, *it->second);
+	  tags_db.flat_begin(), tags_db.flat_end(), *regkey, *regex);
 
       rman.health_check(*this);
     }
@@ -838,17 +835,16 @@ std::vector< Id_Type > Query_Statement::collect_non_ids
   std::vector< Id_Type > new_ids;
 
   // Handle Key-Non-Value pairs
-  for (std::vector< std::pair< std::string, std::string > >::const_iterator knvit = key_nvalues.begin();
-      knvit != key_nvalues.end(); ++knvit)
+  for (const auto & [key, nvalue] : key_nvalues)
   {
-    auto ranges = get_k_req(knvit->first);
+    auto ranges = get_k_req(key);
 
     bool key_val_match = false;
 
     for (auto it2 = tags_db.range_begin(ranges); it2 != tags_db.range_end(); ++it2) {
 
       if (it2.start_of_new_index()) {
-        key_val_match = it2.index().value == knvit->second;
+        key_val_match = (it2.index_handle().get_value() == nvalue);
       }
 
       if (!key_val_match) {
@@ -856,24 +852,24 @@ std::vector< Id_Type > Query_Statement::collect_non_ids
         continue;
       }
 
-      new_ids.push_back(it2.object());
+      new_ids.emplace_back(it2.handle().id());
     }
 
     rman.health_check(*this);
   }
 
   // Handle Key-Regular-Expression-Non-Value pairs
-  for (std::vector< std::pair< std::string, Regular_Expression* > >::const_iterator knrit = key_nregexes.begin();
-      knrit != key_nregexes.end(); ++knrit)
+  for (const auto & [key, nregex] : key_nregexes)
   {
-    auto ranges = get_k_req(knrit->first);
+    auto ranges = get_k_req(key);
 
     bool key_val_match = false;
 
     for (auto it2 = tags_db.range_begin(ranges); it2 != tags_db.range_end(); ++it2) {
 
       if (it2.start_of_new_index()) {
-        key_val_match = it2.index().value != void_tag_value() && knrit->second->matches(it2.index().value);
+        key_val_match = (it2.index_handle().get_value() != void_tag_value() &&
+                         nregex->matches(it2.index_handle().get_value(), false));
       }
 
       if (!key_val_match) {
@@ -881,7 +877,7 @@ std::vector< Id_Type > Query_Statement::collect_non_ids
         continue;
       }
 
-      new_ids.push_back(it2.object());
+      new_ids.emplace_back(it2.handle().id());
     }
 
     rman.health_check(*this);
