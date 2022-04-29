@@ -913,25 +913,15 @@ template< typename TIndex, typename TObject >
 void clear_empty_indices
     (std::map< TIndex, std::vector< TObject > >& modify)
 {
-  for (auto it = modify.begin();
-      it != modify.end();)
+  for (auto it = modify.begin(); it != modify.end();)
   {
-    if (!it->second.empty())
+    if (it->second.empty())
     {
-      ++it;
-      continue;
-    }
-    auto next_it = it;
-    if (++next_it == modify.end())
-    {
-      modify.erase(it);
-      break;
+      it = modify.erase(it);
     }
     else
     {
-      TIndex idx = next_it->first;
-      modify.erase(it);
-      it = modify.find(idx);
+      ++it;
     }
   }
 }
