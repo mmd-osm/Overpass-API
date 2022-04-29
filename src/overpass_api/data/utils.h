@@ -356,10 +356,10 @@ inline bool eval_variant_represents_boolean_true(const Eval_Variant& v)
 {
   switch(v.index()) {
   case 0:  //int64
-    return std::get<int64>(v) == 1;
+    return std::get<int64>(v) != 0;
 
   case 1:  // double
-    return std::get<double>(v) == 1;
+    return std::get<double>(v) != 0;
 
   case 2:  // bool
     return std::get<bool>(v);
@@ -368,10 +368,10 @@ inline bool eval_variant_represents_boolean_true(const Eval_Variant& v)
     return string_represents_boolean_true(std::get<std::string>(v));
 
   case 4:
-    return std::get<Fixed_Point_3>(v).value == 1;
+    return std::get<Fixed_Point_3>(v).value != 0;
 
   case 5:
-    return std::get<Fixed_Point_7>(v).value == 1;
+    return std::get<Fixed_Point_7>(v).value != 0;
 
   }
 

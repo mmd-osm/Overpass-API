@@ -64,9 +64,7 @@ bool evals_to_true(Evaluator& criterion, const Statement& stmt, Resource_Manager
 {
   Prepare_Task_Context context(criterion.request_context(), stmt, rman);
   std::unique_ptr< Eval_Task > task(criterion.get_string_task(context, nullptr));
-  std::string valuation = eval_variant_to_string((*task).eval(nullptr));
-  double val_d = 0;
-  return (!valuation.empty())  && (!try_double(valuation, val_d) || val_d != 0);
+  return eval_variant_represents_boolean_true((*task).eval(nullptr));
 }
 
 
