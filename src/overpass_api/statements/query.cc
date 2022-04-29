@@ -315,26 +315,26 @@ void filter_id_list(
 }
 
 
-template< typename Id_Type, typename Container >
-void filter_id_list(
-    std::vector< std::pair< Id_Type, Uint31_Index > >& new_ids, bool& filtered,
-    const Container& container)
-{
-  std::vector< std::pair< Id_Type, Uint31_Index > > old_ids;
-  old_ids.swap(new_ids);
-
-  for (typename Container::const_iterator it = container.begin(); it != container.end(); ++it)
-  {
-    if (!filtered ||
-	binary_search(old_ids.begin(), old_ids.end(), std::make_pair(it->first, Uint31_Index(0u))))
-      new_ids.push_back(std::make_pair(it->first, it->second.second));
-  }
-
-  sort(new_ids.begin(), new_ids.end());
-  new_ids.erase(unique(new_ids.begin(), new_ids.end()), new_ids.end());
-
-  filtered = true;
-}
+//template< typename Id_Type, typename Container >
+//void filter_id_list(
+//    std::vector< std::pair< Id_Type, Uint31_Index > >& new_ids, bool& filtered,
+//    const Container& container)
+//{
+//  std::vector< std::pair< Id_Type, Uint31_Index > > old_ids;
+//  old_ids.swap(new_ids);
+//
+//  for (typename Container::const_iterator it = container.begin(); it != container.end(); ++it)
+//  {
+//    if (!filtered ||
+//	binary_search(old_ids.begin(), old_ids.end(), std::make_pair(it->first, Uint31_Index(0u))))
+//      new_ids.push_back(std::make_pair(it->first, it->second.second));
+//  }
+//
+//  sort(new_ids.begin(), new_ids.end());
+//  new_ids.erase(unique(new_ids.begin(), new_ids.end()), new_ids.end());
+//
+//  filtered = true;
+//}
 
 template< typename Id_Type, typename Container, unsigned int L >
 std::vector< std::pair< Id_Type, Uint31_Index > > filter_id_list_fast(
@@ -1551,18 +1551,18 @@ void Query_Statement::filter_by_tags(std::map< Uint31_Index, std::vector< Derive
   }
 }
 
-struct comparator
-{
-    template< typename Id_Type >
-    bool operator()( Id_Type const& lhs, std::pair< Id_Type, Uint31_Index > const& rhs) const {
-        return lhs < rhs.first;
-   }
-
-    template< typename Id_Type >
-    bool operator()( std::pair< Id_Type, Uint31_Index > const& lhs, Id_Type const& rhs) const {
-        return lhs.first < rhs;
-    }
-};
+//struct comparator
+//{
+//    template< typename Id_Type >
+//    bool operator()( Id_Type const& lhs, std::pair< Id_Type, Uint31_Index > const& rhs) const {
+//        return lhs < rhs.first;
+//   }
+//
+//    template< typename Id_Type >
+//    bool operator()( std::pair< Id_Type, Uint31_Index > const& lhs, Id_Type const& rhs) const {
+//        return lhs.first < rhs;
+//    }
+//};
 
 
 
