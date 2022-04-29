@@ -92,7 +92,7 @@ class Query_Statement final : public Output_Statement
 
     static bool area_query_exists() { return area_query_ref_counter_ > 0; }
 
-    static std::string to_string(int type)
+    static const char* to_string(int type)
     {
       if (type == QUERY_NODE)
         return "node";
@@ -107,7 +107,7 @@ class Query_Statement final : public Output_Statement
       else if (type == (QUERY_NODE | QUERY_WAY | QUERY_RELATION))
         return "nwr";
       else if (type == (QUERY_NODE | QUERY_WAY))
-        return "nwr";
+        return "nw";
       else if (type == (QUERY_WAY | QUERY_RELATION))
         return "wr";
       else if (type == (QUERY_NODE | QUERY_RELATION))
