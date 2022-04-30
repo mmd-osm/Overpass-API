@@ -209,7 +209,7 @@ private:
 
 
 template<typename T>
-constexpr uint64 eval_elem();
+constexpr uint64 eval_elem() = delete;
 
 template<>
 constexpr uint64 eval_elem< Node_Skeleton >() { return 8; }
