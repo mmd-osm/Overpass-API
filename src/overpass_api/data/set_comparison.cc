@@ -382,13 +382,13 @@ std::map< typename Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< typename Sk
       it = attic_meta_db.discrete_begin(idx_set.begin(), idx_set.end());
       !(it == attic_meta_db.discrete_end()); ++it)
   {
-    if (!(timestamp < it.object().timestamp)
-        && std::binary_search(searched_ids.begin(), searched_ids.end(), it.object().ref))
+    if (!(timestamp < it.handle().get_timestamp())
+        && std::binary_search(searched_ids.begin(), searched_ids.end(), it.handle().get_ref()))
     {
-      auto meta_it = result.find(it.object().ref);
+      auto meta_it = result.find(it.handle().get_ref());
       if (meta_it == result.end())
 	result.insert(std::make_pair(it.object().ref, it.object()));
-      else if (meta_it->second.timestamp < it.object().timestamp)
+      else if (meta_it->second.timestamp < it.handle().get_timestamp())
 	meta_it->second = it.object();
     }
   }
@@ -403,13 +403,13 @@ std::map< typename Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< typename Sk
       it = meta_db.discrete_begin(idx_set.begin(), idx_set.end());
       !(it == meta_db.discrete_end()); ++it)
   {
-    if (!(timestamp < it.object().timestamp)
-        && std::binary_search(searched_ids.begin(), searched_ids.end(), it.object().ref))
+    if (!(timestamp < it.handle().get_timestamp())
+        && std::binary_search(searched_ids.begin(), searched_ids.end(), it.handle().get_ref()))
     {
-      auto meta_it = result.find(it.object().ref);
+      auto meta_it = result.find(it.handle().get_ref());
       if (meta_it == result.end())
 	result.insert(std::make_pair(it.object().ref, it.object()));
-      else if (meta_it->second.timestamp < it.object().timestamp)
+      else if (meta_it->second.timestamp < it.handle().get_timestamp())
 	meta_it->second = it.object();
     }
   }

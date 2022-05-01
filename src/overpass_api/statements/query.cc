@@ -920,7 +920,7 @@ void filter_ids_by_ntags
       }
 
       if (valid)
-        removed_ids.push_back(tag_it.object());
+        removed_ids.push_back(tag_it.handle().id());
     }
 
     ++tag_it;
@@ -970,9 +970,9 @@ void filter_ids_by_ntags
         ((tag_it.index_handle().get_index()) & 0x7fffff00) == coarse_index &&
         tag_it.index_handle().get_key() == key_it->first)
     {
-      if (std::binary_search(new_ids.begin(), new_ids.end(), tag_it.object()))
+      if (std::binary_search(new_ids.begin(), new_ids.end(), Id_Type(tag_it.handle().id())))
       {
-        std::pair< timestamp_t, timestamp_t >& timestamp_ref = timestamps[tag_it.object()];
+        std::pair< timestamp_t, timestamp_t >& timestamp_ref = timestamps[tag_it.handle().id()];
         timestamp_ref.second = NOW;
 
         if (tag_it.index_handle().get_value() != last_value)
@@ -998,12 +998,12 @@ void filter_ids_by_ntags
         ((attic_tag_it.index_handle().get_index()) & 0x7fffff00) == coarse_index &&
         attic_tag_it.index_handle().get_key() == key_it->first)
     {
-      if (std::binary_search(new_ids.begin(), new_ids.end(), Id_Type(attic_tag_it.object())))
+      if (std::binary_search(new_ids.begin(), new_ids.end(), Id_Type(attic_tag_it.handle().id())))
       {
-        std::pair< timestamp_t, timestamp_t >& timestamp_ref = timestamps[attic_tag_it.object()];
-        if (timestamp < attic_tag_it.object().timestamp &&
-            (timestamp_ref.second == 0 || timestamp_ref.second > attic_tag_it.object().timestamp))
-          timestamp_ref.second = attic_tag_it.object().timestamp;
+        std::pair< timestamp_t, timestamp_t >& timestamp_ref = timestamps[attic_tag_it.handle().id()];
+        if (timestamp < attic_tag_it.handle().get_timestamp() &&
+            (timestamp_ref.second == 0 || timestamp_ref.second > attic_tag_it.handle().get_timestamp()))
+          timestamp_ref.second = attic_tag_it.handle().get_timestamp();
 
         if (attic_tag_it.index_handle().get_value() != last_value)
         {
@@ -1021,9 +1021,9 @@ void filter_ids_by_ntags
           last_value = attic_tag_it.index_handle().get_value();
         }
 
-        if (valid && timestamp < attic_tag_it.object().timestamp &&
-            (timestamp_ref.first == 0 || timestamp_ref.first > attic_tag_it.object().timestamp))
-          timestamp_ref.first = attic_tag_it.object().timestamp;
+        if (valid && timestamp < attic_tag_it.handle().get_timestamp() &&
+            (timestamp_ref.first == 0 || timestamp_ref.first > attic_tag_it.handle().get_timestamp()))
+          timestamp_ref.first = attic_tag_it.handle().get_timestamp();
       }
       ++attic_tag_it;
     }
