@@ -38,6 +38,6 @@ std::string get_xml_console(Error_Output* error_output, uint32 max_input_size = 
 
 uint32 probe_client_token();
 
-std::string probe_client_identifier();
+const char* probe_client_identifier();
 
 #endif

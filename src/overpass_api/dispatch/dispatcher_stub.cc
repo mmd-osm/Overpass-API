@@ -174,13 +174,13 @@ Dispatcher_Stub::Dispatcher_Stub
     }
     catch (const Rate_limited_Error& e) {
       std::ostringstream out;
-      out<<e.origin<<' '<<e.filename<<' '<< 0 <<' '<<strerror(0) << probe_client_identifier();
+      out<<e.origin<<' '<<e.filename<<' '<< 0 <<' '<<strerror(0) << (probe_client_identifier() ?: "");
       logger.annotated_log(out.str());
       throw;
     }
     catch (const Timeout_Error& e) {
       std::ostringstream out;
-      out<<e.origin<<' '<<e.filename<<' '<< 0 <<' '<<strerror(0) << probe_client_identifier();
+      out<<e.origin<<' '<<e.filename<<' '<< 0 <<' '<<strerror(0) << (probe_client_identifier() ?: "");
       logger.annotated_log(out.str());
       throw;
     }

@@ -27,6 +27,8 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include <arpa/inet.h>
+
 #include "cgi-helper.h"
 #include "../../expat/expat_justparse_interface.h"
 #include "user_interface.h"
@@ -262,129 +264,39 @@ std::string get_xml_console(Error_Output* error_output, uint32 max_input_size)
 }
 
 
-std::string probe_client_identifier()
+const char* probe_client_identifier()
 {
-  char* remote_addr_c = getenv("REMOTE_ADDR");
+  const char* remote_addr_c = getenv("REMOTE_ADDR");
   if (!remote_addr_c)
-    return "";
+    return nullptr;
 
-  return std::string(remote_addr_c);
-}
-
-
-uint32 parse_ipv4_address(const std::string& ip_addr)
-{
-  if (ip_addr.empty())
-    return 0;
-
-  std::string::size_type pos = ip_addr.find('.');
-  std::string::size_type old_pos = 0;
-  uint32 client_token = 0;
-
-  // Try IPv4 address format
-  while (pos != std::string::npos)
-  {
-    client_token = (client_token<<8 |
-      atoll(ip_addr.substr(old_pos, pos - old_pos).c_str()));
-    old_pos = pos + 1;
-    pos = ip_addr.find('.', old_pos);
-  }
-  client_token = (client_token<<8 | atoll(ip_addr.substr(old_pos).c_str()));
-
-  return client_token;
-}
-
-
-int decode_hex(std::string representation)
-{
-  int result = 0;
-  std::string::size_type pos = 0;
-
-  while (pos < representation.size())
-  {
-    if (representation[pos] >= '0' && representation[pos] <= '9')
-      result = (result<<4) | (representation[pos] - '0');
-    else if (representation[pos] >= 'a' && representation[pos] <= 'f')
-      result = (result<<4) | (representation[pos] - 'a' + 10);
-    else if (representation[pos] >= 'A' && representation[pos] <= 'F')
-      result = (result<<4) | (representation[pos] - 'A' + 10);
-    ++pos;
-  }
-  return result;
-}
-
-
-std::vector< uint16 > parse_short_ipv6_address(const std::string& ip_addr)
-{
-  std::vector< uint16 > ipv6_address;
-
-  // Try shortened IPv6 address format
-  std::string::size_type upper_end = ip_addr.find("::");
-  std::string::size_type pos = ip_addr.find(':');
-  std::string::size_type old_pos = 0;
-
-  while (pos < upper_end)
-  {
-    ipv6_address.push_back(decode_hex(ip_addr.substr(old_pos, pos - old_pos).c_str()));
-    old_pos = pos + 1;
-    pos = ip_addr.find(':', old_pos);
-  }
-  ipv6_address.push_back(decode_hex(ip_addr.substr(old_pos, upper_end - old_pos).c_str()));
-
-  std::vector< uint16 > lower_ipv6_address;
-  old_pos = upper_end + 2;
-  pos = ip_addr.find(':', old_pos);
-  while (pos != std::string::npos)
-  {
-    lower_ipv6_address.push_back(decode_hex(ip_addr.substr(old_pos, pos - old_pos).c_str()));
-    old_pos = pos + 1;
-    pos = ip_addr.find(':', old_pos);
-  }
-  lower_ipv6_address.push_back(decode_hex(ip_addr.substr(old_pos).c_str()));
-
-  ipv6_address.resize(8, 0);
-  for (std::vector< uint16 >::size_type i = 0; i < lower_ipv6_address.size(); ++i)
-    ipv6_address[i + 8 - lower_ipv6_address.size()] = lower_ipv6_address[i];
-
-  return ipv6_address;
-}
-
-
-std::vector< uint16 > parse_full_ipv6_address(const std::string& ip_addr)
-{
-  std::vector< uint16 > ipv6_address;
-
-  std::string::size_type pos = ip_addr.find(':');
-  std::string::size_type old_pos = 0;
-
-  while (pos != std::string::npos)
-  {
-      ipv6_address.push_back(decode_hex(ip_addr.substr(old_pos, pos - old_pos).c_str()));
-      old_pos = pos + 1;
-      pos = ip_addr.find(':', old_pos);
-  }
-
-  ipv6_address.resize(8, 0);
-
-  return ipv6_address;
+  return remote_addr_c;
 }
 
 
 uint32 probe_client_token()
 {
-  std::string ip_addr = probe_client_identifier();
-  if (ip_addr.empty())
+  struct in6_addr ipv6;
+  struct in_addr ipv4;
+
+  const char* ip_addr = probe_client_identifier();
+
+  if (ip_addr == nullptr)
     return 0;
 
-  if (ip_addr.find('.') != std::string::npos)
-    return parse_ipv4_address(ip_addr);
+  if (inet_pton(AF_INET6, ip_addr, &ipv6) == 1) {
+    // We only consider the upper 64 bit of an IPv6 address.
+    // For the sake of simplicity we xor these bits to get a 32 bit token.
+    // This shall be reviewed once we know how IPv6 addresses really are distributed.
+    return ((ipv6.s6_addr16[0] ^ ipv6.s6_addr16[2])<<16 | (ipv6.s6_addr16[1] ^ ipv6.s6_addr16[3]));
+  }
+  else if (inet_pton(AF_INET, ip_addr, &ipv4) == 1) {
+    // convert to host byte order for compatibility with previous implementation
+    // after all, those number are only used to tell different client IP addresses apart
+    return ntohl(ipv4.s_addr);
+  }
 
-  std::vector< uint16 > ipv6_address = (ip_addr.find("::") == std::string::npos ?
-      parse_full_ipv6_address(ip_addr) :
-      parse_short_ipv6_address(ip_addr));
-
-  // We only consider the upper 64 bit of an IPv6 address.
-  // For the sake of simplicity we xor these bits to get a 32 bit token.
-  // This shall be reviewed once we know how IPv6 addresses really are distributed.
-  return ((ipv6_address[0] ^ ipv6_address[2])<<16 | (ipv6_address[1] ^ ipv6_address[3]));
+  return 0;
 }
+
+
