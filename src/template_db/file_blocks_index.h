@@ -374,7 +374,7 @@ File_Blocks_Index< TIndex >::~File_Blocks_Index()
   dest_file.write(index_buf.get(), index_size, "File_Blocks_Index::~File_Blocks_Index::4");
 
   // Write void blocks
-  std::vector< uint8 > void_index_buf(void_blocks.size() * 8);
+  std::vector< uint8 > void_index_buf(void_blocks.size() * sizeof(std::pair< uint32, uint32 >));
   auto* it_ptr = (std::pair< uint32, uint32 >*)(void_index_buf.data());
   for (std::vector< std::pair< uint32, uint32 > >::const_iterator it(void_blocks.begin());
       it != void_blocks.end(); ++it)
@@ -384,7 +384,7 @@ File_Blocks_Index< TIndex >::~File_Blocks_Index()
   {
     Raw_File void_file(empty_index_file_name, O_RDWR|O_TRUNC, S_666,
 		       "File_Blocks_Index::~File_Blocks_Index::5");
-    void_file.write(void_index_buf.data(), void_blocks.size()*sizeof(uint32),
+    void_file.write(void_index_buf.data(), void_index_buf.size(),
 		    "File_Blocks_Index::~File_Blocks_Index::6");
   }
   catch (File_Error& e) {}
