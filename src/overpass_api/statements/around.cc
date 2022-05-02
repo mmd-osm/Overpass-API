@@ -309,6 +309,10 @@ inline bool Prepared_BBox::intersects(const Prepared_BBox & bbox) const
         min_lon <= max_lon))
     return true;
 
+  if (!(bbox.min_lat <= bbox.max_lat &&
+        bbox.min_lon <= bbox.max_lon))
+    return true;
+
   intersects = !( bbox.max_lat + 1e-8 < min_lat ||
                   bbox.min_lat - 1e-8 > max_lat ||
                   bbox.max_lon + 1e-8 < min_lon ||
