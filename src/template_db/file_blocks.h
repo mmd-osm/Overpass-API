@@ -870,10 +870,10 @@ uint64* File_Blocks< TIndex, TIterator >::read_block
   data_file.seek((int64)(it.block().pos) * block_size, "File_Blocks::read_block::1");
 
   if (compression_method == Block_Compression::NO_COMPRESSION)
-    data_file.read((uint8*)buffer_, block_size * it.block().size, "File_Blocks::read_block::2");
+    data_file.read((uint8*)buffer_, (uint64) block_size * it.block().size, "File_Blocks::read_block::2");
   else if (compression_method == Block_Compression::ZLIB_COMPRESSION)
   {
-    data_file.read((uint8*)temp_buffer, block_size * it.block().size, "File_Blocks::read_block::3");
+    data_file.read((uint8*)temp_buffer, (uint64) block_size * it.block().size, "File_Blocks::read_block::3");
     try
     {
       Zlib_Inflate().decompress(
@@ -891,7 +891,7 @@ uint64* File_Blocks< TIndex, TIterator >::read_block
   }
   else if (compression_method == Block_Compression::LZ4_COMPRESSION)
   {
-    data_file.read((uint8*)temp_buffer, block_size * it.block().size, "File_Blocks::read_block::4");
+    data_file.read((uint8*)temp_buffer, (uint64) block_size * it.block().size, "File_Blocks::read_block::4");
     try
     {
       LZ4_Inflate().decompress(
@@ -1054,7 +1054,7 @@ void File_Blocks< TIndex, TIterator >::write_block(uint64* buf, uint32 payload_s
   pos = allocate_block(block_count);
 
   data_file.seek(((int64)pos)*block_size, "File_Blocks::write_block::1");
-  data_file.write((uint8*)payload, block_size * block_count, "File_Blocks::write_block::2");
+  data_file.write((uint8*)payload, (uint64) block_size * block_count, "File_Blocks::write_block::2");
 }
 
 

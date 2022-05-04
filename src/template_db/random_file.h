@@ -153,7 +153,7 @@ void Random_File< Key, Value >::move_cache_window(uint32 pos)
 
     // Write the data at the found position.
     val_file.seek((int64)disk_pos*block_size, "Random_File:21");
-    val_file.write((uint8*)target, block_size * data_size, "Random_File:22");
+    val_file.write((uint8*)target, (uint64) block_size * data_size, "Random_File:22");
   }
   changed = false;
 
@@ -170,16 +170,16 @@ void Random_File< Key, Value >::move_cache_window(uint32 pos)
   {
     val_file.seek((int64)(index->get_blocks()[pos].pos)*block_size, "Random_File:23");
     if (index->get_compression_method() == Block_Compression::NO_COMPRESSION)
-      val_file.read(cache.get(), block_size * index->get_blocks()[pos].size, "Random_File:24");
+      val_file.read(cache.get(), (uint64) block_size * index->get_blocks()[pos].size, "Random_File:24");
     else if (index->get_compression_method() == Block_Compression::ZLIB_COMPRESSION)
     {
-      val_file.read(buffer.get(), block_size * index->get_blocks()[pos].size, "Random_File:25");
+      val_file.read(buffer.get(), (uint64) block_size * index->get_blocks()[pos].size, "Random_File:25");
       Zlib_Inflate().decompress
           (buffer.get(), block_size * index->get_blocks()[pos].size, cache.get(), block_size * index->get_compression_factor());
     }
     else if (index->get_compression_method() == Block_Compression::LZ4_COMPRESSION)
     {
-      val_file.read(buffer.get(), block_size * index->get_blocks()[pos].size, "Random_File:26");
+      val_file.read(buffer.get(), (uint64) block_size * index->get_blocks()[pos].size, "Random_File:26");
       LZ4_Inflate().decompress
           (buffer.get(), block_size * index->get_blocks()[pos].size, cache.get(), block_size * index->get_compression_factor());
     }
