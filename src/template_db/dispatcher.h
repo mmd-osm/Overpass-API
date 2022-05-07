@@ -25,6 +25,7 @@
 
 #include <sys/epoll.h>
 
+#include <array>
 #include <map>
 #include <set>
 #include <vector>
@@ -163,7 +164,7 @@ public:
 
 
 private:
-  const static int MAX_EVENTS = 64;
+  const static size_t MAX_EVENTS = 64;
 
   Unix_Socket socket;
   std::string socket_name;
