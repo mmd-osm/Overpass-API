@@ -294,6 +294,12 @@ Tag_Store< Index, Object >::Tag_Store(Transaction& transaction_)
 template< typename Index, typename Object >
 void Tag_Store< Index, Object >::prefetch_all(const std::map< Index, std::vector< Object > >& elems)
 {
+  if (elems.empty()) {
+    tags_by_id.clear();
+    use_index = false;
+    return;
+  }
+
   use_index = true;
   generate_ids_by_coarse(ids_by_coarse, elems);
 
@@ -321,6 +327,12 @@ template< typename Index, typename Object >
 void Tag_Store< Index, Object >::prefetch_chunk(const std::map< Index, std::vector< Object > >& elems,
     typename Object::Id_Type lower_id_bound, typename Object::Id_Type upper_id_bound)
 {
+  if (elems.empty()) {
+    tags_by_id.clear();
+    use_index = false;
+    return;
+  }
+
   tags_by_id.clear();
 
   //generate std::set of relevant coarse indices
@@ -342,6 +354,12 @@ void Tag_Store< Index, Object >::prefetch_chunk(const std::map< Index, std::vect
 template< typename Index, typename Object >
 void Tag_Store< Index, Object >::prefetch_all(const std::map< Index, std::vector< Attic< Object > > >& attic_items)
 {
+  if (attic_items.empty()) {
+    tags_by_id.clear();
+    use_index = false;
+    return;
+  }
+
   use_index = true;
 
   generate_ids_by_coarse(attic_ids_by_coarse, attic_items);
@@ -376,6 +394,12 @@ template< typename Index, typename Object >
 void Tag_Store< Index, Object >::prefetch_chunk(const std::map< Index, std::vector< Attic< Object > > >& attic_items,
     typename Object::Id_Type lower_id_bound, typename Object::Id_Type upper_id_bound)
 {
+  if (attic_items.empty()) {
+    tags_by_id.clear();
+    use_index = false;
+    return;
+  }
+
   //generate std::set of relevant coarse indices
   generate_ids_by_coarse(attic_ids_by_coarse, attic_items);
 
