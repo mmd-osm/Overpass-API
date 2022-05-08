@@ -440,7 +440,10 @@ class Around_Constraint final : public Query_Constraint
         (Resource_Manager& rman, std::set< std::pair< Uint31_Index, Uint31_Index > >& ranges) override;
     void filter(Resource_Manager& rman, Set& into) override;
     void filter(const Statement& query, Resource_Manager& rman, Set& into) override;
-    ~Around_Constraint() override = default;
+    ~Around_Constraint() override {
+      delete wgs;
+      delete attic_wgs;
+    }
   private:
     std::ostream& print_constraint( std::ostream &os ) const override {
       return os << (around != nullptr ? around->dump_ql_in_query("") : "around");
@@ -448,6 +451,8 @@ class Around_Constraint final : public Query_Constraint
 
     Around_Statement* around;
     bool ranges_used;
+    Way_Geometry_Store* wgs = nullptr;
+    Way_Geometry_Store* attic_wgs = nullptr;
 };
 
 
@@ -554,9 +559,13 @@ void filter_nodes_expensive(const Around_Statement& around,
 
 template< typename Way_Skeleton >
 void filter_ways_expensive(const Around_Statement& around,
-                           const Way_Geometry_Store& way_geometries,
-                           std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways)
+                           Way_Geometry_Store* way_geometries,
+                           std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
+                           const Statement& query, Resource_Manager& rman)
 {
+  bool geometry_store_was_rebuilt = false;
+  bool needs_reprocessing = false;
+
   for (auto it = ways.begin();
       it != ways.end(); ++it)
   {
@@ -564,10 +573,24 @@ void filter_ways_expensive(const Around_Statement& around,
     for (typename std::vector< Way_Skeleton >::const_iterator iit = it->second.begin();
         iit != it->second.end(); ++iit)
     {
-      const std::vector< Quad_Coord >& way_geometry = way_geometries.get_geometry(*iit);
-      if (around.matches_bboxes(::way_geometry_bbox(way_geometry)) &&
-          around.is_inside(way_geometry))
-	local_into.push_back(*iit);
+      do {
+        needs_reprocessing = false;
+
+        const std::vector< Quad_Coord > & way_geometry = way_geometries->get_geometry(*iit);
+
+        // geometry not found? Allow at most one Way_Geometry_Store rebuild in this function
+        if (way_geometry.empty() && !geometry_store_was_rebuilt) {
+           delete way_geometries;
+           way_geometries = new Way_Geometry_Store(ways, query, rman);
+           geometry_store_was_rebuilt = true;
+           needs_reprocessing = true;
+           continue;
+        }
+
+        if (around.matches_bboxes(::way_geometry_bbox(way_geometry)) &&
+            around.is_inside(way_geometry))
+          local_into.push_back(*iit);
+      } while(needs_reprocessing);
     }
     it->second.swap(local_into);
   }
@@ -635,7 +658,12 @@ void Around_Constraint::filter(const Statement& query, Resource_Manager& rman, S
   around->calc_lat_lons(input ? *input : Set(), *around, rman);
 
   filter_nodes_expensive(*around, into.nodes);
-  filter_ways_expensive(*around, Way_Geometry_Store(into.ways, query, rman), into.ways);
+
+  if (wgs == nullptr) {
+    wgs = new Way_Geometry_Store(into.ways, query, rman);
+  }
+
+  filter_ways_expensive(*around, wgs, into.ways, query, rman);
 
   {
     //Process relations
@@ -666,8 +694,14 @@ void Around_Constraint::filter(const Statement& query, Resource_Manager& rman, S
   if (!into.attic_nodes.empty())
     filter_nodes_expensive(*around, into.attic_nodes);
 
-  if (!into.attic_ways.empty())
-    filter_ways_expensive(*around, Way_Geometry_Store(into.attic_ways, query, rman), into.attic_ways);
+  if (!into.attic_ways.empty()) {
+
+    if (attic_wgs == nullptr) {
+      attic_wgs = new Way_Geometry_Store(into.attic_ways, query, rman);
+    }
+
+    filter_ways_expensive(*around, attic_wgs, into.attic_ways, query, rman);
+  }
 
   if (!into.attic_relations.empty())
   {
