@@ -301,7 +301,7 @@ void Tag_Store< Index, Object >::prefetch_all(const std::map< Index, std::vector
   }
 
   use_index = true;
-  generate_ids_by_coarse(ids_by_coarse, elems);
+  generate_ids_by_coarse(ids_by_coarse, elems, true);
 
   ranges = formulate_range_query(ids_by_coarse);
 
@@ -336,7 +336,7 @@ void Tag_Store< Index, Object >::prefetch_chunk(const std::map< Index, std::vect
   tags_by_id.clear();
 
   //generate std::set of relevant coarse indices
-  generate_ids_by_coarse(ids_by_coarse, elems);
+  generate_ids_by_coarse(ids_by_coarse, elems, true);
 
   Block_Backend< Tag_Index_Local, typename Object::Id_Type > items_db
       (transaction->data_index(current_local_tags_file_properties< Object >()));
@@ -362,7 +362,7 @@ void Tag_Store< Index, Object >::prefetch_all(const std::map< Index, std::vector
 
   use_index = true;
 
-  generate_ids_by_coarse(attic_ids_by_coarse, attic_items);
+  generate_ids_by_coarse(attic_ids_by_coarse, attic_items, true);
 
   ranges = formulate_range_query(attic_ids_by_coarse);
 
@@ -401,7 +401,7 @@ void Tag_Store< Index, Object >::prefetch_chunk(const std::map< Index, std::vect
   }
 
   //generate std::set of relevant coarse indices
-  generate_ids_by_coarse(attic_ids_by_coarse, attic_items);
+  generate_ids_by_coarse(attic_ids_by_coarse, attic_items, true);
 
   Block_Backend< Tag_Index_Local, typename Object::Id_Type > current_tags_db
       (transaction->data_index(current_local_tags_file_properties< Object >()));

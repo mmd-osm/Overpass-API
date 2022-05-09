@@ -292,14 +292,18 @@ Ranges< Tag_Index_Local > formulate_range_query(const std::map< uint32, Value >&
   return Ranges< Tag_Index_Local >(std::move(range_set));
 }
 
-
 template< class TIndex, class TObject >
 void generate_ids_by_coarse
   (std::map< uint32, std::vector< typename TObject::Id_Type > >& ids_by_coarse,
-   const std::map< TIndex, std::vector< TObject > >& items)
+   const std::map< TIndex, std::vector< TObject > >& items,
+   bool skip_empty = false)
 {
   for (auto it(items.begin()); it != items.end(); ++it)
   {
+    if (skip_empty && it->second.empty()) {
+      continue;
+    }
+
     std::vector< typename TObject::Id_Type >& ids_by_coarse_ = ids_by_coarse[it->first.val() & 0x7fffff00];
 
     for (auto it2(it->second.begin());
@@ -319,13 +323,19 @@ void generate_ids_by_coarse
 }
 
 
+
 template< class TIndex, class TObject >
 void generate_ids_by_coarse
   (std::map< uint32, std::vector< Attic< typename TObject::Id_Type > > >& ids_by_coarse,
-   const std::map< TIndex, std::vector< TObject > >& items)
+   const std::map< TIndex, std::vector< TObject > >& items,
+   bool skip_empty = false)
 {
   for (auto it(items.begin()); it != items.end(); ++it)
   {
+    if (skip_empty && it->second.empty()) {
+      continue;
+    }
+
     std::vector< Attic< typename TObject::Id_Type > >& ids_by_coarse_ = ids_by_coarse[it->first.val() & 0x7fffff00];
 
     for (auto it2(it->second.begin());
