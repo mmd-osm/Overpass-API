@@ -228,7 +228,7 @@ void collect_attic_tags
       id_vec, coarse_index);
 }
 
-
+/*
 template< class Id_Type >
 void collect_tags
   (std::map< Id_Type, std::vector< std::pair< std::string, std::string > > >& tags_by_id,
@@ -242,6 +242,93 @@ void collect_tags
   while ((!(tag_it == items_db.range_end())) &&
       (((tag_it.index_handle().get_index()) & 0x7fffff00) == coarse_index))
   {
+    Id_Type current(tag_it.handle().id());     // avoid creating a new object instance via object()
+    if ((binary_search(ids.begin(), ids.end(), current)))
+    {
+      auto elem = tag_it.index_handle().get_element();
+      tags_by_id[current].push_back
+          (std::make_pair(std::move(elem.key), std::move(elem.value)));
+    }
+    ++tag_it;
+  }
+}
+*/
+
+template< class Id_Type >
+void collect_tags_single
+  (std::map< Id_Type, std::vector< std::pair< std::string, std::string > > >& tags_by_id,
+   const Block_Backend< Tag_Index_Local, Id_Type >& items_db,
+   typename Block_Backend< Tag_Index_Local, Id_Type >::Range_Iterator& tag_it,
+   const Id_Type id, uint32 coarse_index)
+{
+  // Skip indices as long as index isn't matching coarse_index
+  while (!(tag_it == items_db.range_end()))
+  {
+    if (tag_it.start_of_new_index()) {
+      if (!((tag_it.index_handle().get_index() & 0x7fffff00) < coarse_index)) {
+        break;
+      }
+      // we don't want to check any of the Id_Type for this index
+      // tell templatedb we want to jump right to the next index
+      tag_it.skip_current_index();
+    }
+    ++tag_it;
+  }
+
+  while (!(tag_it == items_db.range_end()))
+  {
+    if (tag_it.start_of_new_index()) {
+      // index is no longer matching coarse_index -> we're done.
+      if (!((tag_it.index_handle().get_index() & 0x7fffff00) == coarse_index)) {
+        break;
+      }
+    }
+
+    Id_Type current(tag_it.handle().id());     // avoid creating a new object instance via object()
+    if (current == id)
+    {
+      auto elem = tag_it.index_handle().get_element();
+      tags_by_id[current].push_back
+          (std::make_pair(std::move(elem.key), std::move(elem.value)));
+      tag_it.skip_current_index();             // we've already found "id" in current index, let's move on to the next index
+    }
+    ++tag_it;
+  }
+}
+
+template< class Id_Type >
+void collect_tags
+  (std::map< Id_Type, std::vector< std::pair< std::string, std::string > > >& tags_by_id,
+   const Block_Backend< Tag_Index_Local, Id_Type >& items_db,
+   typename Block_Backend< Tag_Index_Local, Id_Type >::Range_Iterator& tag_it,
+   const std::vector< Id_Type >& ids, uint32 coarse_index)
+{
+  // Special case for single id value, avoids binary search and enables early jump to the next index
+  if (ids.size() == 1) {
+    collect_tags_single(tags_by_id, items_db, tag_it, ids.front(), coarse_index);
+    return;
+  }
+
+  while (!(tag_it == items_db.range_end()))
+  {
+    if (tag_it.start_of_new_index()) {
+      if (!((tag_it.index_handle().get_index() & 0x7fffff00) < coarse_index)) {
+        break;
+      }
+      tag_it.skip_current_index();
+    }
+    ++tag_it;
+  }
+
+  while (!(tag_it == items_db.range_end()))
+  {
+
+    if (tag_it.start_of_new_index()) {
+      if (!((tag_it.index_handle().get_index() & 0x7fffff00) == coarse_index)) {
+        break;
+      }
+    }
+
     Id_Type current(tag_it.handle().id());     // avoid creating a new object instance via object()
     if ((binary_search(ids.begin(), ids.end(), current)))
     {
