@@ -68,6 +68,17 @@ std::string de_escape(std::string input)
   return result;
 }
 
+uint64 get_max_space_limit() {
+
+  uint64 max_space_limit = 1ull<<33;   // default: 8GiB
+  char const* max_space_limit_c = std::getenv("OVERPASS_MAX_SPACE_LIMIT");
+  if (max_space_limit_c != nullptr) {
+    max_space_limit = std::max(0l, atol(max_space_limit_c));
+  }
+  return max_space_limit;
+}
+
+
 
 void set_limits(uint32 time, uint64 space)
 {
@@ -80,6 +91,10 @@ void set_limits(uint32 time, uint64 space)
     limit.rlim_max = time;
     result = setrlimit(RLIMIT_CPU, &limit);
   }
+
+  // OVERPASS_MAX_SPACE_LIMIT = 0 can be used to skip setting a max space limit (useful for -fsanitize=address)
+  if (get_max_space_limit() == 0)
+    return;
 
   result = getrlimit(RLIMIT_AS, &limit);
   if (result == 0 && space < limit.rlim_cur && space < limit.rlim_max)
@@ -125,16 +140,6 @@ void signalHandler_terminate_process(int signum) {
   std::_Exit(signum);
 }
 
-
-uint64 get_max_space_limit() {
-
-  uint64 max_space_limit = 1ull<<33;   // default: 8GiB
-  char const* max_space_limit_c = std::getenv("OVERPASS_MAX_SPACE_LIMIT");
-  if (max_space_limit_c != nullptr) {
-    max_space_limit = std::max(0l, atol(max_space_limit_c));
-  }
-  return max_space_limit;
-}
 
 Dispatcher_Stub::Dispatcher_Stub
     (std::string db_dir_, Error_Output* error_output_, std::string xml_raw, meta_modes meta_, int area_level,
