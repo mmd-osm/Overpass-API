@@ -559,7 +559,7 @@ void filter_nodes_expensive(const Around_Statement& around,
 
 template< typename Way_Skeleton >
 void filter_ways_expensive(const Around_Statement& around,
-                           Way_Geometry_Store* way_geometries,
+                           Way_Geometry_Store* & way_geometries,
                            std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
                            const Statement& query, Resource_Manager& rman)
 {
