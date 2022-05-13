@@ -170,17 +170,23 @@ template< class Id_Type >
 std::vector< std::pair< Id_Type, Uint31_Index > > collect_attic_kv_fast(
     const std::string & key, const std::string & value, timestamp_t timestamp,
     Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > >& tags_db,
-    Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >& attic_tags_db)
+    Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >& attic_tags_db,
+    bool& result_valid)
 {
   std::map< Id_Type, std::pair< timestamp_t, Uint31_Index > > timestamp_per_id;
   std::set< Tag_Index_Global > tag_req = get_kv_req(key, value);
 
   const uint32 DELETED = 0xffffffff;
 
+  result_valid = false;
+
   std::vector< std::pair < Id_Type, Uint31_Index > > ts_now;
 
 
   for (const auto & it2 : tags_db.as_discrete(tag_req)) {
+    if (ts_now.size() == 1024 * 1024) {
+      return {};
+    }
     ts_now.emplace_back(it2.handle().id(), it2.handle().get_idx());
   }
 
@@ -250,6 +256,8 @@ std::vector< std::pair< Id_Type, Uint31_Index > > collect_attic_kv_fast(
              transform_iterator<map_iterator, extract_functor >(timestamp_per_id.end(), extract_key_val_functor<Id_Type>{}),
              std::back_inserter(result));
 
+  result_valid = true;
+
   return result;
 }
 
@@ -308,9 +316,12 @@ template< class Id_Type >
 std::vector< std::pair < Id_Type, Uint31_Index > > collect_attic_k_fast(
     const std::string & key, timestamp_t timestamp,
     Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > >& tags_db,
-    Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >& attic_tags_db)
+    Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >& attic_tags_db,
+    bool& result_valid)
 {
   const uint32 DELETED = 0xffffffff;
+
+  result_valid = false;
 
   std::map< Id_Type, std::pair< timestamp_t, Uint31_Index > > timestamp_per_id;
   std::vector< std::pair < Id_Type, Uint31_Index > > ts_now;
@@ -318,6 +329,9 @@ std::vector< std::pair < Id_Type, Uint31_Index > > collect_attic_k_fast(
   auto range_req = get_k_req(key);
 
   for (const auto & it2 : tags_db.as_range(range_req)) {
+    if (ts_now.size() == 1024 * 1024) {
+      return {};
+    }
     ts_now.emplace_back(it2.handle().id(), it2.handle().get_idx());
   }
 
@@ -384,6 +398,8 @@ std::vector< std::pair < Id_Type, Uint31_Index > > collect_attic_k_fast(
              transform_iterator<map_iterator, extract_functor >(timestamp_per_id.end(), extract_key_val_functor<Id_Type>{}),
              std::back_inserter(result));
 
+  result_valid = true;
+
   return result;
 }
 
@@ -439,9 +455,12 @@ template< class Id_Type >
 std::vector< std::pair < Id_Type, Uint31_Index > > collect_attic_kregv_fast(
     const std::string & key, const Regular_Expression* regv, timestamp_t timestamp,
     Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > >& tags_db,
-    Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >& attic_tags_db)
+    Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >& attic_tags_db,
+    bool& result_valid)
 {
   const uint32 DELETED = 0xffffffff;
+
+  result_valid = false;
 
   std::map< Id_Type, std::pair< timestamp_t, Uint31_Index > > timestamp_per_id;
   std::vector< std::pair < Id_Type, Uint31_Index > > ts_now;
@@ -450,8 +469,13 @@ std::vector< std::pair < Id_Type, Uint31_Index > > collect_attic_kregv_fast(
 
   for (const auto & it2 : tags_db.as_range(range_req))
   {
-    if (regv->matches(it2.index().value))
+    if (regv->matches(it2.index().value)) {
+      if (ts_now.size() == 1024 * 1024) {
+        return {};
+      }
+
       ts_now.emplace_back(it2.handle().id(), it2.handle().get_idx());
+    }
   }
 
   std::sort(ts_now.begin(), ts_now.end());
@@ -517,6 +541,8 @@ std::vector< std::pair < Id_Type, Uint31_Index > > collect_attic_kregv_fast(
              transform_iterator<map_iterator, extract_functor >(timestamp_per_id.begin(), extract_key_val_functor<Id_Type>{}),
              transform_iterator<map_iterator, extract_functor >(timestamp_per_id.end(), extract_key_val_functor<Id_Type>{}),
              std::back_inserter(result));
+
+  result_valid = true;
 
   return result;
 }
