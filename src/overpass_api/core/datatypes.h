@@ -1228,5 +1228,24 @@ template< > inline std::string name_of_type< Way_Skeleton >() { return "Way"; }
 template< > inline std::string name_of_type< Relation_Skeleton >() { return "Relation"; }
 template< > inline std::string name_of_type< Area_Skeleton >() { return "Area"; }
 
+using kv_pairs = std::vector< std::pair< std::string, std::string > >;
+
+struct Tags_By_Id_Cache
+{
+public:
+  template <typename T>
+  std::map< typename T::Id_Type, kv_pairs> & get() = delete;
+
+private:
+  std::map< Node_Skeleton::Id_Type, kv_pairs > t_by_id_node;
+  std::map< Way_Skeleton::Id_Type, kv_pairs > t_by_id_way;
+  std::map< Relation_Skeleton::Id_Type, kv_pairs > t_by_id_relation;
+  std::map< Area_Skeleton::Id_Type, kv_pairs > t_by_id_area;
+};
+
+template<> inline std::map< Node_Skeleton::Id_Type, kv_pairs > &     Tags_By_Id_Cache::get< Node_Skeleton >()     { return t_by_id_node; }
+template<> inline std::map< Way_Skeleton::Id_Type, kv_pairs > &      Tags_By_Id_Cache::get< Way_Skeleton >()      { return t_by_id_way; }
+template<> inline std::map< Relation_Skeleton::Id_Type, kv_pairs > & Tags_By_Id_Cache::get< Relation_Skeleton >() { return t_by_id_relation; }
+template<> inline std::map< Area_Skeleton::Id_Type, kv_pairs > &     Tags_By_Id_Cache::get< Area_Skeleton >()     { return t_by_id_area; }
 
 #endif

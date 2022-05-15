@@ -51,11 +51,12 @@ private:
 };
 
 
+
 template< typename Index, typename Object >
 class Tag_Store
 {
 public:
-  Tag_Store(Transaction& transaction);
+  Tag_Store(Resource_Manager& rman, bool use_global_cache = false);
   ~Tag_Store();
 
   void prefetch_all(const std::map< Index, std::vector< Object > >& elems);
@@ -69,6 +70,7 @@ public:
 
 private:
   std::map< typename Object::Id_Type, std::vector< std::pair< std::string, std::string > > > tags_by_id;
+  Resource_Manager* rman = nullptr;
   Transaction* transaction = nullptr;
   bool use_index = false;
   Index stored_index;
@@ -79,6 +81,9 @@ private:
   typename Block_Backend< Tag_Index_Local, typename Object::Id_Type >::Range_Iterator* tag_it = nullptr;
   Block_Backend< Tag_Index_Local, Attic< typename Object::Id_Type > >* attic_items_db = nullptr;
   typename Block_Backend< Tag_Index_Local, Attic< typename Object::Id_Type > >::Range_Iterator* attic_tag_it = nullptr;
+  const bool use_global_cache = false;
+
+  std::map< Index, std::vector< Object > > filter_elements(const std::map< Index, std::vector< Object > >& elems);
 };
 
 
@@ -87,6 +92,7 @@ class Tag_Store< Uint31_Index, Derived_Structure >
 {
 public:
   Tag_Store(Transaction& transaction) {}
+  Tag_Store(Resource_Manager& rman) {}
   Tag_Store() = default;
 
   void prefetch_all(const std::map< Uint31_Index, std::vector< Derived_Structure > >& elems) {}
@@ -373,24 +379,59 @@ void collect_tags_framed
 }
 
 
-template< typename Index, typename Object >
-Tag_Store< Index, Object >::Tag_Store(Transaction& transaction_)
-    : transaction(&transaction_), use_index(false), ranges({}) {}
 
+template< typename Index, typename Object >
+Tag_Store< Index, Object >::Tag_Store(Resource_Manager& rman, bool use_global_cache)
+    : rman(&rman), transaction(rman.get_transaction()), use_index(false), ranges({}), use_global_cache(use_global_cache) {}
+
+template< typename Index, typename Object >
+std::map< Index, std::vector< Object > > Tag_Store< Index, Object >::filter_elements(const std::map< Index, std::vector< Object > >& elems)
+{
+  // Returns only elements which are not yet available in global cache
+
+  if (!use_global_cache) {
+    return elems;
+  }
+
+  auto & tags_by_id = rman ? rman->tags_by_id().get<Object>() : this->tags_by_id;
+
+  std::map< Index, std::vector< Object > > elems_filtered;
+
+  for (const auto & elem : elems) {
+    auto & el_filtered = elems_filtered[elem.first.val()];
+
+    for (const auto & el : elem.second) {
+      auto it = tags_by_id.find(el.id);
+      if (it == tags_by_id.end()) {
+        el_filtered.push_back(el);
+      }
+    }
+  }
+  return elems_filtered;
+}
 
 template< typename Index, typename Object >
 void Tag_Store< Index, Object >::prefetch_all(const std::map< Index, std::vector< Object > >& elems)
 {
+  auto & tags_by_id = rman ? rman->tags_by_id().get<Object>() : this->tags_by_id;
+
   if (elems.empty()) {
-    tags_by_id.clear();
+    if (!use_global_cache)
+      tags_by_id.clear();
     use_index = false;
     return;
   }
 
+  generate_ids_by_coarse(ids_by_coarse, use_global_cache ? filter_elements(elems) : elems, true);
+
   use_index = true;
-  generate_ids_by_coarse(ids_by_coarse, elems, true);
 
   ranges = formulate_range_query(ids_by_coarse);
+
+  if (ranges.empty()) {
+    use_index = false;
+    return;
+  }
 
   delete items_db;
   items_db = new Block_Backend< Tag_Index_Local, typename Object::Id_Type >(
@@ -402,7 +443,8 @@ void Tag_Store< Index, Object >::prefetch_all(const std::map< Index, std::vector
 
   if (!ids_by_coarse.empty())
   {
-    tags_by_id.clear();
+    if (!use_global_cache)
+      tags_by_id.clear();
     stored_index = ids_by_coarse.begin()->first;
     collect_tags< typename Object::Id_Type >(tags_by_id, *items_db, *tag_it,
         ids_by_coarse[stored_index.val()], stored_index.val());
@@ -441,6 +483,9 @@ void Tag_Store< Index, Object >::prefetch_chunk(const std::map< Index, std::vect
 template< typename Index, typename Object >
 void Tag_Store< Index, Object >::prefetch_all(const std::map< Index, std::vector< Attic< Object > > >& attic_items)
 {
+  // Note: global cache cannot be used in attic scenarios, query might use retro or adiff,
+  // and execute query statements at different points in time.
+
   if (attic_items.empty()) {
     tags_by_id.clear();
     use_index = false;
@@ -481,6 +526,9 @@ template< typename Index, typename Object >
 void Tag_Store< Index, Object >::prefetch_chunk(const std::map< Index, std::vector< Attic< Object > > >& attic_items,
     typename Object::Id_Type lower_id_bound, typename Object::Id_Type upper_id_bound)
 {
+  // Note: global cache cannot be used in attic scenarios, query might use retro or adiff,
+  // and execute query statements at different points in time.
+
   if (attic_items.empty()) {
     tags_by_id.clear();
     use_index = false;
@@ -520,6 +568,16 @@ template< typename Index, typename Object >
 const std::vector< std::pair< std::string, std::string > >*
     Tag_Store< Index, Object >::get(const Index& index, const Object& elem)
 {
+  auto & tags_by_id = use_global_cache ? rman->tags_by_id().get<Object>() : this->tags_by_id;
+
+  // pre-check if element is already in global cache
+  if (use_global_cache) {
+    auto it = tags_by_id.find(elem.id);
+    if (it != tags_by_id.end()) {
+      return &it->second;
+    }
+  }
+
   if (use_index && !(stored_index == Index(index.val() & 0x7fffff00)))
   {
     if (Index(index.val() & 0x7fffff00) < stored_index)
@@ -535,7 +593,8 @@ const std::vector< std::pair< std::string, std::string > >*
       }
     }
 
-    tags_by_id.clear();
+    if (!use_global_cache)
+      tags_by_id.clear();
     stored_index = Index(index.val() & 0x7fffff00);
     if (attic_items_db)
       collect_attic_tags< typename Object::Id_Type >(tags_by_id, *items_db, *tag_it, *attic_items_db, *attic_tag_it,

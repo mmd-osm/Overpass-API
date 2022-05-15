@@ -406,7 +406,7 @@ void tags_quadtile_
   if (items.empty())
     return;
 
-  Tag_Store< Index, Object > tag_store(*rman.get_transaction());
+  Tag_Store< Index, Object > tag_store(rman);
   tag_store.prefetch_all(items);
 
   // formulate meta query if meta data shall be printed
@@ -440,7 +440,7 @@ void tags_quadtile_attic_
   if (items.empty())
     return;
 
-  Tag_Store< Index, Object > tag_store(transaction);
+  Tag_Store< Index, Object > tag_store(rman);
   tag_store.prefetch_all(items);
 
   Attic_Meta_Collector< Index, Object > meta_printer(items, transaction, extra_data.mode & Output_Mode::META);
@@ -696,8 +696,8 @@ void tags_by_id_attic
 {
   std::vector< Maybe_Attic_Ref< Index, Object > > items_by_id = collect_items_by_id(current_items, attic_items);
 
-  Tag_Store< Index, Object > current_tag_store(transaction);
-  Tag_Store< Index, Object > attic_tag_store(transaction);
+  Tag_Store< Index, Object > current_tag_store(rman);
+  Tag_Store< Index, Object > attic_tag_store(rman);
 
   // formulate meta query if meta data shall be printed
   Meta_Collector< Index, typename Object::Id_Type > only_current_meta_printer
@@ -774,7 +774,7 @@ void tags_by_id
   {
     if (rman.get_desired_timestamp() == NOW)
     {
-      Tag_Store< Index, Object > tag_store(*rman.get_transaction());
+      Tag_Store< Index, Object > tag_store(rman);
       Meta_Collector< Index, typename Object::Id_Type > meta_printer(items, *rman.get_transaction(),
           current_meta_file_properties< Object >());
       tags_by_id(extra_data, items, FLUSH_SIZE, output, rman, &meta_printer, tag_store, limit, element_count);
@@ -787,7 +787,7 @@ void tags_by_id
   {
     if (rman.get_desired_timestamp() == NOW)
     {
-      Tag_Store< Index, Object > tag_store(*rman.get_transaction());
+      Tag_Store< Index, Object > tag_store(rman);
       tags_by_id(extra_data, items, FLUSH_SIZE, output, rman,
           (Meta_Collector< Index, typename Object::Id_Type >*)0, tag_store, limit, element_count);
     }
@@ -880,7 +880,7 @@ void Print_Statement::execute(Resource_Manager& rman)
 
       if (rman.get_area_transaction())
       {
-	Tag_Store< Uint31_Index, Area_Skeleton > tag_store(*rman.get_transaction());
+	Tag_Store< Uint31_Index, Area_Skeleton > tag_store(rman);
 	tags_by_id(extra_data, output_items->areas, AREA_FLUSH_SIZE, output_handler, rman,
 		   (Meta_Collector< Uint31_Index, Area_Skeleton::Id_Type >*)0,
 		   tag_store, limit, element_count);

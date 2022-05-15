@@ -51,6 +51,7 @@ public:
   
   Iterator begin() const { return Iterator(data.begin()); }
   Iterator end() const { return Iterator(data.end()); }
+  bool empty() const { return data.empty(); }
   
   Ranges skip_start(Index lower_bound);
 

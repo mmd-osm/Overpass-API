@@ -182,6 +182,7 @@ public:
   void switch_diff_show_to(const std::string& diff_set_name);
 
   const std::map< uint32, std::string >& users() { return user_data_cache.users(*transaction); }
+  Tags_By_Id_Cache& tags_by_id() { return tags_by_id_cache; }
 
   void start_cpu_timer(uint index);
   void stop_cpu_timer(uint index);
@@ -197,6 +198,7 @@ private:
   Parsed_Query* global_settings = nullptr;
   bool global_settings_owned;
   User_Data_Cache user_data_cache;
+  Tags_By_Id_Cache tags_by_id_cache;        // global Tags_By_Id Cache, used by Tag_Store
   int start_time;
   uint32 last_ping_time;
   uint32 last_report_time;
