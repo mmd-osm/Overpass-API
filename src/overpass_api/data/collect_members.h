@@ -700,7 +700,9 @@ void item_filter_map
   for (auto it = modify.begin();
       it != modify.end(); ++it)
   {
-    sort(it->second.begin(), it->second.end());
+    if (!std::is_sorted(it->second.begin(), it->second.end())) {
+      sort(it->second.begin(), it->second.end());
+    }
     auto from_it = read.find(it->first);
     if (from_it == read.end())
     {
