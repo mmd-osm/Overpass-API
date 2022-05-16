@@ -700,15 +700,22 @@ void item_filter_map
   for (auto it = modify.begin();
       it != modify.end(); ++it)
   {
-    if (!std::is_sorted(it->second.begin(), it->second.end())) {
-      sort(it->second.begin(), it->second.end());
-    }
     auto from_it = read.find(it->first);
     if (from_it == read.end())
     {
       it->second.clear();
       continue;
     }
+
+    // check if vectors are the same to avoid expensive binary search/copy operations
+    if (from_it->second == it->second) {
+      continue;
+    }
+
+    if (!std::is_sorted(it->second.begin(), it->second.end())) {
+      sort(it->second.begin(), it->second.end());
+    }
+
     std::vector< TObject > local_into;
     for (auto iit = from_it->second.begin();
         iit != from_it->second.end(); ++iit)
