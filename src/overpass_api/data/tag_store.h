@@ -393,7 +393,7 @@ std::map< Index, std::vector< Object > > Tag_Store< Index, Object >::filter_elem
     return elems;
   }
 
-  auto & tags_by_id = rman ? rman->tags_by_id().get<Object>() : this->tags_by_id;
+  auto & tags_by_id = rman->tags_by_id().get<Object>();
 
   std::map< Index, std::vector< Object > > elems_filtered;
 
@@ -413,7 +413,7 @@ std::map< Index, std::vector< Object > > Tag_Store< Index, Object >::filter_elem
 template< typename Index, typename Object >
 void Tag_Store< Index, Object >::prefetch_all(const std::map< Index, std::vector< Object > >& elems)
 {
-  auto & tags_by_id = rman ? rman->tags_by_id().get<Object>() : this->tags_by_id;
+  auto & tags_by_id = use_global_cache ? rman->tags_by_id().get<Object>() : this->tags_by_id;
 
   if (elems.empty()) {
     if (!use_global_cache)
