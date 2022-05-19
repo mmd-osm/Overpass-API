@@ -35,6 +35,26 @@
 
 
 
+template< >
+struct Range_Idx_Assessor<Tag_Index_Global, Ranges< Tag_Index_Global >::Iterator >
+{
+  Range_Idx_Assessor(const Ranges< Tag_Index_Global >::Iterator& index_it_, const Ranges< Tag_Index_Global >::Iterator& index_end_)
+      : index_it(index_it_), index_end(index_end_) {}
+
+  bool is_relevant(Handle < Tag_Index_Global > & handle)
+  {
+    while (index_it != index_end && !(handle < index_it.upper_bound()))
+      ++index_it;
+    return index_it != index_end && !(handle < index_it.lower_bound()) && handle < index_it.upper_bound();
+  }
+
+private:
+  Ranges< Tag_Index_Global >::Iterator index_it;
+  Ranges< Tag_Index_Global >::Iterator index_end;
+};
+
+
+
 //-----------------------------------------------------------------------------
 
 int Query_Statement::area_query_ref_counter_ = 0;
@@ -363,27 +383,6 @@ enum class FinalProcessing {
   key_regexes,
   regkey_regexes
 };
-
-
-
-template< >
-struct Range_Idx_Assessor<Tag_Index_Global, Ranges< Tag_Index_Global >::Iterator >
-{
-  Range_Idx_Assessor(const Ranges< Tag_Index_Global >::Iterator& index_it_, const Ranges< Tag_Index_Global >::Iterator& index_end_)
-      : index_it(index_it_), index_end(index_end_) {}
-
-  bool is_relevant(Handle < Tag_Index_Global > & handle)
-  {
-    while (index_it != index_end && !(handle < index_it.upper_bound()))
-      ++index_it;
-    return index_it != index_end && !(handle < index_it.lower_bound()) && handle < index_it.upper_bound();
-  }
-
-private:
-  Ranges< Tag_Index_Global >::Iterator index_it;
-  Ranges< Tag_Index_Global >::Iterator index_end;
-};
-
 
 
 
