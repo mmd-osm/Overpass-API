@@ -31,6 +31,7 @@
 #include "../../template_db/transaction.h"
 #include "../core/datatypes.h"
 #include "../core/settings.h"
+#include "../data/custom_assessor.h"
 #include "../data/abstract_processing.h"
 #include "parallel_proc.h"
 

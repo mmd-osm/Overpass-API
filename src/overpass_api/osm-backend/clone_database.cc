@@ -27,6 +27,7 @@
 #include "../../template_db/block_backend_updater.h"
 #include "../../template_db/file_blocks.h"
 #include "../../template_db/random_file.h"
+#include "../data/custom_assessor.h"
 
 
 template< class TIndex, typename TObject >

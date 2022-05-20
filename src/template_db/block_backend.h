@@ -543,6 +543,21 @@ private:
 };
 
 
+// Declare full template specialization for Tag_Index_Global and Tag_Index_Local,
+// to trigger compilation errors in places where we don't use our custom
+// Range_Idx_Assessor implementation in data/custom_assessor.h
+// This declaration isn't strictly necessary and may be commented out at any time.
+
+struct Tag_Index_Global;
+struct Tag_Index_Local;
+
+template< >
+struct Range_Idx_Assessor<Tag_Index_Global, Ranges< Tag_Index_Global >::Iterator >;
+
+template< >
+struct Range_Idx_Assessor<Tag_Index_Local, Ranges< Tag_Index_Local >::Iterator >;
+
+
 template< typename File_Blocks, typename Index >
 struct Range_File_Handle
 {

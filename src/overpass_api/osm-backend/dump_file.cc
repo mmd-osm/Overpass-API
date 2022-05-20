@@ -33,6 +33,7 @@
 #include "../../template_db/random_file.h"
 #include "../../template_db/transaction.h"
 #include "../core/settings.h"
+#include "../data/custom_assessor.h"
 #include "../frontend/output.h"
 
 

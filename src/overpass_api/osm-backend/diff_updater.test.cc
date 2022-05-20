@@ -32,6 +32,7 @@
 #include "../../template_db/transaction.h"
 #include "../core/datatypes.h"
 #include "../core/settings.h"
+#include "../data/custom_assessor.h"
 
 
 struct Output_Sorter

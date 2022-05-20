@@ -19,6 +19,7 @@
 #include "../../template_db/block_backend.h"
 #include "../../template_db/random_file.h"
 #include "../core/settings.h"
+#include "../data/custom_assessor.h"
 #include "../data/abstract_processing.h"
 #include "../data/collect_members.h"
 #include "../data/filenames.h"
@@ -32,27 +33,6 @@
 
 #include <algorithm>
 #include <sstream>
-
-
-
-template< >
-struct Range_Idx_Assessor<Tag_Index_Global, Ranges< Tag_Index_Global >::Iterator >
-{
-  Range_Idx_Assessor(const Ranges< Tag_Index_Global >::Iterator& index_it_, const Ranges< Tag_Index_Global >::Iterator& index_end_)
-      : index_it(index_it_), index_end(index_end_) {}
-
-  bool is_relevant(Handle < Tag_Index_Global > & handle)
-  {
-    while (index_it != index_end && !(handle < index_it.upper_bound()))
-      ++index_it;
-    return index_it != index_end && !(handle < index_it.lower_bound()) && handle < index_it.upper_bound();
-  }
-
-private:
-  Ranges< Tag_Index_Global >::Iterator index_it;
-  Ranges< Tag_Index_Global >::Iterator index_end;
-};
-
 
 
 //-----------------------------------------------------------------------------
