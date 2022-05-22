@@ -90,14 +90,12 @@ Ranges< Tag_Index_Global > get_regk_req(const Regular_Expression* key, Resource_
 
   for (const auto & it : db.as_flat())
   {
-    if (key->matches(it.object().val()))
+    auto elem = it.handle().get_elem();
+
+    if (key->matches(elem, false))
     {
-      std::pair< Tag_Index_Global, Tag_Index_Global > idx_pair;
-      idx_pair.first.key = it.object().val();
-      idx_pair.first.value = "";
-      idx_pair.second.key = it.object().val() + (char)0;
-      idx_pair.second.value = "";
-      result.insert(idx_pair);
+      result.insert(std::make_pair(Tag_Index_Global{ std::string(elem), "" },
+                                   Tag_Index_Global{ std::string(elem) + (char)0, "" }));
     }
   }
   rman.health_check(stmt);
