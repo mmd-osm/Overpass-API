@@ -330,35 +330,6 @@ private:
   SharedDataPointer<Area_Skeleton_Data> d;
 };
 
-
-template <typename Id_Type >
-struct Area_Skeleton_Id_Functor {
-  Area_Skeleton_Id_Functor() = default;
-
-  using reference_type = Area_Skeleton;
-
-  Id_Type operator()(const void* data) const
-   {
-     return unalignedLoad<Id_Type>(data);
-   }
-};
-
-template <typename Id_Type >
-struct Area_Skeleton_Add_Element_Functor {
-  Area_Skeleton_Add_Element_Functor(std::vector< Area_Skeleton >& v_) : v(v_) {};
-
-  using reference_type = Area_Skeleton;
-
-  void operator()(const void* data) const
-   {
-     v.emplace_back(data);
-   }
-
-private:
-  std::vector< Area_Skeleton > & v;
-};
-
-
 template <class T, class Object>
 struct Area_Skeleton_Handle_Methods
 {
@@ -369,6 +340,34 @@ struct Area_Skeleton_Handle_Methods
   void inline add_element(std::vector< Object > & v) const {
     static_cast<const T*>(this)->apply_func(Area_Skeleton_Add_Element_Functor<typename Object::Id_Type>(v));
   }
+
+private:
+  template <typename Id_Type >
+  struct Area_Skeleton_Id_Functor {
+    Area_Skeleton_Id_Functor() = default;
+
+    using reference_type = Area_Skeleton;
+
+    Id_Type operator()(const void* data) const
+     {
+       return unalignedLoad<Id_Type>(data);
+     }
+  };
+
+  template <typename Id_Type >
+  struct Area_Skeleton_Add_Element_Functor {
+    Area_Skeleton_Add_Element_Functor(std::vector< Area_Skeleton >& v_) : v(v_) {};
+
+    using reference_type = Area_Skeleton;
+
+    void operator()(const void* data) const
+     {
+       v.emplace_back(data);
+     }
+
+  private:
+    std::vector< Area_Skeleton > & v;
+  };
 };
 
 template <class T, class Object>
@@ -481,17 +480,6 @@ struct Area_Block
 
 };
 
-template <typename Id_Type >
-struct Area_Block_Id_Functor {
-  Area_Block_Id_Functor() = default;
-
-  using reference_type = Area_Block;
-
-  Id_Type operator()(const void* data) const
-   {
-     return unalignedLoad<Id_Type>(data);
-   }
-};
 
 
 template <class T, class Object>
@@ -500,6 +488,19 @@ struct Area_Block_Handle_Methods
   typename Object::Id_Type inline id() const {
      return (static_cast<const T*>(this)->apply_func(Area_Block_Id_Functor<typename Object::Id_Type>()));
   }
+
+private:
+  template <typename Id_Type >
+  struct Area_Block_Id_Functor {
+    Area_Block_Id_Functor() = default;
+
+    using reference_type = Area_Block;
+
+    Id_Type operator()(const void* data) const
+     {
+       return unalignedLoad<Id_Type>(data);
+     }
+  };
 };
 
 #endif

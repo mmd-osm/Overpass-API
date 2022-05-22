@@ -198,28 +198,6 @@ private:
   SharedDataPointer<Way_Skeleton_Data> d;
 };
 
-template <typename Id_Type >
-struct Way_Skeleton_Id_Functor {
-  Way_Skeleton_Id_Functor() = default;
-
-  using reference_type = Way_Skeleton;
-
-  Id_Type operator()(const void* data) const
-   {
-     return unalignedLoad<Id_Type>(data);
-   }
-};
-
-struct Way_Skeleton_Nds_Size_Functor {
-  Way_Skeleton_Nds_Size_Functor() = default;
-
-  using reference_type = Way_Skeleton;
-
-  uint16 operator()(const void* data) const
-   {
-     return unalignedLoad<uint16>((uint16*)data + 2);
-   }
-};
 
 template <class T, class Object>
 struct Way_Skeleton_Handle_Methods
@@ -239,6 +217,30 @@ struct Way_Skeleton_Handle_Methods
   uint16 inline get_nds_size() const {
     return (static_cast<const T*>(this)->apply_func(Way_Skeleton_Nds_Size_Functor()));
   }
+
+private:
+  template <typename Id_Type >
+  struct Way_Skeleton_Id_Functor {
+    Way_Skeleton_Id_Functor() = default;
+
+    using reference_type = Way_Skeleton;
+
+    Id_Type operator()(const void* data) const
+     {
+       return unalignedLoad<Id_Type>(data);
+     }
+  };
+
+  struct Way_Skeleton_Nds_Size_Functor {
+    Way_Skeleton_Nds_Size_Functor() = default;
+
+    using reference_type = Way_Skeleton;
+
+    uint16 operator()(const void* data) const
+     {
+       return unalignedLoad<uint16>((uint16*)data + 2);
+     }
+  };
 };
 
 inline std::ostream & operator<<(std::ostream &os, const Way_Skeleton & p)
@@ -512,19 +514,6 @@ struct Way_Delta
 
 };
 
-template <typename Id_Type >
-struct Way_Delta_Id_Functor {
-  Way_Delta_Id_Functor() = default;
-
-  using reference_type = Way_Delta;
-
-  Id_Type operator()(const void* data) const
-   {
-     return unalignedLoad<Id_Type>(data);
-   }
-};
-
-
 template <class T, class Object>
 struct Way_Delta_Handle_Methods
 {
@@ -532,6 +521,19 @@ struct Way_Delta_Handle_Methods
      return (static_cast<const T*>(this)->apply_func(Way_Delta_Id_Functor<typename Object::Id_Type>()));
   }
 
+private:
+
+  template <typename Id_Type >
+  struct Way_Delta_Id_Functor {
+    Way_Delta_Id_Functor() = default;
+
+    using reference_type = Way_Delta;
+
+    Id_Type operator()(const void* data) const
+     {
+       return unalignedLoad<Id_Type>(data);
+     }
+  };
 };
 
 

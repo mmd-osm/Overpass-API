@@ -57,9 +57,9 @@ struct Generic_Element_Functor {
   using reference_type = Object;
 
   inline Object operator()(const void* data) const
-   {
-     return Object(data);
-   }
+  {
+    return Object(data);
+  }
 };
 
 template <typename Object >
@@ -69,9 +69,9 @@ struct Generic_Add_Element_Functor {
   using reference_type = Object;
 
   inline void operator()(const void* data) const
-   {
-     v.emplace_back(data);
-   }
+  {
+    v.emplace_back(data);
+  }
 
 private:
   std::vector< Object > & v;
@@ -159,29 +159,6 @@ inline std::ostream & operator<<(std::ostream &os, const Uint32_Index& p)
 }
 
 
-struct Uint32_Index_Val_Functor {
-  Uint32_Index_Val_Functor() = default;
-
-  using reference_type = Uint32_Index;
-
-  uint32 operator()(const void* data)
-  {
-    return unalignedLoad<uint32>(data);
-  }
-};
-
-template <typename Id_Type >
-struct Uint32_Id_Functor {
-  Uint32_Id_Functor() = default;
-
-  using reference_type = Uint32_Index;
-
-  Id_Type operator()(const void* data)
-  {
-    return unalignedLoad<Id_Type>(data);
-  }
-};
-
 
 template <class T, class Object>
 struct Uint32_Index_Handle_Methods
@@ -193,9 +170,31 @@ struct Uint32_Index_Handle_Methods
   typename Object::Id_Type inline id() const {
      return (static_cast<const T*>(this)->apply_func(Uint32_Id_Functor<typename Object::Id_Type>()));
   }
+
+private:
+  struct Uint32_Index_Val_Functor {
+    Uint32_Index_Val_Functor() = default;
+
+    using reference_type = Uint32_Index;
+
+    uint32 operator()(const void* data)
+    {
+      return unalignedLoad<uint32>(data);
+    }
+  };
+
+  template <typename Id_Type >
+  struct Uint32_Id_Functor {
+    Uint32_Id_Functor() = default;
+
+    using reference_type = Uint32_Index;
+
+    Id_Type operator()(const void* data)
+    {
+      return unalignedLoad<Id_Type>(data);
+    }
+  };
 };
-
-
 
 
 inline Uint32_Index inc(Uint32_Index idx) noexcept
@@ -253,29 +252,6 @@ inline Uint31_Index inc(Uint31_Index idx) noexcept
     return Uint31_Index(idx.val() | 0x80000000);
 }
 
-struct Uint31_Index_Val_Functor {
-  Uint31_Index_Val_Functor() = default;
-
-  using reference_type = Uint31_Index;
-
-  uint32 operator()(const void* data)
-  {
-    return unalignedLoad<uint32>(data);
-  }
-};
-
-template <typename Id_Type >
-struct Uint31_Id_Functor {
-  Uint31_Id_Functor() = default;
-
-  using reference_type = Uint31_Index;
-
-  Id_Type operator()(const void* data)
-  {
-    return unalignedLoad<Id_Type>(data);
-  }
-};
-
 
 template <class T, class Object>
 struct Uint31_Index_Handle_Methods
@@ -287,6 +263,30 @@ struct Uint31_Index_Handle_Methods
   typename Object::Id_Type inline id() const {
      return (static_cast<const T*>(this)->apply_func(Uint31_Id_Functor<typename Object::Id_Type>()));
   }
+
+private:
+  struct Uint31_Index_Val_Functor {
+    Uint31_Index_Val_Functor() = default;
+
+    using reference_type = Uint31_Index;
+
+    uint32 operator()(const void* data)
+    {
+      return unalignedLoad<uint32>(data);
+    }
+  };
+
+  template <typename Id_Type >
+  struct Uint31_Id_Functor {
+    Uint31_Id_Functor() = default;
+
+    using reference_type = Uint31_Index;
+
+    Id_Type operator()(const void* data)
+    {
+      return unalignedLoad<Id_Type>(data);
+    }
+  };
 };
 
 
@@ -361,17 +361,7 @@ inline std::ostream & operator<<(std::ostream &os, const Uint64& p)
 }
 
 
-template <typename Id_Type >
-struct Uint64_Id_Functor {
-  Uint64_Id_Functor() = default;
 
-  using reference_type = Uint64;
-
-  Id_Type operator()(const void* data)
-  {
-    return Uint64(data).val();
-  }
-};
 
 template <class T, class Object>
 struct Uint64_Handle_Methods
@@ -379,6 +369,19 @@ struct Uint64_Handle_Methods
   typename Object::Id_Type inline id() const {
      return (static_cast<const T*>(this)->apply_func(Uint64_Id_Functor<typename Object::Id_Type>()));
   }
+
+private:
+  template <typename Id_Type >
+  struct Uint64_Id_Functor {
+    Uint64_Id_Functor() = default;
+
+    using reference_type = Uint64;
+
+    Id_Type operator()(const void* data)
+    {
+      return Uint64(data).val();
+    }
+  };
 };
 
 
@@ -456,24 +459,25 @@ inline std::ostream & operator<<(std::ostream &os, const Uint40& p)
 }
 
 
-template <typename Id_Type >
-struct Uint40_Id_Functor {
-  Uint40_Id_Functor() = default;
-
-  using reference_type = Uint40;
-
-  Id_Type operator()(const void* data)
-  {
-    return Uint40(data).val();
-  }
-};
-
 template <class T, class Object>
 struct Uint40_Handle_Methods
 {
   typename Object::Id_Type inline id() const {
      return (static_cast<const T*>(this)->apply_func(Uint40_Id_Functor<typename Object::Id_Type>()));
   }
+
+private:
+  template <typename Id_Type >
+  struct Uint40_Id_Functor {
+    Uint40_Id_Functor() = default;
+
+    using reference_type = Uint40;
+
+    Id_Type operator()(const void* data)
+    {
+      return Uint40(data).val();
+    }
+  };
 };
 
 
@@ -573,35 +577,6 @@ struct Attic : public Element_Skeleton
   using Handle_Methods = Attic_Handle_Methods<T, Object, Element_Skeleton>;
 };
 
-template< typename Element_Skeleton >
-struct Attic_Timestamp_Functor {
-  Attic_Timestamp_Functor() = default;
-
-  using reference_type = Attic< Element_Skeleton >;
-
-  timestamp_t operator()(const void* data) const
-   {
-    const void* pos = (uint8*)data + Element_Skeleton::size_of(data);
-
-    return unalignedLoad<timestamp_t>(pos);
-   }
-};
-
-template< typename Element_Skeleton >
-struct Attic_Add_Element_Functor {
-  Attic_Add_Element_Functor(std::vector< Attic< Element_Skeleton > >& v_) : v(v_) {};
-
-  using reference_type = Attic< Element_Skeleton >;
-
-  void operator()(const void* data) const
-   {
-     v.emplace_back(data);
-   }
-
-private:
-  std::vector< Attic< Element_Skeleton > > & v;
-};
-
 
 template <typename...> using void_t = void;
 
@@ -630,12 +605,40 @@ template <class T, class Object, class Element_Skeleton>
 struct Attic_Handle_Methods : public Element_Base<Element_Skeleton>::type
 {
   timestamp_t inline get_timestamp() const {
-     return (static_cast<const T*>(this)->apply_func(Attic_Timestamp_Functor< Element_Skeleton >()));
+     return (static_cast<const T*>(this)->apply_func(Attic_Timestamp_Functor()));
   }
 
   void inline add_element(std::vector< Attic< Element_Skeleton > > & v) const {
-    static_cast<const T*>(this)->apply_func(Attic_Add_Element_Functor<Element_Skeleton>(v));
+    static_cast<const T*>(this)->apply_func(Attic_Add_Element_Functor(v));
   }
+
+private:
+  struct Attic_Timestamp_Functor {
+    Attic_Timestamp_Functor() = default;
+
+    using reference_type = Attic< Element_Skeleton >;
+
+    timestamp_t operator()(const void* data) const
+    {
+      const void* pos = (uint8*)data + Element_Skeleton::size_of(data);
+
+      return unalignedLoad<timestamp_t>(pos);
+    }
+  };
+
+  struct Attic_Add_Element_Functor {
+    Attic_Add_Element_Functor(std::vector< Attic< Element_Skeleton > >& v_) : v(v_) {};
+
+    using reference_type = Attic< Element_Skeleton >;
+
+    void operator()(const void* data) const
+    {
+       v.emplace_back(data);
+    }
+
+  private:
+    std::vector< Attic< Element_Skeleton > > & v;
+  };
 };
 
 template< typename Element_Skeleton >

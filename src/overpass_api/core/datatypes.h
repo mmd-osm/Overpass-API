@@ -28,6 +28,7 @@
 #include <set>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -39,6 +40,8 @@
 #include "type_tags.h"
 #include "type_area.h"
 
+template <class T, class Object>
+struct String_Object_Handle_Methods;
 
 struct String_Object
 {
@@ -84,8 +87,35 @@ struct String_Object
     return value;
   }
 
+  template <class T, class Object>
+  using Handle_Methods = String_Object_Handle_Methods<T, Object>;
+
   protected:
     std::string value;
+};
+
+
+template <class T, class Object>
+struct String_Object_Handle_Methods
+{
+  inline std::string_view get_elem() const {
+    return (static_cast<const T*>(this)->apply_func(String_Object_Get_String_Functor()));
+  }
+
+private:
+  struct String_Object_Get_String_Functor
+  {
+    String_Object_Get_String_Functor() {};
+
+    using reference_type = String_Object;
+
+    inline std::string_view operator()(const void* data) const
+     {
+       auto key_len = unalignedLoad<uint16>(data);
+       char* k =  ((int8*)data + 2);
+       return std::string_view(k, key_len);
+     }
+  };
 };
 
 
@@ -413,30 +443,6 @@ struct User_Data
   using Handle_Methods = User_Data_Handle_Methods<T, Object>;
 };
 
-template <typename Id_Type >
-struct User_Data_Id_Functor {
-  User_Data_Id_Functor() = default;
-
-  using reference_type = User_Data;
-
-  Id_Type operator()(const void* data) const
-   {
-    return unalignedLoad<uint32>(data);
-   }
-};
-
-struct User_Data_Name_Functor {
-  User_Data_Name_Functor() {};
-
-  using reference_type = User_Data;
-
-  inline std::string_view operator()(const void* data) const
-   {
-     auto name_len = unalignedLoad<uint16>((int8*)data + 4);
-     char* name =  (int8*)data + 6;
-     return std::string_view(name, name_len);
-   }
-};
 
 template <class T, class Object>
 struct User_Data_Handle_Methods
@@ -448,6 +454,33 @@ struct User_Data_Handle_Methods
   inline std::string_view get_name() const {
     return (static_cast<const T*>(this)->apply_func(User_Data_Name_Functor()));
   }
+
+private:
+
+  template <typename Id_Type >
+  struct User_Data_Id_Functor {
+    User_Data_Id_Functor() = default;
+
+    using reference_type = User_Data;
+
+    Id_Type operator()(const void* data) const
+     {
+      return unalignedLoad<uint32>(data);
+     }
+  };
+
+  struct User_Data_Name_Functor {
+    User_Data_Name_Functor() {};
+
+    using reference_type = User_Data;
+
+    inline std::string_view operator()(const void* data) const
+     {
+       auto name_len = unalignedLoad<uint16>((int8*)data + 4);
+       char* name =  (int8*)data + 6;
+       return std::string_view(name, name_len);
+     }
+  };
 };
 
 
@@ -539,55 +572,6 @@ struct OSM_Element_Metadata_Skeleton
   using Handle_Methods = Metadata_Handle_Methods<T, Object>;
 };
 
-template <typename Id_Type >
-struct Metadata_Timestamp_Functor {
-  Metadata_Timestamp_Functor() = default;
-
-  using reference_type = OSM_Element_Metadata_Skeleton<Id_Type>;
-
-  uint32 operator()(const void* data) const
-   {
-     return unalignedLoad<uint32>((int8*)data + Id_Type::max_size_of() + 4);
-   }
-};
-
-template <typename Id_Type >
-struct Metadata_Element_Functor {
-  Metadata_Element_Functor() = default;
-
-  using reference_type = OSM_Element_Metadata_Skeleton<Id_Type>;
-
-  OSM_Element_Metadata_Skeleton< Id_Type > operator()(const void* data)
-  {
-    return OSM_Element_Metadata_Skeleton< Id_Type >(data);
-  }
-};
-
-
-template <typename Id_Type >
-struct Metadata_Reference_Functor {
-  Metadata_Reference_Functor() = default;
-
-  using reference_type = OSM_Element_Metadata_Skeleton<Id_Type>;
-
-  Id_Type operator()(const void* data) const
-   {
-     return Id_Type(data);
-   }
-};
-
-template <typename Id_Type >
-struct Metadata_Changeset_Functor {
-  Metadata_Changeset_Functor() = default;
-
-  using reference_type = OSM_Element_Metadata_Skeleton<Id_Type>;
-
-  uint32 operator()(const void* data) const
-   {
-     return unalignedLoad<uint32>((int8*)data + Id_Type::max_size_of() + 8);
-   }
-};
-
 
 template <class T, class Object>
 struct Metadata_Handle_Methods
@@ -607,6 +591,56 @@ struct Metadata_Handle_Methods
   uint32 inline get_changeset() const {
      return (static_cast<const T*>(this)->apply_func(Metadata_Changeset_Functor<typename Object::Id_Type>()));
   }
+
+private:
+
+  template <typename Id_Type >
+  struct Metadata_Changeset_Functor {
+    Metadata_Changeset_Functor() = default;
+
+    using reference_type = OSM_Element_Metadata_Skeleton<Id_Type>;
+
+    uint32 operator()(const void* data) const
+     {
+       return unalignedLoad<uint32>((int8*)data + Id_Type::max_size_of() + 8);
+     }
+  };
+
+  template <typename Id_Type >
+  struct Metadata_Timestamp_Functor {
+    Metadata_Timestamp_Functor() = default;
+
+    using reference_type = OSM_Element_Metadata_Skeleton<Id_Type>;
+
+    uint32 operator()(const void* data) const
+     {
+       return unalignedLoad<uint32>((int8*)data + Id_Type::max_size_of() + 4);
+     }
+  };
+
+  template <typename Id_Type >
+  struct Metadata_Element_Functor {
+    Metadata_Element_Functor() = default;
+
+    using reference_type = OSM_Element_Metadata_Skeleton<Id_Type>;
+
+    OSM_Element_Metadata_Skeleton< Id_Type > operator()(const void* data)
+    {
+      return OSM_Element_Metadata_Skeleton< Id_Type >(data);
+    }
+  };
+
+  template <typename Id_Type >
+  struct Metadata_Reference_Functor {
+    Metadata_Reference_Functor() = default;
+
+    using reference_type = OSM_Element_Metadata_Skeleton<Id_Type>;
+
+    Id_Type operator()(const void* data) const
+     {
+       return Id_Type(data);
+     }
+  };
 };
 
 
@@ -881,31 +915,35 @@ struct Change_Package
   using Handle_Methods = Change_Package_Handle_Methods<T, Object>;
 };
 
-template <typename Object, typename Id_Type, typename Functor>
-struct Change_Package_Process_Ids_Functor {
-  Change_Package_Process_Ids_Functor(Functor& f_) :  f(f_) {};
 
-  using reference_type = Object;
-
-  inline void operator()(const void* data) const
-  {
-    auto elems = unalignedLoad<uint16>((uint16*)data + 0);
-    auto bytes = unalignedLoad<uint16>((uint16*)data + 1);
-
-    decompress_ids<Id_Type>(elems, bytes, ((uint8*)data + 4), f);
-  }
-
-private:
-  Functor& f;
-};
 
 template <class T, class Object>
 struct Change_Package_Handle_Methods
 {
   template <typename Id_Type, typename Functor>
   void inline process_ids(Functor& f) const {
-    static_cast<const T*>(this)->apply_func(Change_Package_Process_Ids_Functor<Object, Id_Type, Functor>(f));
+    static_cast<const T*>(this)->apply_func(Change_Package_Process_Ids_Functor<Id_Type, Functor>(f));
   }
+
+private:
+
+  template <typename Id_Type, typename Functor>
+  struct Change_Package_Process_Ids_Functor {
+    Change_Package_Process_Ids_Functor(Functor& f_) :  f(f_) {};
+
+    using reference_type = Object;
+
+    inline void operator()(const void* data) const
+    {
+      auto elems = unalignedLoad<uint16>((uint16*)data + 0);
+      auto bytes = unalignedLoad<uint16>((uint16*)data + 1);
+
+      decompress_ids<Id_Type>(elems, bytes, ((uint8*)data + 4), f);
+    }
+
+  private:
+    Functor& f;
+  };
 };
 
 

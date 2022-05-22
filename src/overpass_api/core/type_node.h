@@ -150,29 +150,6 @@ struct Node_Skeleton
   using Handle_Methods = Node_Skeleton_Handle_Methods<T, Object>;
 };
 
-template <typename Id_Type >
-struct Node_Skeleton_Id_Functor {
-  Node_Skeleton_Id_Functor() = default;
-
-  using reference_type = Node_Skeleton;
-
-  Id_Type operator()(const void* data) const
-   {
-     return Id_Type(data);
-   }
-};
-
-template <typename Id_Type >
-struct Node_Skeleton_ll_lower_Functor {
-  Node_Skeleton_ll_lower_Functor() = default;
-
-  using reference_type = Node_Skeleton;
-
-  uint32 operator()(const void* data) const
-   {
-     return (unalignedLoad<uint32>((uint8*)data + Id_Type::max_size_of()));
-   }
-};
 
 template <class T, class Object>
 struct Node_Skeleton_Handle_Methods
@@ -192,6 +169,32 @@ struct Node_Skeleton_Handle_Methods
   void inline add_element(std::vector< Object > & v) const {
     static_cast<const T*>(this)->apply_func(Generic_Add_Element_Functor<Object>(v));
   }
+
+private:
+  template <typename Id_Type >
+  struct Node_Skeleton_Id_Functor {
+    Node_Skeleton_Id_Functor() = default;
+
+    using reference_type = Node_Skeleton;
+
+    Id_Type operator()(const void* data) const
+     {
+       return Id_Type(data);
+     }
+  };
+
+  template <typename Id_Type >
+  struct Node_Skeleton_ll_lower_Functor {
+    Node_Skeleton_ll_lower_Functor() = default;
+
+    using reference_type = Node_Skeleton;
+
+    uint32 operator()(const void* data) const
+     {
+       return (unalignedLoad<uint32>((uint8*)data + Id_Type::max_size_of()));
+     }
+  };
+
 };
 
 

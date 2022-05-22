@@ -235,57 +235,6 @@ private:
 };
 
 
-template <typename Id_Type >
-struct Relation_Skeleton_Id_Functor {
-  Relation_Skeleton_Id_Functor() = default;
-
-  using reference_type = Relation_Skeleton;
-
-  Id_Type operator()(const void* data) const
-   {
-     return unalignedLoad<Id_Type>(data);
-   }
-};
-
-struct Relation_Skeleton_Has_Child_with_Id_Functor {
-  Relation_Skeleton_Has_Child_with_Id_Functor(const std::vector< Global_Id_Type >& ids, uint32 type) : ids(ids), type(type) {};
-
-  using reference_type = Relation_Skeleton;
-
-  bool operator()(const void* data) const
-  {
-    const auto member_count = unalignedLoad<uint32>((uint32*)data + 1);
-
-    for (uint i(0); i < member_count; ++i)
-    {
-      const uint32 member_type = *((uint8*)data + 27 + 12*i);
-
-      if (member_type != type)
-        continue;
-
-      const Global_Id_Type member_ref = unalignedLoad<uint64>((uint32*)data + 4 + 3*i);
-      if (std::binary_search(ids.begin(), ids.end(), member_ref))
-        return true;
-    }
-    return false;
-  }
-
-private:
-  const std::vector< Global_Id_Type >& ids;
-  const uint32 type;
-};
-
-struct Relation_Skeleton_Member_Count_Functor {
-  Relation_Skeleton_Member_Count_Functor() = default;
-
-  using reference_type = Relation_Skeleton;
-
-  uint32 operator()(const void* data) const
-   {
-     return unalignedLoad<uint32>((uint32*)data + 1);
-   }
-};
-
 
 
 template <class T, class Object>
@@ -310,6 +259,58 @@ struct Relation_Skeleton_Handle_Methods
   uint32 inline get_member_count() const {
     return (static_cast<const T*>(this)->apply_func(Relation_Skeleton_Member_Count_Functor()));
   }
+
+private:
+  template <typename Id_Type >
+  struct Relation_Skeleton_Id_Functor {
+    Relation_Skeleton_Id_Functor() = default;
+
+    using reference_type = Relation_Skeleton;
+
+    Id_Type operator()(const void* data) const
+     {
+       return unalignedLoad<Id_Type>(data);
+     }
+  };
+
+  struct Relation_Skeleton_Has_Child_with_Id_Functor {
+    Relation_Skeleton_Has_Child_with_Id_Functor(const std::vector< Global_Id_Type >& ids, uint32 type) : ids(ids), type(type) {};
+
+    using reference_type = Relation_Skeleton;
+
+    bool operator()(const void* data) const
+    {
+      const auto member_count = unalignedLoad<uint32>((uint32*)data + 1);
+
+      for (uint i(0); i < member_count; ++i)
+      {
+        const uint32 member_type = *((uint8*)data + 27 + 12*i);
+
+        if (member_type != type)
+          continue;
+
+        const Global_Id_Type member_ref = unalignedLoad<uint64>((uint32*)data + 4 + 3*i);
+        if (std::binary_search(ids.begin(), ids.end(), member_ref))
+          return true;
+      }
+      return false;
+    }
+
+  private:
+    const std::vector< Global_Id_Type >& ids;
+    const uint32 type;
+  };
+
+  struct Relation_Skeleton_Member_Count_Functor {
+    Relation_Skeleton_Member_Count_Functor() = default;
+
+    using reference_type = Relation_Skeleton;
+
+    uint32 operator()(const void* data) const
+     {
+       return unalignedLoad<uint32>((uint32*)data + 1);
+     }
+  };
 };
 
 inline std::ostream & operator<<(std::ostream &os, const Relation_Skeleton & p)
@@ -642,18 +643,6 @@ struct Relation_Delta
   using Handle_Methods = Relation_Delta_Handle_Methods<T, Object>;
 };
 
-template <typename Id_Type >
-struct Relation_Delta_Id_Functor {
-  Relation_Delta_Id_Functor() = default;
-
-  using reference_type = Relation_Delta;
-
-  Id_Type operator()(const void* data) const
-   {
-     return unalignedLoad<Id_Type>(data);
-   }
-};
-
 
 template <class T, class Object>
 struct Relation_Delta_Handle_Methods
@@ -662,6 +651,18 @@ struct Relation_Delta_Handle_Methods
      return (static_cast<const T*>(this)->apply_func(Relation_Delta_Id_Functor<typename Object::Id_Type>()));
   }
 
+private:
+  template <typename Id_Type >
+  struct Relation_Delta_Id_Functor {
+    Relation_Delta_Id_Functor() = default;
+
+    using reference_type = Relation_Delta;
+
+    Id_Type operator()(const void* data) const
+     {
+       return unalignedLoad<Id_Type>(data);
+     }
+  };
 };
 
 
