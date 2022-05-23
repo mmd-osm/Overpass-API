@@ -41,7 +41,7 @@ class Output_Osmium : public Output_Handler
 public:
   Output_Osmium(std::string output_format_, std::string params_) :
         output_format(output_format_), params(params_), writer(nullptr),
-        output_file(nullptr), header(nullptr), repeater_file("") {}
+        output_file(nullptr), header(nullptr) {}
 
 
 
@@ -99,7 +99,8 @@ public:
 
 private:
   void maybe_flush();
-  void prepare_fifo();
+  void setup_pipe();
+  void shutdown_pipe();
 
   std::string output_format;
   std::string params;
@@ -108,7 +109,8 @@ private:
   std::unique_ptr<osmium::io::File> output_file;
   std::unique_ptr<osmium::io::Header> header;
   std::future<void> repeater;
-  std::string repeater_file;
+  int saved_stdout;
+  int fd[2];
 
 };
 

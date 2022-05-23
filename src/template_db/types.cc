@@ -70,6 +70,12 @@ int& global_read_counter()
   return counter;
 }
 
+bool& fastcgi_enabled()
+{
+  static bool enabled = false;
+  return enabled;
+}
+
 
 void millisleep(uint32 milliseconds)
 {

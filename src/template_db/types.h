@@ -453,6 +453,8 @@ inline void zero_padding(uint8* from, uint32 bytes)
 
 int& global_read_counter();
 
+bool& fastcgi_enabled();
+
 
 void millisleep(uint32 milliseconds);
 

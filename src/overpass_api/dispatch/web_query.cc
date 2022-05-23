@@ -274,6 +274,8 @@ int main(int argc, char *argv[])
     if (max_requests < 0) max_requests = 0;
     if (max_elapsed_time < 0) max_elapsed_time = 0;
 
+    fastcgi_enabled() = true;
+
     // Backup the stdio streambuffers
     std::streambuf * cin_streambuf  = std::cin.rdbuf();
     std::streambuf * cout_streambuf = std::cout.rdbuf();

@@ -40,48 +40,39 @@
  * Libosmium/FastCGI repeater Libosmium writes directly to stdout fd rather
  * than using streambuf. This doesn't work out of the box with FastCGI.
  * A dedicated thread is being used to redirect libosmium results to cout
- * via named pipe. Additional overhead due to additional copying, etc.
+ * via a pipe. Additional overhead due to additional copying, etc.
  * has only insignificant implications in real life.
  *
  * Workaround for https://github.com/osmcode/libosmium/issues/174
  *
  */
 
-void Output_Osmium::prepare_fifo()
+void Output_Osmium::setup_pipe()
 {
-  std::ostringstream buffer;
-  buffer << "/tmp/osm3s.fifo." << getpid();
-  repeater_file = buffer.str();
+  if (!fastcgi_enabled())
+    return;
 
-  int ret = remove(repeater_file.c_str());
+  saved_stdout = dup(1);
 
-  ret = mkfifo(repeater_file.c_str(), 0600);
-  if (ret < 0) {
-    throw File_Error(errno, repeater_file, "print_target::osmium::mkfifo");
-  }
+  int rc = pipe(fd);
+  if (rc != 0)
+    throw File_Error(errno, "", "Output_Osmium::setup_pipe::pipe");
 
-  repeater = std::async(std::launch::async, [](std::string repeater_file)
+  dup2(fd[1], STDOUT_FILENO);   // redirect stdout to the writing end of the pipe
+  close(fd[1]);
+
+  repeater = std::async(std::launch::async, [](int readFd)
   {
     ssize_t len = 0;
     char buffer[PIPE_BUF];
 
-    int readFd = open(repeater_file.c_str(), O_RDONLY);
-    if (readFd < 0) {
-      throw File_Error(errno, repeater_file, "print_target::osmium::open");
-    }
-
     try {
-
-      int foo = unlink(repeater_file.c_str());
-      if (foo < 0) {
-        throw File_Error(errno, repeater_file, "print_target::osmium::unlink");
-      }
 
       while(true)
       {
         len = read(readFd, &buffer, sizeof(buffer));
         if (len < 0) {
-          throw File_Error(errno, repeater_file, "print_target::osmium::read");
+          throw File_Error(errno, "", "print_target::osmium::read");
         }
 
         if (len == 0)
@@ -97,7 +88,19 @@ void Output_Osmium::prepare_fifo()
 
     std::cout << std::flush;
 
-  }, repeater_file);
+  }, fd[0]);
+}
+
+void Output_Osmium::shutdown_pipe()
+{
+  if (!fastcgi_enabled())
+    return;
+
+  dup2(saved_stdout, 1);
+  close(saved_stdout);
+
+  if (repeater.valid())
+    repeater.get();
 }
 
 bool Output_Osmium::write_http_headers()
@@ -112,9 +115,11 @@ bool Output_Osmium::write_http_headers()
 void Output_Osmium::write_payload_header
     (const std::string& db_dir, const std::string& timestamp, const std::string& area_timestamp)
 {
-  signal(SIGPIPE, SIG_IGN);
-  prepare_fifo();
-  output_file.reset(new osmium::io::File(repeater_file, output_format + params));
+  std::cout << std::flush;
+
+  setup_pipe();
+
+  output_file.reset(new osmium::io::File("", output_format + params));
   header.reset(new osmium::io::Header());
 
   std::string generator = "Overpass API " + basic_settings().version + " " + basic_settings().source_hash.substr(0, 8);
@@ -140,13 +145,8 @@ void Output_Osmium::write_footer()
   output_file.reset();
   header.reset();
 
-  if (repeater_file.empty())
-    return;
+  shutdown_pipe();
 
-  if (repeater.valid())
-    repeater.get();
-
-  remove(repeater_file.c_str());
 }
 
 void Output_Osmium::display_remark(const std::string& text)
