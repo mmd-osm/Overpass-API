@@ -200,13 +200,24 @@ void Way_Geometry_Store::way_members_to_nodes(std::map< Uint32_Index, std::vecto
   std::vector< Node_Base > nds;
   nodes.swap(nds);
 
+  long total_count = 0;
+
+  for (auto it = way_members_.begin(); it != way_members_.end(); ++it) {
+    total_count += it->second.size();
+  }
+
+  if (total_count == 0)
+    return;
+
+  nodes.reserve(total_count);
+
   // Order node ids by id.
   for (auto it = way_members_.begin();
       it != way_members_.end(); ++it)
   {
     for (std::vector< Node_Skeleton >::const_iterator iit = it->second.begin();
         iit != it->second.end(); ++iit)
-      nodes.push_back(Node_Base(iit->id, it->first.val(), iit->ll_lower));
+      nodes.emplace_back(Node_Base(iit->id, it->first.val(), iit->ll_lower));
   }
   sort(nodes.begin(), nodes.end(), Node_Comparator_By_Id());
 
