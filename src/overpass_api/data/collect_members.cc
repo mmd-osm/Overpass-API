@@ -28,6 +28,18 @@ std::vector< Node::Id_Type > way_nd_ids(
     const std::vector< int >* pos)
 {
   std::vector< Node::Id_Type > ids;
+
+  if (!pos) {
+    long total_count = 0;
+
+    for (auto it(ways.begin()); it != ways.end(); ++it)
+      total_count += it->second.size();
+
+    if (total_count > 0) {
+      ids.reserve(total_count);
+    }
+  }
+
   for (auto it(ways.begin()); it != ways.end(); ++it)
   {
     for (auto it2(it->second.begin());
