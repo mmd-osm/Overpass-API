@@ -126,7 +126,7 @@ void Output_Osmium::write_payload_header
 
   header->set("generator", generator);
   header->set("osmosis_replication_timestamp", timestamp);
-  writer.reset(new osmium::io::Writer(*output_file, *header, osmium::io::overwrite::allow));
+  writer.reset(new osmium::io::Writer(*output_file, *header, pool, osmium::io::overwrite::allow));
 }
 
 void Output_Osmium::write_footer()
