@@ -102,7 +102,7 @@ class Area_Query_Statement final : public Output_Statement
 
     template< typename Way_Skeleton >
     void collect_ways
-      (const Way_Geometry_Store& way_geometries,
+      (Way_Geometry_Store way_geometries,
        std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
        const std::set< Uint31_Index >& req, bool add_border,
        const Statement& query, Resource_Manager& rman);

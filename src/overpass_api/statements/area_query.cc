@@ -310,7 +310,7 @@ void Area_Constraint::filter(const Statement& query, Resource_Manager& rman, Set
     std::map< Uint31_Index, std::vector< Way_Skeleton > > ways_in_wr_areas
         = ways_contained_in(input, query, rman, into.ways);
     indexed_set_difference(into.ways, ways_in_wr_areas);
-    area->collect_ways(Way_Geometry_Store(into.ways, query, rman),
+    area->collect_ways(Way_Geometry_Store(into.ways, query, rman, true),
         into.ways, area_blocks_req, false, query, rman);
     indexed_set_union(into.ways, ways_in_wr_areas);
   }
@@ -343,7 +343,7 @@ void Area_Constraint::filter(const Statement& query, Resource_Manager& rman, Set
     std::map< Uint31_Index, std::vector< Way_Skeleton > > ways_in_wr_areas
         = ways_contained_in(input, query, rman, way_members_);
     indexed_set_difference(way_members_, ways_in_wr_areas);
-    area->collect_ways(Way_Geometry_Store(way_members_, query, rman),
+    area->collect_ways(Way_Geometry_Store(way_members_, query, rman, true),
         way_members_, area_blocks_req, false, query, rman);
     indexed_set_union(way_members_, ways_in_wr_areas);
   }
@@ -368,7 +368,7 @@ void Area_Constraint::filter(const Statement& query, Resource_Manager& rman, Set
     std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > > ways_in_wr_areas
         = ways_contained_in(input, query, rman, into.attic_ways);
     indexed_set_difference(into.attic_ways, ways_in_wr_areas);
-    area->collect_ways(Way_Geometry_Store(into.attic_ways, query, rman),
+    area->collect_ways(Way_Geometry_Store(into.attic_ways, query, rman, true),
         into.attic_ways, area_blocks_req, false, query, rman);
     indexed_set_union(into.attic_ways, ways_in_wr_areas);
   }
@@ -402,7 +402,7 @@ void Area_Constraint::filter(const Statement& query, Resource_Manager& rman, Set
       std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > > ways_in_wr_areas
           = ways_contained_in(input, query, rman, way_members_);
       indexed_set_difference(way_members_, ways_in_wr_areas);
-      area->collect_ways(Way_Geometry_Store(way_members_, query, rman),
+      area->collect_ways(Way_Geometry_Store(way_members_, query, rman, true),
           way_members_, area_blocks_req, false, query, rman);
       indexed_set_union(way_members_, ways_in_wr_areas);
     }
@@ -1265,39 +1265,60 @@ void Area_Query_Statement::collect_ways_adhoc
   }
 }
 
+namespace {
+
+template< class TObject >
+void prefetch_wgs(Way_Geometry_Store& wgs, Uint31_Index idx) = delete;
+
+
+template< >
+void prefetch_wgs<Way_Skeleton>(Way_Geometry_Store& wgs, Uint31_Index idx)
+{
+  wgs.prefetch(idx);
+}
+
+
+template< >
+void prefetch_wgs<Attic< Way_Skeleton > >(Way_Geometry_Store& wgs, Uint31_Index idx)
+{
+  wgs.prefetch_attic(idx);
+}
+
+}
+
 template< typename Way_Skeleton >
 void Area_Query_Statement::collect_ways
-      (const Way_Geometry_Store& way_geometries,
+      (Way_Geometry_Store way_geometries,
        std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
        const std::set< Uint31_Index >& req, bool add_border,
        const Statement& query, Resource_Manager& rman)
 {
-
-  std::map< Uint31_Index, std::vector< Area_Block > > way_segments;
-  for (auto it = ways.begin(); it != ways.end(); ++it)
-  {
-    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
-      add_way_to_area_blocks(way_geometries.get_geometry(*it2), it2->id.val(), way_segments);
-  }
-
-  std::map< uint32, std::vector< std::pair< uint32, Way::Id_Type > > > way_coords_to_id;
-  for (auto it = ways.begin(); it != ways.end(); ++it)
-  {
-    for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
-    {
-      std::vector< Quad_Coord > coords = way_geometries.get_geometry(*it2);
-      for (std::vector< Quad_Coord >::const_iterator it3 = coords.begin(); it3 != coords.end(); ++it3)
-        way_coords_to_id[it3->ll_upper].push_back(std::make_pair(it3->ll_lower, it2->id));
-    }
-  }
-
   std::map< Way::Id_Type, bool > ways_inside;
 
-  // check for ad hoc Area blocks first
-  // method updates ways_inside to indicate which way ids are inside either the ad-hoc or (further down) the db based areas
-  collect_ways_adhoc(way_segments, way_coords_to_id, ways_inside, add_border, rman);
+  {
+    std::map< Uint31_Index, std::vector< Area_Block > > way_segments;
+    std::map< uint32, std::vector< std::pair< uint32, Way::Id_Type > > > way_coords_to_id;
 
-  collect_ways_db(req, way_segments, way_coords_to_id, ways_inside, add_border, rman);
+    for (auto it = ways.begin(); it != ways.end(); ++it)
+    {
+      prefetch_wgs< Way_Skeleton >(way_geometries, it->first);
+
+      for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
+        std::vector< Quad_Coord > coords = way_geometries.get_geometry(*it2);
+
+        add_way_to_area_blocks(coords, it2->id.val(), way_segments);
+
+        for (std::vector< Quad_Coord >::const_iterator it3 = coords.begin(); it3 != coords.end(); ++it3)
+          way_coords_to_id[it3->ll_upper].push_back(std::make_pair(it3->ll_lower, it2->id));
+      }
+    }
+
+    // check for ad hoc Area blocks first
+    // method updates ways_inside to indicate which way ids are inside either the ad-hoc or (further down) the db based areas
+    collect_ways_adhoc(way_segments, way_coords_to_id, ways_inside, add_border, rman);
+
+    collect_ways_db(req, way_segments, way_coords_to_id, ways_inside, add_border, rman);
+  }
 
   // filter out ways according to ways_inside flag
   filter_by_ways_inside(ways, ways_inside);

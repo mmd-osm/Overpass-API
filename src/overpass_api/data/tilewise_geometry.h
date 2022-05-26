@@ -1085,7 +1085,7 @@ public:
       const std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >& attic_ways_,
       const Statement& stmt, Resource_Manager& rman)
     : ways(&ways_), attic_ways(&attic_ways_), cur_it(ways->begin()), attic_it(attic_ways->begin()),
-    cur_geom_store(*ways, stmt, rman), attic_geom_store(*attic_ways, stmt, rman),
+    cur_geom_store(*ways, stmt, rman, true), attic_geom_store(*attic_ways, stmt, rman, true),
     complete_idx(0u)
   {
     refill();
@@ -1158,6 +1158,7 @@ private:
           ? cur_it->first : attic_it->first);
       if (cur_it != ways->end() && cur_it->first == idx)
       {
+        cur_geom_store.prefetch(idx);
         std::vector< Status_Ref< Way_Skeleton > >& refs = current_refs[idx];
         for (auto it = cur_it->second.begin(); it != cur_it->second.end(); ++it)
           refs.push_back(Status_Ref< Way_Skeleton >(idx, *it));
@@ -1168,6 +1169,7 @@ private:
       if (attic_it != attic_ways->end() && attic_it->first == idx)
       {
         std::vector< Status_Ref< Attic< Way_Skeleton > > >& refs = attic_refs[idx];
+        attic_geom_store.prefetch_attic(idx);
         for (auto it = attic_it->second.begin();
             it != attic_it->second.end(); ++it)
           refs.push_back(Status_Ref< Attic< Way_Skeleton > >(idx, *it));
