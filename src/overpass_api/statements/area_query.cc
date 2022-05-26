@@ -1265,26 +1265,8 @@ void Area_Query_Statement::collect_ways_adhoc
   }
 }
 
-namespace {
-
-template< class TObject >
-void prefetch_wgs(Way_Geometry_Store& wgs, Uint31_Index idx) = delete;
 
 
-template< >
-void prefetch_wgs<Way_Skeleton>(Way_Geometry_Store& wgs, Uint31_Index idx)
-{
-  wgs.prefetch(idx);
-}
-
-
-template< >
-void prefetch_wgs<Attic< Way_Skeleton > >(Way_Geometry_Store& wgs, Uint31_Index idx)
-{
-  wgs.prefetch_attic(idx);
-}
-
-}
 
 template< typename Way_Skeleton >
 void Area_Query_Statement::collect_ways
@@ -1301,7 +1283,7 @@ void Area_Query_Statement::collect_ways
 
     for (auto it = ways.begin(); it != ways.end(); ++it)
     {
-      prefetch_wgs< Way_Skeleton >(way_geometries, it->first);
+      way_geometries.prefetch_type< Way_Skeleton >(it->first);
 
       for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
         std::vector< Quad_Coord > coords = way_geometries.get_geometry(*it2);

@@ -126,7 +126,7 @@ bool Bbox_Filter::matches(const std::vector< Quad_Coord >& way_geometry) const
 
 
 template< typename Way_Skeleton >
-void filter_ways_expensive(const Bbox_Filter& filter, const Way_Geometry_Store& way_geometries,
+void filter_ways_expensive(const Bbox_Filter& filter, Way_Geometry_Store way_geometries,
     std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways)
 {
   if (!filter.get_bbox().valid())
@@ -135,6 +135,8 @@ void filter_ways_expensive(const Bbox_Filter& filter, const Way_Geometry_Store& 
   for (auto it = ways.begin();
       it != ways.end(); ++it)
   {
+    way_geometries.prefetch_type< Way_Skeleton >(it->first);
+
     std::vector< Way_Skeleton > local_into;
     for (typename std::vector< Way_Skeleton >::const_iterator iit = it->second.begin();
         iit != it->second.end(); ++iit)
@@ -204,7 +206,7 @@ void Bbox_Filter::filter(const Statement& query, Resource_Manager& rman, Set& in
     return;
 
   //Process ways
-  filter_ways_expensive(*this, Way_Geometry_Store(into.ways, query, rman), into.ways);
+  filter_ways_expensive(*this, Way_Geometry_Store(into.ways, query, rman, true), into.ways);
 
   {
     //Process relations
@@ -228,7 +230,7 @@ void Bbox_Filter::filter(const Statement& query, Resource_Manager& rman, Set& in
   if (with_attic)
   {
     //Process attic ways
-    filter_ways_expensive(*this, Way_Geometry_Store(into.attic_ways, query, rman), into.attic_ways);
+    filter_ways_expensive(*this, Way_Geometry_Store(into.attic_ways, query, rman, true), into.attic_ways);
 
     //Process attic relations
 

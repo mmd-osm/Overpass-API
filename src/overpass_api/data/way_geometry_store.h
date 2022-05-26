@@ -45,6 +45,9 @@ public:
   void prefetch(Uint31_Index);
   void prefetch_attic(Uint31_Index);
 
+  template< class TObject >
+  void prefetch_type(Uint31_Index idx) = delete;
+
 private:
   void way_members_to_nodes(std::map< Uint32_Index, std::vector< Node_Skeleton > >& way_members_);
 
@@ -57,6 +60,23 @@ private:
   std::vector< Uint31_Index > ranges;
   std::unique_ptr<Uint31_Index> current_index;
 };
+
+
+
+
+template< >
+inline void Way_Geometry_Store::prefetch_type<Way_Skeleton>(Uint31_Index idx)
+{
+  prefetch(idx);
+}
+
+
+template< >
+inline void Way_Geometry_Store::prefetch_type<Attic< Way_Skeleton > >(Uint31_Index idx)
+{
+  prefetch_attic(idx);
+}
+
 
 
 class Way_Bbox_Geometry_Store : public Way_Geometry_Store
