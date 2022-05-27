@@ -189,7 +189,8 @@ class Query_Statement final : public Output_Statement
     template< class Id_Type >
     IdSetHybrid<typename Id_Type::Id_Type> collect_non_ids_hybrid
        (const File_Properties& file_prop, const File_Properties& attic_file_prop,
-        Resource_Manager& rman, timestamp_t timestamp);
+        Resource_Manager& rman, timestamp_t timestamp,
+        Query_Filter_Strategy& check_keys_late, bool& result_valid);
 
     template< class Id_Type >
     std::vector< Id_Type > collect_non_ids

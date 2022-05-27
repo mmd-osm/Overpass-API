@@ -609,12 +609,11 @@ std::vector< Id_Type > Query_Statement::collect_ids
 template< class Id_Type >
 IdSetHybrid<typename Id_Type::Id_Type> Query_Statement::collect_non_ids_hybrid
   (const File_Properties& file_prop, const File_Properties& attic_file_prop,
-   Resource_Manager& rman, timestamp_t timestamp)
+   Resource_Manager& rman, timestamp_t timestamp,
+   Query_Filter_Strategy& check_keys_late, bool& result_valid)
 {
   if (key_nvalues.empty() && key_nregexes.empty())
     return IdSetHybrid<typename Id_Type::Id_Type>();
-
-  bool result_valid;
 
   Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > > tags_db
       (rman.get_transaction()->data_index(&file_prop));
@@ -623,7 +622,11 @@ IdSetHybrid<typename Id_Type::Id_Type> Query_Statement::collect_non_ids_hybrid
         new Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >
         (rman.get_transaction()->data_index(&attic_file_prop)));
 
+  constexpr int IDS_COUNT_LIMIT = 10000000;
+
   IdSetHybrid<typename Id_Type::Id_Type> new_ids;
+
+  result_valid = false;
 
   // Handle Key-Non-Value pairs
   for (const auto & [key, nvalue] : key_nvalues)
@@ -632,8 +635,13 @@ IdSetHybrid<typename Id_Type::Id_Type> Query_Statement::collect_non_ids_hybrid
     {
       std::set< Tag_Index_Global > tag_req = get_kv_req(key, nvalue);
 
-      for (const auto & it2 : tags_db.as_discrete(tag_req))
+      for (const auto & it2 : tags_db.as_discrete(tag_req)) {
         new_ids.set(it2.handle().id().val());
+        if (new_ids.size() > IDS_COUNT_LIMIT) {
+          check_keys_late = Query_Filter_Strategy::prefer_ranges;
+          return {};
+        }
+      }
     }
     else
     {
@@ -666,6 +674,10 @@ IdSetHybrid<typename Id_Type::Id_Type> Query_Statement::collect_non_ids_hybrid
         }
 
         new_ids.set(it2.handle().id().val());
+        if (new_ids.size() > IDS_COUNT_LIMIT) {
+          check_keys_late = Query_Filter_Strategy::prefer_ranges;
+          return {};
+        }
       }
     }
     else
@@ -679,6 +691,8 @@ IdSetHybrid<typename Id_Type::Id_Type> Query_Statement::collect_non_ids_hybrid
   }
 
   new_ids.sort_unique();
+
+  result_valid = true;
 
   return new_ids;
 }
@@ -1497,9 +1511,19 @@ void Query_Statement::progress_1(std::vector< Id_Type >& ids, std::vector< Index
     std::vector< std::pair< Id_Type, Uint31_Index > > id_idxs =
         collect_ids< Skeleton, Id_Type >(file_prop, attic_file_prop, rman, timestamp, check_keys_late, result_valid);
 
+    // id_idxs incomplete due to large number of hits found?
+    if (!result_valid) {
+      return;
+    }
+
     if (!key_nvalues.empty() || (check_keys_late != prefer_ranges && !key_nregexes.empty()))
     {
-      auto non_ids  = collect_non_ids_hybrid< Id_Type >(file_prop, attic_file_prop, rman, timestamp);
+      auto non_ids = collect_non_ids_hybrid< Id_Type >(file_prop, attic_file_prop, rman, timestamp, check_keys_late, result_valid);
+      // non-ids too large? check_keys_late was also set to "prefer_ranges"
+      if (!result_valid) {
+        return;
+      }
+
       ids.clear();
       range_vec.clear();
       for (typename std::vector< std::pair< Id_Type, Uint31_Index > >::const_iterator it = id_idxs.begin();
