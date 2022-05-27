@@ -100,7 +100,7 @@ class IdSetHybrid {
       }
 
       m_data_use_bitmap[cid] = true;
-      m_data_vector[cid].clear();
+      std::vector<uint32_t>().swap(m_data_vector[cid]);
     }
   }
 
@@ -184,9 +184,9 @@ class IdSetHybrid {
   T size() const noexcept { return m_size; }
 
   void clear() {
-    m_data_bitmap.clear();
-    m_data_vector.clear();
-    m_data_use_bitmap.clear();
+    std::vector<std::vector<uint64_t>>().swap(m_data_bitmap);
+    std::vector<std::vector<uint32_t>>().swap(m_data_vector);
+    std::vector<bool>().swap(m_data_use_bitmap);
     m_size = 0;
   }
 };
