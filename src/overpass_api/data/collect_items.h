@@ -533,19 +533,36 @@ bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
   
   bool too_much_data = false;
 
-  Block_Backend< Index, Object > db
-      (rman.get_transaction()->data_index(&file_properties));
+  Block_Backend< Index, Object > db(rman.get_transaction()->data_index(&file_properties));
 
   Ranges< Index > ranges(req);
   Ranges< Index > shortened = ranges.skip_start(cur_idx);
 
-  for (const auto & it : db.as_range(shortened))
+  std::vector< Object > vec;
+
+  Index vec_idx{};
+
+  for (auto it = db.range_begin(shortened); it != db.range_end(); ++it)
   {
-    if (too_much_data && !(cur_idx == it.index()))
-    {
-      cur_idx = it.index();
-      return true;
-    }  
+    if (it.start_of_new_index()) {
+      if (!vec.empty()) {
+        result.insert_or_assign(vec_idx, std::move(vec));
+        current_result_size += eval_map_index_size;
+        std::vector< Object >().swap(vec);
+      }
+
+      if (too_much_data) {
+        cur_idx = it.index();
+        return true;
+      }
+
+      vec_idx = it.index();
+
+      // Entry already exists in result for given index -> keep adding new entries
+      if (result.find(vec_idx) != result.end()) {
+        vec = std::move(result[vec_idx]);
+      }
+    }
 
     if (++count >= 256*1024 && stmt)
     {
@@ -556,17 +573,15 @@ bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
 
     if (predicate.match(it.handle()))
     {
-      auto prev_map_size = result.size();
-
-      it.handle().add_element(result[it.index()]);
-
-      if (result.size() != prev_map_size) {     // new index added to map?
-        current_result_size += eval_map_index_size;
-      }
+      it.handle().add_element(vec);
       current_result_size += eval_elem<Object>();
     }
   }
-  
+
+  if (!vec.empty()) {
+    result.insert_or_assign(vec_idx, std::move(vec));
+  }
+
   return false;
 }
 
@@ -582,19 +597,36 @@ bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
   
   bool too_much_data = false;
 
-  Block_Backend< Index, Object > db
-      (rman.get_transaction()->data_index(&file_properties));
+  Block_Backend< Index, Object > db(rman.get_transaction()->data_index(&file_properties));
 
   Ranges< Index > ranges(req);
   Ranges< Index > shortened = ranges.skip_start(cur_idx);
 
-  for (const auto & it : db.as_range(shortened))
+  std::vector< Object > vec;
+
+  Index vec_idx{};
+
+  for (auto it = db.range_begin(shortened); it != db.range_end(); ++it)
   {
-    if (too_much_data && !(cur_idx == it.index()))
-    {
-      cur_idx = it.index();
-      return true;
-    }  
+    if (it.start_of_new_index()) {
+      if (!vec.empty()) {
+        result.insert_or_assign(vec_idx, std::move(vec));
+        current_result_size += eval_map_index_size;
+        std::vector< Object >().swap(vec);
+      }
+
+      if (too_much_data) {
+        cur_idx = it.index();
+        return true;
+      }
+
+      vec_idx = it.index();
+
+      // Entry already exists in result for given index -> keep adding new entries
+      if (result.find(vec_idx) != result.end()) {
+        vec = std::move(result[vec_idx]);
+      }
+    }
 
     if (++count >= 256*1024 && stmt)
     {
@@ -605,17 +637,15 @@ bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
 
     if (pred(it.index(), it.handle().id()))
     {
-      auto prev_map_size = result.size();
-
       it.handle().add_element(result[it.index()]);
-
-      if (result.size() != prev_map_size) {     // new index added to map?
-        current_result_size += eval_map_index_size;
-      }
       current_result_size += eval_elem<Object>();
     }
   }
-  
+
+  if (!vec.empty()) {
+    result.insert_or_assign(vec_idx, std::move(vec));
+  }
+
   return false;
 }
 
