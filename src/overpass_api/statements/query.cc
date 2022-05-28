@@ -622,7 +622,10 @@ IdSetHybrid<typename Id_Type::Id_Type> Query_Statement::collect_non_ids_hybrid
         new Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >
         (rman.get_transaction()->data_index(&attic_file_prop)));
 
-  constexpr int IDS_COUNT_LIMIT = 10000000;
+  // In case additional constraints have been provided for the query statement, we fetch up to IDS_COUNT_LIMIT
+  // ids before falling back to "prefer_ranges". Fetching a large amount of ids, in particular for high volume
+  // tags like "building", might just take way too much time here otherwise.
+  constexpr long IDS_COUNT_LIMIT = 10000000;
 
   IdSetHybrid<typename Id_Type::Id_Type> new_ids;
 
@@ -637,7 +640,7 @@ IdSetHybrid<typename Id_Type::Id_Type> Query_Statement::collect_non_ids_hybrid
 
       for (const auto & it2 : tags_db.as_discrete(tag_req)) {
         new_ids.set(it2.handle().id().val());
-        if (new_ids.size() > IDS_COUNT_LIMIT) {
+        if (new_ids.size() > IDS_COUNT_LIMIT && !constraints.empty()) {
           check_keys_late = Query_Filter_Strategy::prefer_ranges;
           return {};
         }
@@ -674,7 +677,7 @@ IdSetHybrid<typename Id_Type::Id_Type> Query_Statement::collect_non_ids_hybrid
         }
 
         new_ids.set(it2.handle().id().val());
-        if (new_ids.size() > IDS_COUNT_LIMIT) {
+        if (new_ids.size() > IDS_COUNT_LIMIT && !constraints.empty()) {
           check_keys_late = Query_Filter_Strategy::prefer_ranges;
           return {};
         }
