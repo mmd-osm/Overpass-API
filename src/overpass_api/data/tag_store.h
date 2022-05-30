@@ -49,6 +49,8 @@ public:
   void prefetch_all(const std::map< Index, std::vector< Attic< Object > > >& elems);
   void prefetch_chunk(const std::map< Index, std::vector< Attic< Object > > >& elems,
       typename Object::Id_Type lower_id_bound, typename Object::Id_Type upper_id_bound);
+  void init_qt(const std::map< Index, std::vector< Object > >& elems);
+  void prefetch_qt(const std::map< Index, std::vector< Object > >& elems, Index idx);
 
   const std::vector< std::pair< std::string, std::string > >* get(const Index& index, const Object& elem);
 
@@ -57,7 +59,7 @@ private:
   Resource_Manager* rman = nullptr;
   Transaction* transaction = nullptr;
   bool use_index = false;
-  Index stored_index;
+  Index stored_index{};
   Ranges< Tag_Index_Local > ranges;
   std::map< uint32, std::vector< typename Object::Id_Type > > ids_by_coarse;
   std::map< uint32, std::vector< Attic< typename Object::Id_Type > > > attic_ids_by_coarse;
@@ -68,6 +70,9 @@ private:
   const bool use_global_cache = false;
 
   std::map< Index, std::vector< Object > > filter_elements(const std::map< Index, std::vector< Object > >& elems);
+
+  // for qt based:
+  uint32 ids_by_coarse_qt_index = 0;
 };
 
 
@@ -82,6 +87,9 @@ public:
   void prefetch_all(const std::map< Uint31_Index, std::vector< Derived_Structure > >& elems) {}
   void prefetch_chunk(const std::map< Uint31_Index, std::vector< Derived_Structure > >& elems,
       Derived_Structure::Id_Type lower_id_bound, Derived_Structure::Id_Type upper_id_bound) {}
+
+  void init_qt(const std::map< Uint31_Index, std::vector< Derived_Structure > >) {}
+  void prefetch_qt(const std::map< Uint31_Index, std::vector< Derived_Structure > >, Uint31_Index idx) {}
 
   const std::vector< std::pair< std::string, std::string > >* get(
       const Uint31_Index& index, const Derived_Structure& elem) const { return &elem.tags; }
@@ -435,6 +443,110 @@ void Tag_Store< Index, Object >::prefetch_all(const std::map< Index, std::vector
   }
 }
 
+template< typename Index, typename Object >
+void Tag_Store< Index, Object >::init_qt(const std::map< Index, std::vector< Object > >& elems)
+{
+  auto & tags_by_id = use_global_cache ? rman->tags_by_id().get<Object>() : this->tags_by_id;
+
+  if (elems.empty()) {
+    if (!use_global_cache)
+      tags_by_id.clear();
+    use_index = false;
+    return;
+  }
+
+  std::set< uint32 > coarse_indices;
+  for (auto const& [index, vector] : elems) {
+    if (!vector.empty()) {
+      coarse_indices.insert(index.val() & 0x7fffff00);
+    }
+  }
+  ranges = formulate_range_query(coarse_indices);
+  // Initialize ids_by_coarse with empty vectors. They can be filled
+  // on demand for a given index by calling prefetch_qt later on
+  for (auto v : coarse_indices) {
+    ids_by_coarse[v] = {};
+  }
+
+  use_index = true;
+
+  if (ranges.empty()) {
+    use_index = false;
+    return;
+  }
+
+  delete items_db;
+  items_db = new Block_Backend< Tag_Index_Local, typename Object::Id_Type >(
+      transaction->data_index(current_local_tags_file_properties< Object >()));
+
+  delete tag_it;
+  tag_it = new typename Block_Backend< Tag_Index_Local, typename Object::Id_Type >::Range_Iterator(
+      items_db->range_begin(ranges));
+
+  if (!ids_by_coarse.empty())
+  {
+    if (!use_global_cache)
+      tags_by_id.clear();
+    stored_index = ids_by_coarse.begin()->first;
+    prefetch_qt(elems, stored_index);
+    collect_tags< typename Object::Id_Type >(tags_by_id, *items_db, *tag_it,
+        ids_by_coarse[stored_index.val()], stored_index.val());
+  }
+}
+
+
+template< typename Index, typename Object >
+void Tag_Store< Index, Object >::prefetch_qt(const std::map< Index, std::vector< Object > >& elems, Index idx)
+{
+  auto coarse_index = idx.val() & 0x7fffff00;
+
+  // ids_by_coarse already populated for requested index?
+  if (ids_by_coarse_qt_index == coarse_index) {
+    return;
+  }
+
+  if (ids_by_coarse_qt_index != 0) {
+    // free memory for no longer needed previous entry
+    std::vector< typename Object::Id_Type >().swap(ids_by_coarse[ids_by_coarse_qt_index]);
+  }
+
+  // Check that we've already seen this index in init_qt method previously
+  if (ids_by_coarse.find(coarse_index) == ids_by_coarse.end()) {
+    return;
+  }
+
+  // Prepare ids_by_coarse entry for current coarse index
+  auto & ids_by_coarse_ = ids_by_coarse[coarse_index];
+
+  {
+    auto it_start = elems.lower_bound(coarse_index);
+    auto it_end   = elems.upper_bound(coarse_index | 0xff);
+
+    for (auto it = it_start; it != it_end; ++it) {
+      for (auto it2(it->second.begin()); it2 != it->second.end(); ++it2) {
+        ids_by_coarse_.push_back(it2->id);
+      }
+    }
+  }
+
+  {
+    auto it_start = elems.lower_bound(coarse_index | 0x80000000);
+    auto it_end   = elems.upper_bound(coarse_index | 0x800000ff);
+
+    for (auto it = it_start; it != it_end; ++it) {
+      for (auto it2(it->second.begin()); it2 != it->second.end(); ++it2) {
+        ids_by_coarse_.push_back(it2->id);
+      }
+    }
+  }
+
+  std::sort(ids_by_coarse_.begin(), ids_by_coarse_.end());
+  ids_by_coarse_.erase(std::unique(ids_by_coarse_.begin(), ids_by_coarse_.end()), ids_by_coarse_.end());
+
+  ids_by_coarse_qt_index = coarse_index;
+}
+
+
 
 template< typename Index, typename Object >
 void Tag_Store< Index, Object >::prefetch_chunk(const std::map< Index, std::vector< Object > >& elems,
@@ -580,6 +692,7 @@ const std::vector< std::pair< std::string, std::string > >*
     if (!use_global_cache)
       tags_by_id.clear();
     stored_index = Index(index.val() & 0x7fffff00);
+
     if (attic_items_db)
       collect_attic_tags< typename Object::Id_Type >(tags_by_id, *items_db, *tag_it, *attic_items_db, *attic_tag_it,
           attic_ids_by_coarse[stored_index.val()], stored_index.val());

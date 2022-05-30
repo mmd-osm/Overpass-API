@@ -273,6 +273,23 @@ Ranges< Tag_Index_Local > formulate_range_query(const std::set< Index >& coarse_
   return Ranges< Tag_Index_Local >(std::move(range_set));
 }
 
+template<  >
+inline Ranges< Tag_Index_Local > formulate_range_query(const std::set< uint32 >& coarse_indices)
+{
+  std::set< std::pair< Tag_Index_Local, Tag_Index_Local > > range_set;
+  for (auto val : coarse_indices)
+  {
+    Tag_Index_Local lower, upper;
+    lower.index = val;
+    lower.key = "";
+    lower.value = "";
+    upper.index = val + 1;
+    upper.key = "";
+    upper.value = "";
+    range_set.insert(std::make_pair(lower, upper));
+  }
+  return Ranges< Tag_Index_Local >(std::move(range_set));
+}
 
 template< class Value >
 Ranges< Tag_Index_Local > formulate_range_query(const std::map< uint32, Value >& coarse_indices)

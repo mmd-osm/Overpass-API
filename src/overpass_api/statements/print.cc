@@ -407,7 +407,7 @@ void tags_quadtile_
     return;
 
   Tag_Store< Index, Object > tag_store(rman);
-  tag_store.prefetch_all(items);
+  tag_store.init_qt(items);
 
   // formulate meta query if meta data shall be printed
   Meta_Collector< Index, typename Object::Id_Type > meta_printer(items, transaction,
@@ -417,6 +417,7 @@ void tags_quadtile_
   // print the result
   while (item_it != items.end())
   {
+    tag_store.prefetch_qt(items, item_it->first);
     prefetch_qt<Index, Object>(extra_data, item_it->first);
     for (auto it2(item_it->second.begin());
         it2 != item_it->second.end(); ++it2)
