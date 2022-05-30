@@ -58,7 +58,7 @@ Extra_Data_For_Diff::Extra_Data_For_Diff(
 }
 
 
-const std::map< uint32, std::string >* Extra_Data_For_Diff::get_users() const
+const user_id_name_t* Extra_Data_For_Diff::get_users() const
 {
   return users;
 }
@@ -85,7 +85,7 @@ void Set_Comparison::set_target(bool target)
 void Set_Comparison::print_item(Extra_Data_For_Diff& extra_data, uint32 ll_upper, const Node_Skeleton& skel,
                     const std::vector< std::pair< std::string, std::string > >* tags,
                     const OSM_Element_Metadata_Skeleton< Node_Skeleton::Id_Type >* meta,
-                    const std::map< uint32, std::string >* users)
+                    const user_id_name_t* users)
 {
   if (final_target)
     compare_item(ll_upper, skel, tags, NOW, meta, users);
@@ -97,7 +97,7 @@ void Set_Comparison::print_item(Extra_Data_For_Diff& extra_data, uint32 ll_upper
 void Set_Comparison::print_item(Extra_Data_For_Diff& extra_data, uint32 ll_upper, const Attic< Node_Skeleton >& skel,
                     const std::vector< std::pair< std::string, std::string > >* tags,
                     const OSM_Element_Metadata_Skeleton< Node_Skeleton::Id_Type >* meta,
-                    const std::map< uint32, std::string >* users)
+                    const user_id_name_t* users)
 {
   if (final_target)
     compare_item(ll_upper, skel, tags, skel.timestamp, meta, users);
@@ -109,7 +109,7 @@ void Set_Comparison::print_item(Extra_Data_For_Diff& extra_data, uint32 ll_upper
 void Set_Comparison::print_item(Extra_Data_For_Diff& extra_data, uint32 ll_upper, const Way_Skeleton& skel,
                     const std::vector< std::pair< std::string, std::string > >* tags,
                     const OSM_Element_Metadata_Skeleton< Way_Skeleton::Id_Type >* meta,
-                    const std::map< uint32, std::string >* users)
+                    const user_id_name_t* users)
 {
   if (extra_data.way_geometry_store)
   {
@@ -139,7 +139,7 @@ void Set_Comparison::print_item(Extra_Data_For_Diff& extra_data, uint32 ll_upper
 void Set_Comparison::print_item(Extra_Data_For_Diff& extra_data, uint32 ll_upper, const Attic< Way_Skeleton >& skel,
                     const std::vector< std::pair< std::string, std::string > >* tags,
                     const OSM_Element_Metadata_Skeleton< Way_Skeleton::Id_Type >* meta,
-                    const std::map< uint32, std::string >* users)
+                    const user_id_name_t* users)
 {
   if (extra_data.attic_way_geometry_store)
   {
@@ -169,7 +169,7 @@ void Set_Comparison::print_item(Extra_Data_For_Diff& extra_data, uint32 ll_upper
 void Set_Comparison::print_item(Extra_Data_For_Diff& extra_data, uint32 ll_upper, const Relation_Skeleton& skel,
                     const std::vector< std::pair< std::string, std::string > >* tags,
                     const OSM_Element_Metadata_Skeleton< Relation_Skeleton::Id_Type >* meta,
-                    const std::map< uint32, std::string >* users)
+                    const user_id_name_t* users)
 {
   if (extra_data.relation_geometry_store)
   {
@@ -199,7 +199,7 @@ void Set_Comparison::print_item(Extra_Data_For_Diff& extra_data, uint32 ll_upper
 void Set_Comparison::print_item(Extra_Data_For_Diff& extra_data, uint32 ll_upper, const Attic< Relation_Skeleton >& skel,
                     const std::vector< std::pair< std::string, std::string > >* tags,
                     const OSM_Element_Metadata_Skeleton< Relation_Skeleton::Id_Type >* meta,
-                    const std::map< uint32, std::string >* users)
+                    const user_id_name_t* users)
 {
   if (extra_data.attic_relation_geometry_store)
   {
@@ -421,7 +421,7 @@ std::map< typename Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< typename Sk
 void Set_Comparison::store_item(uint32 ll_upper, const Node_Skeleton& skel,
                             const std::vector< std::pair< std::string, std::string > >* tags,
                             timestamp_t timestamp, const OSM_Element_Metadata_Skeleton< Node::Id_Type >* meta,
-                            const std::map< uint32, std::string >* users, const Output_Handler::Feature_Action& action,
+                            const user_id_name_t* users, const Output_Handler::Feature_Action& action,
 			    const OSM_Element_Metadata_Skeleton< Node::Id_Type >* new_meta)
 {
   nodes.push_back(Node_With_Context(ll_upper, skel, timestamp,
@@ -433,7 +433,7 @@ void Set_Comparison::store_item(uint32 ll_upper, const Node_Skeleton& skel,
 void Set_Comparison::compare_item(uint32 ll_upper, const Node_Skeleton& skel,
                             const std::vector< std::pair< std::string, std::string > >* tags,
                             timestamp_t timestamp, const OSM_Element_Metadata_Skeleton< Node::Id_Type >* meta,
-                            const std::map< uint32, std::string >* users, const Output_Handler::Feature_Action& action,
+                            const user_id_name_t* users, const Output_Handler::Feature_Action& action,
 			    const OSM_Element_Metadata_Skeleton< Node::Id_Type >* new_meta)
 {
   auto nodes_it = std::lower_bound(nodes.begin(), nodes.end(), Node_With_Context(ll_upper, skel, 0));
@@ -541,7 +541,7 @@ void Set_Comparison::store_item(uint32 ll_upper, const Way_Skeleton& skel,
                             const std::pair< Quad_Coord, Quad_Coord* >* bounds,
                             const std::vector< Quad_Coord >* geometry,
                             timestamp_t timestamp, const OSM_Element_Metadata_Skeleton< Way::Id_Type >* meta,
-                            const std::map< uint32, std::string >* users, const Output_Handler::Feature_Action& action,
+                            const user_id_name_t* users, const Output_Handler::Feature_Action& action,
 			    const OSM_Element_Metadata_Skeleton< Way::Id_Type >* new_meta)
 {
   ways.push_back(Way_With_Context(ll_upper, skel,
@@ -556,7 +556,7 @@ void Set_Comparison::compare_item(uint32 ll_upper, const Way_Skeleton& skel,
                             const std::pair< Quad_Coord, Quad_Coord* >* bounds,
                             const std::vector< Quad_Coord >* geometry,
                             timestamp_t timestamp, const OSM_Element_Metadata_Skeleton< Way::Id_Type >* meta,
-                            const std::map< uint32, std::string >* users, const Output_Handler::Feature_Action& action,
+                            const user_id_name_t* users, const Output_Handler::Feature_Action& action,
 			    const OSM_Element_Metadata_Skeleton< Way::Id_Type >* new_meta)
 {
   auto ways_it
@@ -672,7 +672,7 @@ void Set_Comparison::store_item(uint32 ll_upper, const Relation_Skeleton& skel,
                             const std::pair< Quad_Coord, Quad_Coord* >* bounds,
                             const std::vector< std::vector< Quad_Coord > >* geometry,
                             timestamp_t timestamp, const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* meta,
-                            const std::map< uint32, std::string >* users, const Output_Handler::Feature_Action& action,
+                            const user_id_name_t* users, const Output_Handler::Feature_Action& action,
 			    const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* new_meta)
 {
   relations.push_back(Relation_With_Context(ll_upper, skel,
@@ -687,7 +687,7 @@ void Set_Comparison::compare_item(uint32 ll_upper, const Relation_Skeleton& skel
                             const std::pair< Quad_Coord, Quad_Coord* >* bounds,
                             const std::vector< std::vector< Quad_Coord > >* geometry,
                             timestamp_t timestamp, const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* meta,
-                            const std::map< uint32, std::string >* users, const Output_Handler::Feature_Action& action,
+                            const user_id_name_t* users, const Output_Handler::Feature_Action& action,
 			    const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* new_meta)
 {
   auto relations_it

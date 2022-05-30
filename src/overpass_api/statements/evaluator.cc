@@ -500,8 +500,8 @@ const std::string* Prepare_Task_Context::get_user_name(uint32 user_id) const
 {
   if (!users)
     return nullptr;
-  auto it = users->find(user_id);
-  if (it == users->end())
+  auto it = std::lower_bound(users->begin(), users->end(), user_id,  User_Comparator_By_Id{});
+  if (it == users->end() && it->first == user_id)
     return nullptr;
   return &it->second;
 }

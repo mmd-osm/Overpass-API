@@ -186,7 +186,7 @@ struct Prepare_Task_Context
 private:
   Array< Set_With_Context > contexts;
   const std::map< uint32, std::string >* relation_member_roles_ = nullptr;
-  const std::map< uint32, std::string >* users = nullptr;
+  const user_id_name_t* users = nullptr;
 };
 
 

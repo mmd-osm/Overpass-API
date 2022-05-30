@@ -1286,4 +1286,24 @@ template<> inline std::map< Way_Skeleton::Id_Type, kv_pairs > &      Tags_By_Id_
 template<> inline std::map< Relation_Skeleton::Id_Type, kv_pairs > & Tags_By_Id_Cache::get< Relation_Skeleton >() { return t_by_id_relation; }
 template<> inline std::map< Area_Skeleton::Id_Type, kv_pairs > &     Tags_By_Id_Cache::get< Area_Skeleton >()     { return t_by_id_area; }
 
+using user_id_name_t = std::vector< std::pair< uint32, std::string > >;
+
+
+struct User_Comparator_By_Id {
+  bool operator() (const std::pair< uint32, std::string >& a, const std::pair< uint32, std::string >& b)
+  {
+    return (a.first < b.first);
+  }
+
+  bool operator() (const uint32 a, const std::pair< uint32, std::string >& b)
+  {
+    return (a < b.first);
+  }
+
+  bool operator() (const std::pair< uint32, std::string >& a, const uint32 b)
+  {
+    return (a.first < b);
+  }
+};
+
 #endif

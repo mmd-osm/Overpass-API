@@ -145,7 +145,7 @@ class Output_Handler;
 
 void print_diff_set(const Diff_Set& result,
     uint32 output_mode, Output_Handler* output,
-    const std::map< uint32, std::string >& users, const std::map< uint32, std::string >& roles,
+    const user_id_name_t& users, const std::map< uint32, std::string >& roles,
     bool add_deletion_information);
 
 

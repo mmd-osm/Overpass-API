@@ -170,7 +170,7 @@ void Output_Osmium::print_item(const Node_Skeleton& skel,
       const Opaque_Geometry& geometry,
       const std::vector< std::pair< std::string, std::string > >* tags,
       const OSM_Element_Metadata_Skeleton< Node::Id_Type >* meta,
-      const std::map< uint32, std::string >* users,
+      const user_id_name_t* users,
       Output_Mode mode,
       const Feature_Action& action,
       const Node_Skeleton* new_skel,
@@ -201,7 +201,7 @@ void Output_Osmium::print_item(const Node_Skeleton& skel,
 
   if ((mode.mode & (Output_Mode::VERSION | Output_Mode::META)) && meta && users)
   {
-    std::map< uint32, std::string >::const_iterator it = users->find(meta->user_id);
+    auto it = std::lower_bound(users->begin(), users->end(), meta->user_id, User_Comparator_By_Id{});
     std::string user =  (it != users->end() ? it->second : "???" );
 
     osmium::builder::add_node(buffer,
@@ -230,7 +230,7 @@ void Output_Osmium::print_item(const Way_Skeleton& skel,
       const Opaque_Geometry& geometry,
       const std::vector< std::pair< std::string, std::string > >* tags,
       const OSM_Element_Metadata_Skeleton< Way::Id_Type >* meta,
-      const std::map< uint32, std::string >* users,
+      const user_id_name_t* users,
       Output_Mode mode,
       const Feature_Action& action,
       const Way_Skeleton* new_skel,
@@ -277,7 +277,7 @@ void Output_Osmium::print_item(const Way_Skeleton& skel,
 
   if ((mode.mode & (Output_Mode::VERSION | Output_Mode::META)) && meta && users)
   {
-    std::map< uint32, std::string >::const_iterator it = users->find(meta->user_id);
+    auto it = std::lower_bound(users->begin(), users->end(), meta->user_id, User_Comparator_By_Id{});
     std::string user =  (it != users->end() ? it->second : "???" );
 
     osmium::builder::add_way(buffer,
@@ -308,7 +308,7 @@ void Output_Osmium::print_item(const Relation_Skeleton& skel,
       const std::vector< std::pair< std::string, std::string > >* tags,
       const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* meta,
       const std::map< uint32, std::string >* roles,
-      const std::map< uint32, std::string >* users,
+      const user_id_name_t* users,
       Output_Mode mode,
       const Feature_Action& action,
       const Relation_Skeleton* new_skel,
@@ -366,7 +366,7 @@ void Output_Osmium::print_item(const Relation_Skeleton& skel,
 
   if ((mode.mode & (Output_Mode::VERSION | Output_Mode::META)) && meta && users)
   {
-    std::map< uint32, std::string >::const_iterator it = users->find(meta->user_id);
+    auto it = std::lower_bound(users->begin(), users->end(), meta->user_id, User_Comparator_By_Id{});
     std::string user =  (it != users->end() ? it->second : "???" );
 
     osmium::builder::add_relation(buffer,

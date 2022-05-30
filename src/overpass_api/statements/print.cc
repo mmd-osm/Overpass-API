@@ -203,7 +203,7 @@ struct Extra_Data
   void prefetch_nodes(Uint31_Index idx);
   void prefetch_attic_nodes(Uint31_Index idx);
 
-  const std::map< uint32, std::string >* get_users() const;
+  const user_id_name_t* get_users() const;
 
   unsigned int mode;
   Output_Handler::Feature_Action action;
@@ -212,7 +212,7 @@ struct Extra_Data
   Relation_Geometry_Store* relation_geometry_store = nullptr;
   Relation_Geometry_Store* attic_relation_geometry_store = nullptr;
   const std::map< uint32, std::string >* roles = nullptr;
-  const std::map< uint32, std::string >* users = nullptr;
+  const user_id_name_t* users = nullptr;
 };
 
 
@@ -252,7 +252,7 @@ Extra_Data::Extra_Data(
 }
 
 
-const std::map< uint32, std::string >* Extra_Data::get_users() const
+const user_id_name_t* Extra_Data::get_users() const
 {
   return users;
 }

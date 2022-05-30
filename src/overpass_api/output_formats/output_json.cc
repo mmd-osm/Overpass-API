@@ -80,13 +80,13 @@ void handle_first_elem(bool& first_elem)
 
 template< typename Id_Type >
 void print_meta_json(const OSM_Element_Metadata_Skeleton< Id_Type >& meta,
-		    const std::map< uint32, std::string >& users)
+		    const user_id_name_t& users)
 {
   std::cout<<",\n  \"timestamp\": \""<<iso_string(meta.timestamp)<<"\""
         ",\n  \"version\": "<<meta.version<<
 	",\n  \"changeset\": "<<meta.changeset;
-  auto it = users.find(meta.user_id);
-  if (it != users.end())
+  auto it = std::lower_bound(users.begin(), users.end(), meta.user_id, User_Comparator_By_Id{});
+  if (it != users.end() && it->first == meta.user_id)
     std::cout<<",\n  \"user\": \""<<escape_cstr(it->second)<<"\"";
   std::cout<<",\n  \"uid\": "<<meta.user_id;
 }
@@ -110,7 +110,7 @@ void Output_JSON::print_item(const Node_Skeleton& skel,
       const Opaque_Geometry& geometry,
       const std::vector< std::pair< std::string, std::string > >* tags,
       const OSM_Element_Metadata_Skeleton< Node::Id_Type >* meta,
-      const std::map< uint32, std::string >* users,
+      const user_id_name_t* users,
       Output_Mode mode,
       const Feature_Action& action,
       const Node_Skeleton* new_skel,
@@ -159,7 +159,7 @@ void Output_JSON::print_item(const Way_Skeleton& skel,
       const Opaque_Geometry& geometry,
       const std::vector< std::pair< std::string, std::string > >* tags,
       const OSM_Element_Metadata_Skeleton< Way::Id_Type >* meta,
-      const std::map< uint32, std::string >* users,
+      const user_id_name_t* users,
       Output_Mode mode,
       const Feature_Action& action,
       const Way_Skeleton* new_skel,
@@ -214,7 +214,7 @@ void Output_JSON::print_item(const Relation_Skeleton& skel,
       const std::vector< std::pair< std::string, std::string > >* tags,
       const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* meta,
       const std::map< uint32, std::string >* roles,
-      const std::map< uint32, std::string >* users,
+      const user_id_name_t* users,
       Output_Mode mode,
       const Feature_Action& action,
       const Relation_Skeleton* new_skel,

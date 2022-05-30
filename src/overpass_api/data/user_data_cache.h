@@ -29,17 +29,18 @@
 #include "../core/datatypes.h"
 #include "../core/settings.h"
 
+
 struct User_Data_Cache
 {
   User_Data_Cache()  = default;
-  const std::map< uint32, std::string >& users(Transaction& transaction);
+  const user_id_name_t& users(Transaction& transaction);
 };
 
 
-inline const std::map< uint32, std::string >& User_Data_Cache::users(
+inline const user_id_name_t& User_Data_Cache::users(
     Transaction& transaction)
 {
-  static std::map< uint32, std::string > users_;
+  static user_id_name_t users_;
   static bool loaded;
   static uint32 replicate_id;
 
@@ -48,20 +49,48 @@ inline const std::map< uint32, std::string >& User_Data_Cache::users(
     replicate_id = transaction.get_replicate_id();
     if (loaded)
     {
-      users_.clear();
+      user_id_name_t().swap(users_);
       loaded = false;
     }
   }
 
   if (!loaded)
   {
+    // According to meta_updater.cc, USER_DATA stores user ids + names in buckets of up to 256 entries,
+    // lowest 16 bits of the user id are ignored. Unfortunately, the list of user names / ids per Index
+    // is not sorted, and we don't want to sort a huge user list either. So let's use a
+    // fixed array instead to sort the entries.
+    std::array<std::string, 256> usernames;
+
     Block_Backend< Uint32_Index, User_Data > user_db
         (transaction.data_index(meta_settings().USER_DATA));
-    auto it_hint = users_.begin();
-    for (const auto & it : user_db.as_flat()) {
-      users_.emplace_hint(it_hint, it.handle().id(), it.handle().get_name());
-      it_hint = users_.end();
+    users_.reserve(1000000);
+
+    uint32 current_idx{};
+
+    for (auto it = user_db.flat_begin(); it != user_db.flat_end(); ++it) {
+
+      if (it.start_of_new_index()) {
+        // copy entries for previous index from array to users_ vector
+        for (int i = 0; i < 256; i++) {
+          if (!usernames[i].empty()) {
+            users_.emplace_back(current_idx + i, std::move(usernames[i]));
+            usernames[i].clear();
+          }
+        }
+        current_idx = it.index_handle().id();
+      }
+      usernames[it.handle().id() - current_idx] = it.handle().get_name();
     }
+
+    // and copy remaining entries
+    for (int i = 0; i < 256; i++) {
+      if (!usernames[i].empty()) {
+        users_.emplace_back(current_idx + i, std::move(usernames[i]));
+        usernames[i].clear();
+      }
+    }
+
     loaded = true;
   }
 

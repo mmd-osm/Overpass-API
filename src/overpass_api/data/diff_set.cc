@@ -126,7 +126,7 @@ const std::pair< Quad_Coord, Quad_Coord* >* bound_variant(Double_Coords& double_
 
 void print_nodes(const std::vector< std::pair< Node_With_Context, Node_With_Context > >& different_nodes,
     const uint32 output_mode, Output_Handler* output,
-    const std::map< uint32, std::string >& users,
+    const user_id_name_t& users,
     const bool add_deletion_information)
 {
   auto t = [output_mode](const Tag_Container& ref) -> const Tag_Container* {
@@ -205,7 +205,7 @@ void print_nodes(const std::vector< std::pair< Node_With_Context, Node_With_Cont
 
 void print_ways(const std::vector< std::pair< Way_With_Context, Way_With_Context > >& different_ways,
     const uint32 output_mode, Output_Handler* output,
-    const std::map< uint32, std::string >& users,
+    const user_id_name_t& users,
     const bool add_deletion_information)
 {
   auto g = [output_mode](const std::vector< Quad_Coord >& ref) -> const std::vector< Quad_Coord >* {
@@ -306,7 +306,7 @@ void print_ways(const std::vector< std::pair< Way_With_Context, Way_With_Context
 void print_relations(
     const std::vector< std::pair< Relation_With_Context, Relation_With_Context > >& different_relations,
     const uint32 output_mode, Output_Handler* output,
-    const std::map< uint32, std::string >& users, const std::map< uint32, std::string >& roles,
+    const user_id_name_t& users, const std::map< uint32, std::string >& roles,
     bool add_deletion_information)
 {
   auto g = [output_mode](const std::vector< std::vector< Quad_Coord > >& ref)
@@ -423,7 +423,7 @@ void print_deriveds(
 
 void print_diff_set(const Diff_Set& result,
     uint32 output_mode, Output_Handler* output,
-    const std::map< uint32, std::string >& users, const std::map< uint32, std::string >& roles,
+    const user_id_name_t& users, const std::map< uint32, std::string >& roles,
     bool add_deletion_information)
 {
   print_nodes(result.different_nodes, output_mode, output, users, add_deletion_information);

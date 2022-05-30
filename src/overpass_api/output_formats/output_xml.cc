@@ -71,12 +71,12 @@ void Output_XML::print_global_bbox(const Bbox_Double& bbox)
 
 template< typename Id_Type >
 void print_meta_xml(const OSM_Element_Metadata_Skeleton< Id_Type >& meta,
-		    const std::map< uint32, std::string >& users)
+		    const user_id_name_t& users)
 {
   std::cout<<" version=\""<<meta.version<<"\" timestamp=\""<<iso_string(meta.timestamp)
       <<"\" changeset=\""<<meta.changeset<<"\" uid=\""<<meta.user_id<<"\"";
-  auto it = users.find(meta.user_id);
-  if (it != users.end())
+  auto it = std::lower_bound(users.begin(), users.end(), meta.user_id, User_Comparator_By_Id{});
+  if (it != users.end() && it->first == meta.user_id)
     std::cout<<" user=\""<<escape_xml(it->second)<<"\"";
 }
 
@@ -361,7 +361,7 @@ void print_node(const Node_Skeleton& skel,
       const Opaque_Geometry& geometry,
       const std::vector< std::pair< std::string, std::string > >* tags,
       const OSM_Element_Metadata_Skeleton< Node::Id_Type >* meta,
-      const std::map< uint32, std::string >* users,
+      const user_id_name_t* users,
       Output_Mode mode)
 {
   std::cout<<"  <node";
@@ -387,7 +387,7 @@ void print_way(const Way_Skeleton& skel,
       const Opaque_Geometry& geometry,
       const std::vector< std::pair< std::string, std::string > >* tags,
       const OSM_Element_Metadata_Skeleton< Way::Id_Type >* meta,
-      const std::map< uint32, std::string >* users,
+      const user_id_name_t* users,
       Output_Mode mode)
 {
   std::cout<<"  <way";
@@ -412,7 +412,7 @@ void print_relation(const Relation_Skeleton& skel,
       const std::vector< std::pair< std::string, std::string > >* tags,
       const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* meta,
       const std::map< uint32, std::string >* roles,
-      const std::map< uint32, std::string >* users,
+      const user_id_name_t* users,
       Output_Mode mode)
 {
   std::cout<<"  <relation";
@@ -437,7 +437,7 @@ template< typename Id_Type >
 void print_deleted(const std::string& type_name, const Id_Type& id,
       const Output_Handler::Feature_Action& action,
       const OSM_Element_Metadata_Skeleton< Id_Type >* meta,
-      const std::map< uint32, std::string >* users,
+      const user_id_name_t* users,
       Output_Mode mode)
 {
   std::cout<<"  <"<<type_name;
@@ -457,7 +457,7 @@ void Output_XML::print_item(const Node_Skeleton& skel,
       const Opaque_Geometry& geometry,
       const std::vector< std::pair< std::string, std::string > >* tags,
       const OSM_Element_Metadata_Skeleton< Node::Id_Type >* meta,
-      const std::map< uint32, std::string >* users,
+      const user_id_name_t* users,
       Output_Mode mode,
       const Feature_Action& action,
       const Node_Skeleton* new_skel,
@@ -487,7 +487,7 @@ void Output_XML::print_item(const Way_Skeleton& skel,
       const Opaque_Geometry& geometry,
       const std::vector< std::pair< std::string, std::string > >* tags,
       const OSM_Element_Metadata_Skeleton< Way::Id_Type >* meta,
-      const std::map< uint32, std::string >* users,
+      const user_id_name_t* users,
       Output_Mode mode,
       const Feature_Action& action,
       const Way_Skeleton* new_skel,
@@ -518,7 +518,7 @@ void Output_XML::print_item(const Relation_Skeleton& skel,
       const std::vector< std::pair< std::string, std::string > >* tags,
       const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* meta,
       const std::map< uint32, std::string >* roles,
-      const std::map< uint32, std::string >* users,
+      const user_id_name_t* users,
       Output_Mode mode,
       const Feature_Action& action,
       const Relation_Skeleton* new_skel,

@@ -181,7 +181,7 @@ public:
   void switch_diff_show_from(const std::string& diff_set_name);
   void switch_diff_show_to(const std::string& diff_set_name);
 
-  const std::map< uint32, std::string >& users() { return user_data_cache.users(*transaction); }
+  const user_id_name_t& users() { return user_data_cache.users(*transaction); }
   Tags_By_Id_Cache& tags_by_id() { return tags_by_id_cache; }
 
   void start_cpu_timer(uint index);
