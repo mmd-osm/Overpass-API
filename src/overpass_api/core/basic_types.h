@@ -862,13 +862,15 @@ template <class T> class SharedDataPointer;
 class SharedData
 {
 public:
-  mutable uint32 ref;   // not thread safe!
-
-  inline SharedData() : ref(0) { }
-  inline SharedData(const SharedData &) : ref(0) { }
+  inline SharedData() {}
+  inline SharedData(const SharedData &) {}
 
   // using the assignment operator would lead to corruption in the ref-counting
   SharedData &operator=(const SharedData &) = delete;
+
+  inline uint32& ref() { return ref_count; }
+private:
+  mutable uint32 ref_count = 0;   // not thread safe! code used atomic originally, but we don't need it here
 };
 
 template <class T> class SharedDataPointer
@@ -877,7 +879,7 @@ public:
   typedef T Type;
   typedef T *pointer;
 
-  inline void detach() { if (d && d->ref != 1) detach_helper(); }
+  inline void detach() { if (d && d->ref() != 1) detach_helper(); }
   inline T &operator*() { detach(); return *d; }
   inline const T &operator*() const { return *d; }
   inline T *operator->() { detach(); return d; }
@@ -892,21 +894,21 @@ public:
   inline bool operator!=(const SharedDataPointer<T> &other) const { return d != other.d; }
 
   inline SharedDataPointer() { d = nullptr; }
-  inline ~SharedDataPointer() { if (d && !--d->ref) delete d; }
+  inline ~SharedDataPointer() { if (d && !--d->ref()) delete d; }
 
   SharedDataPointer(SharedDataPointer &&o) noexcept : d(o.d) { o.d = nullptr; }
   inline SharedDataPointer<T> &operator=(SharedDataPointer<T> &&other) noexcept
   { std::swap(d, other.d); return *this; }
 
   explicit SharedDataPointer(T *data) noexcept;
-  inline SharedDataPointer(const SharedDataPointer<T> &o) : d(o.d) { if (d) ++d->ref; }
+  inline SharedDataPointer(const SharedDataPointer<T> &o) : d(o.d) { if (d) ++d->ref(); }
   inline SharedDataPointer<T> & operator=(const SharedDataPointer<T> &o) {
     if (o.d != d) {
       if (o.d)
-        ++o.d->ref;
+        ++o.d->ref();
       T *old = d;
       d = o.d;
-      if (old && !--old->ref)
+      if (old && !--old->ref())
         delete old;
     }
     return *this;
@@ -914,10 +916,10 @@ public:
   inline SharedDataPointer &operator=(T *o) {
     if (o != d) {
       if (o)
-        ++o->ref;
+        ++o->ref();
       T *old = d;
       d = o;
-      if (old && !--old->ref)
+      if (old && !--old->ref())
         delete old;
     }
     return *this;
@@ -936,7 +938,7 @@ private:
 
 template <class T>
 SharedDataPointer<T>::SharedDataPointer(T *adata) noexcept
-: d(adata) { if (d) ++d->ref; }
+: d(adata) { if (d) ++d->ref(); }
 
 template <class T>
 T *SharedDataPointer<T>::clone()
@@ -948,8 +950,8 @@ template <class T>
 void SharedDataPointer<T>::detach_helper()
 {
   T *x = clone();
-  ++x->ref;
-  if (!(--d->ref))
+  ++x->ref();
+  if (!(--d->ref()))
     delete d;
   d = x;
 }
