@@ -543,17 +543,23 @@ void save(Archive & archive,
                const Way_Skeleton & m)
 {
   archive(cereal::make_nvp("id",m.id),
-          cereal::make_nvp("nds",m.nds()),
-          cereal::make_nvp("geometry",m.geometry()));
+          cereal::make_nvp("nds",static_cast< std::vector< Node::Id_Type > >(m.nds())),
+          cereal::make_nvp("geometry",static_cast< std::vector< Quad_Coord > >(m.geometry())));
 }
 
 template<class Archive>
 void load(Archive & archive,
                Way_Skeleton & m)
 {
+  std::vector< Node::Id_Type > ids;
+  std::vector< Quad_Coord > geom;
+
   archive(cereal::make_nvp("id",m.id),
-          cereal::make_nvp("nds",m.nds()),
-          cereal::make_nvp("geometry",m.geometry()));
+          cereal::make_nvp("nds",ids),
+          cereal::make_nvp("geometry",geom));
+
+  m.nds().swap(ids);
+  m.geometry().swap(geom);
 }
 
 template<class Archive>

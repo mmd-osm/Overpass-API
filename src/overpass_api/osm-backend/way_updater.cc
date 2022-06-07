@@ -74,8 +74,8 @@ void compute_idx_and_geometry
 {
   std::vector< Quad_Coord > geometry;
 
-  for (std::vector< Node_Skeleton::Id_Type >::const_iterator it = skeleton.nds().begin();
-       it != skeleton.nds().end(); ++it)
+  for (auto it = skeleton.nds().cbegin();
+       it != skeleton.nds().cend(); ++it)
   {
     auto nit = nodes_by_id.find(*it);
     if (nit != nodes_by_id.end() && !nit->second.empty())
@@ -591,7 +591,7 @@ void compute_geometry
       continue;
 
     std::vector< uint32 > nd_idxs;
-    for (std::vector< Node::Id_Type >::const_iterator nit = it->elem.nds().begin(); nit != it->elem.nds().end(); ++nit)
+    for (auto nit = it->elem.nds().cbegin(); nit != it->elem.nds().cend(); ++nit)
     {
       auto it2 = new_node_idx_by_id.find(*nit);
       if (it2 != new_node_idx_by_id.end())
@@ -606,8 +606,10 @@ void compute_geometry
 
     if (Way::indicates_geometry(index))
     {
-      for (std::vector< Node::Id_Type >::const_iterator nit = it->elem.nds().begin();
-           nit != it->elem.nds().end(); ++nit)
+      it->elem.geometry().reserve(it->elem.nds().size());
+
+      for (auto nit = it->elem.nds().cbegin();
+           nit != it->elem.nds().cend(); ++nit)
       {
         auto it2 = new_node_idx_by_id.find(*nit);
         if (it2 != new_node_idx_by_id.end())
@@ -661,6 +663,8 @@ void new_implicit_skeletons
 
       if (Way::indicates_geometry(index))
       {
+        new_skeleton.geometry().reserve(it2->nds().size());
+
         for (auto nit = it2->nds().begin(); nit != it2->nds().end(); ++nit)
         {
           auto it3 = new_node_idx_by_id.find(*nit);

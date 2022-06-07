@@ -271,7 +271,7 @@ std::vector< Quad_Coord > Way_Geometry_Store::get_geometry(const Way_Skeleton& w
   if (way.geometry().empty())
     return make_geometry(way, nodes);
   else
-    return way.geometry();
+    return static_cast<std::vector< Quad_Coord >>(way.geometry());
 }
 
 void Way_Geometry_Store::prefetch(Uint31_Index idx)

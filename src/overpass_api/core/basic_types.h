@@ -688,9 +688,10 @@ public:
 };
 
 
-template< typename Object >
-void make_delta(const std::vector< Object >& source, const std::vector< Object >& reference,
-                std::vector< uint >& to_remove, std::vector< std::pair< uint, Object > >& to_add)
+template< typename Container >
+void make_delta(const Container& source, const Container& reference,
+                std::vector< uint >& to_remove,
+                std::vector< std::pair< uint, typename Container::value_type > >& to_add)
 {
   //Detect a common prefix
   uint prefix_length = 0;
@@ -713,19 +714,19 @@ void make_delta(const std::vector< Object >& source, const std::vector< Object >
 }
 
 
-template< typename Object >
-void copy_elems(const std::vector< Object >& source, std::vector< std::pair< uint, Object > >& target)
+template< typename Container >
+void copy_elems(const Container& source, std::vector< std::pair< uint, typename Container::value_type > >& target)
 {
   uint i = 0;
-  for (auto it = source.begin(); it != source.end(); ++it)
+  for (auto it = source.cbegin(); it != source.cend(); ++it)
     target.push_back(std::make_pair(i++, *it));
 }
 
 
-template< typename Object >
-void expand_diff(const std::vector< Object >& reference,
-    const std::vector< uint >& removed, const std::vector< std::pair< uint, Object > >& added,
-    std::vector< Object >& target)
+template< typename Container >
+void expand_diff(const Container& reference,
+    const std::vector< uint >& removed, const std::vector< std::pair< uint, typename Container::value_type  > >& added,
+    Container& target)
 {
   if (removed.empty() && added.empty())
   {
@@ -756,10 +757,10 @@ void expand_diff(const std::vector< Object >& reference,
   }
 }
 
-template< typename Object >
-void expand_diff_fast(std::vector< Object >& reference,
-    const std::vector< uint >& removed, const std::vector< std::pair< uint, Object > >& added,
-    std::vector< Object >& target)
+template< typename Container >
+void expand_diff_fast(Container& reference,
+    const std::vector< uint >& removed, const std::vector< std::pair< uint, typename Container::value_type > >& added,
+    Container& target)
 {
   uint removed_min{};
   uint removed_max{};
@@ -968,14 +969,14 @@ void SharedDataPointer<T>::detach_helper()
 
 namespace {
 
-template <typename Id_Type >
-inline uint32 calculate_ids_compressed_size(const std::vector< Id_Type >& ids_)
+template <typename Container >
+inline uint32 calculate_ids_compressed_size(const Container& ids_)
 {
-  Id_Type prev = (uint64) 0;
+  typename Container::value_type prev = (uint64) 0;
   uint32 compressed_size = 0;
 
-  for (auto it = ids_.begin();
-      it != ids_.end(); ++it)
+  for (auto it = ids_.cbegin();
+      it != ids_.cend(); ++it)
   {
     int64_t diff = (int64_t) it->val() - (int64_t) prev.val();
     compressed_size += protozero::length_of_varint(protozero::encode_zigzag64(diff));
@@ -986,15 +987,15 @@ inline uint32 calculate_ids_compressed_size(const std::vector< Id_Type >& ids_)
 }
 
 
-template <typename Id_Type >
-uint8* compress_ids(const std::vector< Id_Type >& ids_, uint8* buffer_)
+template <typename Container >
+uint8* compress_ids(const Container& ids_, uint8* buffer_)
 {
   char* current = (char*) buffer_;
   char* buffer = (char*) buffer_;
-  Id_Type prev = (uint64) 0;
+  typename Container::value_type prev = (uint64) 0;
 
-  for (auto it = ids_.begin();
-       it != ids_.end(); ++it)
+  for (auto it = ids_.cbegin();
+       it != ids_.cend(); ++it)
   {
     int64_t delta = (int64_t) it->val() - (int64_t) prev.val();
     uint64 zigzag = protozero::encode_zigzag64(delta);
@@ -1029,13 +1030,13 @@ uint8* decompress_ids(const uint16 ids_count, const uint16 ids_bytes, uint8* buf
   return (uint8*) current;
 }
 
-template <typename Id_Type >
-uint8* decompress_ids(std::vector< Id_Type >& ids_, const uint16 ids_count, const uint16 ids_bytes, uint8* buffer_)
+template <typename Container >
+uint8* decompress_ids(Container& ids_, const uint16 ids_count, const uint16 ids_bytes, uint8* buffer_)
 {
   const char* current = (char*) buffer_;
   const char* end = (char*)(buffer_ + ids_bytes);
 
-  Id_Type id = (uint64) 0;
+  typename Container::value_type id = (uint64) 0;
 
   for (int i=0; i<ids_count;i++)
   {

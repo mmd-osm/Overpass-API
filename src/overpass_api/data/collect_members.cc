@@ -89,7 +89,8 @@ std::vector< Node::Id_Type > way_nd_ids(
       }
       else
       {
-        ids.insert(ids.end(), it2->nds().begin(), it2->nds().end());
+        for (uint i = 0; i < it2->nds().size(); i++)
+          ids.push_back(it2->nds()[i]);
       }
     }
   }
@@ -132,7 +133,8 @@ std::vector< Node::Id_Type > way_nd_ids(
       }
       else
       {
-        ids.insert(ids.end(), it2->nds().begin(), it2->nds().end());
+        for (uint i = 0; i < it2->nds().size(); i++)
+          ids.push_back(it2->nds()[i]);
       }
     }
   }
@@ -1080,7 +1082,7 @@ void filter_ways_by_ranges_generic
              it2 != it->second.end(); ++it2)
         {
           auto ranges_it2 = ranges_begin;
-          std::vector< Uint31_Index > segment_idxs_ = segment_idxs(it2->geometry());
+          std::vector< Uint31_Index > segment_idxs_ = segment_idxs(static_cast< std::vector< Quad_Coord > >(it2->geometry()));
           for (std::vector< Uint31_Index >::const_iterator it3 = segment_idxs_.begin();
                it3 != segment_idxs_.end() && ranges_it2 != ranges.end(); )
           {

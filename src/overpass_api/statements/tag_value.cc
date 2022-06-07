@@ -668,7 +668,7 @@ Eval_Variant Prop_Count_Eval_Task::eval(const Element_With_Context< Way_Skeleton
   else if (to_count == Evaluator_Properties_Count::distinct_members
       && type_to_count == Evaluator_Properties_Count::all && data.object)
   {
-    std::vector< Node::Id_Type > distinct = data.object->nds();
+    std::vector< Node::Id_Type > distinct = static_cast< std::vector< Node::Id_Type > >(data.object->nds());
     std::sort(distinct.begin(), distinct.end());
     return (int64)(std::distance(distinct.begin(), std::unique(distinct.begin(), distinct.end())));
   }
@@ -687,7 +687,7 @@ Eval_Variant Prop_Count_Eval_Task::eval(const Element_With_Context< Attic< Way_S
   else if (to_count == Evaluator_Properties_Count::distinct_members
       && type_to_count == Evaluator_Properties_Count::all && data.object)
   {
-    std::vector< Node::Id_Type > distinct = data.object->nds();
+    std::vector< Node::Id_Type > distinct = static_cast< std::vector< Node::Id_Type > >(data.object->nds());
     std::sort(distinct.begin(), distinct.end());
     return (int64)(std::distance(distinct.begin(), std::unique(distinct.begin(), distinct.end())));
   }

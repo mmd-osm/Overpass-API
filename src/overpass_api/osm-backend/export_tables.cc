@@ -314,8 +314,8 @@ void serialize(Archive & archive,
                Way_Skeleton & m)
 {
   archive(cereal::make_nvp("id",m.id),
-          cereal::make_nvp("nds",m.nds()),
-          cereal::make_nvp("geometry",m.geometry()));
+          cereal::make_nvp("nds",static_cast< std::vector< Node::Id_Type > >(m.nds())),
+          cereal::make_nvp("geometry",static_cast< std::vector< Quad_Coord > >(m.geometry())));
 }
 
 template<class Archive>
