@@ -302,7 +302,7 @@ void Area_Constraint::filter(const Statement& query, Resource_Manager& rman, Set
         = nodes_contained_in(input, true, query, rman, into.nodes);
     indexed_set_difference(into.nodes, nodes_in_wr_areas);
     area->collect_nodes(into.nodes, area_blocks_req, true, rman);
-    indexed_set_union(into.nodes, nodes_in_wr_areas);
+    indexed_set_union(into.nodes, std::move(nodes_in_wr_areas));
   } 
 
   //Process ways
@@ -312,7 +312,7 @@ void Area_Constraint::filter(const Statement& query, Resource_Manager& rman, Set
     indexed_set_difference(into.ways, ways_in_wr_areas);
     area->collect_ways(Way_Geometry_Store(into.ways, query, rman, true),
         into.ways, area_blocks_req, false, query, rman);
-    indexed_set_union(into.ways, ways_in_wr_areas);
+    indexed_set_union(into.ways, std::move(ways_in_wr_areas));
   }
 
   //Process relations
@@ -329,7 +329,7 @@ void Area_Constraint::filter(const Statement& query, Resource_Manager& rman, Set
         = nodes_contained_in(input, false, query, rman, node_members);
     indexed_set_difference(node_members, nodes_in_wr_areas);
     area->collect_nodes(node_members, area_blocks_req, false, rman);
-    indexed_set_union(node_members, nodes_in_wr_areas);
+    indexed_set_union(node_members, std::move(nodes_in_wr_areas));
   } 
 
   // Retrieve all ways referred by the relations.
@@ -345,7 +345,7 @@ void Area_Constraint::filter(const Statement& query, Resource_Manager& rman, Set
     indexed_set_difference(way_members_, ways_in_wr_areas);
     area->collect_ways(Way_Geometry_Store(way_members_, query, rman, true),
         way_members_, area_blocks_req, false, query, rman);
-    indexed_set_union(way_members_, ways_in_wr_areas);
+    indexed_set_union(way_members_, std::move(ways_in_wr_areas));
   }
 
   filter_relations_expensive(order_by_id(node_members, Order_By_Node_Id()),
@@ -359,7 +359,7 @@ void Area_Constraint::filter(const Statement& query, Resource_Manager& rman, Set
         = nodes_contained_in(input, true, query, rman, into.attic_nodes);
     indexed_set_difference(into.attic_nodes, nodes_in_wr_areas);
     area->collect_nodes(into.attic_nodes, area_blocks_req, true, rman);
-    indexed_set_union(into.attic_nodes, nodes_in_wr_areas);
+    indexed_set_union(into.attic_nodes, std::move(nodes_in_wr_areas));
   } 
 
   //Process ways
@@ -370,7 +370,7 @@ void Area_Constraint::filter(const Statement& query, Resource_Manager& rman, Set
     indexed_set_difference(into.attic_ways, ways_in_wr_areas);
     area->collect_ways(Way_Geometry_Store(into.attic_ways, query, rman, true),
         into.attic_ways, area_blocks_req, false, query, rman);
-    indexed_set_union(into.attic_ways, ways_in_wr_areas);
+    indexed_set_union(into.attic_ways, std::move(ways_in_wr_areas));
   }
 
   //Process relations
@@ -388,7 +388,7 @@ void Area_Constraint::filter(const Statement& query, Resource_Manager& rman, Set
           = nodes_contained_in(input, false, query, rman, node_members);
       indexed_set_difference(node_members, nodes_in_wr_areas);
       area->collect_nodes(node_members, area_blocks_req, false, rman);
-      indexed_set_union(node_members, nodes_in_wr_areas);
+      indexed_set_union(node_members, std::move(nodes_in_wr_areas));
     } 
 
     // Retrieve all ways referred by the relations.
@@ -404,7 +404,7 @@ void Area_Constraint::filter(const Statement& query, Resource_Manager& rman, Set
       indexed_set_difference(way_members_, ways_in_wr_areas);
       area->collect_ways(Way_Geometry_Store(way_members_, query, rman, true),
           way_members_, area_blocks_req, false, query, rman);
-      indexed_set_union(way_members_, ways_in_wr_areas);
+      indexed_set_union(way_members_, std::move(ways_in_wr_areas));
     }
 
     filter_relations_expensive(order_attic_by_id(node_members, Order_By_Node_Id()),

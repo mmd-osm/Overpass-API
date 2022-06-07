@@ -1358,7 +1358,7 @@ void add_nw_member_objects(Resource_Manager& rman, const Statement* stmt, const 
         into.nodes, into.attic_nodes);
     sort_second(into.nodes);
     sort_second(rel_nodes);
-    indexed_set_union(into.nodes, rel_nodes);
+    indexed_set_union(into.nodes, std::move(rel_nodes));
   }
   else
   {
@@ -1378,20 +1378,20 @@ void add_nw_member_objects(Resource_Manager& rman, const Statement* stmt, const 
     std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > > source_attic_ways = input_set.attic_ways;
     sort_second(all_ways.first);
     sort_second(source_ways);
-    indexed_set_union(all_ways.first, source_ways);
+    indexed_set_union(all_ways.first, std::move(source_ways));
     sort_second(all_ways.second);
     sort_second(source_attic_ways);
-    indexed_set_union(all_ways.second, source_attic_ways);
+    indexed_set_union(all_ways.second, std::move(source_attic_ways));
 
     std::pair< std::map< Uint32_Index, std::vector< Node_Skeleton > >,
         std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > > > more_nodes
         = way_members(stmt, rman, all_ways.first, all_ways.second, nullptr);
     sort_second(into.nodes);
     sort_second(more_nodes.first);
-    indexed_set_union(into.nodes, more_nodes.first);
+    indexed_set_union(into.nodes, std::move(more_nodes.first));
     sort_second(into.attic_nodes);
     sort_second(more_nodes.second);
-    indexed_set_union(into.attic_nodes, more_nodes.second);
+    indexed_set_union(into.attic_nodes, std::move(more_nodes.second));
     keep_matching_skeletons(into.nodes, into.attic_nodes, rman.get_desired_timestamp());
   }
 }

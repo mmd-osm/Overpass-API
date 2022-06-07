@@ -2112,8 +2112,8 @@ void Query_Statement::execute(Resource_Manager& rman)
             to_filter.nodes.swap(into.nodes);
             to_filter.attic_nodes.swap(into.attic_nodes);
             apply_all_filters(rman, timestamp, check_keys_late, to_filter);
-            indexed_set_union(filtered.nodes, to_filter.nodes);
-            indexed_set_union(filtered.attic_nodes, to_filter.attic_nodes);
+            indexed_set_union(filtered.nodes, std::move(to_filter.nodes));
+            indexed_set_union(filtered.attic_nodes, std::move(to_filter.attic_nodes));
           }
         }
 
@@ -2156,8 +2156,8 @@ void Query_Statement::execute(Resource_Manager& rman)
               filter_elems_for_closed_ways(to_filter.attic_ways);
             }            
             apply_all_filters(rman, timestamp, check_keys_late, to_filter);
-            indexed_set_union(filtered.ways, to_filter.ways);
-            indexed_set_union(filtered.attic_ways, to_filter.attic_ways);
+            indexed_set_union(filtered.ways, std::move(to_filter.ways));
+            indexed_set_union(filtered.attic_ways, std::move(to_filter.attic_ways));
           }
         }             
       }
@@ -2189,8 +2189,8 @@ void Query_Statement::execute(Resource_Manager& rman)
             to_filter.relations.swap(into.relations);
             to_filter.attic_relations.swap(into.attic_relations);
             apply_all_filters(rman, timestamp, check_keys_late, to_filter);
-            indexed_set_union(filtered.relations, to_filter.relations);
-            indexed_set_union(filtered.attic_relations, to_filter.attic_relations);
+            indexed_set_union(filtered.relations, std::move(to_filter.relations));
+            indexed_set_union(filtered.attic_relations, std::move(to_filter.attic_relations));
           }
         }               
       }
@@ -2213,14 +2213,14 @@ void Query_Statement::execute(Resource_Manager& rman)
   if (type & QUERY_CLOSED_WAY)
     filter_elems_for_closed_ways(into);
   apply_all_filters(rman, timestamp, check_keys_late, into);
-  indexed_set_union(into.nodes, filtered.nodes);
-  indexed_set_union(into.attic_nodes, filtered.attic_nodes);
-  indexed_set_union(into.ways, filtered.ways);
-  indexed_set_union(into.attic_ways, filtered.attic_ways);
-  indexed_set_union(into.relations, filtered.relations);
-  indexed_set_union(into.attic_relations, filtered.attic_relations);
-  indexed_set_union(into.areas, filtered.areas);
-  indexed_set_union(into.deriveds, filtered.deriveds);
+  indexed_set_union(into.nodes, std::move(filtered.nodes));
+  indexed_set_union(into.attic_nodes, std::move(filtered.attic_nodes));
+  indexed_set_union(into.ways, std::move(filtered.ways));
+  indexed_set_union(into.attic_ways, std::move(filtered.attic_ways));
+  indexed_set_union(into.relations, std::move(filtered.relations));
+  indexed_set_union(into.attic_relations, std::move(filtered.attic_relations));
+  indexed_set_union(into.areas, std::move(filtered.areas));
+  indexed_set_union(into.deriveds, std::move(filtered.deriveds));
   
   set_progress(9);
   rman.health_check(*this);
