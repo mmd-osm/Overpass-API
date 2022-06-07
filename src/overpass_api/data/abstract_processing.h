@@ -605,50 +605,50 @@ uint64 indexed_set_union(std::map< TIndex, std::vector< TObject > >& result,
 {
   uint64 result_size_increase = 0;
 
-  if (result.empty()) {
-    result = std::move(summand);
-    for (auto it = result.begin(); it != result.end(); ++it) {
-      result_size_increase += eval_map_index_size + it->second.size()*eval_elem<TObject>();
-    }
-    return result_size_increase;
-  }
-
-  for (auto it = summand.begin(); it != summand.end(); ++it)
+  for (auto it = summand.begin(); it != summand.end(); )
   {
-    if (it->second.empty())
-      continue;
-
-    std::vector< TObject >& target = result[it->first];
-    if (target.empty())
-    {
-      target = std::move(it->second);
-      result_size_increase += eval_map_index_size + it->second.size()*eval_elem<TObject>();
+    if (it->second.empty()) {
+      ++it;
       continue;
     }
 
-    if (it->second.size() == 1 && target.size() > 64)
+    auto target = result.find(it->first);
+    if (target == result.end() || (target != result.end() && target->second.empty())) {
+      if (target != result.end() && target->second.empty()) {
+        result.erase(target);
+      }
+      result_size_increase += eval_map_index_size + it->second.size()*eval_elem<TObject>();
+      auto out = it++;
+      const auto status = result.insert(summand.extract(out));
+      assert(status.inserted == true);
+      continue;
+    }
+
+    if (it->second.size() == 1 && target->second.size() > 64)
     {
-      auto it_target = std::lower_bound(target.begin(), target.end(), it->second.front());
-      if (it_target == target.end())
+      auto it_target = std::lower_bound(target->second.begin(), target->second.end(), it->second.front());
+      if (it_target == target->second.end())
       {
-        target.push_back(it->second.front());
+        target->second.push_back(it->second.front());
         result_size_increase += eval_elem<TObject>();
       }
       else if (!(*it_target == it->second.front()))
       {
-        target.insert(it_target, it->second.front());
+        target->second.insert(it_target, it->second.front());
         result_size_increase += eval_elem<TObject>();
       }
     }
     else
     {
       std::vector< TObject > other;
-      other.swap(target);
+      other.swap(target->second);
       std::set_union(it->second.begin(), it->second.end(), other.begin(), other.end(),
-                back_inserter(target), Compare_By_Id< TObject >());
+                back_inserter(target->second), Compare_By_Id< TObject >());
 
-      result_size_increase += eval_elem<TObject>() * (target.size() - other.size());
+      result_size_increase += eval_elem<TObject>() * (target->second.size() - other.size());
     }
+
+    ++it;
   }
 
   return result_size_increase;
