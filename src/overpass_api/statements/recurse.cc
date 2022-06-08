@@ -910,7 +910,7 @@ void relations_loop(const Statement& query, Resource_Manager& rman,
     result = relation_relation_members(query, rman, source);
     sort_second(source);
     sort_second(result);
-    indexed_set_union(result, source);
+    indexed_set_union(result, std::move(source));   // source parameter is a local copy!
     uint new_rel_count = count(result);
     if (new_rel_count == old_rel_count)
       return;
@@ -936,8 +936,8 @@ void relations_loop(const Statement& query, Resource_Manager& rman,
     sort_second(attic_source);
     sort_second(result_pair.first);
     sort_second(result_pair.second);
-    indexed_set_union(result_pair.first, source);
-    indexed_set_union(result_pair.second, attic_source);
+    indexed_set_union(result_pair.first, std::move(source));                // source parameter is a local copy
+    indexed_set_union(result_pair.second, std::move(attic_source));         // attic_source parameter is a local copy
     keep_matching_skeletons(result_pair.first, result_pair.second, rman.get_desired_timestamp());
     uint new_rel_count = count(result_pair.first) + count(result_pair.second);
     if (new_rel_count == old_rel_count)
@@ -962,7 +962,7 @@ void relations_up_loop(const Statement& query, Resource_Manager& rman,
     collect_relations(query, rman, source, result);
     sort_second(source);
     sort_second(result);
-    indexed_set_union(result, source);
+    indexed_set_union(result, std::move(source));     // source parameter is a local copy
     uint new_rel_count = count(result);
     if (new_rel_count == old_rel_count)
       return;
@@ -986,10 +986,10 @@ void relations_up_loop(const Statement& query, Resource_Manager& rman,
     collect_relations(query, rman, source, attic_source, result, attic_result);
     sort_second(source);
     sort_second(result);
-    indexed_set_union(result, source);
+    indexed_set_union(result, std::move(source));     // source parameter is a local copy
     sort_second(attic_source);
     sort_second(attic_result);
-    indexed_set_union(attic_result, attic_source);
+    indexed_set_union(attic_result, std::move(attic_source));  // attic_source parameter is a local copy
     keep_matching_skeletons(result, attic_result, rman.get_desired_timestamp());
     uint new_rel_count = count(result) + count(attic_result);
     if (new_rel_count == old_rel_count)
