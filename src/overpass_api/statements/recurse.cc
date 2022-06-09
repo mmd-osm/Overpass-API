@@ -2729,7 +2729,7 @@ void Recurse_Statement::execute(Resource_Manager& rman)
     swap_components(way_members(this, rman, input_set->ways, input_set->attic_ways, get_pos()),
         into.nodes, into.attic_nodes);
   else if (type == Recurse::DOWN)
-    add_nw_member_objects(rman, this, *input_set, into);
+    add_nw_member_objects(rman, this, *input_set, into, input, this->get_result_name());
   else if (type == Recurse::DOWN_REL)
   {
     if (rman.get_desired_timestamp() == NOW)

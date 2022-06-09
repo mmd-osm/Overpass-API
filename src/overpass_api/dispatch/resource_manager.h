@@ -100,6 +100,18 @@ private:
   timestamp_t diff_to_timestamp;
 };
 
+namespace {
+
+template< typename Object >
+inline void clear_object(Set* s) = delete;
+
+
+template< > inline void clear_object< Way_Skeleton >(Set* s) {
+  auto empty_ways = std::map< Uint31_Index, std::vector< Way_Skeleton > >();
+  s->ways.swap(empty_ways);
+}
+
+}
 
 class Resource_Manager
 {
@@ -126,7 +138,7 @@ public:
     delete area_updater_;
   }
 
-  const Set* get_set(const std::string& set_name);
+  const Set* get_set(const std::string& set_name) const;
   const Diff_Set* get_diff_set(const std::string& set_name);
   const std::string* get_value(const std::string& set_name, const std::string& key);
   const std::map< std::string, std::string >* get_set_key_values(const std::string& set_name);
@@ -147,6 +159,16 @@ public:
   void move_all_inward_except(const std::string& set_name);
   void pop_stack_frame();
   bool set_exists_in_parents(const std::string& set_name);
+
+  template <typename T>
+  void clear_object_in_set(const std::string& set_name) {
+    if (runtime_stack.empty())
+      return;
+
+    Set * s = runtime_stack.back()->get_set(set_name);
+    if (s != nullptr)
+      clear_object<T>(s);
+  }
 
   void count_loop();
 

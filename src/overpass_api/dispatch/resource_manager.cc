@@ -413,7 +413,7 @@ Resource_Manager::Resource_Manager(
 }
 
 
-const Set* Resource_Manager::get_set(const std::string& set_name)
+const Set* Resource_Manager::get_set(const std::string& set_name) const
 {
   if (runtime_stack.empty())
     return nullptr;

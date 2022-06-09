@@ -95,6 +95,10 @@ std::pair< std::map< Uint32_Index, std::vector< Node_Skeleton > >,
      const std::set< std::pair< Uint32_Index, Uint32_Index > >* node_ranges = nullptr,
      const std::vector< Node::Id_Type >* node_ids = nullptr, bool invert_ids = false);
 
+std::map< Uint32_Index, std::vector< Node_Skeleton > > way_members_hybrid
+    (const Statement* stmt, Resource_Manager& rman,
+     const std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways);
+
 template< typename Relation_Skeleton >
 std::vector< Node::Id_Type > relation_node_member_ids
     (Resource_Manager& rman, const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& rels,
@@ -128,6 +132,9 @@ std::vector< Relation::Id_Type > relation_relation_member_ids
      const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& rels,
      const std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > >& attic_rels,
      const uint32* role_id = nullptr);
+
+IdSetHybrid< Node::Id_Type::Id_Type > way_nd_ids_hybrid(
+    const std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways);
 
 std::vector< Node::Id_Type > way_nd_ids(
     const std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
@@ -1162,6 +1169,7 @@ void collect_ways
 
 
 void add_nw_member_objects(Resource_Manager& rman, const Statement* stmt, const Set& input_set, Set& into,
+    std::string input, std::string output,
     const std::set< std::pair< Uint32_Index, Uint32_Index > >* ranges_32 = nullptr,
     const std::set< std::pair< Uint31_Index, Uint31_Index > >* ranges_31 = nullptr);
 

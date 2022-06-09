@@ -22,6 +22,34 @@
 
 //-----------------------------------------------------------------------------
 
+IdSetHybrid< Node::Id_Type::Id_Type > way_nd_ids_hybrid(
+    std::map< Uint31_Index, std::vector< Way_Skeleton > >&& ways)
+{
+  IdSetHybrid< Node::Id_Type::Id_Type > ids;
+
+  for (auto it(ways.cbegin()); it != ways.cend(); ++it)
+  {
+    for (auto it2(it->second.cbegin());
+        it2 != it->second.cend(); ++it2)
+    {
+
+      for (uint i = 0; i < it2->nds().size(); i++) {
+        ids.set(it2->nds()[i].val());
+      }
+    }
+  }
+
+  {
+    std::map< Uint31_Index, std::vector< Way_Skeleton > > empty_ways{};
+    ways.swap(empty_ways);
+  }
+
+  ids.sort_unique();
+
+  return ids;
+}
+
+
 
 std::vector< Node::Id_Type > way_nd_ids(
     const std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
@@ -397,9 +425,14 @@ std::set< std::pair< Uint32_Index, Uint32_Index > > way_nd_indices
       for (auto it2 = it->second.begin();
           it2 != it->second.end(); ++it2)
       {
+        uint32 last = 0;
         for (auto it3 = it2->geometry().begin();
-            it3 != it2->geometry().end(); ++it3)
-          parents.push_back(it3->ll_upper);
+            it3 != it2->geometry().end(); ++it3) {
+          if (last ? it3->ll_upper != last : true) {
+            parents.push_back(it3->ll_upper);
+          }
+          last = it3->ll_upper;
+        }
       }
     }
     else
@@ -724,6 +757,25 @@ std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > > relation_way_memb
   return result;
 }
 
+ std::map< Uint32_Index, std::vector< Node_Skeleton > > items_range_hybrid(
+    const Statement* stmt, Resource_Manager& rman,
+    IdSetHybrid< Node::Id_Type::Id_Type >&& target_ids,
+    const std::set< std::pair< Uint32_Index, Uint32_Index > >& ranges)
+{
+  std::map< Uint32_Index, std::vector< Node_Skeleton > > result;
+  if (target_ids.empty())
+    return result;
+
+  if (!ranges.empty())
+  {
+    Uint32_Index cur_idx = ranges.begin()->first;
+    const auto predicate = Id_Predicate< Node_Skeleton >(std::move(target_ids));
+    while (collect_items_range(stmt, rman, *osm_base_settings().NODES, ranges, predicate, cur_idx, result));
+  }
+
+  return result;
+}
+
 
 std::pair< std::map< Uint32_Index, std::vector< Node_Skeleton > >,
     std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > > > paired_items_range(
@@ -843,6 +895,20 @@ std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > > relation_node_me
   return result;
 }
 
+
+std::map< Uint32_Index, std::vector< Node_Skeleton > > way_members_hybrid(
+    const Statement* stmt, Resource_Manager& rman,
+    std::map< Uint31_Index, std::vector< Way_Skeleton > >&& ways)
+{
+  std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > > attic_ways{};
+  auto way_nd_idx = way_nd_indices(stmt, rman, ways.begin(), ways.end(), attic_ways.begin(), attic_ways.end());
+
+  auto intersect_ids = way_nd_ids_hybrid(std::move(ways));
+  if (stmt)
+    rman.health_check(*stmt);
+
+  return items_range_hybrid(stmt, rman, std::move(intersect_ids), way_nd_idx);
+}
 
 
 
@@ -1341,6 +1407,7 @@ void collect_ways
 
 
 void add_nw_member_objects(Resource_Manager& rman, const Statement* stmt, const Set& input_set, Set& into,
+    std::string input, std::string output,
     const std::set< std::pair< Uint32_Index, Uint32_Index > >* ranges_32,
     const std::set< std::pair< Uint31_Index, Uint31_Index > >* ranges_31)
 {
@@ -1353,9 +1420,18 @@ void add_nw_member_objects(Resource_Manager& rman, const Statement* stmt, const 
     sort_second(source_ways);
     sort_second(into.ways);
     indexed_set_union(source_ways, into.ways);
-    swap_components(way_members(
-        stmt, rman, source_ways, std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >(), nullptr),
-        into.nodes, into.attic_nodes);
+
+    // If both input and output sets are the same, we're overwriting the existing set
+    // at the end of the operation anyway. This opens up an opportunity to get rid
+    // of some of the existing inputset data, as soon as we don't need it anymore.
+    // In this case, we're removing ways from the inputset.
+    if (input == output)  {
+      rman.clear_object_in_set<Way_Skeleton>(input);
+    }
+    auto way_nodes = way_members_hybrid(stmt, rman, std::move(source_ways));
+    into.nodes.swap(way_nodes);
+    auto empty_attic_nodes = std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > >();
+    into.attic_nodes.swap(empty_attic_nodes);
     sort_second(into.nodes);
     sort_second(rel_nodes);
     indexed_set_union(into.nodes, std::move(rel_nodes));

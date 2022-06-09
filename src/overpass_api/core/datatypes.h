@@ -324,6 +324,19 @@ struct Set
   }
 };
 
+inline std::ostream & operator<<(std::ostream &os, const Set& p)
+{
+  return os << "Nodes:        " << p.nodes.size() << "\n"
+            << "Ways:         " << p.ways.size() << "\n"
+            << "Rels:         " << p.relations.size() << "\n"
+            << "Attic nodes:  " << p.attic_nodes.size() << "\n"
+            << "Attic ways:   " << p.attic_ways.size() << "\n"
+            << "Attic rels:   " << p.attic_relations.size() << "\n"
+            << "Areas:        " << p.areas.size() << "\n"
+            << "Deriveds:     " << p.deriveds.size() << "\n";
+}
+
+
 
 struct Error_Output
 {
