@@ -86,7 +86,11 @@ struct Way_Delta;
 template <class T, class Object>
 struct Way_Skeleton_Handle_Methods;
 
-class Way_Skeleton_Data final : public SharedData
+class
+#ifdef HAVE_WORD_ALIGNMENT
+__attribute__ ((packed, aligned(4)))
+#endif
+Way_Skeleton_Data final : public SharedData
 {
 public:
   Way_Skeleton_Data() = default;
@@ -99,7 +103,11 @@ public:
   std::vector< Quad_Coord > geometry;
 };
 
-struct Way_Skeleton
+struct
+#ifdef HAVE_WORD_ALIGNMENT
+__attribute__ ((packed, aligned(4)))
+#endif
+Way_Skeleton
 {
   typedef Way::Id_Type Id_Type;
   typedef Way_Delta Delta;
@@ -197,6 +205,10 @@ struct Way_Skeleton
 private:
   SharedDataPointer<Way_Skeleton_Data> d;
 };
+
+#ifdef HAVE_WORD_ALIGNMENT
+static_assert(sizeof(Way_Skeleton) == 12, "Way_Skeleton has wrong size");
+#endif
 
 
 template <class T, class Object>

@@ -7,6 +7,7 @@
 #cmakedefine HAVE_OVERPASS_XML 1
 #cmakedefine HAVE_POPUP_OUTPUT 1
 #cmakedefine HAVE_CUSTOM_OUTPUT 1
+#cmakedefine HAVE_WORD_ALIGNMENT 1
 #cmakedefine HAVE_LIBOSMIUM ${HAVE_LIBOSMIUM}
 #cmakedefine PACKAGE_VERSION "${PACKAGE_VERSION}"
 #cmakedefine GIT_VERSION "${GIT_VERSION}"

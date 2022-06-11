@@ -117,7 +117,11 @@ public:
 };
 
 
-struct Relation_Skeleton
+struct
+#ifdef HAVE_WORD_ALIGNMENT
+__attribute__ ((packed, aligned(4)))
+#endif
+Relation_Skeleton
 {
   typedef Relation::Id_Type Id_Type;
   typedef Relation_Delta Delta;

@@ -25,6 +25,7 @@ option(HAVE_TCMALLOC  "Build with tcmalloc library" ON)
 option(HAVE_LZ4       "Build with lz4 library" ON)
 option(HAVE_OPENMP    "Build with OpenMP" ON)
 option(BUILD_TESTS    "Build test suite" OFF)
+option(HAVE_WORD_ALIGNMENT "Build some structures as packed with 4-byte alignment" OFF)
 option(USE_UNITY_BUILD "Enable Unity Build" OFF)
 option(ENABLE_INSTALL "Enable installation" ON)
 

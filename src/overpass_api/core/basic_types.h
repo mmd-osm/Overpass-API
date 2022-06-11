@@ -25,6 +25,11 @@
 
 #include <protozero/varint.hpp>
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#undef VERSION
+#endif
+
 #include "../../template_db/types.h"
 
 typedef unsigned int uint;
@@ -522,7 +527,11 @@ template <class T, class Object, class Element_Skeleton>
 struct Attic_Handle_Methods;
 
 template< typename Element_Skeleton >
-struct Attic : public Element_Skeleton
+struct
+#ifdef HAVE_WORD_ALIGNMENT
+__attribute__ ((packed, aligned(4)))
+#endif
+Attic : public Element_Skeleton
 {
   static_assert(!is_base_of_any< Attic , Element_Skeleton >::value, "Nested attic: Element_Skeleton may not be an Attic struct itself");
 

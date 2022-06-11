@@ -41,7 +41,6 @@
 #define open64 open
 #endif
 
-
 typedef unsigned int uint;
 
 typedef char int8;
