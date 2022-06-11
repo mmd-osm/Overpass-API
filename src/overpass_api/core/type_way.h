@@ -80,9 +80,9 @@ struct Way_Equal_Id {
 };
 
 // ------------------------------------------------------------------------------------------
-#define DENSE_WAYS
 
-#ifdef DENSE_WAYS
+
+#ifdef HAVE_DENSE_WAYS
 
 namespace osm3s_experimental {
 
@@ -541,7 +541,7 @@ inline auto Way_Skeleton_Dense_Data::geometry() const { return geometry_type<con
 
 // ------------------------------------------------------------------------------------------
 
-#ifdef DENSE_WAYS
+#ifdef HAVE_DENSE_WAYS
 
  using Way_Skeleton_Data_Type = osm3s_experimental::Way_Skeleton_Dense_Data;
 
@@ -594,6 +594,7 @@ struct Way_Delta;
 struct
 #ifdef HAVE_WORD_ALIGNMENT
 __attribute__ ((packed, aligned(4)))
+#endif
 Way_Skeleton
 {
   typedef Way::Id_Type Id_Type;
@@ -645,7 +646,7 @@ Way_Skeleton
     d = new Way_Skeleton_Data_Type(nds_, geometry_);
   }
 
-#ifdef DENSE_WAYS
+#ifdef HAVE_DENSE_WAYS
   auto nds() { return d->nds(); }
   auto nds() const { return d->nds(); }
 
@@ -872,7 +873,7 @@ struct Way_Delta
   Way_Skeleton expand(const Way_Skeleton& reference) const
   {
     Way_Skeleton result(id);
- #ifndef DENSE_WAYS
+ #ifndef HAVE_DENSE_WAYS
     if (full)
     {
       result.nds().reserve(nds_added.size());
@@ -903,7 +904,7 @@ struct Way_Delta
   Way_Skeleton expand_fast(Way_Skeleton& reference) const
   {
     Way_Skeleton result(id);
-#ifndef DENSE_WAYS
+#ifndef HAVE_DENSE_WAYS
     if (full)
     {
       result.nds().reserve(nds_added.size());
