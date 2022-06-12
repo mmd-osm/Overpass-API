@@ -134,7 +134,11 @@ std::vector< Relation::Id_Type > relation_relation_member_ids
      const uint32* role_id = nullptr);
 
 IdSetHybrid< Node::Id_Type::Id_Type > way_nd_ids_hybrid(
+    std::map< Uint31_Index, std::vector< Way_Skeleton > >&& ways);
+
+IdSetHybrid< Node::Id_Type::Id_Type > way_nd_ids_hybrid(
     const std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways);
+
 
 std::vector< Node::Id_Type > way_nd_ids(
     const std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,

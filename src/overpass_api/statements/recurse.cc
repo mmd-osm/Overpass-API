@@ -2725,9 +2725,19 @@ void Recurse_Statement::execute(Resource_Manager& rman)
             into.nodes, into.attic_nodes);
     }
   }
-  else if (type == Recurse::WAY_NODE)
-    swap_components(way_members(this, rman, input_set->ways, input_set->attic_ways, get_pos()),
-        into.nodes, into.attic_nodes);
+  else if (type == Recurse::WAY_NODE) {
+
+    if (rman.get_desired_timestamp() == NOW && get_pos() == nullptr) {
+      auto way_nodes = way_members_hybrid(this, rman, input_set->ways);
+      into.nodes.swap(way_nodes);
+      std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > > ().swap(into.attic_nodes);
+    }
+    else
+    {
+      swap_components(way_members(this, rman, input_set->ways, input_set->attic_ways, get_pos()),
+          into.nodes, into.attic_nodes);
+    }
+  }
   else if (type == Recurse::DOWN)
     add_nw_member_objects(rman, this, *input_set, into, input, this->get_result_name());
   else if (type == Recurse::DOWN_REL)

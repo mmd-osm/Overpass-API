@@ -39,16 +39,34 @@ IdSetHybrid< Node::Id_Type::Id_Type > way_nd_ids_hybrid(
     }
   }
 
-  {
-    std::map< Uint31_Index, std::vector< Way_Skeleton > > empty_ways{};
-    ways.swap(empty_ways);
-  }
+  std::map< Uint31_Index, std::vector< Way_Skeleton > >().swap(ways);
 
   ids.sort_unique();
 
   return ids;
 }
 
+IdSetHybrid< Node::Id_Type::Id_Type > way_nd_ids_hybrid(
+    const std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways)
+{
+  IdSetHybrid< Node::Id_Type::Id_Type > ids;
+
+  for (auto it(ways.cbegin()); it != ways.cend(); ++it)
+  {
+    for (auto it2(it->second.cbegin());
+        it2 != it->second.cend(); ++it2)
+    {
+
+      for (uint i = 0; i < it2->nds().size(); i++) {
+        ids.set(it2->nds()[i].val());
+      }
+    }
+  }
+
+  ids.sort_unique();
+
+  return ids;
+}
 
 
 std::vector< Node::Id_Type > way_nd_ids(
@@ -910,6 +928,19 @@ std::map< Uint32_Index, std::vector< Node_Skeleton > > way_members_hybrid(
   return items_range_hybrid(stmt, rman, std::move(intersect_ids), way_nd_idx);
 }
 
+std::map< Uint32_Index, std::vector< Node_Skeleton > > way_members_hybrid(
+    const Statement* stmt, Resource_Manager& rman,
+    const std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways)
+{
+  std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > > attic_ways{};
+  auto way_nd_idx = way_nd_indices(stmt, rman, ways.begin(), ways.end(), attic_ways.begin(), attic_ways.end());
+
+  auto intersect_ids = way_nd_ids_hybrid(ways);
+  if (stmt)
+    rman.health_check(*stmt);
+
+  return items_range_hybrid(stmt, rman, std::move(intersect_ids), way_nd_idx);
+}
 
 
 std::pair< std::map< Uint32_Index, std::vector< Node_Skeleton > >,
