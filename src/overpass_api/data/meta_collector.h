@@ -268,11 +268,13 @@ void Meta_Collector< Index, Id_Type, Functor >::update_current_objects(const Ind
 
   if (db_it)
   {
-    while (!(*db_it == meta_db->discrete_end()) && (db_it->index() < index))
+    while (!(*db_it == meta_db->discrete_end()) && (Index(db_it->index_handle().id()) < index)) {
+      db_it->skip_current_index();
       ++(*db_it);
+    }
     if (!(*db_it == meta_db->discrete_end()))
-      *current_index = db_it->index();
-    while (!(*db_it == meta_db->discrete_end()) && (*current_index == db_it->index()))
+      *current_index = Index(db_it->index_handle().id());
+    while (!(*db_it == meta_db->discrete_end()) && (*current_index == Index(db_it->index_handle().id())))
     {
       if (m_functor(db_it->handle().get_element())) {
         db_it->handle().add_element(current_objects);
@@ -282,11 +284,13 @@ void Meta_Collector< Index, Id_Type, Functor >::update_current_objects(const Ind
   }
   else if (range_it)
   {
-    while (!(*range_it == meta_db->range_end()) && (range_it->index() < index))
+    while (!(*range_it == meta_db->range_end()) && (Index(range_it->index_handle().id()) < index)) {
+      range_it->skip_current_index();
       ++(*range_it);
+    }
     if (!(*range_it == meta_db->range_end()))
-      *current_index = range_it->index();
-    while (!(*range_it == meta_db->range_end()) && (*current_index == range_it->index()))
+      *current_index = Index(range_it->index_handle().id());
+    while (!(*range_it == meta_db->range_end()) && (*current_index == Index(range_it->index_handle().id())))
     {
       if (m_functor(range_it->handle().get_element())) {
         range_it->handle().add_element(current_objects);

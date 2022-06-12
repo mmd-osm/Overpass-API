@@ -350,12 +350,25 @@ void collect_tags_framed
 {
   const std::vector< Id_Type > & ids_by_coarse_ref = ids_by_coarse[coarse_index];
 
-  while ((!(tag_it == items_db.range_end())) &&
-      (((tag_it.index_handle().get_index()) & 0x7fffff00) < coarse_index))
-    ++tag_it;
-  while ((!(tag_it == items_db.range_end())) &&
-      (((tag_it.index_handle().get_index()) & 0x7fffff00) == coarse_index))
+  while (!(tag_it == items_db.range_end()))
   {
+    if (tag_it.start_of_new_index()) {
+      if (!((tag_it.index_handle().get_index() & 0x7fffff00) < coarse_index)) {
+        break;
+      }
+      tag_it.skip_current_index();
+    }
+    ++tag_it;
+  }
+
+  while (!(tag_it == items_db.range_end()))
+  {
+    if (tag_it.start_of_new_index()) {
+      if (!((tag_it.index_handle().get_index() & 0x7fffff00) == coarse_index)) {
+        break;
+      }
+    }
+
     Id_Type current(tag_it.handle().id());     // avoid creating a new object instance via object()
 
     if (!(current < lower_id_bound) &&
