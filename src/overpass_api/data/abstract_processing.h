@@ -416,8 +416,8 @@ inline bool has_a_child_with_id_hybrid
   }
   else
   {
-    for (auto it3(way.nds().begin());
-        it3 != way.nds().end(); ++it3)
+    for (auto it3(way.nds().cbegin());
+        it3 != way.nds().cend(); ++it3)
     {
       if (ids.get((*it3).val()))
         return true;
@@ -455,9 +455,9 @@ public:
   bool match(const Relation_Skeleton& obj) const
   { return has_a_child_with_id_and_role(obj, ids, child_type, role_id); }
   bool match(const Handle< Relation_Skeleton >& h) const
-  { return has_a_child_with_id_and_role(h.object(), ids, child_type, role_id); }
+  { return has_a_child_with_id_and_role(h.get_element(), ids, child_type, role_id); }
   bool match(const Handle< Attic< Relation_Skeleton > >& h) const
-  { return has_a_child_with_id_and_role(h.object(), ids, child_type, role_id); }
+  { return has_a_child_with_id_and_role(h.get_element(), ids, child_type, role_id); }
   bool is_time_dependent() const { return true; };
 
 private:
@@ -473,8 +473,8 @@ public:
   Get_Parent_Ways_Predicate(const std::vector< Node::Id_Type >& ids_, const std::vector< int >* pos_)
     : ids(ids_), pos(pos_) {}
   bool match(const Way_Skeleton& obj) const { return has_a_child_with_id(obj, pos, ids); }
-  bool match(const Handle< Way_Skeleton >& h) const { return has_a_child_with_id(h.object(), pos, ids); }
-  bool match(const Handle< Attic< Way_Skeleton > >& h) const { return has_a_child_with_id(h.object(), pos, ids); }
+  bool match(const Handle< Way_Skeleton >& h) const { return has_a_child_with_id(h.get_element(), pos, ids); }
+  bool match(const Handle< Attic< Way_Skeleton > >& h) const { return has_a_child_with_id(h.get_element(), pos, ids); }
   bool is_time_dependent() const { return true; };
 
 private:
@@ -488,8 +488,29 @@ class Get_Parent_Ways_Predicate_Hybrid
 public:
   Get_Parent_Ways_Predicate_Hybrid(IdSetHybrid< Node::Id_Type::Id_Type> && set, const std::vector< int >* pos_) : ids(std::move(set)), pos(pos_) {}
   bool match(const Way_Skeleton& obj) const { return has_a_child_with_id_hybrid(obj, pos, ids); }
-  bool match(const Handle< Way_Skeleton >& h) const { return has_a_child_with_id_hybrid(h.object(), pos, ids); }
-  bool match(const Handle< Attic< Way_Skeleton > >& h) const { return has_a_child_with_id_hybrid(h.object(), pos, ids); }
+  bool match(const Handle< Way_Skeleton >& h) const {
+
+    if (!pos) {
+      auto id_functor = [&] (Node_Skeleton::Id_Type id) {
+        return (ids.get(id.val()));
+      };
+      return h.matches_any<Node_Skeleton::Id_Type>(id_functor);
+    }
+
+    return has_a_child_with_id_hybrid(h.get_element(), pos, ids);
+  }
+
+  bool match(const Handle< Attic< Way_Skeleton > >& h) const {
+
+    if (!pos) {
+      auto id_functor = [&] (Node_Skeleton::Id_Type id) {
+        return (ids.get(id.val()));
+      };
+      return h.matches_any<Node_Skeleton::Id_Type>(id_functor);
+    }
+
+    return has_a_child_with_id_hybrid(h.get_element(), pos, ids);
+  }
   bool is_time_dependent() const { return true; };
 
 private:

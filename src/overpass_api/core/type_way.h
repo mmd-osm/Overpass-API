@@ -214,11 +214,11 @@ static_assert(sizeof(Way_Skeleton) == 12, "Way_Skeleton has wrong size");
 template <class T, class Object>
 struct Way_Skeleton_Handle_Methods
 {
-  typename Object::Id_Type inline id() const {
+  [[nodiscard]] typename Object::Id_Type inline id() const {
      return (static_cast<const T*>(this)->apply_func(Way_Skeleton_Id_Functor<typename Object::Id_Type>()));
   }
 
-  Object inline get_element() const {
+  [[nodiscard]] Object inline get_element() const {
     return (static_cast<const T*>(this)->apply_func(Generic_Element_Functor<Object>()));
   }
 
@@ -226,8 +226,13 @@ struct Way_Skeleton_Handle_Methods
     static_cast<const T*>(this)->apply_func(Generic_Add_Element_Functor<Object>(v));
   }
 
-  uint16 inline get_nds_size() const {
+  [[nodiscard]] uint16 inline get_nds_size() const {
     return (static_cast<const T*>(this)->apply_func(Way_Skeleton_Nds_Size_Functor()));
+  }
+
+  template <typename Id_Type, typename Functor>
+  [[nodiscard]] bool inline matches_any(Functor& f) const {
+    return (static_cast<const T*>(this)->apply_func(Way_Skeleton_Matchers_Any_Nds_Ids_Functor<Id_Type, Functor>(f)));
   }
 
 private:
@@ -237,10 +242,10 @@ private:
 
     using reference_type = Way_Skeleton;
 
-    Id_Type operator()(const void* data) const
-     {
-       return unalignedLoad<Id_Type>(data);
-     }
+    [[nodiscard]] Id_Type operator()(const void* data) const
+    {
+      return unalignedLoad<Id_Type>(data);
+    }
   };
 
   struct Way_Skeleton_Nds_Size_Functor {
@@ -248,10 +253,25 @@ private:
 
     using reference_type = Way_Skeleton;
 
-    uint16 operator()(const void* data) const
-     {
-       return unalignedLoad<uint16>((uint16*)data + 2);
-     }
+    [[nodiscard]] uint16 operator()(const void* data) const
+    {
+      return unalignedLoad<uint16>((uint16*)data + 2);
+    }
+  };
+
+  template <typename Id_Type, typename Functor>
+  struct Way_Skeleton_Matchers_Any_Nds_Ids_Functor {
+    Way_Skeleton_Matchers_Any_Nds_Ids_Functor(Functor& f_) :  f(f_) {};
+
+    using reference_type = Way_Skeleton;
+
+    [[nodiscard]] inline bool operator()(const void* data) const
+    {
+      return decompress_ids_matches_any<Id_Type>( *((uint16*)data + 2), *((uint16*)data + 4), ((uint8*)data + 10), f);
+    }
+
+  private:
+    Functor& f;
   };
 };
 

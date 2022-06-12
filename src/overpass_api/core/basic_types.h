@@ -1010,7 +1010,7 @@ uint8* compress_ids(const std::vector< Id_Type >& ids_, uint8* buffer_)
 }
 
 template <typename Id_Type, typename Functor >
-uint8* decompress_ids(const uint16 ids_count, const uint16 ids_bytes, uint8* buffer_, Functor& f)
+void decompress_ids(const uint16 ids_count, const uint16 ids_bytes, uint8* buffer_, Functor& f)
 {
   const char* current = (char*) buffer_;
   const char* end = (char*)(buffer_ + ids_bytes);
@@ -1022,11 +1022,28 @@ uint8* decompress_ids(const uint16 ids_count, const uint16 ids_bytes, uint8* buf
     auto value = protozero::decode_varint(&current, end);
     int64_t delta = protozero::decode_zigzag64(value);
     id += delta;
-    f(id);   // Call functor as callback
+    f(static_cast<const Id_Type>(id));   // Call functor as callback
   }
-  if ((current - (char*) buffer_) & 1)    // add padding byte
-    current++;
-  return (uint8*) current;
+}
+
+// Function iterates over all nodes in a way as long as the functor does not return "true" (=match found)
+template <typename Id_Type, typename Functor >
+[[nodiscard]] bool decompress_ids_matches_any(const uint16 ids_count, const uint16 ids_bytes, uint8* buffer_, Functor& f)
+{
+  const char* current = (char*) buffer_;
+  const char* end = (char*)(buffer_ + ids_bytes);
+
+  Id_Type id = (uint64) 0;
+
+  for (int i=0; i<ids_count;i++)
+  {
+    auto value = protozero::decode_varint(&current, end);
+    int64_t delta = protozero::decode_zigzag64(value);
+    id += delta;
+    if (f(static_cast<const Id_Type>(id)))      // did the callback function indicate that a match was found for "id"?
+      return true;  // match found, we're done.
+  }
+  return false;
 }
 
 template <typename Id_Type >
