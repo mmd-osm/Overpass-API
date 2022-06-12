@@ -560,8 +560,13 @@ void Tag_Store< Index, Object >::prefetch_chunk(const std::map< Index, std::vect
 
   tags_by_id.clear();
 
+  {
+    std::map< uint32, std::vector< typename Object::Id_Type > > empty_ids;
+    ids_by_coarse.swap(empty_ids);
+  }
+
   //generate std::set of relevant coarse indices
-  generate_ids_by_coarse(ids_by_coarse, elems, true);
+  generate_ids_by_coarse(ids_by_coarse, elems, lower_id_bound, upper_id_bound, true);
 
   Block_Backend< Tag_Index_Local, typename Object::Id_Type > items_db
       (transaction->data_index(current_local_tags_file_properties< Object >()));

@@ -222,10 +222,9 @@ void Meta_Collector< Index, Id_Type, Functor >::reset()
     }
     while (!(*db_it == meta_db->discrete_end()) && (*current_index == db_it->index()))
     {
-      auto obj = db_it->handle().get_element();
-
-      if (m_functor(obj))
-        current_objects.push_back(std::move(obj));
+      if (m_functor(db_it->handle().get_element())) {
+        db_it->handle().add_element(current_objects);
+      }
       ++(*db_it);
     }
   }
@@ -246,9 +245,9 @@ void Meta_Collector< Index, Id_Type, Functor >::reset()
     }
     while (!(*range_it == meta_db->range_end()) && (*current_index == range_it->index()))
     {
-      auto obj = range_it->handle().get_element();
-      if (m_functor(obj))
-        current_objects.push_back(std::move(obj));
+      if (m_functor(range_it->handle().get_element())) {
+        range_it->handle().add_element(current_objects);
+      }
       ++(*range_it);
     }
   }
@@ -275,10 +274,9 @@ void Meta_Collector< Index, Id_Type, Functor >::update_current_objects(const Ind
       *current_index = db_it->index();
     while (!(*db_it == meta_db->discrete_end()) && (*current_index == db_it->index()))
     {
-      auto obj = db_it->handle().get_element();
-
-      if (m_functor(obj))
-        current_objects.push_back(std::move(obj));
+      if (m_functor(db_it->handle().get_element())) {
+        db_it->handle().add_element(current_objects);
+      }
       ++(*db_it);
     }
   }
@@ -290,9 +288,9 @@ void Meta_Collector< Index, Id_Type, Functor >::update_current_objects(const Ind
       *current_index = range_it->index();
     while (!(*range_it == meta_db->range_end()) && (*current_index == range_it->index()))
     {
-      auto obj = range_it->handle().get_element();
-      if (m_functor(obj))
-        current_objects.push_back(std::move(obj));
+      if (m_functor(range_it->handle().get_element())) {
+        range_it->handle().add_element(current_objects);
+      }
       ++(*range_it);
     }
   }

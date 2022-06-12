@@ -494,11 +494,13 @@ std::vector< std::pair< const Object*, uint32 > > collect_items_by_id(
 {
   std::vector< std::pair< const Object*, uint32 > > items_by_id;
 
+  items_by_id.reserve(count(items));
+
   for (auto it(items.begin()); it != items.end(); ++it)
   {
     for (auto it2(it->second.begin());
         it2 != it->second.end(); ++it2)
-      items_by_id.push_back(std::make_pair(&(*it2), it->first.val()));
+      items_by_id.emplace_back(&(*it2), it->first.val());
   }
   sort(items_by_id.begin(), items_by_id.end(),
        Skeleton_Comparator_By_Id< Object >());
@@ -572,7 +574,7 @@ void by_id
 
 
 template< class Index, class Object >
-void collect_metadata(std::set< OSM_Element_Metadata_Skeleton< typename Object::Id_Type > >& metadata,
+void collect_metadata(std::vector< OSM_Element_Metadata_Skeleton< typename Object::Id_Type > >& metadata,
 		      const std::map< Index, std::vector< Object > >& items,
 		      typename Object::Id_Type lower_id_bound, typename Object::Id_Type upper_id_bound,
 		      Meta_Collector< Index, typename Object::Id_Type >& meta_printer)
@@ -587,15 +589,17 @@ void collect_metadata(std::set< OSM_Element_Metadata_Skeleton< typename Object::
 	const OSM_Element_Metadata_Skeleton< typename Object::Id_Type >* meta
 	    = meta_printer.get(it->first, it2->id);
 	if (meta)
-	  metadata.insert(*meta);
+	  metadata.push_back(*meta);
       }
     }
   }
+  std::sort(metadata.begin(), metadata.end());
+  metadata.erase(std::unique(metadata.begin(), metadata.end()), metadata.end());
 }
 
 
 template< class Index, class Object >
-void collect_metadata(std::set< OSM_Element_Metadata_Skeleton< typename Object::Id_Type > >& metadata,
+void collect_metadata(std::vector< OSM_Element_Metadata_Skeleton< typename Object::Id_Type > >& metadata,
                       const std::map< Index, std::vector< Attic< Object > > >& items,
                       typename Object::Id_Type lower_id_bound, typename Object::Id_Type upper_id_bound,
                       Attic_Meta_Collector< Index, Object >& meta_printer)
@@ -610,20 +614,23 @@ void collect_metadata(std::set< OSM_Element_Metadata_Skeleton< typename Object::
         const OSM_Element_Metadata_Skeleton< typename Object::Id_Type >* meta
             = meta_printer.get(it->first, it2->id, it2->timestamp);
         if (meta)
-          metadata.insert(*meta);
+          metadata.push_back(*meta);
       }
     }
   }
+  std::sort(metadata.begin(), metadata.end());
+  metadata.erase(std::unique(metadata.begin(), metadata.end()), metadata.end());
 }
 
 
 template< typename Id_Type >
-typename std::set< OSM_Element_Metadata_Skeleton< Id_Type > >::const_iterator
+typename std::vector< OSM_Element_Metadata_Skeleton< Id_Type > >::const_iterator
     find_matching_metadata
-    (const std::set< OSM_Element_Metadata_Skeleton< Id_Type > >& metadata,
+    (const std::vector< OSM_Element_Metadata_Skeleton< Id_Type > >& metadata,
      Id_Type ref, timestamp_t timestamp)
 {
-  auto it = metadata.lower_bound(OSM_Element_Metadata_Skeleton< Id_Type >(ref, timestamp));
+  auto it = std::lower_bound(metadata.begin(), metadata.end(), OSM_Element_Metadata_Skeleton< Id_Type >(ref, timestamp));
+
   if (it == metadata.begin())
     return metadata.end();
   --it;
@@ -661,7 +668,7 @@ void tags_by_id
 
     tag_store.prefetch_chunk(items, lower_id_bound, upper_id_bound);
 
-    std::set< OSM_Element_Metadata_Skeleton< typename Object::Id_Type > > metadata;
+    std::vector< OSM_Element_Metadata_Skeleton< typename Object::Id_Type > > metadata;
     if (meta_printer)
     {
       // collect metadata if required
@@ -675,9 +682,9 @@ void tags_by_id
     {
       if (++element_count > limit)
 	return;
-      auto meta_it
-          = metadata.lower_bound(OSM_Element_Metadata_Skeleton< typename Object::Id_Type >
-              (items_by_id[i.val()].first->id));
+      auto meta_it = std::lower_bound(metadata.begin(), metadata.end(),
+                       OSM_Element_Metadata_Skeleton< typename Object::Id_Type > (items_by_id[i.val()].first->id));
+
       print_item(extra_data, output, items_by_id[i.val()].second, *(items_by_id[i.val()].first),
 		 tag_store.get(Index(items_by_id[i.val()].second), *items_by_id[i.val()].first),
 		 (meta_it != metadata.end() && meta_it->ref == items_by_id[i.val()].first->id) ?
@@ -724,13 +731,13 @@ void tags_by_id_attic
     attic_tag_store.prefetch_chunk(attic_items, lower_id_bound, upper_id_bound);
 
     // collect metadata if required
-    std::set< OSM_Element_Metadata_Skeleton< typename Object::Id_Type > > only_current_metadata;
+    std::vector< OSM_Element_Metadata_Skeleton< typename Object::Id_Type > > only_current_metadata;
     collect_metadata(only_current_metadata, current_items, lower_id_bound, upper_id_bound,
 		     only_current_meta_printer);
     only_current_meta_printer.reset();
 
     Attic_Meta_Collector< Index, Object > meta_printer(attic_items, transaction, extra_data.mode & Output_Mode::META);
-    std::set< OSM_Element_Metadata_Skeleton< typename Object::Id_Type > > attic_metadata;
+    std::vector< OSM_Element_Metadata_Skeleton< typename Object::Id_Type > > attic_metadata;
     collect_metadata(attic_metadata, attic_items, lower_id_bound, upper_id_bound, meta_printer);
 
     // print the result
@@ -741,9 +748,9 @@ void tags_by_id_attic
 	return;
       if (items_by_id[i.val()].timestamp == NOW)
       {
-        auto meta_it
-            = only_current_metadata.lower_bound(OSM_Element_Metadata_Skeleton< typename Object::Id_Type >
-                (items_by_id[i.val()].obj->id));
+        auto meta_it = std::lower_bound(only_current_metadata.begin(), only_current_metadata.end(),
+                          OSM_Element_Metadata_Skeleton< typename Object::Id_Type > (items_by_id[i.val()].obj->id));
+
         print_item(extra_data, output, items_by_id[i.val()].idx.val(), *items_by_id[i.val()].obj,
 		 current_tag_store.get(items_by_id[i.val()].idx, *items_by_id[i.val()].obj),
 		 (meta_it != only_current_metadata.end() && meta_it->ref == items_by_id[i.val()].obj->id) ?

@@ -1066,6 +1066,8 @@ std::vector< Id_Type > extract_children_ids(const std::map< TIndex, std::vector<
 {
   std::vector< Id_Type > ids;
 
+  ids.reserve(count(elems));
+
   {
     for (auto it(elems.begin()); it != elems.end(); ++it)
     {
@@ -1080,11 +1082,40 @@ std::vector< Id_Type > extract_children_ids(const std::map< TIndex, std::vector<
   return ids;
 }
 
+template< class TIndex, class TObject, class Id_Type >
+IdSetHybrid< Id_Type> extract_children_ids_hybrid(const std::map< TIndex, std::vector< TObject > >& elems)
+{
+  IdSetHybrid< Id_Type > ids;
+  {
+    for (auto it(elems.begin()); it != elems.end(); ++it)
+    {
+      for (auto it2(it->second.begin());
+          it2 != it->second.end(); ++it2)
+        ids.set(it2->id.val());
+    }
+  }
+  return ids;
+}
+
+template< class TIndex, class TObject, class Id_Type >
+void extract_children_ids_hybrid(const std::map< TIndex, std::vector< TObject > >& elems, IdSetHybrid< Id_Type >& ids)
+{
+  {
+    for (auto it(elems.begin()); it != elems.end(); ++it)
+    {
+      for (auto it2(it->second.begin());
+          it2 != it->second.end(); ++it2)
+        ids.set(it2->id.val());
+    }
+  }
+}
+
 
 template< class TIndex, class TObject >
 std::set< Uint31_Index > extract_parent_indices(const std::map< TIndex, std::vector< TObject > >& elems)
 {
   std::vector< uint32 > children;
+  children.reserve(elems.size());
   {
     for (auto it(elems.begin()); it != elems.end(); ++it)
       children.push_back(it->first.val());

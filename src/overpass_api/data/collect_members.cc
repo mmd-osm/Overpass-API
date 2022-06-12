@@ -1294,13 +1294,14 @@ void collect_ways
      const std::vector< int >* pos,
      std::map< Uint31_Index, std::vector< Way_Skeleton > >& result)
 {
-  std::vector< Node::Id_Type > ids = extract_children_ids< Uint32_Index, Node_Skeleton, Node::Id_Type >(nodes);
+  auto ids = extract_children_ids_hybrid< Uint32_Index, Node_Skeleton, Node::Id_Type::Id_Type >(nodes);
+  ids.sort_unique();
   rman.health_check(stmt);
   std::set< Uint31_Index > req = extract_parent_indices(nodes);
   rman.health_check(stmt);
 
   collect_items_discrete(&stmt, rman, *osm_base_settings().WAYS, req,
-      Get_Parent_Ways_Predicate(ids, pos), result);
+      Get_Parent_Ways_Predicate_Hybrid(std::move(ids), pos), result);
 }
 
 
@@ -1311,7 +1312,8 @@ void collect_ways
      std::map< Uint31_Index, std::vector< Way_Skeleton > >& result,
      const std::vector< Way::Id_Type >& ids, bool invert_ids)
 {
-  std::vector< Node::Id_Type > children_ids = extract_children_ids< Uint32_Index, Node_Skeleton, Node::Id_Type >(nodes);
+  auto children_ids = extract_children_ids_hybrid< Uint32_Index, Node_Skeleton, Node::Id_Type::Id_Type >(nodes);
+  children_ids.sort_unique();
   rman.health_check(stmt);
   std::set< Uint31_Index > req = extract_parent_indices(nodes);
   rman.health_check(stmt);
@@ -1319,16 +1321,16 @@ void collect_ways
   if (!invert_ids)
     collect_items_discrete(&stmt, rman, *osm_base_settings().WAYS, req,
         And_Predicate< Way_Skeleton,
-	    Id_Predicate< Way_Skeleton >, Get_Parent_Ways_Predicate >
-	    (Id_Predicate< Way_Skeleton >(ids), Get_Parent_Ways_Predicate(children_ids, pos)), result);
+	    Id_Predicate< Way_Skeleton >, Get_Parent_Ways_Predicate_Hybrid >
+	    (Id_Predicate< Way_Skeleton >(ids), Get_Parent_Ways_Predicate_Hybrid(std::move(children_ids), pos)), result);
   else
     collect_items_discrete(&stmt, rman, *osm_base_settings().WAYS, req,
         And_Predicate< Way_Skeleton,
 	    Not_Predicate< Way_Skeleton, Id_Predicate< Way_Skeleton > >,
-	    Get_Parent_Ways_Predicate >
+	    Get_Parent_Ways_Predicate_Hybrid >
 	    (Not_Predicate< Way_Skeleton, Id_Predicate< Way_Skeleton > >
 	      (Id_Predicate< Way_Skeleton >(ids)),
-	     Get_Parent_Ways_Predicate(children_ids, pos)), result);
+	     Get_Parent_Ways_Predicate_Hybrid(std::move(children_ids), pos)), result);
 }
 
 
@@ -1340,25 +1342,23 @@ void collect_ways
      std::map< Uint31_Index, std::vector< Way_Skeleton > >& result,
      std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >& attic_result)
 {
-  std::vector< Node::Id_Type > current_ids = extract_children_ids< Uint32_Index, Node_Skeleton, Node::Id_Type >(nodes);
+  auto ids = extract_children_ids_hybrid< Uint32_Index, Node_Skeleton, Node::Id_Type::Id_Type >(nodes);
   rman.health_check(stmt);
   std::set< Uint31_Index > req = extract_parent_indices(nodes);
   rman.health_check(stmt);
 
-  std::vector< Node::Id_Type > attic_ids = extract_children_ids< Uint32_Index, Attic< Node_Skeleton >, Node::Id_Type >
-      (attic_nodes);
+  extract_children_ids_hybrid< Uint32_Index, Attic< Node_Skeleton >, Node::Id_Type::Id_Type >(attic_nodes, ids);
   rman.health_check(stmt);
   std::set< Uint31_Index > attic_req = extract_parent_indices(attic_nodes);
   rman.health_check(stmt);
 
-  std::vector< Node::Id_Type > ids;
-  std::set_union(current_ids.begin(), current_ids.end(), attic_ids.begin(), attic_ids.end(),
-                 std::back_inserter(ids));
+  ids.sort_unique();
+
   for (auto it = attic_req.begin(); it != attic_req.end(); ++it)
     req.insert(*it);
 
   collect_items_discrete_by_timestamp(&stmt, rman, req,
-      Get_Parent_Ways_Predicate(ids, pos), result, attic_result);
+      Get_Parent_Ways_Predicate_Hybrid(std::move(ids), pos), result, attic_result);
 }
 
 
@@ -1371,37 +1371,35 @@ void collect_ways
      std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >& attic_result,
      const std::vector< Way::Id_Type >& ids, bool invert_ids)
 {
-  std::vector< Node::Id_Type > current_ids = extract_children_ids< Uint32_Index, Node_Skeleton, Node::Id_Type >(nodes);
+  auto children_ids = extract_children_ids_hybrid< Uint32_Index, Node_Skeleton, Node::Id_Type::Id_Type >(nodes);
   rman.health_check(stmt);
   std::set< Uint31_Index > req = extract_parent_indices(nodes);
   rman.health_check(stmt);
 
-  std::vector< Node::Id_Type > attic_ids = extract_children_ids< Uint32_Index, Attic< Node_Skeleton >, Node::Id_Type >
-      (attic_nodes);
+  extract_children_ids_hybrid< Uint32_Index, Attic< Node_Skeleton >, Node::Id_Type::Id_Type >(attic_nodes, children_ids);
   rman.health_check(stmt);
   std::set< Uint31_Index > attic_req = extract_parent_indices(attic_nodes);
   rman.health_check(stmt);
 
-  std::vector< Node::Id_Type > children_ids;
-  std::set_union(current_ids.begin(), current_ids.end(), attic_ids.begin(), attic_ids.end(),
-                 std::back_inserter(children_ids));
+  children_ids.sort_unique();
+
   for (auto it = attic_req.begin(); it != attic_req.end(); ++it)
     req.insert(*it);
 
   if (!invert_ids)
     collect_items_discrete_by_timestamp(&stmt, rman, req,
         And_Predicate< Way_Skeleton,
-            Id_Predicate< Way_Skeleton >, Get_Parent_Ways_Predicate >
-            (Id_Predicate< Way_Skeleton >(ids), Get_Parent_Ways_Predicate(children_ids, pos)),
+            Id_Predicate< Way_Skeleton >, Get_Parent_Ways_Predicate_Hybrid >
+            (Id_Predicate< Way_Skeleton >(ids), Get_Parent_Ways_Predicate_Hybrid(std::move(children_ids), pos)),
         result, attic_result);
   else
     collect_items_discrete_by_timestamp(&stmt, rman, req,
         And_Predicate< Way_Skeleton,
             Not_Predicate< Way_Skeleton, Id_Predicate< Way_Skeleton > >,
-            Get_Parent_Ways_Predicate >
+            Get_Parent_Ways_Predicate_Hybrid >
             (Not_Predicate< Way_Skeleton, Id_Predicate< Way_Skeleton > >
               (Id_Predicate< Way_Skeleton >(ids)),
-             Get_Parent_Ways_Predicate(children_ids, pos)),
+             Get_Parent_Ways_Predicate_Hybrid(std::move(children_ids), pos)),
         result, attic_result);
 }
 

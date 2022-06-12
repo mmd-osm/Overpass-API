@@ -605,6 +605,10 @@ struct Metadata_Handle_Methods
      return (static_cast<const T*>(this)->apply_func(Metadata_Changeset_Functor<typename Object::Id_Type>()));
   }
 
+  void inline add_element(std::vector< Object > & v) const {
+    static_cast<const T*>(this)->apply_func(Generic_Add_Element_Functor<Object>(v));
+  }
+
 private:
 
   template <typename Id_Type >

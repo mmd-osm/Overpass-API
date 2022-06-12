@@ -171,7 +171,9 @@ class IdSetHybrid {
    */
   void sort_unique() {
     for (auto& v : m_data_vector) {
-      std::sort(v.begin(), v.end());
+      if (!std::is_sorted(v.begin(), v.end())) {
+        std::sort(v.begin(), v.end());
+      }
       v.erase(std::unique(v.begin(), v.end()), v.end());
     }
   }
@@ -365,6 +367,66 @@ inline bool has_a_child_with_id
   return false;
 }
 
+inline bool has_a_child_with_id_hybrid
+    (const Relation_Skeleton& relation, const IdSetHybrid< Node::Id_Type::Id_Type>& ids, uint32 type)
+{
+  for (auto it3(relation.members().begin());
+      it3 != relation.members().end(); ++it3)
+  {
+    if (it3->type == type &&
+        ids.get(it3->ref.val()))
+      return true;
+  }
+  return false;
+}
+
+
+inline bool has_a_child_with_id_and_role_hybrid
+    (const Relation_Skeleton& relation, const IdSetHybrid< Node::Id_Type::Id_Type> & ids, uint32 type, uint32 role_id)
+{
+  for (auto it3(relation.members().begin());
+      it3 != relation.members().end(); ++it3)
+  {
+    if (it3->type == type && it3->role == role_id &&
+        ids.get(it3->ref.val()))
+      return true;
+  }
+  return false;
+}
+
+
+inline bool has_a_child_with_id_hybrid
+    (const Way_Skeleton& way, const std::vector< int >* pos, const IdSetHybrid< Node::Id_Type::Id_Type>& ids)
+{
+  if (pos)
+  {
+    auto it3 = pos->begin();
+    for (; it3 != pos->end() && *it3 < 0; ++it3)
+    {
+      if (*it3 + (int)way.nds().size() >= 0 &&
+          ids.get(way.nds()[*it3 + way.nds().size()].val()))
+        return true;
+    }
+    for (; it3 != pos->end(); ++it3)
+    {
+      if (*it3 > 0 && *it3 < (int)way.nds().size()+1 &&
+          ids.get(way.nds()[*it3-1].val()))
+        return true;
+    }
+  }
+  else
+  {
+    for (auto it3(way.nds().begin());
+        it3 != way.nds().end(); ++it3)
+    {
+      if (ids.get((*it3).val()))
+        return true;
+    }
+  }
+  return false;
+}
+
+
 
 class Get_Parent_Rels_Predicate
 {
@@ -417,6 +479,21 @@ public:
 
 private:
   const std::vector< Node::Id_Type >& ids;
+  const std::vector< int >* pos;
+};
+
+
+class Get_Parent_Ways_Predicate_Hybrid
+{
+public:
+  Get_Parent_Ways_Predicate_Hybrid(IdSetHybrid< Node::Id_Type::Id_Type> && set, const std::vector< int >* pos_) : ids(std::move(set)), pos(pos_) {}
+  bool match(const Way_Skeleton& obj) const { return has_a_child_with_id_hybrid(obj, pos, ids); }
+  bool match(const Handle< Way_Skeleton >& h) const { return has_a_child_with_id_hybrid(h.object(), pos, ids); }
+  bool match(const Handle< Attic< Way_Skeleton > >& h) const { return has_a_child_with_id_hybrid(h.object(), pos, ids); }
+  bool is_time_dependent() const { return true; };
+
+private:
+  IdSetHybrid< typename Node::Id_Type::Id_Type> ids;
   const std::vector< int >* pos;
 };
 

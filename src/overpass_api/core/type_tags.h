@@ -20,6 +20,7 @@
 #define DE__OSM3S___OVERPASS_API__CORE__TYPE_TAGS_H
 
 #include <algorithm>
+#include <iostream>
 #include <map>
 #include <set>
 #include <string>
@@ -331,14 +332,46 @@ void generate_ids_by_coarse
   for (auto it = ids_by_coarse.begin(); it != ids_by_coarse.end(); ++it)
   {
     std::vector< typename TObject::Id_Type >& ids_by_coarse_ = it->second;
-    std::sort(ids_by_coarse_.begin(), ids_by_coarse_.end());
+    if (!std::is_sorted(ids_by_coarse_.begin(), ids_by_coarse_.end())) {
+      std::sort(ids_by_coarse_.begin(), ids_by_coarse_.end());
+    }
     ids_by_coarse_.erase(std::unique(ids_by_coarse_.begin(), ids_by_coarse_.end()), ids_by_coarse_.end());
   }
-//  for (typename std::map< uint32, std::vector< typename TObject::Id_Type > >::iterator
-//      it = ids_by_coarse.begin(); it != ids_by_coarse.end(); ++it)
-//    std::sort(it->second.begin(), it->second.end());
 }
 
+
+template< class TIndex, class TObject >
+void generate_ids_by_coarse
+  (std::map< uint32, std::vector< typename TObject::Id_Type > >& ids_by_coarse,
+   const std::map< TIndex, std::vector< TObject > >& items,
+   typename TObject::Id_Type lower_id_bound, typename TObject::Id_Type upper_id_bound,
+   bool skip_empty = false)
+{
+  for (auto it(items.begin()); it != items.end(); ++it)
+  {
+    if (skip_empty && it->second.empty()) {
+      continue;
+    }
+
+    std::vector< typename TObject::Id_Type >& ids_by_coarse_ = ids_by_coarse[it->first.val() & 0x7fffff00];
+
+    for (auto it2(it->second.begin());
+        it2 != it->second.end(); ++it2) {
+      if (!(it2->id < lower_id_bound) && it2->id < upper_id_bound) {
+        ids_by_coarse_.push_back(it2->id);
+      }
+    }
+  }
+
+  for (auto it = ids_by_coarse.begin(); it != ids_by_coarse.end(); ++it)
+  {
+    std::vector< typename TObject::Id_Type >& ids_by_coarse_ = it->second;
+    if (!std::is_sorted(ids_by_coarse_.begin(), ids_by_coarse_.end())) {
+      std::sort(ids_by_coarse_.begin(), ids_by_coarse_.end());
+    }
+    ids_by_coarse_.erase(std::unique(ids_by_coarse_.begin(), ids_by_coarse_.end()), ids_by_coarse_.end());
+  }
+}
 
 
 template< class TIndex, class TObject >
@@ -610,7 +643,7 @@ struct Tag_Object_Global
     unalignedStore(data, (uint32)((idx.val()>>8) & 0x7fffff));
     id.to_data((void*)((uint8*)data + 3));
   }
-  
+
   bool operator<(const Tag_Object_Global& a) const noexcept
   {
     if (id < a.id)
