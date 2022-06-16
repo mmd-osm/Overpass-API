@@ -146,7 +146,6 @@ void Output_Osmium::write_footer()
   header.reset();
 
   shutdown_pipe();
-
 }
 
 void Output_Osmium::display_remark(const std::string& text)
@@ -166,6 +165,61 @@ void Output_Osmium::print_global_bbox(const Bbox_Double& bbox)
   // Intentionally empty
 }
 
+template <class Builder>
+void Output_Osmium::add_tags(Builder & builder, const std::vector< std::pair< std::string, std::string > >* tags)
+{
+  if (tags == nullptr || tags->empty())
+    return;
+
+  osmium::builder::TagListBuilder tag_builder{builder};
+  for (auto & [key, value] : *tags)
+    tag_builder.add_tag(key, value);
+}
+
+template <class Builder, class Id_Type>
+void Output_Osmium::add_meta(Builder & builder, const OSM_Element_Metadata_Skeleton< Id_Type >* meta, const user_id_name_t* users)
+{
+  builder.set_version(meta->version)
+         .set_changeset(meta->changeset)
+         .set_uid(meta->user_id)
+         .set_timestamp(osmium::Timestamp(as_time_t(meta->timestamp)));
+
+  if (meta->user_id > 0 && meta->user_id == prev_user_id) {
+    builder.set_user(users->at(prev_user_index).second);
+    return;
+  }
+
+  auto it = std::lower_bound(users->begin(), users->end(), meta->user_id, User_Comparator_By_Id{});
+  if (it != users->end() && meta->user_id == it->first) {
+    builder.set_user(it->second);
+    prev_user_id = meta->user_id;
+    prev_user_index = std::distance(users->begin(), it);
+  }
+  else {
+    builder.set_user("???");
+    prev_user_id = 0;
+    prev_user_index = 0;
+  }
+}
+
+void Output_Osmium::add_members(osmium::builder::RelationBuilder & builder,
+                                const Relation_Skeleton& skel,
+                                const std::map< uint32, std::string >* roles)
+{
+  osmium::builder::RelationMemberListBuilder rml_builder{buffer, &builder};
+
+  for (uint i = 0; i < skel.members().size(); ++i)
+  {
+    std::map< uint32, std::string >::const_iterator it = roles->find(skel.members()[i].role);
+
+    // osm3s:  NODE=1, WAY=2, REL=3,
+    // osmium: NODE=0, WAY=1, REL=2
+    rml_builder.add_member(osmium::nwr_index_to_item_type(skel.members()[i].type - 1),
+                          static_cast<osmium::object_id_type>(skel.members()[i].ref.val()),
+                          (it != roles->end() ? it->second : "???") );
+  }
+}
+
 void Output_Osmium::print_item(const Node_Skeleton& skel,
       const Opaque_Geometry& geometry,
       const std::vector< std::pair< std::string, std::string > >* tags,
@@ -178,50 +232,29 @@ void Output_Osmium::print_item(const Node_Skeleton& skel,
       const std::vector< std::pair< std::string, std::string > >* new_tags,
       const OSM_Element_Metadata_Skeleton< Node::Id_Type >* new_meta)
 {
-  using namespace osmium::builder::attr;
-
-  osmium::Location loc;
-
-  if (mode & Output_Mode::ID) { }
-
-  if (mode & (Output_Mode::COORDS | Output_Mode::GEOMETRY | Output_Mode::BOUNDS | Output_Mode::CENTER))
   {
-    loc.set_lat(geometry.center_lat());
-    loc.set_lon(geometry.center_lon());
-  }
+    osmium::builder::NodeBuilder builder{buffer};
 
-  std::vector<pair_of_cstrings> tag_list;
+    osmium::Location loc;
 
-  if ((tags != nullptr) && (!tags->empty()))
-  {
-    for (std::vector< std::pair< std::string, std::string > >::const_iterator it(tags->begin());
-        it != tags->end(); ++it)
-      tag_list.push_back(std::make_pair(it->first.c_str(), it->second.c_str()));
-  }
+    if (mode & Output_Mode::ID) { }
 
-  if ((mode.mode & (Output_Mode::VERSION | Output_Mode::META)) && meta && users)
-  {
-    auto it = std::lower_bound(users->begin(), users->end(), meta->user_id, User_Comparator_By_Id{});
-    std::string user =  (it != users->end() ? it->second : "???" );
+    if (mode & (Output_Mode::COORDS | Output_Mode::GEOMETRY | Output_Mode::BOUNDS | Output_Mode::CENTER))
+    {
+      loc.set_lat(geometry.center_lat());
+      loc.set_lon(geometry.center_lon());
+    }
 
-    osmium::builder::add_node(buffer,
-        _id(skel.id.val()),
-        _version(meta->version),
-        _timestamp(osmium::Timestamp(as_time_t(meta->timestamp))),
-        _cid(meta->changeset),
-        _uid(meta->user_id),
-        _location(loc),
-        _user(user),
-        _tags(tag_list)
-    );
+    builder.set_id(skel.id.val())
+          .set_visible(true)
+          .set_location(loc);
+
+    if ((mode.mode & (Output_Mode::VERSION | Output_Mode::META)) && meta && users)
+      add_meta(builder, meta, users);
+
+    add_tags(builder, tags);
   }
-  else
-  {
-    osmium::builder::add_node(buffer,
-            _id(skel.id.val()),
-            _location(loc),
-            _tags(tag_list));
-  }
+  buffer.commit();
 
   maybe_flush();
 }
@@ -238,17 +271,21 @@ void Output_Osmium::print_item(const Way_Skeleton& skel,
       const std::vector< std::pair< std::string, std::string > >* new_tags,
       const OSM_Element_Metadata_Skeleton< Way::Id_Type >* new_meta)
 {
-  using namespace osmium::builder::attr;
-
-  std::vector<osmium::NodeRef> nrvec;
-
-  if (((tags == nullptr) || (tags->empty())) &&
-      ((mode & (Output_Mode::NDS | Output_Mode::GEOMETRY | Output_Mode::BOUNDS | Output_Mode::CENTER)) == 0))
-    ;
-  else
   {
-    if (mode & Output_Mode::NDS)
+    osmium::builder::WayBuilder builder{buffer};
+
+    builder.set_id(skel.id.val())
+           .set_visible(true);
+
+    if ((mode.mode & (Output_Mode::VERSION | Output_Mode::META)) && meta && users)
+      add_meta(builder, meta, users);
+
+    if (((tags == nullptr) || (tags->empty())) &&
+        ((mode & (Output_Mode::NDS | Output_Mode::GEOMETRY | Output_Mode::BOUNDS | Output_Mode::CENTER)) == 0))
+      ;
+    else if (mode & Output_Mode::NDS)
     {
+      osmium::builder::WayNodeListBuilder wnl_builder{buffer, &builder};
 
       for (uint i = 0; i < skel.nds().size(); ++i)
       {
@@ -261,44 +298,12 @@ void Output_Osmium::print_item(const Way_Skeleton& skel,
           location.set_lon(geometry.way_pos_lon(i));
         }
 
-        nrvec.push_back(osmium::NodeRef{ref, location});
+        wnl_builder.add_node_ref(osmium::NodeRef (ref, location));
       }
     }
+    add_tags(builder, tags);
   }
-
-  std::vector<pair_of_cstrings> tag_list;
-
-  if ((tags != nullptr) && (!tags->empty()))
-  {
-    for (std::vector< std::pair< std::string, std::string > >::const_iterator it(tags->begin());
-        it != tags->end(); ++it)
-      tag_list.push_back(std::make_pair(it->first.c_str(), it->second.c_str()));
-  }
-
-  if ((mode.mode & (Output_Mode::VERSION | Output_Mode::META)) && meta && users)
-  {
-    auto it = std::lower_bound(users->begin(), users->end(), meta->user_id, User_Comparator_By_Id{});
-    std::string user =  (it != users->end() ? it->second : "???" );
-
-    osmium::builder::add_way(buffer,
-        _id(skel.id.val()),
-        _version(meta->version),
-        _timestamp(osmium::Timestamp(as_time_t(meta->timestamp))),
-        _cid(meta->changeset),
-        _uid(meta->user_id),
-        _nodes(nrvec),
-        _user(user),
-        _tags(tag_list)
-    );
-  }
-  else
-  {
-    osmium::builder::add_way(buffer,
-        _id(skel.id.val()),
-        _nodes(nrvec),
-        _tags(tag_list)
-    );
-  }
+  buffer.commit();
 
   maybe_flush();
 }
@@ -316,78 +321,25 @@ void Output_Osmium::print_item(const Relation_Skeleton& skel,
       const std::vector< std::pair< std::string, std::string > >* new_tags,
       const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* new_meta)
 {
-  using namespace osmium::builder::attr;
-
-  std::vector<member_type> members;
-
-  if (((tags == nullptr) || (tags->empty())) &&
-      ((mode & (Output_Mode::NDS | Output_Mode::GEOMETRY | Output_Mode::BOUNDS | Output_Mode::CENTER)) == 0))
-    ;
-  else
   {
-    if (mode & Output_Mode::MEMBERS)
+    osmium::builder::RelationBuilder builder{buffer};
+
+    builder.set_id(skel.id.val())
+           .set_visible(true);
+
+    if ((mode.mode & (Output_Mode::VERSION | Output_Mode::META)) && meta && users)
+      add_meta(builder, meta, users);
+
+    if (((tags == nullptr) || (tags->empty())) &&
+        ((mode & (Output_Mode::NDS | Output_Mode::GEOMETRY | Output_Mode::BOUNDS | Output_Mode::CENTER)) == 0))
+      ;
+    else if (mode & Output_Mode::MEMBERS)
     {
-      for (uint i = 0; i < skel.members().size(); ++i)
-      {
-        std::map< uint32, std::string >::const_iterator it = roles->find(skel.members()[i].role);
-
-        osmium::item_type type;
-
-        switch(skel.members()[i].type) {
-
-        case 1:
-          type = osmium::item_type::node;
-          break;
-        case 2:
-          type = osmium::item_type::way;
-          break;
-        case 3:
-          type = osmium::item_type::relation;
-          break;
-        default:
-          continue;
-        }
-
-        members.push_back(member_type{type,
-          (osmium::object_id_type) skel.members()[i].ref.val(),
-          it != roles->end() ? it->second.c_str() : "???" });
-      }
+      add_members(builder, skel, roles);
     }
+    add_tags(builder, tags);
   }
-
-  std::vector<pair_of_cstrings> tag_list;
-
-  if ((tags != nullptr) && (!tags->empty()))
-  {
-    for (std::vector< std::pair< std::string, std::string > >::const_iterator it(tags->begin());
-        it != tags->end(); ++it)
-      tag_list.push_back(std::make_pair(it->first.c_str(), it->second.c_str()));
-  }
-
-  if ((mode.mode & (Output_Mode::VERSION | Output_Mode::META)) && meta && users)
-  {
-    auto it = std::lower_bound(users->begin(), users->end(), meta->user_id, User_Comparator_By_Id{});
-    std::string user =  (it != users->end() ? it->second : "???" );
-
-    osmium::builder::add_relation(buffer,
-        _id(skel.id.val()),
-        _version(meta->version),
-        _timestamp(osmium::Timestamp(as_time_t(meta->timestamp))),
-        _cid(meta->changeset),
-        _uid(meta->user_id),
-        _members(members),
-        _user(user),
-        _tags(tag_list)
-    );
-  }
-  else
-  {
-    osmium::builder::add_relation(buffer,
-        _id(skel.id.val()),
-        _members(members),
-        _tags(tag_list)
-    );
-  }
+  buffer.commit();
 
   maybe_flush();
 }
@@ -404,7 +356,6 @@ void Output_Osmium::print_item(const Derived_Skeleton& skel,
 void Output_Osmium::maybe_flush()
 {
   try {
-
     if (buffer.committed() > 800*1024) {
       osmium::memory::Buffer _buffer{1024*1024};
       using std::swap;
