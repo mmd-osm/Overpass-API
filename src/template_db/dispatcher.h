@@ -202,6 +202,7 @@ class Dispatcher
 
     static const uint32 RATE_LIMITED = 31;
     static const uint32 QUERY_REJECTED = 32;
+    static const uint32 QUERY_OUTSIDE_GLOBAL_LIMITS = 33;
 
     static const uint32 WRITE_START = 101;
     static const uint32 WRITE_ROLLBACK = 102;

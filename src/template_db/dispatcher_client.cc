@@ -235,8 +235,14 @@ void Dispatcher_Client::request_read_and_idx(uint32 max_allowed_time, uint64 max
     send_message(req_read_and_idx_msg, "Dispatcher_Client::request_read_and_idx::socket::1");
     
     ack = ack_arrived();
-    if (ack == Dispatcher::REQUEST_READ_AND_IDX)
+    if (ack == Dispatcher::REQUEST_READ_AND_IDX) {
       return;
+    }
+    else if (ack == Dispatcher::QUERY_OUTSIDE_GLOBAL_LIMITS) {
+      // we reuse existing error message, it will result in http 504 and "The server is probably too busy to handle your request"
+      // that's good enough for excessively large queries
+      throw Timeout_Error(dispatcher_share_name, "Dispatcher_Client::request_read_and_idx::timeout");
+    }
 
     millisleep(300);
   }

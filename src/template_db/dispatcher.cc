@@ -276,6 +276,13 @@ bool Global_Resource_Planner::is_active(pid_t pid) const
 
 int Global_Resource_Planner::probe(pid_t pid, uint32 client_token, uint32 time_units, uint64 max_space)
 {
+  // Simple checks: query can never be fulfilled, waiting for 15s is futile, hence reject unconditionally.
+  if (max_space > (global_available_space / 2) ||
+      time_units > (global_available_time / 2))
+  {
+    return Dispatcher::QUERY_OUTSIDE_GLOBAL_LIMITS;
+  }
+
   auto pending_it = pending.find(client_token);
   Pending_Client* handle = nullptr;
   uint32 cur_time = time(nullptr);
