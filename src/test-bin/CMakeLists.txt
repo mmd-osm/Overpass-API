@@ -306,18 +306,18 @@ add_executable(generate_test_file_meta ../overpass_api/osm-backend/generate_test
 add_executable(node_updater $<TARGET_OBJECTS:updater_common_test>
                             $<TARGET_OBJECTS:types_test> $<TARGET_OBJECTS:compression_test>
                             ../overpass_api/osm-backend/node_updater.test.cc)
-target_link_libraries(node_updater PUBLIC ${EXPAT_LIBRARIES} ${LIBRT} ${COMPRESSION_LIBS} ${OPENMP_TARGET_LINK})
+target_link_libraries(node_updater PUBLIC Threads::Threads ${EXPAT_LIBRARIES} ${LIBRT} ${COMPRESSION_LIBS} ${OPENMP_TARGET_LINK})
 
 
 add_executable(way_updater $<TARGET_OBJECTS:updater_common_test>
                             ../overpass_api/osm-backend/way_updater.test.cc
                             ../overpass_api/osm-backend/way_updater.cc
                             $<TARGET_OBJECTS:types_test> $<TARGET_OBJECTS:compression_test>)
-target_link_libraries(way_updater PUBLIC ${EXPAT_LIBRARIES} ${LIBRT} ${COMPRESSION_LIBS} ${OPENMP_TARGET_LINK})
+target_link_libraries(way_updater PUBLIC Threads::Threads ${EXPAT_LIBRARIES} ${LIBRT} ${COMPRESSION_LIBS} ${OPENMP_TARGET_LINK})
 
 add_executable(relation_updater $<TARGET_OBJECTS:updater_common_test>
                             ../overpass_api/osm-backend/relation_updater.test.cc
                             ../overpass_api/osm-backend/way_updater.cc
                             ../overpass_api/osm-backend/relation_updater.cc
                             $<TARGET_OBJECTS:types_test> $<TARGET_OBJECTS:compression_test>)
-target_link_libraries(relation_updater PUBLIC ${EXPAT_LIBRARIES} ${LIBRT} ${COMPRESSION_LIBS} ${OPENMP_TARGET_LINK})
+target_link_libraries(relation_updater PUBLIC Threads::Threads ${EXPAT_LIBRARIES} ${LIBRT} ${COMPRESSION_LIBS} ${OPENMP_TARGET_LINK})
