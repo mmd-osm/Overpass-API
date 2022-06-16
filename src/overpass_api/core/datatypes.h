@@ -966,37 +966,35 @@ private:
 
 namespace {
 
-// source: https://github.com/osmcode/libosmium/blob/master/include/osmium/osm/timestamp.hpp
+// modified version from https://github.com/osmcode/libosmium/blob/master/include/osmium/osm/timestamp.hpp
 
 
-void add_2digit_int_to_string(int value, std::string& out)  {
-    assert(value >= 0 && value <= 99);
-    if (value > 9) {
-        const int dec = value / 10;
-        out += static_cast<char>('0' + dec);
-        value -= dec * 10;
-    } else {
-        out += '0';
-    }
-    out += static_cast<char>('0' + value);
+void add_2digit_int_to_char(int value, char*& out)  {
+
+  if (value > 9) {
+      const int dec = value / 10;
+      *out++ = static_cast<char>('0' + dec);
+      value -= dec * 10;
+  } else {
+      *out++ = '0';
+  }
+  *out++ = static_cast<char>('0' + value);
 }
 
-void add_4digit_int_to_string(int value, std::string& out)  {
-    assert(value >= 0 && value <= 9999);
+void add_4digit_int_to_char(int value, char*& out)  {
+  const int dec1 = value / 1000;
+  *out++ = static_cast<char>('0' + dec1);
+  value -= dec1 * 1000;
 
-    const int dec1 = value / 1000;
-    out += static_cast<char>('0' + dec1);
-    value -= dec1 * 1000;
+  const int dec2 = value / 100;
+  *out++ = static_cast<char>('0' + dec2);
+  value -= dec2 * 100;
 
-    const int dec2 = value / 100;
-    out += static_cast<char>('0' + dec2);
-    value -= dec2 * 100;
+  const int dec3 = value / 10;
+  *out++ = static_cast<char>('0' + dec3);
+  value -= dec3 * 10;
 
-    const int dec3 = value / 10;
-    out += static_cast<char>('0' + dec3);
-    value -= dec3 * 10;
-
-    out += static_cast<char>('0' + value);
+  *out++ = static_cast<char>('0' + value);
 }
 
 }
@@ -1073,23 +1071,39 @@ struct Timestamp_64
     if (timestamp == std::numeric_limits< unsigned long long >::max())
       return "NOW";
 
-    std::string s;
-    s.reserve(20);
+    std::string res(20, ' ');
+    char* p = &res[0];
 
-    add_4digit_int_to_string(year(), s);
-    s += '-';
-    add_2digit_int_to_string(month(), s);
-    s += '-';
-    add_2digit_int_to_string(day(), s);
-    s += 'T';
-    add_2digit_int_to_string(hour(), s);
-    s += ':';
-    add_2digit_int_to_string(minute(), s);
-    s += ':';
-    add_2digit_int_to_string(second(), s);
-    s += 'Z';
+    add_4digit_int_to_char(year(), p);
+    *p++ = '-';
+    add_2digit_int_to_char(month(), p);
+    *p++ = '-';
+    add_2digit_int_to_char(day(), p);
+    *p++ = 'T';
+    add_2digit_int_to_char(hour(), p);
+    *p++ = ':';
+    add_2digit_int_to_char(minute(), p);
+    *p++ = ':';
+    add_2digit_int_to_char(second(), p);
+    *p++ = 'Z';
 
-    return s;
+    return res;
+  }
+
+  inline time_t to_time_t() const
+  {
+    std::tm tm;
+    tm.tm_year = year() - 1900;
+    tm.tm_mon  = month() - 1;
+    tm.tm_mday = day();
+    tm.tm_hour = hour();
+    tm.tm_min  = minute();
+    tm.tm_sec  = second();
+    tm.tm_wday = 0;
+    tm.tm_yday = 0;
+    tm.tm_isdst = 0;
+
+    return timegm(&tm);
   }
 
   uint32 size_of() const
@@ -1207,23 +1221,39 @@ struct Timestamp
     if (timestamp == std::numeric_limits< uint32 >::max())
       return "NOW";
 
-    std::string s;
-    s.reserve(20);
+    std::string res(20, ' ');
+    char* p = &res[0];
 
-    add_4digit_int_to_string(year(), s);
-    s += '-';
-    add_2digit_int_to_string(month(), s);
-    s += '-';
-    add_2digit_int_to_string(day(), s);
-    s += 'T';
-    add_2digit_int_to_string(hour(), s);
-    s += ':';
-    add_2digit_int_to_string(minute(), s);
-    s += ':';
-    add_2digit_int_to_string(second(), s);
-    s += 'Z';
+    add_4digit_int_to_char(year(), p);
+    *p++ = '-';
+    add_2digit_int_to_char(month(), p);
+    *p++ = '-';
+    add_2digit_int_to_char(day(), p);
+    *p++ = 'T';
+    add_2digit_int_to_char(hour(), p);
+    *p++ = ':';
+    add_2digit_int_to_char(minute(), p);
+    *p++ = ':';
+    add_2digit_int_to_char(second(), p);
+    *p++ = 'Z';
 
-    return s;
+    return res;
+  }
+
+  inline time_t to_time_t() const
+  {
+    std::tm tm;
+    tm.tm_year = year() - 1900;
+    tm.tm_mon  = month() - 1;
+    tm.tm_mday = day();
+    tm.tm_hour = hour();
+    tm.tm_min  = minute();
+    tm.tm_sec  = second();
+    tm.tm_wday = 0;
+    tm.tm_yday = 0;
+    tm.tm_isdst = 0;
+
+    return timegm(&tm);
   }
 
   uint32 size_of() const

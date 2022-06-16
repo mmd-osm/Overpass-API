@@ -23,11 +23,6 @@
 #include <string>
 
 
-std::string iso_string(timestamp_t timestamp)
-{
-  return Timestamp(timestamp).str();
-}
-
 
 void write_html_header
     (const std::string& timestamp, const std::string& area_timestamp, uint write_mime, bool write_js_init,
