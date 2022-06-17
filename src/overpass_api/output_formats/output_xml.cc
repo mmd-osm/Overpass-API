@@ -21,7 +21,7 @@
 #include "../frontend/basic_formats.h"
 #include "output_xml.h"
 
-#include <fmt/core.h>
+#include <fmt/format.h>
 
 bool Output_XML::write_http_headers()
 {
@@ -65,21 +65,22 @@ void Output_XML::display_error(const std::string& text)
 
 void Output_XML::print_global_bbox(const Bbox_Double& bbox)
 {
-  std::cout<< fmt::format(R"(  <bounds minlat="{:.7f}" minlon="{:.7f}" maxlat="{:.7f}" maxlon="{:.7f}"/>{})", bbox.south, bbox.west, bbox.north, bbox.east, "\n\n");
+  std::cout<< fmt::format(FMT_STRING(R"(  <bounds minlat="{:.7f}" minlon="{:.7f}" maxlat="{:.7f}" maxlon="{:.7f}"/>{})"), bbox.south, bbox.west, bbox.north, bbox.east, "\n\n");
 }
-
 
 template< typename Id_Type >
 void Output_XML::print_meta_xml(const OSM_Element_Metadata_Skeleton< Id_Type >& meta,
 		    const user_id_name_t& users)
 {
-  std::cout<<" version=\""<<meta.version<<"\" timestamp=\""<<iso_string(meta.timestamp)
-      <<"\" changeset=\""<<meta.changeset<<"\" uid=\""<<meta.user_id<<"\"";
   std::string user = get_user(meta, users);
-  if (!user.empty())
-    std::cout<<" user=\""<<escape_xml(user)<<"\"";
+  if (user.empty()) {
+    std::cout << fmt::format(FMT_STRING(R"( version="{:d}" timestamp="{}" changeset="{:d}" uid="{:d}")"), meta.version, iso_string(meta.timestamp), meta.changeset, meta.user_id);
+  }
+  else
+  {
+    std::cout << fmt::format(FMT_STRING(R"( version="{:d}" timestamp="{}" changeset="{:d}" uid="{:d}" user="{}")"), meta.version, iso_string(meta.timestamp), meta.changeset, meta.user_id, escape_xml(user));
+  }
 }
-
 
 void prepend_action(const Output_Handler::Feature_Action& action, bool allow_delta = true)
 {
@@ -146,9 +147,8 @@ void print_tags(const std::vector< std::pair< std::string, std::string > >* tags
       std::cout<<">\n";
       inner_tags_printed = true;
     }
-    for (auto it = tags->begin();
-	 it != tags->end(); ++it)
-      std::cout<<"    <tag k=\""<<escape_xml(it->first)<<"\" v=\""<<escape_xml(it->second)<<"\"/>\n";
+    for (auto & [key, value]: *tags)
+      std::cout<< fmt::format(FMT_STRING(R"(    <tag k="{}" v="{}"/>{})"), escape_xml(key), escape_xml(value), '\n');
   }
 }
 
@@ -162,8 +162,8 @@ void print_bounds(const Opaque_Geometry& geometry, Output_Mode mode, bool& inner
       std::cout<<">\n";
       inner_tags_printed = true;
     }
-    std::cout<< fmt::format(R"(    <bounds minlat="{:.7f}" minlon="{:.7f}" maxlat="{:.7f}" maxlon="{:.7f}"/>{})",
-                                   geometry.south(), geometry.west(), geometry.north(), geometry.east(), "\n");
+    std::cout<< fmt::format(FMT_STRING(R"(    <bounds minlat="{:.7f}" minlon="{:.7f}" maxlat="{:.7f}" maxlon="{:.7f}"/>{})"),
+                                   geometry.south(), geometry.west(), geometry.north(), geometry.east(), '\n');
   }
   else if ((mode.mode & Output_Mode::CENTER) && geometry.has_center())
   {
@@ -172,7 +172,7 @@ void print_bounds(const Opaque_Geometry& geometry, Output_Mode mode, bool& inner
       std::cout<<">\n";
       inner_tags_printed = true;
     }
-    std::cout<< fmt::format(R"(    <center lat="{:.7f}" lon="{:.7f}"/>{})", geometry.center_lat(), geometry.center_lon(), "\n");
+    std::cout<< fmt::format(FMT_STRING(R"(    <center lat="{:.7f}" lon="{:.7f}"/>{})"), geometry.center_lat(), geometry.center_lon(), '\n');
   }
 }
 
@@ -287,10 +287,10 @@ void print_members(const Way_Skeleton& skel, const Opaque_Geometry& geometry,
     {
       if (geometry.has_faithful_way_geometry() && geometry.way_pos_is_valid(i)) {
 
-        std::cout<< fmt::format(R"(    <nd ref="{}" lat="{:.7f}" lon="{:.7f}"/>{})",
-                                      skel.nds()[i].val(), geometry.way_pos_lat(i), geometry.way_pos_lon(i), "\n");
+        std::cout<< fmt::format(FMT_STRING(R"(    <nd ref="{}" lat="{:.7f}" lon="{:.7f}"/>{})"),
+                                      skel.nds()[i].val(), geometry.way_pos_lat(i), geometry.way_pos_lon(i), '\n');
       } else {
-        std::cout<< fmt::format(R"(    <nd ref="{}"/>{})", skel.nds()[i].val(), "\n");
+        std::cout<< fmt::format(FMT_STRING(R"(    <nd ref="{}"/>{})"), skel.nds()[i].val(), '\n');
       }
 
     }
@@ -319,7 +319,7 @@ void print_members(const Relation_Skeleton& skel, const Opaque_Geometry& geometr
       if (skel.members()[i].type == Relation_Entry::NODE)
       {
 	if (geometry.has_faithful_relation_geometry() && geometry.relation_pos_is_valid(i))
-	  std::cout<< fmt::format(R"( lat="{:.7f}" lon="{:.7f}")", geometry.relation_pos_lat(i), geometry.relation_pos_lon(i));
+	  std::cout<< fmt::format(FMT_STRING(R"( lat="{:.7f}" lon="{:.7f}")"), geometry.relation_pos_lat(i), geometry.relation_pos_lon(i));
 
         std::cout<<"/>\n";
       }
@@ -341,8 +341,8 @@ void print_members(const Relation_Skeleton& skel, const Opaque_Geometry& geometr
 	    for (uint j = 0; j < geometry.relation_way_size(i); ++j)
 	    {
 	      if (geometry.relation_pos_is_valid(i, j))
-	          std::cout<< fmt::format(R"(      <nd lat="{:.7f}" lon="{:.7f}"/>{})",
-	                                  geometry.relation_pos_lat(i, j), geometry.relation_pos_lon(i, j), "\n");
+	          std::cout<< fmt::format(FMT_STRING(R"(      <nd lat="{:.7f}" lon="{:.7f}"/>{})"),
+	                                  geometry.relation_pos_lat(i, j), geometry.relation_pos_lon(i, j), '\n');
               else
                   std::cout<<"      <nd/>\n";
 	    }
@@ -369,7 +369,7 @@ void Output_XML::print_node(const Node_Skeleton& skel,
     std::cout<<" id=\""<<skel.id.val()<<'\"';
   if ((mode.mode & (Output_Mode::COORDS | Output_Mode::GEOMETRY | Output_Mode::BOUNDS | Output_Mode::CENTER))
       && geometry.has_center())
-      std::cout<< fmt::format(R"( lat="{:.7f}" lon="{:.7f}")", geometry.center_lat(), geometry.center_lon());
+      std::cout<< fmt::format(FMT_STRING(R"( lat="{:.7f}" lon="{:.7f}")"), geometry.center_lat(), geometry.center_lon());
 
   if ((mode.mode & (Output_Mode::VERSION | Output_Mode::META)) && meta && users)
     print_meta_xml(*meta, *users);
