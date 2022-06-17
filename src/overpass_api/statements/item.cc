@@ -34,6 +34,8 @@ class Item_Constraint final : public Query_Constraint
     bool collect(Resource_Manager& rman, Set& into) override;
     void filter(Resource_Manager& rman, Set& into) override;
     ~Item_Constraint() override = default;
+    bool get_area_ids
+        (Resource_Manager& rman, std::vector< Area_Skeleton::Id_Type >& ids) override;
   private:
     std::ostream& print_constraint( std::ostream &os ) const override {
       return os <<  (item != nullptr ? item->dump_ql_in_query("") : "item");
@@ -41,6 +43,28 @@ class Item_Constraint final : public Query_Constraint
 
     Item_Statement* item;
 };
+
+
+bool Item_Constraint::get_area_ids(Resource_Manager& rman, std::vector< Area_Skeleton::Id_Type >& ids)
+{
+  std::vector< Area_Skeleton::Id_Type >().swap(ids);
+
+  const Set* input = rman.get_set(item->get_input_name());
+  if (input)
+  {
+    for (const auto & area : input->areas)
+    {
+      for (const auto & skel : area.second)
+      {
+        ids.push_back(skel.id);
+      }
+    }
+    sort(ids.begin(), ids.end());
+    ids.erase(unique(ids.begin(), ids.end()), ids.end());
+    return true;
+  }
+  return false;
+}
 
 
 template< typename TIndex, typename TObject >

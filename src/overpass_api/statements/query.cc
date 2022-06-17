@@ -265,8 +265,10 @@ void filter_id_list(
       continue;
     }
 
-    if (!filtered || binary_search(old_ids.begin(), old_ids.end(), it.object()))
-      new_ids.push_back(it.object());
+    auto new_id = Id_Type(it.handle().id());
+
+    if (!filtered || binary_search(old_ids.begin(), old_ids.end(), new_id))
+      new_ids.push_back(new_id);
   }
 
   sort(new_ids.begin(), new_ids.end());
@@ -557,6 +559,20 @@ std::vector< Id_Type > Query_Statement::collect_ids
   // Handle simple Key-Value pairs
   std::vector< Id_Type > new_ids;
   bool filtered = false;
+
+  // Check if at most one constraint provides a list of area ids
+  // we want to use this list to cut down the number of entries in filter_id_list
+  // as early as possible
+  for (auto it = constraints.begin();it != constraints.end(); ++it)
+  {
+    std::vector< Area_Skeleton::Id_Type > constraint_area_ids;
+    if ((*it)->get_area_ids(rman, constraint_area_ids))
+    {
+      new_ids.swap(constraint_area_ids);
+      filtered = true;
+      break;
+    }
+  }
 
   for (const auto & [key, value] : key_values)
   {
