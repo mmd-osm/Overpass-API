@@ -119,7 +119,7 @@ std::string Output_CSV::dump_config() const
 
 
 template< typename OSM_Element_Metadata_Skeleton >
-void print_meta(const std::string& keyfield,
+void Output_CSV::print_meta(const std::string& keyfield,
     const OSM_Element_Metadata_Skeleton& meta, const user_id_name_t* users)
 {
   if (keyfield == "version")
@@ -132,15 +132,15 @@ void print_meta(const std::string& keyfield,
     std::cout<<meta.user_id;
   else if (users && keyfield == "user")
   {
-    auto uit = std::lower_bound(users->begin(), users->end(), meta.user_id, User_Comparator_By_Id{});
-    if (uit != users->end() && uit->first == meta.user_id)
-      std::cout<<uit->second;
+    std::string user = get_user(meta, *users);
+    if (!user.empty())
+      std::cout<<user;
   }
 }
 
 
 template< >
-void print_meta< int >(const std::string& keyfield,
+void Output_CSV::print_meta< int >(const std::string& keyfield,
     const int& meta, const user_id_name_t* users) {}
 
 std::string get_count_tag(const std::vector< std::pair< std::string, std::string> >* tags, const std::string& tag)
@@ -155,7 +155,7 @@ std::string get_count_tag(const std::vector< std::pair< std::string, std::string
 
 
 template< typename Id_Type, typename OSM_Element_Metadata_Skeleton >
-void process_csv_line(int otype, const std::string& type, Id_Type id, const Opaque_Geometry& geometry,
+void Output_CSV::process_csv_line(int otype, const std::string& type, Id_Type id, const Opaque_Geometry& geometry,
     const OSM_Element_Metadata_Skeleton* meta,
     const std::vector< std::pair< std::string, std::string> >* tags,
     const user_id_name_t* users,

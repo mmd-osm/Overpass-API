@@ -97,6 +97,18 @@ public:
       const Feature_Action& action = keep) override;
 
 private:
+  template< typename Id_Type, typename OSM_Element_Metadata_Skeleton >
+  void process_csv_line(int otype, const std::string& type, Id_Type id, const Opaque_Geometry& geometry,
+    const OSM_Element_Metadata_Skeleton* meta,
+    const std::vector< std::pair< std::string, std::string> >* tags,
+    const user_id_name_t* users,
+    const Csv_Settings& csv_settings,
+    Output_Mode mode);
+
+  template< typename OSM_Element_Metadata_Skeleton >
+  void print_meta(const std::string& keyfield,
+    const OSM_Element_Metadata_Skeleton& meta, const user_id_name_t* users);
+
   Csv_Settings csv_settings;
 };
 

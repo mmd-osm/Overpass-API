@@ -112,6 +112,32 @@ public:
   virtual std::string dump_config() const { return ""; }
 
   virtual ~Output_Handler() = default;
+
+  protected:
+
+  template <class Id_Type>
+  std::string get_user(const OSM_Element_Metadata_Skeleton< Id_Type >& meta, const user_id_name_t& users)
+  {
+    if (meta.user_id > 0 && meta.user_id == prev_user_id) {
+      return(users.at(prev_user_index).second);
+    }
+
+    auto it = std::lower_bound(users.begin(), users.end(), meta.user_id, User_Comparator_By_Id{});
+    if (it != users.end() && meta.user_id == it->first) {
+      prev_user_id = meta.user_id;
+      prev_user_index = std::distance(users.begin(), it);
+      return it->second;
+    }
+    else {
+      prev_user_id = 0;
+      prev_user_index = 0;
+      return("");
+    }
+  }
+
+  private:
+    uint32 prev_user_id = 0;
+    uint32 prev_user_index = 0;
 };
 
 

@@ -106,7 +106,7 @@ private:
   void add_tags(Builder & builder, const std::vector< std::pair< std::string, std::string > >* tags);
 
   template <class Builder, class Id_Type>
-  void add_meta(Builder & builder, const OSM_Element_Metadata_Skeleton< Id_Type >* meta, const user_id_name_t* users);
+  void add_meta(Builder & builder, const OSM_Element_Metadata_Skeleton< Id_Type >& meta, const user_id_name_t& users);
 
   void add_members(osmium::builder::RelationBuilder & builder, const Relation_Skeleton& skel,
                    const std::map< uint32, std::string >* roles);
@@ -121,9 +121,6 @@ private:
   std::future<void> repeater;
   int saved_stdout;
   int fd[2];
-
-  uint32 prev_user_id = 0;
-  uint32 prev_user_index = 0;
 };
 
 #endif

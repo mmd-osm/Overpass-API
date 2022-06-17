@@ -70,14 +70,14 @@ void Output_XML::print_global_bbox(const Bbox_Double& bbox)
 
 
 template< typename Id_Type >
-void print_meta_xml(const OSM_Element_Metadata_Skeleton< Id_Type >& meta,
+void Output_XML::print_meta_xml(const OSM_Element_Metadata_Skeleton< Id_Type >& meta,
 		    const user_id_name_t& users)
 {
   std::cout<<" version=\""<<meta.version<<"\" timestamp=\""<<iso_string(meta.timestamp)
       <<"\" changeset=\""<<meta.changeset<<"\" uid=\""<<meta.user_id<<"\"";
-  auto it = std::lower_bound(users.begin(), users.end(), meta.user_id, User_Comparator_By_Id{});
-  if (it != users.end() && it->first == meta.user_id)
-    std::cout<<" user=\""<<escape_xml(it->second)<<"\"";
+  std::string user = get_user(meta, users);
+  if (!user.empty())
+    std::cout<<" user=\""<<escape_xml(user)<<"\"";
 }
 
 
@@ -357,7 +357,7 @@ void print_members(const Relation_Skeleton& skel, const Opaque_Geometry& geometr
 }
 
 
-void print_node(const Node_Skeleton& skel,
+void Output_XML::print_node(const Node_Skeleton& skel,
       const Opaque_Geometry& geometry,
       const std::vector< std::pair< std::string, std::string > >* tags,
       const OSM_Element_Metadata_Skeleton< Node::Id_Type >* meta,
@@ -383,7 +383,7 @@ void print_node(const Node_Skeleton& skel,
 }
 
 
-void print_way(const Way_Skeleton& skel,
+void Output_XML::print_way(const Way_Skeleton& skel,
       const Opaque_Geometry& geometry,
       const std::vector< std::pair< std::string, std::string > >* tags,
       const OSM_Element_Metadata_Skeleton< Way::Id_Type >* meta,
@@ -407,7 +407,7 @@ void print_way(const Way_Skeleton& skel,
 }
 
 
-void print_relation(const Relation_Skeleton& skel,
+void Output_XML::print_relation(const Relation_Skeleton& skel,
       const Opaque_Geometry& geometry,
       const std::vector< std::pair< std::string, std::string > >* tags,
       const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* meta,
@@ -434,7 +434,7 @@ void print_relation(const Relation_Skeleton& skel,
 
 
 template< typename Id_Type >
-void print_deleted(const std::string& type_name, const Id_Type& id,
+void Output_XML::print_deleted(const std::string& type_name, const Id_Type& id,
       const Output_Handler::Feature_Action& action,
       const OSM_Element_Metadata_Skeleton< Id_Type >* meta,
       const user_id_name_t* users,

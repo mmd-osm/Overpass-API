@@ -177,29 +177,13 @@ void Output_Osmium::add_tags(Builder & builder, const std::vector< std::pair< st
 }
 
 template <class Builder, class Id_Type>
-void Output_Osmium::add_meta(Builder & builder, const OSM_Element_Metadata_Skeleton< Id_Type >* meta, const user_id_name_t* users)
+void Output_Osmium::add_meta(Builder & builder, const OSM_Element_Metadata_Skeleton< Id_Type >& meta, const user_id_name_t& users)
 {
-  builder.set_version(meta->version)
-         .set_changeset(meta->changeset)
-         .set_uid(meta->user_id)
-         .set_timestamp(osmium::Timestamp(as_time_t(meta->timestamp)));
-
-  if (meta->user_id > 0 && meta->user_id == prev_user_id) {
-    builder.set_user(users->at(prev_user_index).second);
-    return;
-  }
-
-  auto it = std::lower_bound(users->begin(), users->end(), meta->user_id, User_Comparator_By_Id{});
-  if (it != users->end() && meta->user_id == it->first) {
-    builder.set_user(it->second);
-    prev_user_id = meta->user_id;
-    prev_user_index = std::distance(users->begin(), it);
-  }
-  else {
-    builder.set_user("???");
-    prev_user_id = 0;
-    prev_user_index = 0;
-  }
+  builder.set_version(meta.version)
+         .set_changeset(meta.changeset)
+         .set_uid(meta.user_id)
+         .set_timestamp(osmium::Timestamp(as_time_t(meta.timestamp)))
+         .set_user(get_user(meta, users));
 }
 
 void Output_Osmium::add_members(osmium::builder::RelationBuilder & builder,
@@ -250,7 +234,7 @@ void Output_Osmium::print_item(const Node_Skeleton& skel,
           .set_location(loc);
 
     if ((mode.mode & (Output_Mode::VERSION | Output_Mode::META)) && meta && users)
-      add_meta(builder, meta, users);
+      add_meta(builder, *meta, *users);
 
     add_tags(builder, tags);
   }
@@ -278,7 +262,7 @@ void Output_Osmium::print_item(const Way_Skeleton& skel,
            .set_visible(true);
 
     if ((mode.mode & (Output_Mode::VERSION | Output_Mode::META)) && meta && users)
-      add_meta(builder, meta, users);
+      add_meta(builder, *meta, *users);
 
     if (((tags == nullptr) || (tags->empty())) &&
         ((mode & (Output_Mode::NDS | Output_Mode::GEOMETRY | Output_Mode::BOUNDS | Output_Mode::CENTER)) == 0))
@@ -328,7 +312,7 @@ void Output_Osmium::print_item(const Relation_Skeleton& skel,
            .set_visible(true);
 
     if ((mode.mode & (Output_Mode::VERSION | Output_Mode::META)) && meta && users)
-      add_meta(builder, meta, users);
+      add_meta(builder, *meta, *users);
 
     if (((tags == nullptr) || (tags->empty())) &&
         ((mode & (Output_Mode::NDS | Output_Mode::GEOMETRY | Output_Mode::BOUNDS | Output_Mode::CENTER)) == 0))

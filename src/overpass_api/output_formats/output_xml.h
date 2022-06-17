@@ -94,7 +94,40 @@ public:
       const std::vector< std::pair< std::string, std::string > >* tags,
       Output_Mode mode,
       const Feature_Action& action = keep) override;
+
+private:
+  template< typename Id_Type >
+  void print_meta_xml(const OSM_Element_Metadata_Skeleton< Id_Type >& meta,
+		    const user_id_name_t& users);
+
+  template< typename Id_Type >
+  void print_deleted(const std::string& type_name, const Id_Type& id,
+      const Output_Handler::Feature_Action& action,
+      const OSM_Element_Metadata_Skeleton< Id_Type >* meta,
+      const user_id_name_t* users,
+      Output_Mode mode);
+
+  void print_node(const Node_Skeleton& skel,
+      const Opaque_Geometry& geometry,
+      const std::vector< std::pair< std::string, std::string > >* tags,
+      const OSM_Element_Metadata_Skeleton< Node::Id_Type >* meta,
+      const user_id_name_t* users,
+      Output_Mode mode);
+
+  void print_way(const Way_Skeleton& skel,
+      const Opaque_Geometry& geometry,
+      const std::vector< std::pair< std::string, std::string > >* tags,
+      const OSM_Element_Metadata_Skeleton< Way::Id_Type >* meta,
+      const user_id_name_t* users,
+      Output_Mode mode);
+
+  void print_relation(const Relation_Skeleton& skel,
+      const Opaque_Geometry& geometry,
+      const std::vector< std::pair< std::string, std::string > >* tags,
+      const OSM_Element_Metadata_Skeleton< Relation::Id_Type >* meta,
+      const std::map< uint32, std::string >* roles,
+      const user_id_name_t* users,
+      Output_Mode mode);
+
 };
-
-
 #endif

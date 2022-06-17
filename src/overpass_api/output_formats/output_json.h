@@ -86,6 +86,9 @@ public:
       const Feature_Action& action = keep) override;
 
 private:
+  template< typename Id_Type >
+  void print_meta_json(const OSM_Element_Metadata_Skeleton< Id_Type >& meta, const user_id_name_t& users);
+
   std::string padding;
   std::string messages;
   mutable bool first_elem;

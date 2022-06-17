@@ -79,15 +79,15 @@ void handle_first_elem(bool& first_elem)
 
 
 template< typename Id_Type >
-void print_meta_json(const OSM_Element_Metadata_Skeleton< Id_Type >& meta,
+void Output_JSON::print_meta_json(const OSM_Element_Metadata_Skeleton< Id_Type >& meta,
 		    const user_id_name_t& users)
 {
   std::cout<<",\n  \"timestamp\": \""<<iso_string(meta.timestamp)<<"\""
         ",\n  \"version\": "<<meta.version<<
 	",\n  \"changeset\": "<<meta.changeset;
-  auto it = std::lower_bound(users.begin(), users.end(), meta.user_id, User_Comparator_By_Id{});
-  if (it != users.end() && it->first == meta.user_id)
-    std::cout<<",\n  \"user\": \""<<escape_cstr(it->second)<<"\"";
+  std::string user = get_user(meta, users);
+  if (!user.empty())
+    std::cout<<",\n  \"user\": \""<<escape_cstr(user)<<"\"";
   std::cout<<",\n  \"uid\": "<<meta.user_id;
 }
 
