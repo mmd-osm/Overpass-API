@@ -457,17 +457,22 @@ struct Area_Block
   const std::vector< uint64 > & coors() const { return d->coors; }
   std::vector< uint64 > & coors() { return d->coors; }
 
-  const std::vector< std::pair< uint32, int32 > > &  get_ilat_ilon_pairs() const
+  void calculate_ilat_ilon_pairs() const
   {
-    if (d->ilat_ilon_pairs.empty())
+    d->ilat_ilon_pairs.reserve(coors().size());
+    for (auto it = coors().begin(); it != coors().end(); ++it)
     {
-      d->ilat_ilon_pairs.reserve(coors().size());
-      for (auto it = coors().begin(); it != coors().end(); ++it)
-      {
-        uint32 _lat = ::ilat((*it >> 32) & 0xff, *it & 0xffffffffull);
-        int32 _lon = ::ilon((*it >> 32) & 0xff, *it & 0xffffffffull);
-        d->ilat_ilon_pairs.push_back(std::make_pair(_lat, _lon));
-      }
+      uint32 _lat = ::ilat((*it >> 32) & 0xff, *it & 0xffffffffull);
+      int32 _lon = ::ilon((*it >> 32) & 0xff, *it & 0xffffffffull);
+      d->ilat_ilon_pairs.push_back(std::make_pair(_lat, _lon));
+    }
+  }
+
+  const inline std::vector< std::pair< uint32, int32 > > &  get_ilat_ilon_pairs() const
+  {
+    if (d->ilat_ilon_pairs.empty())   // ilat ilon cache not yet populated?
+    {
+      calculate_ilat_ilon_pairs();
     }
     return d->ilat_ilon_pairs;
   }

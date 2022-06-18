@@ -107,7 +107,9 @@ int Coord_Query_Statement::check_area_block
   // end the western or eastern side have an odd state.
   int state = 0;
 
-  auto it(area_block.get_ilat_ilon_pairs().begin());
+  const auto & ilat_ilon_pairs = area_block.get_ilat_ilon_pairs();
+
+  auto it(ilat_ilon_pairs.begin());
 
   uint32 ll_index_ilat = ::ilat(ll_index, 0);
   int32 ll_index_ilon = ::ilon(ll_index, 0);
@@ -115,7 +117,7 @@ int Coord_Query_Statement::check_area_block
   uint32 lat = ll_index_ilat | it->first;
   int32 lon = ll_index_ilon | (it->second ^ 0x80000000);
 
-  while (++it != area_block.get_ilat_ilon_pairs().end())
+  while (++it != ilat_ilon_pairs.end())
   {
     uint32 last_lat = lat;
     int32 last_lon = lon;
@@ -340,7 +342,7 @@ void Coord_Query_Statement::execute(Resource_Manager& rman)
         into.areas[it.index()].push_back(it.object());
     }
   }
-  
+
   std::set< Uint31_Index > way_idxs = calc_parents(node_idxs);
   std::map< Uint31_Index, std::vector< Way_Skeleton > > current_candidates;
   std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > > attic_candidates;
@@ -350,7 +352,7 @@ void Coord_Query_Statement::execute(Resource_Manager& rman)
   else
     collect_items_discrete_by_timestamp(
         this, rman, way_idxs, Closedness_Predicate(), current_candidates, attic_candidates);
-  
+
   if (lat != 100.0)
   {
     Tilewise_Area_Iterator tai(current_candidates, attic_candidates, *this, rman);
@@ -383,7 +385,7 @@ void Coord_Query_Statement::execute(Resource_Manager& rman)
     auto cur_it = input_set->nodes.begin();
     auto attic_it =
         input_set->attic_nodes.begin();
-    
+
     while (cur_it != input_set->nodes.end() || attic_it != input_set->attic_nodes.end())
     {
       Uint32_Index idx =
@@ -393,7 +395,7 @@ void Coord_Query_Statement::execute(Resource_Manager& rman)
         tai.next();
       if (tai.is_end())
         break;
-      
+
       if (cur_it->first == tai.get_idx())
       {
         for (auto it2 = cur_it->second.begin(); it2 != cur_it->second.end();
