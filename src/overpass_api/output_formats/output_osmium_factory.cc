@@ -30,6 +30,12 @@ inline std::string osmium_arguments(Tokenizer_Wrapper* token, Error_Output* erro
       if (arg == "geom") {
         result += ",locations_on_ways=yes";
       }
+#ifdef OSMIUM_WITH_LZ4
+      else if (arg == "lz4")
+      {
+        result += ",pbf_compression=lz4";
+      }
+#endif
 
       clear_until_after(*token, error_output, ",", ")", false);
     } while (token->good() && **token == ",");
@@ -85,5 +91,26 @@ Output_Handler* Output_Osmium_OPL_Generator::new_output_handler(const std::map< 
   return new Output_Osmium("opl", params);
 }
 
+class Output_Osmium_XML_Generator : public Output_Handler_Parser
+{
+public:
+  Output_Osmium_XML_Generator() : Output_Handler_Parser("osmxml") {}
+
+  Output_Handler* new_output_handler(const std::map< std::string, std::string >& input_params,
+      Tokenizer_Wrapper* token, Error_Output* error_output) override;
+
+  static Output_Osmium_XML_Generator singleton;
+};
+
+
+Output_Osmium_XML_Generator Output_Osmium_XML_Generator::singleton;
+
+
+Output_Handler* Output_Osmium_XML_Generator::new_output_handler(const std::map< std::string, std::string >& input_params,
+                                                         Tokenizer_Wrapper* token, Error_Output* error_output)
+{
+  auto params = osmium_arguments(token, error_output);
+  return new Output_Osmium("xml", params);
+}
 
 #endif

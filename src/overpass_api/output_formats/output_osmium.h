@@ -19,6 +19,7 @@
 #include <osmium/builder/osm_object_builder.hpp>
 #include <osmium/io/opl_output.hpp>
 #include <osmium/io/pbf_output.hpp>
+#include <osmium/io/xml_output.hpp>
 #include <osmium/io/error.hpp>
 #include <osmium/io/gzip_compression.hpp>
 #include <osmium/io/header.hpp>
