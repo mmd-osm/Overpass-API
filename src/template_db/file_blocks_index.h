@@ -46,6 +46,9 @@ struct File_Block_Index_Entry
   File_Block_Index_Entry(const TIndex& index_, uint32 pos_, uint32 size_, uint32 max_keysize_)
     : index(index_), pos(pos_), size(size_), max_keysize(max_keysize_) {}
 
+  File_Block_Index_Entry(TIndex&& index_, uint32 pos_, uint32 size_, uint32 max_keysize_)
+    : index(std::move(index_)), pos(pos_), size(size_), max_keysize(max_keysize_) {}
+
   TIndex index;
   uint32 pos;
   uint32 size;
@@ -246,23 +249,48 @@ void File_Blocks_Index< TIndex >::init_blocks()
     }
     else if (index_size > 0)
     {
+      if (!writeable())
+      {
+        uint32 p = 8;
+        uint elems = 0;
+        while (p < index_size)
+        {
+          p += 12;
+          p += TIndex::size_of(index_buf.get() + p);
+          elems++;
+        }
+        block_array.reserve(elems);
+      }
+
       uint32 pos = 8;
       while (pos < index_size)
       {
-        TIndex index(index_buf.get() + pos + 12);
-        File_Block_Index_Entry< TIndex >
-            entry(index,
-            unalignedLoad<uint32>(index_buf.get() + pos),
-            unalignedLoad<uint32>(index_buf.get() + pos + 4),
-            unalignedLoad<uint32>(index_buf.get() + pos + 8));
-        if (writeable())
-          block_list.push_back(entry);
-        else
-          block_array.push_back(entry);
-        if (entry.pos >= block_count)
+        auto entry_pos = unalignedLoad<uint32>(index_buf.get() + pos);
+        auto entry_size = unalignedLoad<uint32>(index_buf.get() + pos + 4);
+        auto entry_max_keyize = unalignedLoad<uint32>(index_buf.get() + pos + 8);
+
+        if (entry_pos >= block_count)
           throw File_Error(0, index_file_name, "File_Blocks_Index: bad pos in index file");
-        if (entry.pos + entry.size > block_count)
+        if (entry_pos + entry_size > block_count)
           throw File_Error(0, index_file_name, "File_Blocks_Index: bad size in index file");
+
+        if (writeable())
+        {
+          File_Block_Index_Entry< TIndex >
+              entry(std::move(TIndex(index_buf.get() + pos + 12)),
+              entry_pos,
+              entry_size,
+              entry_max_keyize);
+          block_list.push_back(entry);
+        }
+        else
+        {
+          block_array.emplace_back(std::move(TIndex(index_buf.get() + pos + 12)),
+              entry_pos,
+              entry_size,
+              entry_max_keyize);
+        }
+
         pos += 12;
         pos += TIndex::size_of(index_buf.get() + pos);
       }

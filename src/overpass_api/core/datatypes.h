@@ -540,13 +540,11 @@ struct OSM_Element_Metadata_Skeleton
       changeset(0), user_id(0) {}
 
   OSM_Element_Metadata_Skeleton(const void* data)
-    : ref(data)
-  {
-    version = unalignedLoad<uint32>((int8*)data + Id_Type::max_size_of());
-    timestamp = (unalignedLoad<timestamp_t>((int8*)data + Id_Type::max_size_of() + 4));
-    changeset = unalignedLoad<uint32>((int8*)data + Id_Type::max_size_of() + 8);
-    user_id = unalignedLoad<uint32>((int8*)data + Id_Type::max_size_of() + 12);
-  }
+    : ref(data),
+      version(unalignedLoad<uint32>((int8*)data + Id_Type::max_size_of())),
+      timestamp(unalignedLoad<timestamp_t>((int8*)data + Id_Type::max_size_of() + 4)),
+      changeset(unalignedLoad<uint32>((int8*)data + Id_Type::max_size_of() + 8)),
+      user_id(unalignedLoad<uint32>((int8*)data + Id_Type::max_size_of() + 12)) {}
 
   uint32 size_of() const
   {

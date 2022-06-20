@@ -66,12 +66,10 @@ struct Tag_Index_Local
   Tag_Index_Local(Uint31_Index index_, std::string key_, std::string value_)
       : index(index_.val() & 0x7fffff00), key(std::move(key_)), value(std::move(value_)) {}
 
-  Tag_Index_Local(const void* data)
-  {
-    index = (unalignedLoad<uint32>((uint32*)data + 1))<<8;
-    key = std::string(((int8*)data + 7), unalignedLoad<uint16>(data));
-    value = std::string(((int8*)data + 7 + key.length()), unalignedLoad<uint16>((uint16*)data + 1));
-  }
+  Tag_Index_Local(const void* data) :
+       index((unalignedLoad<uint32>((uint32*)data + 1))<<8),
+       key(((int8*)data + 7), unalignedLoad<uint16>(data)),
+       value(((int8*)data + 7 + key.length()), unalignedLoad<uint16>((uint16*)data + 1))  {}
 
   uint32 size_of() const noexcept
   {
@@ -415,11 +413,8 @@ struct Tag_Index_Global
 
   Tag_Index_Global() = default;
 
-  Tag_Index_Global(const void* data)
-  {
-    key = std::string(((int8*)data + 4), unalignedLoad<uint16>(data));
-    value = std::string(((int8*)data + 4 + key.length()), unalignedLoad<uint16>((uint16*)data + 1));
-  }
+  Tag_Index_Global(const void* data) : key(((int8*)data + 4), unalignedLoad<uint16>(data)),
+                                       value(((int8*)data + 4 + key.length()), unalignedLoad<uint16>((uint16*)data + 1))  {}
 
   Tag_Index_Global(const Tag_Index_Local& tag_idx) : key(tag_idx.key), value(tag_idx.value) {}
 
