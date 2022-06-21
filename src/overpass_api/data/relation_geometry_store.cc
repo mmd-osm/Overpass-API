@@ -166,19 +166,39 @@ std::vector< std::vector< Quad_Coord > > Relation_Geometry_Store::get_geometry
   for (auto it = relation.members().begin();
        it != relation.members().end(); ++it)
   {
-    if (it->type == Relation_Entry::NODE)
+   switch (it->type) {
+
+    case Relation_Entry::NODE:
     {
-      const Node_Base* node = binary_search_for_id(nodes, Node::Id_Type(it->ref.val()));
-      if (node == nullptr || !matches_bbox(node->index, node->ll_lower_))
+      auto node = std::lower_bound(nodes.begin(), nodes.end(), Node::Id_Type(it->ref.val()),
+                        [](const Node_Base& node, Node::Id_Type id){
+                             return node.id < id;
+                         });
+
+      if (node == nodes.end() ||
+          !(node->id == Node::Id_Type(it->ref.val())) ||
+          !matches_bbox(node->index, node->ll_lower_))
+      {
         result.push_back(std::vector< Quad_Coord >(1, Quad_Coord(0u, 0u)));
+      }
       else
+      {
         result.push_back(std::vector< Quad_Coord >(1, Quad_Coord(node->index, node->ll_lower_)));
+      }
+      break;
     }
-    else if (it->type == Relation_Entry::WAY)
+
+    case Relation_Entry::WAY:
     {
-      const Way_Skeleton* way = binary_search_for_id(ways, Way_Skeleton::Id_Type(it->ref.val()));
-      if (way == nullptr)
+      auto way = std::lower_bound(ways.begin(), ways.end(), Way_Skeleton::Id_Type(it->ref.val()),
+                        [](const Way_Skeleton& way, Way::Id_Type id){
+                             return way.id < id;
+                         });
+
+      if (way == ways.end() || !(way->id == Way_Skeleton::Id_Type(it->ref.val())))
+      {
         result.push_back(std::vector< Quad_Coord >());
+      }
       else
       {
         result.push_back(way_geometry_store->get_geometry(*way));
@@ -208,8 +228,13 @@ std::vector< std::vector< Quad_Coord > > Relation_Geometry_Store::get_geometry
         }
       }
     }
-    else if (it->type == Relation_Entry::RELATION)
+
+    case Relation_Entry::RELATION:
+    {
       result.push_back(std::vector< Quad_Coord >());
+      break;
+    }
+   }
   }
 
   return result;

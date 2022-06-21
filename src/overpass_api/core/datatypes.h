@@ -137,46 +137,6 @@ struct Pair_Equal_Id {
 };
 
 
-template < class T >
-const T* binary_search_for_id(const std::vector< T >& vect, typename T::Id_Type id)
-{
-  uint32 lower(0);
-  uint32 upper(vect.size());
-
-  while (upper > lower)
-  {
-    uint32 pos((upper + lower)/2);
-    if (id < vect[pos].id)
-      upper = pos;
-    else if (vect[pos].id == id)
-      return &(vect[pos]);
-    else
-      lower = pos + 1;
-  }
-  return nullptr;
-}
-
-
-template < class TObject >
-TObject* binary_ptr_search_for_id(const std::vector< TObject* >& vect, typename TObject::Id_Type id)
-{
-  uint32 lower(0);
-  uint32 upper(vect.size());
-
-  while (upper > lower)
-  {
-    uint32 pos((upper + lower)/2);
-    if (id < vect[pos]->id)
-      upper = pos;
-    else if (vect[pos]->id == id)
-      return vect[pos];
-    else
-      lower = pos + 1;
-  }
-  return nullptr;
-}
-
-
 template < class Id_Type, class TObject >
 const TObject* binary_pair_search(const std::vector< std::pair< Id_Type, TObject> >& vect, Id_Type id)
 {

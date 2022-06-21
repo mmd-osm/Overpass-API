@@ -959,7 +959,7 @@ std::pair< std::map< Uint32_Index, std::vector< Node_Skeleton > >,
     sieve_first_arg(intersect_ids, *node_ids, invert_ids);
 
   return paired_items_range(stmt, rman, intersect_ids,
-      node_ranges ? *node_ranges : 
+      node_ranges ? *node_ranges :
           way_nd_indices(stmt, rman, ways.begin(), ways.end(), attic_ways.begin(), attic_ways.end()));
 }
 
@@ -1061,13 +1061,18 @@ std::vector< Quad_Coord > make_geometry(const Way_Skeleton& way, const std::vect
   for (auto it3(way.nds().begin());
       it3 != way.nds().end(); ++it3)
   {
-    const Node_Base* node = binary_search_for_id(nodes, *it3);
-    if (node == nullptr)
+     auto node = std::lower_bound(nodes.begin(), nodes.end(), *it3,
+                     [](const Node_Base& node, Node::Id_Type id){
+                          return node.id < id;
+                      });
+
+    if (node == nodes.end() || !(node->id == *it3))
     {
       result.clear();
       return result;
     }
-    result.push_back(Quad_Coord(node->index, node->ll_lower_));
+
+     result.push_back(Quad_Coord(node->index, node->ll_lower_));
   }
 
   return result;
