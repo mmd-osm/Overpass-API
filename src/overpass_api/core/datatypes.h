@@ -379,11 +379,8 @@ struct User_Data
 
   User_Data() : id(0) {}
 
-  User_Data(const void* data)
-  {
-    id = unalignedLoad<uint32>(data);
-    name = std::string(((int8*)data + 6), unalignedLoad<uint16>((int8*)data + 4));
-  }
+  User_Data(const void* data) : id(unalignedLoad<uint32>(data)),
+                                name(((int8*)data + 6), unalignedLoad<uint16>((int8*)data + 4)) {}
 
   uint32 size_of() const
   {
@@ -499,7 +496,7 @@ struct OSM_Element_Metadata_Skeleton
     : ref(ref_), version(0), timestamp(timestamp_),
       changeset(0), user_id(0) {}
 
-  OSM_Element_Metadata_Skeleton(const void* data)
+  OSM_Element_Metadata_Skeleton(const void* data) noexcept
     : ref(data),
       version(unalignedLoad<uint32>((int8*)data + Id_Type::max_size_of())),
       timestamp(unalignedLoad<timestamp_t>((int8*)data + Id_Type::max_size_of() + 4)),
