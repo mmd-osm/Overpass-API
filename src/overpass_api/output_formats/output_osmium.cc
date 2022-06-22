@@ -109,6 +109,8 @@ bool Output_Osmium::write_http_headers()
      std::cout<<"Content-type: application/vnd.openstreetmap.data.pbf\n" << std::flush;
   else if (output_format == "opl")
      std::cout<<"Content-type: application/vnd.openstreetmap.data.opl\n" << std::flush;
+  else if (output_format == "xml")
+     std::cout<<"Content-type: application/osm3s+xml\n" << std::flush;
   return true;
 }
 
