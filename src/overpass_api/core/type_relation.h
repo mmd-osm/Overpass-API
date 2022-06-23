@@ -109,6 +109,29 @@ public:
 
   Relation_Skeleton_Data(const Relation_Skeleton_Data &other) = default;
 
+  Relation_Skeleton_Data(const void* data)
+  {
+    const auto member_count = unalignedLoad<uint32>((uint32*)data + 1);
+    const auto node_idxs_count = unalignedLoad<uint32>((uint32*)data + 2);
+    const auto way_idxs_count = unalignedLoad<uint32>((uint32*)data + 3);
+
+    members.resize(member_count);
+    node_idxs.resize(node_idxs_count, 0u);
+    way_idxs.resize(way_idxs_count, 0u);
+    for (uint i(0); i < member_count; ++i)
+    {
+      members[i].ref = unalignedLoad<uint64>((uint32*)data + 4 + 3*i);
+      members[i].role = unalignedLoad<uint32>((uint32*)data + 6 + 3*i) & 0xffffff;
+      members[i].type = *((uint8*)data + 27 + 12*i);
+    }
+    uint32* start_ptr = (uint32*)data + 4 + 3* members.size();
+    for (uint i = 0; i < node_idxs.size(); ++i)
+      node_idxs[i] = *(start_ptr + i);
+    start_ptr = (uint32*)data + 4 + 3* members.size() + node_idxs.size();
+    for (uint i = 0; i < way_idxs.size(); ++i)
+      way_idxs[i] = *(start_ptr + i);
+  }
+
   ~Relation_Skeleton_Data() = default;
 
   std::vector< Relation_Entry > members;
@@ -132,28 +155,7 @@ Relation_Skeleton
 
   Relation_Skeleton(Relation::Id_Type id_) : id(id_), d(new Relation_Skeleton_Data) { }
 
-  Relation_Skeleton(const void* data) : id(unalignedLoad<Id_Type>(data)), d(new Relation_Skeleton_Data)
-  {
-    const auto member_count = unalignedLoad<uint32>((uint32*)data + 1);
-    const auto node_idxs_count = unalignedLoad<uint32>((uint32*)data + 2);
-    const auto way_idxs_count = unalignedLoad<uint32>((uint32*)data + 3);
-
-    d->members.resize(member_count);
-    d->node_idxs.resize(node_idxs_count, 0u);
-    d->way_idxs.resize(way_idxs_count, 0u);
-    for (uint i(0); i < member_count; ++i)
-    {
-      d->members[i].ref = unalignedLoad<uint64>((uint32*)data + 4 + 3*i);
-      d->members[i].role = unalignedLoad<uint32>((uint32*)data + 6 + 3*i) & 0xffffff;
-      d->members[i].type = *((uint8*)data + 27 + 12*i);
-    }
-    uint32* start_ptr = (uint32*)data + 4 + 3* d->members.size();
-    for (uint i = 0; i < d->node_idxs.size(); ++i)
-      d->node_idxs[i] = *(start_ptr + i);
-    start_ptr = (uint32*)data + 4 + 3* d->members.size() + d->node_idxs.size();
-    for (uint i = 0; i < d->way_idxs.size(); ++i)
-      d->way_idxs[i] = *(start_ptr + i);
-  }
+  Relation_Skeleton(const void* data) : id(unalignedLoad<Id_Type>(data)), d(new Relation_Skeleton_Data(data)) {}
 
   Relation_Skeleton(const Relation& rel)
       : id(rel.id), d(new Relation_Skeleton_Data) {

@@ -1052,6 +1052,8 @@ uint8* decompress_ids(std::vector< Id_Type >& ids_, const uint16 ids_count, cons
   const char* current = (char*) buffer_;
   const char* end = (char*)(buffer_ + ids_bytes);
 
+  ids_.resize(ids_count);
+
   Id_Type id = (uint64) 0;
 
   for (int i=0; i<ids_count;i++)
@@ -1059,7 +1061,7 @@ uint8* decompress_ids(std::vector< Id_Type >& ids_, const uint16 ids_count, cons
     auto value = protozero::decode_varint(&current, end);
     int64_t delta = protozero::decode_zigzag64(value);
     id += delta;
-    ids_.push_back(id);
+    ids_[i] = id;
   }
   if ((current - (char*) buffer_) & 1)    // add padding byte
     current++;

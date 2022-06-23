@@ -97,6 +97,20 @@ public:
 
   Way_Skeleton_Data(const Way_Skeleton_Data &other) = default;
 
+  Way_Skeleton_Data(const void* data)
+  {
+    nds.reserve(*((uint16*)data + 2));
+
+    auto* start_ptr = (uint16*) decompress_ids(nds, *((uint16*)data + 2), *((uint16*)data + 4), ((uint8*)data + 10));
+
+    const auto geometry_count = unalignedLoad<uint16>((uint16*)data + 3);
+
+    geometry.reserve(geometry_count);
+    geometry.resize(geometry_count);
+    for (int i = 0; i < geometry_count; ++i)
+      geometry[i] = Quad_Coord(unalignedLoad<uint32>(start_ptr + 4*i), unalignedLoad<uint32>(start_ptr + 4*i + 2));
+  }
+
   ~Way_Skeleton_Data() = default;
 
   std::vector< Node::Id_Type > nds;
@@ -118,19 +132,7 @@ Way_Skeleton
 
   Way_Skeleton(Way::Id_Type id_) : id(id_),  d(new Way_Skeleton_Data) { }
 
-  Way_Skeleton(const void* data) : id(unalignedLoad<Id_Type>(data)),  d(new Way_Skeleton_Data)
-  {
-    d->nds.reserve(*((uint16*)data + 2));
-
-    auto* start_ptr = (uint16*) decompress_ids(d->nds, *((uint16*)data + 2), *((uint16*)data + 4), ((uint8*)data + 10));
-
-    const auto geometry_count = unalignedLoad<uint16>((uint16*)data + 3);
-
-    d->geometry.reserve(geometry_count);
-    for (int i(0); i < geometry_count; ++i)
-      d->geometry.push_back(Quad_Coord(unalignedLoad<uint32>(start_ptr + 4*i), unalignedLoad<uint32>(start_ptr + 4*i + 2)));
-
-  }
+  Way_Skeleton(const void* data) : id(unalignedLoad<Id_Type>(data)),  d(new Way_Skeleton_Data(data)) {}
 
   Way_Skeleton(const Way& way)
       : id(way.id),  d(new Way_Skeleton_Data) {
