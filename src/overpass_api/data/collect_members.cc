@@ -1055,16 +1055,40 @@ bool add_way_to_area_blocks(const std::vector< Quad_Coord >& coords,
 
 std::vector< Quad_Coord > make_geometry(const Way_Skeleton& way, const std::vector< Node_Base >& nodes)
 {
-  std::vector< Quad_Coord > result;
-  result.reserve(way.nds().size());
+  std::vector< Quad_Coord > result(way.nds().size());   // enables operator[] use to skip vector length checks
+
+  // For closed ways, we copy the geometry from the first node to the last one, instead of looking it up in "nodes"
+  const bool is_closed_way = way.nds().size() > 1 && way.nds().front() == way.nds().back();
+
+  Node::Id_Type previous_node = way.nds().front();
+  auto node = nodes.begin();
+
+  int pos = 0;
 
   for (auto it3(way.nds().begin());
-      it3 != way.nds().end(); ++it3)
+      it3 != way.nds().end() - is_closed_way; ++it3)
   {
-     auto node = std::lower_bound(nodes.begin(), nodes.end(), *it3,
-                     [](const Node_Base& node, Node::Id_Type id){
-                          return node.id < id;
-                      });
+     switch ((int64) it3->val() - (int64)previous_node.val())
+     {
+         // Skip lower_bound, if the node we're looking for is right next to the
+         // previous node we've looked up. Check for matching node id will be
+         // done the same way as the lower_bound result.
+         case 1:
+           ++node;    // Later check will find out if we're hitting nodes.end()
+           break;
+
+         case -1:
+           if(!(node == nodes.begin())) {
+             --node;
+           }
+           break;
+
+        default:
+           node = std::lower_bound(nodes.begin(), nodes.end(), *it3,
+                              [](const Node_Base& node, Node::Id_Type id){
+                                    return node.id < id;
+                                });
+     }
 
     if (node == nodes.end() || !(node->id == *it3))
     {
@@ -1072,7 +1096,15 @@ std::vector< Quad_Coord > make_geometry(const Way_Skeleton& way, const std::vect
       return result;
     }
 
-     result.push_back(Quad_Coord(node->index, node->ll_lower_));
+     result[pos++] = Quad_Coord(node->index, node->ll_lower_);
+
+     previous_node = *it3;
+  }
+
+  // closed way: reuse first node data for last node
+  if (is_closed_way)
+  {
+    result[pos] = result[0];
   }
 
   return result;
