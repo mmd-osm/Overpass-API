@@ -47,6 +47,7 @@ class IdSetHybrid {
   std::vector<std::vector<uint64_t>>   m_data_bitmap;
   std::vector<std::vector<uint32_t>>   m_data_vector;
   std::vector<bool> m_data_use_bitmap;
+  std::size_t m_cid_size = 0;
 
   T m_size = 0;  // number of additions (may include duplicates)
 
@@ -71,10 +72,11 @@ class IdSetHybrid {
 
   uint64_t get_cid(T id) {
     const auto cid = chunk_id(id);
-    if (cid >= m_data_bitmap.size()) {
+    if (cid >= m_cid_size) {
       m_data_bitmap.resize(cid + 1);
       m_data_use_bitmap.resize(cid + 1);
       m_data_vector.resize(cid + 1);
+      m_cid_size = cid + 1;
     }
     return cid;
   }
@@ -137,7 +139,7 @@ class IdSetHybrid {
   bool get(T id) const noexcept {
     auto cid = chunk_id(id);
 
-    if (cid >= m_data_bitmap.size()) {
+    if (cid >= m_cid_size) {
       return false;
     }
 
@@ -148,18 +150,20 @@ class IdSetHybrid {
         return false;
       }
       auto p = lower_l(id);
-      auto word = (m_data_bitmap[cid])[offset(id)];
+      auto word = m_data_bitmap[cid][offset(id)];
       return (word >> p) & 1UL;
     }
 
-    auto lower_half = lower(id);
     auto& v = m_data_vector[cid];
 
-    // Use linear search for small vectors
-    if (v.size() < 16) {
-      const auto it = std::find(v.cbegin(), v.cend(), lower_half);
-      return it != v.cend();
-    }
+    if (v.empty())
+      return false;
+
+    auto lower_half = lower(id);
+
+    // check if we're outside vector min/max values
+    if (lower_half < v[0] || v[v.size()-1] < lower_half)
+      return false;
 
     //otherwise binary search
     return std::binary_search(v.cbegin(), v.cend(), lower_half);
@@ -190,6 +194,7 @@ class IdSetHybrid {
     std::vector<std::vector<uint32_t>>().swap(m_data_vector);
     std::vector<bool>().swap(m_data_use_bitmap);
     m_size = 0;
+    m_cid_size = 0;
   }
 };
 
