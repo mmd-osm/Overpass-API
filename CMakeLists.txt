@@ -28,6 +28,7 @@ option(BUILD_TESTS    "Build test suite" OFF)
 option(HAVE_WORD_ALIGNMENT "Build some structures as packed with 4-byte alignment" OFF)
 option(USE_UNITY_BUILD "Enable Unity Build" OFF)
 option(ENABLE_INSTALL "Enable installation" ON)
+option(OSMIUM_WITH_LZ4 "Enable lz4 support for libosmium" ON)
 
 
 if (PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
