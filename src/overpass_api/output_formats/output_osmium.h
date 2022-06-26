@@ -122,6 +122,8 @@ private:
   std::future<void> repeater;
   int saved_stdout;
   int fd[2];
+  osmium::Timestamp previous_osmium_timestamp = 0;
+  timestamp_t previous_timestamp_t = 0;
 };
 
 #endif

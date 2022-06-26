@@ -181,10 +181,21 @@ void Output_Osmium::add_tags(Builder & builder, const std::vector< std::pair< st
 template <class Builder, class Id_Type>
 void Output_Osmium::add_meta(Builder & builder, const OSM_Element_Metadata_Skeleton< Id_Type >& meta, const user_id_name_t& users)
 {
+  osmium::Timestamp ts;
+
+  // single value buffer to avoid some expensive timestamp conversions
+  if (previous_timestamp_t == meta.timestamp)
+    ts = previous_osmium_timestamp;
+  else {
+    ts = as_time_t(meta.timestamp);
+    previous_osmium_timestamp = ts;
+    previous_timestamp_t = meta.timestamp;
+  }
+
   builder.set_version(meta.version)
          .set_changeset(meta.changeset)
          .set_uid(meta.user_id)
-         .set_timestamp(osmium::Timestamp(as_time_t(meta.timestamp)))
+         .set_timestamp(ts)
          .set_user(get_user(meta, users));
 }
 
