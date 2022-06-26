@@ -178,13 +178,10 @@ std::vector< std::vector< Quad_Coord > > Relation_Geometry_Store::get_geometry
       if (node == nodes.end() ||
           !(node->id == Node::Id_Type(it->ref.val())) ||
           !matches_bbox(node->index, node->ll_lower_))
-      {
         result.push_back(std::vector< Quad_Coord >(1, Quad_Coord(0u, 0u)));
-      }
       else
-      {
         result.push_back(std::vector< Quad_Coord >(1, Quad_Coord(node->index, node->ll_lower_)));
-      }
+
       break;
     }
 
@@ -227,6 +224,7 @@ std::vector< std::vector< Quad_Coord > > Relation_Geometry_Store::get_geometry
             result.back()[result.back().size()-1] = Quad_Coord(0u, 0u);
         }
       }
+      break;
     }
 
     case Relation_Entry::RELATION:
