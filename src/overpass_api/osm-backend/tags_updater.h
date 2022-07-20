@@ -38,12 +38,6 @@ void prepare_delete_tags
      const std::map< uint32, std::vector< uint32 > >& to_delete);
 
 template< class TObject >
-void prepare_tags
-    (File_Blocks_Index_Base& tags_local, std::vector< TObject* >& elems_ptr,
-     std::vector< Tag_Entry< typename TObject::Id_Type > >& tags_to_delete,
-     const std::map< uint32, std::vector< typename TObject::Id_Type > >& to_delete);
-
-template< class TObject >
 void update_tags_local
     (File_Blocks_Index_Base& tags_local, const std::vector< TObject* >& elems_ptr,
      const std::vector< std::pair< typename TObject::Id_Type, bool > >& ids_to_modify,
@@ -212,74 +206,6 @@ void get_existing_tags
   if ((current_index.index != 0xffffffff) && (!tag_entry.ids.empty()))
     tags_to_delete.push_back(tag_entry);
 }
-
-
-template < class TObject >
-void prepare_tags
-    (File_Blocks_Index_Base& tags_local, std::vector< TObject* >& elems_ptr,
-     std::vector< Tag_Entry< typename TObject::Id_Type > >& tags_to_delete,
-     const std::map< uint32, std::vector< typename TObject::Id_Type > >& to_delete)
-{
-  // make indices appropriately coarse
-  std::map< uint32, std::set< typename TObject::Id_Type > > to_delete_coarse;
-  for (typename std::map< uint32, std::vector< typename TObject::Id_Type > >::const_iterator
-      it(to_delete.begin()); it != to_delete.end(); ++it)
-  {
-    std::set< typename TObject::Id_Type >& handle(to_delete_coarse[it->first & 0x7fffff00]);
-    for (typename std::vector< typename TObject::Id_Type >::const_iterator it2(it->second.begin());
-        it2 != it->second.end(); ++it2)
-      handle.insert(*it2);
-  }
-
-  // formulate range query
-  std::set< std::pair< Tag_Index_Local, Tag_Index_Local > > range_set;
-  for (typename std::map< uint32, std::set< typename TObject::Id_Type > >::const_iterator
-      it(to_delete_coarse.begin()); it != to_delete_coarse.end(); ++it)
-  {
-    Tag_Index_Local lower, upper;
-    lower.index = it->first;
-    lower.key = "";
-    lower.value = "";
-    upper.index = it->first + 1;
-    upper.key = "";
-    upper.value = "";
-    range_set.insert(std::make_pair(lower, upper));
-  }
-
-  Ranges< Tag_Index_Local > ranges(std::move(range_set));
-
-  // iterate over the result
-  Block_Backend< Tag_Index_Local, Uint32_Index > elems_db(&tags_local);
-  Tag_Index_Local current_index;
-  Tag_Entry< typename TObject::Id_Type > tag_entry;
-  current_index.index = 0xffffffff;
-
-  for (const auto & it : elems_db.as_range(ranges))
-  {
-    if (!(current_index == it.index()))
-    {
-      if ((current_index.index != 0xffffffff) && (!tag_entry.ids.empty()))
-	tags_to_delete.push_back(tag_entry);
-      current_index = it.index();
-      tag_entry.index = it.index().index;
-      tag_entry.key = it.index().key;
-      tag_entry.value = it.index().value;
-      tag_entry.ids.clear();
-    }
-
-    std::set< typename TObject::Id_Type >& handle(to_delete_coarse[it.index().index]);
-    if (handle.find(it.object().val()) != handle.end())
-    {
-      TObject* elem(binary_ptr_search_for_id(elems_ptr, it.object().val()));
-      if (elem != 0)
-	elem->tags.push_back(std::make_pair(it.index().key, it.index().value));
-      tag_entry.ids.push_back(it.object().val());
-    }
-  }
-  if ((current_index.index != 0xffffffff) && (!tag_entry.ids.empty()))
-    tags_to_delete.push_back(tag_entry);
-}
-
 
 template < class TObject >
 void update_tags_local
