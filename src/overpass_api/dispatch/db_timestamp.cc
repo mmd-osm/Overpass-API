@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
   }
   catch (const Timeout_Error& e) {
     std::ostringstream temp;
-    error_output.write_html_header("", "", 504, false);
+    error_output.write_html_header("", "", 504);
     if (error_output.http_method == http_get
         || error_output.http_method == http_post)
       temp<<"open64: "<< 0 <<' '<<strerror(0)<<' '<<e.filename<<' '<<e.origin
@@ -137,7 +137,7 @@ int main(int argc, char *argv[])
   catch (const Rate_limited_Error& e) {
 
     std::ostringstream temp;
-    error_output.write_html_header("", "", 429, false);
+    error_output.write_html_header("", "", 429);
     if (error_output.http_method == http_get
         || error_output.http_method == http_post)
       temp<<"open64: "<< 0 <<' '<<strerror(0)<<' '<<e.filename<<' '<<e.origin

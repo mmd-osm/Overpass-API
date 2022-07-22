@@ -58,7 +58,7 @@ struct Web_Output : public Error_Output
   void enforce_header(uint write_mime);
   void write_html_header
       (const std::string& timestamp = "", const std::string& area_timestamp = "", uint write_mime = 200,
-       bool write_js_init = false, bool write_remarks = true);
+       bool write_remarks = true);
   void write_payload_header
       (const std::string& db_dir, const std::string& timestamp, const std::string& area_timestamp,
        bool write_mime);

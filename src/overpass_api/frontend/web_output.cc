@@ -126,8 +126,7 @@ void Web_Output::enforce_header(uint write_mime)
 
 
 void Web_Output::write_html_header
-    (const std::string& timestamp, const std::string& area_timestamp, uint write_mime, bool write_js_init,
-     bool write_remarks)
+    (const std::string& timestamp, const std::string& area_timestamp, uint write_mime, bool write_remarks)
 {
   if (header_written != not_yet)
     return;
@@ -149,7 +148,7 @@ void Web_Output::write_html_header
       return;
     }
   }
-  ::write_html_header(timestamp, area_timestamp, write_mime, write_js_init, write_remarks);
+  ::write_html_header(timestamp, area_timestamp, write_mime, write_remarks);
 }
 
 

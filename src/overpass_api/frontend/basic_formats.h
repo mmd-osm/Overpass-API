@@ -38,8 +38,7 @@ typedef enum { http_get, http_post, http_head, http_options } Http_Methods;
 
 
 void write_html_header
-    (const std::string& timestamp, const std::string& area_timestamp, uint write_mime, bool write_js_init,
-     bool write_remarks);
+    (const std::string& timestamp, const std::string& area_timestamp, uint write_mime, bool write_remarks);
 
 
 #endif

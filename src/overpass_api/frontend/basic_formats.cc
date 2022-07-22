@@ -25,8 +25,7 @@
 
 
 void write_html_header
-    (const std::string& timestamp, const std::string& area_timestamp, uint write_mime, bool write_js_init,
-     bool write_remarks)
+    (const std::string& timestamp, const std::string& area_timestamp, uint write_mime, bool write_remarks)
 {
   if (write_mime > 0)
   {
@@ -52,7 +51,7 @@ void write_html_header
   "  <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" lang=\"en\"/>\n"
   "  <title>OSM3S Response</title>\n"
   "</head>\n";
-  std::cout<<(write_js_init ? "<body onload=\"init()\">\n\n" : "<body>\n\n");
+  std::cout<<"<body>\n\n";
   if (write_remarks)
   {
     std::cout<<

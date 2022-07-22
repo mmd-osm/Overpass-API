@@ -139,7 +139,7 @@ int handle_request(const std::string & content, bool is_cgi, Index_Cache* ic)
 
   catch (const Timeout_Error& e) {
     std::ostringstream temp;
-    error_output.write_html_header("", "", 504, false);
+    error_output.write_html_header("", "", 504);
     if (error_output.http_method == http_get
         || error_output.http_method == http_post)
       temp<<"open64: "<< 0 <<' '<<strerror(0)<<' '<<e.filename<<' '<<e.origin
@@ -149,7 +149,7 @@ int handle_request(const std::string & content, bool is_cgi, Index_Cache* ic)
   catch (const Rate_limited_Error& e) {
 
     std::ostringstream temp;
-    error_output.write_html_header("", "", 429, false);
+    error_output.write_html_header("", "", 429);
     if (error_output.http_method == http_get
         || error_output.http_method == http_post)
       temp<<"open64: "<< 0 <<' '<<strerror( 0 )<<' '<<e.filename<<' '<<e.origin
@@ -163,7 +163,7 @@ int handle_request(const std::string & content, bool is_cgi, Index_Cache* ic)
 
     if (e.origin == "Dispatcher_Client::1")
     {
-      error_output.write_html_header("", "", 504, false);
+      error_output.write_html_header("", "", 504);
       temp<<"The dispatcher (i.e. the database management system) is turned off.";
     }
     else
