@@ -129,16 +129,12 @@ statements_cc = \
 output_formats_cc = \
   overpass_api/output_formats/output_csv.cc \
   overpass_api/output_formats/output_csv_factory.cc \
-  overpass_api/output_formats/output_custom.cc \
-  overpass_api/output_formats/output_custom_factory.cc \
   overpass_api/output_formats/output_json.cc \
   overpass_api/output_formats/output_json_factory.cc \
   overpass_api/output_formats/output_osmium.cc \
   overpass_api/output_formats/output_osmium_factory.cc \
   overpass_api/output_formats/output_xml.cc \
-  overpass_api/output_formats/output_xml_factory.cc \
-  overpass_api/output_formats/output_popup.cc \
-  overpass_api/output_formats/output_popup_factory.cc
+  overpass_api/output_formats/output_xml_factory.cc
 
 libcore_la_SOURCES = overpass_api/frontend/output_handler_parser.cc overpass_api/statements/statement_dump.cc expat/map_ql_input.cc
 libcore_la_LIBADD = libdispatcher.la libexpatwrapper.la libsettings.la libfrontend.la
@@ -273,10 +269,8 @@ nobase_dist_HEADERS = \
   overpass_api/osm-backend/tags_updater.h\
   overpass_api/osm-backend/way_updater.h\
   overpass_api/output_formats/output_csv.h\
-  overpass_api/output_formats/output_custom.h\
   overpass_api/output_formats/output_json.h\
   overpass_api/output_formats/output_osmium.h\
-  overpass_api/output_formats/output_popup.h\
   overpass_api/output_formats/output_xml.h\
   overpass_api/statements/aggregators.h\
   overpass_api/statements/area_query.h\

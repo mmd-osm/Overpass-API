@@ -16,8 +16,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 option(HAVE_OVERPASS_XML "Build with Overpass XML dialect" ON)
-option(HAVE_POPUP_OUTPUT "Build with [out:popup] support" OFF)
-option(HAVE_CUSTOM_OUTPUT "Build with [out:custom] support" OFF)
 option(HAVE_FASTCGI   "Build with FastCGI library" ON)
 option(HAVE_PCRE      "Build with PCRE library" ON)
 option(HAVE_ICU       "BUild with ICU library" OFF)
