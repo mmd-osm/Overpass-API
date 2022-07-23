@@ -1122,9 +1122,14 @@ TStatement* parse_query(typename TStatement::Factory& stmt_factory, Parsed_Query
       if (*token == "!")    // [!key] as shortcut for [key !~ ".*"]
       {
         ++token;
+
+        bool key_regex_neg = (*token == "~");    // [!~key] as shortcut for [~key !~ ".*]
+        if (key_regex_neg)
+          ++token;
+
         std::string key = get_text_token(token, error_output, "Key");
         clear_until_after(token, error_output, "]");
-        Statement_Text clause("has-kv_regex", token.line_col());
+        Statement_Text clause( (key_regex_neg ? "has-kv_keyregex" : "has-kv_regex"), token.line_col());
         clause.attributes.push_back(key);
         clause.attributes.push_back(".*");
         clause.attributes.push_back("!");

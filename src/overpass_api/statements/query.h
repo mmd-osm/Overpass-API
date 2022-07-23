@@ -178,28 +178,22 @@ class Query_Statement final : public Output_Statement
 
     template< typename Skeleton, typename Id_Type >
     std::vector< std::pair< Id_Type, Uint31_Index > > collect_ids
-        (const File_Properties& file_prop, const File_Properties& attic_file_prop,
-         Resource_Manager& rman, timestamp_t timestamp, Query_Filter_Strategy& check_keys_late, bool& result_valid);
+        (Resource_Manager& rman, timestamp_t timestamp, Query_Filter_Strategy& check_keys_late, bool& result_valid);
 
-    template< class Id_Type >
+    template< typename Skeleton, class Id_Type >
     std::vector< Id_Type > collect_ids
-        (const File_Properties& file_prop,
-         Resource_Manager& rman, Query_Filter_Strategy check_keys_late);
+        (Resource_Manager& rman, Query_Filter_Strategy check_keys_late);
 
-    template< class Id_Type >
+    template< typename Skeleton, class Id_Type >
     IdSetHybrid<typename Id_Type::Id_Type> collect_non_ids_hybrid
-       (const File_Properties& file_prop, const File_Properties& attic_file_prop,
-        Resource_Manager& rman, timestamp_t timestamp,
+       (Resource_Manager& rman, timestamp_t timestamp,
         Query_Filter_Strategy& check_keys_late, bool& result_valid);
 
-    template< class Id_Type >
-    std::vector< Id_Type > collect_non_ids
-        (const File_Properties& file_prop, const File_Properties& attic_file_prop,
-         Resource_Manager& rman, timestamp_t timestamp);
+    template< typename Skeleton, class Id_Type >
+    std::vector< Id_Type > collect_non_ids(Resource_Manager& rman, timestamp_t timestamp);
 
-    template< class Id_Type >
-    std::vector< Id_Type > collect_non_ids
-        (const File_Properties& file_prop, Resource_Manager& rman);
+    template< typename Skeleton, class Id_Type >
+    std::vector< Id_Type > collect_non_ids(Resource_Manager& rman);
 
     void get_elements_by_id_from_db
         (std::map< Uint31_Index, std::vector< Area_Skeleton > >& elements,
@@ -226,13 +220,11 @@ class Query_Statement final : public Output_Statement
     void progress_1(std::vector< Id_Type >& ids, std::vector< Index >& range_req,
                     bool& invert_ids, timestamp_t timestamp,
                     Answer_State& answer_state, Query_Filter_Strategy& check_keys_late,
-                    const File_Properties& file_prop, const File_Properties& attic_file_prop,
                     Resource_Manager& rman);
 
-    template< class Id_Type >
+    template< typename Skeleton, class Id_Type >
     void progress_1(std::vector< Id_Type >& ids, bool& invert_ids,
                     Answer_State& answer_state, Query_Filter_Strategy check_keys_late,
-                    const File_Properties& file_prop,
                     Resource_Manager& rman);
 
     template< class Id_Type >

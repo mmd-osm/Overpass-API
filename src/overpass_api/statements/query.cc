@@ -108,33 +108,44 @@ void Query_Statement::add_statement(Statement* statement, std::string text)
 
     if (!has_kv->get_value().empty())
     {
-      if (has_kv->get_straight())
+      if (has_kv->get_straight()) {
         key_values.push_back(std::make_pair< std::string, std::string >
 	    (has_kv->get_key(), has_kv->get_value()));
+      }
       else
+      {
         key_nvalues.push_back(std::make_pair< std::string, std::string >
 	    (has_kv->get_key(), has_kv->get_value()));
+      }
     }
     else if (has_kv->get_key_regex())
     {
-      if (has_kv->get_straight())
+      if (has_kv->get_straight()) {
 	regkey_regexes.push_back(std::make_pair< Regular_Expression*, Regular_Expression* >
             (has_kv->get_key_regex(), has_kv->get_regex()));
+      }
       else
+      {
 	regkey_nregexes.push_back(std::make_pair< Regular_Expression*, Regular_Expression* >
             (has_kv->get_key_regex(), has_kv->get_regex()));
+      }
     }
     else if (has_kv->get_regex())
     {
-      if (has_kv->get_straight())
+      if (has_kv->get_straight()) {
 	key_regexes.push_back(std::make_pair< std::string, Regular_Expression* >
             (has_kv->get_key(), has_kv->get_regex()));
+      }
       else
+      {
 	key_nregexes.push_back(std::make_pair< std::string, Regular_Expression* >
             (has_kv->get_key(), has_kv->get_regex()));
+      }
     }
-    else
+    else {
       keys.push_back(has_kv->get_key());
+    }
+
     return;
   }
 
@@ -371,18 +382,17 @@ enum class FinalProcessing {
 
 template< typename Skeleton, typename Id_Type >
 std::vector< std::pair< Id_Type, Uint31_Index > > Query_Statement::collect_ids
-  (const File_Properties& file_prop, const File_Properties& attic_file_prop, Resource_Manager& rman,
-      timestamp_t timestamp, Query_Filter_Strategy& check_keys_late, bool& result_valid)
+  (Resource_Manager& rman, timestamp_t timestamp, Query_Filter_Strategy& check_keys_late, bool& result_valid)
 {
   if (key_values.empty() && keys.empty() && key_regexes.empty() && regkey_regexes.empty())
     return std::vector< std::pair< Id_Type, Uint31_Index > >();
 
   Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > > tags_db
-      (rman.get_transaction()->data_index(&file_prop));
+      (rman.get_transaction()->data_index(current_global_tags_file_properties<Skeleton>()));
   Optional< Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > > > attic_tags_db
       (timestamp == NOW ? nullptr :
         new Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >
-        (rman.get_transaction()->data_index(&attic_file_prop)));
+        (rman.get_transaction()->data_index(attic_global_tags_file_properties<Skeleton>())));
 
   IdSetHybrid<typename Id_Type::Id_Type> tmp_ids;
 
@@ -545,16 +555,15 @@ std::vector< std::pair< Id_Type, Uint31_Index > > Query_Statement::collect_ids
 }
 
 
-template< class Id_Type >
+template< typename Skeleton, class Id_Type >
 std::vector< Id_Type > Query_Statement::collect_ids
-  (const File_Properties& file_prop, Resource_Manager& rman,
-   Query_Filter_Strategy check_keys_late)
+  (Resource_Manager& rman, Query_Filter_Strategy check_keys_late)
 {
   if (key_values.empty() && keys.empty() && key_regexes.empty() && regkey_regexes.empty())
     return std::vector< Id_Type >();
 
   Block_Backend< Tag_Index_Global, Id_Type > tags_db
-      (rman.get_transaction()->data_index(&file_prop));
+      (rman.get_transaction()->data_index(current_global_tags_file_properties<Skeleton>()));
 
   // Handle simple Key-Value pairs
   std::vector< Id_Type > new_ids;
@@ -622,21 +631,20 @@ std::vector< Id_Type > Query_Statement::collect_ids
 }
 
 
-template< class Id_Type >
+template< typename Skeleton, class Id_Type >
 IdSetHybrid<typename Id_Type::Id_Type> Query_Statement::collect_non_ids_hybrid
-  (const File_Properties& file_prop, const File_Properties& attic_file_prop,
-   Resource_Manager& rman, timestamp_t timestamp,
+  (Resource_Manager& rman, timestamp_t timestamp,
    Query_Filter_Strategy& check_keys_late, bool& result_valid)
 {
-  if (key_nvalues.empty() && key_nregexes.empty())
+  if (key_nvalues.empty() && key_nregexes.empty() && regkey_nregexes.empty())
     return IdSetHybrid<typename Id_Type::Id_Type>();
 
   Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > > tags_db
-      (rman.get_transaction()->data_index(&file_prop));
+      (rman.get_transaction()->data_index(current_global_tags_file_properties<Skeleton>()));
   Optional< Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > > > attic_tags_db
       (timestamp == NOW ? nullptr :
         new Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >
-        (rman.get_transaction()->data_index(&attic_file_prop)));
+        (rman.get_transaction()->data_index(attic_global_tags_file_properties<Skeleton>())));
 
   // In case additional constraints have been provided for the query statement, we fetch up to IDS_COUNT_LIMIT
   // ids before falling back to "prefer_ranges". Fetching a large amount of ids, in particular for high volume
@@ -709,6 +717,41 @@ IdSetHybrid<typename Id_Type::Id_Type> Query_Statement::collect_non_ids_hybrid
     rman.health_check(*this);
   }
 
+  // Handle Key regular expression, non value regular expression pairs ( [~"regex"!~"."] )
+  for (const auto & [regkey, nregex] : regkey_nregexes)
+  {
+    if (timestamp == NOW)
+    {
+      auto ranges = get_regk_req<Skeleton>(regkey, rman, *this);
+
+      bool key_val_match = false;
+
+      for (auto it2 = tags_db.range_begin(ranges); it2 != tags_db.range_end(); ++it2)
+      {
+        if (it2.start_of_new_index()) {
+          key_val_match = nregex->matches(it2.index_handle().get_value(), false);
+        }
+
+        if (!key_val_match) {
+          it2.skip_current_index();
+          continue;
+        }
+
+        new_ids.set(it2.handle().id().val());
+        if (new_ids.size() > IDS_COUNT_LIMIT && !constraints.empty()) {
+          check_keys_late = Query_Filter_Strategy::prefer_ranges;
+          return {};
+        }
+      }
+    }
+    else
+    {
+       throw std::runtime_error ("Key regular expression with negations not yet implemented for attic");
+    }
+    rman.health_check(*this);
+
+  }
+
   new_ids.sort_unique();
 
   result_valid = true;
@@ -717,22 +760,21 @@ IdSetHybrid<typename Id_Type::Id_Type> Query_Statement::collect_non_ids_hybrid
 }
 
 
-template< class Id_Type >
+template< typename Skeleton, class Id_Type >
 std::vector< Id_Type > Query_Statement::collect_non_ids
-  (const File_Properties& file_prop, const File_Properties& attic_file_prop,
-   Resource_Manager& rman, timestamp_t timestamp)
+  (Resource_Manager& rman, timestamp_t timestamp)
 {
-  if (key_nvalues.empty() && key_nregexes.empty())
+  if (key_nvalues.empty() && key_nregexes.empty() && regkey_nregexes.empty())
     return std::vector< Id_Type >();
 
   bool result_valid;
 
   Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > > tags_db
-      (rman.get_transaction()->data_index(&file_prop));
+      (rman.get_transaction()->data_index(current_global_tags_file_properties<Skeleton>()));
   Optional< Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > > > attic_tags_db
       (timestamp == NOW ? nullptr :
         new Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >
-        (rman.get_transaction()->data_index(&attic_file_prop)));
+        (rman.get_transaction()->data_index(attic_global_tags_file_properties<Skeleton>())));
 
   std::vector< Id_Type > new_ids;
 
@@ -789,6 +831,36 @@ std::vector< Id_Type > Query_Statement::collect_non_ids
     rman.health_check(*this);
   }
 
+  // Handle Key regular expression, non value regular expression pairs ( [~"regex"!~"."] )
+  for (const auto & [regkey, nregex] : regkey_nregexes)
+  {
+    if (timestamp == NOW)
+    {
+      auto ranges = get_regk_req<Skeleton>(regkey, rman, *this);
+
+      bool key_val_match = false;
+
+      for (auto it2 = tags_db.range_begin(ranges); it2 != tags_db.range_end(); ++it2)
+      {
+        if (it2.start_of_new_index()) {
+          key_val_match = nregex->matches(it2.index_handle().get_value(), false);
+        }
+
+        if (!key_val_match) {
+          it2.skip_current_index();
+          continue;
+        }
+
+        new_ids.push_back(it2.handle().id());
+      }
+    }
+    else
+    {
+      throw std::runtime_error ("Key regular expression with negations not yet implemented for attic");
+    }
+    rman.health_check(*this);
+  }
+
   sort(new_ids.begin(), new_ids.end());
   new_ids.erase(unique(new_ids.begin(), new_ids.end()), new_ids.end());
 
@@ -796,15 +868,15 @@ std::vector< Id_Type > Query_Statement::collect_non_ids
 }
 
 
-template< class Id_Type >
+template< typename Skeleton, class Id_Type >
 std::vector< Id_Type > Query_Statement::collect_non_ids
-  (const File_Properties& file_prop, Resource_Manager& rman)
+  (Resource_Manager& rman)
 {
-  if (key_nvalues.empty() && key_nregexes.empty())
+  if (key_nvalues.empty() && key_nregexes.empty() && regkey_nregexes.empty())
     return std::vector< Id_Type >();
 
   Block_Backend< Tag_Index_Global, Id_Type > tags_db
-      (rman.get_transaction()->data_index(&file_prop));
+      (rman.get_transaction()->data_index(current_global_tags_file_properties<Skeleton>()));
 
   std::vector< Id_Type > new_ids;
 
@@ -855,6 +927,13 @@ std::vector< Id_Type > Query_Statement::collect_non_ids
     }
 
     rman.health_check(*this);
+  }
+
+  // Handle Key regular expression, non value regular expression pairs ( [~"regex"!~"."] )
+  for (const auto & [regkey, nregex] : regkey_nregexes)
+  {
+    // auto ranges = get_regk_req<Skeleton>(regkey, rman, *this);
+    throw std::runtime_error ("Key regular expression with negations not yet implemented for area");
   }
 
   sort(new_ids.begin(), new_ids.end());
@@ -1158,7 +1237,7 @@ void Query_Statement::filter_by_tags
      Resource_Manager& rman, Transaction& transaction)
 {
   if (keys.empty() && key_values.empty() && key_regexes.empty() && regkey_regexes.empty()
-      && key_nregexes.empty() && key_nvalues.empty())
+      && key_nregexes.empty() && key_nvalues.empty() && regkey_nregexes.empty())
     return;
 
   if (items.empty() && timestamp == NOW) {
@@ -1232,7 +1311,7 @@ void Query_Statement::filter_by_tags
     }
   }
 
-  if (key_nregexes.empty() && key_nvalues.empty())
+  if (key_nregexes.empty() && key_nvalues.empty() && regkey_nregexes.empty())
   {
     filter_by_ids(ids_by_coarse, items, attic_items);
     return;
@@ -1243,9 +1322,18 @@ void Query_Statement::filter_by_tags
   for (std::vector< std::pair< std::string, Regular_Expression* > >::const_iterator
       it = key_nregexes.begin(); it != key_nregexes.end(); ++it)
     nkey_union[it->first].first.push_back(it->second);
+
   for (std::vector< std::pair< std::string, std::string > >::const_iterator
       it = key_nvalues.begin(); it != key_nvalues.end(); ++it)
     nkey_union[it->first].second.push_back(it->second);
+
+  for (const auto & [regkey, nregex] : regkey_nregexes)
+  {
+    auto ranges = get_regk_req<TObject>(regkey, rman, *this);
+    for (const auto & range : ranges) {
+      nkey_union[range.first.key].first.push_back(nregex);
+    }
+  }
 
   // iterate over the result
   result.clear();
@@ -1298,7 +1386,7 @@ void Query_Statement::filter_by_tags
      Resource_Manager& rman, Transaction& transaction)
 {
   if (keys.empty() && key_values.empty() && key_regexes.empty() && regkey_regexes.empty()
-      && key_nregexes.empty() && key_nvalues.empty())
+      && key_nregexes.empty() && key_nvalues.empty() && regkey_nregexes.empty())
     return;
 
   if (items.empty())
@@ -1367,7 +1455,7 @@ void Query_Statement::filter_by_tags
     items.swap(result);
   }
 
-  if (key_nregexes.empty() && key_nvalues.empty())
+  if (key_nregexes.empty() && key_nvalues.empty() && regkey_nregexes.empty())
     return;
 
   // prepare negated keys
@@ -1375,6 +1463,7 @@ void Query_Statement::filter_by_tags
   for (std::vector< std::pair< std::string, Regular_Expression* > >::const_iterator
       it = key_nregexes.begin(); it != key_nregexes.end(); ++it)
     nkey_union[it->first].first.push_back(it->second);
+
   for (std::vector< std::pair< std::string, std::string > >::const_iterator
       it = key_nvalues.begin(); it != key_nvalues.end(); ++it)
     nkey_union[it->first].second.push_back(it->second);
@@ -1517,7 +1606,6 @@ template< typename Skeleton, typename Id_Type, typename Index >
 void Query_Statement::progress_1(std::vector< Id_Type >& ids, std::vector< Index >& range_vec,
                                  bool& invert_ids, timestamp_t timestamp,
                                  Answer_State& answer_state, Query_Filter_Strategy& check_keys_late,
-                                 const File_Properties& file_prop, const File_Properties& attic_file_prop,
                                  Resource_Manager& rman)
 {
   ids.clear();
@@ -1528,16 +1616,16 @@ void Query_Statement::progress_1(std::vector< Id_Type >& ids, std::vector< Index
   {
     bool result_valid = true;
     std::vector< std::pair< Id_Type, Uint31_Index > > id_idxs =
-        collect_ids< Skeleton, Id_Type >(file_prop, attic_file_prop, rman, timestamp, check_keys_late, result_valid);
+        collect_ids< Skeleton, Id_Type >(rman, timestamp, check_keys_late, result_valid);
 
     // id_idxs incomplete due to large number of hits found?
     if (!result_valid) {
       return;
     }
 
-    if (!key_nvalues.empty() || (check_keys_late != prefer_ranges && !key_nregexes.empty()))
+    if (!key_nvalues.empty() || !regkey_nregexes.empty() || (check_keys_late != prefer_ranges && !key_nregexes.empty()))
     {
-      auto non_ids = collect_non_ids_hybrid< Id_Type >(file_prop, attic_file_prop, rman, timestamp, check_keys_late, result_valid);
+      auto non_ids = collect_non_ids_hybrid< Skeleton, Id_Type >(rman, timestamp, check_keys_late, result_valid);
       // non-ids too large? check_keys_late was also set to "prefer_ranges"
       if (!result_valid) {
         return;
@@ -1575,31 +1663,30 @@ void Query_Statement::progress_1(std::vector< Id_Type >& ids, std::vector< Index
     if (ids.empty() && result_valid)
       answer_state = data_collected;
   }
-  else if ((!key_nvalues.empty() || !key_nregexes.empty()) && check_keys_late != prefer_ranges)
+  else if ((!key_nvalues.empty() || !key_nregexes.empty() || !regkey_nregexes.empty()) && check_keys_late != prefer_ranges)
   {
     invert_ids = true;
     std::vector< Id_Type > id_idxs =
-        collect_non_ids< Id_Type >(file_prop, attic_file_prop, rman, timestamp);
+        collect_non_ids< Skeleton, Id_Type >(rman, timestamp);
 
     ids.insert(ids.end(), id_idxs.begin(), id_idxs.end());
   }
 }
 
 
-template< class Id_Type >
+template< typename Skeleton, class Id_Type >
 void Query_Statement::progress_1(std::vector< Id_Type >& ids, bool& invert_ids,
                                  Answer_State& answer_state, Query_Filter_Strategy check_keys_late,
-                                 const File_Properties& file_prop,
                                  Resource_Manager& rman)
 {
   if (!key_values.empty()
       || (check_keys_late != prefer_ranges
           && (!keys.empty() || !key_regexes.empty() || !regkey_regexes.empty())))
   {
-    collect_ids< Id_Type >(file_prop, rman, check_keys_late).swap(ids);
+    collect_ids< Skeleton, Id_Type >(rman, check_keys_late).swap(ids);
     if (!key_nvalues.empty() || !key_nregexes.empty() || !regkey_nregexes.empty())
     {
-      std::vector< Id_Type > non_ids = collect_non_ids< Id_Type >(file_prop, rman);
+      std::vector< Id_Type > non_ids = collect_non_ids< Skeleton, Id_Type >(rman);
       std::vector< Id_Type > diff_ids(ids.size(), Id_Type());
       diff_ids.erase(set_difference(ids.begin(), ids.end(), non_ids.begin(), non_ids.end(),
                      diff_ids.begin()), diff_ids.end());
@@ -1612,7 +1699,7 @@ void Query_Statement::progress_1(std::vector< Id_Type >& ids, bool& invert_ids,
       && check_keys_late != prefer_ranges)
   {
     invert_ids = true;
-    collect_non_ids< Id_Type >(file_prop, rman).swap(ids);
+    collect_non_ids< Skeleton, Id_Type >(rman).swap(ids);
   }
 }
 
@@ -1789,15 +1876,13 @@ void Query_Statement::execute(Resource_Manager& rman)
     if (type & QUERY_NODE)
     {
       progress_1< Node_Skeleton, Node::Id_Type, Uint32_Index >(
-	  node_ids, range_vec_32, invert_ids, timestamp, node_answer_state, check_keys_late,
-          *osm_base_settings().NODE_TAGS_GLOBAL, *attic_settings().NODE_TAGS_GLOBAL, rman);
+	  node_ids, range_vec_32, invert_ids, timestamp, node_answer_state, check_keys_late, rman);
       collect_nodes(node_ids, invert_ids, node_answer_state, into, rman);
     }
     if (type & QUERY_WAY)
     {
       progress_1< Way_Skeleton, Way::Id_Type, Uint31_Index >(
-	  way_ids, way_range_vec_31, invert_ids, timestamp, way_answer_state, check_keys_late,
-          *osm_base_settings().WAY_TAGS_GLOBAL, *attic_settings().WAY_TAGS_GLOBAL, rman);
+	  way_ids, way_range_vec_31, invert_ids, timestamp, way_answer_state, check_keys_late, rman);
       collect_elems(QUERY_WAY, way_ids, invert_ids, way_answer_state, into, rman);
       if (type & QUERY_CLOSED_WAY)
         filter_elems_for_closed_ways(into);      
@@ -1805,8 +1890,7 @@ void Query_Statement::execute(Resource_Manager& rman)
     if (type & QUERY_RELATION)
     {
       progress_1< Relation_Skeleton, Relation::Id_Type, Uint31_Index >(
-	  relation_ids, relation_range_vec_31, invert_ids, timestamp, relation_answer_state, check_keys_late,
-          *osm_base_settings().RELATION_TAGS_GLOBAL,  *attic_settings().RELATION_TAGS_GLOBAL, rman);
+	  relation_ids, relation_range_vec_31, invert_ids, timestamp, relation_answer_state, check_keys_late, rman);
       collect_elems(QUERY_RELATION, relation_ids, invert_ids, relation_answer_state, into, rman);
     }
     if (type & QUERY_DERIVED)
@@ -1818,8 +1902,8 @@ void Query_Statement::execute(Resource_Manager& rman)
     {
       try
       {
-        progress_1(area_ids, invert_ids, area_answer_state,
-                  check_keys_late, *area_settings().AREA_TAGS_GLOBAL, rman);
+        progress_1<Area_Skeleton>(area_ids, invert_ids, area_answer_state,
+                  check_keys_late, rman);
         collect_elems(QUERY_AREA, area_ids, invert_ids, area_answer_state, into, rman);
       }
       catch (const File_Error& e)
@@ -2343,11 +2427,14 @@ Has_Kv_Statement::Has_Kv_Statement
   {
     if (attributes["modv"] == "not")
     {
+      straight = false;
+/*
       if (attributes["regk"].empty())
         straight = false;
       else
 	add_static_error("In the element \"has-kv\" regular expressions on keys cannot be combined"
 	  " with negation.");
+*/
     }
   }
   else
