@@ -318,6 +318,9 @@ void new_current_skeletons
 {
   attic_skeletons = existing_skeletons;
 
+  std::set< Element_Skeleton > * set_skel = nullptr;
+  Uint31_Index prev_idx{};
+
   auto next_it = new_data.data.begin();
   for (auto it = new_data.data.begin(); it != new_data.data.end(); ++it)
   {
@@ -335,14 +338,22 @@ void new_current_skeletons
     if (!idx)
     {
       // No old data exists. So we can add the new data and are done.
-      new_skeletons[it->idx].insert(it->elem);
+      if (!(prev_idx == it->idx)) {
+        set_skel = &new_skeletons[it->idx];
+        prev_idx = it->idx;
+      }
+      set_skel->insert(it->elem);
       continue;
     }
     else if (!(*idx == it->idx))
     {
       // The old and new version have different indexes. So they are surely different.
       moved_objects.push_back(std::make_pair(it->elem.id, Index_Type(idx->val())));
-      new_skeletons[it->idx].insert(it->elem);
+      if (!(prev_idx == it->idx)) {
+        set_skel = &new_skeletons[it->idx];
+        prev_idx = it->idx;
+      }
+      set_skel->insert(it->elem);
       continue;
     }
 
@@ -350,7 +361,11 @@ void new_current_skeletons
     if (it_attic_idx == attic_skeletons.end())
     {
       // Something has gone wrong. Save at least the new object.
-      new_skeletons[it->idx].insert(it->elem);
+      if (!(prev_idx == it->idx)) {
+        set_skel = &new_skeletons[it->idx];
+        prev_idx = it->idx;
+      }
+      set_skel->insert(it->elem);
       continue;
     }
 
@@ -358,7 +373,11 @@ void new_current_skeletons
     if (it_attic == it_attic_idx->second.end())
     {
       // Something has gone wrong. Save at least the new object.
-      new_skeletons[it->idx].insert(it->elem);
+      if (!(prev_idx == it->idx)) {
+        set_skel = &new_skeletons[it->idx];
+        prev_idx = it->idx;
+      }
+      set_skel->insert(it->elem);
       continue;
     }
 
@@ -466,6 +485,9 @@ void new_current_meta
 {
   attic_meta = existing_meta;
 
+  std::set< OSM_Element_Metadata_Skeleton< typename Element_Skeleton::Id_Type > > * set_meta = nullptr;
+  Uint31_Index prev_idx{};
+
   auto next_it = new_data.data.begin();
   for (auto it = new_data.data.begin(); it != new_data.data.end(); ++it)
   {
@@ -479,7 +501,12 @@ void new_current_meta
       // attic_meta.
       continue;
 
-    new_meta[it->idx].insert(it->meta);
+    if (!(prev_idx == it->idx)) {
+      set_meta = &new_meta[it->idx];
+      prev_idx = it->idx;
+    }
+
+    set_meta->insert(it->meta);
   }
 }
 
