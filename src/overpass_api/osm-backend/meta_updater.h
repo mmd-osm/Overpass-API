@@ -241,6 +241,79 @@ Block_Backend_Collection< TIndex, TObject >::~Block_Backend_Collection()
     delete(*it);
 }
 
+//------------------------------------------------
+
+template <typename TIndex >
+inline TIndex get_idx_from_handle(const Handle<TIndex>& handle) = delete;
+
+template<>
+inline Uint32_Index get_idx_from_handle(const Handle<Uint32_Index>& handle)
+{
+  return handle.id();
+}
+
+template<>
+inline Uint31_Index get_idx_from_handle(const Handle<Uint31_Index>& handle)
+{
+  return handle.id();
+}
+
+template<>
+inline Tag_Index_Local get_idx_from_handle(const Handle<Tag_Index_Local>& handle)
+{
+  return handle.get_element();
+}
+
+template<>
+inline Tag_Index_Global get_idx_from_handle(const Handle<Tag_Index_Global>& handle)
+{
+  return handle.get_element();
+}
+
+//------------------------------------------------
+
+template <typename TObject >
+inline TObject get_object_from_handle(const Handle<TObject>& handle) = delete;
+
+template <>
+inline Node_Skeleton get_object_from_handle(const Handle<Node_Skeleton>& handle)
+{
+  return handle.get_element();
+}
+
+template <>
+inline Way_Skeleton get_object_from_handle(const Handle<Way_Skeleton>& handle)
+{
+  return handle.get_element();
+}
+
+template <>
+inline Node::Id_Type get_object_from_handle(const Handle<Node::Id_Type>& handle)
+{
+  return handle.id();
+}
+
+template <>
+inline Way::Id_Type get_object_from_handle(const Handle<Way::Id_Type>& handle)
+{
+  return handle.id();
+}
+
+template <typename T>
+inline OSM_Element_Metadata_Skeleton< T > get_object_from_handle(const Handle<OSM_Element_Metadata_Skeleton< T >>& handle)
+{
+  return handle.get_element();
+}
+
+template <typename T>
+inline Tag_Object_Global< T > get_object_from_handle(const Handle<Tag_Object_Global< T >>& handle)
+{
+  return Tag_Object_Global< T >(handle.id(), handle.get_idx());
+}
+
+//------------------------------------------------
+
+
 template < typename TIndex, typename TObject >
 void merge_files
     (Transaction_Collection& from_transaction, Transaction& into_transaction,
@@ -266,11 +339,20 @@ void merge_files
     {
       TIndex current_idx = *current_idxs.begin();
       current_idxs.erase(current_idxs.begin());
+
+      std::set< TObject > * dbins = nullptr;
+      TIndex prev_idx{};
+
       for (auto it = from_its.begin(); it != from_its.end(); ++it)
       {
-	while (!(it->first == it->second) && (it->first.index() == current_idx))
+	while (!(it->first == it->second) && (get_idx_from_handle(it->first.index_handle()) == current_idx))
 	{
-	  db_to_insert[it->first.index()].insert(it->first.object());
+          if (!(prev_idx == current_idx)) {
+            dbins = &db_to_insert[get_idx_from_handle(it->first.index_handle())];
+            prev_idx = current_idx;
+          }
+
+          dbins->insert(get_object_from_handle(it->first.handle()));
 	  ++(it->first);
 
 	  if (++item_count > 4*1024*1024)
@@ -280,6 +362,7 @@ void merge_files
 	    into_db.update(db_to_delete, db_to_insert);
 	    db_to_insert.clear();
 	    item_count = 0;
+	    prev_idx = {};
 	  }
 	}
 	if (!(it->first == it->second))
