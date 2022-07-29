@@ -16,7 +16,10 @@
  * along with Overpass_API.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <chrono>
+#include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <string>
 
 #include "output.h"
@@ -54,6 +57,52 @@ Osm_Backend_Callback* get_verbatim_callback()
 {
   return new Verbose_Osm_Backend_Callback;
 }
+
+
+class Timestamp_Osm_Backend_Callback : public Osm_Backend_Callback
+{
+  public:
+    void update_started() override { std::cerr<<"Flushing to database ."; }
+    void update_ids_finished() override { std::cerr<<'.'; }
+    void update_coords_finished() override { std::cerr<<'.'; }
+    void prepare_delete_tags_finished() override { std::cerr<<'.'; }
+    void tags_local_finished() override { std::cerr<<'.'; }
+    void tags_global_finished() override { std::cerr<<'.'; }
+    void flush_roles_finished() override { std::cerr<<'.'; }
+    void update_finished() override { std::cerr<<" done.\n"; }
+    void partial_started() override { std::cerr<< "[" << get_current_timestamp() <<"] Reorganizing the database ..."; }
+    void partial_finished() override { std::cerr<<" done.\n"; }
+
+    void parser_started() override { std::cerr<< "[" << get_current_timestamp() << "] Reading XML file ..."; }
+    void node_elapsed(Node::Id_Type id) override { std::cerr<<" elapsed node "<<id.val()<<". "; }
+    void nodes_finished() override { std::cerr<<" finished reading nodes. "; }
+    void way_elapsed(Way::Id_Type id) override { std::cerr<<" elapsed way "<<id.val()<<". "; }
+    void ways_finished() override { std::cerr<<" finished reading ways. "; }
+    void relation_elapsed(Relation::Id_Type id) override { std::cerr<<" elapsed relation "<<id.val()<<". "; }
+    void relations_finished() override { std::cerr<<" finished reading relations. "; }
+
+    void parser_succeeded() override { std::cerr<< "["<< get_current_timestamp() << "] Update complete.\n"; }
+
+    ~Timestamp_Osm_Backend_Callback() override = default;
+
+  private:
+
+    std::string get_current_timestamp() {
+
+      auto now = std::chrono::system_clock::now();
+      auto itt = std::chrono::system_clock::to_time_t(now);
+      std::ostringstream ss;
+      ss << std::put_time(gmtime(&itt), "%FT%TZ");
+      return ss.str();
+    }
+};
+
+
+Osm_Backend_Callback* get_timestamp_log_callback()
+{
+  return new Timestamp_Osm_Backend_Callback;
+}
+
 
 
 class Quiet_Osm_Backend_Callback : public Osm_Backend_Callback

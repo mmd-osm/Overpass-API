@@ -29,6 +29,7 @@
 
 Osm_Backend_Callback* get_verbatim_callback();
 Osm_Backend_Callback* get_quiet_callback();
+Osm_Backend_Callback* get_timestamp_log_callback();
 
 void report_file_error(const File_Error& e);
 

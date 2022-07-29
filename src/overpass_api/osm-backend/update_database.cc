@@ -178,7 +178,7 @@ int main(int argc, char* argv[])
       else
       {
 #ifdef HAVE_LIBOSMIUM
-        Osmium_Updater osmium_updater(get_verbatim_callback(), data_version, meta, flush_limit, parallel_processes, initial_load);
+        Osmium_Updater osmium_updater(get_timestamp_log_callback(), data_version, meta, flush_limit, parallel_processes, initial_load);
         //reading the main document
         osmium_updater.parse_file_completely(stdin, input_format);
 #endif
@@ -196,7 +196,7 @@ int main(int argc, char* argv[])
       else
       {
 #ifdef HAVE_LIBOSMIUM
-        Osmium_Updater osmium_updater(get_verbatim_callback(), db_dir, data_version, meta, flush_limit, parallel_processes, initial_load);
+        Osmium_Updater osmium_updater(get_timestamp_log_callback(), db_dir, data_version, meta, flush_limit, parallel_processes, initial_load);
         //reading the main document
         osmium_updater.parse_file_completely(stdin, input_format);
 #endif

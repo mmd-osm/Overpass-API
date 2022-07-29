@@ -410,6 +410,9 @@ void compute_geometry
      const std::map< Way_Skeleton::Id_Type, Uint31_Index >& new_way_idx_by_id,
      Data_By_Id< Relation_Skeleton >& new_data)
 {
+  uint32_t error_count = 0;
+  const int max_errors = 100;
+
   std::vector< Data_By_Id< Relation_Skeleton >::Entry >::const_iterator next_it = new_data.data.begin();
   for (auto it = new_data.data.begin(); it != new_data.data.end(); ++it)
   {
@@ -431,16 +434,20 @@ void compute_geometry
         auto it2 = new_node_idx_by_id.find(Node_Skeleton::Id_Type(nit->ref.val()));
         if (it2 != new_node_idx_by_id.end())
           member_idxs.push_back(it2->second.ll_upper);
-        else
-          std::cerr<<"compute_geometry: Node "<<nit->ref.val()<<" used in relation "<<it->elem.id.val()<<" not found.\n";
+        else {
+          if (++error_count <= max_errors)
+            std::cerr<<"compute_geometry: Node "<<nit->ref.val()<<" used in relation "<<it->elem.id.val()<<" not found.\n";
+        }
       }
       else if (nit->type == Relation_Entry::WAY)
       {
         auto it2 = new_way_idx_by_id.find(Way_Skeleton::Id_Type(nit->ref.val()));
         if (it2 != new_way_idx_by_id.end())
           member_idxs.push_back(it2->second.val());
-        else
-          std::cerr<<"compute_geometry: Way "<<nit->ref.val()<<" used in relation "<<it->elem.id.val()<<" not found.\n";
+        else {
+          if (++error_count <= max_errors)
+            std::cerr<<"compute_geometry: Way "<<nit->ref.val()<<" used in relation "<<it->elem.id.val()<<" not found.\n";
+        }
       }
     }
 
@@ -470,6 +477,10 @@ void compute_geometry
     }
 
     it->idx = index;
+  }
+
+  if (error_count > max_errors) {
+    std::cerr<<"compute_geometry: " << error_count - max_errors << " error messages suppressed.\n";
   }
 }
 

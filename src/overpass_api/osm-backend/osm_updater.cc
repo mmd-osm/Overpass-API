@@ -614,4 +614,5 @@ Osm_Updater::~Osm_Updater()
     logger.annotated_log("write_rollback() end");
     delete dispatcher_client;
   }
+  delete callback;
 }

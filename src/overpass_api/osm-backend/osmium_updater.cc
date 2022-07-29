@@ -469,6 +469,7 @@ Osmium_Updater::~Osmium_Updater() {
 
   cpu_stopwatch->stop_cpu_timer(0);
   delete cpu_stopwatch;
+  delete callback_;
 }
 
 
