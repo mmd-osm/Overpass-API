@@ -484,27 +484,48 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
       (existing_map_positions, *transaction->data_index(osm_base_settings().NODE_TAGS_LOCAL),
        existing_local_tags);
 
+  std::vector< std::function< void() > > f1;
+
   // Compute which objects really have changed
   attic_skeletons.clear();
   new_skeletons.clear();
-  new_current_skeletons(new_data, existing_map_positions, existing_skeletons,
-      0, attic_skeletons, new_skeletons, moved_nodes);
+
+  f1.push_back( [&]
+  {
+    new_current_skeletons(new_data, existing_map_positions, existing_skeletons,
+        0, attic_skeletons, new_skeletons, moved_nodes);
+  });
 
   attic_tagged_skeletons.clear();
   new_tagged_skeletons.clear();
-  new_current_tagged_skeletons(new_data, existing_map_positions, existing_tagged_skeletons,
+
+  f1.push_back( [&]
+  {
+    new_current_tagged_skeletons(new_data, existing_map_positions, existing_tagged_skeletons,
       0, attic_tagged_skeletons, new_tagged_skeletons, moved_tagged_nodes);
+  });
 
   // Compute which meta data really has changed
   std::map< Uint31_Index, std::set< OSM_Element_Metadata_Skeleton< Node_Skeleton::Id_Type > > > attic_meta;
   std::map< Uint31_Index, std::set< OSM_Element_Metadata_Skeleton< Node_Skeleton::Id_Type > > > new_meta;
-  new_current_meta(new_data, existing_map_positions, existing_meta, attic_meta, new_meta);
+
+  f1.push_back( [&]
+  {
+    new_current_meta(new_data, existing_map_positions, existing_meta, attic_meta, new_meta);
+  });
 
   // Compute which tags really have changed
   std::map< Tag_Index_Local, std::set< Node_Skeleton::Id_Type > > attic_local_tags;
   std::map< Tag_Index_Local, std::set< Node_Skeleton::Id_Type > > new_local_tags;
-  new_current_local_tags< Node_Skeleton, Node_Skeleton::Id_Type >
-      (new_data, existing_map_positions, existing_local_tags, attic_local_tags, new_local_tags);
+
+  f1.push_back( [&]
+  {
+    new_current_local_tags< Node_Skeleton, Node_Skeleton::Id_Type >
+        (new_data, existing_map_positions, existing_local_tags, attic_local_tags, new_local_tags);
+  });
+
+  process_package(f1, parallel_processes);
+  f1.clear();
       
   std::map< Tag_Index_Local, std::set< Node_Skeleton::Id_Type > > full_attic_local_tags
       = (meta == keep_attic ? attic_local_tags : std::map< Tag_Index_Local, std::set< Node_Skeleton::Id_Type > >());
