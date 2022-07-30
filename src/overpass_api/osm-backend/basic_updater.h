@@ -201,9 +201,14 @@ void get_existing_skeletons
   std::set< Uint31_Index > req;
   IdSetHybrid<typename Element_Skeleton::Id_Type::Id_Type > ids_lookup;
 
-  for (auto it = ids_with_position.begin(); it != ids_with_position.end(); ++it) {
-    req.insert(it->second);
-    ids_lookup.set(it->first.val());
+  Uint31_Index prev_idx{};
+
+  for (const auto & [elem, idx] : ids_with_position) {
+    if (!(idx == prev_idx)) {
+      req.insert(idx);
+      prev_idx = idx;
+    }
+    ids_lookup.set(elem.val());
   }
 
   // not needed: ids_with_positions is already sorted
