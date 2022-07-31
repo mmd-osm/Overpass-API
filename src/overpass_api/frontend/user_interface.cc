@@ -268,7 +268,7 @@ const char* probe_client_identifier()
 {
   const char* remote_addr_c = getenv("REMOTE_ADDR");
   if (!remote_addr_c)
-    return nullptr;
+    return "";
 
   return remote_addr_c;
 }
@@ -281,7 +281,7 @@ uint32 probe_client_token()
 
   const char* ip_addr = probe_client_identifier();
 
-  if (ip_addr == nullptr)
+  if (strlen(ip_addr) == 0)
     return 0;
 
   if (inet_pton(AF_INET6, ip_addr, &ipv6) == 1) {
