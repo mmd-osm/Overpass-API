@@ -77,12 +77,12 @@ struct Way_Updater
   {
     if (meta)
       new_data.data.push_back(Data_By_Id< Way_Skeleton >::Entry
-          (Uint31_Index(0xff), Way_Skeleton(way.id, std::move(way.nds)),
+          (Uint31_Index(0xff), Way_Skeleton(way.id, std::move(way.nds), std::move(way.geometry)),
            std::move(way.tags),
            OSM_Element_Metadata_Skeleton< Way_Skeleton::Id_Type >(way.id, *meta)));
     else
       new_data.data.push_back(Data_By_Id< Way_Skeleton >::Entry
-          (Uint31_Index(0xff), Way_Skeleton(way.id, std::move(way.nds)),
+          (Uint31_Index(0xff), Way_Skeleton(way.id, std::move(way.nds), std::move(way.geometry)),
            std::move(way.tags),
            OSM_Element_Metadata_Skeleton< Way_Skeleton::Id_Type >(way.id)));
 

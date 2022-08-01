@@ -73,7 +73,7 @@ class Timestamp_Osm_Backend_Callback : public Osm_Backend_Callback
     void partial_started() override { std::cerr<< "[" << get_current_timestamp() <<"] Reorganizing the database ..."; }
     void partial_finished() override { std::cerr<<" done.\n"; }
 
-    void parser_started() override { std::cerr<< "[" << get_current_timestamp() << "] Reading XML file ..."; }
+    void parser_started() override { std::cerr<< "[" << get_current_timestamp() << "] Reading input file ..."; }
     void node_elapsed(Node::Id_Type id) override { std::cerr<<" elapsed node "<<id.val()<<". "; }
     void nodes_finished() override { std::cerr<<" finished reading nodes. "; }
     void way_elapsed(Way::Id_Type id) override { std::cerr<<" elapsed way "<<id.val()<<". "; }

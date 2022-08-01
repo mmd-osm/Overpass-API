@@ -19,6 +19,8 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #undef VERSION
+#else
+#define HAVE_LIBOSMIUM
 #endif
 
 #ifdef HAVE_LIBOSMIUM
@@ -89,14 +91,15 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
   Relation_Updater* relation_updater;
   Osm_Backend_Callback* callback;
   Cpu_Stopwatch* cpu_stopwatch;
+  bool locationsonways = false;
 
   Osmium_Updater_Handler(Node_Updater* node_upd_, Way_Updater* way_upd_,
       Relation_Updater* rel_upd_, Osm_Backend_Callback* cb_, uint flush_limit_,
-      Cpu_Stopwatch* cpu_stopwatch_) :
+      Cpu_Stopwatch* cpu_stopwatch_, bool locationsonways_) :
       osm_element_count(0), flush_limit(flush_limit_), state(Process_State::INITIAL),
       node_updater(node_upd_), way_updater(way_upd_),
       relation_updater(rel_upd_), callback(cb_),
-      cpu_stopwatch(cpu_stopwatch_){};
+      cpu_stopwatch(cpu_stopwatch_), locationsonways(locationsonways_) {};
 
   void node(const osmium::Node& n) {
 
@@ -147,7 +150,15 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
     way.nds.reserve(w.nodes().size());
 
     for (const auto & nd : w.nodes())
+    {
       way.nds.push_back(nd.ref());
+      if (locationsonways) {
+        if (!nd.location().valid())
+          throw std::runtime_error(fmt::format("Way id {} node ref {} has no valid lat/lon value", w.id(), nd.ref()));
+        Node node(nd.ref(), nd.location().lat(), nd.location().lon());
+        way.geometry.emplace_back(node.index, node.ll_lower_);
+      }
+    }
 
     OSM_Element_Metadata meta;
     get_meta(w, meta);
@@ -313,14 +324,27 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
 
 void Osmium_Updater::parse_file_completely(FILE* in, const std::string& input_format) {
 
+  osmium::io::File infile("-", input_format);
+  osmium::io::Reader reader(infile);
+  auto header = reader.header();
+
+  bool locationsonways = false;
+  for (const auto & hdr : header)
+  {
+    if (hdr.first.find("pbf_optional_feature") == 0 && hdr.second == "LocationsOnWays")
+    {
+      // osmium add-locations-to-ways must be used with option --keep-untagged-nodes for this to work!
+      std::cerr << "PBF extension 'LocationsOnWays' found in input file.\n";
+      locationsonways = true;
+      break;
+    }
+  }
+
   this->callback_->parser_started();
 
-  osmium::io::File infile("-", input_format);
-
-  osmium::io::Reader reader(infile);
-
   Osmium_Updater_Handler osm_updater(node_updater_, way_updater_,
-      relation_updater_, callback_, flush_limit, cpu_stopwatch);
+      relation_updater_, callback_, flush_limit, cpu_stopwatch,
+      locationsonways);
 
   while (osmium::memory::Buffer buffer = reader.read())
     osmium::apply(buffer, osm_updater);
@@ -337,7 +361,7 @@ void Osmium_Updater::parse_multiple_files(const std::string& source_dir, const s
   this->callback_->parser_started();
 
   Osmium_Updater_Handler osm_updater(node_updater_, way_updater_,
-      relation_updater_, callback_, flush_limit, cpu_stopwatch);
+      relation_updater_, callback_, flush_limit, cpu_stopwatch, false);
 
   std::array<osmium::osm_entity_bits::type, 3> types = { osmium::osm_entity_bits::node,
                                                          osmium::osm_entity_bits::way,

@@ -475,8 +475,22 @@ std::map< Uint31_Index, std::set< Way_Skeleton > > get_implicitly_moved_skeleton
 }
 
 
-/* Adds the implicity known Quad_Coords from the given ways for nodes not yet known in
- * new_node_idx_by_id */
+/* Adds the Quad_Coords from the given ways with LocationsOnWays details */
+void add_nodes_from_locations_on_ways
+    (std::map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id,
+     const Data_By_Id< Way_Skeleton > & skel)
+{
+  for (auto it = skel.data.begin(); it != skel.data.end(); ++it)
+  {
+    if (!it->elem.geometry().empty())
+    {
+      for (std::vector< Quad_Coord >::size_type i = 0; i < it->elem.geometry().size(); ++i)
+        // Choose std::map::insert to only insert if the id doesn't exist yet.
+        new_node_idx_by_id.insert(std::make_pair(it->elem.nds()[i], it->elem.geometry()[i]));
+    }
+  }
+}
+
 void add_implicitly_known_nodes
     (std::map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id,
      const std::map< Uint31_Index, std::set< Way_Skeleton > >& known_skeletons)
@@ -511,6 +525,9 @@ void lookup_missing_nodes
       // We don't touch deleted objects
       continue;
 
+    if (!it->elem.geometry().empty())
+      continue;
+
     std::vector< uint32 > nd_idxs;
     for (auto nit = it->elem.nds().begin(); nit != it->elem.nds().end(); ++nit)
     {
@@ -523,6 +540,9 @@ void lookup_missing_nodes
   {
     for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
+      if (!it2->geometry().empty())
+        continue;
+
       for (auto nit = it2->nds().begin(); nit != it2->nds().end(); ++nit)
       {
         if (new_node_idx_by_id.find(*nit) == new_node_idx_by_id.end())
@@ -535,6 +555,9 @@ void lookup_missing_nodes
   {
     for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
     {
+      if (!it2->geometry().empty())
+        continue;
+
       for (auto nit = it2->nds().begin(); nit != it2->nds().end(); ++nit)
       {
         if (new_node_idx_by_id.find(*nit) == new_node_idx_by_id.end())
@@ -542,6 +565,9 @@ void lookup_missing_nodes
       }
     }
   }
+
+  if (missing_ids.empty())
+    return;
 
   std::sort(missing_ids.begin(), missing_ids.end());
   missing_ids.erase(std::unique(missing_ids.begin(), missing_ids.end()), missing_ids.end());
@@ -591,20 +617,34 @@ void compute_geometry
       continue;
 
     std::vector< uint32 > nd_idxs;
-    for (std::vector< Node::Id_Type >::const_iterator nit = it->elem.nds().begin(); nit != it->elem.nds().end(); ++nit)
+    if (it->elem.geometry().empty()) {
+      for (auto nit = it->elem.nds().cbegin(); nit != it->elem.nds().cend(); ++nit)
+      {
+        auto it2 = new_node_idx_by_id.find(*nit);
+        if (it2 != new_node_idx_by_id.end())
+          nd_idxs.push_back(it2->second.ll_upper);
+        else
+          std::cerr<<"compute_geometry: Node "<<nit->val()<<" used in way "<<it->elem.id.val()<<" not found.\n";
+      }
+    }
+    else
     {
-      auto it2 = new_node_idx_by_id.find(*nit);
-      if (it2 != new_node_idx_by_id.end())
-        nd_idxs.push_back(it2->second.ll_upper);
-      else
-        std::cerr<<"compute_geometry: Node "<<nit->val()<<" used in way "<<it->elem.id.val()<<" not found.\n";
+      // use existing geometry data from PBF extension LocationsOnWays
+      for (auto nit = it->elem.geometry().cbegin(); nit!= it->elem.geometry().cend(); ++nit)
+      {
+        nd_idxs.push_back(nit->ll_upper);
+      }
     }
 
     Uint31_Index index = Way::calc_index(nd_idxs);
 
-    it->elem.geometry().clear();
-
-    if (Way::indicates_geometry(index))
+    if (!Way::indicates_geometry(index)) {
+      // geometry information is not worthwhile keeping, way area is fairly small,
+      // and geometry can be easily recreated on the fly later on. this saves
+      // some disk space.
+      it->elem.geometry().clear();
+    }
+    else if (it->elem.geometry().empty())  // we need geometry details, recreate them using new_node_idx_by_id
     {
       for (std::vector< Node::Id_Type >::const_iterator nit = it->elem.nds().begin();
            nit != it->elem.nds().end(); ++nit)
@@ -841,6 +881,8 @@ void Way_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_stop
   add_implicitly_known_nodes(new_node_idx_by_id, existing_skeletons);
   // Then add all nodes known from implicitly_moved_skeletons geometry.
   add_implicitly_known_nodes(new_node_idx_by_id, implicitly_moved_skeletons);
+  // Also add nodes which are known via LocationsOnWays PBF extension
+  add_nodes_from_locations_on_ways(new_node_idx_by_id, new_data);
   // Then lookup the missing nodes.
   lookup_missing_nodes(new_node_idx_by_id, existing_skeletons, implicitly_moved_skeletons, new_data,
                        *transaction);
