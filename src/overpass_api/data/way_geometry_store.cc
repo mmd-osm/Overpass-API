@@ -105,9 +105,9 @@ std::map< Uint32_Index, std::vector< Node_Skeleton > > small_way_members
     return result;
 
   Uint32_Index cur_idx = req.begin()->first;
-  auto ids = small_way_nd_ids_fast(ways);
+  auto predicate = Id_Predicate< Node_Skeleton >(small_way_nd_ids_fast(ways));
   while (collect_items_range(stmt, rman, *osm_base_settings().NODES,
-      req, Id_Predicate< Node_Skeleton >(std::move(ids)), cur_idx, result));
+      req, predicate, cur_idx, result));
 
   return result;
 }
@@ -150,9 +150,9 @@ std::map< Uint32_Index, std::vector< Node_Skeleton > > small_way_members_ranges
     return result;
 
   Uint32_Index cur_idx = req.begin()->first;
-  auto ids = small_way_nd_ids_fast_ranges< Way_Skeleton >(ways_begin, ways_end);
+  auto predicate = Id_Predicate< Node_Skeleton >(small_way_nd_ids_fast_ranges< Way_Skeleton >(ways_begin, ways_end));
   while (collect_items_range(stmt, rman, *osm_base_settings().NODES,
-      req, Id_Predicate< Node_Skeleton >(std::move(ids)), cur_idx, result));
+      req, predicate, cur_idx, result));
 
   return result;
 }
@@ -254,9 +254,9 @@ Way_Geometry_Store::Way_Geometry_Store
       return;
 
     Uint32_Index cur_idx = req.begin()->first;
-    auto ids = small_way_nd_ids_fast(ways);
+    auto predicate = Id_Predicate< Node_Skeleton >(small_way_nd_ids_fast(ways));
     while (collect_items_range_by_timestamp(&query, rman, req,
-        Id_Predicate< Node_Skeleton >(std::move(ids)), cur_idx, current, attic));
+        predicate, cur_idx, current, attic));
 
     keep_matching_skeletons(nodes, current, attic, rman.get_desired_timestamp());
 
@@ -338,9 +338,10 @@ void Way_Geometry_Store::prefetch_attic(Uint31_Index idx)
     return;
 
   Uint32_Index cur_idx = req.begin()->first;
-  auto ids = small_way_nd_ids_fast_ranges< Attic< Way_Skeleton > >(attic_ways_begin,attic_ways_end);
+
+  auto predicate = Id_Predicate< Node_Skeleton >(small_way_nd_ids_fast_ranges< Attic< Way_Skeleton > >(attic_ways_begin,attic_ways_end));
   while (collect_items_range_by_timestamp(query, *rman, req,
-      Id_Predicate< Node_Skeleton >(std::move(ids)), cur_idx, current, attic));
+      predicate, cur_idx, current, attic));
 
   keep_matching_skeletons(nodes, current, attic, rman->get_desired_timestamp());
 }
