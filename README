@@ -5,7 +5,7 @@
 ## Overview
 
 - Performance optimized experimental Overpass API fork _0.7.59_mmd_
-- Based on 0.7.57.0
+- Based on 0.7.57.0, plus selected functional additions and bugfixes included in 0.7.58.* releases
 
 ### :tada: New features
 
@@ -13,64 +13,76 @@
    - [Unity builds](https://cmake.org/cmake/help/latest/prop_tgt/UNITY_BUILD.html) (USE_UNITY_BUILD = ON) for faster compilation
    - `cpack`: creates debian packages
    - Various `HAVE_*` flags to control libraries and features in use
-- PBF/OPL format output: setting `[out:pbf]` and `[out:opl]`
-- ICU regular expressions: setting `[regexp:ICU]`
-- PCRE2 (+JIT) regular expression engine: setting `[regexp:PCRE]` or `[regexp:PCREJIT]`
-- XAPI-like union operation for tag values (syntactic sugar): `node[place=city|town|village];` query syntax can be used instead of `node['place'~'^(city|town|village)$'];`
-- Ad-hoc area creation on any closed way/relation
+- Libosmium-based output modes:
+    - PBF/OPL format output: setting `[out:pbf]` and `[out:opl]`
+    - LZ4 compression for PBF output: `[out:pbf(lz4)]`
+    - Libosmium based XML output: `[out:osmxml]` - faster output; Overpass API-specific OSM XML format extensions are not supported
+- Regular expressions:
+    - ICU regular expressions: setting `[regexp:ICU]`
+    - PCRE2 (+JIT) regular expression engine: setting `[regexp:PCRE]` or `[regexp:PCREJIT]`
+- New/improved statements:
+    - XAPI-like union operation for tag values (syntactic sugar): `node[place=city|town|village];` query syntax can be used instead of `node['place'~'^(city|town|village)$'];`
+    - New query statement filter 'has no key like ...' - `node[amenity=recycling][!~"^recycling:"];` (Related upstream issue: https://github.com/drolbr/Overpass-API/issues/589)
+    - New function `all_vertex()` which evaluates to true, if all vertices of a way fulfill a given expression.
 
-<details>
-<summary>Example query for ad-hoc area creation (click to open)</summary>
+      Query
 
-```
-way[landuse=residential]({{bbox}});
+       ```way({{bbox}})[building] (if:lrs_in(1,per_vertex(abs(angle()) > 170)));```
 
-foreach ->.pivot {
-  (
-    .pivot;
-    node(w.pivot);
-  );
+       can now be rewritten as:
 
-  ( make_area [.pivot]; .result;)->.result;
-}
+       ```way({{bbox}})[building] (if:!all_vertex(abs(angle()) <= 170));```
+    - Ad-hoc area creation on any closed way/relation
 
-rel[type=multipolygon][landuse=residential]({{bbox}});
-foreach ->.pivot {
-  (
-    way(r.pivot);
-    node(w);
-  );
-  ( make_area [.pivot]; .result;)->.result;
-}
+      <details>
+      <summary>Example query for ad-hoc area creation (click to open)</summary>
 
-foreach .result -> .area {
+          ```
+          way[landuse=residential]({{bbox}});
 
-  way[building](area.area);
+          foreach ->.pivot {
+            (
+              .pivot;
+              node(w.pivot);
+            );
 
-  if(count(ways) == 0) {
-    way(pivot.area);
-    out geom meta;
-    rel(pivot.area);
-    out geom meta;
-  }
-}
-```
+            ( make_area [.pivot]; .result;)->.result;
+          }
 
-</details>
+          rel[type=multipolygon][landuse=residential]({{bbox}});
+          foreach ->.pivot {
+            (
+              way(r.pivot);
+              node(w);
+            );
+            ( make_area [.pivot]; .result;)->.result;
+          }
 
-- New function `all_vertex()` which evaluates to true, if all vertices of a way fulfill a given expression.
+          foreach .result -> .area {
 
-  Query
+            way[building](area.area);
 
-   ```way({{bbox}})[building] (if:lrs_in(1,per_vertex(abs(angle()) > 170)));```
+            if(count(ways) == 0) {
+              way(pivot.area);
+              out geom meta;
+              rel(pivot.area);
+              out geom meta;
+            }
+          }
+          ```
 
-   can now be rewritten as:
+      </details>
 
-   ```way({{bbox}})[building] (if:!all_vertex(abs(angle()) <= 170));```
+
 
 - Dockerfile to facilitate building 0.7.59_mmd and 0.7.56 binaries (see `docker/` directory)
 
 - PBF planet and diff files can be imported without any external PBF->XML conversion tools. By avoiding expensive XML parsing, and leveraging _libosmium_ parallel file processing, imports see a significant speedup. To enable this new file importer, add command line parameter `--use-osmium` when calling `update_from_dir` or `update_database`. Command line parameter `-f` can be used to override the default input file format (PBF). See https://osmcode.org/file-formats-manual/ for permitted values.
+- PBF planet initial load supports LocationsOnWays extension. When using osmium tool to create the PBF file, it's essential to use the, `--keep-untagged-nodes option` to keep the untagged nodes in the output file.
+
+    ```
+    osmium add-locations-to-ways -n extract.osm.pbf -o extract_low.osm.pbf
+    ```
 - map_demo: alternative implementation for API 0.6 /map call for very large areas with > 100 million nodes. Returns PBF file format.
 - Improved dispatcher process security for use in multi-user environments ([upstream issue 247](https://github.com/drolbr/Overpass-API/issues/247))
 - Improved dispatcher signal handling for SIGTERM and SIGINT, same behavior as `--terminate` command line parameter
@@ -82,7 +94,7 @@ foreach .result -> .area {
   - `OVERPASS_REGEXP_ENGINE`: default regexp engine to use if none is specified in Overpass QL settings. Possible values include: `POSIX`, `ICU`, `PCRE` and `PCREJIT`. PCREJIT is recommended for best performance.
   - `OVERPASS_LOG_LEVEL`: define transactions.log log level. Available levels: 0 (error), 1 (warn), 2 (info), 3 (debug, default value), 4 (trace)
   - `OVERPASS_SHARED_NAME_SUFFIX`: define /dev/shm/osm3s*... shared memory file suffix, allowing multiple parallel Overpass instances on one system
-  - `OVERPASS_MAX_SPACE_LIMIT`: maximum size of a FastCGI process's virtual memory (address space), in bytes. Default value: 2^33 (=8 GiB)
+  - `OVERPASS_MAX_SPACE_LIMIT`: maximum size of a FastCGI process's virtual memory (address space), in bytes. Default value: 2^33 (=8 GiB); memory will be unlimited when the parameter value is set to 0.
 
 ### :bug: Bugfixes
 
@@ -150,12 +162,16 @@ Example syntax for changeset 46503970: (syntax is subject to change)
 - LZ4: fallback to uncompressed input, if result size increases during compression
 - Using fmt library to print fixed decimal values
 - Reduce memory consumption for attic tag queries (collect_attic_kregv and al.)
+- Significant reduction in memory consumption for `out qt;` based output mode using index based prefetching.
 - Expensive health check: use linear complexity approach in collect_items_range and similar functions.
 - Use of SharedDataPointer to reduce cost of copying large objects (ways, relations, areas, etc.)
 - Parallel clone generation. Number of parallel threads can be set using the `--clone-parallel=n` command line parameter.
 - Use of C++17 string_view to execute key value checks on raw data, avoiding copying altogether. This includes ICU and PCRE(JIT) regular expressions.
   Note: POSIX regular expressions still require additional copying due to API limitations.
 - Key value queries to validate first element of a new index only. Immediately skip all elements, in case key value pairs are not matching.
+- Replace std::map based user data cache by std::vector, also avoid expensive sorting operations for millions of user id/display_name pairs.
+- Added cmake option for packed, 4 byte aligned structs for some frequently used core data types (Nodes, Way, Relations, Areas). Requires clang++ (experimental)
+- Many more micro-optimizations, see git changelog
 
 ### :x: Removed features
 
