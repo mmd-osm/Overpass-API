@@ -545,6 +545,7 @@ bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
   for (auto it = db.range_begin(shortened); it != db.range_end(); ++it)
   {
     if (it.start_of_new_index()) {
+      // Move vector for previous index to result, in case some matching entries were found
       if (!vec.empty()) {
         result.insert_or_assign(vec_idx, std::move(vec));
         current_result_size += eval_map_index_size;
@@ -585,6 +586,7 @@ bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
   return false;
 }
 
+
 template < class Index, class Object, class Container, class Functor >
 bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
                    File_Properties& file_properties,
@@ -609,6 +611,7 @@ bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
   for (auto it = db.range_begin(shortened); it != db.range_end(); ++it)
   {
     if (it.start_of_new_index()) {
+      // Move vector for previous index to result, in case some matching entries were found
       if (!vec.empty()) {
         result.insert_or_assign(vec_idx, std::move(vec));
         current_result_size += eval_map_index_size;
@@ -637,7 +640,7 @@ bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
 
     if (pred(it.index(), it.handle().id()))
     {
-      it.handle().add_element(result[it.index()]);
+      it.handle().add_element(vec);
       current_result_size += eval_elem<Object>();
     }
   }
