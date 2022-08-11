@@ -76,7 +76,6 @@ struct File_Blocks_Flat_Iterator final : File_Blocks_Basic_Iterator< TIndex >
       (const File_Blocks_Flat_Iterator& a);
   bool operator==(const File_Blocks_Flat_Iterator& a) const;
   File_Blocks_Flat_Iterator& operator++();
-  bool is_out_of_range(const TIndex& index);
 };
 
 
@@ -335,25 +334,6 @@ File_Blocks_Flat_Iterator< TIndex >& File_Blocks_Flat_Iterator< TIndex >::operat
 {
   ++(this->block_it);
   return *this;
-}
-
-
-template< typename TIndex >
-bool File_Blocks_Flat_Iterator< TIndex >::is_out_of_range(const TIndex& index)
-{
-  if (this->block_it == this->block_end)
-    return true;
-  if (index == this->block_it->index)
-    return false;
-  if (index < this->block_it->index)
-    return true;
-  typename std::vector< File_Block_Index_Entry< TIndex > >::iterator
-      next_it(this->block_it);
-  if (++next_it == this->block_end)
-    return false;
-  if (!(index < next_it->index))
-    return true;
-  return false;
 }
 
 
