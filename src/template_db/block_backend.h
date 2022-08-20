@@ -79,6 +79,11 @@ struct Idx_Handle
     return *obj;
   }
 
+  Object object_tmp() const
+  {
+    return Object(ptr_to_raw);
+  }
+
   uint8* get_ptr_to_raw() const
   {
     return ptr_to_raw;
@@ -143,9 +148,21 @@ struct Block_Backend_Basic_Iterator
     return idx_cache.object();
   }
 
+  // returns local class instance (no caching across repeated calls of this method!)
+  Index index_tmp() const
+  {
+    return idx_cache.object_tmp();
+  }
+
   const Object& object() const
   {
     return obj_cache.object();
+  }
+
+  // returns local class instance (no caching across repeated calls of this method!)
+  Object object_tmp() const
+  {
+    return obj_cache.object_tmp();
   }
 
   const Handle< Index >& index_handle() const
@@ -181,6 +198,16 @@ struct Block_Backend_Basic_Iterator
     const Object& object() const
     {
       return ref.object();
+    }
+
+    Index index_tmp() const
+    {
+      return ref.index_tmp();
+    }
+
+    Object object_tmp() const
+    {
+      return ref.object_tmp();
     }
 
     const Handle< Index >& index_handle() const

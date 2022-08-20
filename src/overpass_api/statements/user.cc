@@ -308,19 +308,19 @@ void calc_ranges
 
   for (const auto & user_it : user_db.as_discrete(user_ids))
   {
-    if ((user_it.object().val() & 0x80000000) == 0)
+    if ((user_it.object_tmp().val() & 0x80000000) == 0)
     {
-      node_req.insert(std::make_pair(Uint32_Index(user_it.object().val()),
-			        Uint32_Index(user_it.object().val() + 0x100)));
-      other_req.insert(std::make_pair(Uint31_Index(user_it.object().val()),
-			         Uint31_Index(user_it.object().val() + 0x100)));
+      node_req.insert(std::make_pair(Uint32_Index(user_it.object_tmp().val()),
+			        Uint32_Index(user_it.object_tmp().val() + 0x100)));
+      other_req.insert(std::make_pair(Uint31_Index(user_it.object_tmp().val()),
+			         Uint31_Index(user_it.object_tmp().val() + 0x100)));
     }
-    else if ((user_it.object().val() & 0xff) == 0)
-      other_req.insert(std::make_pair(Uint31_Index(user_it.object().val()),
-			         Uint31_Index(user_it.object().val() + 0x100)));
+    else if ((user_it.object_tmp().val() & 0xff) == 0)
+      other_req.insert(std::make_pair(Uint31_Index(user_it.object_tmp().val()),
+			         Uint31_Index(user_it.object_tmp().val() + 0x100)));
     else
-      other_req.insert(std::make_pair(Uint31_Index(user_it.object().val()),
-			         Uint31_Index(user_it.object().val() + 1)));
+      other_req.insert(std::make_pair(Uint31_Index(user_it.object_tmp().val()),
+			         Uint31_Index(user_it.object_tmp().val() + 1)));
   }
 }
 

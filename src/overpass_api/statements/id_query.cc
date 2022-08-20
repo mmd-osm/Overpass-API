@@ -84,7 +84,7 @@ void collect_elems_flat(Resource_Manager& rman,
   for (const auto & it : elems_db.as_flat())
   {
     if (std::binary_search(ids.begin(), ids.end(), it.handle().id().val()))
-      elems[it.index()].push_back(it.object());
+      elems[it.index_tmp()].push_back(it.object_tmp());
   }
 }
 

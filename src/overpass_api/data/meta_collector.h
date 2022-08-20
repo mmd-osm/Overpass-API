@@ -218,9 +218,9 @@ void Meta_Collector< Index, Id_Type, Functor >::reset()
     {
       if (current_index)
         delete current_index;
-      current_index = new Index(db_it->index());
+      current_index = new Index(db_it->index_tmp());
     }
-    while (!(*db_it == meta_db->discrete_end()) && (*current_index == db_it->index()))
+    while (!(*db_it == meta_db->discrete_end()) && (*current_index == db_it->index_tmp()))
     {
       if (m_functor(db_it->handle().get_element())) {
         db_it->handle().add_element(current_objects);
@@ -241,9 +241,9 @@ void Meta_Collector< Index, Id_Type, Functor >::reset()
     {
       if (current_index)
         delete current_index;
-      current_index = new Index(range_it->index());
+      current_index = new Index(range_it->index_tmp());
     }
-    while (!(*range_it == meta_db->range_end()) && (*current_index == range_it->index()))
+    while (!(*range_it == meta_db->range_end()) && (*current_index == range_it->index_tmp()))
     {
       if (m_functor(range_it->handle().get_element())) {
         range_it->handle().add_element(current_objects);

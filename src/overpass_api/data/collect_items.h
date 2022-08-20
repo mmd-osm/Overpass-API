@@ -79,7 +79,7 @@ void reconstruct_items(
 {
   bool time_dependent = predicate.is_time_dependent();
 
-  while (!(it == end) && it.index() == index)
+  while (!(it == end) && it.index_tmp() == index)
   {
     ++count;
     if (timestamp < timestamp_of_it< typename Iterator::object_type >(it))
@@ -116,7 +116,7 @@ void reconstruct_items(const Statement* stmt, Resource_Manager& rman,
     std::vector< Attic< typename Object::Delta > > deltas;
     std::vector< std::pair< typename Object::Id_Type, timestamp_t > > local_timestamp_by_id;
 
-    while (!(current_it == current_end) && current_it.index() == idx)
+    while (!(current_it == current_end) && current_it.index_tmp() == idx)
     {
       timestamp_by_id_current.push_back(current_it.handle().id());
       local_timestamp_by_id.push_back(std::make_pair(current_it.handle().id(), NOW));
@@ -124,7 +124,7 @@ void reconstruct_items(const Statement* stmt, Resource_Manager& rman,
       ++current_it;
     }
 
-    while (!(attic_it == attic_end) && attic_it.index() == idx)
+    while (!(attic_it == attic_end) && attic_it.index_tmp() == idx)
     {
       if (timestamp < timestamp_of_it< typename Attic_Iterator::object_type >(attic_it))
       {
@@ -287,8 +287,8 @@ bool collect_items_by_timestamp(const Statement* stmt, Resource_Manager& rman,
     }
     Index index =
         (attic_begin == attic_end ||
-            (!(current_begin == current_end) && current_begin.index() < attic_begin.index())
-        ? current_begin.index() : attic_begin.index());
+            (!(current_begin == current_end) && current_begin.index_tmp() < attic_begin.index_tmp())
+        ? current_begin.index_tmp() : attic_begin.index_tmp());
     if (too_much_data && cur_idx)
     {
       *cur_idx = index;
@@ -344,8 +344,8 @@ bool collect_items_by_timestamp(const Statement* stmt, Resource_Manager& rman,
     }
     Index index =
         (attic_begin == attic_end ||
-            (!(current_begin == current_end) && current_begin.index() < attic_begin.index())
-        ? current_begin.index() : attic_begin.index());
+            (!(current_begin == current_end) && current_begin.index_tmp() < attic_begin.index_tmp())
+        ? current_begin.index_tmp() : attic_begin.index_tmp());
     if (too_much_data && cur_idx)
     {
       *cur_idx = index;
@@ -402,8 +402,8 @@ bool collect_items_by_timestamp(const Statement* stmt, Resource_Manager& rman,
     }
     Index index =
         (attic_begin == attic_end ||
-            (!(current_begin == current_end) && current_begin.index() < attic_begin.index())
-        ? current_begin.index() : attic_begin.index());
+            (!(current_begin == current_end) && current_begin.index_tmp() < attic_begin.index_tmp())
+        ? current_begin.index_tmp() : attic_begin.index_tmp());
     if (too_much_data && cur_idx)
     {
       *cur_idx = index;
@@ -458,7 +458,7 @@ void collect_items_discrete(const Statement* stmt, Resource_Manager& rman,
     {
       auto prev_map_size = result.size();
 
-      it.handle().add_element(result[it.index()]);
+      it.handle().add_element(result[it.index_tmp()]);
 
       if (result.size() != prev_map_size) {     // new index added to map?
         current_result_size += eval_map_index_size;
@@ -481,7 +481,7 @@ void collect_items_discrete(Transaction& transaction,
   for (const auto & it : db.as_discrete(req))
   {
     if (predicate.match(it.handle()))
-      it.handle().add_element(result[it.index()]);
+      it.handle().add_element(result[it.index_tmp()]);
   }
 }
 
@@ -553,11 +553,11 @@ bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
       }
 
       if (too_much_data) {
-        cur_idx = it.index();
+        cur_idx = it.index_tmp();
         return true;
       }
 
-      vec_idx = it.index();
+      vec_idx = it.index_tmp();
 
       // Entry already exists in result for given index -> keep adding new entries
       if (result.find(vec_idx) != result.end()) {
@@ -569,7 +569,7 @@ bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
     {
       count = 0;
       too_much_data = rman.health_check(*stmt, 0, current_result_size);
-      cur_idx = it.index();
+      cur_idx = vec_idx;
     }
 
     if (predicate.match(it.handle()))
@@ -619,11 +619,11 @@ bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
       }
 
       if (too_much_data) {
-        cur_idx = it.index();
+        cur_idx = it.index_tmp();
         return true;
       }
 
-      vec_idx = it.index();
+      vec_idx = it.index_tmp();
 
       // Entry already exists in result for given index -> keep adding new entries
       if (result.find(vec_idx) != result.end()) {
@@ -635,10 +635,10 @@ bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
     {
       count = 0;
       too_much_data = rman.health_check(*stmt, 0, current_result_size);
-      cur_idx = it.index();
+      cur_idx = vec_idx;
     }
 
-    if (pred(it.index(), it.handle().id()))
+    if (pred(vec_idx, it.handle().id()))
     {
       it.handle().add_element(vec);
       current_result_size += eval_elem<Object>();
@@ -695,7 +695,7 @@ void collect_items_flat(const Statement& stmt, Resource_Manager& rman,
     {
       auto prev_map_size = result.size();
 
-      it.handle().add_element(result[it.index()]);
+      it.handle().add_element(result[it.index_tmp()]);
 
       if (result.size() != prev_map_size) {     // new index added to map?
         current_result_size += eval_map_index_size;
@@ -759,7 +759,7 @@ std::vector< Index > get_indexes_
         (rman.get_transaction()->data_index(attic_idx_list_properties< Skeleton >()));
 
     for (const auto & it : idx_list_db.as_discrete(idx_list_ids))
-      result.push_back(it.object());
+      result.push_back(it.object_tmp());
 
     std::sort(result.begin(), result.end());
     result.erase(std::unique(result.begin(), result.end()), result.end());

@@ -333,7 +333,7 @@ void merge_files
     {
       from_its.push_back(std::make_pair((*it)->flat_begin(), (*it)->flat_end()));
       if (!(from_its.back().first == from_its.back().second))
-        current_idxs.insert(from_its.back().first.index());
+        current_idxs.insert(from_its.back().first.index_tmp());
     }
     while (!current_idxs.empty())
     {
@@ -366,7 +366,7 @@ void merge_files
 	  }
 	}
 	if (!(it->first == it->second))
-	  current_idxs.insert(it->first.index());
+	  current_idxs.insert(it->first.index_tmp());
       }
     }
 

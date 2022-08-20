@@ -208,9 +208,18 @@ struct Closedness_Predicate
 {
   bool match(const Way_Skeleton& obj) const { return !obj.nds().empty() && obj.nds().front() == obj.nds().back(); }
   bool match(const Handle< Way_Skeleton >& h) const
-  { return !h.object().nds().empty() && h.object().nds().front() == h.object().nds().back(); }
+  { if (h.get_nds_size() < 2)
+     return false;
+    Way_Skeleton w = h.object_tmp();
+    return !(w.nds().front() == w.nds().back());
+  }
   bool match(const Handle< Attic< Way_Skeleton > >& h) const
-  { return !h.object().nds().empty() && h.object().nds().front() == h.object().nds().back(); }
+  {
+    if (h.get_nds_size() < 2)
+      return false;
+    Attic< Way_Skeleton > w = h.object_tmp();
+    return !(w.nds().front() == w.nds().back());
+  }
 };
 
 
@@ -268,9 +277,9 @@ void Coord_Query_Statement::execute(Resource_Manager& rman)
 
   for (const auto & it : area_blocks_db.as_discrete(req))
   {
-    if (!(it.index() == last_idx))
+    if (!(it.index_tmp() == last_idx))
     {
-      last_idx = it.index();
+      last_idx = it.index_tmp();
 
       for (std::map< std::pair< double, double >, std::map< Area::Id_Type, int > >::const_iterator
 	  inside_it = areas_inside.begin(); inside_it != areas_inside.end(); ++inside_it)
@@ -284,7 +293,7 @@ void Coord_Query_Statement::execute(Resource_Manager& rman)
       }
       areas_inside.clear();
 
-      while (coord_block_it != coord_per_req.end() && coord_block_it->first < it.index())
+      while (coord_block_it != coord_per_req.end() && coord_block_it->first < it.index_tmp())
         ++coord_block_it;
       if (coord_block_it == coord_per_req.end())
         break;

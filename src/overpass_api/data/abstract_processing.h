@@ -813,7 +813,7 @@ std::pair< std::vector< Index >, std::vector< Index > > get_indexes
         (rman.get_transaction()->data_index(attic_idx_list_properties< Skeleton >()));
 
     for (const auto & it : idx_list_db.as_discrete(idx_list_ids))
-      result.second.push_back(it.object());
+      result.second.push_back(it.object_tmp());
 
     std::sort(result.second.begin(), result.second.end());
     result.second.erase(std::unique(result.second.begin(), result.second.end()), result.second.end());
