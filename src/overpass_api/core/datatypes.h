@@ -548,10 +548,6 @@ struct Metadata_Handle_Methods
      return (static_cast<const T*>(this)->apply_func(Metadata_Timestamp_Functor<typename Object::Id_Type>()));
   }
 
-  OSM_Element_Metadata_Skeleton< typename Object::Id_Type > inline get_element() const {
-     return (static_cast<const T*>(this)->apply_func(Metadata_Element_Functor<typename Object::Id_Type>()));
-  }
-
   typename Object::Id_Type inline get_ref() const {
      return (static_cast<const T*>(this)->apply_func(Metadata_Reference_Functor<typename Object::Id_Type>()));
   }
@@ -588,18 +584,6 @@ private:
      {
        return unalignedLoad<uint32>((int8*)data + Id_Type::max_size_of() + 4);
      }
-  };
-
-  template <typename Id_Type >
-  struct Metadata_Element_Functor {
-    Metadata_Element_Functor() = default;
-
-    using reference_type = OSM_Element_Metadata_Skeleton<Id_Type>;
-
-    OSM_Element_Metadata_Skeleton< Id_Type > operator()(const void* data)
-    {
-      return OSM_Element_Metadata_Skeleton< Id_Type >(data);
-    }
   };
 
   template <typename Id_Type >

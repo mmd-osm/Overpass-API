@@ -54,19 +54,6 @@ using Global_Id_Type = Uint40;
 typedef uint32 timestamp_t;
 
 
-
-template <typename Object >
-struct Generic_Element_Functor {
-  Generic_Element_Functor() = default;
-
-  using reference_type = Object;
-
-  inline Object operator()(const void* data) const
-  {
-    return Object(data);
-  }
-};
-
 template <typename Object >
 struct Generic_Add_Element_Functor {
   Generic_Add_Element_Functor(std::vector< Object >& v_) : v(v_) {};

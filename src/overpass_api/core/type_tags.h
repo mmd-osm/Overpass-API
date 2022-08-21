@@ -136,10 +136,6 @@ struct Tag_Index_Local_Handle_Methods
      return (static_cast<const T*>(this)->apply_func(Tag_Index_Local_Index_Functor()));
   }
 
-  inline Tag_Index_Local get_element() const {
-    return (static_cast<const T*>(this)->apply_func(Tag_Index_Local_Element_Functor()));
-  }
-
   inline std::string_view get_key() const {
     return (static_cast<const T*>(this)->apply_func(Tag_Index_Local_Get_Key_Functor()));
   }
@@ -162,17 +158,6 @@ private:
     inline uint32 operator()(const void* data) const
      {
        return unalignedLoad<uint32>((uint32*)data + 1)<<8;
-     }
-  };
-
-  struct Tag_Index_Local_Element_Functor {
-    Tag_Index_Local_Element_Functor() = default;
-
-    using reference_type = Tag_Index_Local;
-
-    inline Tag_Index_Local operator()(const void* data)
-     {
-       return Tag_Index_Local(data);
      }
   };
 
@@ -492,10 +477,6 @@ struct Tag_Index_Global_Handle_Methods
     return (static_cast<const T*>(this)->apply_func(Tag_Index_Global_Get_Value_Functor()));
   }
 
-  inline Tag_Index_Global get_element() const {
-     return (static_cast<const T*>(this)->apply_func(Tag_Index_Global_Element_Functor()));
-  }
-
   inline bool operator<(const Tag_Index_Global& tig) const {
     return (static_cast<const T*>(this)->apply_func(Tag_Index_Global_Operator_Lower_Functor(tig)));
   }
@@ -564,17 +545,6 @@ private:
 
        return std::string_view(v, value_len);
      }
-  };
-
-  struct Tag_Index_Global_Element_Functor {
-    Tag_Index_Global_Element_Functor() = default;
-
-    using reference_type = Tag_Index_Global;
-
-    Tag_Index_Global operator()(const void* data)
-    {
-      return Tag_Index_Global(data);
-    }
   };
 
   struct Tag_Index_Global_Operator_Lower_Functor {

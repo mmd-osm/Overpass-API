@@ -208,17 +208,14 @@ struct Closedness_Predicate
 {
   bool match(const Way_Skeleton& obj) const { return !obj.nds().empty() && obj.nds().front() == obj.nds().back(); }
   bool match(const Handle< Way_Skeleton >& h) const
-  { if (h.get_nds_size() < 2)
-     return false;
-    Way_Skeleton w = h.object_tmp();
-    return !(w.nds().front() == w.nds().back());
+  {
+    auto w = h.object_tmp();
+    return !w.nds().empty() && w.nds().front() == w.nds().back();
   }
   bool match(const Handle< Attic< Way_Skeleton > >& h) const
   {
-    if (h.get_nds_size() < 2)
-      return false;
-    Attic< Way_Skeleton > w = h.object_tmp();
-    return !(w.nds().front() == w.nds().back());
+    auto w = h.object_tmp();
+    return !w.nds().empty() && w.nds().front() == w.nds().back();
   }
 };
 
@@ -305,7 +302,7 @@ void Coord_Query_Statement::execute(Resource_Manager& rman)
       uint32 ilat((coord_it->first + 91.0)*10000000+0.5);
       int32 ilon(coord_it->second*10000000 + (coord_it->second > 0 ? 0.5 : -0.5));
 
-      int check = check_area_block(it.index().val(), it.object(), ilat, ilon);
+      int check = check_area_block(it.index_tmp().val(), it.object(), ilat, ilon);
       if (check == HIT)
         areas_found.insert(it.object().id);
       else if (check != 0)

@@ -92,7 +92,7 @@ void create_timeline_entries(uint64 ref, uint32 version, Statement* stmt, Resour
 
     for (const auto & it : current_meta_db.as_discrete(req)) {
       if (it.handle().get_ref() == ref)
-        metas.push_back(it.object());
+        metas.push_back(it.object_tmp());
     }
   }
   {
@@ -102,7 +102,7 @@ void create_timeline_entries(uint64 ref, uint32 version, Statement* stmt, Resour
 
     for (const auto & it : attic_meta_db.as_discrete(req)) {
       if (it.handle().get_ref() == ref)
-        metas.push_back(it.object());
+        metas.push_back(it.object_tmp());
     }
   }
 

@@ -524,8 +524,9 @@ void Area_Query_Statement::fill_ranges(Resource_Manager& rman)
   {
     if (binary_search(area_id.begin(), area_id.end(), it.handle().id()))
     {
-      for (auto it2(it.object().used_indices().begin());
-          it2 != it.object().used_indices().end(); ++it2)
+      auto area_skel = it.object_tmp();
+      for (auto it2(area_skel.used_indices().begin());
+          it2 != area_skel.used_indices().end(); ++it2)
         area_blocks_req.insert(Uint31_Index(*it2));
     }
   }
@@ -1191,7 +1192,7 @@ void Area_Query_Statement::collect_ways_db
   uint32 current_idx = 0;
   while (!(area_it == area_blocks_db.discrete_end()))
   {
-    current_idx = area_it.index().val();
+    current_idx = area_it.index_tmp().val();
     if (loop_count > 64*1024)
     {
       rman.health_check(*this);
@@ -1200,10 +1201,10 @@ void Area_Query_Statement::collect_ways_db
 
     std::map< Area_Skeleton::Id_Type, std::vector< Area_Block > > areas;
     while ((!(area_it == area_blocks_db.discrete_end())) &&
-        (area_it.index().val() == current_idx))
+        (area_it.index_tmp().val() == current_idx))
     {
       if (binary_search(area_id_db.begin(), area_id_db.end(), area_it.handle().id()))
-        areas[area_it.object().id].push_back(area_it.object());
+        areas[area_it.handle().id()].push_back(area_it.object_tmp());
       ++area_it;
     }
 

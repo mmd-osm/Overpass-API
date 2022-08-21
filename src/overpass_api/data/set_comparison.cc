@@ -387,9 +387,9 @@ std::map< typename Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< typename Sk
     {
       auto meta_it = result.find(it.handle().get_ref());
       if (meta_it == result.end())
-	result.insert(std::make_pair(it.object().ref, it.object()));
+	result.insert(std::make_pair(it.handle().get_ref(), it.object_tmp()));
       else if (meta_it->second.timestamp < it.handle().get_timestamp())
-	meta_it->second = it.object();
+	meta_it->second = it.object_tmp();
     }
   }
 
@@ -408,9 +408,9 @@ std::map< typename Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< typename Sk
     {
       auto meta_it = result.find(it.handle().get_ref());
       if (meta_it == result.end())
-	result.insert(std::make_pair(it.object().ref, it.object()));
+	result.insert(std::make_pair(it.handle().get_ref(), it.object_tmp()));
       else if (meta_it->second.timestamp < it.handle().get_timestamp())
-	meta_it->second = it.object();
+	meta_it->second = it.object_tmp();
     }
   }
 

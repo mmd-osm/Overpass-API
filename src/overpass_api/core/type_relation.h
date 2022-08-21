@@ -250,10 +250,6 @@ struct Relation_Skeleton_Handle_Methods
      return (static_cast<const T*>(this)->apply_func(Relation_Skeleton_Id_Functor<typename Object::Id_Type>()));
   }
 
-  Object inline get_element() const {
-    return (static_cast<const T*>(this)->apply_func(Generic_Element_Functor<Object>()));
-  }
-
   void inline add_element(std::vector< Object > & v) const {
     static_cast<const T*>(this)->apply_func(Generic_Add_Element_Functor<Object>(v));
   }

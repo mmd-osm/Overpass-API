@@ -243,7 +243,7 @@ void collect_tags
     Id_Type current(tag_it.handle().id());     // avoid creating a new object instance via object()
     if ((binary_search(ids.begin(), ids.end(), current)))
     {
-      auto elem = tag_it.index_handle().get_element();
+      auto elem = tag_it.index_tmp();
       tags_by_id[current].push_back
           (std::make_pair(std::move(elem.key), std::move(elem.value)));
     }
@@ -285,7 +285,7 @@ void collect_tags_single
     Id_Type current(tag_it.handle().id());     // avoid creating a new object instance via object()
     if (current == id)
     {
-      auto elem = tag_it.index_handle().get_element();
+      auto elem = tag_it.index_tmp();
       tags_by_id[current].push_back
           (std::make_pair(std::move(elem.key), std::move(elem.value)));
       tag_it.skip_current_index();             // we've already found "id" in current index, let's move on to the next index
@@ -330,7 +330,7 @@ void collect_tags
     Id_Type current(tag_it.handle().id());     // avoid creating a new object instance via object()
     if ((binary_search(ids.begin(), ids.end(), current)))
     {
-      auto elem = tag_it.index_handle().get_element();
+      auto elem = tag_it.index_tmp();
       tags_by_id[current].push_back
           (std::make_pair(std::move(elem.key), std::move(elem.value)));
     }
@@ -375,7 +375,7 @@ void collect_tags_framed
       (current < upper_id_bound) &&
        binary_search(ids_by_coarse_ref.begin(), ids_by_coarse_ref.end(), current))
     {
-      auto elem = tag_it.index_handle().get_element();
+      auto elem = tag_it.index_tmp();
       tags_by_id[current].push_back
           (std::make_pair(std::move(elem.key), std::move(elem.value)));
     }

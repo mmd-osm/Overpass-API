@@ -222,7 +222,7 @@ void Meta_Collector< Index, Id_Type, Functor >::reset()
     }
     while (!(*db_it == meta_db->discrete_end()) && (*current_index == db_it->index_tmp()))
     {
-      if (m_functor(db_it->handle().get_element())) {
+      if (m_functor(db_it->object_tmp())) {
         db_it->handle().add_element(current_objects);
       }
       ++(*db_it);
@@ -245,7 +245,7 @@ void Meta_Collector< Index, Id_Type, Functor >::reset()
     }
     while (!(*range_it == meta_db->range_end()) && (*current_index == range_it->index_tmp()))
     {
-      if (m_functor(range_it->handle().get_element())) {
+      if (m_functor(range_it->object_tmp())) {
         range_it->handle().add_element(current_objects);
       }
       ++(*range_it);
@@ -276,7 +276,7 @@ void Meta_Collector< Index, Id_Type, Functor >::update_current_objects(const Ind
       *current_index = Index(db_it->index_handle().id());
     while (!(*db_it == meta_db->discrete_end()) && (*current_index == Index(db_it->index_handle().id())))
     {
-      if (m_functor(db_it->handle().get_element())) {
+      if (m_functor(db_it->object_tmp())) {
         db_it->handle().add_element(current_objects);
       }
       ++(*db_it);
@@ -292,7 +292,7 @@ void Meta_Collector< Index, Id_Type, Functor >::update_current_objects(const Ind
       *current_index = Index(range_it->index_handle().id());
     while (!(*range_it == meta_db->range_end()) && (*current_index == Index(range_it->index_handle().id())))
     {
-      if (m_functor(range_it->handle().get_element())) {
+      if (m_functor(range_it->object_tmp())) {
         range_it->handle().add_element(current_objects);
       }
       ++(*range_it);

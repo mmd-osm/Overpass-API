@@ -241,78 +241,6 @@ Block_Backend_Collection< TIndex, TObject >::~Block_Backend_Collection()
     delete(*it);
 }
 
-//------------------------------------------------
-
-template <typename TIndex >
-inline TIndex get_idx_from_handle(const Handle<TIndex>& handle) = delete;
-
-template<>
-inline Uint32_Index get_idx_from_handle(const Handle<Uint32_Index>& handle)
-{
-  return handle.id();
-}
-
-template<>
-inline Uint31_Index get_idx_from_handle(const Handle<Uint31_Index>& handle)
-{
-  return handle.id();
-}
-
-template<>
-inline Tag_Index_Local get_idx_from_handle(const Handle<Tag_Index_Local>& handle)
-{
-  return handle.get_element();
-}
-
-template<>
-inline Tag_Index_Global get_idx_from_handle(const Handle<Tag_Index_Global>& handle)
-{
-  return handle.get_element();
-}
-
-//------------------------------------------------
-
-template <typename TObject >
-inline TObject get_object_from_handle(const Handle<TObject>& handle) = delete;
-
-template <>
-inline Node_Skeleton get_object_from_handle(const Handle<Node_Skeleton>& handle)
-{
-  return handle.get_element();
-}
-
-template <>
-inline Way_Skeleton get_object_from_handle(const Handle<Way_Skeleton>& handle)
-{
-  return handle.get_element();
-}
-
-template <>
-inline Node::Id_Type get_object_from_handle(const Handle<Node::Id_Type>& handle)
-{
-  return handle.id();
-}
-
-template <>
-inline Way::Id_Type get_object_from_handle(const Handle<Way::Id_Type>& handle)
-{
-  return handle.id();
-}
-
-template <typename T>
-inline OSM_Element_Metadata_Skeleton< T > get_object_from_handle(const Handle<OSM_Element_Metadata_Skeleton< T >>& handle)
-{
-  return handle.get_element();
-}
-
-template <typename T>
-inline Tag_Object_Global< T > get_object_from_handle(const Handle<Tag_Object_Global< T >>& handle)
-{
-  return Tag_Object_Global< T >(handle.id(), handle.get_idx());
-}
-
-//------------------------------------------------
-
 
 template < typename TIndex, typename TObject >
 void merge_files
@@ -345,14 +273,14 @@ void merge_files
 
       for (auto it = from_its.begin(); it != from_its.end(); ++it)
       {
-	while (!(it->first == it->second) && (get_idx_from_handle(it->first.index_handle()) == current_idx))
+	while (!(it->first == it->second) && (it->first.index_tmp() == current_idx))
 	{
           if (!(prev_idx == current_idx)) {
-            dbins = &db_to_insert[get_idx_from_handle(it->first.index_handle())];
+            dbins = &db_to_insert[it->first.index_tmp()];
             prev_idx = current_idx;
           }
 
-          dbins->insert(get_object_from_handle(it->first.handle()));
+          dbins->insert(it->first.object_tmp());
 	  ++(it->first);
 
 	  if (++item_count > 4*1024*1024)
