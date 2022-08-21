@@ -94,10 +94,11 @@ void Area_Updater::update_area_ids
   {
     if (ids_to_modify.find(it.handle().id()) != ids_to_modify.end())
     {
-      for (auto it2(it.object().used_indices().begin());
-          it2 != it.object().used_indices().end(); ++it2)
+      auto obj = it.object_tmp();
+      for (auto it2(obj.used_indices().begin());
+          it2 != obj.used_indices().end(); ++it2)
         blocks_req.insert(*it2);
-      locations_to_delete[it.index().val()].insert(it.object());
+      locations_to_delete[it.index().val()].insert(std::move(obj));
     }
   }
 
@@ -106,8 +107,8 @@ void Area_Updater::update_area_ids
 
   for (const auto & it : area_blocks_db.as_discrete(blocks_req))
   {
-    if (ids_to_modify.find(it.object().id) != ids_to_modify.end())
-      blocks_to_delete[it.index()].insert(it.object());
+    if (ids_to_modify.find(it.handle().id()) != ids_to_modify.end())
+      blocks_to_delete[it.index()].insert(it.object_tmp());
   }
 }
 
@@ -190,8 +191,8 @@ void Area_Updater::prepare_delete_tags
     }
 
     std::set< Area::Id_Type >& handle(to_delete_coarse[it.index().index]);
-    if (handle.find(it.object().val()) != handle.end())
-      tag_entry.ids.push_back(it.object().val());
+    if (handle.find(it.handle().get_val()) != handle.end())
+      tag_entry.ids.push_back(it.handle().get_val());
   }
   if ((current_index.index != 0xffffffff) && (!tag_entry.ids.empty()))
     tags_to_delete.push_back(tag_entry);

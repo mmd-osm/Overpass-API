@@ -590,7 +590,7 @@ std::map< Id_Type, std::pair< timestamp_t, Uint31_Index > > collect_attic_regkre
     {
       std::pair< timestamp_t, Uint31_Index >& ref = timestamp_per_id[it2.handle().id()][last_key];
       if (ref.first == 0 || current_timestamp < ref.first)
-        ref = std::make_pair(current_timestamp, it2.object().idx);
+        ref = std::make_pair(current_timestamp, it2.handle().get_idx());
     }
   }
 

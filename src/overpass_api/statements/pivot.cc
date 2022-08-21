@@ -62,7 +62,7 @@ void collect_elems(Resource_Manager& rman, const File_Properties& prop,
   for (const auto & it : elems_db.as_discrete(req))
   {
     if (binary_search(ids.begin(), ids.end(), it.handle().id()))
-      elems[it.index()].push_back(it.object());
+      elems[it.index()].push_back(it.object_tmp());
   }
 }
 

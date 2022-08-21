@@ -302,16 +302,18 @@ void Coord_Query_Statement::execute(Resource_Manager& rman)
       uint32 ilat((coord_it->first + 91.0)*10000000+0.5);
       int32 ilon(coord_it->second*10000000 + (coord_it->second > 0 ? 0.5 : -0.5));
 
-      int check = check_area_block(it.index_tmp().val(), it.object(), ilat, ilon);
+      auto obj = it.object_tmp();
+
+      int check = check_area_block(it.index_tmp().val(), obj, ilat, ilon);
       if (check == HIT)
-        areas_found.insert(it.object().id);
+        areas_found.insert(it.handle().id());
       else if (check != 0)
       {
-        auto it2 = areas_inside[*coord_it].find(it.object().id);
+        auto it2 = areas_inside[*coord_it].find(it.handle().id());
         if (it2 != areas_inside[*coord_it].end())
 	  it2->second ^= check;
         else
-	  areas_inside[*coord_it].insert(std::make_pair(it.object().id, check));
+	  areas_inside[*coord_it].insert(std::make_pair(it.handle().id(), check));
       }
     }
   }
@@ -345,7 +347,7 @@ void Coord_Query_Statement::execute(Resource_Manager& rman)
     for (const auto & it : area_locations_db.as_discrete(idx_req))
     {
       if (areas_found.find(it.handle().id()) != areas_found.end())
-        into.areas[it.index()].push_back(it.object());
+        into.areas[it.index()].push_back(it.object_tmp());
     }
   }
 

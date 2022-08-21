@@ -101,7 +101,7 @@ void Flat_Meta_Collector< TIndex, Id_Type >::reset()
     current_index = new TIndex(db_it->index());
   while (!(*db_it == meta_db->flat_end()) && (*current_index == db_it->index()))
   {
-    current_objects.insert(std::make_pair(db_it->object(), false));
+    current_objects.insert(std::make_pair(db_it->object_tmp(), false));
     ++(*db_it);
   }
 }
@@ -126,7 +126,7 @@ const OSM_Element_Metadata_Skeleton< Id_Type >* Flat_Meta_Collector< TIndex, Id_
 
     while (!(*db_it == meta_db->flat_end()) && (db_it->index() < index))
     {
-      std::cout<<"Skipping meta data of "<<std::dec<<db_it->object().ref.val()
+      std::cout<<"Skipping meta data of "<<std::dec<<db_it->object_tmp().ref.val()
           <<" at "<<std::hex<<db_it->index().val()<<'\n';
       ++(*db_it);
     }
@@ -134,7 +134,7 @@ const OSM_Element_Metadata_Skeleton< Id_Type >* Flat_Meta_Collector< TIndex, Id_
       *current_index = db_it->index();
     while (!(*db_it == meta_db->flat_end()) && (*current_index == db_it->index()))
     {
-      current_objects.insert(std::make_pair(db_it->object(), false));
+      current_objects.insert(std::make_pair(db_it->object_tmp(), false));
       ++(*db_it);
     }
   }
@@ -204,8 +204,8 @@ int main(int argc, char *argv[])
           count = 0;
           std::cout<<"Processed 1000000 nodes.\n";
         }
-        if (!meta_collector.get(it.index(), it.object().id))
-	  std::cout<<"Missing meta data of "<<std::dec<<it.object().id.val()
+        if (!meta_collector.get(it.index(), it.object_tmp().id))
+	  std::cout<<"Missing meta data of "<<std::dec<<it.object_tmp().id.val()
 	      <<" at "<<std::hex<<it.index().val()<<'\n';
       }
     }
@@ -232,8 +232,8 @@ int main(int argc, char *argv[])
 	  count = 0;
           std::cout<<"Processed 100000 ways.\n";
         }
-        if (!meta_collector.get(it.index(), it.object().id))
-	  std::cout<<"Missing meta data of "<<std::dec<<it.object().id.val()
+        if (!meta_collector.get(it.index(), it.object_tmp().id))
+	  std::cout<<"Missing meta data of "<<std::dec<<it.object_tmp().id.val()
 	      <<" at "<<std::hex<<it.index().val()<<'\n';
       }
     }
@@ -252,8 +252,8 @@ int main(int argc, char *argv[])
 	  count = 0;
           std::cout<<"Processed 100000 relations.\n";
         }
-        if (!meta_collector.get(it.index(), it.object().id))
-	  std::cout<<"Missing meta data of "<<std::dec<<it.object().id.val()
+        if (!meta_collector.get(it.index(), it.object_tmp().id))
+	  std::cout<<"Missing meta data of "<<std::dec<<it.object_tmp().id.val()
 	      <<" at "<<std::hex<<it.index().val()<<'\n';
       }
     }

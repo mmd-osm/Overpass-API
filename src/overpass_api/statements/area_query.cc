@@ -759,7 +759,7 @@ void Area_Query_Statement::collect_nodes_db
         (area_it.index().val() == current_idx))
     {
       if (binary_search(area_id_db.begin(), area_id_db.end(), area_it.handle().id()))
-        areas[area_it.object().id].push_back(area_it.object());
+        areas[area_it.handle().id()].push_back(area_it.object_tmp());
       ++area_it;
     }
 
