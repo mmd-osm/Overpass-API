@@ -456,15 +456,13 @@ private:
 
 struct OSM_Element_Metadata
 {
-  OSM_Element_Metadata() : version(0), timestamp(0), changeset(0), user_id(0) {}
+  OSM_Element_Metadata() = default;
 
-  uint32 version;
-  timestamp_t timestamp;
-  uint32 changeset;
-  uint32 user_id;
-  std::string user_name;
-
-  bool operator<(const OSM_Element_Metadata&) const { return false; }
+  uint32 version{};
+  timestamp_t timestamp{};
+  uint32 changeset{};
+  uint32 user_id{};
+  std::string user_name{};
 };
 
 
@@ -476,16 +474,16 @@ struct OSM_Element_Metadata_Skeleton
 {
   typedef Id_Type_ Id_Type;
 
-  Id_Type ref;
-  uint32 version;
-  timestamp_t timestamp;
-  uint32 changeset;
-  uint32 user_id;
+  Id_Type ref{};
+  uint32 version{};
+  timestamp_t timestamp{};
+  uint32 changeset{};
+  uint32 user_id{};
 
-  OSM_Element_Metadata_Skeleton() : version(0), timestamp(0), changeset(0), user_id(0) {}
+  OSM_Element_Metadata_Skeleton() = default;
 
   OSM_Element_Metadata_Skeleton(Id_Type ref_)
-    : ref(ref_), version(0), timestamp(0), changeset(0), user_id(0) {}
+    : ref(ref_) {}
 
   OSM_Element_Metadata_Skeleton(Id_Type ref_, const OSM_Element_Metadata& meta)
     : ref(ref_),
@@ -493,8 +491,7 @@ struct OSM_Element_Metadata_Skeleton
       changeset(meta.changeset), user_id(meta.user_id) {}
 
   OSM_Element_Metadata_Skeleton(Id_Type ref_, timestamp_t timestamp_)
-    : ref(ref_), version(0), timestamp(timestamp_),
-      changeset(0), user_id(0) {}
+    : ref(ref_), timestamp(timestamp_) {}
 
   OSM_Element_Metadata_Skeleton(const void* data) noexcept
     : ref(data),

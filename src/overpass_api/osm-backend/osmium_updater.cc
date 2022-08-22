@@ -111,8 +111,7 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
 
     ++osm_element_count;
 
-    OSM_Element_Metadata meta;
-    get_meta(n, meta);
+    OSM_Element_Metadata meta = get_meta(n);
 
     Node node(n.id(), n.location() ? n.location().lat() : 100.0,
                       n.location() ? n.location().lon() : 200.0);
@@ -160,8 +159,7 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
       }
     }
 
-    OSM_Element_Metadata meta;
-    get_meta(w, meta);
+    OSM_Element_Metadata meta = get_meta(w);
 
     if (w.deleted())
       way_updater->set_id_deleted(w.id(), &meta);
@@ -209,8 +207,7 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
       relation.members.push_back(entry);
     }
 
-    OSM_Element_Metadata meta;
-    get_meta(r, meta);
+    OSM_Element_Metadata meta = get_meta(r);
 
     if (r.deleted())
       relation_updater->set_id_deleted(r.id(), &meta);
@@ -230,7 +227,9 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
     }
   }
 
-  void get_meta(const osmium::OSMObject& object, OSM_Element_Metadata& meta) {
+  OSM_Element_Metadata get_meta(const osmium::OSMObject& object) {
+
+    OSM_Element_Metadata meta;
 
     std::tm tm;
     auto sse = object.timestamp().seconds_since_epoch();
@@ -248,6 +247,7 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
     meta.user_id = object.uid();
     meta.user_name = std::string(object.user());
     meta.version = object.version();
+    return meta;
   }
 
   void finish_updater() {
