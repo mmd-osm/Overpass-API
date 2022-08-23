@@ -811,7 +811,6 @@ std::map< Timestamp, std::set< Change_Entry< Way_Skeleton::Id_Type > > > compute
   return result;
 }
 
-
 void Way_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_stopwatch, bool partial,
               const std::map< Uint31_Index, std::set< Node_Skeleton > >& new_node_skeletons,
               const std::map< Uint31_Index, std::set< Node_Skeleton > >& attic_node_skeletons,
@@ -1112,6 +1111,16 @@ void Way_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_stop
 //   ways_meta_to_insert.clear();
 //   ways_meta_to_delete.clear();
 
+  merge_all_files(partial, callback);
+
+  if (cpu_stopwatch)
+    cpu_stopwatch->stop_cpu_timer(2);
+}
+
+void Way_Updater::merge_all_files(bool partial, Osm_Backend_Callback *callback)
+{
+  //   ways_meta_to_insert.clear();
+  //   ways_meta_to_delete.clear();
   if (!external_transaction)
     delete transaction;
 
@@ -1121,12 +1130,10 @@ void Way_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_stop
     attic_skeletons.clear();
     new_attic_skeletons.clear();
   }
-
   if (partial_possible && !partial && (update_counter > 0))
   {
     release_mem();
     callback->partial_started();
-
     std::vector< std::string > froms;
     for (uint i = 0; i < update_counter % 16; ++i)
     {
@@ -1135,26 +1142,25 @@ void Way_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_stop
       froms.push_back(from);
     }
     merge_files(froms, "");
-
     if (update_counter >= 256)
       merge_files(std::vector< std::string >(1, ".2"), ".1");
+
     if (update_counter >= 16)
     {
       std::vector< std::string > froms;
-      for (uint i = 0; i < update_counter/16 % 16; ++i)
+      for (uint i = 0; i < update_counter / 16 % 16; ++i)
       {
-       std::string from(".1a");
-       from[2] += i;
-       froms.push_back(from);
+        std::string from(".1a");
+        from[2] += i;
+        froms.push_back(from);
       }
       merge_files(froms, ".1");
-
       merge_files(std::vector< std::string >(1, ".1"), "");
     }
     update_counter = 0;
     callback->partial_finished();
   }
-  else if (partial_possible && partial/* && !map_file_existed_before*/)
+  else if (partial_possible && partial)
   {
     std::string to(".0a");
     to[2] += update_counter % 16;
@@ -1169,16 +1175,14 @@ void Way_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_stop
     {
       release_mem();
       callback->partial_started();
-
       std::string to(".1a");
-      to[2] += (update_counter/16-1) % 16;
-
+      to[2] += (update_counter / 16 - 1) % 16;
       std::vector< std::string > froms;
       for (uint i = 0; i < 16; ++i)
       {
-       std::string from(".0a");
-       from[2] += i;
-       froms.push_back(from);
+        std::string from(".0a");
+        from[2] += i;
+        froms.push_back(from);
       }
       merge_files(froms, to);
       callback->partial_finished();
@@ -1187,22 +1191,19 @@ void Way_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_stop
     {
       release_mem();
       callback->partial_started();
-
       std::vector< std::string > froms;
       for (uint i = 0; i < 16; ++i)
       {
-       std::string from(".1a");
-       from[2] += i;
-       froms.push_back(from);
+        std::string from(".1a");
+        from[2] += i;
+        froms.push_back(from);
       }
       merge_files(froms, ".2");
       callback->partial_finished();
     }
   }
-
-  if (cpu_stopwatch)
-    cpu_stopwatch->stop_cpu_timer(2);
 }
+
 
 
 void Way_Updater::merge_files(const std::vector< std::string >& froms, const std::string& into)

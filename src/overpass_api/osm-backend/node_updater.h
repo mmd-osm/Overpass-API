@@ -137,6 +137,7 @@ private:
   void update_node_ids(std::map< uint32, std::vector< Node::Id_Type > >& to_delete, bool record_minuscule_moves,
       const std::vector< std::pair< Node_Skeleton::Id_Type, Uint31_Index > >& new_idx_positions);
 
+  void merge_all_files(bool partial, Osm_Backend_Callback *callback);
   void merge_files(const std::vector< std::string >& froms, const std::string& into);
 
   void release_mem();

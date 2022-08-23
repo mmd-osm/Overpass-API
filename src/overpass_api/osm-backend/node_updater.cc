@@ -431,7 +431,6 @@ Node_Updater::Node_Updater(std::string db_dir_, meta_modes meta_, unsigned int p
        osm_base_settings().NODES->get_index_suffix());
 }
 
-
 void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_stopwatch, bool partial)
 {
   if (cpu_stopwatch)
@@ -735,96 +734,7 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
 //   nodes_meta_to_insert.clear();
 //   nodes_meta_to_delete.clear();
 
-  if (!external_transaction)
-    delete transaction;
-
-  if (partial_possible)
-  {
-    new_skeletons.clear();
-    attic_skeletons.clear();
-    new_attic_skeletons.clear();
-    new_tagged_skeletons.clear();
-    attic_tagged_skeletons.clear();
-  }
-
-  if (partial_possible && !partial && (update_counter > 0))
-  {
-    release_mem();
-    callback->partial_started();
-
-    std::vector< std::string > froms;
-    for (uint i = 0; i < update_counter % 16; ++i)
-    {
-      std::string from(".0a");
-      from[2] += i;
-      froms.push_back(from);
-    }
-    merge_files(froms, "");
-
-    if (update_counter >= 256)
-      merge_files(std::vector< std::string >(1, ".2"), ".1");
-    if (update_counter >= 16)
-    {
-      std::vector< std::string > froms;
-      for (uint i = 0; i < update_counter/16 % 16; ++i)
-      {
-	std::string from(".1a");
-	from[2] += i;
-	froms.push_back(from);
-      }
-      merge_files(froms, ".1");
-
-      merge_files(std::vector< std::string >(1, ".1"), "");
-    }
-    update_counter = 0;
-    callback->partial_finished();
-  }
-  else if (partial_possible && partial)
-  {
-    std::string to(".0a");
-    to[2] += update_counter % 16;
-    rename_referred_file(db_dir, "", to, *osm_base_settings().NODES);
-    rename_referred_file(db_dir, "", to, *osm_base_settings().NODE_TAGS_LOCAL);
-    rename_referred_file(db_dir, "", to, *osm_base_settings().NODE_TAGS_GLOBAL);
-    rename_referred_file(db_dir, "", to, *osm_base_settings().NODES_TAGGED);
-    if (meta)
-      rename_referred_file(db_dir, "", to, *meta_settings().NODES_META);
-
-    ++update_counter;
-    if (update_counter % 16 == 0)
-    {
-      release_mem();
-      callback->partial_started();
-
-      std::string to(".1a");
-      to[2] += (update_counter/16-1) % 16;
-
-      std::vector< std::string > froms;
-      for (uint i = 0; i < 16; ++i)
-      {
-	std::string from(".0a");
-	from[2] += i;
-	froms.push_back(from);
-      }
-      merge_files(froms, to);
-      callback->partial_finished();
-    }
-    if (update_counter % 256 == 0)
-    {
-      release_mem();
-      callback->partial_started();
-
-      std::vector< std::string > froms;
-      for (uint i = 0; i < 16; ++i)
-      {
-	std::string from(".1a");
-	from[2] += i;
-	froms.push_back(from);
-      }
-      merge_files(froms, ".2");
-      callback->partial_finished();
-    }
-  }
+  merge_all_files(partial, callback);
 
   if (cpu_stopwatch)
     cpu_stopwatch->stop_cpu_timer(1);
@@ -857,6 +767,96 @@ void Node_Updater::update_node_ids
     Uint32_Index index(random.get(it->first.val()));
     if (index.val() > 0)
       to_delete[index.val()].push_back(it->first);
+  }
+}
+
+void Node_Updater::merge_all_files(bool partial, Osm_Backend_Callback *callback)
+{
+  //   nodes_meta_to_insert.clear();
+  //   nodes_meta_to_delete.clear();
+  if (!external_transaction)
+    delete transaction;
+
+  if (partial_possible)
+  {
+    new_skeletons.clear();
+    attic_skeletons.clear();
+    new_attic_skeletons.clear();
+    new_tagged_skeletons.clear();
+    attic_tagged_skeletons.clear();
+  }
+  if (partial_possible && !partial && (update_counter > 0))
+  {
+    release_mem();
+    callback->partial_started();
+    std::vector< std::string > froms;
+    for (uint i = 0; i < update_counter % 16; ++i)
+    {
+      std::string from(".0a");
+      from[2] += i;
+      froms.push_back(from);
+    }
+    merge_files(froms, "");
+    if (update_counter >= 256)
+      merge_files(std::vector< std::string >(1, ".2"), ".1");
+
+    if (update_counter >= 16)
+    {
+      std::vector< std::string > froms;
+      for (uint i = 0; i < update_counter / 16 % 16; ++i)
+      {
+        std::string from(".1a");
+        from[2] += i;
+        froms.push_back(from);
+      }
+      merge_files(froms, ".1");
+      merge_files(std::vector< std::string >(1, ".1"), "");
+    }
+    update_counter = 0;
+    callback->partial_finished();
+  }
+  else if (partial_possible && partial)
+  {
+    std::string to(".0a");
+    to[2] += update_counter % 16;
+    rename_referred_file(db_dir, "", to, *osm_base_settings().NODES);
+    rename_referred_file(db_dir, "", to, *osm_base_settings().NODE_TAGS_LOCAL);
+    rename_referred_file(db_dir, "", to, *osm_base_settings().NODE_TAGS_GLOBAL);
+    rename_referred_file(db_dir, "", to, *osm_base_settings().NODES_TAGGED);
+    if (meta)
+      rename_referred_file(db_dir, "", to, *meta_settings().NODES_META);
+
+    ++update_counter;
+    if (update_counter % 16 == 0)
+    {
+      release_mem();
+      callback->partial_started();
+      std::string to(".1a");
+      to[2] += (update_counter / 16 - 1) % 16;
+      std::vector< std::string > froms;
+      for (uint i = 0; i < 16; ++i)
+      {
+        std::string from(".0a");
+        from[2] += i;
+        froms.push_back(from);
+      }
+      merge_files(froms, to);
+      callback->partial_finished();
+    }
+    if (update_counter % 256 == 0)
+    {
+      release_mem();
+      callback->partial_started();
+      std::vector< std::string > froms;
+      for (uint i = 0; i < 16; ++i)
+      {
+        std::string from(".1a");
+        from[2] += i;
+        froms.push_back(from);
+      }
+      merge_files(froms, ".2");
+      callback->partial_finished();
+    }
   }
 }
 

@@ -127,6 +127,7 @@ private:
 
   Key_Storage keys;
 
+  void merge_all_files(bool partial, Osm_Backend_Callback *callback);
   void merge_files(const std::vector< std::string >& froms, const std::string& into);
 
   void release_mem();
