@@ -460,12 +460,13 @@ std::map< Uint31_Index, std::set< Way_Skeleton > > get_implicitly_moved_skeleton
   {
     if (binary_search(known_way_ids.begin(), known_way_ids.end(), it.handle().id()))
       continue;
-    for (auto nit = it.object().nds().begin();
-         nit != it.object().nds().end(); ++nit)
+    auto obj = it.object_tmp();
+    for (auto nit = obj.nds().begin();
+         nit != obj.nds().end(); ++nit)
     {
       if (binary_search(node_ids.begin(), node_ids.end(), *nit))
       {
-        result[it.index()].insert(it.object());
+        result[it.index_tmp()].insert(std::move(obj));
         break;
       }
     }

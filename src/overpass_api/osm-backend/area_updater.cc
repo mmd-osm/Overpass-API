@@ -98,7 +98,7 @@ void Area_Updater::update_area_ids
       for (auto it2(obj.used_indices().begin());
           it2 != obj.used_indices().end(); ++it2)
         blocks_req.insert(*it2);
-      locations_to_delete[it.index().val()].insert(std::move(obj));
+      locations_to_delete[it.index_tmp().val()].insert(std::move(obj));
     }
   }
 
@@ -108,7 +108,7 @@ void Area_Updater::update_area_ids
   for (const auto & it : area_blocks_db.as_discrete(blocks_req))
   {
     if (ids_to_modify.find(it.handle().id()) != ids_to_modify.end())
-      blocks_to_delete[it.index()].insert(it.object_tmp());
+      blocks_to_delete[it.index_tmp()].insert(it.object_tmp());
   }
 }
 

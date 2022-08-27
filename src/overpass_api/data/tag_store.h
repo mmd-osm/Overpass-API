@@ -109,32 +109,39 @@ void collect_attic_tags
 
   // Collect all id-matched tag information from the current tags
   while ((!(current_tag_it == current_items_db.range_end())) &&
-      (((current_tag_it.index().index) & 0x7fffff00) < coarse_index))
+      (((current_tag_it.index_handle().get_index()) & 0x7fffff00) < coarse_index)) {
     ++current_tag_it;
+  }
   while ((!(current_tag_it == current_items_db.range_end())) &&
-      (((current_tag_it.index().index) & 0x7fffff00) == coarse_index))
+      (((current_tag_it.index_handle().get_index()) & 0x7fffff00) == coarse_index))
   {
     auto it_id = std::lower_bound(id_vec.begin(), id_vec.end(), Attic< Id_Type >(current_tag_it.handle().id(), 0ull));
     auto it_id_end = std::upper_bound(id_vec.begin(), id_vec.end(), Attic< Id_Type >
             (current_tag_it.handle().id(), NOW));
-    if (it_id != it_id_end)
+    if (it_id != it_id_end) {
+      auto idx = current_tag_it.index_tmp();
       found_tags[Attic< Id_Type >(current_tag_it.handle().id(), NOW)].push_back
-          (std::make_pair(current_tag_it.index().key, current_tag_it.index().value));
+          (std::make_pair(idx.key, idx.value));
+    }
     ++current_tag_it;
   }
 
   // Collect all id-matched tag information that is younger than the respective timestamp from the attic tags
   while ((!(attic_tag_it == attic_items_db.range_end())) &&
-      (((attic_tag_it.index().index) & 0x7fffff00) < coarse_index))
+      (((attic_tag_it.index_handle().get_index()) & 0x7fffff00) < coarse_index)) {
     ++attic_tag_it;
+  }
   while ((!(attic_tag_it == attic_items_db.range_end())) &&
-      (((attic_tag_it.index().index) & 0x7fffff00) == coarse_index))
+      (((attic_tag_it.index_handle().get_index()) & 0x7fffff00) == coarse_index))
   {
     auto it_id = std::lower_bound(id_vec.begin(), id_vec.end(), Attic< Id_Type >(attic_tag_it.handle().id(), 0ull));
-    auto it_id_end = std::upper_bound(id_vec.begin(), id_vec.end(), attic_tag_it.object());
-    if (it_id != it_id_end)
-      found_tags[attic_tag_it.object()].push_back
-          (std::make_pair(attic_tag_it.index().key, attic_tag_it.index().value));
+    auto obj = attic_tag_it.object_tmp();
+    auto it_id_end = std::upper_bound(id_vec.begin(), id_vec.end(), obj);
+    if (it_id != it_id_end) {
+      auto idx = attic_tag_it.index_tmp();
+      found_tags[std::move(obj)].push_back
+          (std::make_pair(idx.key, idx.value));
+    }
     ++attic_tag_it;
   }
 

@@ -340,7 +340,7 @@ std::vector< std::pair < Id_Type, Uint31_Index > > collect_attic_k_fast(
   {
     const auto current_timestamp = it2.handle().get_timestamp();
 
-    if (current_timestamp > timestamp && it2.index().value != void_tag_value())   // visible object versions only
+    if (current_timestamp > timestamp && it2.index_handle().get_value() != void_tag_value())   // visible object versions only
     {
       auto it_now = std::lower_bound(ts_now.begin(), ts_now.end(), std::pair<Id_Type, Uint31_Index>(it2.handle().id(), std::numeric_limits<uint32>::min()));
 
@@ -360,7 +360,7 @@ std::vector< std::pair < Id_Type, Uint31_Index > > collect_attic_k_fast(
   {
     const auto current_timestamp = it2.handle().get_timestamp();
 
-    if (current_timestamp > timestamp && it2.index().value == void_tag_value())   // now remove DELETED elements
+    if (current_timestamp > timestamp && it2.index_handle().get_value() == void_tag_value())   // now remove DELETED elements
     {
       auto it = timestamp_per_id.find(it2.handle().id());
       if (it != timestamp_per_id.end())
@@ -467,7 +467,7 @@ std::vector< std::pair < Id_Type, Uint31_Index > > collect_attic_kregv_fast(
 
   for (const auto & it2 : tags_db.as_range(range_req))
   {
-    if (regv->matches(it2.index().value)) {
+    if (regv->matches(it2.index_handle().get_value())) {
       if (ts_now.size() == 1024 * 1024) {
         return {};
       }
@@ -483,8 +483,8 @@ std::vector< std::pair < Id_Type, Uint31_Index > > collect_attic_kregv_fast(
   {
     const auto current_timestamp = it2.handle().get_timestamp();
 
-    if (current_timestamp > timestamp && it2.index().value != void_tag_value()
-        && regv->matches(it2.index().value))
+    if (current_timestamp > timestamp && it2.index_handle().get_value() != void_tag_value()
+        && regv->matches(it2.index_handle().get_value()))
     {
       auto it_now = std::lower_bound(ts_now.begin(), ts_now.end(), std::pair<Id_Type, Uint31_Index>(it2.handle().id(), std::numeric_limits<uint32>::min()));
 
@@ -563,10 +563,10 @@ std::map< Id_Type, std::pair< timestamp_t, Uint31_Index > > collect_attic_regkre
   {
     if (!it2.index_handle().has_key(last_key))
     {
-      last_key = it2.index().key;
-      matches = regk->matches(it2.index().key);
+      last_key = it2.index_tmp().key;
+      matches = regk->matches(it2.index_handle().get_key());
     }
-    if (matches && regv->matches(it2.index().value))
+    if (matches && regv->matches(it2.index_handle().get_value()))
       timestamp_per_id[it2.handle().id()][last_key] = std::make_pair(NOW, it2.handle().get_idx());
   }
 
@@ -577,16 +577,16 @@ std::map< Id_Type, std::pair< timestamp_t, Uint31_Index > > collect_attic_regkre
   {
     if (!it2.index_handle().has_key(last_key))
     {
-      last_key = it2.index().key;
-      matches = regk->matches(it2.index().key);
+      last_key = it2.index_tmp().key;
+      matches = regk->matches(it2.index_handle().get_key());
     }
 
     auto current_timestamp = it2.handle().get_timestamp();
 
     if (current_timestamp > timestamp &&
       //  it2.object().timestamp > timestamp &&
-        matches && it2.index().value != void_tag_value()
-        && regv->matches(it2.index().value))
+        matches && it2.index_handle().get_value() != void_tag_value()
+        && regv->matches(it2.index_handle().get_value()))
     {
       std::pair< timestamp_t, Uint31_Index >& ref = timestamp_per_id[it2.handle().id()][last_key];
       if (ref.first == 0 || current_timestamp < ref.first)
@@ -601,8 +601,8 @@ std::map< Id_Type, std::pair< timestamp_t, Uint31_Index > > collect_attic_regkre
   {
     if (!it2.index_handle().has_key(last_key))
     {
-      last_key = it2.index().key;
-      matches = regk->matches(it2.index().key);
+      last_key = it2.index_tmp().key;
+      matches = regk->matches(it2.index_handle().get_key());
     }
 
     auto current_timestamp = it2.handle().get_timestamp();

@@ -180,7 +180,7 @@ void collect_old_meta_data
       meta_it(meta_db.discrete_begin(user_idxs.begin(), user_idxs.end()));
   while (!(meta_it == meta_db.discrete_end()))
   {
-    while ((del_it != to_delete_meta.end()) && (del_it->first < meta_it.index().val()))
+    while ((del_it != to_delete_meta.end()) && (del_it->first < meta_it.index_tmp().val()))
       ++del_it;
     if (del_it == to_delete_meta.end())
       break;
@@ -190,8 +190,11 @@ void collect_old_meta_data
         it != del_it->second.end(); ++it)
       found |= (meta_it.handle().get_ref() == *it);
 
-    if (found)
-      meta_to_insert.push_back(std::make_pair(meta_it.object(), new_index_by_id[meta_it.object().ref]));
+    if (found) {
+      auto obj = meta_it.object_tmp();
+      auto obj_ref = obj.ref;
+      meta_to_insert.push_back(std::make_pair(std::move(obj), new_index_by_id[obj_ref]));
+    }
     ++meta_it;
   }
 }

@@ -146,9 +146,11 @@ void prepare_delete_tags
       tag_entry.ids.clear();
     }
 
+    auto obj = it.object_tmp();
+
     std::set< Id_Type >& handle(to_delete_coarse[it.index().index]);
-    if (handle.find(it.object().val()) != handle.end())
-      tag_entry.ids.push_back(it.object().val());
+    if (handle.find(obj.val()) != handle.end())
+      tag_entry.ids.push_back(obj.val());
   }
   if ((current_index.index != 0xffffffff) && (!tag_entry.ids.empty()))
     tags_to_delete.push_back(tag_entry);

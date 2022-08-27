@@ -347,7 +347,7 @@ void Coord_Query_Statement::execute(Resource_Manager& rman)
     for (const auto & it : area_locations_db.as_discrete(idx_req))
     {
       if (areas_found.find(it.handle().id()) != areas_found.end())
-        into.areas[it.index()].push_back(it.object_tmp());
+        into.areas[it.index_tmp()].push_back(it.object_tmp());
     }
   }
 

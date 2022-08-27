@@ -746,7 +746,7 @@ void Area_Query_Statement::collect_nodes_db
   uint32 current_idx = 0;
   while (!(area_it == area_blocks_db.discrete_end()))
   {
-    current_idx = area_it.index().val();
+    current_idx = area_it.index_tmp().val();
     if (loop_count > 1024*1024)
     {
       rman.health_check(*this);
@@ -756,7 +756,7 @@ void Area_Query_Statement::collect_nodes_db
     std::map< Area_Skeleton::Id_Type, std::vector< Area_Block > > areas;
 
     while ((!(area_it == area_blocks_db.discrete_end())) &&
-        (area_it.index().val() == current_idx))
+        (area_it.index_tmp().val() == current_idx))
     {
       if (binary_search(area_id_db.begin(), area_id_db.end(), area_it.handle().id()))
         areas[area_it.handle().id()].push_back(area_it.object_tmp());
