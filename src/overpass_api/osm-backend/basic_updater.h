@@ -186,7 +186,7 @@ std::map< Uint31_Index, std::set< Element_Skeleton > > get_existing_skeletons
   {
     if (binary_search(ids_with_position.begin(), ids_with_position.end(),
         std::make_pair(it.handle().id(), 0), comp))
-      result[it.index_tmp()].insert(it.object_tmp());
+      result[it.index()].insert(it.object());
   }
 
   return result;
@@ -255,13 +255,13 @@ std::map< typename Element_Skeleton::Id_Type, std::pair< Index, Attic< Element_S
     if (binary_search(ids_with_position.begin(), ids_with_position.end(),
         std::make_pair(it.handle().id(), 0), comp))
     {
-      auto obj = it.object_tmp();
+      auto obj = it.object();
       auto id = obj.id;
       auto rit = result.find(obj.id);
       if (rit == result.end())
-	result.insert(std::make_pair(id, std::make_pair(it.index_tmp(), std::move(obj))));
+	result.insert(std::make_pair(id, std::make_pair(it.index(), std::move(obj))));
       else if (rit->second.second.timestamp < obj.timestamp)
-        rit->second = std::make_pair(it.index_tmp(), std::move(obj));
+        rit->second = std::make_pair(it.index(), std::move(obj));
     }
   }
 
@@ -269,16 +269,16 @@ std::map< typename Element_Skeleton::Id_Type, std::pair< Index, Attic< Element_S
       undelete_db(transaction.data_index(&undelete_file_properties));
   for (const auto & it : undelete_db.as_discrete(req))
   {
-    auto obj = it.object_tmp();
+    auto obj = it.object();
     if (binary_search(ids_with_position.begin(), ids_with_position.end(),
         std::pair< typename Element_Skeleton::Id_Type, Uint31_Index >(obj, 0u), comp))
     {
       auto rit = result.find(obj);
       if (rit == result.end())
-	result.insert(std::make_pair(obj, std::make_pair(it.index_tmp(),
+	result.insert(std::make_pair(obj, std::make_pair(it.index(),
 	    Attic< Element_Skeleton_Delta >(Element_Skeleton_Delta(), obj.timestamp))));
       else if (rit->second.second.timestamp < obj.timestamp)
-        rit->second = std::make_pair(it.index_tmp(),
+        rit->second = std::make_pair(it.index(),
 	    Attic< Element_Skeleton_Delta >(Element_Skeleton_Delta(), obj.timestamp));
     }
   }
@@ -304,7 +304,7 @@ std::map< Uint31_Index, std::set< Element_Skeleton > > get_existing_meta
   {
     if (binary_search(ids_with_position.begin(), ids_with_position.end(),
         std::make_pair(it.handle().get_ref(), 0), comp))
-      result[it.index_tmp()].insert(it.object_tmp());
+      result[it.index()].insert(it.object());
   }
 
   return result;
@@ -676,7 +676,7 @@ std::map< Id_Type, std::set< Uint31_Index > > get_existing_idx_lists
 
   Block_Backend< Id_Type, Uint31_Index > db(transaction.data_index(&file_properties));
   for (const auto & it : db.as_discrete(req))
-    result[it.index_tmp()].insert(it.object_tmp());
+    result[it.index()].insert(it.object());
 
   return result;
 }

@@ -90,13 +90,15 @@ void clone_bin_file(const File_Properties& src_file_prop, const File_Properties&
       uint64 count = 0;
       while (!(it == from_db.flat_end()))
       {
-        if (dit == db_to_insert.end() || !(dit->first == it.index()))
+        auto idx = it.index();
+        if (dit == db_to_insert.end() || !(dit->first == idx))
         {
-          dit = db_to_insert.insert(std::make_pair(it.index(), std::set< TObject >())).first;
-          count += it.index().size_of();
+          count += idx.size_of();
+          dit = db_to_insert.insert(std::make_pair(std::move(idx), std::set< TObject >())).first;
         }
-        dit->second.insert(it.object());
-        count += it.object().size_of();
+        auto obj = it.object();
+        count += obj.size_of();
+        dit->second.insert(std::move(obj));
 
         if (count >= 64*1024*1024)
         {

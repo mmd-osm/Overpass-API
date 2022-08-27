@@ -985,7 +985,7 @@ const std::map< uint32, std::string >& relation_member_roles(Transaction& transa
     auto it_hint = roles.begin();
 
     for(const auto & it : roles_db.as_flat()) {
-      roles.emplace_hint(it_hint, it.index_tmp().val(), it.object_tmp().val());
+      roles.emplace_hint(it_hint, it.index().val(), it.object().val());
       it_hint = roles.end();
     }
   }

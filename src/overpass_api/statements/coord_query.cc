@@ -209,12 +209,12 @@ struct Closedness_Predicate
   bool match(const Way_Skeleton& obj) const { return !obj.nds().empty() && obj.nds().front() == obj.nds().back(); }
   bool match(const Handle< Way_Skeleton >& h) const
   {
-    auto w = h.object_tmp();
+    auto w = h.object();
     return !w.nds().empty() && w.nds().front() == w.nds().back();
   }
   bool match(const Handle< Attic< Way_Skeleton > >& h) const
   {
-    auto w = h.object_tmp();
+    auto w = h.object();
     return !w.nds().empty() && w.nds().front() == w.nds().back();
   }
 };
@@ -274,9 +274,9 @@ void Coord_Query_Statement::execute(Resource_Manager& rman)
 
   for (const auto & it : area_blocks_db.as_discrete(req))
   {
-    if (!(it.index_tmp() == last_idx))
+    if (!(it.index() == last_idx))
     {
-      last_idx = it.index_tmp();
+      last_idx = it.index();
 
       for (std::map< std::pair< double, double >, std::map< Area::Id_Type, int > >::const_iterator
 	  inside_it = areas_inside.begin(); inside_it != areas_inside.end(); ++inside_it)
@@ -290,7 +290,7 @@ void Coord_Query_Statement::execute(Resource_Manager& rman)
       }
       areas_inside.clear();
 
-      while (coord_block_it != coord_per_req.end() && coord_block_it->first < it.index_tmp())
+      while (coord_block_it != coord_per_req.end() && coord_block_it->first < it.index())
         ++coord_block_it;
       if (coord_block_it == coord_per_req.end())
         break;
@@ -302,9 +302,9 @@ void Coord_Query_Statement::execute(Resource_Manager& rman)
       uint32 ilat((coord_it->first + 91.0)*10000000+0.5);
       int32 ilon(coord_it->second*10000000 + (coord_it->second > 0 ? 0.5 : -0.5));
 
-      auto obj = it.object_tmp();
+      auto obj = it.object();
 
-      int check = check_area_block(it.index_tmp().val(), obj, ilat, ilon);
+      int check = check_area_block(it.index().val(), obj, ilat, ilon);
       if (check == HIT)
         areas_found.insert(it.handle().id());
       else if (check != 0)
@@ -347,7 +347,7 @@ void Coord_Query_Statement::execute(Resource_Manager& rman)
     for (const auto & it : area_locations_db.as_discrete(idx_req))
     {
       if (areas_found.find(it.handle().id()) != areas_found.end())
-        into.areas[it.index_tmp()].push_back(it.object_tmp());
+        into.areas[it.index()].push_back(it.object());
     }
   }
 

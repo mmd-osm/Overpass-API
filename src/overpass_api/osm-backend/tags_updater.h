@@ -99,18 +99,20 @@ void get_existing_tags
   Ranges< Tag_Index_Local > ranges(std::move(range_set));
   for (auto it = rels_db.range_begin(ranges); !(it == rels_db.range_end()); ++it)
   {
-    if (!(current_index == it.index()))
+    if (!(current_index.index == it.index_handle().get_index() &&
+          current_index.key == it.index_handle().get_key() &&
+          current_index.value == it.index_handle().get_value()))
     {
       if ((current_index.index != 0xffffffff) && (!tag_entry.ids.empty()))
         tags_to_delete.push_back(tag_entry);
       current_index = it.index();
-      tag_entry.index = it.index().index;
-      tag_entry.key = it.index().key;
-      tag_entry.value = it.index().value;
+      tag_entry.index = current_index.index;
+      tag_entry.key = current_index.key;
+      tag_entry.value = current_index.value;
       tag_entry.ids.clear();
     }
 
-    std::set< Id_Type >& handle(to_delete_coarse[it.index().index]);
+    std::set< Id_Type >& handle(to_delete_coarse[it.index_handle().get_index()]);
     if (handle.find(it.handle().id()) != handle.end())
       tag_entry.ids.push_back(it.handle().id());
   }

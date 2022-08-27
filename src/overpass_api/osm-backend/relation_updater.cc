@@ -61,9 +61,9 @@ void Relation_Updater::load_roles()
       (transaction->data_index(osm_base_settings().RELATION_ROLES));
   for (const auto & it : roles_db.as_flat())
   {
-    role_ids[it.object_tmp().val()] = it.index_tmp().val();
-    if (max_role_id <= it.index_tmp().val())
-      max_role_id = it.index_tmp().val()+1;
+    role_ids[it.object().val()] = it.index().val();
+    if (max_role_id <= it.index().val())
+      max_role_id = it.index().val()+1;
   }
   max_written_role_id = max_role_id;
 
@@ -132,14 +132,14 @@ std::map< Uint31_Index, std::set< Relation_Skeleton > > get_implicitly_moved_ske
   {
     if (binary_search(known_relation_ids.begin(), known_relation_ids.end(), it.handle().id()))
       continue;
-    auto rel_skel = it.object_tmp();
+    auto rel_skel = it.object();
     for (auto nit = rel_skel.members().begin(); nit != rel_skel.members().end(); ++nit)
     {
       if (nit->type == Relation_Entry::NODE)
       {
         if (binary_search(node_ids.begin(), node_ids.end(), Node_Skeleton::Id_Type(nit->ref.val())))
         {
-          result[it.index_tmp()].insert(std::move(rel_skel));
+          result[it.index()].insert(std::move(rel_skel));
           break;
         }
       }
@@ -147,7 +147,7 @@ std::map< Uint31_Index, std::set< Relation_Skeleton > > get_implicitly_moved_ske
       {
         if (binary_search(way_ids.begin(), way_ids.end(), Way_Skeleton::Id_Type(nit->ref.val())))
         {
-          result[it.index_tmp()].insert(std::move(rel_skel));
+          result[it.index()].insert(std::move(rel_skel));
           break;
         }
       }

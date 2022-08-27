@@ -415,8 +415,8 @@ void export_bin(Transaction& transaction, const File_Properties* fp) {
   try {
     for (const auto & it : db.as_flat())
     {
-      const Index& idx_ = it.index();
-      const Object& obj_ = it.object();
+      auto idx_ = it.index();
+      auto obj_ = it.object();
 
       if (objcount >= 1000000) {
         if (!res.empty()) {
@@ -429,7 +429,7 @@ void export_bin(Transaction& transaction, const File_Properties* fp) {
         res.clear();
       }
 
-      res[idx_].insert(obj_);
+      res[std::move(idx_)].insert(std::move(obj_));
       ++objcount;
      }
 

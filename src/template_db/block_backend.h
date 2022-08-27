@@ -53,33 +53,17 @@ template< typename Object >
 struct Idx_Handle
 {
   Idx_Handle()
-      : obj(nullptr), ptr_to_raw(nullptr) {}
+      : ptr_to_raw(nullptr) {}
 
   Idx_Handle(const Idx_Handle& rhs)
-      : obj(nullptr), ptr_to_raw(rhs.ptr_to_raw) {}
-
-  ~Idx_Handle()
-  {
-    delete obj;
-  }
+      : ptr_to_raw(rhs.ptr_to_raw) {}
 
   void set_ptr(uint8* ptr)
   {
-    if (obj != nullptr) {
-      delete obj;
-      obj = nullptr;
-    }
     ptr_to_raw = ptr;
   }
 
-  const Object& object() const
-  {
-    if (!obj)
-      obj = new Object(ptr_to_raw);
-    return *obj;
-  }
-
-  Object object_tmp() const
+  Object object() const
   {
     return Object(ptr_to_raw);
   }
@@ -90,7 +74,6 @@ struct Idx_Handle
   }
 
 private:
-  mutable Object* obj;
   uint8* ptr_to_raw;
 };
 
@@ -143,26 +126,16 @@ struct Block_Backend_Basic_Iterator
     return !(operator==(rhs));
   }
 
-  const Index& index() const
+  // returns local class instance (no caching across repeated calls of this method!)
+  Index index() const
   {
     return idx_cache.object();
   }
 
   // returns local class instance (no caching across repeated calls of this method!)
-  Index index_tmp() const
-  {
-    return idx_cache.object_tmp();
-  }
-
-  const Object& object() const
+  Object object() const
   {
     return obj_cache.object();
-  }
-
-  // returns local class instance (no caching across repeated calls of this method!)
-  Object object_tmp() const
-  {
-    return obj_cache.object_tmp();
   }
 
   const Handle< Index >& index_handle() const
@@ -189,25 +162,14 @@ struct Block_Backend_Basic_Iterator
   {
     Block_Backend_Element(Block_Backend_Basic_Iterator<Index, Object, Idx_Assessor, File_Handle> & _ref) : ref(_ref) {};
 
-
-    const Index& index() const
+    Index index() const
     {
       return ref.index();
     }
 
-    const Object& object() const
+    Object object() const
     {
       return ref.object();
-    }
-
-    Index index_tmp() const
-    {
-      return ref.index_tmp();
-    }
-
-    Object object_tmp() const
-    {
-      return ref.object_tmp();
     }
 
     const Handle< Index >& index_handle() const

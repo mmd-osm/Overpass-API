@@ -118,7 +118,7 @@ void collect_elems_flat(Resource_Manager& rman,
     if (!(it.handle().id() < (*lower).val()) && it.handle().id() < ((*upper).val() + 1) &&
         binary_search(ids.begin(), ids.end(), it.handle().id()))
     {
-      elems[it.index_tmp()].push_back(it.object_tmp());
+      elems[it.index()].push_back(it.object());
     }
   }
 }

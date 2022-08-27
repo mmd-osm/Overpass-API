@@ -119,7 +119,7 @@ void collect_attic_tags
     auto it_id_end = std::upper_bound(id_vec.begin(), id_vec.end(), Attic< Id_Type >
             (current_tag_it.handle().id(), NOW));
     if (it_id != it_id_end) {
-      auto idx = current_tag_it.index_tmp();
+      auto idx = current_tag_it.index();
       found_tags[Attic< Id_Type >(current_tag_it.handle().id(), NOW)].push_back
           (std::make_pair(idx.key, idx.value));
     }
@@ -135,10 +135,10 @@ void collect_attic_tags
       (((attic_tag_it.index_handle().get_index()) & 0x7fffff00) == coarse_index))
   {
     auto it_id = std::lower_bound(id_vec.begin(), id_vec.end(), Attic< Id_Type >(attic_tag_it.handle().id(), 0ull));
-    auto obj = attic_tag_it.object_tmp();
+    auto obj = attic_tag_it.object();
     auto it_id_end = std::upper_bound(id_vec.begin(), id_vec.end(), obj);
     if (it_id != it_id_end) {
-      auto idx = attic_tag_it.index_tmp();
+      auto idx = attic_tag_it.index();
       found_tags[std::move(obj)].push_back
           (std::make_pair(idx.key, idx.value));
     }
@@ -250,7 +250,7 @@ void collect_tags
     Id_Type current(tag_it.handle().id());     // avoid creating a new object instance via object()
     if ((binary_search(ids.begin(), ids.end(), current)))
     {
-      auto elem = tag_it.index_tmp();
+      auto elem = tag_it.index();
       tags_by_id[current].push_back
           (std::make_pair(std::move(elem.key), std::move(elem.value)));
     }
@@ -292,7 +292,7 @@ void collect_tags_single
     Id_Type current(tag_it.handle().id());     // avoid creating a new object instance via object()
     if (current == id)
     {
-      auto elem = tag_it.index_tmp();
+      auto elem = tag_it.index();
       tags_by_id[current].push_back
           (std::make_pair(std::move(elem.key), std::move(elem.value)));
       tag_it.skip_current_index();             // we've already found "id" in current index, let's move on to the next index
@@ -337,7 +337,7 @@ void collect_tags
     Id_Type current(tag_it.handle().id());     // avoid creating a new object instance via object()
     if ((binary_search(ids.begin(), ids.end(), current)))
     {
-      auto elem = tag_it.index_tmp();
+      auto elem = tag_it.index();
       tags_by_id[current].push_back
           (std::make_pair(std::move(elem.key), std::move(elem.value)));
     }
@@ -382,7 +382,7 @@ void collect_tags_framed
       (current < upper_id_bound) &&
        binary_search(ids_by_coarse_ref.begin(), ids_by_coarse_ref.end(), current))
     {
-      auto elem = tag_it.index_tmp();
+      auto elem = tag_it.index();
       tags_by_id[current].push_back
           (std::make_pair(std::move(elem.key), std::move(elem.value)));
     }

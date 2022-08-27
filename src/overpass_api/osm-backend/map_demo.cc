@@ -202,15 +202,15 @@ void prep_map_data(Resource_Manager& rman, Bbox_Double bbox)
       {
         auto n = it.object();
 
-        uint32 lat(::ilat(it.index().val(), n.ll_lower));
-        int32 lon(::ilon(it.index().val(), n.ll_lower));
+        uint32 lat(::ilat(it.index_handle().get_val(), n.ll_lower));
+        int32 lon(::ilon(it.index_handle().get_val(), n.ll_lower));
         if ((lat >= south) && (lat <= north) &&
             (((lon >= west) && (lon <= east))
                 || ((east < west) && ((lon >= west) || (lon <= east)))))
         {
           nodes_dense.set(n.id.val());
           if (!(it.index() == previous_node_idx)) {
-            node_idxs.push_back(it.index().val());
+            node_idxs.push_back(it.index_handle().get_val());
             req_node.insert(it.index());
             previous_node_idx = it.index();
           }

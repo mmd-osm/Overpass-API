@@ -180,7 +180,7 @@ void collect_old_meta_data
       meta_it(meta_db.discrete_begin(user_idxs.begin(), user_idxs.end()));
   while (!(meta_it == meta_db.discrete_end()))
   {
-    while ((del_it != to_delete_meta.end()) && (del_it->first < meta_it.index_tmp().val()))
+    while ((del_it != to_delete_meta.end()) && (del_it->first < meta_it.index().val()))
       ++del_it;
     if (del_it == to_delete_meta.end())
       break;
@@ -191,7 +191,7 @@ void collect_old_meta_data
       found |= (meta_it.handle().get_ref() == *it);
 
     if (found) {
-      auto obj = meta_it.object_tmp();
+      auto obj = meta_it.object();
       auto obj_ref = obj.ref;
       meta_to_insert.push_back(std::make_pair(std::move(obj), new_index_by_id[obj_ref]));
     }
@@ -264,7 +264,7 @@ void merge_files
     {
       from_its.push_back(std::make_pair((*it)->flat_begin(), (*it)->flat_end()));
       if (!(from_its.back().first == from_its.back().second))
-        current_idxs.insert(from_its.back().first.index_tmp());
+        current_idxs.insert(from_its.back().first.index());
     }
     while (!current_idxs.empty())
     {
@@ -276,14 +276,14 @@ void merge_files
 
       for (auto it = from_its.begin(); it != from_its.end(); ++it)
       {
-	while (!(it->first == it->second) && (it->first.index_tmp() == current_idx))
+	while (!(it->first == it->second) && (it->first.index() == current_idx))
 	{
           if (!(prev_idx == current_idx)) {
-            dbins = &db_to_insert[it->first.index_tmp()];
+            dbins = &db_to_insert[it->first.index()];
             prev_idx = current_idx;
           }
 
-          dbins->insert(it->first.object_tmp());
+          dbins->insert(it->first.object());
 	  ++(it->first);
 
 	  if (++item_count > 4*1024*1024)
@@ -297,7 +297,7 @@ void merge_files
 	  }
 	}
 	if (!(it->first == it->second))
-	  current_idxs.insert(it->first.index_tmp());
+	  current_idxs.insert(it->first.index());
       }
     }
 

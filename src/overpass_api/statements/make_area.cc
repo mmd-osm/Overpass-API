@@ -336,7 +336,7 @@ void Make_Area_Statement::execute(Resource_Manager& rman)
   for (const auto & tag_it : items_db.as_range(ranges))
   {
     if (tag_it.handle().get_val() == pivot_id) {
-      auto idx = tag_it.index_tmp();
+      auto idx = tag_it.index();
       new_tags.push_back(std::make_pair(idx.key, idx.value));
     }
   }

@@ -563,7 +563,7 @@ std::map< Id_Type, std::pair< timestamp_t, Uint31_Index > > collect_attic_regkre
   {
     if (!it2.index_handle().has_key(last_key))
     {
-      last_key = it2.index_tmp().key;
+      last_key = it2.index().key;
       matches = regk->matches(it2.index_handle().get_key());
     }
     if (matches && regv->matches(it2.index_handle().get_value()))
@@ -577,7 +577,7 @@ std::map< Id_Type, std::pair< timestamp_t, Uint31_Index > > collect_attic_regkre
   {
     if (!it2.index_handle().has_key(last_key))
     {
-      last_key = it2.index_tmp().key;
+      last_key = it2.index().key;
       matches = regk->matches(it2.index_handle().get_key());
     }
 
@@ -601,7 +601,7 @@ std::map< Id_Type, std::pair< timestamp_t, Uint31_Index > > collect_attic_regkre
   {
     if (!it2.index_handle().has_key(last_key))
     {
-      last_key = it2.index_tmp().key;
+      last_key = it2.index().key;
       matches = regk->matches(it2.index_handle().get_key());
     }
 

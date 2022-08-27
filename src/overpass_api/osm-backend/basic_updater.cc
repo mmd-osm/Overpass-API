@@ -49,9 +49,9 @@ void Key_Storage::load_keys(Transaction& transaction)
   Block_Backend< Uint32_Index, String_Object > keys_db(transaction.data_index(file_properties));
   for (const auto & it : keys_db.as_flat())
   {
-    key_ids[it.object_tmp().val()] = it.index_tmp().val();
-    if (max_key_id <= it.index_tmp().val())
-      max_key_id = it.index_tmp().val()+1;
+    key_ids[it.object().val()] = it.index().val();
+    if (max_key_id <= it.index().val())
+      max_key_id = it.index().val()+1;
   }
   max_written_key_id = max_key_id;
 }
