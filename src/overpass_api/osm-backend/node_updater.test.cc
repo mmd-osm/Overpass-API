@@ -180,9 +180,11 @@ int main(int argc, char* args[])
     for (Block_Backend< Uint32_Index, Node_Skeleton >::Flat_Iterator
 	 it(nodes_db.flat_begin()); !(it == nodes_db.flat_end()); ++it)
     {
-      coord_db_out<<it.object().id.val()<<'\t'<<std::fixed<<std::setprecision(7)
-	  <<::lat(it.index().val(), it.object().ll_lower)<<'\t'
-	  <<::lon(it.index().val(), it.object().ll_lower)<<'\n';
+      auto idx = it.index();
+      auto obj = it.object();
+      coord_db_out<<obj.id.val()<<'\t'<<std::fixed<<std::setprecision(7)
+	  <<::lat(idx.val(), obj.ll_lower)<<'\t'
+	  <<::lon(idx.val(), obj.ll_lower)<<'\n';
     }
 
     // check update_node_tags_local - compare both files for the result
@@ -201,8 +203,10 @@ int main(int argc, char* args[])
     for (Block_Backend< Tag_Index_Global, Tag_Object_Global< Node_Skeleton::Id_Type > >::Flat_Iterator
 	 it(nodes_global_db.flat_begin()); !(it == nodes_global_db.flat_end()); ++it)
     {
-      tags_global_out<<it.object().id.val()<<'\t'
-	  <<it.index().key<<'\t'<<it.index().value<<'\n';
+      auto idx = it.index();
+      auto obj = it.object();
+      tags_global_out<<obj.id.val()<<'\t'
+	  <<idx.key<<'\t'<<idx.value<<'\n';
     }
   }
   catch (const File_Error& e)

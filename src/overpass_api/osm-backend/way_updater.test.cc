@@ -227,9 +227,10 @@ int main(int argc, char* args[])
     for (Block_Backend< Uint31_Index, Way_Skeleton >::Flat_Iterator
 	 it(ways_db.flat_begin()); !(it == ways_db.flat_end()); ++it)
     {
-      member_db_out<<it.object().id.val()<<'\t';
-      for (uint i(0); i < it.object().nds().size(); ++i)
-	member_db_out<<it.object().nds()[i].val()<<' ';
+      auto obj = it.object();
+      member_db_out<<obj.id.val()<<'\t';
+      for (uint i(0); i < obj.nds().size(); ++i)
+	member_db_out<<obj.nds()[i].val()<<' ';
       member_db_out<<'\n';
     }
 
@@ -249,8 +250,10 @@ int main(int argc, char* args[])
     for (Block_Backend< Tag_Index_Global, Tag_Object_Global< Way_Skeleton::Id_Type > >::Flat_Iterator
 	 it(ways_global_db.flat_begin()); !(it == ways_global_db.flat_end()); ++it)
     {
-      tags_global_out<<it.object().id.val()<<'\t'
-	  <<it.index().key<<'\t'<<it.index().value<<'\n';
+      auto idx = it.index();
+      auto obj = it.object();
+      tags_global_out<<obj.id.val()<<'\t'
+	  <<idx.key<<'\t'<<idx.value<<'\n';
     }
   }
   catch (const File_Error& e)

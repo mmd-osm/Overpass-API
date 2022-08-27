@@ -103,11 +103,14 @@ void dump_nodes(uint32 pattern_size, const std::string& db_dir)
   for (Block_Backend< Uint31_Index, Node_Skeleton >::Flat_Iterator
       it(nodes_db.flat_begin()); !(it == nodes_db.flat_end()); ++it)
   {
-    output_sorter.sort_and_output_if_index_changed(it.index().val());
+    auto idx = it.index();
+    auto obj = it.object();
+    output_sorter.sort_and_output_if_index_changed(idx.val());
     std::ostringstream buf;
-    buf<<it.object().id.val()<<'\t'<<std::setprecision(10)
-	<<::lat(it.index().val(), it.object().ll_lower)<<'\t'
-	<<::lon(it.index().val(), it.object().ll_lower)<<'\n';
+
+    buf<<obj.id.val()<<'\t'<<std::setprecision(10)
+	<<::lat(idx.val(), obj.ll_lower)<<'\t'
+	<<::lon(idx.val(), obj.ll_lower)<<'\n';
     output_sorter.output_per_index.push_back(buf.str());
   }
 }
@@ -123,10 +126,12 @@ void dump_node_tags_local(uint32 pattern_size, const std::string& db_dir)
       it(nodes_local_db.flat_begin());
       !(it == nodes_local_db.flat_end()); ++it)
   {
-    output_sorter.sort_and_output_if_index_changed(it.index().index);
+    auto idx = it.index();
+    auto obj = it.object();
+    output_sorter.sort_and_output_if_index_changed(idx.index);
     std::ostringstream buf;
-    buf<<it.object().val()<<'\t'
-        <<it.index().key<<'\t'<<it.index().value<<'\n';
+    buf<<obj.val()<<'\t'
+        <<idx.key<<'\t'<<idx.value<<'\n';
     output_sorter.output_per_index.push_back(buf.str());
   }
 }
@@ -142,11 +147,13 @@ void dump_node_tags_global(uint32 pattern_size, const std::string& db_dir)
       it(nodes_global_db.flat_begin());
       !(it == nodes_global_db.flat_end()); ++it)
   {
+    auto idx = it.index();
+    auto obj = it.object();
     output_sorter.sort_and_output_if_index_changed
-        (std::make_pair(it.index().key, it.index().value));
+        (std::make_pair(idx.key, idx.value));
     std::ostringstream buf;
-    buf<<it.object().id.val()<<'\t'
-        <<it.index().key<<'\t'<<it.index().value<<'\n';
+    buf<<obj.id.val()<<'\t'
+        <<idx.key<<'\t'<<idx.value<<'\n';
     output_sorter.output_per_index.push_back(buf.str());
   }
 }
@@ -161,12 +168,14 @@ void dump_ways(uint32 pattern_size, const std::string& db_dir)
   for (Block_Backend< Uint31_Index, Way_Skeleton >::Flat_Iterator
       it(ways_db.flat_begin()); !(it == ways_db.flat_end()); ++it)
   {
-    output_sorter.sort_and_output_if_index_changed(it.index().val());
+    auto idx = it.index();
+    auto obj = it.object();
+    output_sorter.sort_and_output_if_index_changed(idx.val());
     std::ostringstream buf;
     buf<<std::hex<<it.index().val()<<std::dec
-        <<'\t'<<it.object().id.val()<<'\t';
-    for (uint i(0); i < it.object().nds().size(); ++i)
-      buf<<it.object().nds()[i].val()<<' ';
+        <<'\t'<<obj.id.val()<<'\t';
+    for (uint i(0); i < obj.nds().size(); ++i)
+      buf<<obj.nds()[i].val()<<' ';
     buf<<'\n';
     output_sorter.output_per_index.push_back(buf.str());
   }
@@ -183,11 +192,13 @@ void dump_way_tags_local(uint32 pattern_size, const std::string& db_dir)
       it(ways_local_db.flat_begin());
       !(it == ways_local_db.flat_end()); ++it)
   {
-    output_sorter.sort_and_output_if_index_changed(it.index().index);
+    auto idx = it.index();
+    auto obj = it.object();
+    output_sorter.sort_and_output_if_index_changed(idx.index);
     std::ostringstream buf;
-    buf<<std::hex<<it.index().index<<std::dec
-        <<'\t'<<it.object().val()<<'\t'
-        <<it.index().key<<'\t'<<it.index().value<<'\n';
+    buf<<std::hex<<idx.index<<std::dec
+        <<'\t'<<obj.val()<<'\t'
+        <<idx.key<<'\t'<<idx.value<<'\n';
     output_sorter.output_per_index.push_back(buf.str());
   }
 }
@@ -203,11 +214,13 @@ void dump_way_tags_global(uint32 pattern_size, const std::string& db_dir)
       it(ways_global_db.flat_begin());
       !(it == ways_global_db.flat_end()); ++it)
   {
+    auto idx = it.index();
+    auto obj = it.object();
     output_sorter.sort_and_output_if_index_changed
-        (std::make_pair(it.index().key, it.index().value));
+        (std::make_pair(idx.key, idx.value));
     std::ostringstream buf;
-    buf<<it.object().id.val()<<'\t'
-        <<it.index().key<<'\t'<<it.index().value<<'\n';
+    buf<<obj.id.val()<<'\t'
+        <<idx.key<<'\t'<<idx.value<<'\n';
     output_sorter.output_per_index.push_back(buf.str());
   }
 }
@@ -229,14 +242,16 @@ void dump_relations(uint32 pattern_size, const std::string& db_dir)
   for (Block_Backend< Uint31_Index, Relation_Skeleton >::Flat_Iterator
       it(relations_db.flat_begin()); !(it == relations_db.flat_end()); ++it)
   {
-    output_sorter.sort_and_output_if_index_changed(it.index().val());
+    auto idx = it.index();
+    auto obj = it.object();
+    output_sorter.sort_and_output_if_index_changed(idx.val());
     std::ostringstream buf;
-    buf<<std::hex<<it.index().val()<<std::dec
-        <<'\t'<<it.object().id.val()<<'\t';
-    for (uint i(0); i < it.object().members().size(); ++i)
-      buf<<it.object().members()[i].ref.val()<<' '
-          <<it.object().members()[i].type<<' '
-          <<roles[it.object().members()[i].role]<<' ';
+    buf<<std::hex<<idx.val()<<std::dec
+        <<'\t'<<obj.id.val()<<'\t';
+    for (uint i(0); i < obj.members().size(); ++i)
+      buf<<obj.members()[i].ref.val()<<' '
+          <<obj.members()[i].type<<' '
+          <<roles[obj.members()[i].role]<<' ';
     buf<<'\n';
     output_sorter.output_per_index.push_back(buf.str());
   }
@@ -253,11 +268,13 @@ void dump_relation_tags_local(uint32 pattern_size, const std::string& db_dir)
     it(relations_local_db.flat_begin());
   !(it == relations_local_db.flat_end()); ++it)
   {
-    output_sorter.sort_and_output_if_index_changed(it.index().index);
+    auto idx = it.index();
+    auto obj = it.object();
+    output_sorter.sort_and_output_if_index_changed(idx.index);
     std::ostringstream buf;
-    buf<<std::hex<<it.index().index<<std::dec
-        <<'\t'<<it.object().val()<<'\t'
-        <<it.index().key<<'\t'<<it.index().value<<'\n';
+    buf<<std::hex<<idx.index<<std::dec
+        <<'\t'<<obj.val()<<'\t'
+        <<idx.key<<'\t'<<idx.value<<'\n';
     output_sorter.output_per_index.push_back(buf.str());
   }
 }
@@ -273,11 +290,13 @@ void dump_relation_tags_global(uint32 pattern_size, const std::string& db_dir)
     it(relations_global_db.flat_begin());
   !(it == relations_global_db.flat_end()); ++it)
   {
+    auto idx = it.index();
+    auto obj = it.object();
     output_sorter.sort_and_output_if_index_changed
-        (std::make_pair(it.index().key, it.index().value));
+        (std::make_pair(idx.key, idx.value));
     std::ostringstream buf;
-    buf<<it.object().id.val()<<'\t'
-        <<it.index().key<<'\t'<<it.index().value<<'\n';
+    buf<<obj.id.val()<<'\t'
+        <<idx.key<<'\t'<<idx.value<<'\n';
     output_sorter.output_per_index.push_back(buf.str());
   }
 }

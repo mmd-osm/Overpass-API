@@ -327,11 +327,12 @@ int main(int argc, char* args[])
     for (Block_Backend< Uint31_Index, Relation_Skeleton >::Flat_Iterator
 	 it(relations_db.flat_begin()); !(it == relations_db.flat_end()); ++it)
     {
-      member_db_out<<it.object().id.val()<<'\t';
-      for (uint i(0); i < it.object().members().size(); ++i)
-	member_db_out<<it.object().members()[i].ref.val()<<' '
-	    <<it.object().members()[i].type<<' '
-	    <<roles[it.object().members()[i].role]<<' ';
+      auto obj = it.object();
+      member_db_out<<obj.id.val()<<'\t';
+      for (uint i(0); i < obj.members().size(); ++i)
+	member_db_out<<obj.members()[i].ref.val()<<' '
+	    <<obj.members()[i].type<<' '
+	    <<roles[obj.members()[i].role]<<' ';
       member_db_out<<'\n';
     }
 
@@ -353,8 +354,10 @@ int main(int argc, char* args[])
 	 it(relations_global_db.flat_begin());
          !(it == relations_global_db.flat_end()); ++it)
     {
-      tags_global_out<<it.object().id.val()<<'\t'
-	  <<it.index().key<<'\t'<<it.index().value<<'\n';
+      auto idx = it.index();
+      auto obj = it.object();
+      tags_global_out<<obj.id.val()<<'\t'
+	  <<idx.key<<'\t'<<idx.value<<'\n';
     }
   }
   catch (const File_Error& e)
