@@ -32,10 +32,6 @@
 #include "../../template_db/transaction.h"
 
 
-template< class Id_Type >
-void prepare_delete_tags
-    (File_Blocks_Index_Base& tags_local, std::vector< Tag_Entry< Id_Type > >& tags_to_delete,
-     const std::map< uint32, std::vector< uint32 > >& to_delete);
 
 template< class TObject >
 void update_tags_local
@@ -67,94 +63,7 @@ std::map< uint32, std::set< Id_Type > > collect_coarse
   return coarse;
 }
 
-
-// formulate range query
-/*
-template< typename Id_Type >
-std::set< std::pair< Tag_Index_Local, Tag_Index_Local > > make_range_set
-    (const std::map< uint32, std::set< Id_Type > >& coarse)
-{
-  std::set< std::pair< Tag_Index_Local, Tag_Index_Local > > range_set;
-  for (typename std::map< uint32, std::set< Id_Type > >::const_iterator
-      it(coarse.begin()); it != coarse.end(); ++it)
-  {
-    Tag_Index_Local lower, upper;
-    lower.index = it->first;
-    lower.key = "";
-    lower.value = "";
-    upper.index = it->first + 1;
-    upper.key = "";
-    upper.value = "";
-    range_set.insert(std::make_pair(lower, upper));
-  }
-  return range_set;
-}
-*/
-
 //-----------------------------------------------------------------------------
-
-
-template< class Id_Type >
-void prepare_delete_tags
-    (File_Blocks_Index_Base& tags_local, std::vector< Tag_Entry< Id_Type > >& tags_to_delete,
-     const std::map< uint32, std::vector< Id_Type > >& to_delete)
-{
-  // make indices appropriately coarse
-  std::map< uint32, std::set< Id_Type > > to_delete_coarse;
-  for (typename std::map< uint32, std::vector< Id_Type > >::const_iterator
-      it(to_delete.begin()); it != to_delete.end(); ++it)
-  {
-    std::set< Id_Type >& handle(to_delete_coarse[it->first & 0x7fffff00]);
-    for (typename std::vector< Id_Type >::const_iterator it2(it->second.begin());
-        it2 != it->second.end(); ++it2)
-    {
-      handle.insert(*it2);
-    }
-  }
-
-  // formulate range query
-  std::set< std::pair< Tag_Index_Local, Tag_Index_Local > > range_set;
-  for (typename std::map< uint32, std::set< Id_Type > >::const_iterator
-    it(to_delete_coarse.begin()); it != to_delete_coarse.end(); ++it)
-  {
-    Tag_Index_Local lower, upper;
-    lower.index = it->first;
-    lower.key = "";
-    lower.value = "";
-    upper.index = it->first + 1;
-    upper.key = "";
-    upper.value = "";
-    range_set.insert(std::make_pair(lower, upper));
-  }
-
-  // iterate over the result
-  Block_Backend< Tag_Index_Local, Id_Type > rels_db(&tags_local);
-  Tag_Index_Local current_index;
-  Tag_Entry< Id_Type > tag_entry;
-  current_index.index = 0xffffffff;
-  Ranges< Tag_Index_Local > ranges(std::move(range_set));
-  for (auto it = rels_db.range_begin(ranges); !(it == rels_db.range_end()); ++it)
-  {
-    if (!(current_index == it.index()))
-    {
-      if ((current_index.index != 0xffffffff) && (!tag_entry.ids.empty()))
-	tags_to_delete.push_back(tag_entry);
-      current_index = it.index();
-      tag_entry.index = it.index().index;
-      tag_entry.key = it.index().key;
-      tag_entry.value = it.index().value;
-      tag_entry.ids.clear();
-    }
-
-    auto obj = it.object_tmp();
-
-    std::set< Id_Type >& handle(to_delete_coarse[it.index().index]);
-    if (handle.find(obj.val()) != handle.end())
-      tag_entry.ids.push_back(obj.val());
-  }
-  if ((current_index.index != 0xffffffff) && (!tag_entry.ids.empty()))
-    tags_to_delete.push_back(tag_entry);
-}
 
 
 template< class Id_Type >
