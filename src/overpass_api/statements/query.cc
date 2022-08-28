@@ -186,56 +186,58 @@ std::vector< std::pair< Id_Type, Uint31_Index > > filter_id_list_fast(
 {
   std::vector< std::pair< Id_Type, Uint31_Index > > new_ids_idx;
 
-  IdSetHybrid<typename Id_Type::Id_Type, L> old_ids(std::move(new_ids));
-  new_ids.clear();
-
-  if (filtered && old_ids.empty()) {
-    new_ids.clear();
-    new_ids_idx.clear();
-    return new_ids_idx;
-  }
-
-  bool key_val_match = false;
-
-  for (Iterator it = begin; !(it == end); ++it)
   {
-    if (it.start_of_new_index()) {
-      auto const k = it.index_handle().get_key();
-      auto const v = it.index_handle().get_value();
-      key_val_match = key_regex.matches(k, false) &&
-                      v != void_tag_value() &&
-                      val_regex.matches(v, false);
+    const IdSetHybrid<typename Id_Type::Id_Type, L> old_ids(std::move(new_ids));
+    new_ids.clear();
+
+    if (filtered && old_ids.empty()) {
+      new_ids.clear();
+      new_ids_idx.clear();
+      return new_ids_idx;
     }
 
-    if (!key_val_match) {
-      it.skip_current_index();
-      continue;
-    }
+    bool key_val_match = false;
 
-    auto current_id = it.handle().id().val();
-
-    if (!filtered || old_ids.get(current_id))
+    for (Iterator it = begin; !(it == end); ++it)
     {
-      if (is_last)
-         new_ids_idx.push_back({current_id, it.handle().get_idx()});
-      else
-         new_ids.set(current_id);
-    }
-
-    if (!filtered && (new_ids_idx.size() == 1024*1024 || new_ids.size() == 1024*1024))
-    {
-      if (check_keys_late == prefer_ranges)
-      {
-        new_ids.clear();
-        new_ids_idx.clear();
-        return new_ids_idx;
+      if (it.start_of_new_index()) {
+        auto const k = it.index_handle().get_key();
+        auto const v = it.index_handle().get_value();
+        key_val_match = key_regex.matches(k, false) &&
+                        v != void_tag_value() &&
+                        val_regex.matches(v, false);
       }
-      else if (check_keys_late == ids_useful)
+
+      if (!key_val_match) {
+        it.skip_current_index();
+        continue;
+      }
+
+      auto current_id = it.handle().id().val();
+
+      if (!filtered || old_ids.get(current_id))
       {
-        check_keys_late = prefer_ranges;
-        new_ids.clear();
-        new_ids_idx.clear();
-        return new_ids_idx;
+        if (is_last)
+           new_ids_idx.push_back({current_id, it.handle().get_idx()});
+        else
+           new_ids.set(current_id);
+      }
+
+      if (!filtered && (new_ids_idx.size() == 1024*1024 || new_ids.size() == 1024*1024))
+      {
+        if (check_keys_late == prefer_ranges)
+        {
+          new_ids.clear();
+          new_ids_idx.clear();
+          return new_ids_idx;
+        }
+        else if (check_keys_late == ids_useful)
+        {
+          check_keys_late = prefer_ranges;
+          new_ids.clear();
+          new_ids_idx.clear();
+          return new_ids_idx;
+        }
       }
     }
   }
@@ -297,20 +299,21 @@ std::vector< std::pair< Id_Type, Uint31_Index > > filter_id_list_fast(
 {
   std::vector< std::pair< Id_Type, Uint31_Index > > new_ids_result;
 
-  IdSetHybrid<typename Id_Type::Id_Type, L> old_ids(std::move(new_ids));
-  new_ids.clear();
-
-  for (auto it = container.begin(); it != container.end(); ++it)
   {
-    if (!filtered || old_ids.get(it->first.val()))
+    const IdSetHybrid<typename Id_Type::Id_Type, L> old_ids(std::move(new_ids));
+    new_ids.clear();
+
+    for (auto it = container.begin(); it != container.end(); ++it)
     {
-     if (is_last)
-       new_ids_result.push_back(std::make_pair(it->first, it->second.second));
-     else
-       new_ids.set(it->first.val());
+      if (!filtered || old_ids.get(it->first.val()))
+      {
+       if (is_last)
+         new_ids_result.push_back(std::make_pair(it->first, it->second.second));
+       else
+         new_ids.set(it->first.val());
+      }
     }
   }
-
   // sort and remove duplicates in small set
   new_ids.sort_unique();
 
