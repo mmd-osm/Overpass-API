@@ -1052,30 +1052,30 @@ void Relation_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu
   std::vector< Relation_Skeleton::Id_Type > ids_to_update_ = ids_to_update(new_data);
 
   // Collect all data of existing id indexes
-  std::vector< std::pair< Relation_Skeleton::Id_Type, Uint31_Index > > existing_map_positions
+  const std::vector< std::pair< Relation_Skeleton::Id_Type, Uint31_Index > > existing_map_positions
       = get_existing_map_positions(ids_to_update_, *transaction, *osm_base_settings().RELATIONS);
 
   // Collect all data of existing and explicitly changed skeletons
-  std::map< Uint31_Index, std::set< Relation_Skeleton > > existing_skeletons
+  const std::map< Uint31_Index, std::set< Relation_Skeleton > > existing_skeletons
       = get_existing_skeletons< Relation_Skeleton >
       (existing_map_positions, *transaction, *osm_base_settings().RELATIONS);
 
   // Collect also all data of existing and implicitly changed skeletons
-  std::map< Uint31_Index, std::set< Relation_Skeleton > > implicitly_moved_skeletons
+  const std::map< Uint31_Index, std::set< Relation_Skeleton > > implicitly_moved_skeletons
       = get_implicitly_moved_skeletons
           (attic_node_skeletons, attic_way_skeletons,
            existing_skeletons, *transaction, *osm_base_settings().RELATIONS);
 
   // Collect all data of existing meta elements
-  std::map< Uint31_Index, std::set< OSM_Element_Metadata_Skeleton< Relation::Id_Type > > > existing_meta
+  const std::map< Uint31_Index, std::set< OSM_Element_Metadata_Skeleton< Relation::Id_Type > > > existing_meta
       = (meta ? get_existing_meta< OSM_Element_Metadata_Skeleton< Relation::Id_Type > >
              (existing_map_positions, *transaction, *meta_settings().RELATIONS_META) :
          std::map< Uint31_Index, std::set< OSM_Element_Metadata_Skeleton< Relation::Id_Type > > >());
 
   // Collect all data of existing meta elements
-  std::vector< std::pair< Relation_Skeleton::Id_Type, Uint31_Index > > implicitly_moved_positions
+  const std::vector< std::pair< Relation_Skeleton::Id_Type, Uint31_Index > > implicitly_moved_positions
       = make_id_idx_directory(implicitly_moved_skeletons);
-  std::map< Uint31_Index, std::set< OSM_Element_Metadata_Skeleton< Relation::Id_Type > > > implicitly_moved_meta
+  const std::map< Uint31_Index, std::set< OSM_Element_Metadata_Skeleton< Relation::Id_Type > > > implicitly_moved_meta
       = (meta ? get_existing_meta< OSM_Element_Metadata_Skeleton< Relation::Id_Type > >
              (implicitly_moved_positions, *transaction, *meta_settings().RELATIONS_META) :
          std::map< Uint31_Index, std::set< OSM_Element_Metadata_Skeleton< Relation::Id_Type > > >());
@@ -1210,7 +1210,7 @@ void Relation_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu
     enhance_ids_to_update(implicitly_moved_skeletons, ids_to_update_);
 
     // Collect all data of existing attic id indexes
-    std::vector< std::pair< Relation_Skeleton::Id_Type, Uint31_Index > > existing_attic_map_positions
+    const std::vector< std::pair< Relation_Skeleton::Id_Type, Uint31_Index > > existing_attic_map_positions
         = get_existing_map_positions(ids_to_update_, *transaction, *attic_settings().RELATIONS);
     std::map< Relation_Skeleton::Id_Type, std::set< Uint31_Index > > existing_idx_lists
         = get_existing_idx_lists(ids_to_update_, existing_attic_map_positions,
@@ -1218,7 +1218,7 @@ void Relation_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu
 
     // Collect known change times of attic elements. This allows that
     // for each object no older version than the youngest known attic version can be written
-    std::map< Relation_Skeleton::Id_Type, std::pair< Uint31_Index, Attic< Relation_Delta > > >
+    const std::map< Relation_Skeleton::Id_Type, std::pair< Uint31_Index, Attic< Relation_Delta > > >
         existing_attic_skeleton_timestamps
         = get_existing_attic_skeleton_timestamps< Uint31_Index, Relation_Skeleton, Relation_Delta >
         (existing_attic_map_positions, existing_idx_lists,
@@ -1236,31 +1236,31 @@ void Relation_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu
                                 new_way_idx_by_id, new_attic_way_skeletons,
                                 new_attic_skeletons, new_undeleted, new_attic_idx_lists, attic_skeletons_to_delete);
 
-    std::map< Relation_Skeleton::Id_Type, std::vector< Attic< Uint31_Index > > > new_attic_idx_by_id_and_time =
+    const std::map< Relation_Skeleton::Id_Type, std::vector< Attic< Uint31_Index > > > new_attic_idx_by_id_and_time =
         compute_new_attic_idx_by_id_and_time(new_data, new_skeletons, new_attic_skeletons);
 
     // Compute new meta data
-    std::map< Uint31_Index, std::set< OSM_Element_Metadata_Skeleton< Relation_Skeleton::Id_Type > > >
+    const std::map< Uint31_Index, std::set< OSM_Element_Metadata_Skeleton< Relation_Skeleton::Id_Type > > >
         new_attic_meta = compute_new_attic_meta(new_attic_idx_by_id_and_time,
             compute_meta_by_id_and_time(new_data, attic_meta), new_meta);
 
     // Compute tags
-    std::map< Tag_Index_Local, std::set< Attic< Relation_Skeleton::Id_Type > > > new_attic_local_tags
+    const std::map< Tag_Index_Local, std::set< Attic< Relation_Skeleton::Id_Type > > > new_attic_local_tags
         = compute_new_attic_local_tags(new_attic_idx_by_id_and_time,
             compute_tags_by_id_and_time(new_data, full_attic_local_tags),
                                        existing_map_positions, existing_idx_lists);
-    std::map< Tag_Index_Global, std::set< Attic< Tag_Object_Global< Relation_Skeleton::Id_Type > > > >
+    const std::map< Tag_Index_Global, std::set< Attic< Tag_Object_Global< Relation_Skeleton::Id_Type > > > >
         new_attic_global_tags = compute_attic_global_tags(new_attic_local_tags);
 
     // Compute changelog
-    std::map< Timestamp, std::set< Change_Entry< Relation_Skeleton::Id_Type > > > changelog
+    const std::map< Timestamp, std::set< Change_Entry< Relation_Skeleton::Id_Type > > > changelog
         = compute_changelog(new_data, implicitly_moved_skeletons,
                             existing_map_positions, existing_attic_map_positions, attic_skeletons,
                             new_node_idx_by_id, new_attic_node_skeletons,
                             new_way_idx_by_id, new_attic_way_skeletons);
 
     strip_single_idxs(existing_idx_lists);
-    std::vector< std::pair< Relation_Skeleton::Id_Type, Uint31_Index > > new_attic_map_positions
+    const std::vector< std::pair< Relation_Skeleton::Id_Type, Uint31_Index > > new_attic_map_positions
         = strip_single_idxs(new_attic_idx_lists);
 
     // Prepare user indices

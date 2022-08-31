@@ -458,16 +458,16 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
   std::vector< Node_Skeleton::Id_Type > ids_to_update_ = ids_to_update(new_data);
 
   // Collect all data of existing id indexes
-  std::vector< std::pair< Node_Skeleton::Id_Type, Uint31_Index > > existing_map_positions
+  const std::vector< std::pair< Node_Skeleton::Id_Type, Uint31_Index > > existing_map_positions
       = get_existing_map_positions(ids_to_update_, *transaction, *osm_base_settings().NODES);
 
   // Collect all data of existing skeletons
-  std::map< Uint31_Index, std::set< Node_Skeleton > > existing_skeletons
+  const std::map< Uint31_Index, std::set< Node_Skeleton > > existing_skeletons
       = get_existing_skeletons< Node_Skeleton >
       (existing_map_positions, *transaction, *osm_base_settings().NODES);
 
   // Collect all data of existing tagged skeletons
-  std::map< Uint31_Index, std::set< Node_Skeleton > > existing_tagged_skeletons
+  const std::map< Uint31_Index, std::set< Node_Skeleton > > existing_tagged_skeletons
       = get_existing_skeletons< Node_Skeleton >
       (existing_map_positions, *transaction, *osm_base_settings().NODES_TAGGED);
 
@@ -526,7 +526,7 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
   process_package(f1, parallel_processes);
   f1.clear();
       
-  std::map< Tag_Index_Local, std::set< Node_Skeleton::Id_Type > > full_attic_local_tags
+  const std::map< Tag_Index_Local, std::set< Node_Skeleton::Id_Type > > full_attic_local_tags
       = (meta == keep_attic ? attic_local_tags : std::map< Tag_Index_Local, std::set< Node_Skeleton::Id_Type > >());
   clear_common_values(attic_local_tags, new_local_tags);
   std::map< Tag_Index_Global, std::set< Tag_Object_Global< Node_Skeleton::Id_Type > > > attic_global_tags;
@@ -535,7 +535,7 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
       (attic_local_tags, new_local_tags, attic_global_tags, new_global_tags);
 
   // Compute idx positions of new nodes
-  std::vector< std::pair< Node_Skeleton::Id_Type, Uint31_Index > > new_map_positions
+  const std::vector< std::pair< Node_Skeleton::Id_Type, Uint31_Index > > new_map_positions
       = new_idx_positions(new_data);
   // TODO: old code
   std::map< uint32, std::vector< Node::Id_Type > > to_delete;
@@ -602,7 +602,7 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
     //cancel_out_equal_tags(full_attic_local_tags, new_local_tags);
 
     // Collect all data of existing attic id indexes
-    std::vector< std::pair< Node_Skeleton::Id_Type, Uint31_Index > > existing_attic_map_positions
+    const std::vector< std::pair< Node_Skeleton::Id_Type, Uint31_Index > > existing_attic_map_positions
         = get_existing_map_positions(ids_to_update_, *transaction, *attic_settings().NODES);
     std::map< Node_Skeleton::Id_Type, std::set< Uint31_Index > > existing_idx_lists
         = get_existing_idx_lists(ids_to_update_, existing_attic_map_positions,
@@ -610,7 +610,7 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
 
     // Collect known change times of attic elements. This allows that
     // for each object no older version than the youngest known attic version can be written
-    std::map< Node_Skeleton::Id_Type, std::pair< Uint31_Index, Attic< Node_Skeleton > > >
+    const std::map< Node_Skeleton::Id_Type, std::pair< Uint31_Index, Attic< Node_Skeleton > > >
         existing_attic_skeleton_timestamps
         = get_existing_attic_skeleton_timestamps< Uint31_Index, Node_Skeleton, Node_Skeleton >
             (existing_attic_map_positions, existing_idx_lists,
@@ -623,28 +623,28 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
 				existing_attic_skeleton_timestamps,
                                 new_attic_skeletons, new_attic_idx_lists);
 
-    std::map< Uint31_Index, std::set< Attic< Node_Skeleton::Id_Type > > > new_undeleted
+    const std::map< Uint31_Index, std::set< Attic< Node_Skeleton::Id_Type > > > new_undeleted
         = compute_undeleted_skeletons(new_data, existing_map_positions, existing_idx_lists);
 
     strip_single_idxs(existing_idx_lists);
-    std::vector< std::pair< Node_Skeleton::Id_Type, Uint31_Index > > new_attic_map_positions
+    const std::vector< std::pair< Node_Skeleton::Id_Type, Uint31_Index > > new_attic_map_positions
         = strip_single_idxs(new_attic_idx_lists);
 
     compute_new_attic_meta(new_data, existing_map_positions, attic_meta);
 
     // Compute tags
-    std::map< Tag_Index_Local, std::set< Attic< Node_Skeleton::Id_Type > > > new_attic_local_tags
+    const std::map< Tag_Index_Local, std::set< Attic< Node_Skeleton::Id_Type > > > new_attic_local_tags
         = compute_new_attic_local_tags(new_data,
 	    existing_map_positions, existing_attic_map_positions, full_attic_local_tags);
-    std::map< Tag_Index_Global, std::set< Attic< Tag_Object_Global< Node_Skeleton::Id_Type > > > >
+    const std::map< Tag_Index_Global, std::set< Attic< Tag_Object_Global< Node_Skeleton::Id_Type > > > >
         new_attic_global_tags = compute_attic_global_tags(new_attic_local_tags);
 
     // Compute changelog
-    std::map< Timestamp, std::set< Change_Entry< Node_Skeleton::Id_Type > > > changelog
+    const std::map< Timestamp, std::set< Change_Entry< Node_Skeleton::Id_Type > > > changelog
         = compute_changelog(new_data, existing_map_positions, attic_skeletons);
 
     // Compute changepack
-    std::map< Timestamp, std::set< Change_Package > > changepack = compute_changepack(changelog);
+    const std::map< Timestamp, std::set< Change_Package > > changepack = compute_changepack(changelog);
 
 
     // Prepare user indices
