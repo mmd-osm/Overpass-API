@@ -622,21 +622,27 @@ void compute_geometry
 
     std::vector< uint32 > nd_idxs;
     if (it->elem.geometry().empty()) {
+      nd_idxs.reserve(it->elem.nds().size());
+
       for (auto nit = it->elem.nds().cbegin(); nit != it->elem.nds().cend(); ++nit)
       {
         auto it2 = new_node_idx_by_id.find(*nit);
-        if (it2 != new_node_idx_by_id.end())
-          nd_idxs.push_back(it2->second.ll_upper);
+        if (it2 != new_node_idx_by_id.end()) {
+          if (nd_idxs.empty() || nd_idxs.back() != it2->second.ll_upper) {
+            nd_idxs.push_back(it2->second.ll_upper);
+          }
+        }
         else
           std::cerr<<"compute_geometry: Node "<<nit->val()<<" used in way "<<it->elem.id.val()<<" not found.\n";
       }
     }
     else
     {
+      nd_idxs.reserve(it->elem.geometry().size());
       // use existing geometry data from PBF extension LocationsOnWays
-      for (auto nit = it->elem.geometry().cbegin(); nit!= it->elem.geometry().cend(); ++nit)
-      {
-        nd_idxs.push_back(nit->ll_upper);
+      for (auto nit = it->elem.geometry().cbegin(); nit!= it->elem.geometry().cend(); ++nit) {
+        if (nd_idxs.empty() || nd_idxs.back() != nit->ll_upper)
+          nd_idxs.push_back(nit->ll_upper);
       }
     }
 
@@ -650,16 +656,19 @@ void compute_geometry
     }
     else if (it->elem.geometry().empty())  // we need geometry details, recreate them using new_node_idx_by_id
     {
-      for (std::vector< Node::Id_Type >::const_iterator nit = it->elem.nds().begin();
-           nit != it->elem.nds().end(); ++nit)
+      std::vector< Quad_Coord > geom;
+      geom.reserve(it->elem.nds().size());
+
+      for (auto nit = it->elem.nds().cbegin(); nit != it->elem.nds().cend(); ++nit)
       {
         auto it2 = new_node_idx_by_id.find(*nit);
         if (it2 != new_node_idx_by_id.end())
-          it->elem.geometry().push_back(it2->second);
+          geom.emplace_back(it2->second);
         else
           //TODO: throw an error in an appropriate form
-          it->elem.geometry().push_back(Quad_Coord(0, 0));
+          geom.emplace_back(Quad_Coord(0, 0));
       }
+      it->elem.geometry().swap(geom);
     }
 
     it->idx = index;
