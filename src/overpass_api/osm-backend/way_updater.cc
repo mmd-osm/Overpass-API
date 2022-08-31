@@ -430,6 +430,11 @@ std::map< Uint31_Index, std::set< Way_Skeleton > > get_implicitly_moved_skeleton
      const std::map< Uint31_Index, std::set< Way_Skeleton > >& already_known_skeletons,
      Transaction& transaction, const File_Properties& file_properties)
 {
+  std::map< Uint31_Index, std::set< Way_Skeleton > > result;
+
+  if (attic_nodes.empty())  // without attic_nodes no node_ids, and no hits for the binary_search
+    return result;
+
   std::set< Uint31_Index > node_req;
   for (auto it = attic_nodes.begin(); it != attic_nodes.end(); ++it)
     node_req.insert(it->first);
@@ -452,8 +457,6 @@ std::map< Uint31_Index, std::set< Way_Skeleton > > get_implicitly_moved_skeleton
   }
   std::sort(known_way_ids.begin(), known_way_ids.end());
   known_way_ids.erase(std::unique(known_way_ids.begin(), known_way_ids.end()), known_way_ids.end());
-
-  std::map< Uint31_Index, std::set< Way_Skeleton > > result;
 
   Block_Backend< Uint31_Index, Way_Skeleton > db(transaction.data_index(&file_properties));
   for (const auto & it : db.as_discrete(req))

@@ -292,11 +292,15 @@ std::map< Uint31_Index, std::set< Element_Skeleton > > get_existing_meta
     (const std::vector< std::pair< typename Element_Skeleton::Id_Type, Uint31_Index > >& ids_with_position,
      Transaction& transaction, const File_Properties& file_properties)
 {
+  std::map< Uint31_Index, std::set< Element_Skeleton > > result;
+
+  if (ids_with_position.empty())
+    return result;
+
   std::set< Uint31_Index > req;
   for (auto it = ids_with_position.begin(); it != ids_with_position.end(); ++it)
     req.insert(it->second);
 
-  std::map< Uint31_Index, std::set< Element_Skeleton > > result;
   Idx_Agnostic_Compare< typename Element_Skeleton::Id_Type > comp;
 
   Block_Backend< Uint31_Index, Element_Skeleton > db(transaction.data_index(&file_properties));
@@ -524,8 +528,9 @@ void add_tags(Id_Type id, Uint31_Index idx,
     const std::vector< std::pair< std::string, std::string > >& tags,
     std::map< Tag_Index_Local, std::set< Id_Type > >& new_local_tags)
 {
+  const auto cur_idx = idx.val() & 0x7fffff00;
   for (auto it = tags.begin(); it != tags.end(); ++it)
-    new_local_tags[Tag_Index_Local(idx.val() & 0x7fffff00, it->first, it->second)].insert(id);
+    new_local_tags[Tag_Index_Local(cur_idx, it->first, it->second)].insert(id);
 }
 
 
@@ -564,6 +569,9 @@ void new_current_local_tags
       // attic_skeletons.
       continue;
 
+/*
+    // Code block commented out, we will do an add_tags anyway at the end, no matter what.
+
     const Uint31_Index* idx = binary_pair_search(existing_map_positions, it->elem.id);
     if (!idx)
     {
@@ -577,7 +585,7 @@ void new_current_local_tags
       add_tags(it->elem.id, it->idx, it->tags, new_local_tags);
       continue;
     }
-
+*/
     // The old and new tags for this id go to the same index.
     // TODO: For compatibility with the update_logger, we add all tags
     // regardless whether they existed already before
@@ -771,6 +779,9 @@ std::vector< std::pair< typename Skeleton::Id_Type, Uint31_Index > > make_id_idx
 {
   std::vector< std::pair< typename Skeleton::Id_Type, Uint31_Index > > result;
   Pair_Comparator_By_Id< typename Skeleton::Id_Type, Uint31_Index > less;
+
+  if (implicitly_moved_skeletons.empty())
+    return result;
 
   for (auto it = implicitly_moved_skeletons.begin(); it != implicitly_moved_skeletons.end(); ++it)
   {

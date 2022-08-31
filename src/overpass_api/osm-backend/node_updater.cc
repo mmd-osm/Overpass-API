@@ -749,12 +749,15 @@ void Node_Updater::update_node_ids
   static Pair_Equal_Id< Node::Id_Type, bool > pair_equal_id;
 
   // keep always the most recent (last) element of all equal elements
+  if (!std::is_sorted(ids_to_modify.begin(), ids_to_modify.end(), pair_comparator_by_id)) {
 #ifndef HAVE_OPENMP
-  std::stable_sort(ids_to_modify.begin(), ids_to_modify.end(), pair_comparator_by_id);
+    std::stable_sort(ids_to_modify.begin(), ids_to_modify.end(), pair_comparator_by_id);
 #else
-  __gnu_parallel::stable_sort
-      (ids_to_modify.begin(), ids_to_modify.end(), pair_comparator_by_id);
+    __gnu_parallel::stable_sort
+        (ids_to_modify.begin(), ids_to_modify.end(), pair_comparator_by_id);
 #endif
+  }
+
   auto modi_begin
       (unique(ids_to_modify.rbegin(), ids_to_modify.rend(), pair_equal_id).base());
   ids_to_modify.erase(ids_to_modify.begin(), modi_begin);
