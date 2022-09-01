@@ -81,7 +81,7 @@ struct Ascending_By_Timestamp
 std::map< Node_Skeleton::Id_Type, std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > > >
     collect_nodes_by_id(
     const std::map< Uint31_Index, std::set< Attic< Node_Skeleton > > >& new_attic_node_skeletons,
-    const std::map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id)
+    const std::unordered_map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id)
 {
   // Fill nodes_by_id from attic nodes as well as the current nodes in new_node_idx_by_id
   std::map< Node_Skeleton::Id_Type,
@@ -110,7 +110,7 @@ std::map< Node_Skeleton::Id_Type, std::vector< std::pair< Uint31_Index, Attic< N
 std::map< Way_Skeleton::Id_Type, std::vector< std::pair< Uint31_Index, Attic< Way_Skeleton::Id_Type > > > >
     collect_ways_by_id(
         const std::map< Uint31_Index, std::set< Attic< Way_Delta > > >& new_attic_way_skeletons,
-        const std::map< Way_Skeleton::Id_Type, Uint31_Index >& new_way_idx_by_id)
+        const std::unordered_map< Way_Skeleton::Id_Type, Uint31_Index >& new_way_idx_by_id)
 {
   std::map< Way_Skeleton::Id_Type,
          std::vector< std::pair< Uint31_Index, Attic< Way_Skeleton::Id_Type > > > > ways_by_id;

@@ -20,6 +20,7 @@
 #include <functional>
 #include <map>
 #include <set>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -305,7 +306,7 @@ void compute_new_attic_skeletons
      const std::map< Uint31_Index, std::set< Way_Skeleton > >& attic_skeletons,
      const std::map< Way_Skeleton::Id_Type, std::pair< Uint31_Index, Attic< Way_Delta > > >&
          existing_attic_skeleton_timestamps,
-     const std::map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id,
+     const std::unordered_map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id,
      const std::map< Uint31_Index, std::set< Attic< Node_Skeleton > > >& new_attic_node_skeletons,
      std::map< Uint31_Index, std::set< Attic< Way_Delta > > >& full_attic,
      std::map< Uint31_Index, std::set< Attic< Way_Skeleton::Id_Type > > >& new_undeleted,
@@ -481,7 +482,7 @@ std::map< Uint31_Index, std::set< Way_Skeleton > > get_implicitly_moved_skeleton
 
 /* Adds the Quad_Coords from the given ways with LocationsOnWays details */
 void add_nodes_from_locations_on_ways
-    (std::map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id,
+    (std::unordered_map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id,
      const Data_By_Id< Way_Skeleton > & skel)
 {
   for (auto it = skel.data.begin(); it != skel.data.end(); ++it)
@@ -496,7 +497,7 @@ void add_nodes_from_locations_on_ways
 }
 
 void add_implicitly_known_nodes
-    (std::map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id,
+    (std::unordered_map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id,
      const std::map< Uint31_Index, std::set< Way_Skeleton > >& known_skeletons)
 {
   for (auto it = known_skeletons.begin(); it != known_skeletons.end(); ++it)
@@ -515,7 +516,7 @@ void add_implicitly_known_nodes
 
 
 void lookup_missing_nodes
-    (std::map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id,
+    (std::unordered_map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id,
      const std::map< Uint31_Index, std::set< Way_Skeleton > >& known_skeletons_1,
      const std::map< Uint31_Index, std::set< Way_Skeleton > >& known_skeletons_2,
      const Data_By_Id< Way_Skeleton >& new_data,
@@ -605,7 +606,7 @@ void lookup_missing_nodes
 /* We assert that every node id that appears in a way in existing_skeletons has its Quad_Coord
    in new_node_idx_by_id. */
 void compute_geometry
-    (const std::map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id,
+    (const std::unordered_map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id,
      Data_By_Id< Way_Skeleton >& new_data)
 {
   std::vector< Data_By_Id< Way_Skeleton >::Entry >::const_iterator next_it = new_data.data.begin();
@@ -681,7 +682,7 @@ void compute_geometry
    We assert that every node id that appears in a way in existing_skeletons has its Quad_Coord
    in new_node_idx_by_id. */
 void new_implicit_skeletons
-    (const std::map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id,
+    (const std::unordered_map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id,
      const std::map< Uint31_Index, std::set< Way_Skeleton > >& existing_skeletons,
      std::map< Uint31_Index, std::set< Way_Skeleton > >& attic_skeletons,
      std::map< Uint31_Index, std::set< Way_Skeleton > >& new_skeletons,
@@ -745,7 +746,7 @@ std::map< Timestamp, std::set< Change_Entry< Way_Skeleton::Id_Type > > > compute
     const std::vector< std::pair< Way_Skeleton::Id_Type, Uint31_Index > >& existing_map_positions,
     const std::vector< std::pair< Way_Skeleton::Id_Type, Uint31_Index > >& attic_map_positions,
     const std::map< Uint31_Index, std::set< Way_Skeleton > >& attic_skeletons,
-    const std::map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id,
+    const std::unordered_map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id,
     const std::map< Uint31_Index, std::set< Attic< Node_Skeleton > > >& new_attic_node_skeletons)
 {
   std::map< Timestamp, std::set< Change_Entry< Way_Skeleton::Id_Type > > > result;
@@ -887,7 +888,7 @@ void Way_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_stop
 
   // Create a node directory id to idx:
   // Evaluate first the new_node_skeletons
-  std::map< Node_Skeleton::Id_Type, Quad_Coord > new_node_idx_by_id
+  std::unordered_map< Node_Skeleton::Id_Type, Quad_Coord > new_node_idx_by_id
       = dictionary_from_skeletons(new_node_skeletons);
   // Then add all nodes known from existing_skeletons geometry.
   add_implicitly_known_nodes(new_node_idx_by_id, existing_skeletons);

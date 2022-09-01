@@ -188,6 +188,16 @@ private:
   };
 };
 
+namespace std {
+  template <> struct hash<Uint32_Index>
+  {
+    size_t operator()(const Uint32_Index & x) const
+    {
+      return hash<uint32>()(x.val());
+    }
+  };
+}
+
 
 inline Uint32_Index inc(Uint32_Index idx) noexcept
 {
@@ -280,6 +290,17 @@ private:
     }
   };
 };
+
+namespace std {
+  template <> struct hash<Uint31_Index>
+  {
+    size_t operator()(const Uint31_Index & x) const
+    {
+      return hash<uint32>()(x.val());
+    }
+  };
+}
+
 
 
 inline unsigned long long difference(Uint31_Index lhs, Uint31_Index rhs)
@@ -473,6 +494,16 @@ private:
 };
 
 
+
+namespace std {
+  template <> struct hash<Uint40>
+  {
+    size_t operator()(const Uint40 & x) const
+    {
+      return hash<uint64>()(x.val());
+    }
+  };
+}
 
 
 

@@ -21,6 +21,7 @@
 #include <iostream>
 #include <map>
 #include <set>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -163,8 +164,8 @@ std::map< Uint31_Index, std::set< Relation_Skeleton > > get_implicitly_moved_ske
    We assert that every node id that appears in a relation in existing_skeletons has its Quad_Coord
    in new_node_idx_by_id. */
 void new_implicit_skeletons
-    (const std::map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id,
-     const std::map< Way_Skeleton::Id_Type, Uint31_Index >& new_way_idx_by_id,
+    (const std::unordered_map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id,
+     const std::unordered_map< Way_Skeleton::Id_Type, Uint31_Index >& new_way_idx_by_id,
      const std::map< Uint31_Index, std::set< Relation_Skeleton > >& existing_skeletons,
      bool record_minuscule_moves,
      std::map< Uint31_Index, std::set< Relation_Skeleton > >& attic_skeletons,
@@ -240,10 +241,10 @@ void new_implicit_skeletons
 }
 
 
-inline std::map< Way_Skeleton::Id_Type, Uint31_Index > dictionary_from_skeletons
+inline std::unordered_map< Way_Skeleton::Id_Type, Uint31_Index > dictionary_from_skeletons
     (const std::map< Uint31_Index, std::set< Way_Skeleton > >& new_way_skeletons)
 {
-  std::map< Way_Skeleton::Id_Type, Uint31_Index > result;
+  std::unordered_map< Way_Skeleton::Id_Type, Uint31_Index > result;
 
   for (auto it = new_way_skeletons.begin(); it != new_way_skeletons.end(); ++it)
   {
@@ -256,7 +257,7 @@ inline std::map< Way_Skeleton::Id_Type, Uint31_Index > dictionary_from_skeletons
 
 
 void lookup_missing_nodes
-    (std::map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id,
+    (std::unordered_map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id,
      const Data_By_Id< Relation_Skeleton >& new_data,
      const std::map< Uint31_Index, std::set< Relation_Skeleton > >& known_skeletons_1,
      const std::map< Uint31_Index, std::set< Relation_Skeleton > >& known_skeletons_2,
@@ -332,7 +333,7 @@ void lookup_missing_nodes
 
 
 void lookup_missing_ways
-    (std::map< Way_Skeleton::Id_Type, Uint31_Index >& new_way_idx_by_id,
+    (std::unordered_map< Way_Skeleton::Id_Type, Uint31_Index >& new_way_idx_by_id,
      const Data_By_Id< Relation_Skeleton >& new_data,
      const std::map< Uint31_Index, std::set< Relation_Skeleton > >& known_skeletons_1,
      const std::map< Uint31_Index, std::set< Relation_Skeleton > >& known_skeletons_2,
@@ -407,8 +408,8 @@ void lookup_missing_ways
 /* We assert that every node id that appears in a relation in existing_skeletons has its Quad_Coord
    in new_node_idx_by_id. */
 void compute_geometry
-    (const std::map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id,
-     const std::map< Way_Skeleton::Id_Type, Uint31_Index >& new_way_idx_by_id,
+    (const std::unordered_map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id,
+     const std::unordered_map< Way_Skeleton::Id_Type, Uint31_Index >& new_way_idx_by_id,
      Data_By_Id< Relation_Skeleton >& new_data)
 {
   uint32_t error_count = 0;
@@ -799,9 +800,9 @@ void compute_new_attic_skeletons
      const std::map< Uint31_Index, std::set< Relation_Skeleton > >& attic_skeletons,
      const std::map< Relation_Skeleton::Id_Type, std::pair< Uint31_Index, Attic< Relation_Delta > > >&
          existing_attic_skeleton_timestamps,
-     const std::map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id,
+     const std::unordered_map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id,
      const std::map< Uint31_Index, std::set< Attic< Node_Skeleton > > >& new_attic_node_skeletons,
-     const std::map< Way_Skeleton::Id_Type, Uint31_Index >& new_way_idx_by_id,
+     const std::unordered_map< Way_Skeleton::Id_Type, Uint31_Index >& new_way_idx_by_id,
      const std::map< Uint31_Index, std::set< Attic< Way_Delta > > >& new_attic_way_skeletons,
      std::map< Uint31_Index, std::set< Attic< Relation_Delta > > >& full_attic,
      std::map< Uint31_Index, std::set< Attic< Relation_Skeleton::Id_Type > > >& new_undeleted,
@@ -937,9 +938,9 @@ std::map< Timestamp, std::set< Change_Entry< Relation_Skeleton::Id_Type > > > co
     const std::vector< std::pair< Relation_Skeleton::Id_Type, Uint31_Index > >& existing_map_positions,
     const std::vector< std::pair< Relation_Skeleton::Id_Type, Uint31_Index > >& attic_map_positions,
     const std::map< Uint31_Index, std::set< Relation_Skeleton > >& attic_skeletons,
-    const std::map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id,
+    const std::unordered_map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id,
     const std::map< Uint31_Index, std::set< Attic< Node_Skeleton > > >& new_attic_node_skeletons,
-    const std::map< Way_Skeleton::Id_Type, Uint31_Index >& new_way_idx_by_id,
+    const std::unordered_map< Way_Skeleton::Id_Type, Uint31_Index >& new_way_idx_by_id,
     const std::map< Uint31_Index, std::set< Attic< Way_Delta > > >& new_attic_way_skeletons)
 {
   std::map< Timestamp, std::set< Change_Entry< Relation_Skeleton::Id_Type > > > result;
@@ -1094,7 +1095,7 @@ void Relation_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu
 
   // Create a node directory id to idx:
   // Evaluate first the new_node_skeletons
-  std::map< Node_Skeleton::Id_Type, Quad_Coord > new_node_idx_by_id
+  std::unordered_map< Node_Skeleton::Id_Type, Quad_Coord > new_node_idx_by_id
       = dictionary_from_skeletons(new_node_skeletons);
   // Then lookup the missing nodes.
   lookup_missing_nodes(new_node_idx_by_id, new_data, existing_skeletons, implicitly_moved_skeletons,
@@ -1102,7 +1103,7 @@ void Relation_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu
 
   // Create a node directory id to idx:
   // Evaluate first the new_way_skeletons
-  std::map< Way_Skeleton::Id_Type, Uint31_Index > new_way_idx_by_id
+  std::unordered_map< Way_Skeleton::Id_Type, Uint31_Index > new_way_idx_by_id
       = dictionary_from_skeletons(new_way_skeletons);
   // Then lookup the missing nodes.
   lookup_missing_ways(new_way_idx_by_id, new_data, existing_skeletons, implicitly_moved_skeletons,

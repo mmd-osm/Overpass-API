@@ -23,6 +23,7 @@
 #include <map>
 #include <mutex>
 #include <set>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -758,10 +759,10 @@ std::map< Tag_Index_Global, std::set< Attic< Tag_Object_Global< Id_Type > > > > 
 }
 
 
-inline std::map< Node_Skeleton::Id_Type, Quad_Coord > dictionary_from_skeletons
+inline std::unordered_map< Node_Skeleton::Id_Type, Quad_Coord > dictionary_from_skeletons
     (const std::map< Uint31_Index, std::set< Node_Skeleton > >& new_node_skeletons)
 {
-  std::map< Node_Skeleton::Id_Type, Quad_Coord > result;
+  std::unordered_map< Node_Skeleton::Id_Type, Quad_Coord > result;
 
   for (auto it = new_node_skeletons.begin(); it != new_node_skeletons.end(); ++it)
   {
@@ -1312,13 +1313,13 @@ void store_new_keys(const Data_By_Id< Skeleton >& new_data,
 std::map< Node_Skeleton::Id_Type, std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > > >
     collect_nodes_by_id(
     const std::map< Uint31_Index, std::set< Attic< Node_Skeleton > > >& new_attic_node_skeletons,
-    const std::map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id);
+    const std::unordered_map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id);
 
 
 std::map< Way_Skeleton::Id_Type, std::vector< std::pair< Uint31_Index, Attic< Way_Skeleton::Id_Type > > > >
     collect_ways_by_id(
         const std::map< Uint31_Index, std::set< Attic< Way_Delta > > >& new_attic_way_skeletons,
-        const std::map< Way_Skeleton::Id_Type, Uint31_Index >& new_way_idx_by_id);
+        const std::unordered_map< Way_Skeleton::Id_Type, Uint31_Index >& new_way_idx_by_id);
 
 
 struct Cpu_Stopwatch
