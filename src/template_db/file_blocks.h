@@ -31,6 +31,7 @@
 #include <cstring>
 #include <iostream>
 #include <list>
+#include <memory>
 #include <sstream>
 
 
@@ -296,7 +297,7 @@ private:
   mutable uint read_count_;
 
   Raw_File data_file;
-  Void64_Pointer< uint64 > buffer;
+  std::unique_ptr< uint64[] > buffer;
 
   template< typename File_Blocks_Iterator >
   uint64* read_block(
@@ -788,7 +789,7 @@ File_Blocks< TIndex, TIterator >::File_Blocks
      data_file(index->get_data_file_name(),
 	       writeable ? O_RDWR|O_CREAT : O_RDONLY,
 	       S_666, "File_Blocks::File_Blocks::1"),
-     buffer(index->get_block_size() * index->get_compression_factor() * 2)      // increased buffer size for lz4
+     buffer(new uint64[index->get_block_size() * index->get_compression_factor() * 2 / 8])      // increased buffer size for lz4
 {}
 
 
@@ -925,7 +926,8 @@ template< typename TIndex, typename TIterator >
 uint64* File_Blocks< TIndex, TIterator >::read_block
     (const File_Blocks_Basic_Iterator< TIndex >& it, bool check_idx) const
 {
-  return read_block(it, Void64_Pointer< uint64 >(block_size * it.block().size).ptr, buffer.ptr, check_idx);
+  std::unique_ptr< uint64[] > b(new uint64[block_size * it.block().size / 8]);
+  return read_block(it, b.get(), buffer.get(), check_idx);
 }
 
 
@@ -933,7 +935,7 @@ template< typename TIndex, typename TIterator >
 uint64* File_Blocks< TIndex, TIterator >::read_block
     (const File_Blocks_Basic_Iterator< TIndex >& it, uint64* buffer_, bool check_idx) const
 {
-  return read_block(it, buffer.ptr, buffer_, check_idx);
+  return read_block(it, buffer.get(), buffer_, check_idx);
 }
 
 
@@ -941,7 +943,8 @@ template< typename TIndex, typename TIterator >
 uint64* File_Blocks< TIndex, TIterator >::read_block
     (const File_Blocks_Write_Iterator< TIndex, TIterator >& it, bool check_idx) const
 {
-  return read_block(it, Void64_Pointer< uint64 >(block_size * it.block().size).ptr, buffer.ptr, check_idx);
+  std::unique_ptr< uint64[] > b(new uint64[block_size * it.block().size / 8]);
+  return read_block(it, b.get(), buffer.get(), check_idx);
 }
 
 
@@ -949,7 +952,7 @@ template< typename TIndex, typename TIterator >
 uint64* File_Blocks< TIndex, TIterator >::read_block
     (const File_Blocks_Write_Iterator< TIndex, TIterator >& it, uint64* buffer_, bool check_idx) const
 {
-  return read_block(it, buffer.ptr, buffer_, check_idx);
+  return read_block(it, buffer.get(), buffer_, check_idx);
 }
 
 
@@ -1038,14 +1041,14 @@ void File_Blocks< TIndex, TIterator >::write_block(uint64* buf, uint32 payload_s
   void* payload = buf;
   if (compression_method == Block_Compression::ZLIB_COMPRESSION)
   {
-    payload = buffer.ptr;
+    payload = buffer.get();
     block_count = (
         Zlib_Deflate(1).compress(buf, payload_size, payload, block_size * compression_factor)
         - 1) / block_size + 1;
   }
   else if (compression_method == Block_Compression::LZ4_COMPRESSION)
   {
-    payload = buffer.ptr;
+    payload = buffer.get();
     block_count = (
         LZ4_Deflate().compress(buf, payload_size, payload, block_size * compression_factor * 2)
         - 1) / block_size + 1;

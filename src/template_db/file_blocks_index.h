@@ -69,7 +69,7 @@ public:
   const std::string& file_name_extension() const override { return file_name_extension_; }
 
   const std::string& get_data_file_name() const override { return data_file_name; }
-  uint64 get_block_size() const override { return block_size_; }
+  uint64 get_block_size() const override { return block_size_; }     // returns block size in bytes
   uint32 get_compression_factor() const override { return compression_factor; }
   Block_Compression get_compression_method() const override { return compression_method; }
   bool empty() const override { return file_size == 0; }

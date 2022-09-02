@@ -194,7 +194,7 @@ struct Block_Backend_Basic_Iterator
 
 private:
   uint32 block_size;
-  Void64_Pointer< uint64 > buffer;
+  std::unique_ptr<uint64[]> buffer;
   uint32 buffer_size;
   uint32 idx_block_offset; // Points to the entry that contains the jump offset
   uint32 obj_offset;
@@ -207,15 +207,15 @@ private:
 
   uint32 next_idx_block_offset() const
   {
-    return unalignedLoad<uint32>((uint8*)buffer.ptr + idx_block_offset);
+    return unalignedLoad<uint32>((uint8*)buffer.get() + idx_block_offset);
   }
   uint8* idx_ptr() const
   {
-    return ((uint8*)buffer.ptr) + idx_block_offset + 4;
+    return ((uint8*)buffer.get()) + idx_block_offset + 4;
   }
   uint32 total_payload_size() const
   {
-    return unalignedLoad<uint32>(buffer.ptr);
+    return unalignedLoad<uint32>(buffer.get());
   }
 
   void increment_idx();
@@ -230,7 +230,7 @@ template< typename Index, typename Object, typename Idx_Assessor, typename File_
 Block_Backend_Basic_Iterator< Index, Object, Idx_Assessor, File_Handle >::
     Block_Backend_Basic_Iterator(
         uint32 block_size_, const File_Handle& file_handle_, const Idx_Assessor& idx_assessor_)
-    : block_size(block_size_), buffer(block_size_), buffer_size(block_size_),
+    : block_size(block_size_), buffer(new uint64[block_size_ / 8]), buffer_size(block_size_),
     idx_block_offset(0), obj_offset(0), file_handle(file_handle_), idx_assessor(idx_assessor_),
     start_new_index(false), skip_current_idx(false)
 {
@@ -251,21 +251,21 @@ Block_Backend_Basic_Iterator< Index, Object, Idx_Assessor, File_Handle >::
 
   start_new_index = true;
   idx_cache.set_ptr(idx_ptr());
-  obj_cache.set_ptr(((uint8*)buffer.ptr) + obj_offset);
+  obj_cache.set_ptr(((uint8*)buffer.get()) + obj_offset);
 }
 
 
 template< typename Index, typename Object, typename Idx_Assessor, typename File_Handle >
 Block_Backend_Basic_Iterator< Index, Object, Idx_Assessor, File_Handle >::
     Block_Backend_Basic_Iterator(const Block_Backend_Basic_Iterator& rhs)
-    : block_size(rhs.block_size), buffer(rhs.buffer_size), buffer_size(rhs.buffer_size),
+    : block_size(rhs.block_size), buffer(new uint64[rhs.buffer_size / 8]), buffer_size(rhs.buffer_size),
     idx_block_offset(rhs.idx_block_offset), obj_offset(rhs.obj_offset),
     file_handle(rhs.file_handle), idx_assessor(rhs.idx_assessor),
     start_new_index(rhs.start_new_index), skip_current_idx(rhs.skip_current_idx)
 {
-  memcpy(buffer.ptr, rhs.buffer.ptr, buffer_size);
-  idx_cache.set_ptr(((uint8*)buffer.ptr) + idx_block_offset + 4);
-  obj_cache.set_ptr(((uint8*)buffer.ptr) + obj_offset);
+  memcpy(buffer.get(), rhs.buffer.get(), buffer_size);
+  idx_cache.set_ptr(((uint8*)buffer.get()) + idx_block_offset + 4);
+  obj_cache.set_ptr(((uint8*)buffer.get()) + obj_offset);
 }
 
 
@@ -276,8 +276,7 @@ const Block_Backend_Basic_Iterator< Index, Object, Idx_Assessor, File_Handle >&
 {
   if (buffer_size != rhs.buffer_size)
   {
-    Void64_Pointer< uint64 > new_buffer(rhs.buffer_size);
-    buffer.swap(new_buffer);
+    buffer.reset(new uint64[rhs.buffer_size / 8]);
   }
 
   block_size = rhs.block_size;
@@ -289,9 +288,9 @@ const Block_Backend_Basic_Iterator< Index, Object, Idx_Assessor, File_Handle >&
   start_new_index = rhs.start_new_index;
   skip_current_idx = rhs.skip_current_idx;
 
-  memcpy(buffer.ptr, rhs.buffer.ptr, buffer_size);
-  idx_cache.set_ptr(((uint8*)buffer.ptr) + idx_block_offset + 4);
-  obj_cache.set_ptr(((uint8*)buffer.ptr) + obj_offset);
+  memcpy(buffer.get(), rhs.buffer.get(), buffer_size);
+  idx_cache.set_ptr(((uint8*)buffer.get()) + idx_block_offset + 4);
+  obj_cache.set_ptr(((uint8*)buffer.get()) + obj_offset);
 
   return *this;
 }
@@ -303,7 +302,7 @@ Block_Backend_Basic_Iterator< Index, Object, Idx_Assessor, File_Handle >&
 {
   start_new_index = false;
   if (!skip_current_idx) {
-    obj_offset += Object::size_of(((uint8*)buffer.ptr) + obj_offset);
+    obj_offset += Object::size_of(((uint8*)buffer.get()) + obj_offset);
     while (obj_offset > 0 && obj_offset >= next_idx_block_offset())
       increment_idx();
   }
@@ -315,7 +314,7 @@ Block_Backend_Basic_Iterator< Index, Object, Idx_Assessor, File_Handle >&
 
     skip_current_idx = false;
   }
-  obj_cache.set_ptr(((uint8*)buffer.ptr) + obj_offset);
+  obj_cache.set_ptr(((uint8*)buffer.get()) + obj_offset);
   return *this;
 }
 
@@ -347,7 +346,7 @@ void Block_Backend_Basic_Iterator< Index, Object, Idx_Assessor, File_Handle >::i
 template< typename Index, typename Object, typename Idx_Assessor, typename File_Handle >
 void Block_Backend_Basic_Iterator< Index, Object, Idx_Assessor, File_Handle >::increment_block()
 {
-  if (!file_handle.next(buffer.ptr))
+  if (!file_handle.next(buffer.get()))
   {
     idx_block_offset = 0;
     return;
@@ -359,13 +358,13 @@ void Block_Backend_Basic_Iterator< Index, Object, Idx_Assessor, File_Handle >::i
     uint32 new_buffer_size = (next_idx_block_offset()/block_size + 1) * block_size;
     if (buffer_size < new_buffer_size)
     {
-      Void64_Pointer< uint64 > new_buffer(new_buffer_size);
-      memcpy(new_buffer.ptr, buffer.ptr, block_size);
+      std::unique_ptr< uint64[]> new_buffer(new uint64[new_buffer_size / 8]);
+      memcpy(new_buffer.get(), buffer.get(), block_size);
       buffer.swap(new_buffer);
       buffer_size = new_buffer_size;
     }
     for (uint i_offset = block_size; i_offset < new_buffer_size; i_offset += block_size)
-      file_handle.next(buffer.ptr + i_offset/8, false);
+      file_handle.next(buffer.get() + i_offset/8, false);
   }
 }
 

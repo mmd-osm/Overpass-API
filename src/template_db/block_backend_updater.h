@@ -121,7 +121,7 @@ struct Block_Backend_Updater
         Update_Logger& update_logger, const TIndex& idx);
 
     bool read_block_or_blocks(
-        typename File_Blocks_::Write_Iterator& file_it, Void64_Pointer< uint64 >& source, uint32& buffer_size);
+        typename File_Blocks_::Write_Iterator& file_it, std::unique_ptr<uint64[]>& source, uint32& buffer_size);
 
     void flush_or_delete_block(
         uint64* start_ptr, uint bytes_written, typename File_Blocks_::Write_Iterator& file_it,
@@ -332,20 +332,20 @@ void Block_Backend_Updater< Index, Object, TIterator >::flush_if_necessary_and_w
           throw File_Error(0, file_blocks.get_index().get_data_file_name(), "Block_Backend: an item's size exceeds limit of 64 MiB.");
 
       uint buf_scale = (idx_size + obj_size + 7)/block_size + 1;
-      Void64_Pointer< uint64 > large_buf(buf_scale * block_size);
-      *(uint32*)large_buf.ptr = block_size;
-      *(((uint32*)large_buf.ptr)+1) = idx_size + obj_size + 8;
-      memcpy(large_buf.ptr+1, start_ptr+1, idx_size);
-      obj.to_data(((uint8*)large_buf.ptr) + 8 + idx_size);
+      std::unique_ptr<uint64[]> large_buf(new uint64[buf_scale * block_size / 8]);
+      *(uint32*)large_buf.get() = block_size;
+      *(((uint32*)large_buf.get())+1) = idx_size + obj_size + 8;
+      memcpy(large_buf.get()+1, start_ptr+1, idx_size);
+      obj.to_data(((uint8*)large_buf.get()) + 8 + idx_size);
 
       for (uint i = 0; i+1 < buf_scale; ++i)
       {
         file_it = file_blocks.insert_block(
-            file_it, large_buf.ptr + i*block_size/8, block_size,
+            file_it, large_buf.get() + i*block_size/8, block_size,
             i == 0 ? idx_size + obj_size + 4 : 0, idx);
       }
       file_it = file_blocks.insert_block(
-          file_it, large_buf.ptr + (buf_scale-1)*block_size/8, idx_size + obj_size + 8 - block_size*(buf_scale-1),
+          file_it, large_buf.get() + (buf_scale-1)*block_size/8, idx_size + obj_size + 8 - block_size*(buf_scale-1),
           0, idx);
 
       insert_ptr = ((uint8*)start_ptr) + 8 + idx_size;
@@ -746,17 +746,17 @@ void Block_Backend_Updater< TIndex, TObject, TIterator >::copy_and_delete_on_the
 
 template< class TIndex, class TObject, class TIterator >
 bool Block_Backend_Updater< TIndex, TObject, TIterator >::read_block_or_blocks(
-    typename File_Blocks_::Write_Iterator& file_it, Void64_Pointer< uint64 >& source, uint32& buffer_size)
+    typename File_Blocks_::Write_Iterator& file_it, std::unique_ptr< uint64[] >& source, uint32& buffer_size)
 {
-  file_blocks.read_block(file_it, source.ptr);
+  file_blocks.read_block(file_it, source.get());
 
-  if (*(((uint32*)source.ptr) + 1) > block_size)
+  if (*(((uint32*)source.get()) + 1) > block_size)
   {
-    uint32 new_buffer_size = (*(((uint32*)source.ptr) + 1)/block_size + 1) * block_size;
+    uint32 new_buffer_size = (*(((uint32*)source.get()) + 1)/block_size + 1) * block_size;
     if (buffer_size < new_buffer_size)
     {
-      Void64_Pointer< uint64 > new_source_buffer(new_buffer_size);
-      memcpy(new_source_buffer.ptr, source.ptr, block_size);
+      std::unique_ptr< uint64[] > new_source_buffer(new uint64[new_buffer_size / 8]);
+      memcpy(new_source_buffer.get(), source.get(), block_size);
       source.swap(new_source_buffer);
 
       buffer_size = new_buffer_size;
@@ -764,7 +764,7 @@ bool Block_Backend_Updater< TIndex, TObject, TIterator >::read_block_or_blocks(
     for (uint i_offset = block_size; i_offset < new_buffer_size; i_offset += block_size)
     {
       ++file_it;
-      file_blocks.read_block(file_it, source.ptr + i_offset/8, false);
+      file_blocks.read_block(file_it, source.get() + i_offset/8, false);
     }
 
     return true;
@@ -839,8 +839,8 @@ void Block_Backend_Updater< TIndex, TObject, TIterator >::update_segments
 {
   file_it.start_segments_mode();
   uint32 buffer_size = block_size;
-  Void64_Pointer< uint64 > source(buffer_size);
-  Void64_Pointer< uint64 > dest(buffer_size);
+  std::unique_ptr< uint64[] > source(new uint64[buffer_size / 8]);
+  std::unique_ptr< uint64[] > dest(new uint64[buffer_size / 8]);
   TIndex idx = file_it.block().index;
   auto delete_it(to_delete.find(idx));
   auto insert_it(to_insert.find(idx));
@@ -857,13 +857,13 @@ void Block_Backend_Updater< TIndex, TObject, TIterator >::update_segments
     if (oversized)
     {
       ++file_it;
-      TObject obj(((uint8*)source.ptr) + 8 + idx_size);
+      TObject obj(((uint8*)source.get()) + 8 + idx_size);
       if (delete_it != to_delete.end() && delete_it->second.find(obj) != delete_it->second.end())
         file_blocks.erase_blocks(delta_it, file_it);
     }
     else
     {
-      if (*(uint32*)source.ptr < 8 + idx_size)
+      if (*(uint32*)source.get() < 8 + idx_size)
       { // something has seriously gone wrong - such a block shuld not exist
         ++file_it;
         continue;
@@ -872,41 +872,41 @@ void Block_Backend_Updater< TIndex, TObject, TIterator >::update_segments
       uint32 obj_append_offset = 0;
       if (delete_it != to_delete.end())
         obj_append_offset = skip_deleted_objects(
-            source.ptr, dest.ptr, delete_it->second, idx_size, update_logger, idx);
+            source.get(), dest.get(), delete_it->second, idx_size, update_logger, idx);
       else
-        memcpy(dest.ptr, source.ptr, *(uint32*)source.ptr);
+        memcpy(dest.get(), source.get(), *(uint32*)source.get());
 
       if (obj_append_offset)
       {
         if (insert_it != to_insert.end())
-          append_insertables< TObject >(dest.ptr, block_size, cur_insert, insert_it->second.end());
-        flush_or_delete_block(dest.ptr, *(uint32*)dest.ptr, file_it, idx_size);
+          append_insertables< TObject >(dest.get(), block_size, cur_insert, insert_it->second.end());
+        flush_or_delete_block(dest.get(), *(uint32*)dest.get(), file_it, idx_size);
       }
-      else if (insert_it != to_insert.end() && *(uint32*)source.ptr < block_size/2)
+      else if (insert_it != to_insert.end() && *(uint32*)source.get() < block_size/2)
       {
-        append_insertables< TObject >(dest.ptr, block_size, cur_insert, insert_it->second.end());
-        flush_or_delete_block(dest.ptr, *(uint32*)dest.ptr, file_it, idx_size);
+        append_insertables< TObject >(dest.get(), block_size, cur_insert, insert_it->second.end());
+        flush_or_delete_block(dest.get(), *(uint32*)dest.get(), file_it, idx_size);
       }
       else
         ++file_it;
     }
   }
 
-  uint8* pos = ((uint8*)dest.ptr) + idx_size + 8;
-  memcpy(dest.ptr+1, source.ptr+1, idx_size);
+  uint8* pos = ((uint8*)dest.get()) + idx_size + 8;
+  memcpy(dest.get()+1, source.get()+1, idx_size);
   if (insert_it != to_insert.end())
   {
     while (cur_insert != insert_it->second.end())
     {
-      flush_if_necessary_and_write_obj(dest.ptr, pos, file_it, idx, *cur_insert);
+      flush_if_necessary_and_write_obj(dest.get(), pos, file_it, idx, *cur_insert);
       ++cur_insert;
     }
   }
-  if (pos > ((uint8*)dest.ptr) + idx_size + 8)
+  if (pos > ((uint8*)dest.get()) + idx_size + 8)
   {
-    *(uint32*)dest.ptr = pos - (uint8*)dest.ptr;
-    *(((uint32*)dest.ptr)+1) = pos - (uint8*)dest.ptr;
-    file_it = file_blocks.insert_block(file_it, dest.ptr, pos - (uint8*)dest.ptr - 4);
+    *(uint32*)dest.get() = pos - (uint8*)dest.get();
+    *(((uint32*)dest.get())+1) = pos - (uint8*)dest.get();
+    file_it = file_blocks.insert_block(file_it, dest.get(), pos - (uint8*)dest.get() - 4);
   }
 
   file_it.end_segments_mode();
