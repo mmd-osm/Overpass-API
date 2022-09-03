@@ -27,6 +27,8 @@
 #include <utility>
 #include <vector>
 
+#include <osmium/index/id_set.hpp>
+
 #include "../../template_db/block_backend.h"
 #include "../../template_db/block_backend_updater.h"
 #include "../../template_db/transaction.h"
@@ -200,7 +202,7 @@ void get_existing_skeletons
      Transaction& transaction, const File_Properties& file_properties, Functor f)
 {
   std::set< Uint31_Index > req;
-  IdSetHybrid<typename Element_Skeleton::Id_Type::Id_Type > ids_lookup;
+  osmium::index::IdSetDense<Node_Skeleton::Id_Type::Id_Type> ids_lookup;
 
   Uint31_Index prev_idx{};
 
@@ -211,9 +213,6 @@ void get_existing_skeletons
     }
     ids_lookup.set(elem.val());
   }
-
-  // not needed: ids_with_positions is already sorted
-  //ids_lookup.sort_unique();
 
   std::map< Uint31_Index, std::set< Element_Skeleton > > result;
 
