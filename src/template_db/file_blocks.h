@@ -206,6 +206,7 @@ struct File_Blocks_Write_Iterator
 
   const TIterator& lower_bound() const { return index_lower; }
   const TIterator& upper_bound() const { return index_upper; }
+  const TIterator& idx_end()     const { return index_end;   }
 
   const File_Block_Index_Entry< TIndex >& block() const { return *block_it; }
   void set_block(const File_Block_Index_Entry< TIndex >& rhs) { *block_it = rhs; }

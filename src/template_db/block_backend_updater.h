@@ -82,7 +82,6 @@ struct Block_Backend_Updater
   private:
     File_Blocks_ file_blocks;
     uint32 block_size;
-    std::set< TIndex > relevant_idxs;
 
     void calc_split_idxs
         (std::vector< TIndex >& split,
@@ -157,16 +156,19 @@ void Block_Backend_Updater< TIndex, TObject, TIterator >::update
      const std::map< TIndex, std::set< TObject > >& to_insert,
      Update_Logger& update_logger)
 {
-  relevant_idxs.clear();
-  for (auto it(to_delete.begin()); it != to_delete.end(); ++it)
-    relevant_idxs.insert(it->first);
+  std::set< TIndex > relevant_idxs;
+
+  auto hint_it = relevant_idxs.begin();
   for (auto it(to_insert.begin()); it != to_insert.end(); ++it)
+    hint_it = relevant_idxs.emplace_hint(hint_it, it->first);
+
+  for (auto it(to_delete.begin()); it != to_delete.end(); ++it)
     relevant_idxs.insert(it->first);
 
   typename File_Blocks_::Write_Iterator file_it
       = file_blocks.write_begin(relevant_idxs.begin(), relevant_idxs.end(), true);
 
-  while (file_it.lower_bound() != relevant_idxs.end())
+  while (file_it.lower_bound() != file_it.idx_end())
   {
     if (file_it.block_type() == Index_Block_Type::EMPTY)
       create_from_scratch(file_it, to_insert);
@@ -495,7 +497,7 @@ void Block_Backend_Updater< TIndex, TObject, TIterator  >::update_group
   }
   auto to_delete_begin(to_delete.lower_bound(*(file_it.lower_bound())));
   auto to_delete_end(to_delete.end());
-  if (file_it.upper_bound() != relevant_idxs.end())
+  if (file_it.upper_bound() != file_it.idx_end())
     to_delete_end = to_delete.lower_bound(*(file_it.upper_bound()));
   for (auto it(to_delete_begin); it != to_delete_end; ++it)
   {
@@ -511,7 +513,7 @@ void Block_Backend_Updater< TIndex, TObject, TIterator  >::update_group
 
   auto to_insert_begin(to_insert.lower_bound(*(file_it.lower_bound())));
   auto to_insert_end(to_insert.end());
-  if (file_it.upper_bound() != relevant_idxs.end())
+  if (file_it.upper_bound() != file_it.idx_end())
     to_insert_end = to_insert.lower_bound(*(file_it.upper_bound()));
   for (auto it(to_insert_begin); it != to_insert_end; ++it)
   {
