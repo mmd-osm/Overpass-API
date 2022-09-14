@@ -119,6 +119,8 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
     for (const auto & tag : n.tags())
       node.tags.push_back(make_pair(tag.key(), tag.value()));
 
+    osm_element_count += node.tags.size();
+
     if (n.deleted())
       node_updater->set_id_deleted(n.id(), &meta);
     else
@@ -159,6 +161,8 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
       }
     }
 
+    osm_element_count += way.tags.size() + way.nds.size();
+
     OSM_Element_Metadata meta = get_meta(w);
 
     if (w.deleted())
@@ -166,7 +170,7 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
     else
       way_updater->set_way(std::move(way), &meta);
 
-    if (osm_element_count * 5 >= flush_limit)
+    if (osm_element_count >= flush_limit)
     {
       callback->way_elapsed(w.id());
       way_updater->update(callback, cpu_stopwatch, true, node_updater->get_new_skeletons(),
@@ -206,6 +210,8 @@ struct Osmium_Updater_Handler: public osmium::handler::Handler {
 
       relation.members.push_back(entry);
     }
+
+    osm_element_count += relation.tags.size() + relation.members.size();
 
     OSM_Element_Metadata meta = get_meta(r);
 
