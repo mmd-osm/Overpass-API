@@ -19,7 +19,7 @@
 #ifndef DE__OSM3S___OVERPASS_API__DATA__USER_DATA_CACHE_H
 #define DE__OSM3S___OVERPASS_API__DATA__USER_DATA_CACHE_H
 
-
+#include <array>
 #include <map>
 #include <string>
 #include <vector>
