@@ -142,10 +142,21 @@ void copy_idxs_by_id
        it != new_data.end(); ++it)
   {
     uint32 compressed_idx = (it->first.val() & 0xffffff00);
-    if ((it->first.val() & 0x80000000) && ((it->first.val() & 0x3) == 0))
+    if ((it->first.val() & 0x80000000) && ((it->first.val() & 0x3) == 0)) {
       compressed_idx = it->first.val();
+    }
+
+    uint32 prev_user_id = 0;
     for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
-      idxs_by_user_id[it2->user_id].push_back(compressed_idx);
+    {
+      if (it2->user_id != prev_user_id) {
+        auto & v = idxs_by_user_id[it2->user_id];
+        if (v.empty() || v.back() != compressed_idx) {
+          v.push_back(compressed_idx);
+        }
+        prev_user_id = it2->user_id;
+      }
+    }
   }
 }
 
