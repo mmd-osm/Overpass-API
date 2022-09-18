@@ -605,6 +605,16 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
     });
   }
 
+  if (meta != keep_attic)
+  {
+    f.push_back( [&]
+    {
+      // Already free up other possibly large objects which are no longer needed
+      new_data.data.clear();
+      ids_to_modify.clear();
+    });
+  }
+
   process_package(f, parallel_processes);
 
   if (meta == keep_attic)
