@@ -461,28 +461,6 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
   const std::vector< std::pair< Node_Skeleton::Id_Type, Uint31_Index > > existing_map_positions
       = get_existing_map_positions(ids_to_update_, *transaction, *osm_base_settings().NODES);
 
-  // Collect all data of existing skeletons
-  const std::map< Uint31_Index, std::set< Node_Skeleton > > existing_skeletons
-      = get_existing_skeletons< Node_Skeleton >
-      (existing_map_positions, *transaction, *osm_base_settings().NODES);
-
-  // Collect all data of existing tagged skeletons
-  const std::map< Uint31_Index, std::set< Node_Skeleton > > existing_tagged_skeletons
-      = get_existing_skeletons< Node_Skeleton >
-      (existing_map_positions, *transaction, *osm_base_settings().NODES_TAGGED);
-
-  // Collect all data of existing meta elements
-  std::map< Uint31_Index, std::set< OSM_Element_Metadata_Skeleton< Node::Id_Type > > > existing_meta
-      = (meta ? get_existing_meta< OSM_Element_Metadata_Skeleton< Node::Id_Type > >
-             (existing_map_positions, *transaction, *meta_settings().NODES_META) :
-         std::map< Uint31_Index, std::set< OSM_Element_Metadata_Skeleton< Node::Id_Type > > >());
-
-  // Collect all data of existing tags
-  std::vector< Tag_Entry< Node_Skeleton::Id_Type > > existing_local_tags;
-  get_existing_tags< Node_Skeleton::Id_Type >
-      (existing_map_positions, *transaction->data_index(osm_base_settings().NODE_TAGS_LOCAL),
-       existing_local_tags);
-
   std::vector< std::function< void() > > f1;
 
   // Compute which objects really have changed
@@ -491,6 +469,11 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
 
   f1.push_back( [&]
   {
+    // Collect all data of existing skeletons
+    const std::map< Uint31_Index, std::set< Node_Skeleton > > existing_skeletons
+        = get_existing_skeletons< Node_Skeleton >
+        (existing_map_positions, *transaction, *osm_base_settings().NODES);
+
     new_current_skeletons(new_data, existing_map_positions, existing_skeletons,
         0, attic_skeletons, new_skeletons, moved_nodes);
   });
@@ -500,6 +483,11 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
 
   f1.push_back( [&]
   {
+    // Collect all data of existing tagged skeletons
+    const std::map< Uint31_Index, std::set< Node_Skeleton > > existing_tagged_skeletons
+        = get_existing_skeletons< Node_Skeleton >
+        (existing_map_positions, *transaction, *osm_base_settings().NODES_TAGGED);
+
     new_current_tagged_skeletons(new_data, existing_map_positions, existing_tagged_skeletons,
       0, attic_tagged_skeletons, new_tagged_skeletons, moved_tagged_nodes);
   });
@@ -510,6 +498,12 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
 
   f1.push_back( [&]
   {
+    // Collect all data of existing meta elements
+    std::map< Uint31_Index, std::set< OSM_Element_Metadata_Skeleton< Node::Id_Type > > > existing_meta
+        = (meta ? get_existing_meta< OSM_Element_Metadata_Skeleton< Node::Id_Type > >
+               (existing_map_positions, *transaction, *meta_settings().NODES_META) :
+           std::map< Uint31_Index, std::set< OSM_Element_Metadata_Skeleton< Node::Id_Type > > >());
+
     new_current_meta(new_data, existing_map_positions, existing_meta, attic_meta, new_meta);
   });
 
@@ -519,6 +513,12 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
 
   f1.push_back( [&]
   {
+    // Collect all data of existing tags
+    std::vector< Tag_Entry< Node_Skeleton::Id_Type > > existing_local_tags;
+    get_existing_tags< Node_Skeleton::Id_Type >
+        (existing_map_positions, *transaction->data_index(osm_base_settings().NODE_TAGS_LOCAL),
+         existing_local_tags);
+
     new_current_local_tags< Node_Skeleton, Node_Skeleton::Id_Type >
         (new_data, existing_map_positions, existing_local_tags, attic_local_tags, new_local_tags);
   });
