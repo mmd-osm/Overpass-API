@@ -1142,10 +1142,6 @@ void Relation_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu
   std::map< Tag_Index_Local, std::set< Relation_Skeleton::Id_Type > > full_attic_local_tags
       = (meta == keep_attic ? attic_local_tags : std::map< Tag_Index_Local, std::set< Relation_Skeleton::Id_Type > >());
   clear_common_values(attic_local_tags, new_local_tags);
-  std::map< Tag_Index_Global, std::set< Tag_Object_Global< Relation_Skeleton::Id_Type > > > attic_global_tags;
-  std::map< Tag_Index_Global, std::set< Tag_Object_Global< Relation_Skeleton::Id_Type > > > new_global_tags;
-  new_current_global_tags< Relation_Skeleton::Id_Type >
-      (attic_local_tags, new_local_tags, attic_global_tags, new_global_tags);
 
   add_deleted_skeletons(attic_skeletons, new_positions);
 
@@ -1188,9 +1184,17 @@ void Relation_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu
 
   f.push_back( [&]
   {
+    std::map< Tag_Index_Global, std::set< Tag_Object_Global< Relation_Skeleton::Id_Type > > > attic_global_tags;
+    std::map< Tag_Index_Global, std::set< Tag_Object_Global< Relation_Skeleton::Id_Type > > > new_global_tags;
+    new_current_global_tags< Relation_Skeleton::Id_Type >(attic_local_tags, new_local_tags, attic_global_tags, new_global_tags);
+
     // Update global tags
     update_elements(attic_global_tags, new_global_tags, *transaction, *osm_base_settings().RELATION_TAGS_GLOBAL);
-      callback->tags_global_finished();
+
+    attic_global_tags.clear();
+    new_global_tags.clear();
+
+    callback->tags_global_finished();
   });
 
   f.push_back( [&]
@@ -1260,8 +1264,6 @@ void Relation_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu
         = compute_new_attic_local_tags(new_attic_idx_by_id_and_time,
             compute_tags_by_id_and_time(new_data, full_attic_local_tags),
                                        existing_map_positions, existing_idx_lists);
-    const std::map< Tag_Index_Global, std::set< Attic< Tag_Object_Global< Relation_Skeleton::Id_Type > > > >
-        new_attic_global_tags = compute_attic_global_tags(new_attic_local_tags);
 
     // Compute changelog
     const std::map< Timestamp, std::set< Change_Entry< Relation_Skeleton::Id_Type > > > changelog
@@ -1320,9 +1322,14 @@ void Relation_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu
 
     f.push_back( [&]
     {
+      std::map< Tag_Index_Global, std::set< Attic< Tag_Object_Global< Relation_Skeleton::Id_Type > > > >
+          new_attic_global_tags = compute_attic_global_tags(new_attic_local_tags);
+
       update_elements(std::map< Tag_Index_Global,
           std::set< Attic < Tag_Object_Global< Relation_Skeleton::Id_Type > > > >(),
           new_attic_global_tags, *transaction, *attic_settings().RELATION_TAGS_GLOBAL);
+
+      new_attic_global_tags.clear();
     });
 
     f.push_back( [&]

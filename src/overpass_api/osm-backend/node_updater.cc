@@ -529,10 +529,6 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
   const std::map< Tag_Index_Local, std::set< Node_Skeleton::Id_Type > > full_attic_local_tags
       = (meta == keep_attic ? attic_local_tags : std::map< Tag_Index_Local, std::set< Node_Skeleton::Id_Type > >());
   clear_common_values(attic_local_tags, new_local_tags);
-  std::map< Tag_Index_Global, std::set< Tag_Object_Global< Node_Skeleton::Id_Type > > > attic_global_tags;
-  std::map< Tag_Index_Global, std::set< Tag_Object_Global< Node_Skeleton::Id_Type > > > new_global_tags;
-  new_current_global_tags< Node_Skeleton::Id_Type >
-      (attic_local_tags, new_local_tags, attic_global_tags, new_global_tags);
 
   // Compute idx positions of new nodes
   const std::vector< std::pair< Node_Skeleton::Id_Type, Uint31_Index > > new_map_positions
@@ -580,8 +576,14 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
 
   f.push_back( [&]
   {
+    std::map< Tag_Index_Global, std::set< Tag_Object_Global< Node_Skeleton::Id_Type > > > attic_global_tags;
+    std::map< Tag_Index_Global, std::set< Tag_Object_Global< Node_Skeleton::Id_Type > > > new_global_tags;
+    new_current_global_tags< Node_Skeleton::Id_Type >(attic_local_tags, new_local_tags, attic_global_tags, new_global_tags);
+
     // Update global tags
     update_elements(attic_global_tags, new_global_tags, *transaction, *osm_base_settings().NODE_TAGS_GLOBAL);
+    attic_global_tags.clear();
+    new_global_tags.clear();
     callback->tags_global_finished();
   });
 
@@ -645,8 +647,6 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
     const std::map< Tag_Index_Local, std::set< Attic< Node_Skeleton::Id_Type > > > new_attic_local_tags
         = compute_new_attic_local_tags(new_data,
 	    existing_map_positions, existing_attic_map_positions, full_attic_local_tags);
-    const std::map< Tag_Index_Global, std::set< Attic< Tag_Object_Global< Node_Skeleton::Id_Type > > > >
-        new_attic_global_tags = compute_attic_global_tags(new_attic_local_tags);
 
     // Compute changelog
     const std::map< Timestamp, std::set< Change_Entry< Node_Skeleton::Id_Type > > > changelog
@@ -701,10 +701,13 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
 
     f.push_back( [&]
     {
+      std::map< Tag_Index_Global, std::set< Attic< Tag_Object_Global< Node_Skeleton::Id_Type > > > >
+          new_attic_global_tags = compute_attic_global_tags(new_attic_local_tags);
       // Update tags
       update_elements(std::map< Tag_Index_Global,
             std::set< Attic < Tag_Object_Global< Node_Skeleton::Id_Type > > > >(),
             new_attic_global_tags, *transaction, *attic_settings().NODE_TAGS_GLOBAL);
+      new_attic_global_tags.clear();
     });
 
 /*
