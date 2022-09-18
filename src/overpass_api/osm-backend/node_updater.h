@@ -69,7 +69,6 @@ struct Node_Updater
            node.tags));
 
     ids_to_modify.push_back(std::make_pair(node.id, true));
-    nodes_to_insert.push_back(node);
     if (meta)
       user_by_id[meta->user_id] = meta->user_name;
   }
@@ -88,7 +87,6 @@ struct Node_Updater
            OSM_Element_Metadata_Skeleton< Node_Skeleton::Id_Type >(node.id)));
 
     ids_to_modify.push_back(std::make_pair(node.id, true));
-    nodes_to_insert.push_back(node);
     if (meta)
       user_by_id[meta->user_id] = meta->user_name;
   }
@@ -119,7 +117,6 @@ private:
   Data_By_Id< Node_Skeleton > new_data;
 
   std::vector< std::pair< Node::Id_Type, bool > > ids_to_modify;
-  std::vector< Node > nodes_to_insert;
   std::vector< std::pair< Node::Id_Type, Uint32_Index > > moved_nodes;
   std::vector< std::pair< Node::Id_Type, Uint32_Index > > moved_tagged_nodes;
 

@@ -741,7 +741,6 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
 
   new_data.data.clear();
   ids_to_modify.clear();
-  nodes_to_insert.clear();
 
 //   nodes_meta_to_insert.clear();
 //   nodes_meta_to_delete.clear();
@@ -924,5 +923,4 @@ void Node_Updater::release_mem()
   // release more memory before starting "Reorganizing database..."
   decltype(new_data.data){}.swap(new_data.data);
   decltype(ids_to_modify){}.swap(ids_to_modify);
-  decltype(nodes_to_insert){}.swap(nodes_to_insert);
 }
