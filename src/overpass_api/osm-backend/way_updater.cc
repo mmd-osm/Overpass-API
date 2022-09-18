@@ -984,10 +984,18 @@ void Way_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_stop
     callback->tags_global_finished();
   });
 
+  if (meta == keep_meta)
+  {
+    f.push_back( [&]
+    {
+      // Prepare user indices for new only
+      std::map< uint32, std::vector< uint32 > > idxs_by_id;
+      copy_idxs_by_id(new_meta, idxs_by_id);
+      process_user_data(*transaction, user_by_id, idxs_by_id);
+    });
+  }
+
   process_package(f, parallel_processes);
-
-
-  std::map< uint32, std::vector< uint32 > > idxs_by_id;
     
   if (meta == keep_attic)
   {
@@ -1049,9 +1057,6 @@ void Way_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_stop
     const std::vector< std::pair< Way_Skeleton::Id_Type, Uint31_Index > > new_attic_map_positions
         = strip_single_idxs(new_attic_idx_lists);
 
-    // Prepare user indices
-    copy_idxs_by_id(new_attic_meta, idxs_by_id);
-    
     std::vector< std::function< void() > > f;
 
     f.push_back( [&]
@@ -1110,14 +1115,18 @@ void Way_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_stop
             *transaction, *attic_settings().WAY_CHANGELOG);
     });
 
+    f.push_back( [&]
+    {
+      // Prepare user indices for new + attic
+      std::map< uint32, std::vector< uint32 > > idxs_by_id;
+      copy_idxs_by_id(attic_meta, idxs_by_id);
+      copy_idxs_by_id(new_meta, idxs_by_id);
+      process_user_data(*transaction, user_by_id, idxs_by_id);
+    });
+
     process_package(f, parallel_processes);
   }
 
-  if (meta != only_data)
-  {
-    copy_idxs_by_id(new_meta, idxs_by_id);
-    process_user_data(*transaction, user_by_id, idxs_by_id);
-  }
   callback->update_finished();
 
   new_data.data.clear();
