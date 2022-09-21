@@ -289,7 +289,7 @@ void merge_files
       {
 	while (!(it->first == it->second) && (it->first.index() == current_idx))
 	{
-          if (!(prev_idx == current_idx)) {
+          if (!(prev_idx == current_idx) || dbins == nullptr) {
             dbins = &db_to_insert[it->first.index()];
             prev_idx = current_idx;
           }
@@ -302,6 +302,7 @@ void merge_files
 	    Block_Backend_Updater< TIndex, TObject > into_db
 	        (into_transaction.data_index(&file_prop));
 	    into_db.update(db_to_delete, db_to_insert);
+            dbins = nullptr;
 	    db_to_insert.clear();
 	    item_count = 0;
 	    prev_idx = {};
