@@ -262,8 +262,8 @@ void merge_files
      const File_Properties& file_prop)
 {
   {
-    std::map< TIndex, std::set< TObject > > db_to_delete;
-    std::map< TIndex, std::set< TObject > > db_to_insert;
+    std::map< TIndex, std::vector< TObject > > db_to_delete;
+    std::map< TIndex, std::vector< TObject > > db_to_insert;
 
     uint32 item_count = 0;
     Block_Backend_Collection< TIndex, TObject > from_dbs(from_transaction, file_prop);
@@ -277,12 +277,15 @@ void merge_files
       if (!(from_its.back().first == from_its.back().second))
         current_idxs.insert(from_its.back().first.index());
     }
+
+    std::vector< TObject > * dbins = nullptr;
+
     while (!current_idxs.empty())
     {
       TIndex current_idx = *current_idxs.begin();
       current_idxs.erase(current_idxs.begin());
 
-      std::set< TObject > * dbins = nullptr;
+      dbins = nullptr;
       TIndex prev_idx{};
 
       for (auto it = from_its.begin(); it != from_its.end(); ++it)
@@ -290,15 +293,26 @@ void merge_files
 	while (!(it->first == it->second) && (it->first.index() == current_idx))
 	{
           if (!(prev_idx == current_idx) || dbins == nullptr) {
+            if (dbins != nullptr) {
+              if (!std::is_sorted(dbins->begin(), dbins->end())) {
+                std::sort(dbins->begin(), dbins->end());
+              }
+              dbins->erase(unique(dbins->begin(), dbins->end()), dbins->end());
+            }
             dbins = &db_to_insert[it->first.index()];
             prev_idx = current_idx;
           }
 
-          dbins->insert(it->first.object());
+          dbins->emplace_back(it->first.object());
 	  ++(it->first);
 
 	  if (++item_count > 4*1024*1024)
 	  {
+	    if (!std::is_sorted(dbins->begin(), dbins->end())) {
+	      std::sort(dbins->begin(), dbins->end());
+	    }
+	    dbins->erase(unique(dbins->begin(), dbins->end()), dbins->end());
+
 	    Block_Backend_Updater< TIndex, TObject > into_db
 	        (into_transaction.data_index(&file_prop));
 	    into_db.update(db_to_delete, db_to_insert);
@@ -311,6 +325,13 @@ void merge_files
 	if (!(it->first == it->second))
 	  current_idxs.insert(it->first.index());
       }
+    }
+
+    if (dbins != nullptr) {
+      if (!std::is_sorted(dbins->begin(), dbins->end())) {
+          std::sort(dbins->begin(), dbins->end());
+      }
+      dbins->erase(unique(dbins->begin(), dbins->end()), dbins->end());
     }
 
     Block_Backend_Updater< TIndex, TObject > into_db
