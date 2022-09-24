@@ -115,8 +115,6 @@ set(osm_updater_SOURCES
   overpass_api/osm-backend/area_updater.cc
   overpass_api/osm-backend/osm_updater.cc
   overpass_api/osm-backend/osmium_updater.cc
-  overpass_api/core/four_field_index.cc
-  overpass_api/core/geometry.cc
   expat/escape_xml.cc
 )
 
@@ -244,11 +242,11 @@ if (HAVE_OPENMP)
   set(OPENMP_TARGET_LINK PRIVATE OpenMP::OpenMP_CXX)
 endif()  
 
-add_executable(update_database ${update_database_SOURCES} $<TARGET_OBJECTS:osm_updater> $<TARGET_OBJECTS:compression> $<TARGET_OBJECTS:expatwrapper> $<TARGET_OBJECTS:settings> $<TARGET_OBJECTS:output>)
-target_link_libraries(update_database PUBLIC data dispatch ${LIBS} ${OPENMP_TARGET_LINK})
+add_executable(update_database ${update_database_SOURCES} $<TARGET_OBJECTS:osm_updater> $<TARGET_OBJECTS:compression> $<TARGET_OBJECTS:expatwrapper> $<TARGET_OBJECTS:settings>)
+target_link_libraries(update_database PUBLIC dispatch output ${LIBS} ${OPENMP_TARGET_LINK})
 
-add_executable(update_from_dir ${update_from_dir_SOURCES} $<TARGET_OBJECTS:osm_updater> $<TARGET_OBJECTS:compression> $<TARGET_OBJECTS:expatwrapper> $<TARGET_OBJECTS:settings> $<TARGET_OBJECTS:output>)
-target_link_libraries(update_from_dir PUBLIC data dispatch ${LIBS} ${OPENMP_TARGET_LINK})
+add_executable(update_from_dir ${update_from_dir_SOURCES} $<TARGET_OBJECTS:osm_updater> $<TARGET_OBJECTS:compression> $<TARGET_OBJECTS:expatwrapper> $<TARGET_OBJECTS:settings>)
+target_link_libraries(update_from_dir PUBLIC dispatch output ${LIBS} ${OPENMP_TARGET_LINK})
 
 add_executable(osm3s_query ${osm3s_query_SOURCES} $<TARGET_OBJECTS:types> $<TARGET_OBJECTS:query_common> $<TARGET_OBJECTS:compression> $<TARGET_OBJECTS:output_formats> $<TARGET_OBJECTS:statements> $<TARGET_OBJECTS:expatwrapper> $<TARGET_OBJECTS:settings> $<TARGET_OBJECTS:frontend>) 
 target_link_libraries(osm3s_query core data ${LIBS})
