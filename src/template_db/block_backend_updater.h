@@ -106,15 +106,6 @@ struct Block_Backend_Updater
          const std::map< TIndex, TContainer< TObject > >& to_insert,
          Update_Logger& update_logger);
 
-    template< class Update_Logger >
-    void copy_and_delete_on_the_fly(
-        uint64* source_start_ptr, uint64* dest_start_ptr,
-        typename File_Blocks_::Write_Iterator& file_it, uint32 idx_size,
-        const std::map< TIndex, std::set< TObject > >& to_delete,
-        typename std::map< TIndex, std::set< TObject > >::const_iterator& delete_it,
-        bool& block_modified, uint8*& insert_ptr,
-        Update_Logger& update_logger);
-
     template< class Update_Logger, template<class...> class TContainer >
     uint32 skip_deleted_objects(
         uint64* source_start_ptr, uint64* dest_start_ptr,
@@ -700,53 +691,6 @@ void Block_Backend_Updater< TIndex, TObject, TIterator >::flush_or_delete_block(
     file_it = file_blocks.erase_block(file_it);
 }
 
-
-template< class TIndex, class TObject, class TIterator >
-template< class Update_Logger >
-void Block_Backend_Updater< TIndex, TObject, TIterator >::copy_and_delete_on_the_fly(
-    uint64* source_start_ptr, uint64* dest_start_ptr,
-    typename File_Blocks_::Write_Iterator& file_it, uint32 idx_size,
-    const std::map< TIndex, std::set< TObject > >& to_delete,
-    typename std::map< TIndex, std::set< TObject > >::const_iterator& delete_it,
-    bool& block_modified, uint8*& insert_ptr,
-    Update_Logger& update_logger)
-{
-  file_blocks.read_block(file_it, source_start_ptr);
-
-  block_modified = false;
-  if (delete_it == to_delete.end())
-  {
-    memcpy(dest_start_ptr, source_start_ptr, *(uint32*)source_start_ptr);
-    insert_ptr = ((uint8*)dest_start_ptr) + *(uint32*)source_start_ptr;
-    return;
-  }
-
-  if (idx_size == 0)
-    idx_size = TIndex::size_of(source_start_ptr+1);
-  uint8* spos = ((uint8*)source_start_ptr) + 8 + idx_size;
-  insert_ptr = ((uint8*)dest_start_ptr) + 8 + idx_size;
-  memcpy(dest_start_ptr, source_start_ptr, spos - (uint8*)source_start_ptr);
-
-  //copy everything that is not deleted yet
-  if (*(uint32*)source_start_ptr != *(((uint32*)source_start_ptr)+1))
-    throw File_Error(0, file_blocks.get_index().get_data_file_name(), "Block_Backend: one index expected - several found.");
-
-  while ((uint32)(spos - (uint8*)source_start_ptr) < *(uint32*)source_start_ptr)
-  {
-    TObject obj(spos);
-    if (delete_it->second.find(obj) == delete_it->second.end())
-    {
-      memcpy(insert_ptr, spos, obj.size_of());
-      insert_ptr = insert_ptr + obj.size_of();
-    }
-    else
-    {
-      block_modified = true;
-      update_logger.deletion(delete_it->first, obj);
-    }
-    spos = spos + obj.size_of();
-  }
-}
 
 
 template< class TIndex, class TObject, class TIterator >
