@@ -70,7 +70,7 @@ bool geometrically_equal(const Way_Skeleton& a, const Way_Skeleton& b)
 void compute_idx_and_geometry
     (Uint31_Index& idx, Way_Skeleton& skeleton,
      timestamp_t expiration_timestamp,
-     const std::map< Node_Skeleton::Id_Type,
+     const std::unordered_map< Node_Skeleton::Id_Type,
          std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > > >& nodes_by_id)
 {
   std::vector< Quad_Coord > geometry;
@@ -112,7 +112,7 @@ void compute_idx_and_geometry
 Way_Skeleton add_intermediate_versions
     (const Way_Skeleton& skeleton, const Way_Skeleton& reference,
      const timestamp_t old_timestamp, const timestamp_t new_timestamp,
-     const std::map< Node_Skeleton::Id_Type,
+     const std::unordered_map< Node_Skeleton::Id_Type,
      std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > > >& nodes_by_id,
      bool add_last_version, Uint31_Index attic_idx, Uint31_Index& last_idx,
      std::map< Uint31_Index, std::set< Attic< Way_Delta > > >& full_attic,
@@ -209,7 +209,7 @@ Way_Skeleton add_intermediate_versions
  */
 void add_intermediate_changelog_entries
     (const Way_Skeleton& skeleton, const timestamp_t old_timestamp, const timestamp_t new_timestamp,
-     const std::map< Node_Skeleton::Id_Type,
+     const std::unordered_map< Node_Skeleton::Id_Type,
      std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > > >& nodes_by_id,
      bool add_last_version, Uint31_Index attic_idx, Uint31_Index new_idx,
      std::map< Timestamp, std::set< Change_Entry< Way_Skeleton::Id_Type > > >& result)
@@ -314,7 +314,7 @@ void compute_new_attic_skeletons
      std::map< Uint31_Index, std::set< Attic< Way_Delta > > >& attic_skeletons_to_delete)
 {
   // Fill nodes_by_id from attic nodes as well as the current nodes in new_node_idx_by_id
-  std::map< Node_Skeleton::Id_Type,
+  std::unordered_map< Node_Skeleton::Id_Type,
          std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > > > nodes_by_id
          = collect_nodes_by_id(new_attic_node_skeletons, new_node_idx_by_id);
 
@@ -752,7 +752,7 @@ std::map< Timestamp, std::set< Change_Entry< Way_Skeleton::Id_Type > > > compute
   std::map< Timestamp, std::set< Change_Entry< Way_Skeleton::Id_Type > > > result;
 
   // Fill nodes_by_id from attic nodes as well as the current nodes in new_node_idx_by_id
-  std::map< Node_Skeleton::Id_Type,
+  const std::unordered_map< Node_Skeleton::Id_Type,
          std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > > > nodes_by_id
          = collect_nodes_by_id(new_attic_node_skeletons, new_node_idx_by_id);
 
@@ -1043,7 +1043,7 @@ void Way_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_stop
                                 new_node_idx_by_id, new_attic_node_skeletons,
                                 new_attic_skeletons, new_undeleted, new_attic_idx_lists, attic_skeletons_to_delete);
 
-    const std::map< Way_Skeleton::Id_Type, std::vector< Attic< Uint31_Index > > > new_attic_idx_by_id_and_time =
+    const std::unordered_map< Way_Skeleton::Id_Type, std::vector< Attic< Uint31_Index > > > new_attic_idx_by_id_and_time =
         compute_new_attic_idx_by_id_and_time(new_data, new_skeletons, new_attic_skeletons);
 
     // Compute new meta data

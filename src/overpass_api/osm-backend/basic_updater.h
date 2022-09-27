@@ -902,13 +902,13 @@ struct Descending_By_Timestamp
 
 
 template< typename Element_Skeleton, typename Attic_Skeleton >
-std::map< typename Element_Skeleton::Id_Type, std::vector< Attic< Uint31_Index > > >
+std::unordered_map< typename Element_Skeleton::Id_Type, std::vector< Attic< Uint31_Index > > >
     compute_new_attic_idx_by_id_and_time
     (const Data_By_Id< Element_Skeleton >& new_data,
      const std::map< Uint31_Index, std::set< Element_Skeleton > >& new_skeletons,
      const std::map< Uint31_Index, std::set< Attic_Skeleton > >& full_attic)
 {
-  std::map< typename Element_Skeleton::Id_Type, std::vector< Attic< Uint31_Index > > > result;
+  std::unordered_map< typename Element_Skeleton::Id_Type, std::vector< Attic< Uint31_Index > > > result;
 
   for (auto it = new_skeletons.begin(); it != new_skeletons.end(); ++it)
   {
@@ -953,8 +953,8 @@ std::map< typename Element_Skeleton::Id_Type, std::vector< Attic< Uint31_Index >
 template< typename Id_Type >
 std::map< Uint31_Index, std::set< OSM_Element_Metadata_Skeleton< Id_Type > > >
     compute_new_attic_meta
-    (const std::map< Id_Type, std::vector< Attic< Uint31_Index > > >& new_attic_idx_by_id_and_time,
-     const std::map< Id_Type, std::vector< OSM_Element_Metadata_Skeleton< Id_Type > > >& meta_by_id_and_time,
+    (const std::unordered_map< Id_Type, std::vector< Attic< Uint31_Index > > >& new_attic_idx_by_id_and_time,
+     const std::unordered_map< Id_Type, std::vector< OSM_Element_Metadata_Skeleton< Id_Type > > >& meta_by_id_and_time,
      const std::map< Uint31_Index, std::set< OSM_Element_Metadata_Skeleton< Id_Type > > >& new_meta)
 {
   std::map< Uint31_Index, std::set< OSM_Element_Metadata_Skeleton< Id_Type > > > result;
@@ -1024,7 +1024,7 @@ std::map< Uint31_Index, std::set< OSM_Element_Metadata_Skeleton< Id_Type > > >
 
 template< typename Id_Type >
 std::map< Tag_Index_Local, std::set< Attic< Id_Type > > > compute_new_attic_local_tags
-    (const std::map< Id_Type, std::vector< Attic< Uint31_Index > > >& new_attic_idx_by_id_and_time,
+    (const std::unordered_map< Id_Type, std::vector< Attic< Uint31_Index > > >& new_attic_idx_by_id_and_time,
      const std::map< std::pair< Id_Type, std::string >, std::vector< Attic< std::string > > >&
          tags_by_id_and_time,
      const std::vector< std::pair< Id_Type, Uint31_Index > >& existing_map_positions,
@@ -1167,14 +1167,14 @@ std::map< Tag_Index_Local, std::set< Attic< Id_Type > > > compute_new_attic_loca
 
 
 template< typename Element_Skeleton >
-std::map< typename Element_Skeleton::Id_Type,
+std::unordered_map< typename Element_Skeleton::Id_Type,
     std::vector< OSM_Element_Metadata_Skeleton< typename Element_Skeleton::Id_Type > > >
     compute_meta_by_id_and_time
     (const Data_By_Id< Element_Skeleton >& new_data,
      const std::map< Uint31_Index,
          std::set< OSM_Element_Metadata_Skeleton< typename Element_Skeleton::Id_Type > > >& attic_meta)
 {
-  std::map< typename Element_Skeleton::Id_Type, std::vector<
+  std::unordered_map< typename Element_Skeleton::Id_Type, std::vector<
       OSM_Element_Metadata_Skeleton< typename Element_Skeleton::Id_Type > > > result;
 
   for (auto it = new_data.data.begin(); it != new_data.data.end(); ++it)
@@ -1309,13 +1309,13 @@ void store_new_keys(const Data_By_Id< Skeleton >& new_data,
 }
 
 
-std::map< Node_Skeleton::Id_Type, std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > > >
+std::unordered_map< Node_Skeleton::Id_Type, std::vector< std::pair< Uint31_Index, Attic< Node_Skeleton > > > >
     collect_nodes_by_id(
     const std::map< Uint31_Index, std::set< Attic< Node_Skeleton > > >& new_attic_node_skeletons,
     const std::unordered_map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id);
 
 
-std::map< Way_Skeleton::Id_Type, std::vector< std::pair< Uint31_Index, Attic< Way_Skeleton::Id_Type > > > >
+std::unordered_map< Way_Skeleton::Id_Type, std::vector< std::pair< Uint31_Index, Attic< Way_Skeleton::Id_Type > > > >
     collect_ways_by_id(
         const std::map< Uint31_Index, std::set< Attic< Way_Delta > > >& new_attic_way_skeletons,
         const std::unordered_map< Way_Skeleton::Id_Type, Uint31_Index >& new_way_idx_by_id);
