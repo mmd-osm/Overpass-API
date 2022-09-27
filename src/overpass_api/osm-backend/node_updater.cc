@@ -658,13 +658,6 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
         = compute_new_attic_local_tags(new_data,
 	    existing_map_positions, existing_attic_map_positions, full_attic_local_tags);
 
-    // Compute changelog
-    const std::map< Timestamp, std::set< Change_Entry< Node_Skeleton::Id_Type > > > changelog
-        = compute_changelog(new_data, existing_map_positions, attic_skeletons);
-
-    // Compute changepack
-    const std::map< Timestamp, std::set< Change_Package > > changepack = compute_changepack(changelog);
-
     std::vector< std::function< void() > > f;
 
     f.push_back( [&]
@@ -730,6 +723,14 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
 */
     f.push_back( [&]
     {
+
+      // Compute changelog
+      const std::map< Timestamp, std::set< Change_Entry< Node_Skeleton::Id_Type > > > changelog
+          = compute_changelog(new_data, existing_map_positions, attic_skeletons);
+
+      // Compute changepack
+      const std::map< Timestamp, std::set< Change_Package > > changepack = compute_changepack(changelog);
+
       // Write changepack
       update_elements(std::map< Timestamp, std::set< Change_Package > >(), changepack,
             *transaction, *attic_settings().NODE_CHANGEPACK);
