@@ -72,9 +72,9 @@ void get_existing_tags
      File_Blocks_Index_Base& tags_local, std::vector< Tag_Entry< Id_Type > >& tags_to_delete)
 {
   // make indices appropriately coarse
-  std::unordered_map< uint32, std::set< Id_Type > > to_delete_coarse;
+  std::unordered_map< uint32, std::vector< Id_Type > > to_delete_coarse;
   for (auto it = ids_with_position.begin(); it != ids_with_position.end(); ++it)
-    to_delete_coarse[it->second.val() & 0x7fffff00].insert(it->first);
+    to_delete_coarse[it->second.val() & 0x7fffff00].push_back(it->first);
 
   // formulate range query
   std::set< std::pair< Tag_Index_Local, Tag_Index_Local > > range_set;
@@ -88,6 +88,10 @@ void get_existing_tags
     upper.key = "";
     upper.value = "";
     range_set.insert(std::make_pair(lower, upper));
+
+    // Sort and remove duplicates
+    std::sort(it->second.begin(), it->second.end());
+    it->second.erase(std::unique(it->second.begin(), it->second.end()), it->second.end());
   }
 
   // iterate over the result
@@ -97,7 +101,7 @@ void get_existing_tags
 
   current_index.index = 0xffffffff;
 
-  std::set< Id_Type > * handle = nullptr;
+  std::vector< Id_Type > * handle = nullptr;
   uint32 handle_index = 0;
 
   Ranges< Tag_Index_Local > ranges(std::move(range_set));
@@ -122,7 +126,9 @@ void get_existing_tags
       handle_index = it.index_handle().get_index();
     }
 
-    if (handle->find(it.handle().id()) != handle->end())
+    auto el = std::lower_bound(handle->begin(), handle->end(), it.handle().id());
+
+    if (el != handle->end() && *el == it.handle().id())
       tag_entry.ids.push_back(it.handle().id());
   }
   if ((current_index.index != 0xffffffff) && (!tag_entry.ids.empty()))
