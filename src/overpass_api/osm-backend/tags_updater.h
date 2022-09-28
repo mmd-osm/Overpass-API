@@ -72,14 +72,13 @@ void get_existing_tags
      File_Blocks_Index_Base& tags_local, std::vector< Tag_Entry< Id_Type > >& tags_to_delete)
 {
   // make indices appropriately coarse
-  std::map< uint32, std::set< Id_Type > > to_delete_coarse;
+  std::unordered_map< uint32, std::set< Id_Type > > to_delete_coarse;
   for (auto it = ids_with_position.begin(); it != ids_with_position.end(); ++it)
     to_delete_coarse[it->second.val() & 0x7fffff00].insert(it->first);
 
   // formulate range query
   std::set< std::pair< Tag_Index_Local, Tag_Index_Local > > range_set;
-  for (typename std::map< uint32, std::set< Id_Type > >::const_iterator
-    it(to_delete_coarse.begin()); it != to_delete_coarse.end(); ++it)
+  for (auto it(to_delete_coarse.begin()); it != to_delete_coarse.end(); ++it)
   {
     Tag_Index_Local lower, upper;
     lower.index = it->first;
@@ -95,7 +94,12 @@ void get_existing_tags
   Block_Backend< Tag_Index_Local, Id_Type > rels_db(&tags_local);
   Tag_Index_Local current_index;
   Tag_Entry< Id_Type > tag_entry;
+
   current_index.index = 0xffffffff;
+
+  std::set< Id_Type > * handle = nullptr;
+  uint32 handle_index = 0;
+
   Ranges< Tag_Index_Local > ranges(std::move(range_set));
   for (auto it = rels_db.range_begin(ranges); !(it == rels_db.range_end()); ++it)
   {
@@ -104,7 +108,7 @@ void get_existing_tags
           current_index.value == it.index_handle().get_value()))
     {
       if ((current_index.index != 0xffffffff) && (!tag_entry.ids.empty()))
-        tags_to_delete.push_back(tag_entry);
+        tags_to_delete.emplace_back(std::move(tag_entry));
       current_index = it.index();
       tag_entry.index = current_index.index;
       tag_entry.key = current_index.key;
@@ -112,12 +116,17 @@ void get_existing_tags
       tag_entry.ids.clear();
     }
 
-    std::set< Id_Type >& handle(to_delete_coarse[it.index_handle().get_index()]);
-    if (handle.find(it.handle().id()) != handle.end())
+    if (handle == nullptr || it.index_handle().get_index() != handle_index)
+    {
+      handle = &to_delete_coarse[it.index_handle().get_index()];
+      handle_index = it.index_handle().get_index();
+    }
+
+    if (handle->find(it.handle().id()) != handle->end())
       tag_entry.ids.push_back(it.handle().id());
   }
   if ((current_index.index != 0xffffffff) && (!tag_entry.ids.empty()))
-    tags_to_delete.push_back(tag_entry);
+    tags_to_delete.emplace_back(std::move(tag_entry));
 }
 
 template < class TObject >
