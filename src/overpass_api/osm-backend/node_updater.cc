@@ -576,8 +576,8 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
 
   f.push_back( [&]
   {
-    std::map< Tag_Index_Global, std::set< Tag_Object_Global< Node_Skeleton::Id_Type > > > attic_global_tags;
-    std::map< Tag_Index_Global, std::set< Tag_Object_Global< Node_Skeleton::Id_Type > > > new_global_tags;
+    std::map< Tag_Index_Global, std::vector< Tag_Object_Global< Node_Skeleton::Id_Type > > > attic_global_tags;
+    std::map< Tag_Index_Global, std::vector< Tag_Object_Global< Node_Skeleton::Id_Type > > > new_global_tags;
     new_current_global_tags< Node_Skeleton::Id_Type >(attic_local_tags, new_local_tags, attic_global_tags, new_global_tags);
 
     // Update global tags

@@ -599,23 +599,39 @@ template< typename Id_Type >
 void new_current_global_tags
     (const std::map< Tag_Index_Local, std::set< Id_Type > >& attic_local_tags,
      const std::map< Tag_Index_Local, std::set< Id_Type > >& new_local_tags,
-     std::map< Tag_Index_Global, std::set< Tag_Object_Global< Id_Type > > >& attic_global_tags,
-     std::map< Tag_Index_Global, std::set< Tag_Object_Global< Id_Type > > >& new_global_tags)
+     std::map< Tag_Index_Global, std::vector< Tag_Object_Global< Id_Type > > >& attic_global_tags,
+     std::map< Tag_Index_Global, std::vector< Tag_Object_Global< Id_Type > > >& new_global_tags)
 {
   for (auto it_idx = attic_local_tags.begin(); it_idx != attic_local_tags.end(); ++it_idx)
   {
-    std::set< Tag_Object_Global< Id_Type > >& handle(attic_global_tags[Tag_Index_Global(it_idx->first)]);
+    auto& handle(attic_global_tags[Tag_Index_Global(it_idx->first)]);
     for (auto it = it_idx->second.begin();
          it != it_idx->second.end(); ++it)
-      handle.insert(Tag_Object_Global< Id_Type >(*it, it_idx->first.index));
+      handle.emplace_back(Tag_Object_Global< Id_Type >(*it, it_idx->first.index));
+  }
+
+  for (auto & [key, vector] : attic_global_tags)
+  {
+    if (!std::is_sorted(vector.begin(), vector.end())) {
+      std::sort(vector.begin(), vector.end());
+    }
+    vector.erase(std::unique(vector.begin(), vector.end()), vector.end());
   }
 
   for (auto it_idx = new_local_tags.begin(); it_idx != new_local_tags.end(); ++it_idx)
   {
-    std::set< Tag_Object_Global< Id_Type > >& handle(new_global_tags[Tag_Index_Global(it_idx->first)]);
+    auto& handle(new_global_tags[Tag_Index_Global(it_idx->first)]);
     for (auto it = it_idx->second.begin();
          it != it_idx->second.end(); ++it)
-      handle.insert(Tag_Object_Global< Id_Type >(*it, it_idx->first.index));
+      handle.emplace_back(Tag_Object_Global< Id_Type >(*it, it_idx->first.index));
+  }
+
+  for (auto & [key, vector] : new_global_tags)
+  {
+    if (!std::is_sorted(vector.begin(), vector.end())) {
+      std::sort(vector.begin(), vector.end());
+    }
+    vector.erase(std::unique(vector.begin(), vector.end()), vector.end());
   }
 }
 
@@ -649,10 +665,10 @@ void update_map_positions
 }
 
 
-template< typename Index, typename Object >
+template< typename Index, typename Object, template<class...> class TContainer >
 void update_elements
-    (const std::map< Index, std::set< Object > >& attic_objects,
-     const std::map< Index, std::set< Object > >& new_objects,
+    (const std::map< Index, TContainer< Object > >& attic_objects,
+     const std::map< Index, TContainer< Object > >& new_objects,
      Transaction& transaction, const File_Properties& file_properties)
 {
   Block_Backend_Updater< Index, Object > db(transaction.data_index(&file_properties));
