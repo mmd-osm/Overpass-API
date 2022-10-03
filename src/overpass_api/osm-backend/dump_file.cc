@@ -47,7 +47,7 @@ int main(int argc, char* args[])
 
   std::string db_dir(args[1]);
 
-  uint32 index_int = 0;
+  uint64_t index_int = 0;
   bool index_used = false;
   if (argc >= 4)
   {
@@ -79,6 +79,14 @@ int main(int argc, char* args[])
       {
         std::cout<<std::hex<<it.index().val()<<'\t'
             <<std::dec<<it.object().id.val()<<'\n';
+      }
+    }
+    else if (std::string("--nodes-map") == args[2])
+    {
+      if (index_used)
+      {
+        Random_File< Node_Skeleton::Id_Type, Uint31_Index > random(transaction.random_index(osm_base_settings().NODES));
+        std::cout<<"0x"<<std::hex<<random.get(index_int).val()<<'\n';
       }
     }
     else if (std::string("--nodes-meta") == args[2])
