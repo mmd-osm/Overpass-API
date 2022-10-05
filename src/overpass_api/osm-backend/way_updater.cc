@@ -579,7 +579,8 @@ void lookup_missing_nodes
 
   // Collect all data of existing id indexes
   std::vector< std::pair< Node_Skeleton::Id_Type, Uint31_Index > > existing_map_positions
-      = get_existing_map_positions(missing_ids, transaction, *osm_base_settings().NODES);
+      = get_existing_map_positions<Node_Skeleton::Id_Type>(missing_ids.begin(), missing_ids.end(),
+                         transaction, *osm_base_settings().NODES);
 
   /*
   // Collect all data of existing skeletons

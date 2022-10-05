@@ -151,6 +151,25 @@ std::vector< std::pair< Id_Type, Uint31_Index > > get_existing_map_positions
   return result;
 }
 
+template< typename Id_Type >
+std::vector< std::pair< Id_Type, Uint31_Index > > get_existing_map_positions
+    (typename std::vector< Id_Type >::const_iterator begin,
+     typename std::vector< Id_Type >::const_iterator end,
+     Transaction& transaction, const File_Properties& file_properties)
+{
+  Random_File< Id_Type, Uint31_Index > random(transaction.random_index(&file_properties));
+
+  std::vector< std::pair< Id_Type, Uint31_Index > > result;
+  for (auto it = begin; it != end; ++it)
+  {
+    Uint31_Index idx = random.get(it->val());
+    if (idx.val() > 0)
+      result.push_back(std::make_pair(*it, idx));
+  }
+  return result;
+}
+
+
 
 template< typename Id_Type >
 struct Idx_Agnostic_Compare
