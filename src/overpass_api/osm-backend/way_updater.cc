@@ -577,30 +577,20 @@ void lookup_missing_nodes
   std::sort(missing_ids.begin(), missing_ids.end());
   missing_ids.erase(std::unique(missing_ids.begin(), missing_ids.end()), missing_ids.end());
 
+  osmium::index::IdSetDense<Node_Skeleton::Id_Type::Id_Type> ids_lookup;
+
   // Collect all data of existing id indexes
-  std::vector< std::pair< Node_Skeleton::Id_Type, Uint31_Index > > existing_map_positions
-      = get_existing_map_positions<Node_Skeleton::Id_Type>(missing_ids.begin(), missing_ids.end(),
+  std::set< Uint31_Index > req
+      = get_existing_map_positions<Node_Skeleton::Id_Type>(ids_lookup, missing_ids,
                          transaction, *osm_base_settings().NODES);
 
-  /*
-  // Collect all data of existing skeletons
-  std::map< Uint31_Index, std::set< Node_Skeleton > > existing_skeletons
-      = get_existing_skeletons< Node_Skeleton >
-      (existing_map_positions, transaction, *osm_base_settings().NODES);
-
-  for (std::map< Uint31_Index, std::set< Node_Skeleton > >::const_iterator it = existing_skeletons.begin();
-       it != existing_skeletons.end(); ++it)
+  Block_Backend< Uint31_Index, Node_Skeleton > db(transaction.data_index(osm_base_settings().NODES));
+  for (auto it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
   {
-    for (std::set< Node_Skeleton >::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
-      new_node_idx_by_id.insert(std::make_pair(it2->id, Quad_Coord(it->first.val(), it2->ll_lower)));
+    if (ids_lookup.get(it.handle().id().val())) {
+      new_node_idx_by_id.insert(std::make_pair(it.handle().id(), Quad_Coord(it.index_handle().get_val(), it.handle().get_ll_lower())));
+    }
   }
-  */
-
-  get_existing_skeletons< Node_Skeleton >(existing_map_positions, transaction, *osm_base_settings().NODES,
-       [&new_node_idx_by_id] (typename Block_Backend< Uint31_Index, Node_Skeleton >::Discrete_Iterator& it)
-       {
-          new_node_idx_by_id.insert(std::make_pair(it.handle().id(), Quad_Coord(it.index_handle().get_val(), it.handle().get_ll_lower())));
-       });
 }
 
 

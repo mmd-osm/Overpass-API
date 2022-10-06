@@ -152,19 +152,28 @@ std::vector< std::pair< Id_Type, Uint31_Index > > get_existing_map_positions
 }
 
 template< typename Id_Type >
-std::vector< std::pair< Id_Type, Uint31_Index > > get_existing_map_positions
-    (typename std::vector< Id_Type >::const_iterator begin,
-     typename std::vector< Id_Type >::const_iterator end,
+std::set< Uint31_Index > get_existing_map_positions
+    (osmium::index::IdSetDense<Node_Skeleton::Id_Type::Id_Type> & ids_lookup,
+     const std::vector< Id_Type >& ids,
      Transaction& transaction, const File_Properties& file_properties)
 {
   Random_File< Id_Type, Uint31_Index > random(transaction.random_index(&file_properties));
 
-  std::vector< std::pair< Id_Type, Uint31_Index > > result;
-  for (auto it = begin; it != end; ++it)
+  std::set< Uint31_Index > result;
+
+  Uint31_Index prev_idx{};
+
+  for (auto it = ids.begin(); it != ids.end(); ++it)
   {
     Uint31_Index idx = random.get(it->val());
-    if (idx.val() > 0)
-      result.push_back(std::make_pair(*it, idx));
+    if (idx.val() == 0) {
+      continue;
+    }
+    if (!(idx == prev_idx)) {
+        result.insert(idx);
+        prev_idx = idx;
+    }
+    ids_lookup.set(it->val());
   }
   return result;
 }
@@ -213,38 +222,6 @@ std::map< Uint31_Index, std::set< Element_Skeleton > > get_existing_skeletons
 
   return result;
 }
-
-
-template< typename Element_Skeleton, class Functor >
-void get_existing_skeletons
-    (const std::vector< std::pair< typename Element_Skeleton::Id_Type, Uint31_Index > >& ids_with_position,
-     Transaction& transaction, const File_Properties& file_properties, Functor f)
-{
-  std::set< Uint31_Index > req;
-  osmium::index::IdSetDense<Node_Skeleton::Id_Type::Id_Type> ids_lookup;
-
-  Uint31_Index prev_idx{};
-
-  for (const auto & [elem, idx] : ids_with_position) {
-    if (!(idx == prev_idx)) {
-      req.insert(idx);
-      prev_idx = idx;
-    }
-    ids_lookup.set(elem.val());
-  }
-
-  std::map< Uint31_Index, std::set< Element_Skeleton > > result;
-
-  Block_Backend< Uint31_Index, Element_Skeleton > db(transaction.data_index(&file_properties));
-  for (typename Block_Backend< Uint31_Index, Element_Skeleton >::Discrete_Iterator
-      it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
-  {
-    if (ids_lookup.get(it.handle().id().val())) {
-      f(it);
-    }
-  }
-}
-
 
 
 template< typename Index, typename Element_Skeleton, typename Element_Skeleton_Delta >
