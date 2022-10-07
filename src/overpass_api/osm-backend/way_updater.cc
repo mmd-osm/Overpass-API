@@ -1035,7 +1035,7 @@ void Way_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_stop
                                 new_node_idx_by_id, new_attic_node_skeletons,
                                 new_attic_skeletons, new_undeleted, new_attic_idx_lists, attic_skeletons_to_delete);
 
-    const std::unordered_map< Way_Skeleton::Id_Type, std::vector< Attic< Uint31_Index > > > new_attic_idx_by_id_and_time =
+    const std::map< Way_Skeleton::Id_Type, std::vector< Attic< Uint31_Index > > > new_attic_idx_by_id_and_time =
         compute_new_attic_idx_by_id_and_time(new_data, new_skeletons, new_attic_skeletons);
 
     // Compute new meta data
