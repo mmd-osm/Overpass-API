@@ -581,9 +581,10 @@ void lookup_missing_nodes
 
   // Collect all data of existing id indexes
   std::set< Uint31_Index > req
-      = get_existing_map_positions<Node_Skeleton::Id_Type>(ids_lookup, missing_ids,
+      = get_existing_map_positions(ids_lookup, missing_ids,
                          transaction, *osm_base_settings().NODES);
 
+  // Collect all data of existing skeletons
   Block_Backend< Uint31_Index, Node_Skeleton > db(transaction.data_index(osm_base_settings().NODES));
   for (auto it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
   {

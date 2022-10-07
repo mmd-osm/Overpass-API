@@ -153,7 +153,7 @@ std::vector< std::pair< Id_Type, Uint31_Index > > get_existing_map_positions
 
 template< typename Id_Type >
 std::set< Uint31_Index > get_existing_map_positions
-    (osmium::index::IdSetDense<Node_Skeleton::Id_Type::Id_Type> & ids_lookup,
+    (osmium::index::IdSetDense< typename Id_Type::Id_Type> & ids_lookup,
      const std::vector< Id_Type >& ids,
      Transaction& transaction, const File_Properties& file_properties)
 {
