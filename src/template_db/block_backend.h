@@ -82,7 +82,7 @@ struct Handle : Idx_Handle< Object >, public Handle_Base<Object>::type
 {
  private:
   template< typename Functor >
-  auto apply_func(Functor f) const -> decltype(f(static_cast<const void*>(std::declval<const void *>())));
+  auto apply_func(Functor f) const -> decltype(f(std::declval<const void *>()));
 
   friend typename Handle_Base<Object>::type;
 };
@@ -90,13 +90,13 @@ struct Handle : Idx_Handle< Object >, public Handle_Base<Object>::type
 
 template< typename Object >
 template< typename Functor >
-inline auto Handle< Object >::apply_func(Functor f) const -> decltype(f(static_cast<const void*>(std::declval<const void *>())))
+inline auto Handle< Object >::apply_func(Functor f) const -> decltype(f(std::declval<const void *>()))
 {
   // Static type check assumes a Functor class to have a "using reference_type" declaration,
   // which has to match the data type that is required to handle the raw data in "const void* data".
   static_assert( std::is_same<typename Functor::reference_type, Object>::value,
                         "Functor reference type does not match the iterator object type");
-  return f(static_cast<const void*>(this->get_ptr_to_raw()));
+  return f(this->get_ptr_to_raw());
 }
 
 //-----------------------------------------------------------------------------
