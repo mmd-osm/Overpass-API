@@ -71,7 +71,7 @@ std::vector< bool > Idx_Footprints::total_footprint() const
   {
     // By construction, it->second.size() <= result.size()
     for (std::vector< bool >::size_type i = 0; i < it->second.get()->size(); ++i)
-      result[i] = result[i] | (*it->second)[i];
+      result[i] = result[i] || (*it->second)[i];
   }
   return result;
 }
