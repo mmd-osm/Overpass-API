@@ -201,7 +201,7 @@ void Meta_Collector< Index, Id_Type, Functor >::reset()
   if (used_ranges.empty())
   {
     if (!used_indices.empty())
-      last_index = new Index(*used_indices.begin());
+      last_index = Index(*used_indices.begin());
 
     db_it = std::make_unique< typename Block_Backend< Index, OSM_Element_Metadata_Skeleton< Id_Type > >
         ::Discrete_Iterator >(meta_db->discrete_begin(used_indices.begin(), used_indices.end()));
