@@ -73,11 +73,8 @@ public:
   ~Meta_Collector() = default;
 
 private:
-  std::set< Index > used_indices;
   std::set< std::pair< Index, Index > > used_ranges;
   std::unique_ptr< Block_Backend< Index, OSM_Element_Metadata_Skeleton< Id_Type > > > meta_db;
-  std::unique_ptr< typename Block_Backend< Index, OSM_Element_Metadata_Skeleton< Id_Type > >
-      ::Discrete_Iterator> db_it;
   std::unique_ptr< typename Block_Backend< Index, OSM_Element_Metadata_Skeleton< Id_Type > >
       ::Range_Iterator > range_it;
   std::optional<Index> current_index;
@@ -109,12 +106,38 @@ private:
 /** Implementation --------------------------------------------------------- */
 
 template< typename Index, typename Object >
-void generate_index_query
-  (std::set< Index >& indices,
+void generate_range_query
+  (std::set< std::pair< Index, Index > >& ranges,
    const std::map< Index, std::vector< Object > >& items)
 {
-  for (auto it(items.begin()); it != items.end(); ++it)
-    indices.insert(it->first);
+  std::set< std::pair< Index, Index > > temp_ranges;
+
+  ranges.clear();
+
+  for (auto it(items.begin()); it != items.end(); ++it) {
+    temp_ranges.insert(std::make_pair(it->first, inc(it->first)));
+  }
+
+  if (temp_ranges.empty()) {
+    return;
+  }
+
+  // Merge ranges
+  auto it = temp_ranges.begin();
+  Index last_first = it->first;
+  Index last_second = it->second;
+  ++it;
+  for (; it != temp_ranges.end(); ++it)
+  {
+    if (last_second < it->first)
+    {
+      ranges.insert(std::make_pair(last_first, last_second));
+      last_first = it->first;
+    }
+    if (last_second < it->second)
+      last_second = it->second;
+  }
+  ranges.insert(std::make_pair(last_first, last_second));
 }
 
 
@@ -127,7 +150,7 @@ Meta_Collector< Index, Id_Type, Functor >::Meta_Collector
   if (!meta_file_prop)
     return;
 
-  generate_index_query(used_indices, items);
+  generate_range_query(used_ranges, items);
   meta_db = std::make_unique< Block_Backend< Index, OSM_Element_Metadata_Skeleton< Id_Type > > >
       (transaction.data_index(meta_file_prop));
 
@@ -161,7 +184,7 @@ Meta_Collector< Index, Id_Type, Functor >::Meta_Collector
   if (!meta_file_prop)
     return;
 
-  generate_index_query(used_indices, items);
+  generate_range_query(used_ranges, items);
   meta_db = std::make_unique< Block_Backend< Index, OSM_Element_Metadata_Skeleton< Id_Type > > >
       (transaction.data_index(meta_file_prop));
 
@@ -192,53 +215,30 @@ void Meta_Collector< Index, Id_Type, Functor >::reset()
   if (!meta_db)
     return;
 
-  db_it.reset(nullptr);
   range_it.reset(nullptr);
 
   current_index.reset();
   last_index.reset();
 
-  if (used_ranges.empty())
+  last_index = Index(used_ranges.begin()->first);
+
+  range_it = std::make_unique< typename Block_Backend< Index, OSM_Element_Metadata_Skeleton< Id_Type > >
+      ::Range_Iterator >(meta_db->range_begin(
+          typename Ranges< Index >::Iterator(used_ranges.begin()),
+          typename Ranges< Index >::Iterator(used_ranges.end())));
+
+  if (!(*range_it == meta_db->range_end()))
   {
-    if (!used_indices.empty())
-      last_index = Index(*used_indices.begin());
-
-    db_it = std::make_unique< typename Block_Backend< Index, OSM_Element_Metadata_Skeleton< Id_Type > >
-        ::Discrete_Iterator >(meta_db->discrete_begin(used_indices.begin(), used_indices.end()));
-
-    if (!(*db_it == meta_db->discrete_end()))
-    {
-      current_index = Index(db_it->index());
-    }
-    while (!(*db_it == meta_db->discrete_end()) && (*current_index == db_it->index()))
-    {
-      if (m_functor(db_it->object())) {
-        db_it->handle().add_element(current_objects);
-      }
-      ++(*db_it);
-    }
+    current_index = Index(range_it->index());
   }
-  else
+  while (!(*range_it == meta_db->range_end()) && (*current_index == range_it->index()))
   {
-    last_index = Index(used_ranges.begin()->first);
-
-    range_it = std::make_unique< typename Block_Backend< Index, OSM_Element_Metadata_Skeleton< Id_Type > >
-        ::Range_Iterator >(meta_db->range_begin(
-            typename Ranges< Index >::Iterator(used_ranges.begin()),
-            typename Ranges< Index >::Iterator(used_ranges.end())));
-
-    if (!(*range_it == meta_db->range_end()))
-    {
-      current_index = Index(range_it->index());
+    if (m_functor(range_it->object())) {
+      range_it->handle().add_element(current_objects);
     }
-    while (!(*range_it == meta_db->range_end()) && (*current_index == range_it->index()))
-    {
-      if (m_functor(range_it->object())) {
-        range_it->handle().add_element(current_objects);
-      }
-      ++(*range_it);
-    }
+    ++(*range_it);
   }
+
   std::sort(current_objects.begin(), current_objects.end());
 }
 
@@ -254,23 +254,7 @@ void Meta_Collector< Index, Id_Type, Functor >::update_current_objects(const Ind
   if (last_index)
     last_index = index;
 
-  if (db_it)
-  {
-    while (!(*db_it == meta_db->discrete_end()) && (Index(db_it->index_handle().id()) < index)) {
-      db_it->skip_current_index();
-      ++(*db_it);
-    }
-    if (!(*db_it == meta_db->discrete_end()))
-      current_index = Index(db_it->index_handle().id());
-    while (!(*db_it == meta_db->discrete_end()) && (*current_index == Index(db_it->index_handle().id())))
-    {
-      if (m_functor(db_it->object())) {
-        db_it->handle().add_element(current_objects);
-      }
-      ++(*db_it);
-    }
-  }
-  else if (range_it)
+  if (range_it)
   {
     while (!(*range_it == meta_db->range_end()) && (Index(range_it->index_handle().id()) < index)) {
       range_it->skip_current_index();
