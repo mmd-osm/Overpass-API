@@ -37,9 +37,9 @@
 #include <vector>
 
 
-void Idx_Footprints::set_current_footprint(const std::vector< bool >& footprint)
+void Idx_Footprints::set_current_footprint(std::vector< bool > && footprint)
 {
-  current_footprint = std::make_shared<std::vector< bool > >(footprint);
+  current_footprint = std::make_shared<std::vector< bool > >(std::move(footprint));
 }
 
 
@@ -58,8 +58,8 @@ void Idx_Footprints::unregister_pid(pid_t pid)
 std::vector< Idx_Footprints::pid_t > Idx_Footprints::registered_processes() const
 {
   std::vector< pid_t > result;
-  for (auto it(footprint_per_pid.begin()); it != footprint_per_pid.end(); ++it)
-    result.push_back(it->first);
+  for (const auto & [pid, _] : footprint_per_pid)
+    result.push_back(pid);
   return result;
 }
 

@@ -60,8 +60,7 @@ struct OSM_File_Properties final : public File_Properties
 
   std::vector< bool > get_data_footprint(const std::string& db_dir) const override
   {
-    std::vector< bool > temp = get_data_index_footprint< TVal >(*this, db_dir);
-    return temp;
+    return get_data_index_footprint< TVal >(*this, db_dir);
   }
 
   std::vector< bool > get_map_footprint(const std::string& db_dir) const override

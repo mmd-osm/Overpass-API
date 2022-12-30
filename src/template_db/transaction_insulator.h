@@ -33,7 +33,7 @@ class Idx_Footprints
   public:
     typedef uint pid_t;
 
-    void set_current_footprint(const std::vector< bool >& footprint);
+    void set_current_footprint(std::vector< bool > && footprint);
     void register_pid(pid_t pid);
     void unregister_pid(pid_t pid);
     std::vector< pid_t > registered_processes() const;
