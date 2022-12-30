@@ -30,6 +30,7 @@
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <set>
 #include <sstream>
 #include <string>
 #include <type_traits>
@@ -92,7 +93,7 @@ inline void unalignedStore(void *ptr, T t)
 
 #undef OVERPASS_HAS_BUILTIN
 
-// Generic helper functions to print contents of std::mao and std::vector
+// Generic helper functions to print contents of std::map and std::vector
 
 template < typename... Args >
 std::ostream& operator << (std::ostream& stream, const std::vector <Args...> & container)
@@ -102,6 +103,16 @@ std::ostream& operator << (std::ostream& stream, const std::vector <Args...> & c
   stream << "}";
   return stream;
 }
+
+template < typename... Args >
+std::ostream& operator << (std::ostream& stream, const std::set <Args...> & container)
+{
+  stream << "{ ";
+  for (auto&& elem : container) stream << elem << " ";
+  stream << "}";
+  return stream;
+}
+
 
 template < typename... Args >
 std::ostream& operator << (std::ostream& stream, const std::map <Args...> & container)
