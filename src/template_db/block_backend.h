@@ -58,17 +58,17 @@ struct Idx_Handle
   Idx_Handle(const Idx_Handle& rhs)
       : ptr_to_raw(rhs.ptr_to_raw) {}
 
-  void set_ptr(uint8* ptr)
+  void set_ptr(uint8* ptr) noexcept
   {
     ptr_to_raw = ptr;
   }
 
-  Object object() const
+  [[nodiscard]] Object object() const
   {
     return Object(ptr_to_raw);
   }
 
-  uint8* get_ptr_to_raw() const
+  [[nodiscard]] uint8* get_ptr_to_raw() const noexcept
   {
     return ptr_to_raw;
   }
@@ -127,23 +127,23 @@ struct Block_Backend_Basic_Iterator
   }
 
   // returns local class instance (no caching across repeated calls of this method!)
-  Index index() const
+  [[nodiscard]] Index index() const
   {
     return idx_cache.object();
   }
 
   // returns local class instance (no caching across repeated calls of this method!)
-  Object object() const
+  [[nodiscard]] Object object() const
   {
     return obj_cache.object();
   }
 
-  const Handle< Index >& index_handle() const
+  [[nodiscard]] const Handle< Index >& index_handle() const
   {
     return idx_cache;
   }
 
-  const Handle< Object >& handle() const
+  [[nodiscard]] const Handle< Object >& handle() const
   {
     return obj_cache;
   }
@@ -162,22 +162,22 @@ struct Block_Backend_Basic_Iterator
   {
     Block_Backend_Element(Block_Backend_Basic_Iterator<Index, Object, Idx_Assessor, File_Handle> & _ref) : ref(_ref) {};
 
-    Index index() const
+    [[nodiscard]] Index index() const
     {
       return ref.index();
     }
 
-    Object object() const
+    [[nodiscard]] Object object() const
     {
       return ref.object();
     }
 
-    const Handle< Index >& index_handle() const
+    [[nodiscard]] const Handle< Index >& index_handle() const
     {
       return ref.index_handle();
     }
 
-    const Handle< Object >& handle() const
+    [[nodiscard]] const Handle< Object >& handle() const
     {
       return ref.handle();
     }
