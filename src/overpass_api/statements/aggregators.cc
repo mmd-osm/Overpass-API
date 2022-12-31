@@ -56,7 +56,7 @@ void eval_elems(Value_Aggregator& aggregator, Eval_Task& task,
   {
     for (auto elem_it = idx_it->second.begin();
         elem_it != idx_it->second.end(); ++elem_it)
-      aggregator.update_value(eval_variant_to_string(task.eval(input_set.get_context(idx_it->first, *elem_it), key)));
+      aggregator.update_value(task.eval(input_set.get_context(idx_it->first, *elem_it), key));
   }
 }
 
@@ -196,8 +196,9 @@ Aggregator_Statement_Maker< Evaluator_Union_Value > Evaluator_Union_Value::state
 Aggregator_Evaluator_Maker< Evaluator_Union_Value > Evaluator_Union_Value::evaluator_maker;
 
 
-void Evaluator_Union_Value::Aggregator::update_value(const std::string& value)
+void Evaluator_Union_Value::Aggregator::update_value(Eval_Variant&& v)
 {
+  std::string value(eval_variant_to_string(std::move(v)));
   if (!value.empty() && value != agg_value)
     agg_value = (agg_value.empty() ? value : "< multiple values found >");
 }
@@ -210,7 +211,7 @@ Aggregator_Statement_Maker< Evaluator_Min_Value > Evaluator_Min_Value::statement
 Aggregator_Evaluator_Maker< Evaluator_Min_Value > Evaluator_Min_Value::evaluator_maker;
 
 
-void Evaluator_Min_Value::Aggregator::update_value(const std::string& value)
+void Evaluator_Min_Value::Aggregator::update_value(Eval_Variant&& v)
 {
   if (relevant_type == type_void)
     relevant_type = type_int64;
@@ -218,7 +219,7 @@ void Evaluator_Min_Value::Aggregator::update_value(const std::string& value)
   if (relevant_type <= type_int64)
   {
     int64 rhs_l = 0;
-    if (try_int64(value, rhs_l))
+    if (try_int64(v, rhs_l))
       result_l = std::min(result_l, rhs_l);
     else
       relevant_type = type_double;
@@ -227,11 +228,13 @@ void Evaluator_Min_Value::Aggregator::update_value(const std::string& value)
   if (relevant_type <= type_double)
   {
     double rhs_d = 0;
-    if (try_double(value, rhs_d))
+    if (try_double(v, rhs_d))
       result_d = std::min(result_d, rhs_d);
     else
       relevant_type = type_string;
   }
+
+  std::string value(eval_variant_to_string(std::move(v)));
 
   if (!value.empty())
     result_s = (!result_s.empty() ? std::min(result_s, value) : value);
@@ -258,7 +261,7 @@ Aggregator_Statement_Maker< Evaluator_Max_Value > Evaluator_Max_Value::statement
 Aggregator_Evaluator_Maker< Evaluator_Max_Value > Evaluator_Max_Value::evaluator_maker;
 
 
-void Evaluator_Max_Value::Aggregator::update_value(const std::string& value)
+void Evaluator_Max_Value::Aggregator::update_value(Eval_Variant&& v)
 {
   if (relevant_type == type_void)
     relevant_type = type_int64;
@@ -266,7 +269,7 @@ void Evaluator_Max_Value::Aggregator::update_value(const std::string& value)
   if (relevant_type <= type_int64)
   {
     int64 rhs_l = 0;
-    if (try_int64(value, rhs_l))
+    if (try_int64(v, rhs_l))
       result_l = std::max(result_l, rhs_l);
     else
       relevant_type = type_double;
@@ -275,11 +278,13 @@ void Evaluator_Max_Value::Aggregator::update_value(const std::string& value)
   if (relevant_type <= type_double)
   {
     double rhs_d = 0;
-    if (try_double(value, rhs_d))
+    if (try_double(v, rhs_d))
       result_d = std::max(result_d, rhs_d);
     else
       relevant_type = type_string;
   }
+
+  std::string value(eval_variant_to_string(std::move(v)));
 
   if (!value.empty())
     result_s = (!result_s.empty() ? std::max(result_s, value) : value);
@@ -306,18 +311,24 @@ Aggregator_Statement_Maker< Evaluator_Sum_Value > Evaluator_Sum_Value::statement
 Aggregator_Evaluator_Maker< Evaluator_Sum_Value > Evaluator_Sum_Value::evaluator_maker;
 
 
-void Evaluator_Sum_Value::Aggregator::update_value(const std::string& value)
+void Evaluator_Sum_Value::Aggregator::update_value(Eval_Variant&& value)
 {
   if (relevant_type == type_int64)
   {
     int64 rhs_l = 0;
     if (try_int64(value, rhs_l))
+    {
       result_l += rhs_l;
+      return;
+    }
     else
+    {
+      result_d = result_l;
       relevant_type = type_double;
+    }
   }
 
-  if (relevant_type == type_int64 || relevant_type == type_double)
+  if (relevant_type == type_double)
   {
     double rhs_d = 0;
     if (try_double(value, rhs_d))
@@ -346,8 +357,10 @@ Aggregator_Statement_Maker< Evaluator_Set_Value > Evaluator_Set_Value::statement
 Aggregator_Evaluator_Maker< Evaluator_Set_Value > Evaluator_Set_Value::evaluator_maker;
 
 
-void Evaluator_Set_Value::Aggregator::update_value(const std::string& value)
+void Evaluator_Set_Value::Aggregator::update_value(Eval_Variant&& v)
 {
+  std::string value(eval_variant_to_string(std::move(v)));
+
   if (!value.empty())
     values.insert(value);
 }

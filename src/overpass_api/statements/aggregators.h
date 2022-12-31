@@ -39,7 +39,7 @@ struct Value_Aggregator
   // The code of min and max relies on the relative order to gracefully degrade the type
   enum Type_Indicator { type_void = 0, type_int64 = 1, type_double = 2, type_string = 3 };
 
-  virtual void update_value(const std::string& value) = 0;
+  virtual void update_value(Eval_Variant&& value) = 0;
   virtual std::string get_value() = 0;
   virtual ~Value_Aggregator() = default;
 };
@@ -198,7 +198,7 @@ public:
 
   struct Aggregator : Value_Aggregator
   {
-    void update_value(const std::string& value) override;
+    void update_value(Eval_Variant&& value) override;
     std::string get_value() override { return agg_value; }
     std::string agg_value;
   };
@@ -222,7 +222,7 @@ public:
 
   struct Aggregator : Value_Aggregator
   {
-    void update_value(const std::string& value) override;
+    void update_value(Eval_Variant&& value) override;
     std::string get_value() override;
     std::set< std::string > values;
   };
@@ -274,7 +274,7 @@ public:
   {
     Aggregator() : relevant_type(type_void), result_l(std::numeric_limits< int64 >::max()),
         result_d(std::numeric_limits< double >::max()) {}
-    void update_value(const std::string& value) override;
+    void update_value(Eval_Variant&& value) override;
     std::string get_value() override;
     Type_Indicator relevant_type;
     int64 result_l;
@@ -303,7 +303,7 @@ public:
   {
     Aggregator() : relevant_type(type_void), result_l(std::numeric_limits< int64 >::min()),
         result_d(-std::numeric_limits< double >::max()) {}
-    void update_value(const std::string& value) override;
+    void update_value(Eval_Variant&& value) override;
     std::string get_value() override;
     Type_Indicator relevant_type;
     int64 result_l;
@@ -346,7 +346,7 @@ public:
   struct Aggregator : Value_Aggregator
   {
     Aggregator() : relevant_type(type_int64), result_l(0), result_d(0) {}
-    void update_value(const std::string& value) override;
+    void update_value(Eval_Variant&& value) override;
     std::string get_value() override;
     Type_Indicator relevant_type;
     int64 result_l;
