@@ -118,6 +118,58 @@ Eval_Variant Evaluator_Sin::process(const Eval_Variant& rhs_s) const
 
 //-----------------------------------------------------------------------------
 
+struct DateTime
+{
+  DateTime(std::string v) {
+
+    //First run: try for year, month, day, hour, minute, second
+    skip_non_digits(v);
+    year = get_next_value(v);
+    skip_non_digits(v);
+    month = get_next_value(v);
+    skip_non_digits(v);
+    day = get_next_value(v);
+    skip_non_digits(v);
+    hour = get_next_value(v);
+    skip_non_digits(v);
+    minute = get_next_value(v);
+    skip_non_digits(v);
+    second = get_next_value(v);
+  }
+
+  bool is_valid() const noexcept {
+    return (!(year < 1000 || month > 12 || day > 31 || hour > 23 || minute > 59 || second > 60));
+  }
+
+  unsigned int year = 0;
+  unsigned int month = 0;
+  unsigned int day = 0;
+  unsigned int hour = 0;
+  unsigned int minute = 0;
+  unsigned int second = 0;
+
+  private:
+    std::string::size_type pos = 0;
+
+    unsigned int get_next_value(const std::string& v) noexcept
+    {
+      unsigned int res = 0;
+      while (pos < v.size() && isdigit(v[pos]))
+      {
+        res = 10*res + (v[pos] - '0');
+        ++pos;
+      }
+      return res;
+    }
+
+    void skip_non_digits(const std::string& v) noexcept
+    {
+      while (pos < v.size() && !isdigit(v[pos]))
+        ++pos;
+    }
+};
+
+//-----------------------------------------------------------------------------
 
 String_Endom_Statement_Maker< Evaluator_Date > Evaluator_Date::statement_maker;
 String_Endom_Evaluator_Maker< Evaluator_Date > Evaluator_Date::evaluator_maker;
@@ -125,70 +177,13 @@ String_Endom_Evaluator_Maker< Evaluator_Date > Evaluator_Date::evaluator_maker;
 
 Eval_Variant Evaluator_Date::process(const Eval_Variant& v) const
 {
-  std::string rhs_s = eval_variant_to_string(v);
+  const DateTime dt(eval_variant_to_string(v));
 
-  //First run: try for year, month, day, hour, minute, second
-  std::string::size_type pos = 0;
-
-  while (pos < rhs_s.size() && !isdigit(rhs_s[pos]))
-    ++pos;
-  unsigned int year = 0;
-  while (pos < rhs_s.size() && isdigit(rhs_s[pos]))
-  {
-    year = 10*year + (rhs_s[pos] - '0');
-    ++pos;
-  }
-
-  while (pos < rhs_s.size() && !isdigit(rhs_s[pos]))
-    ++pos;
-  unsigned int month = 0;
-  while (pos < rhs_s.size() && isdigit(rhs_s[pos]))
-  {
-    month = 10*month + (rhs_s[pos] - '0');
-    ++pos;
-  }
-
-  while (pos < rhs_s.size() && !isdigit(rhs_s[pos]))
-    ++pos;
-  unsigned int day = 0;
-  while (pos < rhs_s.size() && isdigit(rhs_s[pos]))
-  {
-    day = 10*day + (rhs_s[pos] - '0');
-    ++pos;
-  }
-
-  while (pos < rhs_s.size() && !isdigit(rhs_s[pos]))
-    ++pos;
-  unsigned int hour = 0;
-  while (pos < rhs_s.size() && isdigit(rhs_s[pos]))
-  {
-    hour = 10*hour + (rhs_s[pos] - '0');
-    ++pos;
-  }
-
-  while (pos < rhs_s.size() && !isdigit(rhs_s[pos]))
-    ++pos;
-  unsigned int minute = 0;
-  while (pos < rhs_s.size() && isdigit(rhs_s[pos]))
-  {
-    minute = 10*minute + (rhs_s[pos] - '0');
-    ++pos;
-  }
-
-  while (pos < rhs_s.size() && !isdigit(rhs_s[pos]))
-    ++pos;
-  unsigned int second = 0;
-  while (pos < rhs_s.size() && isdigit(rhs_s[pos]))
-  {
-    second = 10*second + (rhs_s[pos] - '0');
-    ++pos;
-  }
-
-  if (year < 1000 || month > 12 || day > 31 || hour > 23 || minute > 59 || second > 60)
+  if (!dt.is_valid())
     return "NaD"s;
 
-  return to_string(year + month/16. + day/(16.*32)
-      + hour/(16.*32*32) + minute/(16.*32*32*64) + second/(16.*32*32*64*64));
+  return to_string(dt.year + dt.month/16. + dt.day/(16.*32)
+      + dt.hour/(16.*32*32) + dt.minute/(16.*32*32*64) + dt.second/(16.*32*32*64*64));
 }
 
 
@@ -201,67 +196,7 @@ String_Endom_Evaluator_Maker< Evaluator_Is_Date > Evaluator_Is_Date::evaluator_m
 
 Eval_Variant Evaluator_Is_Date::process(const Eval_Variant& v) const
 {
-  std::string rhs_s = eval_variant_to_string(v);
+  const DateTime dt(eval_variant_to_string(v));
 
-  //First run: try for year, month, day, hour, minute, second
-  std::string::size_type pos = 0;
-
-  while (pos < rhs_s.size() && !isdigit(rhs_s[pos]))
-    ++pos;
-  unsigned int year = 0;
-  while (pos < rhs_s.size() && isdigit(rhs_s[pos]))
-  {
-    year = 10*year + (rhs_s[pos] - '0');
-    ++pos;
-  }
-
-  while (pos < rhs_s.size() && !isdigit(rhs_s[pos]))
-    ++pos;
-  unsigned int month = 0;
-  while (pos < rhs_s.size() && isdigit(rhs_s[pos]))
-  {
-    month = 10*month + (rhs_s[pos] - '0');
-    ++pos;
-  }
-
-  while (pos < rhs_s.size() && !isdigit(rhs_s[pos]))
-    ++pos;
-  unsigned int day = 0;
-  while (pos < rhs_s.size() && isdigit(rhs_s[pos]))
-  {
-    day = 10*day + (rhs_s[pos] - '0');
-    ++pos;
-  }
-
-  while (pos < rhs_s.size() && !isdigit(rhs_s[pos]))
-    ++pos;
-  unsigned int hour = 0;
-  while (pos < rhs_s.size() && isdigit(rhs_s[pos]))
-  {
-    hour = 10*hour + (rhs_s[pos] - '0');
-    ++pos;
-  }
-
-  while (pos < rhs_s.size() && !isdigit(rhs_s[pos]))
-    ++pos;
-  unsigned int minute = 0;
-  while (pos < rhs_s.size() && isdigit(rhs_s[pos]))
-  {
-    minute = 10*minute + (rhs_s[pos] - '0');
-    ++pos;
-  }
-
-  while (pos < rhs_s.size() && !isdigit(rhs_s[pos]))
-    ++pos;
-  unsigned int second = 0;
-  while (pos < rhs_s.size() && isdigit(rhs_s[pos]))
-  {
-    second = 10*second + (rhs_s[pos] - '0');
-    ++pos;
-  }
-
-  if (year < 1000 || month > 12 || day > 31 || hour > 23 || minute > 59 || second > 60)
-    return false;
-
-  return true;
+  return (dt.is_valid());
 }
