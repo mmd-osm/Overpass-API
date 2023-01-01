@@ -42,7 +42,7 @@ struct Unsupported_Error
 template< class Id_Type >
 struct Tag_Entry
 {
-  uint32 index;
+  uint32 index{};
   std::string key;
   std::string value;
   std::vector< Id_Type > ids;
@@ -162,7 +162,7 @@ private:
   };
 
   struct Tag_Index_Local_Get_Key_Functor {
-    Tag_Index_Local_Get_Key_Functor() {};
+    Tag_Index_Local_Get_Key_Functor() = default;
 
     using reference_type = Tag_Index_Local;
 
@@ -176,7 +176,7 @@ private:
   };
 
   struct Tag_Index_Local_Get_Value_Functor {
-    Tag_Index_Local_Get_Value_Functor() {};
+    Tag_Index_Local_Get_Value_Functor() = default;
 
     using reference_type = Tag_Index_Local;
 
@@ -519,7 +519,7 @@ private:
   };
 
   struct Tag_Index_Global_Get_Key_Functor {
-    Tag_Index_Global_Get_Key_Functor() {};
+    Tag_Index_Global_Get_Key_Functor() = default;
 
     using reference_type = Tag_Index_Global;
 
@@ -532,7 +532,7 @@ private:
   };
 
   struct Tag_Index_Global_Get_Value_Functor {
-    Tag_Index_Global_Get_Value_Functor() {};
+    Tag_Index_Global_Get_Value_Functor() = default;
 
     using reference_type = Tag_Index_Global;
 
@@ -580,8 +580,8 @@ struct Tag_Object_Global
 {
   typedef Id_Type_ Id_Type;
 
-  Uint31_Index idx;
-  Id_Type id;
+  Uint31_Index idx{};
+  Id_Type id{};
 
   Tag_Object_Global() = default;
 

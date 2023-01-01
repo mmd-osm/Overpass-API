@@ -36,14 +36,14 @@ struct Way
 {
   typedef Uint32_Index Id_Type;
 
-  Id_Type id;
-  uint32 index;
+  Id_Type id{};
+  uint32 index{};
   std::vector< Node::Id_Type > nds;
 //   std::vector< Uint31_Index > segment_idxs;
   std::vector< Quad_Coord > geometry;
   std::vector< std::pair< std::string, std::string > > tags;
 
-  Way() noexcept : id(0u), index(0) {}
+  Way() noexcept = default;
 
   Way(uint32 id_) noexcept
   : id(id_), index(0)
@@ -126,7 +126,7 @@ Way_Skeleton
   typedef Way::Id_Type Id_Type;
   typedef Way_Delta Delta;
 
-  Id_Type id;
+  Id_Type id{};
 
   Way_Skeleton() : id(0u), d(new Way_Skeleton_Data) { }
 
@@ -293,14 +293,14 @@ struct Way_Delta
 {
   typedef Way_Skeleton::Id_Type Id_Type;
 
-  Id_Type id;
-  bool full;
+  Id_Type id{};
+  bool full{};
   std::vector< uint > nds_removed;
   std::vector< std::pair< uint, Node::Id_Type > > nds_added;
   std::vector< uint > geometry_removed;
   std::vector< std::pair< uint, Quad_Coord > > geometry_added;
 
-  Way_Delta() : id(0u), full(false) {}
+  Way_Delta() noexcept = default;
 
   Way_Delta(const void* data) : id(unalignedLoad<Id_Type>(data)), full(false)
   {

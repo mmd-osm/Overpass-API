@@ -33,11 +33,11 @@ struct Relation_Entry
 {
   typedef Global_Id_Type Ref_Type;
 
-  Relation_Entry() noexcept : ref(0ull), type(0), role(0) {}
+  Relation_Entry() noexcept = default;
 
-  Global_Id_Type ref;
-  uint32 type;
-  uint32 role;
+  Global_Id_Type ref{};
+  uint32 type{};
+  uint32 role{};
   const static uint32 NODE = 1;
   const static uint32 WAY = 2;
   const static uint32 RELATION = 3;
@@ -62,7 +62,7 @@ struct Relation
   std::vector< Uint31_Index > way_idxs;
   std::vector< std::pair< std::string, std::string > > tags;
 
-  Relation() noexcept : id(0u) {}
+  Relation() noexcept = default;
 
   Relation(Id_Type id_) noexcept : id(id_) {}
 
@@ -149,7 +149,7 @@ Relation_Skeleton
   typedef Relation::Id_Type Id_Type;
   typedef Relation_Delta Delta;
 
-  Id_Type id;
+  Id_Type id{};
 
   Relation_Skeleton() : id(0u),  d(new Relation_Skeleton_Data) { }
 
@@ -327,8 +327,8 @@ struct Relation_Delta
 {
   typedef Relation_Skeleton::Id_Type Id_Type;
 
-  Id_Type id;
-  bool full;
+  Id_Type id{};
+  bool full{};
   std::vector< uint > members_removed;
   std::vector< std::pair< uint, Relation_Entry > > members_added;
   std::vector< uint > node_idxs_removed;
@@ -336,7 +336,7 @@ struct Relation_Delta
   std::vector< uint > way_idxs_removed;
   std::vector< std::pair< uint, Uint31_Index > > way_idxs_added;
 
-  Relation_Delta() : id(0u), full(false) {}
+  Relation_Delta() noexcept = default;
 
   Relation_Delta(const void* data) : id(unalignedLoad<Id_Type>(data)), full(false)
   {

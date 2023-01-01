@@ -105,7 +105,7 @@ struct String_Object_Handle_Methods
 private:
   struct String_Object_Get_String_Functor
   {
-    String_Object_Get_String_Functor() {};
+    String_Object_Get_String_Functor() = default;
 
     using reference_type = String_Object;
 
@@ -374,10 +374,10 @@ struct User_Data
 {
   typedef uint32 Id_Type;
 
-  Id_Type id;
+  Id_Type id{};
   std::string name;
 
-  User_Data() : id(0) {}
+  User_Data() noexcept = default;
 
   User_Data(const void* data) : id(unalignedLoad<uint32>(data)),
                                 name(((int8*)data + 6), unalignedLoad<uint16>((int8*)data + 4)) {}
@@ -440,7 +440,7 @@ private:
   };
 
   struct User_Data_Name_Functor {
-    User_Data_Name_Functor() {};
+    User_Data_Name_Functor() = default;
 
     using reference_type = User_Data;
 
@@ -715,7 +715,7 @@ struct Change_Entry
   Change_Entry(const Id_Type& elem_id_, const Uint31_Index& , const Uint31_Index& )
       :  elem_id(elem_id_) {}
 
-  Id_Type elem_id;
+  Id_Type elem_id{};
 
   Change_Entry(const void* data)
     : elem_id((uint8*)data) {}
@@ -939,11 +939,11 @@ struct Timestamp;
 
 struct Timestamp_64
 {
-  Timestamp_64() : timestamp(0) {}
+  Timestamp_64() noexcept = default;
 
   Timestamp_64(uint64 timestamp_) : timestamp(timestamp_) {}
 
-  uint64 timestamp;
+  uint64 timestamp{};
 
   Timestamp_64(const void* data) {
 
@@ -1087,13 +1087,13 @@ inline std::ostream & operator<<(std::ostream &os, const Timestamp_64& p)
 
 struct Timestamp
 {
-  Timestamp() : timestamp(0) {}
+  Timestamp() noexcept = default;
 
   Timestamp(timestamp_t timestamp_) : timestamp(timestamp_) {}
 
   static const uint32 YEAR_OFFSET = 2000;
 
-  timestamp_t timestamp;
+  timestamp_t timestamp{};
 
   Timestamp(const void* data) {
 
@@ -1101,7 +1101,6 @@ struct Timestamp
   }
 
   Timestamp(int year, int month, int day, int hour, int minute, int second)
-    : timestamp(0)
   {
     timestamp |= (((year - YEAR_OFFSET) & 0x3f)<<26); //year
     timestamp |= ((month & 0xf)<<22); //month

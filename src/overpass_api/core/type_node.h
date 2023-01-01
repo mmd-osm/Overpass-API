@@ -30,9 +30,9 @@ struct Node_Base
 {
   typedef Uint40 Id_Type;
 
-  Id_Type id;
-  uint32 index;
-  uint32 ll_lower_;
+  Id_Type id{};
+  uint32 index{};
+  uint32 ll_lower_{};
 
   bool operator<(const Node_Base& a) const noexcept
   {
@@ -44,7 +44,7 @@ struct Node_Base
     return this->id.val() == a.id.val();
   }
 
-  Node_Base() noexcept : id(0ull), index(0), ll_lower_(0) {}
+  Node_Base() noexcept = default;
 
   Node_Base(Id_Type id_, double lat, double lon) noexcept
       : id(id_), index(ll_upper_(lat, lon)), ll_lower_(ll_lower(lat, lon))
@@ -61,7 +61,7 @@ struct Node : public Node_Base
 {
   std::vector< std::pair< std::string, std::string > > tags;
 
-  Node() noexcept {}
+  Node() noexcept = default;
 
   Node(Id_Type id_, double lat, double lon) noexcept : Node_Base(id_, lat, lon) {}
 
@@ -107,10 +107,10 @@ Node_Skeleton
   typedef Node::Id_Type Id_Type;
   typedef Node_Skeleton Delta;
 
-  Node::Id_Type id;
-  uint32 ll_lower;
+  Node::Id_Type id{};
+  uint32 ll_lower{};
 
-  Node_Skeleton() noexcept : id(0ull), ll_lower(0) {}
+  Node_Skeleton() noexcept = default;
 
   Node_Skeleton(const void* data) noexcept
     : id(data), ll_lower(unalignedLoad<uint32>((uint8*)data + Id_Type::max_size_of())) {}

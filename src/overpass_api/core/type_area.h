@@ -35,8 +35,8 @@ constexpr auto AREA_OFFSET_RELS = 3600000000u;
 
 struct Aligned_Segment
 {
-  uint32 ll_upper_;
-  uint64 ll_lower_a, ll_lower_b;
+  uint32 ll_upper_{};
+  uint64 ll_lower_a{}, ll_lower_b{};
 
   bool operator<(const Aligned_Segment& b) const
   {
@@ -221,7 +221,7 @@ struct Area
 
 struct Area_Location
 {
-  uint32 id = 0;
+  uint32 id{};
   std::vector< uint32 > used_indices;
   std::vector< std::pair< std::string, std::string > > tags;
 
@@ -394,7 +394,7 @@ struct Area_Block
 {
   typedef Area::Id_Type Id_Type;
 
-  Id_Type id;
+  Id_Type id{};
 
   Area_Block() : id(0u), d(new Area_Block_Data)  { }
 

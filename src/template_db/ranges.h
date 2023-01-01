@@ -34,7 +34,7 @@ public:
   {
   public:
     Iterator(typename std::set< std::pair< Index, Index > >::const_iterator it_) : it(it_) {}
-    Iterator() {}
+    Iterator() = default;
     const Index& lower_bound() const { return it->first; }
     const Index& upper_bound() const { return it->second; }
     const std::pair< Index, Index >& operator*() const { return *it; }

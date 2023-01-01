@@ -77,7 +77,7 @@ struct Uint32_Index
 {
   typedef uint32 Id_Type;
 
-  Uint32_Index() noexcept : value(0u) {}
+  Uint32_Index() noexcept = default;
   Uint32_Index(uint32 i) noexcept : value(i) {}
   Uint32_Index(const void* data) noexcept : value(unalignedLoad<uint32>(data)) {}
 
@@ -142,7 +142,7 @@ struct Uint32_Index
   friend std::ostream & operator<<(std::ostream &os, const Uint32_Index& t);
 
   protected:
-    uint32 value;
+    uint32 value{};
 };
 
 inline std::ostream & operator<<(std::ostream &os, const Uint32_Index& p)
@@ -221,7 +221,7 @@ struct Uint31_Index_Handle_Methods;
 
 struct Uint31_Index : Uint32_Index
 {
-  Uint31_Index() noexcept {}
+  Uint31_Index() noexcept = default;
   Uint31_Index(uint32 i) noexcept : Uint32_Index(i) {}
   Uint31_Index(const void* data) noexcept : Uint32_Index(unalignedLoad<uint32>(data)) {}
 
@@ -315,7 +315,7 @@ struct Uint64
 {
   typedef uint64 Id_Type;
 
-  Uint64() noexcept : value(0ull) {}
+  Uint64() noexcept = default;
   Uint64(uint64 i) noexcept : value(i) {}
   Uint64(const void* data) noexcept : value(unalignedLoad<uint64>(data)) {}
 
@@ -365,7 +365,7 @@ struct Uint64
   friend std::ostream & operator<<(std::ostream &os, const Uint64& t);
 
   protected:
-    uint64 value;
+    uint64 value{};
 };
 
 inline std::ostream & operator<<(std::ostream &os, const Uint64& p)
@@ -408,7 +408,7 @@ struct Uint40
 {
   typedef uint64 Id_Type;
 
-  Uint40() noexcept : value(0ull) {}
+  Uint40() noexcept = default;
   Uint40(uint64 i) noexcept : value(i) {}
   Uint40(const void* data) noexcept {
     value = (uint64)(unalignedLoad<uint32>(data));
@@ -463,7 +463,7 @@ struct Uint40
   friend std::ostream & operator<<(std::ostream &os, const Uint40& t);
 
   protected:
-    uint64 value;
+    uint64 value{};
 };
 
 inline std::ostream & operator<<(std::ostream &os, const Uint40& p)
@@ -509,11 +509,11 @@ namespace std {
 
 struct Quad_Coord
 {
-  Quad_Coord() noexcept : ll_upper(0), ll_lower(0) {}
+  Quad_Coord() noexcept = default;
   Quad_Coord(uint32 ll_upper_, uint32 ll_lower_) noexcept : ll_upper(ll_upper_), ll_lower(ll_lower_) {}
 
-  uint32 ll_upper;
-  uint32 ll_lower;
+  uint32 ll_upper{};
+  uint32 ll_lower{};
 
   bool operator==(const Quad_Coord& rhs) const noexcept
   {
@@ -559,7 +559,7 @@ Attic : public Element_Skeleton
 
   Attic(Element_Skeleton&& elem, timestamp_t timestamp_) : Element_Skeleton(std::move(elem)), timestamp(timestamp_) {}
 
-  timestamp_t timestamp;
+  timestamp_t timestamp{};
 
   Attic(const void* data)
     : Element_Skeleton(data) {
@@ -889,7 +889,7 @@ template <class T> class SharedDataPointer;
 class SharedData
 {
 public:
-  inline SharedData() {}
+  inline SharedData() = default;
   inline SharedData(const SharedData &) {}
 
   // using the assignment operator would lead to corruption in the ref-counting
@@ -897,7 +897,7 @@ public:
 
   inline uint32& ref() { return ref_count; }
 private:
-  mutable uint32 ref_count = 0;   // not thread safe! code used atomic originally, but we don't need it here
+  mutable uint32 ref_count{};   // not thread safe! code used atomic originally, but we don't need it here
 };
 
 template <class T> class SharedDataPointer
@@ -920,7 +920,7 @@ public:
   inline bool operator==(const SharedDataPointer<T> &other) const { return d == other.d; }
   inline bool operator!=(const SharedDataPointer<T> &other) const { return d != other.d; }
 
-  inline SharedDataPointer() { d = nullptr; }
+  inline SharedDataPointer() noexcept = default;
   inline ~SharedDataPointer() { if (d && !--d->ref()) delete d; }
 
   SharedDataPointer(SharedDataPointer &&o) noexcept : d(o.d) { o.d = nullptr; }
@@ -960,7 +960,7 @@ protected:
 private:
   void detach_helper();
 
-  T *d;
+  T *d = nullptr;
 };
 
 template <class T>
