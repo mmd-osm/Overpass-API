@@ -252,10 +252,10 @@ struct File_Properties
 /** Simple RAII class to keep a file descriptor. */
 class Raw_File
 {
-  Raw_File(const Raw_File&);
-  Raw_File operator=(const Raw_File&);
-
   public:
+    Raw_File(const Raw_File&) = delete;
+    Raw_File operator=(const Raw_File&) = delete;
+
     Raw_File(const std::string& name, int oflag, mode_t mode, const char* caller_id);
     ~Raw_File() { close(fd_); }
     int fd() const { return fd_; }

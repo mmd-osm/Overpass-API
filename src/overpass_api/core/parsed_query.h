@@ -77,6 +77,10 @@ public:
 
   ~Parsed_Query() { delete output_handler; }
 
+  // The class has ownership of objects - hence no assignment or copies are allowed
+  Parsed_Query(const Parsed_Query&) = delete;
+  Parsed_Query& operator=(const Parsed_Query&) = delete;
+
   Output_Handler* get_output_handler() const { return output_handler; }
   void set_output_handler(Output_Handler_Parser* parser,
 			  Tokenizer_Wrapper* token, Error_Output* error_output);
@@ -100,10 +104,6 @@ public:
   bool get_use_nodes_tagged() { return use_nodes_tagged; }
 
 private:
-  // The class has ownership of objects - hence no assignment or copies are allowed
-  Parsed_Query(const Parsed_Query&);
-  Parsed_Query& operator=(const Parsed_Query&);
-
   Output_Handler* output_handler = nullptr;
   Bbox_Double global_bbox_limitation;
   std::map< std::string, std::string > input_params;
