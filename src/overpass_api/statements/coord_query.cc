@@ -206,16 +206,16 @@ void register_coord(double lat, double lon,
 
 struct Closedness_Predicate
 {
-  bool match(const Way_Skeleton& obj) const { return !obj.nds().empty() && obj.nds().front() == obj.nds().back(); }
+  bool match(const Way_Skeleton& obj) const { return !obj.c_nds().empty() && obj.c_nds().front() == obj.c_nds().back(); }
   bool match(const Handle< Way_Skeleton >& h) const
   {
     auto w = h.object();
-    return !w.nds().empty() && w.nds().front() == w.nds().back();
+    return !w.c_nds().empty() && w.c_nds().front() == w.c_nds().back();
   }
   bool match(const Handle< Attic< Way_Skeleton > >& h) const
   {
     auto w = h.object();
-    return !w.nds().empty() && w.nds().front() == w.nds().back();
+    return !w.c_nds().empty() && w.c_nds().front() == w.c_nds().back();
   }
 };
 

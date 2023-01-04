@@ -162,9 +162,11 @@ Way_Skeleton
   }
 
   const std::vector< Node::Id_Type > & nds() const { return d->nds; }
+  const std::vector< Node::Id_Type > & c_nds() const { return d->nds; }
   std::vector< Node::Id_Type > & nds() { return d->nds; }
 
   const std::vector< Quad_Coord > & geometry() const { return d->geometry; }
+  const std::vector< Quad_Coord > & c_geometry() const { return d->geometry; }
   std::vector< Quad_Coord > & geometry() { return d->geometry; }
 
   uint32 size_of() const
@@ -394,64 +396,72 @@ struct Way_Delta
 
   Way_Skeleton expand(const Way_Skeleton& reference) const
   {
-    Way_Skeleton result(id);
-
     if (full)
     {
-      result.nds().reserve(nds_added.size());
+      std::vector< Node::Id_Type > nds_;
+      nds_.reserve(nds_added.size());
       for (uint i = 0; i < nds_added.size(); ++i)
-        result.nds().push_back(nds_added[i].second);
+        nds_.push_back(nds_added[i].second);
 
-      result.geometry().reserve(geometry_added.size());
+      std::vector< Quad_Coord > geom_;
+      geom_.reserve(geometry_added.size());
       for (uint i = 0; i < geometry_added.size(); ++i)
-        result.geometry().push_back(geometry_added[i].second);
+        geom_.push_back(geometry_added[i].second);
+
+      return Way_Skeleton(id, std::move(nds_), std::move(geom_));
     }
     else if (reference.id == id)
     {
-      expand_diff(reference.nds(), nds_removed, nds_added, result.nds());
-      expand_diff(reference.geometry(), geometry_removed, geometry_added, result.geometry());
-      if (!result.geometry().empty() && result.nds().size() != result.geometry().size())
+      std::vector< Node::Id_Type > nds_;
+      std::vector< Quad_Coord > geom_;
+
+      expand_diff(reference.nds(), nds_removed, nds_added, nds_);
+      expand_diff(reference.geometry(), geometry_removed, geometry_added, geom_);
+      if (!geom_.empty() && nds_.size() != geom_.size())
       {
 	std::ostringstream out;
 	out<<"Bad geometry for way "<<id.val();
 	throw std::logic_error(out.str());
       }
+      return Way_Skeleton(id, std::move(nds_), std::move(geom_));
     }
-    else
-      result.id = 0u;
 
-    return result;
+    return {};
   }
 
   Way_Skeleton expand_fast(Way_Skeleton& reference) const
   {
-    Way_Skeleton result(id);
-
     if (full)
     {
-      result.nds().reserve(nds_added.size());
+      std::vector< Node::Id_Type > nds_;
+      nds_.reserve(nds_added.size());
       for (uint i = 0; i < nds_added.size(); ++i)
-        result.nds().push_back(nds_added[i].second);
+        nds_.push_back(nds_added[i].second);
 
-      result.geometry().reserve(geometry_added.size());
+      std::vector< Quad_Coord > geom_;
+      geom_.reserve(geometry_added.size());
       for (uint i = 0; i < geometry_added.size(); ++i)
-        result.geometry().push_back(geometry_added[i].second);
+        geom_.push_back(geometry_added[i].second);
+
+      return Way_Skeleton(id, std::move(nds_), std::move(geom_));
     }
     else if (reference.id == id)
     {
-      expand_diff_fast(reference.nds(), nds_removed, nds_added, result.nds());
-      expand_diff_fast(reference.geometry(), geometry_removed, geometry_added, result.geometry());
-      if (!result.geometry().empty() && result.nds().size() != result.geometry().size())
+      std::vector< Node::Id_Type > nds_;
+      std::vector< Quad_Coord > geom_;
+
+      expand_diff_fast(reference.nds(), nds_removed, nds_added, nds_);
+      expand_diff_fast(reference.geometry(), geometry_removed, geometry_added, geom_);
+      if ((!geom_.empty() && nds_.size() != geom_.size()))
       {
         std::ostringstream out;
         out<<"Bad geometry for way "<<id.val();
         throw std::logic_error(out.str());
       }
+      return Way_Skeleton(id, std::move(nds_), std::move(geom_));
     }
-    else
-      result.id = 0u;
 
-    return result;
+    return {};
   }
 
   uint32 size_of() const

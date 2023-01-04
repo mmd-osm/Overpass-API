@@ -1217,7 +1217,7 @@ void filter_elems_for_closed_ways(std::map< Index, std::vector< Object > >& arg)
     std::vector< Object > into;
     for (auto it2 = it1->second.begin(); it2 != it1->second.end(); ++it2)
     {
-      if (!it2->nds().empty() && it2->nds().front() == it2->nds().back())
+      if (!it2->c_nds().empty() && it2->c_nds().front() == it2->c_nds().back())
         into.push_back(*it2);
     }
     into.swap(it1->second);

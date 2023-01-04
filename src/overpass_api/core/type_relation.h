@@ -180,7 +180,16 @@ Relation_Skeleton
     d->members = members_;
     d->node_idxs = node_idxs_;
     d->way_idxs = way_idxs_;
+  }
 
+  Relation_Skeleton(Id_Type id_,  std::vector< Relation_Entry > && members_,
+                     std::vector< Uint31_Index > && node_idxs_,
+                     std::vector< Uint31_Index > && way_idxs_)
+      : id(id_), d(new Relation_Skeleton_Data) {
+
+    d->members = std::move(members_);
+    d->node_idxs = std::move(node_idxs_);
+    d->way_idxs = std::move(way_idxs_);
   }
 
   uint32 size_of() const noexcept
@@ -214,12 +223,15 @@ Relation_Skeleton
   }
 
   const std::vector< Relation_Entry > & members() const { return d->members; }
+  const std::vector< Relation_Entry > & c_members() const { return d->members; }
   std::vector< Relation_Entry > & members() { return d->members; }
 
   const std::vector< Uint31_Index > & node_idxs() const { return d->node_idxs; }
+  const std::vector< Uint31_Index > & c_node_idxs() const { return d->node_idxs; }
   std::vector< Uint31_Index > & node_idxs() { return d->node_idxs; }
 
   const std::vector< Uint31_Index > & way_idxs() const { return d->way_idxs; }
+  const std::vector< Uint31_Index > & c_way_idxs() const { return d->way_idxs; }
   std::vector< Uint31_Index > & way_idxs() { return d->way_idxs; }
 
 
@@ -462,62 +474,78 @@ struct Relation_Delta
 
   Relation_Skeleton expand(const Relation_Skeleton& reference) const
   {
-    Relation_Skeleton result(id);
-
     if (full)
     {
-      result.members().reserve(members_added.size());
+      std::vector< Relation_Entry > members_;
+      std::vector< Uint31_Index > node_idxs_;
+      std::vector< Uint31_Index > way_idxs_;
+
+      members_.reserve(members_added.size());
       for (uint i = 0; i < members_added.size(); ++i)
-        result.members().push_back(members_added[i].second);
+        members_.push_back(members_added[i].second);
 
-      result.node_idxs().reserve(node_idxs_added.size());
+      node_idxs_.reserve(node_idxs_added.size());
       for (uint i = 0; i < node_idxs_added.size(); ++i)
-        result.node_idxs().push_back(node_idxs_added[i].second);
+        node_idxs_.push_back(node_idxs_added[i].second);
 
-      result.way_idxs().reserve(way_idxs_added.size());
+      way_idxs_.reserve(way_idxs_added.size());
       for (uint i = 0; i < way_idxs_added.size(); ++i)
-        result.way_idxs().push_back(way_idxs_added[i].second);
+        way_idxs_.push_back(way_idxs_added[i].second);
+
+      return Relation_Skeleton(id, std::move(members_), std::move(node_idxs_), std::move(way_idxs_));
     }
     else if (reference.id == id)
     {
-      expand_diff(reference.members(), members_removed, members_added, result.members());
-      expand_diff(reference.node_idxs(), node_idxs_removed, node_idxs_added, result.node_idxs());
-      expand_diff(reference.way_idxs(), way_idxs_removed, way_idxs_added, result.way_idxs());
-    }
-    else
-      result.id = 0u;
+      std::vector< Relation_Entry > members_;
+      std::vector< Uint31_Index > node_idxs_;
+      std::vector< Uint31_Index > way_idxs_;
 
-    return result;
+      expand_diff(reference.members(), members_removed, members_added, members_);
+      expand_diff(reference.node_idxs(), node_idxs_removed, node_idxs_added, node_idxs_);
+      expand_diff(reference.way_idxs(), way_idxs_removed, way_idxs_added, way_idxs_);
+
+      return Relation_Skeleton(id, std::move(members_), std::move(node_idxs_), std::move(way_idxs_));
+    }
+
+    return {};
   }
 
   Relation_Skeleton expand_fast(Relation_Skeleton& reference) const
   {
-    Relation_Skeleton result(id);
-
     if (full)
     {
-      result.members().reserve(members_added.size());
+      std::vector< Relation_Entry > members_;
+      std::vector< Uint31_Index > node_idxs_;
+      std::vector< Uint31_Index > way_idxs_;
+
+      members_.reserve(members_added.size());
       for (uint i = 0; i < members_added.size(); ++i)
-        result.members().push_back(members_added[i].second);
+        members_.push_back(members_added[i].second);
 
-      result.node_idxs().reserve(node_idxs_added.size());
+      node_idxs_.reserve(node_idxs_added.size());
       for (uint i = 0; i < node_idxs_added.size(); ++i)
-        result.node_idxs().push_back(node_idxs_added[i].second);
+        node_idxs_.push_back(node_idxs_added[i].second);
 
-      result.way_idxs().reserve(way_idxs_added.size());
+      way_idxs_.reserve(way_idxs_added.size());
       for (uint i = 0; i < way_idxs_added.size(); ++i)
-        result.way_idxs().push_back(way_idxs_added[i].second);
+        way_idxs_.push_back(way_idxs_added[i].second);
+
+      return Relation_Skeleton(id, std::move(members_), std::move(node_idxs_), std::move(way_idxs_));
     }
     else if (reference.id == id)
     {
-      expand_diff_fast(reference.members(), members_removed, members_added, result.members());
-      expand_diff_fast(reference.node_idxs(), node_idxs_removed, node_idxs_added, result.node_idxs());
-      expand_diff_fast(reference.way_idxs(), way_idxs_removed, way_idxs_added, result.way_idxs());
-    }
-    else
-      result.id = 0u;
+      std::vector< Relation_Entry > members_;
+      std::vector< Uint31_Index > node_idxs_;
+      std::vector< Uint31_Index > way_idxs_;
 
-    return result;
+      expand_diff_fast(reference.members(), members_removed, members_added, members_);
+      expand_diff_fast(reference.node_idxs(), node_idxs_removed, node_idxs_added, node_idxs_);
+      expand_diff_fast(reference.way_idxs(), way_idxs_removed, way_idxs_added, way_idxs_);
+
+      return Relation_Skeleton(id, std::move(members_), std::move(node_idxs_), std::move(way_idxs_));
+    }
+
+    return {};
   }
 
   uint32 size_of() const noexcept

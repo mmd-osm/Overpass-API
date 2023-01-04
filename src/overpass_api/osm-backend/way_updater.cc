@@ -614,7 +614,7 @@ void compute_geometry
       continue;
 
     std::vector< uint32 > nd_idxs;
-    if (it->elem.geometry().empty()) {
+    if (it->elem.c_geometry().empty()) {
       nd_idxs.reserve(it->elem.nds().size());
 
       for (auto nit = it->elem.nds().cbegin(); nit != it->elem.nds().cend(); ++nit)
@@ -631,9 +631,9 @@ void compute_geometry
     }
     else
     {
-      nd_idxs.reserve(it->elem.geometry().size());
+      nd_idxs.reserve(it->elem.c_geometry().size());
       // use existing geometry data from PBF extension LocationsOnWays
-      for (auto nit = it->elem.geometry().cbegin(); nit!= it->elem.geometry().cend(); ++nit) {
+      for (auto nit = it->elem.c_geometry().cbegin(); nit!= it->elem.c_geometry().cend(); ++nit) {
         if (nd_idxs.empty() || nd_idxs.back() != nit->ll_upper)
           nd_idxs.push_back(nit->ll_upper);
       }
@@ -647,7 +647,7 @@ void compute_geometry
       // some disk space.
       it->elem.geometry().clear();
     }
-    else if (it->elem.geometry().empty())  // we need geometry details, recreate them using new_node_idx_by_id
+    else if (it->elem.c_geometry().empty())  // we need geometry details, recreate them using new_node_idx_by_id
     {
       std::vector< Quad_Coord > geom;
       geom.reserve(it->elem.nds().size());
