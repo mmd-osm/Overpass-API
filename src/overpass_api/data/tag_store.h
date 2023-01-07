@@ -259,6 +259,7 @@ void collect_tags
 }
 */
 
+
 template< class Id_Type >
 void collect_tags_single
   (std::map< Id_Type, std::vector< std::pair< std::string, std::string > > >& tags_by_id,
@@ -335,7 +336,7 @@ void collect_tags
     }
 
     Id_Type current(tag_it.handle().id());     // avoid creating a new object instance via object()
-    if ((binary_search(ids.begin(), ids.end(), current)))
+    if (monobound_binary_search(ids, current))
     {
       auto elem = tag_it.index();
       tags_by_id[current].push_back

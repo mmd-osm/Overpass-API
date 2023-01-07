@@ -34,6 +34,30 @@
 #include <vector>
 
 
+template< class Id_Type >
+inline bool monobound_binary_search(const std::vector<Id_Type> & vec, Id_Type key)
+{
+  if (vec.empty())
+    return false;
+
+  uint32_t lower = 0;
+  uint32_t upper = vec.size();
+
+  while (upper > 1)
+  {
+    uint32_t middle = upper / 2;
+
+    if (!(key < vec[lower + middle]))
+    {
+      lower += middle;
+    }
+    upper -= middle;
+  }
+
+  return (key == vec[lower]);
+}
+
+
 
 template <typename T, unsigned int L = 25>
 class IdSetHybrid {
@@ -166,7 +190,7 @@ class IdSetHybrid {
       return false;
 
     //otherwise binary search
-    return std::binary_search(v.cbegin(), v.cend(), lower_half);
+    return monobound_binary_search<uint32_t>(v, lower_half);
   }
 
   /**
