@@ -2,6 +2,14 @@
 
 :wave: Welcome!
 
+
+## NEWS
+
+Read more about the 2022 planet import challenge:
+
+* Blog post: https://www.openstreetmap.org/user/mmd/diary/400113
+* Technical details: https://wiki.openstreetmap.org/wiki/User:Mmd/Planet_import_challenge_22
+
 ## Overview
 
 - Performance optimized experimental Overpass API fork _0.7.59_mmd_
@@ -125,6 +133,8 @@ Three conversion tools are available for easy conversion from the official datab
 
 All conversion tools need to be executed without an active dispatcher instance.
 
+A full attic database using lz4 compression for bin+map needs about 400G on _0.7.59 (mmd)_, based on 01/2023 data.
+
 ### :hourglass: Performance
 
 (List does not include some rather technical changes)
@@ -171,6 +181,9 @@ Example syntax for changeset 46503970: (syntax is subject to change)
 - Key value queries to validate first element of a new index only. Immediately skip all elements, in case key value pairs are not matching.
 - Replace std::map based user data cache by std::vector, also avoid expensive sorting operations for millions of user id/display_name pairs.
 - Added cmake option for packed, 4 byte aligned structs for some frequently used core data types (Nodes, Way, Relations, Areas). Requires clang++ (experimental)
+- Use monobound_binary_search instead of std::binary_search for some hot code paths.
+- Make updater and backend use std::vector instead of std::set, and std::unordered_map instead of std::map
+- Added multi-threaded processing in updater
 - Many more micro-optimizations, see git changelog
 
 ### :x: Removed features
