@@ -19,8 +19,10 @@
 #ifndef DE__OSM3S___OVERPASS_API__CORE__GEOMETRY_H
 #define DE__OSM3S___OVERPASS_API__CORE__GEOMETRY_H
 
-
+#include <array>
 #include <cmath>
+#include <cstring>
+#include <memory>
 #include <vector>
 
 #include "type_node.h"
@@ -45,6 +47,113 @@ public:
   bool epsilon_equal(const Point_Double& rhs) const
   { return fabs(lat - rhs.lat) < 1e-7 && fabs(lon - rhs.lon) < 1e-7; }
 };
+
+namespace {
+
+constexpr std::array<char, 200> fill_array() {
+    std::array<char, 200> v{0};
+    for (char i = 0; i < 100; ++i) {
+        v[2 * i] = '0' + i / 10;
+        v[2 * i + 1] = '0' + i % 10;
+    }
+    return v;
+}
+
+}
+
+/* Store lat lon values multiplied by scaling factor */
+
+struct Location
+{
+public:
+  Location() = delete;
+  explicit Location(double lat, double lon) : m_x(lat * scaling_factor), m_y(lon * scaling_factor) {}
+  explicit Location(int32_t x, int32_t y) : m_x(x), m_y(y) {}
+
+  explicit Location(Quad_Coord arg) : m_x(::lat_scaled(arg.ll_upper, arg.ll_lower)), m_y(::lon_scaled(arg.ll_upper, arg.ll_lower)) {}
+
+  bool operator==(const Location& rhs) const { return m_x == rhs.m_x && m_y == rhs.m_y; }
+  bool operator!=(const Location& rhs) const { return !(*this == rhs); }
+  bool operator<(const Location& rhs) const
+  { return m_x != rhs.m_x ? m_x < rhs.m_x : m_y < rhs.m_y; }
+
+  double lat() const { return (double) m_x / (double) scaling_factor; }
+  double lon() const { return (double) m_y / (double) scaling_factor; }
+
+  bool undefined() const { return m_x == undefined_coord && m_y == undefined_coord; }
+
+  int32_t x() const { return m_x; }
+  int32_t y() const { return m_y; }
+
+
+  // small table version, about 2.8 times faster than backwards linear version
+  // https://lemire.me/blog/2021/11/18/converting-integers-to-fix-digit-representations-quickly/
+
+  // out should be sufficiently large char array, e.g. char lat_buffer[16];
+  // call as Location::as_string_view(location, lat_buffer);
+
+
+  static std::string_view as_string_view(int32_t input, char *out) {
+      static constexpr std::array<char, 200> table = fill_array();
+
+      const char* start = out;
+
+      uint32_t x;
+      if (input < 0) {
+        x = -input;
+        *out++ = '-';
+      }
+      else {
+        x = input;
+      }
+
+      const uint32_t a = x / 10'000'000;
+      const uint32_t b = x % 10'000'000;
+
+      if (a >= 100) {
+        const uint32_t aa = a / 10;
+        const char ab = '0' + (a % 10);
+        memcpy(out, &table[2 * aa], 2);
+        memcpy(out + 2, &ab, 1);
+        out += 3;
+      }
+      else if (a >= 10) {
+        memcpy(out, &table[2 * a], 2);
+        out += 2;
+      }
+      else
+      {
+        *out++ = '0' + a;
+      }
+
+      const uint32_t ba = b / 1000;
+      const uint32_t bb = b % 1000;
+
+      const uint32_t baa = ba / 100;
+      const uint32_t bab = ba % 100;
+
+      const uint32_t bba = bb / 10;
+      const char bbb = '0' + (bb % 10);
+      //
+      const char dec = '.';
+
+      memcpy(out, &dec, 1);
+      memcpy(out + 1, &table[2 * baa], 2);
+      memcpy(out + 3, &table[2 * bab], 2);
+      memcpy(out + 5, &table[2 * bba], 2);
+      memcpy(out + 7, &bbb, 1);
+
+      return std::string_view(start, 8 + out - start);
+  }
+
+  constexpr static int32_t scaling_factor = 10000000;
+  constexpr static int32_t undefined_coord = 2147483647;
+
+private:
+  int32_t m_x = undefined_coord;
+  int32_t m_y = undefined_coord;
+};
+
 
 
 struct Bbox_Double

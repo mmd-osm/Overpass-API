@@ -162,8 +162,23 @@ void print_bounds(const Opaque_Geometry& geometry, Output_Mode mode, bool& inner
       std::cout<<">\n";
       inner_tags_printed = true;
     }
-    std::cout<< fmt::format(FMT_STRING(R"(    <bounds minlat="{:.7f}" minlon="{:.7f}" maxlat="{:.7f}" maxlon="{:.7f}"/>{})"),
-                                   geometry.south(), geometry.west(), geometry.north(), geometry.east(), '\n');
+
+    char south_buffer[16];
+    char west_buffer[16];
+    char north_buffer[16];
+    char east_buffer[16];
+
+    Location minlatlon(geometry.south(), geometry.west());
+    auto south = Location::as_string_view(minlatlon.x(), south_buffer);
+    auto west = Location::as_string_view(minlatlon.y(), west_buffer);
+
+    Location maxlatlon(geometry.north(), geometry.east());
+    auto north = Location::as_string_view(maxlatlon.x(), north_buffer);
+    auto east = Location::as_string_view(maxlatlon.y(), east_buffer);
+
+
+    std::cout<< fmt::format(FMT_STRING(R"(    <bounds minlat="{}" minlon="{}" maxlat="{}" maxlon="{}"/>{})"),
+                                   south, west, north, east, '\n');
   }
   else if ((mode.mode & Output_Mode::CENTER) && geometry.has_center())
   {
@@ -287,8 +302,15 @@ void print_members(const Way_Skeleton& skel, const Opaque_Geometry& geometry,
     {
       if (geometry.has_faithful_way_geometry() && geometry.way_pos_is_valid(i)) {
 
-        std::cout<< fmt::format(FMT_STRING(R"(    <nd ref="{}" lat="{:.7f}" lon="{:.7f}"/>{})"),
-                                      skel.nds()[i].val(), geometry.way_pos_lat(i), geometry.way_pos_lon(i), '\n');
+        char lat_buffer[16];
+        char lon_buffer[16];
+
+        Location l(geometry.way_pos_lat(i), geometry.way_pos_lon(i));
+        std::string_view lat = Location::as_string_view(l.x(), lat_buffer);
+        std::string_view lon = Location::as_string_view(l.y(), lon_buffer);
+
+        std::cout<< fmt::format(FMT_STRING(R"(    <nd ref="{}" lat="{}" lon="{}"/>{})"),
+                                      skel.nds()[i].val(), lat, lon, '\n');
       } else {
         std::cout<< fmt::format(FMT_STRING(R"(    <nd ref="{}"/>{})"), skel.nds()[i].val(), '\n');
       }
@@ -318,8 +340,17 @@ void print_members(const Relation_Skeleton& skel, const Opaque_Geometry& geometr
 
       if (skel.members()[i].type == Relation_Entry::NODE)
       {
-	if (geometry.has_faithful_relation_geometry() && geometry.relation_pos_is_valid(i))
-	  std::cout<< fmt::format(FMT_STRING(R"( lat="{:.7f}" lon="{:.7f}")"), geometry.relation_pos_lat(i), geometry.relation_pos_lon(i));
+	if (geometry.has_faithful_relation_geometry() && geometry.relation_pos_is_valid(i)) {
+
+          char lat_buffer[16];
+          char lon_buffer[16];
+
+          Location l(geometry.relation_pos_lat(i), geometry.relation_pos_lon(i));
+          auto lat = Location::as_string_view(l.x(), lat_buffer);
+          auto lon = Location::as_string_view(l.y(), lon_buffer);
+
+	  std::cout<< fmt::format(FMT_STRING(R"( lat="{}" lon="{}")"), lat, lon);
+	}
 
         std::cout<<"/>\n";
       }
@@ -340,9 +371,18 @@ void print_members(const Relation_Skeleton& skel, const Opaque_Geometry& geometr
             std::cout<<">\n";
 	    for (uint j = 0; j < geometry.relation_way_size(i); ++j)
 	    {
-	      if (geometry.relation_pos_is_valid(i, j))
-	          std::cout<< fmt::format(FMT_STRING(R"(      <nd lat="{:.7f}" lon="{:.7f}"/>{})"),
-	                                  geometry.relation_pos_lat(i, j), geometry.relation_pos_lon(i, j), '\n');
+	      if (geometry.relation_pos_is_valid(i, j)) {
+
+                  char lat_buffer[16];
+                  char lon_buffer[16];
+
+	          Location l(geometry.relation_pos_lat(i, j), geometry.relation_pos_lon(i, j));
+	          auto lat = Location::as_string_view(l.x(), lat_buffer);
+	          auto lon = Location::as_string_view(l.y(), lon_buffer);
+
+	          std::cout<< fmt::format(FMT_STRING(R"(      <nd lat="{}" lon="{}"/>{})"),
+	                                  lat, lon, '\n');
+	      }
               else
                   std::cout<<"      <nd/>\n";
 	    }
@@ -368,8 +408,17 @@ void Output_XML::print_node(const Node_Skeleton& skel,
   if (mode.mode & Output_Mode::ID)
     std::cout<<" id=\""<<skel.id.val()<<'\"';
   if ((mode.mode & (Output_Mode::COORDS | Output_Mode::GEOMETRY | Output_Mode::BOUNDS | Output_Mode::CENTER))
-      && geometry.has_center())
-      std::cout<< fmt::format(FMT_STRING(R"( lat="{:.7f}" lon="{:.7f}")"), geometry.center_lat(), geometry.center_lon());
+      && geometry.has_center()) {
+
+      char lat_buffer[16];
+      char lon_buffer[16];
+
+      Location l(geometry.center_lat(), geometry.center_lon());
+      auto lat = Location::as_string_view(l.x(), lat_buffer);
+      auto lon = Location::as_string_view(l.y(), lon_buffer);
+
+      std::cout<< fmt::format(FMT_STRING(R"( lat="{}" lon="{}")"), lat, lon);
+  }
 
   if ((mode.mode & (Output_Mode::VERSION | Output_Mode::META)) && meta && users)
     print_meta_xml(*meta, *users);

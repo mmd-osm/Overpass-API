@@ -1080,6 +1080,10 @@ inline double lat(uint32 ilat)
   return ((double)ilat)/10000000 - 91.0;
 }
 
+inline int32_t lat_scaled(uint32 ll_upper, uint32 ll_lower)
+{
+  return (ilat(ll_upper, ll_lower) - 910'000'000);
+}
 
 // convert interleaved coordinates to plain integers
 inline int32 ilon(uint32 ll_upper, uint32 ll_lower)
@@ -1111,6 +1115,10 @@ inline double lon(int32 ilon)
   return ((double)ilon)/10000000;
 }
 
+inline int32_t lon_scaled(uint32 ll_upper, uint32 ll_lower)
+{
+  return (ilon(ll_upper, ll_lower));
+}
 
 template< typename Index >
 std::set< std::pair< Index, Index > > range_union(
