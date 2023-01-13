@@ -67,7 +67,9 @@ struct Location
 {
 public:
   Location() = delete;
-  explicit Location(double lat, double lon) : m_x(lat * scaling_factor), m_y(lon * scaling_factor) {}
+  explicit Location(double lat, double lon) :
+        m_x(lat * scaling_factor + (lat > 0 ? 0.5 : -0.5)),   // like ilat, but without 91.0 offset
+        m_y(lon * scaling_factor + (lon > 0 ? 0.5 : -0.5)) {}
   explicit Location(int32_t x, int32_t y) : m_x(x), m_y(y) {}
 
   explicit Location(Quad_Coord arg) : m_x(::lat_scaled(arg.ll_upper, arg.ll_lower)), m_y(::lon_scaled(arg.ll_upper, arg.ll_lower)) {}
