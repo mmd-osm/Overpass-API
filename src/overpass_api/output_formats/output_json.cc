@@ -22,6 +22,7 @@
 #include "output_json.h"
 
 #include <fmt/format.h>
+#include <fmt/ostream.h>
 
 bool Output_JSON::write_http_headers()
 {
@@ -94,15 +95,18 @@ void Output_JSON::print_meta_json(const OSM_Element_Metadata_Skeleton< Id_Type >
 
 void print_tags(const std::vector< std::pair< std::string, std::string > >* tags)
 {
-  if (tags != nullptr && !tags->empty())
-  {
-    auto it = tags->begin();
-    std::cout<<",\n  \"tags\": {"
-           "\n    \""<<escape_cstr(it->first)<<"\": \""<<escape_cstr(it->second)<<"\"";
-    for (++it; it != tags->end(); ++it)
-      std::cout<<",\n    \""<<escape_cstr(it->first)<<"\": \""<<escape_cstr(it->second)<<"\"";
-    std::cout<<"\n  }";
+  if (tags == nullptr || tags->empty())
+    return;
+
+  std::cout<<",\n  \"tags\": {";
+  bool first = true;
+  for (const auto & [key, value] : *tags) {
+    fmt::print(std::cout, FMT_STRING("{}\n    \"{}\": \"{}\""), (first ? "" : ","), escape_cstr(key), escape_cstr(value));
+    first = false;
   }
+
+  std::cout<<"\n  }";
+
 }
 
 
@@ -124,8 +128,17 @@ void Output_JSON::print_item(const Node_Skeleton& skel,
   if (mode.mode & Output_Mode::ID)
     std::cout<<",\n  \"id\": "<<skel.id.val();
 
-  if (mode.mode & (Output_Mode::COORDS | Output_Mode::GEOMETRY | Output_Mode::BOUNDS | Output_Mode::CENTER))
-      std::cout<< fmt::format(FMT_STRING(",\n  \"lat\": {:.7f},\n  \"lon\": {:.7f}"), geometry.center_lat(), geometry.center_lon());
+  if (mode.mode & (Output_Mode::COORDS | Output_Mode::GEOMETRY | Output_Mode::BOUNDS | Output_Mode::CENTER)) {
+
+      char lat_buffer[16];
+      char lon_buffer[16];
+
+      Location l(geometry.center_lat(), geometry.center_lon());
+      auto lat = Location::as_string_view(l.x(), lat_buffer);
+      auto lon = Location::as_string_view(l.y(), lon_buffer);
+
+      fmt::print(std::cout, FMT_STRING(",\n  \"lat\": {},\n  \"lon\": {}"), lat, lon);
+  }
 
   if (meta)
     print_meta_json(*meta, *users);
@@ -137,14 +150,28 @@ void Output_JSON::print_item(const Node_Skeleton& skel,
 
 void print_bounds(const Opaque_Geometry& geometry, Output_Mode mode)
 {
-  if ((mode.mode & Output_Mode::BOUNDS) && geometry.has_bbox())
+  if ((mode.mode & Output_Mode::BOUNDS) && geometry.has_bbox()) {
 
-  std::cout<<  fmt::format(FMT_STRING(",\n  \"bounds\": {{\n"
-      "    \"minlat\": {:.7f},\n"
-      "    \"minlon\": {:.7f},\n"
-      "    \"maxlat\": {:.7f},\n"
-      "    \"maxlon\": {:.7f}\n"
-      "  }}"), geometry.south(), geometry.west(), geometry.north(), geometry.east());
+    char south_buffer[16];
+    char west_buffer[16];
+    char north_buffer[16];
+    char east_buffer[16];
+
+    Location minlatlon(geometry.south(), geometry.west());
+    auto south = Location::as_string_view(minlatlon.x(), south_buffer);
+    auto west = Location::as_string_view(minlatlon.y(), west_buffer);
+
+    Location maxlatlon(geometry.north(), geometry.east());
+    auto north = Location::as_string_view(maxlatlon.x(), north_buffer);
+    auto east = Location::as_string_view(maxlatlon.y(), east_buffer);
+
+    fmt::print(std::cout, FMT_STRING(",\n  \"bounds\": {{\n"
+      "    \"minlat\": {},\n"
+      "    \"minlon\": {},\n"
+      "    \"maxlat\": {},\n"
+      "    \"maxlon\": {}\n"
+      "  }}"), south, west, north, east);
+  }
   else if ((mode.mode & Output_Mode::CENTER) && geometry.has_center())
 
     std::cout<< fmt::format(FMT_STRING(",\n  \"center\": {{\n"
@@ -171,7 +198,7 @@ void Output_JSON::print_item(const Way_Skeleton& skel,
   std::cout<<"{\n"
         "  \"type\": \"way\"";
   if (mode.mode & Output_Mode::ID)
-    std::cout<<",\n  \"id\": "<<skel.id.val();
+    fmt::print(std::cout, FMT_STRING(",\n  \"id\": {}"), skel.id.val());
 
   if (meta)
     print_meta_json(*meta, *users);
@@ -180,21 +207,31 @@ void Output_JSON::print_item(const Way_Skeleton& skel,
 
   if ((mode.mode & Output_Mode::NDS) != 0 && !skel.nds().empty())
   {
-    auto it = skel.nds().begin();
-    std::cout<<",\n  \"nodes\": ["
-           "\n    "<<it->val();
-    for (++it; it != skel.nds().end(); ++it)
-      std::cout<<",\n    "<<it->val();
+    std::cout<<",\n  \"nodes\": [";
+    bool first = true;
+    for (const auto & node : skel.nds()) {
+      fmt::print(std::cout, FMT_STRING("{}\n    {:d}"), (first ? "" : ","), node.val());
+      first = false;
+    }
     std::cout<<"\n  ]";
   }
 
   if ((mode.mode & Output_Mode::GEOMETRY) != 0 && geometry.has_faithful_way_geometry())
   {
-    std::cout<<",\n  \"geometry\": [";
+    std::cout<< ",\n  \"geometry\": [";
     for (uint i = 0; i < geometry.way_size(); ++i)
     {
-      if (geometry.way_pos_is_valid(i))
-        std::cout<< fmt::format(FMT_STRING("\n    {{ \"lat\": {:.7f}, \"lon\": {:.7f} }}"), geometry.way_pos_lat(i), geometry.way_pos_lon(i));
+      if (geometry.way_pos_is_valid(i)) {
+
+        char lat_buffer[16];
+        char lon_buffer[16];
+
+        Location l(geometry.way_pos_lat(i), geometry.way_pos_lon(i));
+        std::string_view lat = Location::as_string_view(l.x(), lat_buffer);
+        std::string_view lon = Location::as_string_view(l.y(), lon_buffer);
+
+        fmt::print(std::cout, FMT_STRING("\n    {{ \"lat\": {}, \"lon\": {} }}"), lat, lon);
+      }
       else
         std::cout<<"\n    null";
 
