@@ -199,6 +199,9 @@ class IdSetHybrid {
    */
   void sort_unique() {
     for (auto& v : m_data_vector) {
+      if (v.empty())
+        continue;
+
       if (!std::is_sorted(v.begin(), v.end())) {
         std::sort(v.begin(), v.end());
       }
