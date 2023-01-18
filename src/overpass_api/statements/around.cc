@@ -31,6 +31,7 @@
 #include <tuple>
 #include <vector>
 
+#include <fmt/core.h>
 
 //-----------------------------------------------------------------------------
 
@@ -1074,13 +1075,14 @@ void add_coord_point(double lat, double lon, double radius,
 void add_node(Uint32_Index idx, const Node_Skeleton& node, double radius,
               std::map< Uint32_Index, std::vector< Point_Double > >& radius_lat_lons,
               std::vector< std::pair< Prepared_BBox, Prepared_Point> >& simple_lat_lons,
-              std::vector< Prepared_BBox >& node_bboxes)
+              flatbush::FlatBush<double>& fb_node)
 
 {
   double lat = ::lat(idx.val(), node.ll_lower);
   double lon = ::lon(idx.val(), node.ll_lower);
   add_coord(lat, lon, radius, radius_lat_lons, simple_lat_lons);
-  node_bboxes.push_back(::calc_distance_bbox(lat, lon, radius));
+  auto bbox = ::calc_distance_bbox(lat, lon, radius);
+  fb_node.Add(bbox.min_lat, bbox.min_lon, bbox.max_lat, bbox.max_lon);
 }
 
 
@@ -1088,7 +1090,7 @@ void add_way(const std::vector< Quad_Coord >& way_geometry, double radius,
              std::map< Uint32_Index, std::vector< Point_Double > >& radius_lat_lons,
              std::vector< std::pair< Prepared_BBox, Prepared_Point> >& simple_lat_lons,
              std::vector< std::pair< Prepared_BBox, Prepared_Segment> >& simple_segments,
-             std::vector< Prepared_BBox >& way_bboxes)
+             flatbush::FlatBush<double>& fb)
 {
   // add nodes
   Prepared_BBox way_bbox;
@@ -1101,7 +1103,7 @@ void add_way(const std::vector< Quad_Coord >& way_geometry, double radius,
     Prepared_BBox node_bbox = ::calc_distance_bbox(lat, lon, radius);
     way_bbox.merge(node_bbox);
   }
-  way_bboxes.push_back(way_bbox);
+  fb.Add(way_bbox.min_lat, way_bbox.min_lon, way_bbox.max_lat, way_bbox.max_lon);
 
   // add segments
 
@@ -1128,7 +1130,7 @@ void add_way(const std::vector< Point_Double >& points, double radius,
              std::map< Uint32_Index, std::vector< Point_Double > >& radius_lat_lons,
              std::vector< std::pair< Prepared_BBox, Prepared_Point> >& simple_lat_lons,
              std::vector< std::pair< Prepared_BBox, Prepared_Segment> >& simple_segments,
-             std::vector< Prepared_BBox >& way_bboxes)
+             flatbush::FlatBush<double>& fb)
 {
   // add nodes
   Prepared_BBox way_bbox;
@@ -1141,7 +1143,7 @@ void add_way(const std::vector< Point_Double >& points, double radius,
     Prepared_BBox node_bbox = ::calc_distance_bbox(lat, lon, radius);
     way_bbox.merge(node_bbox);
   }
-  way_bboxes.push_back(way_bbox);
+  fb.Add(way_bbox.min_lat, way_bbox.min_lon, way_bbox.max_lat, way_bbox.max_lon);
 
   // add segments
 
@@ -1218,7 +1220,7 @@ void Around_Statement::add_nodes(const std::map< Uint32_Index, std::vector< Node
   {
     for (auto nit(iit->second.begin());
         nit != iit->second.end(); ++nit)
-      add_node(iit->first, *nit, radius, radius_lat_lons, simple_lat_lons, node_bboxes);
+      add_node(iit->first, *nit, radius, radius_lat_lons, simple_lat_lons, fb);
   }
 }
 
@@ -1233,7 +1235,7 @@ void Around_Statement::add_ways(const std::map< Uint31_Index, std::vector< Way_S
     for (auto iit = it->second.begin();
         iit != it->second.end(); ++iit)
       add_way(way_geometries.get_geometry(*iit), radius,
-          radius_lat_lons, simple_lat_lons, simple_segments, way_bboxes);
+          radius_lat_lons, simple_lat_lons, simple_segments, fb);
   }
 }
 
@@ -1243,9 +1245,8 @@ void Around_Statement::reset_temp_struct()
   std::vector< std::pair< Prepared_BBox, Prepared_Point> >{}.swap(simple_lat_lons);
   std::vector< std::pair< Prepared_BBox, Prepared_Segment> >{}.swap(simple_segments);
 
-  std::vector< Prepared_BBox >{}.swap(node_bboxes);
-  std::vector< Prepared_BBox >{}.swap(way_bboxes);
   std::vector< uint32 >{}.swap(single_point_index);
+  fb = flatbush::FlatBush<double>{};
 }
 
 
@@ -1257,12 +1258,15 @@ void Around_Statement::calc_lat_lons(const Set& input, Statement& query, Resourc
   if (points.size() == 1)   // (around:radius,latitude,longitude)
   {
     add_coord_point(points[0].lat, points[0].lon, radius, single_point_index, simple_lat_lons);
-    node_bboxes.push_back(::calc_distance_bbox(points[0].lat, points[0].lon, radius));
+    auto bbox = ::calc_distance_bbox(points[0].lat, points[0].lon, radius);
+    fb.Add(bbox.min_lat, bbox.min_lon, bbox.max_lat, bbox.max_lon);
+    fb.Finish();
     return;
   }
   else if (points.size() > 1)    //(around:radius,latitude,longitude, ... latitude_n, longitude_n)
   {
-    add_way(points, radius, radius_lat_lons, simple_lat_lons, simple_segments, way_bboxes);
+    add_way(points, radius, radius_lat_lons, simple_lat_lons, simple_segments, fb);
+    fb.Finish();
     return;
   }
 
@@ -1291,20 +1295,22 @@ void Around_Statement::calc_lat_lons(const Set& input, Statement& query, Resourc
         = relation_way_members(&query, rman, input.attic_relations);
     add_ways(way_members, Way_Geometry_Store(way_members, query, rman));
   }
+
+  fb.Finish();
 }
 
 bool Around_Statement::matches_bboxes(double lat, double lon) const
 {
   Prepared_BBox bbox = ::lat_lon_bbox(lat, lon);
-  return bbox.intersects(node_bboxes) ||
-         bbox.intersects(way_bboxes);
 
+  auto result = fb.Search(bbox.min_lat, bbox.min_lon, bbox.max_lat, bbox.max_lon);
+  return (!result.empty());
 }
 
 bool Around_Statement::matches_bboxes(const Prepared_BBox & bbox) const
 {
-  return bbox.intersects(node_bboxes) ||
-         bbox.intersects(way_bboxes);
+  auto result = fb.Search(bbox.min_lat, bbox.min_lon, bbox.max_lat, bbox.max_lon);
+  return (!result.empty());
 }
 
 

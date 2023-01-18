@@ -131,8 +131,10 @@ endif()
 #    set(FMT_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/contrib/fmt/include")
 #endif()
 
+set(FLATBUSH_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/third_party/flatbush")
+
 find_package(Osmium 2.17.0 REQUIRED COMPONENTS io)
-include_directories(SYSTEM ${OSMIUM_INCLUDE_DIRS} ${PROTOZERO_INCLUDE_DIR})
+include_directories(SYSTEM ${OSMIUM_INCLUDE_DIRS} ${PROTOZERO_INCLUDE_DIR} ${FLATBUSH_INCLUDE_DIR})
 
 
 ############### Libraries are found now ########################

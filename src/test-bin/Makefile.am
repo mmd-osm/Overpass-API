@@ -1,7 +1,7 @@
 
 
 AM_LDFLAGS  = @PTHREAD_LIBS@ @BZ2_LIBS@ @ICU_LIBS@ @PCRE_LIBS@
-AM_CXXFLAGS = -I$(top_srcdir)/third_party/libosmium/include -I$(top_srcdir)/third_party/protozero/include @OPENMP_FLAG@ -DGIT_VERSION="\"$(shell git log -1 --pretty='%h')\""
+AM_CXXFLAGS = -I$(top_srcdir)/third_party/libosmium/include -I$(top_srcdir)/third_party/protozero/include -I$(top_srcdir)/third_party/flatbush @OPENMP_FLAG@ -DGIT_VERSION="\"$(shell git log -1 --pretty='%h')\""
 
 testbindir = ${prefix}/test-bin
 testbin_PROGRAMS = file_blocks around block_backend random_file node_updater way_updater relation_updater dump_database compare_osm_base_maps generate_test_file diff_updater test_dispatcher area_query bbox_query complete difference foreach convert if make make_area polygon_query print query recurse union generate_test_file_areas generate_test_file_meta generate_test_file_interpreter index_computations four_field_index consistency_check

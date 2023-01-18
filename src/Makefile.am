@@ -1,4 +1,4 @@
-AM_CPPFLAGS = -I$(top_srcdir)/third_party/libosmium/include -I$(top_srcdir)/third_party/protozero/include
+AM_CPPFLAGS = -I$(top_srcdir)/third_party/libosmium/include -I$(top_srcdir)/third_party/protozero/include -I$(top_srcdir)/third_party/flatbush
 AM_CXXFLAGS = -DGIT_VERSION="\"$(shell git log -1 --pretty='%h')\""
 
 bin_mandatory = bin/osm3s_query bin/dispatcher bin/update_database bin/update_from_dir bin/create_tagged_nodes bin/create_node_changepack bin/map_demo bin/dump_file bin/export_tables bin/import_tables
