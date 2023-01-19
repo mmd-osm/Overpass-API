@@ -1070,19 +1070,48 @@ void add_coord_point(double lat, double lon, double radius,
   single_point_index.erase(std::unique(single_point_index.begin(), single_point_index.end()), single_point_index.end());
 }
 
+void add_bbox_to_flatbush(flatbush::FlatBush<double>& fb, Prepared_BBox bbox)
+{
+  if (bbox.min_lon <= bbox.max_lon) {
+    fb.Add(bbox.min_lat, bbox.min_lon, bbox.max_lat, bbox.max_lon);
+  }
+  else
+  {
+    // bounding box crosses date line, split in two bboxes
+    fb.Add(bbox.min_lat, bbox.max_lon, bbox.max_lat, 180.0);
+    fb.Add(bbox.min_lat, -180.0, bbox.max_lat, bbox.min_lon);
+  }
+}
+
+bool search_bbox_in_flatbush(const flatbush::FlatBush<double>& fb, Prepared_BBox bbox)
+{
+  if (bbox.min_lon <= bbox.max_lon) {
+    auto res = fb.Search(bbox.min_lat, bbox.min_lon, bbox.max_lat, bbox.max_lon);
+    return (!res.empty());
+  }
+  else
+  {
+    // bounding box crosses date line, split in two bboxes
+    auto res1 = fb.Search(bbox.min_lat, bbox.max_lon, bbox.max_lat, 180.0);
+    auto res2 = fb.Search(bbox.min_lat, -180.0, bbox.max_lat, bbox.min_lon);
+
+    return (!(res1.empty() && res2.empty()));
+  }
+}
+
 
 
 void add_node(Uint32_Index idx, const Node_Skeleton& node, double radius,
               std::map< Uint32_Index, std::vector< Point_Double > >& radius_lat_lons,
               std::vector< std::pair< Prepared_BBox, Prepared_Point> >& simple_lat_lons,
-              flatbush::FlatBush<double>& fb_node)
+              flatbush::FlatBush<double>& fb)
 
 {
   double lat = ::lat(idx.val(), node.ll_lower);
   double lon = ::lon(idx.val(), node.ll_lower);
   add_coord(lat, lon, radius, radius_lat_lons, simple_lat_lons);
   auto bbox = ::calc_distance_bbox(lat, lon, radius);
-  fb_node.Add(bbox.min_lat, bbox.min_lon, bbox.max_lat, bbox.max_lon);
+  add_bbox_to_flatbush(fb, bbox);
 }
 
 
@@ -1103,7 +1132,7 @@ void add_way(const std::vector< Quad_Coord >& way_geometry, double radius,
     Prepared_BBox node_bbox = ::calc_distance_bbox(lat, lon, radius);
     way_bbox.merge(node_bbox);
   }
-  fb.Add(way_bbox.min_lat, way_bbox.min_lon, way_bbox.max_lat, way_bbox.max_lon);
+  add_bbox_to_flatbush(fb, way_bbox);
 
   // add segments
 
@@ -1143,7 +1172,8 @@ void add_way(const std::vector< Point_Double >& points, double radius,
     Prepared_BBox node_bbox = ::calc_distance_bbox(lat, lon, radius);
     way_bbox.merge(node_bbox);
   }
-  fb.Add(way_bbox.min_lat, way_bbox.min_lon, way_bbox.max_lat, way_bbox.max_lon);
+
+  add_bbox_to_flatbush(fb, way_bbox);
 
   // add segments
 
@@ -1259,7 +1289,7 @@ void Around_Statement::calc_lat_lons(const Set& input, Statement& query, Resourc
   {
     add_coord_point(points[0].lat, points[0].lon, radius, single_point_index, simple_lat_lons);
     auto bbox = ::calc_distance_bbox(points[0].lat, points[0].lon, radius);
-    fb.Add(bbox.min_lat, bbox.min_lon, bbox.max_lat, bbox.max_lon);
+    add_bbox_to_flatbush(fb, bbox);
     fb.Finish();
     return;
   }
@@ -1303,14 +1333,12 @@ bool Around_Statement::matches_bboxes(double lat, double lon) const
 {
   Prepared_BBox bbox = ::lat_lon_bbox(lat, lon);
 
-  auto result = fb.Search(bbox.min_lat, bbox.min_lon, bbox.max_lat, bbox.max_lon);
-  return (!result.empty());
+  return (search_bbox_in_flatbush(fb, bbox));
 }
 
 bool Around_Statement::matches_bboxes(const Prepared_BBox & bbox) const
 {
-  auto result = fb.Search(bbox.min_lat, bbox.min_lon, bbox.max_lat, bbox.max_lon);
-  return (!result.empty());
+  return (search_bbox_in_flatbush(fb, bbox));
 }
 
 
