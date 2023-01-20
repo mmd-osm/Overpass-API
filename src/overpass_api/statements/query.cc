@@ -160,15 +160,6 @@ void Query_Statement::add_statement(Statement* statement, std::string text)
 }
 
 
-template < typename T >
-struct Optional
-{
-  Optional(T* obj_) : obj(obj_) {}
-  ~Optional() { delete obj; }
-
-  T* obj;
-};
-
 
 struct Trivial_Regex
 {
@@ -392,9 +383,11 @@ std::vector< std::pair< Id_Type, Uint31_Index > > Query_Statement::collect_ids
 
   Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > > tags_db
       (rman.get_transaction()->data_index(current_global_tags_file_properties<Skeleton>()));
-  Optional< Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > > > attic_tags_db
-      (timestamp == NOW ? nullptr :
-        new Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >
+
+  std::unique_ptr< Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > > > attic_tags_db;
+
+  if (timestamp != NOW)
+    attic_tags_db.reset(new Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >
         (rman.get_transaction()->data_index(attic_global_tags_file_properties<Skeleton>())));
 
   IdSetHybrid<typename Id_Type::Id_Type> tmp_ids;
@@ -436,7 +429,7 @@ std::vector< std::pair< Id_Type, Uint31_Index > > Query_Statement::collect_ids
     }
     else
     {
-      auto attic_kv = collect_attic_kv_fast(kvit->first, kvit->second, timestamp, tags_db, *attic_tags_db.obj, result_valid);
+      auto attic_kv = collect_attic_kv_fast(kvit->first, kvit->second, timestamp, tags_db, *attic_tags_db, result_valid);
       if (!result_valid) {
         if (check_keys_late == ids_useful)
         {
@@ -471,7 +464,7 @@ std::vector< std::pair< Id_Type, Uint31_Index > > Query_Statement::collect_ids
       }
       else
       {
-        auto attic_k = collect_attic_k_fast(*kit, timestamp, tags_db, *attic_tags_db.obj, result_valid);
+        auto attic_k = collect_attic_k_fast(*kit, timestamp, tags_db, *attic_tags_db, result_valid);
         if (!result_valid) {
           if (check_keys_late == ids_useful)
           {
@@ -508,7 +501,7 @@ std::vector< std::pair< Id_Type, Uint31_Index > > Query_Statement::collect_ids
       }
       else
       {
-        auto attic_kregv = collect_attic_kregv_fast(krit->first, krit->second, timestamp, tags_db, *attic_tags_db.obj, result_valid);
+        auto attic_kregv = collect_attic_kregv_fast(krit->first, krit->second, timestamp, tags_db, *attic_tags_db, result_valid);
         if (!result_valid) {
           if (check_keys_late == ids_useful)
           {
@@ -546,7 +539,7 @@ std::vector< std::pair< Id_Type, Uint31_Index > > Query_Statement::collect_ids
       else
       {
         auto attic_regkregv = collect_attic_regkregv< Skeleton, Id_Type >(it->first, it->second, timestamp, tags_db,
-                                                                  *attic_tags_db.obj, rman, *this);
+                                                                  *attic_tags_db, rman, *this);
 	new_ids = filter_id_list_fast<Id_Type>(tmp_ids, filtered, attic_regkregv, last);
       }
 
@@ -644,9 +637,11 @@ IdSetHybrid<typename Id_Type::Id_Type> Query_Statement::collect_non_ids_hybrid
 
   Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > > tags_db
       (rman.get_transaction()->data_index(current_global_tags_file_properties<Skeleton>()));
-  Optional< Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > > > attic_tags_db
-      (timestamp == NOW ? nullptr :
-        new Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >
+
+  std::unique_ptr< Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > > > attic_tags_db;
+
+  if (timestamp != NOW)
+    attic_tags_db.reset(new Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >
         (rman.get_transaction()->data_index(attic_global_tags_file_properties<Skeleton>())));
 
   // In case additional constraints have been provided for the query statement, we fetch up to IDS_COUNT_LIMIT
@@ -675,7 +670,7 @@ IdSetHybrid<typename Id_Type::Id_Type> Query_Statement::collect_non_ids_hybrid
     }
     else
     {
-      auto timestamp_per_id = collect_attic_kv_fast(key, nvalue, timestamp, tags_db, *attic_tags_db.obj, result_valid);
+      auto timestamp_per_id = collect_attic_kv_fast(key, nvalue, timestamp, tags_db, *attic_tags_db, result_valid);
 
       for (auto it = timestamp_per_id.begin(); it != timestamp_per_id.end(); ++it)
         new_ids.set(it->first.val());
@@ -712,7 +707,7 @@ IdSetHybrid<typename Id_Type::Id_Type> Query_Statement::collect_non_ids_hybrid
     }
     else
     {
-      auto timestamp_per_id = collect_attic_kregv_fast(key, nregex, timestamp, tags_db, *attic_tags_db.obj, result_valid);
+      auto timestamp_per_id = collect_attic_kregv_fast(key, nregex, timestamp, tags_db, *attic_tags_db, result_valid);
 
       for (auto it = timestamp_per_id.begin(); it != timestamp_per_id.end(); ++it)
         new_ids.set(it->first.val());
@@ -774,9 +769,11 @@ std::vector< Id_Type > Query_Statement::collect_non_ids
 
   Block_Backend< Tag_Index_Global, Tag_Object_Global< Id_Type > > tags_db
       (rman.get_transaction()->data_index(current_global_tags_file_properties<Skeleton>()));
-  Optional< Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > > > attic_tags_db
-      (timestamp == NOW ? nullptr :
-        new Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >
+
+  std::unique_ptr< Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > > > attic_tags_db;
+
+  if (timestamp != NOW)
+    attic_tags_db.reset(new Block_Backend< Tag_Index_Global, Attic< Tag_Object_Global< Id_Type > > >
         (rman.get_transaction()->data_index(attic_global_tags_file_properties<Skeleton>())));
 
   std::vector< Id_Type > new_ids;
@@ -793,7 +790,7 @@ std::vector< Id_Type > Query_Statement::collect_non_ids
     }
     else
     {
-      auto timestamp_per_id = collect_attic_kv_fast(key, nvalue, timestamp, tags_db, *attic_tags_db.obj, result_valid);
+      auto timestamp_per_id = collect_attic_kv_fast(key, nvalue, timestamp, tags_db, *attic_tags_db, result_valid);
 
       for (auto it = timestamp_per_id.begin(); it != timestamp_per_id.end(); ++it)
         new_ids.push_back(it->first);
@@ -826,7 +823,7 @@ std::vector< Id_Type > Query_Statement::collect_non_ids
     }
     else
     {
-      auto timestamp_per_id = collect_attic_kregv_fast(key, nregex, timestamp, tags_db, *attic_tags_db.obj, result_valid);
+      auto timestamp_per_id = collect_attic_kregv_fast(key, nregex, timestamp, tags_db, *attic_tags_db, result_valid);
 
       for (auto it = timestamp_per_id.begin(); it != timestamp_per_id.end(); ++it)
         new_ids.push_back(it->first);
