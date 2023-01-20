@@ -162,6 +162,17 @@ std::set< std::pair< Uint32_Index, Uint32_Index > > calc_ranges_
   return result;
 }
 
+double normalize_longitude(double lon)
+{
+  while(lon < -180.0){
+    lon += 360.0;
+  }
+  while (lon > 180.0){
+    lon -= 360.0;
+  }
+  return lon;
+}
+
 std::set< std::pair< Uint32_Index, Uint32_Index > > expand
     (const std::set< std::pair< Uint32_Index, Uint32_Index > >& idxs, double radius)
 {
@@ -178,9 +189,26 @@ std::set< std::pair< Uint32_Index, Uint32_Index > > expand
     double east = ::lon(dec(it->second).val(), 0xffffffff)
         + radius*(90.0/10/1000/1000)/lon_factor;
 
-    auto ranges = calc_ranges_(south, north, west, east);
+    // cap north / south to +/- 90°
+    south = std::max(south, -90.0);
+    north = std::min(north, 90.0);
 
-    result.insert(ranges.begin(), ranges.end());
+    // normalize longitude to -180° - 180°
+    west = normalize_longitude(west);
+    east = normalize_longitude(east);
+
+    if (west <= east) {
+      auto ranges = calc_ranges_(south, north, west, east);
+      result.insert(ranges.begin(), ranges.end());
+    }
+    else
+    {
+      // crossing date line, split up in two bboxes
+      auto ranges1 = calc_ranges_(south, north, west, 180.0);
+      result.insert(ranges1.begin(), ranges1.end());
+      auto ranges2 = calc_ranges_(south, north, -180.0, east);
+      result.insert(ranges2.begin(), ranges2.end());
+    }
   }
 
   result = condense_ranges(result);
@@ -1026,11 +1054,31 @@ prepare_add_coord(double lat, double lon, double radius,
   double west = lon - radius*(360.0/(40000.0*1000.0))/cos(scale_lat/90.0*acos(0));
   double east = lon + radius*(360.0/(40000.0*1000.0))/cos(scale_lat/90.0*acos(0));
 
-  Prepared_BBox bbox_point = ::lat_lon_bbox(south, west, north, east);
+  // cap north / south to +/- 90°
+  south = std::max(south, -90.0);
+  north = std::min(north, 90.0);
 
-  simple_lat_lons.push_back(std::make_pair(bbox_point, Prepared_Point(lat, lon)));
+  // normalize longitude to -180° - 180°
+  west = normalize_longitude(west);
+  east = normalize_longitude(east);
 
-  return calc_ranges(south, north, west, east);
+  if (west <= east) {
+    Prepared_BBox bbox_point = ::lat_lon_bbox(south, west, north, east);
+    simple_lat_lons.push_back(std::make_pair(bbox_point, Prepared_Point(lat, lon)));
+    return calc_ranges(south, north, west, east);
+  }
+  else
+  {
+    // crossing date line, split up in two bboxes
+    Prepared_BBox bbox_point_1 = ::lat_lon_bbox(south, west, north, 180.0);
+    Prepared_BBox bbox_point_2 = ::lat_lon_bbox(south, -180.0, north, east);
+    simple_lat_lons.push_back(std::make_pair(bbox_point_1, Prepared_Point(lat, lon)));
+    simple_lat_lons.push_back(std::make_pair(bbox_point_2, Prepared_Point(lat, lon)));
+    auto r1 = calc_ranges(south, north, west, 180.0);
+    auto r2 = calc_ranges(south, north, -180.0, east);
+    r1.insert(r1.end(), r2.begin(), r2.end());
+    return r1;
+  }
 }
 
 
