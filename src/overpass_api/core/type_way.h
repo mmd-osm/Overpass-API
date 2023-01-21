@@ -593,9 +593,11 @@ inline std::vector< Uint31_Index > calc_segment_idxs(const std::vector< uint32 >
     segment_nd_idxs[1] = nd_idxs[i];
     Uint31_Index segment_index = Way::calc_index(segment_nd_idxs);
     if ((segment_index.val() & 0x80000000) != 0)
-      result.push_back(segment_index);
+      if (result.empty() || !(result.back() == segment_index))
+        result.push_back(segment_index);
   }
-  sort(result.begin(), result.end());
+  if (!std::is_sorted(result.begin(), result.end()))
+    sort(result.begin(), result.end());
   result.erase(unique(result.begin(), result.end()), result.end());
 
   return result;
