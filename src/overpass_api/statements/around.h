@@ -163,9 +163,13 @@ class Around_Statement final : public Output_Statement
     void reset_temp_struct();
 
   private:
+
+    void prepare_points_ranges();
+
     std::string input;
     double radius;
     std::vector< Point_Double > points;
+    std::set< std::pair< Uint32_Index, Uint32_Index > > points_ranges; // stores cached ranges for pre-defined points in prepare_points_ranges()
 
     std::vector< Query_Constraint* > constraints;
 

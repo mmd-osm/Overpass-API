@@ -908,6 +908,8 @@ Around_Statement::Around_Statement
   }
   else if (lat < 100.)
     points.push_back(Point_Double(lat, lon));
+
+  prepare_points_ranges();
 }
 
 Around_Statement::~Around_Statement()
@@ -915,6 +917,30 @@ Around_Statement::~Around_Statement()
   for (std::vector< Query_Constraint* >::const_iterator it = constraints.begin();
       it != constraints.end(); ++it)
     delete *it;
+}
+
+void Around_Statement::prepare_points_ranges()
+{
+  if (points.size() == 1) {
+    if (points_ranges.empty()) {
+      points_ranges = std::move(expand(ranges(points[0].lat, points[0].lon), radius));
+    }
+  }
+
+  else if (points.size() > 1)
+  {
+    std::vector< uint32 > nd_idxs;
+    std::map< Uint31_Index, std::vector< Way_Skeleton > > ways;
+    std::pair< Uint31_Index, std::vector< Way_Skeleton > > way;
+
+    for (auto it = points.begin(); it != points.end(); ++it)
+        nd_idxs.push_back(::ll_upper_(it->lat, it->lon));
+
+    Uint31_Index idx = Way::calc_index(nd_idxs);
+    way = std::make_pair(idx, std::vector< Way_Skeleton >());
+    ways.insert(way);
+    points_ranges = std::move(expand(children(ranges(ways)), radius));
+  }
 }
 
 namespace {
@@ -1012,25 +1038,12 @@ bool intersect(const Prepared_Segment& segment_a,
 std::set< std::pair< Uint32_Index, Uint32_Index > > Around_Statement::calc_ranges
     (const Set& input, Resource_Manager& rman) const
 {
-  if (points.size() == 1)
-    return expand(ranges(points[0].lat, points[0].lon), radius);
-
-  else if (points.size() > 1)
-  {
-    std::vector< uint32 > nd_idxs;
-    std::map< Uint31_Index, std::vector< Way_Skeleton > > ways;
-    std::pair< Uint31_Index, std::vector< Way_Skeleton > > way;
-
-    for (auto it = points.begin(); it != points.end(); ++it)
-        nd_idxs.push_back(::ll_upper_(it->lat, it->lon));
-
-    Uint31_Index idx = Way::calc_index(nd_idxs);
-    way = std::make_pair(idx, std::vector< Way_Skeleton >());
-    ways.insert(way);
-    return expand(children(ranges(ways)), radius);
+  if (!points.empty()) {
+    // return pre-calculated ranges (method prepare_points_ranges)
+    return points_ranges;
   }
-  else
-    return expand(set_union_
+
+  return expand(set_union_
         (set_union_(ranges(input.nodes), ranges(input.attic_nodes)),
 	    children(set_union_(
 	        set_union_(ranges(input.ways), ranges(input.attic_ways)),
