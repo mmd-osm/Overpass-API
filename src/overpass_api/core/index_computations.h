@@ -26,7 +26,7 @@
 #include <vector>
 
 
-inline uint32 ll_upper(uint32 ilat, int32 ilon);
+inline uint32 ll_upper(uint32 ilat, uint32 ilon);
 inline uint32 ll_upper_(uint32 ilat, int32 ilon);
 inline uint32 upper_ilat(uint32 quadtile);
 inline uint32 upper_ilon(uint32 quadtile);
@@ -58,18 +58,31 @@ struct Uint31_Compare
   }
 };
 
-inline uint32 ll_upper(uint32 ilat, int32 ilon)
+inline uint32 ll_upper(uint32 ilat, uint32 ilon)
 {
-  uint32 result = 0;
+  ilat &= 0xffff0000;
+  ilat |= (ilat>>8);
+  ilat &= 0xff00ff00;
+  ilat |= (ilat>>4);
+  ilat &= 0xf0f0f0f0;
+  ilat |= (ilat>>2);
+  ilat &= 0xcccccccc;
+  ilat |= (ilat>>1);
+  ilat &= 0xaaaaaaaa;
 
-  for (uint32 i(0); i < 16; ++i)
-  {
-    result |= ((0x1<<(i+16))&ilat)>>(15-i);
-    result |= ((0x1<<(i+16))&(uint32)ilon)>>(16-i);
-  }
+  ilon &= 0xffff0000;
+  ilon |= (ilon>>8);
+  ilon &= 0xff00ff00;
+  ilon |= (ilon>>4);
+  ilon &= 0xf0f0f0f0;
+  ilon |= (ilon>>2);
+  ilon &= 0xcccccccc;
+  ilon |= (ilon>>1);
+  ilon &= 0xaaaaaaaa;
 
-  return result;
+  return ilat | (ilon>>1);
 }
+
 
 inline uint32 ll_upper_(uint32 ilat, int32 ilon)
 {
