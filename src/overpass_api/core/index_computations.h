@@ -1031,17 +1031,10 @@ inline uint32 ll_upper_(double lat, double lon)
 }
 
 
-inline uint32 ll_lower(uint32 ilat, int32 ilon)
+inline uint32 ll_lower(uint32 ilat, int32 ilon_signed)
 {
-  uint32 result(0);
-
-  for (uint32 i(0); i < 16; ++i)
-  {
-    result |= ((0x1<<i)&ilat)<<(i+1);
-    result |= ((0x1<<i)&(uint32)ilon)<<i;
-  }
-
-  return result;
+  uint32_t ilon = ilon_signed;
+  return ll_upper((ilat & 0xffff) << 16, (ilon & 0xffff) << 16);
 }
 
 
