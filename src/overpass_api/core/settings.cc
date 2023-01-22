@@ -188,11 +188,11 @@ Area_Settings::Area_Settings()
 :
   AREA_BLOCKS(new OSM_File_Properties< Uint31_Index >
       ("area_blocks", 512*1024, 64*1024)),
-  AREAS(new OSM_File_Properties< Uint31_Index >("areas", 2*1024*1024, 256*1024)),
+  AREAS(new OSM_File_Properties< Uint31_Index >("areas", 512*1024, 256*1024)),
   AREA_TAGS_LOCAL(new OSM_File_Properties< Tag_Index_Local >
-      ("area_tags_local", 256*1024, 0)),
+      ("area_tags_local", 128*1024, 0)),
   AREA_TAGS_GLOBAL(new OSM_File_Properties< Tag_Index_Global >
-      ("area_tags_global", 512*1024, 0)),
+      ("area_tags_global", 128*1024, 0)),
 
   shared_name(basic_settings().shared_name_base + "_areas"  + basic_settings().shared_name_suffix),
   max_num_processes(5),
