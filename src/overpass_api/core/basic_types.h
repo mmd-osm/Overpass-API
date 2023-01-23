@@ -234,6 +234,11 @@ struct Uint31_Index : Uint32_Index
     return (this->value < index.value);
   }
 
+  inline bool is_compound_idx() const noexcept
+  {
+    return val() & 0x80000000u;
+  }
+
   friend std::ostream & operator<<(std::ostream &os, const Uint31_Index& t);
 
   template <class T, class Object>

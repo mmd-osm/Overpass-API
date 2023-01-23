@@ -490,7 +490,7 @@ private:
       }
 
       complete_idx = Uint31_Index(idx.val() & 0x7fffffff);
-      if (!queue.empty() && is_compound_idx(idx) && (queue.begin()->first.val() & 0x7fffffff) < complete_idx.val())
+      if (!queue.empty() && idx.is_compound_idx() && (queue.begin()->first.val() & 0x7fffffff) < complete_idx.val())
         break;
     }
     
@@ -613,7 +613,7 @@ private:
       }
 
       complete_idx = Uint31_Index(idx.val() & 0x7fffffff);
-      if (!queue.empty() && is_compound_idx(idx) && (queue.begin()->first.val() & 0x7fffffff) < complete_idx.val())
+      if (!queue.empty() && idx.is_compound_idx() && (queue.begin()->first.val() & 0x7fffffff) < complete_idx.val())
         break;
     }
   }
@@ -1179,7 +1179,7 @@ private:
       }
 
       complete_idx = Uint31_Index(idx.val() & 0x7fffffff);
-      if (!queue.empty() && is_compound_idx(idx) && (queue.begin()->first.val() & 0x7fffffff) < complete_idx.val())
+      if (!queue.empty() && idx.is_compound_idx() && (queue.begin()->first.val() & 0x7fffffff) < complete_idx.val())
         break;
     }
   }
