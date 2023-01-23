@@ -923,7 +923,7 @@ void Around_Statement::prepare_points_ranges()
 {
   if (points.size() == 1) {
     if (points_ranges.empty()) {
-      points_ranges = std::move(expand(ranges(points[0].lat, points[0].lon), radius));
+      points_ranges = expand(ranges(points[0].lat, points[0].lon), radius);
     }
   }
 
@@ -939,7 +939,7 @@ void Around_Statement::prepare_points_ranges()
     Uint31_Index idx = Way::calc_index(nd_idxs);
     way = std::make_pair(idx, std::vector< Way_Skeleton >());
     ways.insert(way);
-    points_ranges = std::move(expand(children(ranges(ways)), radius));
+    points_ranges = expand(children(ranges(ways)), radius);
   }
 }
 
