@@ -22,6 +22,7 @@
 #include "basic_types.h"
 
 #include <algorithm>
+#include <array>
 #include <set>
 #include <vector>
 
@@ -786,9 +787,17 @@ inline void add_decomp_range(const std::pair< Uint32_Index, Uint32_Index >& rang
   }
 }
 
+
 inline std::set< std::pair< Uint31_Index, Uint31_Index > > calc_parents
     (const std::set< std::pair< Uint32_Index, Uint32_Index > >& node_idxs)
 {
+  constexpr static std::array< uint32_t, 7 > pattern { 0x7ffffffc, 0x7fffffc0,
+      0x7ffffc00, 0x7fffc000, 0x7ffc0000, 0x7fc00000, 0x7c000000 };
+  constexpr static std::array< uint32_t, 7 > distance { 2, 8, 0x20, 0x80, 0x200,
+      0x800, 0x2000 };
+  constexpr static std::array< uint32_t, 7 > bitmask { 0x80000001, 0x80000002,
+      0x80000004, 0x80000008, 0x80000010, 0x80000020, 0x80000040 };
+
   std::vector< std::pair< Uint32_Index, Uint32_Index > > node_decomp;
   for (auto it = node_idxs.begin(); it != node_idxs.end(); ++it)
     add_decomp_range(*it, node_decomp);
@@ -796,41 +805,27 @@ inline std::set< std::pair< Uint31_Index, Uint31_Index > > calc_parents
   std::vector< std::pair< Uint31_Index, Uint31_Index > > result;
   result.push_back(std::make_pair(0x80000080, 0x80000081));
 
+  std::array<uint32_t, 7> prev_lower_idx{};
+  std::array<uint32_t, 7> prev_upper_idx{};
+
   for (std::vector< std::pair< Uint32_Index, Uint32_Index > >::const_iterator
       it = node_decomp.begin(); it != node_decomp.end(); ++it)
   {
     result.push_back(std::make_pair(it->first.val(), it->second.val()));
 
-    uint32 lower_idx = it->first.val() & 0x7ffffffc;
-    uint32 upper_idx = (it->second.val() - 1) & 0x7ffffffc;
-    blur_index(2, 0x80000001, lower_idx, upper_idx, result);
+    for (int i = 0; i < 7; i++) {
+      uint32 lower_idx = it->first.val() & pattern[i];
+      uint32 upper_idx = (it->second.val() - 1) & pattern[i];
 
-    lower_idx = it->first.val() & 0x7fffffc0;
-    upper_idx = (it->second.val() - 1) & 0x7fffffc0;
-    blur_index(8, 0x80000002, lower_idx, upper_idx, result);
-
-    lower_idx = it->first.val() & 0x7ffffc00;
-    upper_idx = (it->second.val() - 1) & 0x7ffffc00;
-    blur_index(0x20, 0x80000004, lower_idx, upper_idx, result);
-
-    lower_idx = it->first.val() & 0x7fffc000;
-    upper_idx = (it->second.val() - 1) & 0x7fffc000;
-    blur_index(0x80, 0x80000008, lower_idx, upper_idx, result);
-
-    lower_idx = it->first.val() & 0x7ffc0000;
-    upper_idx = (it->second.val() - 1) & 0x7ffc0000;
-    blur_index(0x200, 0x80000010, lower_idx, upper_idx, result);
-
-    lower_idx = it->first.val() & 0x7fc00000;
-    upper_idx = (it->second.val() - 1) & 0x7fc00000;
-    blur_index(0x800, 0x80000020, lower_idx, upper_idx, result);
-
-    lower_idx = it->first.val() & 0x7c000000;
-    upper_idx = (it->second.val() - 1) & 0x7c000000;
-    blur_index(0x2000, 0x80000040, lower_idx, upper_idx, result);
+      if (lower_idx != prev_lower_idx[i] || upper_idx != prev_upper_idx[i]) {
+        blur_index(distance[i], bitmask[i], lower_idx, upper_idx, result);
+      }
+      prev_lower_idx[i] = lower_idx;
+      prev_upper_idx[i] = upper_idx;
+    }
   }
 
-  sort(result.begin(), result.end());
+  std::sort(result.begin(), result.end());
 
   std::set< std::pair< Uint31_Index, Uint31_Index > > result_set;
   Uint31_Index last_first = result[0].first;
