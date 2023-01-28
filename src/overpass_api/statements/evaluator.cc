@@ -451,15 +451,15 @@ Prepare_Task_Context::Prepare_Task_Context(
 {
   for (auto it = requested.set_usage.begin(); it != requested.set_usage.end(); ++it)
   {
-    Set_With_Context& context = contexts[std::distance(requested.set_usage.begin(), it)];
-    context.name = it->set_name;
-    context.parent = this;
+    Set_With_Context* context = &contexts[std::distance(requested.set_usage.begin(), it)];
+    context->name = it->set_name;
+    context->parent = this;
 
-    const Set* input = rman.get_set(context.name);
+    const Set* input = rman.get_set(context->name);
     if (input)
-      context.prefetch(it->usage, *input, stmt, rman);
+      context->prefetch(it->usage, *input, stmt, rman);
     if (it->usage & Set_Usage::SET_KEY_VALUES)
-      context.set_key_values = rman.get_set_key_values(context.name);
+      context->set_key_values = rman.get_set_key_values(context->name);
   }
 
   if (requested.role_names_requested)

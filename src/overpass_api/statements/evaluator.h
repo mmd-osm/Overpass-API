@@ -98,12 +98,10 @@ struct Prepare_Task_Context;
 
 struct Set_With_Context
 {
-private:
-  Set_With_Context(const Set_With_Context&);
-  Set_With_Context& operator=(const Set_With_Context&);
-
 public:
   Set_With_Context() = default;
+  Set_With_Context(const Set_With_Context&) = delete;
+  Set_With_Context& operator=(const Set_With_Context&) = delete;
 
   ~Set_With_Context()
   {
@@ -184,7 +182,7 @@ struct Prepare_Task_Context
   const std::map< uint32, std::string >* get_roles() const { return relation_member_roles_; }
 
 private:
-  Array< Set_With_Context > contexts;
+  std::vector< Set_With_Context > contexts;
   const std::map< uint32, std::string >* relation_member_roles_ = nullptr;
   const user_id_name_t* users = nullptr;
 };

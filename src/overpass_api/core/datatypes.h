@@ -157,28 +157,6 @@ const TObject* binary_pair_search(const std::vector< std::pair< Id_Type, TObject
 }
 
 
-template< typename T >
-struct Array
-{
-  Array(unsigned int size) : size_(size)
-  {
-    if (size > 0)
-      ptr = new T[size];
-  }
-  ~Array() { delete[] ptr; }
-
-  Array(const Array&) = delete;
-  Array& operator=(const Array&) = delete;
-
-  const T& operator[](unsigned int i) const { return ptr[i]; }
-  T& operator[](unsigned int i) { return ptr[i]; }
-  unsigned int size() const { return size_; }
-
-private:
-  T* ptr = nullptr;
-  unsigned int size_;
-};
-
 
 template< typename Base >
 struct Owning_Array
