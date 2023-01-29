@@ -43,22 +43,24 @@ public:
   Random_File(Random_File_Index*);
   ~Random_File();
 
-  Value get(Key pos);
-  void put(Key pos, const Value& index);
+  Value get(const Key& pos);
+  void put(const Key& pos, const Value& index);
 
 private:
   bool changed;
-  uint32 index_size;
-  uint32 compression_factor;
+  const uint32 index_size;
+  const uint32 compression_factor;
 
   Raw_File val_file;
   Random_File_Index* index;
   std::unique_ptr<uint8[]> cache;
   uint32 cache_pos;
-  uint32 block_size;
+  const uint32 block_size;
+  const uint32 cache_window_size;
 
   std::unique_ptr<uint8[]> buffer;
 
+  bool is_outside_cache_window(uint32 pos) const noexcept;
   void move_cache_window(uint32 pos);
   uint32 allocate_block(uint32 data_size);
 };
@@ -78,6 +80,7 @@ Random_File< Key, Value >::Random_File(Random_File_Index* index_)
   cache(new uint8[index_->get_block_size() * index_->get_compression_factor()]),
   cache_pos(index->npos),
   block_size(index_->get_block_size()),
+  cache_window_size((block_size*compression_factor /index_size)),
   buffer(new uint8[index_->get_block_size() * index_->get_compression_factor() * 2])  // increased buffer size for lz4
 {
 }
@@ -92,30 +95,42 @@ Random_File< Key, Value >::~Random_File()
 
 
 template< typename Key, typename Value >
-Value Random_File< Key, Value >::get(Key pos)
+Value Random_File< Key, Value >::get(const Key& pos)
 {
-  move_cache_window(pos.val() / (block_size*compression_factor /index_size));
-  return Value(cache.get() + (pos.val() % (block_size*compression_factor/index_size))*index_size);
+  if (is_outside_cache_window(pos.val() / cache_window_size)) {
+    move_cache_window(pos.val() / cache_window_size);
+  }
+  return Value(cache.get() + (pos.val() % cache_window_size)*index_size);
 }
 
 
 template< typename Key, typename Value >
-void Random_File< Key, Value >::put(Key pos, const Value& val)
+void Random_File< Key, Value >::put(const Key& pos, const Value& val)
 {
   if (!index->writeable())
     throw File_Error(0, index->get_map_file_name(), "Random_File:2");
 
-  move_cache_window(pos.val() / (block_size*compression_factor/index_size));
-  val.to_data(cache.get() + (pos.val() % (block_size*compression_factor/index_size))*index_size);
+  if (is_outside_cache_window(pos.val() / cache_window_size)) {
+    move_cache_window(pos.val() / cache_window_size);
+  }
+  val.to_data(cache.get() + (pos.val() % cache_window_size)*index_size);
   changed = true;
+}
+
+template< typename Key, typename Value >
+bool Random_File< Key, Value >::is_outside_cache_window(uint32 pos) const noexcept
+{
+  // The cache already contains the needed position.
+  if ((pos == cache_pos) && (cache_pos != index->npos))
+    return false;
+  return true;
 }
 
 
 template< typename Key, typename Value >
 void Random_File< Key, Value >::move_cache_window(uint32 pos)
 {
-  // The cache already contains the needed position.
-  if ((pos == cache_pos) && (cache_pos != index->npos))
+  if (!(is_outside_cache_window(pos)))
     return;
 
   if (pos != index->npos && pos >= 256*1024*1024/Value::max_size_of())
