@@ -50,7 +50,7 @@ struct IntIndex
     return 4;
   }
 
-  static uint32 max_size_of()
+  static constexpr uint32 max_size_of()
   {
     return 4;
   }

@@ -86,7 +86,7 @@ struct Uint32_Index
     return 4;
   }
 
-  static uint32 max_size_of() noexcept
+  static constexpr uint32 max_size_of() noexcept
   {
     return 4;
   }
@@ -421,7 +421,7 @@ struct Uint40
   }
 
   uint32 size_of() const noexcept { return 5; }
-  static uint32 max_size_of() noexcept { return 5; }
+  static constexpr uint32 max_size_of() noexcept { return 5; }
   static uint64 max_value() noexcept { return (1ull  << (8 * max_size_of())) - 1; }
   static uint32 size_of(const void* ) noexcept { return 5; }
 

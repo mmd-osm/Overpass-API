@@ -37,7 +37,7 @@ struct IntIndex
   IntIndex(uint32 i) : value(i) {}
   IntIndex(void* data) : value(*(uint32*)data) {}
 
-  static uint32 max_size_of()
+  static constexpr uint32 max_size_of()
   {
     return 4;
   }

@@ -47,22 +47,26 @@ public:
   void put(const Key& pos, const Value& index);
 
 private:
-  bool changed;
-  const uint32 index_size;
+  static constexpr uint32 index_size = Value::max_size_of();
+
+  bool changed = false;
   const uint32 compression_factor;
 
   Raw_File val_file;
   Random_File_Index* index;
   std::unique_ptr<uint8[]> cache;
   uint32 cache_pos;
+  uint64_t cache_min_key = std::numeric_limits< uint64_t >::max();
+  uint64_t cache_max_key = std::numeric_limits< uint64_t >::max();
   const uint32 block_size;
   const uint32 cache_window_size;
 
   std::unique_ptr<uint8[]> buffer;
 
-  bool is_outside_cache_window(uint32 pos) const noexcept;
+  bool is_outside_cache_window(uint64_t key) const noexcept;
   void move_cache_window(uint32 pos);
   uint32 allocate_block(uint32 data_size);
+  void write_buffer_to_disk();
 };
 
 
@@ -71,7 +75,7 @@ private:
 
 template< typename Key, typename Value >
 Random_File< Key, Value >::Random_File(Random_File_Index* index_)
-  : changed(false), index_size(Value::max_size_of()),
+  :
   compression_factor(index_->get_compression_factor()),
   val_file(index_->get_map_file_name(),
 	   index_->writeable() ? O_RDWR|O_CREAT : O_RDONLY,
@@ -97,10 +101,10 @@ Random_File< Key, Value >::~Random_File()
 template< typename Key, typename Value >
 Value Random_File< Key, Value >::get(const Key& pos)
 {
-  if (is_outside_cache_window(pos.val() / cache_window_size)) {
+  if (is_outside_cache_window(pos.val())) {
     move_cache_window(pos.val() / cache_window_size);
   }
-  return Value(cache.get() + (pos.val() % cache_window_size)*index_size);
+  return Value(cache.get() + (pos.val() - cache_min_key)*index_size);
 }
 
 
@@ -110,27 +114,25 @@ void Random_File< Key, Value >::put(const Key& pos, const Value& val)
   if (!index->writeable())
     throw File_Error(0, index->get_map_file_name(), "Random_File:2");
 
-  if (is_outside_cache_window(pos.val() / cache_window_size)) {
+  if (is_outside_cache_window(pos.val())) {
     move_cache_window(pos.val() / cache_window_size);
   }
-  val.to_data(cache.get() + (pos.val() % cache_window_size)*index_size);
+  val.to_data(cache.get() + (pos.val() - cache_min_key)*index_size);
   changed = true;
 }
 
+
 template< typename Key, typename Value >
-bool Random_File< Key, Value >::is_outside_cache_window(uint32 pos) const noexcept
+bool Random_File< Key, Value >::is_outside_cache_window(uint64_t key) const noexcept
 {
-  // The cache already contains the needed position.
-  if ((pos == cache_pos) && (cache_pos != index->npos))
-    return false;
-  return true;
+  return (!(cache_min_key <= key && key <= cache_max_key)) ;
 }
 
 
 template< typename Key, typename Value >
 void Random_File< Key, Value >::move_cache_window(uint32 pos)
 {
-  if (!(is_outside_cache_window(pos)))
+  if ((pos == cache_pos) && (cache_pos != index->npos))
     return;
 
   if (pos != index->npos && pos >= 256*1024*1024/Value::max_size_of())
@@ -138,39 +140,9 @@ void Random_File< Key, Value >::move_cache_window(uint32 pos)
 
   if (changed)
   {
-    uint32 data_size = compression_factor;
-    void* target = cache.get();
-
-    if (index->get_compression_method() == Block_Compression::ZLIB_COMPRESSION)
-    {
-      target = buffer.get();
-      uint32 compressed_size = Zlib_Deflate(1)
-          .compress(cache.get(), block_size * compression_factor, target, block_size * index->get_compression_factor());
-      data_size = (compressed_size - 1) / block_size + 1;
-      zero_padding((uint8*)target + compressed_size, block_size * data_size - compressed_size);
-    }
-    else if (index->get_compression_method() == Block_Compression::LZ4_COMPRESSION)
-    {
-      target = buffer.get();
-      uint32 compressed_size = LZ4_Deflate()
-          .compress(cache.get(), block_size * compression_factor, target, block_size * index->get_compression_factor() * 2);
-      data_size = (compressed_size - 1) / block_size + 1;
-      zero_padding((uint8*)target + compressed_size, block_size * data_size - compressed_size);
-    }
-
-    uint32 disk_pos = allocate_block(data_size);
-
-    // Save the found position to the index.
-    if (index->get_blocks().size() <= cache_pos)
-      index->get_blocks().resize(cache_pos+1, Random_File_Index_Entry(index->npos, 1));
-    Random_File_Index_Entry entry(disk_pos, data_size);
-    index->get_blocks()[cache_pos] = entry;
-
-    // Write the data at the found position.
-    val_file.seek((int64)disk_pos*block_size, "Random_File:21");
-    val_file.write((uint8*)target, (uint64) block_size * data_size, "Random_File:22");
+    write_buffer_to_disk();
+    changed = false;
   }
-  changed = false;
 
   if (pos == index->npos)
     return;
@@ -199,6 +171,49 @@ void Random_File< Key, Value >::move_cache_window(uint32 pos)
     }
   }
   cache_pos = pos;
+  cache_min_key = (uint64_t)pos * cache_window_size;
+  cache_max_key = ((uint64_t)pos + 1) * cache_window_size - 1;
+}
+
+template< typename Key, typename Value >
+void Random_File< Key, Value >::write_buffer_to_disk()
+{
+  uint32 data_size = compression_factor;
+  void *target = cache.get();
+  if (index->get_compression_method() == Block_Compression::ZLIB_COMPRESSION)
+  {
+    target = buffer.get();
+    uint32 compressed_size = Zlib_Deflate(1).compress(cache.get(),
+        block_size * compression_factor, target,
+        block_size * index->get_compression_factor());
+    data_size = (compressed_size - 1) / block_size + 1;
+    zero_padding((uint8*) (target) + compressed_size,
+        block_size * data_size - compressed_size);
+  }
+  else if (index->get_compression_method()
+      == Block_Compression::LZ4_COMPRESSION)
+  {
+    target = buffer.get();
+    uint32 compressed_size = LZ4_Deflate().compress(cache.get(),
+        block_size * compression_factor, target,
+        block_size * index->get_compression_factor() * 2);
+    data_size = (compressed_size - 1) / block_size + 1;
+    zero_padding((uint8*) (target) + compressed_size,
+        block_size * data_size - compressed_size);
+  }
+
+  uint32 disk_pos = allocate_block(data_size);
+  // Save the found position to the index.
+  if (index->get_blocks().size() <= cache_pos)
+    index->get_blocks().resize(cache_pos + 1,
+        Random_File_Index_Entry(index->npos, 1));
+
+  Random_File_Index_Entry entry(disk_pos, data_size);
+  index->get_blocks()[cache_pos] = entry;
+  // Write the data at the found position.
+  val_file.seek((int64) (disk_pos) * block_size, "Random_File:21");
+  val_file.write((uint8*) (target), (uint64) (block_size) * data_size,
+      "Random_File:22");
 }
 
 
