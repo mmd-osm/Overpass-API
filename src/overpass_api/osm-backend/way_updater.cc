@@ -533,7 +533,6 @@ void lookup_missing_nodes
     if (!it->elem.geometry().empty())
       continue;
 
-    std::vector< uint32 > nd_idxs;
     for (auto nit = it->elem.nds().begin(); nit != it->elem.nds().end(); ++nit)
     {
       if (new_node_idx_by_id.find(*nit) == new_node_idx_by_id.end())
@@ -580,7 +579,7 @@ void lookup_missing_nodes
   osmium::index::IdSetDense<Node_Skeleton::Id_Type::Id_Type> ids_lookup;
 
   // Collect all data of existing id indexes
-  std::set< Uint31_Index > req
+  const std::set< Uint31_Index > req
       = get_existing_map_positions(ids_lookup, missing_ids,
                          transaction, *osm_base_settings().NODES);
 
@@ -639,7 +638,7 @@ void compute_geometry
       }
     }
 
-    Uint31_Index index = Way::calc_index(nd_idxs);
+    const Uint31_Index index = Way::calc_index(nd_idxs);
 
     if (!Way::indicates_geometry(index)) {
       // geometry information is not worthwhile keeping, way area is fairly small,
@@ -839,8 +838,9 @@ void Way_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_stop
   std::vector< Way_Skeleton::Id_Type > ids_to_update_ = ids_to_update(new_data);
 
   // Collect all data of existing id indexes
-  const std::vector< std::pair< Way_Skeleton::Id_Type, Uint31_Index > > existing_map_positions
-      = get_existing_map_positions(ids_to_update_, *transaction, *osm_base_settings().WAYS);
+  const auto existing_map_positions
+      = (initial_load ? std::vector< std::pair< Way_Skeleton::Id_Type, Uint31_Index > >{} :
+          get_existing_map_positions(ids_to_update_, *transaction, *osm_base_settings().WAYS));
 
   // Collect all data of existing and explicitly changed skeletons
   const std::map< Uint31_Index, std::set< Way_Skeleton > > existing_skeletons

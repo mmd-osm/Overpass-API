@@ -71,6 +71,9 @@ void get_existing_tags
     (const std::vector< std::pair< Id_Type, Uint31_Index > >& ids_with_position,
      File_Blocks_Index_Base& tags_local, std::vector< Tag_Entry< Id_Type > >& tags_to_delete)
 {
+  if (ids_with_position.empty())
+    return;
+
   // make indices appropriately coarse
   std::unordered_map< uint32, std::vector< Id_Type > > to_delete_coarse;
   for (auto it = ids_with_position.begin(); it != ids_with_position.end(); ++it)

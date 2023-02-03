@@ -458,8 +458,9 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
   std::vector< Node_Skeleton::Id_Type > ids_to_update_ = ids_to_update(new_data);
 
   // Collect all data of existing id indexes
-  const std::vector< std::pair< Node_Skeleton::Id_Type, Uint31_Index > > existing_map_positions
-      = get_existing_map_positions(ids_to_update_, *transaction, *osm_base_settings().NODES);
+  const auto existing_map_positions
+      = (initial_load ? std::vector< std::pair< Node_Skeleton::Id_Type, Uint31_Index > >{} :
+          get_existing_map_positions(ids_to_update_, *transaction, *osm_base_settings().NODES));
 
   std::vector< std::function< void() > > f1;
 
