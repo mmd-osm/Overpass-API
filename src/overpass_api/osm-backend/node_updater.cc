@@ -534,9 +534,6 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
   // Compute idx positions of new nodes
   const std::vector< std::pair< Node_Skeleton::Id_Type, Uint31_Index > > new_map_positions
       = new_idx_positions(new_data);
-  // TODO: old code
-  std::map< uint32, std::vector< Node::Id_Type > > to_delete;
-  update_node_ids(to_delete, 0, new_map_positions);
 
   callback->update_started();
   callback->prepare_delete_tags_finished();
@@ -612,7 +609,6 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
     {
       // Already free up other possibly large objects which are no longer needed
       new_data.data.clear();
-      ids_to_modify.clear();
     });
   }
 
@@ -752,7 +748,6 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
   callback->update_finished();
 
   new_data.data.clear();
-  ids_to_modify.clear();
 
 //   nodes_meta_to_insert.clear();
 //   nodes_meta_to_delete.clear();
@@ -763,38 +758,6 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
     cpu_stopwatch->stop_cpu_timer(1);
 }
 
-
-void Node_Updater::update_node_ids
-    (std::map< uint32, std::vector< Node::Id_Type > >& to_delete, bool record_minuscule_moves,
-     const std::vector< std::pair< Node_Skeleton::Id_Type, Uint31_Index > >& new_idx_positions)
-{
-  static Pair_Comparator_By_Id< Node::Id_Type, bool > pair_comparator_by_id;
-  static Pair_Equal_Id< Node::Id_Type, bool > pair_equal_id;
-
-  // keep always the most recent (last) element of all equal elements
-  if (!std::is_sorted(ids_to_modify.begin(), ids_to_modify.end(), pair_comparator_by_id)) {
-#ifndef HAVE_OPENMP
-    std::stable_sort(ids_to_modify.begin(), ids_to_modify.end(), pair_comparator_by_id);
-#else
-    __gnu_parallel::stable_sort
-        (ids_to_modify.begin(), ids_to_modify.end(), pair_comparator_by_id);
-#endif
-  }
-
-  auto modi_begin
-      (unique(ids_to_modify.rbegin(), ids_to_modify.rend(), pair_equal_id).base());
-  ids_to_modify.erase(ids_to_modify.begin(), modi_begin);
-
-  Random_File< Node_Skeleton::Id_Type, Uint32_Index > random
-      (transaction->random_index(osm_base_settings().NODES));
-  for (std::vector< std::pair< Node::Id_Type, bool > >::const_iterator it(ids_to_modify.begin());
-      it != ids_to_modify.end(); ++it)
-  {
-    Uint32_Index index(random.get(it->first.val()));
-    if (index.val() > 0)
-      to_delete[index.val()].push_back(it->first);
-  }
-}
 
 void Node_Updater::merge_all_files(bool partial, Osm_Backend_Callback *callback)
 {
@@ -934,5 +897,4 @@ void Node_Updater::release_mem()
 {
   // release more memory before starting "Reorganizing database..."
   decltype(new_data.data){}.swap(new_data.data);
-  decltype(ids_to_modify){}.swap(ids_to_modify);
 }
