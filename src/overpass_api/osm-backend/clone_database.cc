@@ -131,17 +131,18 @@ void clone_map_file(const File_Properties& file_prop, Transaction& transaction, 
     Random_File_Index dest_idx(file_prop, true, false, dest_db_dir, "", clone_settings.map_compression_method);
     Random_File< Key, TIndex > dest_file(&dest_idx);
 
+    const auto elem_count_in_bucket = src_idx.get_block_size()*src_idx.get_compression_factor()/TIndex::max_size_of();
+
     for (std::vector< uint32 >::size_type i = 0; i < src_idx.get_blocks().size(); ++i)
     {
-      if (src_idx.get_blocks()[i].pos != src_idx.npos)
+      if (src_idx.get_blocks()[i].pos == src_idx.npos)
+        continue;
+
+      for (uint32 j = 0; j < elem_count_in_bucket; ++j)
       {
-	for (uint32 j = 0; j < src_idx.get_block_size()*src_idx.get_compression_factor()/TIndex::max_size_of(); ++j)
-	{
-	  TIndex val =
-	      src_file.get(i*(src_idx.get_block_size()*src_idx.get_compression_factor()/TIndex::max_size_of()) + j);
-	  if (!(val == TIndex(uint32(0))))
-	    dest_file.put(i*(src_idx.get_block_size()*src_idx.get_compression_factor()/TIndex::max_size_of()) + j, val);
-	}
+        TIndex val = src_file.get(i*elem_count_in_bucket + j);
+        if (!(val == TIndex(uint32(0))))
+          dest_file.put(i*elem_count_in_bucket + j, val);
       }
     }
   }
@@ -395,5 +396,4 @@ void clone_database(Transaction& transaction, const std::string& dest_db_dir, co
   });
 
   process_package(f, clone_settings.parallel_processes);
-
 }
