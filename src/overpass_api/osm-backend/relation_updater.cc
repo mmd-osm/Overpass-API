@@ -317,7 +317,9 @@ void lookup_missing_nodes
   osmium::index::IdSetDense<Node_Skeleton::Id_Type::Id_Type> ids_lookup;
 
   // Collect all data of existing id indexes
-  std::set< Uint31_Index > req = get_existing_map_positions(ids_lookup, missing_ids, transaction, *osm_base_settings().NODES);
+  const std::set< Uint31_Index > req = get_existing_map_positions(ids_lookup, missing_ids, transaction, *osm_base_settings().NODES);
+
+  new_node_idx_by_id.reserve(new_node_idx_by_id.size() + missing_ids.size());
 
   // Collect all data of existing skeletons
   Block_Backend< Uint31_Index, Node_Skeleton > db(transaction.data_index(osm_base_settings().NODES));
@@ -388,8 +390,10 @@ void lookup_missing_ways
   osmium::index::IdSetDense<Way_Skeleton::Id_Type::Id_Type> ids_lookup;
 
   // Collect all data of existing id indexes
-  std::set< Uint31_Index > req
+  const std::set< Uint31_Index > req
       = get_existing_map_positions(ids_lookup, missing_ids, transaction, *osm_base_settings().WAYS);
+
+  new_way_idx_by_id.reserve(new_way_idx_by_id.size() + missing_ids.size());
 
   // Collect all data of existing skeletons
   Block_Backend< Uint31_Index, Way_Skeleton > db(transaction.data_index(osm_base_settings().WAYS));

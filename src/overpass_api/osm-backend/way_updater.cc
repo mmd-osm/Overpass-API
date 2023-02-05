@@ -583,6 +583,8 @@ void lookup_missing_nodes
       = get_existing_map_positions(ids_lookup, missing_ids,
                          transaction, *osm_base_settings().NODES);
 
+  new_node_idx_by_id.reserve(new_node_idx_by_id.size() + missing_ids.size());
+
   // Collect all data of existing skeletons
   Block_Backend< Uint31_Index, Node_Skeleton > db(transaction.data_index(osm_base_settings().NODES));
   for (auto it(db.discrete_begin(req.begin(), req.end())); !(it == db.discrete_end()); ++it)
