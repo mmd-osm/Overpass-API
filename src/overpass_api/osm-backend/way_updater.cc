@@ -602,6 +602,9 @@ void compute_geometry
     (const std::unordered_map< Node_Skeleton::Id_Type, Quad_Coord >& new_node_idx_by_id,
      Data_By_Id< Way_Skeleton >& new_data)
 {
+  std::vector< uint32 > nd_idxs;
+  nd_idxs.reserve(2000); // osm way node limit
+
   std::vector< Data_By_Id< Way_Skeleton >::Entry >::const_iterator next_it = new_data.data.begin();
   for (auto it = new_data.data.begin(); it != new_data.data.end(); ++it)
   {
@@ -614,10 +617,8 @@ void compute_geometry
       // We don't touch deleted objects
       continue;
 
-    std::vector< uint32 > nd_idxs;
+    nd_idxs.clear();
     if (it->elem.c_geometry().empty()) {
-      nd_idxs.reserve(it->elem.nds().size());
-
       for (auto nit = it->elem.nds().cbegin(); nit != it->elem.nds().cend(); ++nit)
       {
         auto it2 = new_node_idx_by_id.find(*nit);
@@ -632,7 +633,6 @@ void compute_geometry
     }
     else
     {
-      nd_idxs.reserve(it->elem.c_geometry().size());
       // use existing geometry data from PBF extension LocationsOnWays
       for (auto nit = it->elem.c_geometry().cbegin(); nit!= it->elem.c_geometry().cend(); ++nit) {
         if (nd_idxs.empty() || nd_idxs.back() != nit->ll_upper)
