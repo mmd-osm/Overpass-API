@@ -41,25 +41,44 @@
 template< typename Element_Skeleton >
 struct Data_By_Id
 {
+  Data_By_Id() {
+    reset();
+  }
+
+  void reset(bool release_mem = false) {
+
+    if (release_mem)
+    {
+      decltype(data){}.swap(data);
+      decltype(tags){}.swap(tags);
+    }
+    else
+    {
+      data.clear();
+      tags.clear();
+    }
+    // initialize tags vector with an empty tag (index 0 = EMPTY_TAG)
+    // Special case handling because >93% of all nodes are untagged
+    tags.push_back({});
+  }
+
+  typedef std::vector< std::pair< std::string, std::string > > Tag_Container;
+
   struct Entry
   {
-    typedef std::vector< std::pair< std::string, std::string > > Tag_Container;
-
     Uint31_Index idx;
+    uint32_t     tag_idx;  // Tags for this entry can be accessed using index `tag_idx` in Data_By_Id::tags vector below
+    OSM_Element_Metadata_Base meta;
     Element_Skeleton elem;
-    OSM_Element_Metadata_Skeleton< typename Element_Skeleton::Id_Type > meta;
-    Tag_Container tags;
 
     Entry(Uint31_Index idx_, Element_Skeleton elem_,
-        OSM_Element_Metadata_Skeleton< typename Element_Skeleton::Id_Type > meta_,
-        Tag_Container tags_
-            = Tag_Container())
-        : idx(idx_), elem(elem_), meta(meta_), tags(std::move(tags_)) {}
+        OSM_Element_Metadata_Skeleton< typename Element_Skeleton::Id_Type > meta_)
+        : idx(idx_), tag_idx(EMPTY_TAG), meta(meta_), elem(elem_) {}
 
-    Entry(Uint31_Index idx_, Element_Skeleton && elem_,
-        Tag_Container && tags_,
+    Entry(Uint31_Index idx_, uint32_t tag_idx,
+        Element_Skeleton && elem_,
         OSM_Element_Metadata_Skeleton< typename Element_Skeleton::Id_Type > && meta_)
-        : idx(idx_), elem(std::move(elem_)), meta(std::move(meta_)), tags(std::move(tags_)) {}
+        : idx(idx_), tag_idx(tag_idx), meta(std::move(meta_)), elem(std::move(elem_)) {}
 
     bool operator<(const Entry& e) const
     {
@@ -71,7 +90,10 @@ struct Data_By_Id
     }
   };
 
+  constexpr static int EMPTY_TAG = 0;
+
   std::vector< Entry > data;
+  std::vector< Tag_Container > tags;
 };
 
 
@@ -439,7 +461,7 @@ void new_current_tagged_skeletons
       continue;
 
     // ignore entries without tags
-    if (it->tags.empty())
+    if (it->tag_idx == Data_By_Id<Element_Skeleton>::EMPTY_TAG)
       continue;
 
     const Uint31_Index* idx = binary_pair_search(existing_map_positions, it->elem.id);
@@ -523,7 +545,7 @@ void new_current_meta
       prev_idx = it->idx;
     }
 
-    set_meta->insert(it->meta);
+    set_meta->insert(OSM_Element_Metadata_Skeleton(it->elem.id, it->meta));
   }
 }
 
@@ -594,7 +616,7 @@ void new_current_local_tags
     // The old and new tags for this id go to the same index.
     // TODO: For compatibility with the update_logger, we add all tags
     // regardless whether they existed already before
-    add_tags(it->elem.id, it->idx, it->tags, new_local_tags);
+    add_tags(it->elem.id, it->idx, new_data.tags[it->tag_idx], new_local_tags);
   }
 }
 
@@ -643,9 +665,13 @@ void new_current_global_tags
 
 template< typename Element_Skeleton >
 std::vector< std::pair< typename Element_Skeleton::Id_Type, Uint31_Index > > new_idx_positions
-    (const Data_By_Id< Element_Skeleton >& new_data)
+    (const Data_By_Id< Element_Skeleton >& new_data,
+     bool initial_load = false)
 {
   std::vector< std::pair< typename Element_Skeleton::Id_Type, Uint31_Index > > result;
+  if (initial_load)
+    result.reserve(new_data.data.size());
+
   auto next_it = new_data.data.begin();
   for (auto it = new_data.data.begin(); it != new_data.data.end(); ++it)
   {
@@ -1202,7 +1228,7 @@ std::map< typename Element_Skeleton::Id_Type,
       OSM_Element_Metadata_Skeleton< typename Element_Skeleton::Id_Type > > > result;
 
   for (auto it = new_data.data.begin(); it != new_data.data.end(); ++it)
-    result[it->elem.id].push_back(it->meta);
+    result[it->elem.id].push_back(OSM_Element_Metadata_Skeleton(it->elem.id, it->meta));
 
   for (auto it = attic_meta.begin(); it != attic_meta.end(); ++it)
   {
@@ -1252,8 +1278,10 @@ std::map< std::pair< typename Element_Skeleton::Id_Type, std::string >, std::vec
       ++next_it;
     }
 
-    for (auto it2 = it->tags.begin();
-         it2 != it->tags.end(); ++it2)
+    const auto tags = &new_data.tags[it->tag_idx];
+
+    for (auto it2 = tags->begin();
+         it2 != tags->end(); ++it2)
     {
       std::vector< Attic< std::string > >& result_ref = result[std::make_pair(it->elem.id, it2->first)];
       if (result_ref.empty())
@@ -1324,8 +1352,8 @@ void store_new_keys(const Data_By_Id< Skeleton >& new_data,
       // We don't touch deleted objects
       continue;
 
-    for (auto it2 = it->tags.begin();
-         it2 != it->tags.end(); ++it2)
+    const auto tags = &new_data.tags[it->tag_idx];
+    for (auto it2 = tags->begin();  it2 != tags->end(); ++it2)
       keys.register_key(it2->first);
   }
 

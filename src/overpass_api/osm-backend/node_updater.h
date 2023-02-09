@@ -56,16 +56,24 @@ struct Node_Updater
 
   void set_node(const Node& node, const OSM_Element_Metadata* meta = nullptr)
   {
+    uint32_t tag_idx;
+
+    if (node.tags.empty())
+      tag_idx = Data_By_Id< Node_Skeleton >::EMPTY_TAG;
+    else
+    {
+      tag_idx = new_data.tags.size();
+      new_data.tags.push_back(node.tags);
+    }
+
     if (meta)
       new_data.data.push_back(Data_By_Id< Node_Skeleton >::Entry
-          (Uint31_Index(node.index), Node_Skeleton(node),
-           OSM_Element_Metadata_Skeleton< Node_Skeleton::Id_Type >(node.id, *meta),
-           node.tags));
+          (Uint31_Index(node.index), tag_idx, Node_Skeleton(node),
+           OSM_Element_Metadata_Skeleton< Node_Skeleton::Id_Type >(node.id, *meta)));
     else
       new_data.data.push_back(Data_By_Id< Node_Skeleton >::Entry
-          (Uint31_Index(node.index), Node_Skeleton(node),
-           OSM_Element_Metadata_Skeleton< Node_Skeleton::Id_Type >(node.id),
-           node.tags));
+          (Uint31_Index(node.index), tag_idx, Node_Skeleton(node),
+           OSM_Element_Metadata_Skeleton< Node_Skeleton::Id_Type >(node.id)));
 
     if (meta)
       user_by_id[meta->user_id] = meta->user_name;
@@ -73,15 +81,23 @@ struct Node_Updater
 
   void set_node(Node&& node, const OSM_Element_Metadata* meta = nullptr)
   {
+    uint32_t tag_idx;
+
+    if (node.tags.empty())
+      tag_idx = Data_By_Id< Node_Skeleton >::EMPTY_TAG;
+    else
+    {
+      tag_idx = new_data.tags.size();
+      new_data.tags.emplace_back(std::move(node.tags));
+    }
+
     if (meta)
-      new_data.data.push_back(Data_By_Id< Node_Skeleton >::Entry
-          (Uint31_Index(node.index), Node_Skeleton(node),
-           std::move(node.tags),
+      new_data.data.emplace_back(Data_By_Id< Node_Skeleton >::Entry
+          (Uint31_Index(node.index), tag_idx, Node_Skeleton(node),
            OSM_Element_Metadata_Skeleton< Node_Skeleton::Id_Type >(node.id, *meta)));
     else
-      new_data.data.push_back(Data_By_Id< Node_Skeleton >::Entry
-          (Uint31_Index(node.index), Node_Skeleton(node),
-           std::move(node.tags),
+      new_data.data.emplace_back(Data_By_Id< Node_Skeleton >::Entry
+          (Uint31_Index(node.index), tag_idx, Node_Skeleton(node),
            OSM_Element_Metadata_Skeleton< Node_Skeleton::Id_Type >(node.id)));
 
     if (meta)

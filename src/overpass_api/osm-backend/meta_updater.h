@@ -134,9 +134,9 @@ void process_meta_data
 }
 
 
-template< typename Index, typename Object >
+template< typename Index, typename Object,  template<class...> class TContainer >
 void copy_idxs_by_id
-    (const std::map< Index, std::set< Object > >& new_data, std::map< uint32, std::vector< uint32 > >& idxs_by_user_id)
+    (const std::map< Index, TContainer< Object > >& new_data, std::map< uint32, std::vector< uint32 > >& idxs_by_user_id)
 {
   for (auto it = new_data.begin();
        it != new_data.end(); ++it)

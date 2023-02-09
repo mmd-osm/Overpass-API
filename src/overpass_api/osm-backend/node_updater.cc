@@ -87,7 +87,7 @@ void compute_new_attic_meta
           last_index = Uint31_Index(0u);
       }
 
-      new_attic_meta[last_index].insert(it->meta);
+      new_attic_meta[last_index].insert(OSM_Element_Metadata_Skeleton(it->elem.id, it->meta));
 
       last_id = it->elem.id;
       continue;
@@ -97,7 +97,7 @@ void compute_new_attic_meta
 
     if (next_it != new_data.data.end() && it->elem.id == next_it->elem.id)
       // A later version also exists in new_data. Store the meta data of this version directly in attic.
-      new_attic_meta[it->idx].insert(it->meta);
+      new_attic_meta[it->idx].insert(OSM_Element_Metadata_Skeleton(it->elem.id, it->meta));
   }
 }
 
@@ -254,7 +254,8 @@ std::map< Tag_Index_Local, std::set< Attic< Node_Skeleton::Id_Type > > >
       const Uint31_Index* idx = binary_pair_search(existing_map_positions, it->elem.id);
       if (idx && !(it->idx == Uint31_Index(0u)) && (idx->val() & 0x7fffff00) == (it->idx.val() & 0x7fffff00))
       {
-        for (auto tag_it = it->tags.begin(); tag_it != it->tags.end(); ++tag_it)
+        const auto & tags = new_data.tags[it->tag_idx];
+        for (auto tag_it = tags.begin(); tag_it != tags.end(); ++tag_it)
           unmatched_tags[it->elem.id].insert(std::make_pair(tag_it->first, tag_it->second));
         idx_by_id.insert(std::make_pair(it->elem.id, it->idx.val() & 0x7fffff00));
       }
@@ -265,7 +266,8 @@ std::map< Tag_Index_Local, std::set< Attic< Node_Skeleton::Id_Type > > >
 	idx = binary_pair_search(existing_attic_map_positions, it->elem.id);
 	if (idx && !(it->idx == Uint31_Index(0u)))
 	{
-          for (auto tag_it = it->tags.begin(); tag_it != it->tags.end(); ++tag_it)
+	  const auto & tags = new_data.tags[it->tag_idx];
+          for (auto tag_it = tags.begin(); tag_it != tags.end(); ++tag_it)
             result[Tag_Index_Local(it->idx.val() & 0x7fffff00, tag_it->first, void_tag_value())]
                 .insert(Attic< Node_Skeleton::Id_Type >(it->elem.id, it->meta.timestamp));
 	}
@@ -280,11 +282,13 @@ std::map< Tag_Index_Local, std::set< Attic< Node_Skeleton::Id_Type > > >
       --last_it;
       if ((it->idx.val() & 0x7fffff00) == (last_it->idx.val() & 0x7fffff00))
       {
-        for (auto tag_it = last_it->tags.begin(); tag_it != last_it->tags.end(); ++tag_it)
+        const auto & last_tags = new_data.tags[last_it->tag_idx];
+        for (auto tag_it = last_tags.begin(); tag_it != last_tags.end(); ++tag_it)
           old_keys.insert(tag_it->first);
       }
 
-      for (auto tag_it = it->tags.begin(); tag_it != it->tags.end(); ++tag_it)
+      const auto & tags = new_data.tags[it->tag_idx];
+      for (auto tag_it = tags.begin(); tag_it != tags.end(); ++tag_it)
       {
         if (old_keys.find(tag_it->first) == old_keys.end())
           result[Tag_Index_Local(it->idx.val() & 0x7fffff00, tag_it->first, void_tag_value())]
@@ -305,10 +309,10 @@ std::map< Tag_Index_Local, std::set< Attic< Node_Skeleton::Id_Type > > >
       if ((it->idx.val() & 0x7fffff00) == (next_it->idx.val() & 0x7fffff00))
         compare_and_add_different_tags
           (Attic< Node_Skeleton::Id_Type >(it->elem.id, next_it->meta.timestamp),
-                 it->idx, it->tags, next_it->tags, result);
+                 it->idx, new_data.tags[it->tag_idx], new_data.tags[next_it->tag_idx], result);
       else
         add_tags(Attic< Node_Skeleton::Id_Type >(it->elem.id, next_it->meta.timestamp),
-                 it->idx, it->tags, result);
+                 it->idx, new_data.tags[it->tag_idx], result);
     }
   }
 
@@ -533,7 +537,7 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
 
   // Compute idx positions of new nodes
   const std::vector< std::pair< Node_Skeleton::Id_Type, Uint31_Index > > new_map_positions
-      = new_idx_positions(new_data);
+      = new_idx_positions(new_data, initial_load);
 
   callback->update_started();
   callback->prepare_delete_tags_finished();
@@ -608,7 +612,7 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
     f.push_back( [&]
     {
       // Already free up other possibly large objects which are no longer needed
-      new_data.data.clear();
+      new_data.reset();
     });
   }
 
@@ -747,7 +751,7 @@ void Node_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_sto
 
   callback->update_finished();
 
-  new_data.data.clear();
+  new_data.reset();
 
 //   nodes_meta_to_insert.clear();
 //   nodes_meta_to_delete.clear();
@@ -896,5 +900,5 @@ void Node_Updater::merge_files(const std::vector< std::string >& froms, const st
 void Node_Updater::release_mem()
 {
   // release more memory before starting "Reorganizing database..."
-  decltype(new_data.data){}.swap(new_data.data);
+  new_data.reset(true);
 }

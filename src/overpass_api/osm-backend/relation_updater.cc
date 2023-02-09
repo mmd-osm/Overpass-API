@@ -1363,7 +1363,7 @@ void Relation_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu
 
   callback->update_finished();
 
-  new_data.data.clear();
+  new_data.reset();
 //   rels_meta_to_delete.clear();
 //   rels_meta_to_insert.clear();
 

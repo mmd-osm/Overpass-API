@@ -57,16 +57,24 @@ struct Way_Updater
   void set_way(const Way& way,
 	       const OSM_Element_Metadata* meta = nullptr)
   {
+    uint32_t tag_idx;
+
+    if (way.tags.empty())
+      tag_idx = Data_By_Id< Way_Skeleton >::EMPTY_TAG;
+    else
+    {
+      tag_idx = new_data.tags.size();
+      new_data.tags.push_back(way.tags);
+    }
+
     if (meta)
       new_data.data.push_back(Data_By_Id< Way_Skeleton >::Entry
-          (Uint31_Index(0xff), Way_Skeleton(way),
-           OSM_Element_Metadata_Skeleton< Way_Skeleton::Id_Type >(way.id, *meta),
-           way.tags));
+          (Uint31_Index(0xff), tag_idx, Way_Skeleton(way),
+           OSM_Element_Metadata_Skeleton< Way_Skeleton::Id_Type >(way.id, *meta)));
     else
       new_data.data.push_back(Data_By_Id< Way_Skeleton >::Entry
-          (Uint31_Index(0xff), Way_Skeleton(way),
-           OSM_Element_Metadata_Skeleton< Way_Skeleton::Id_Type >(way.id),
-           way.tags));
+          (Uint31_Index(0xff), tag_idx, Way_Skeleton(way),
+           OSM_Element_Metadata_Skeleton< Way_Skeleton::Id_Type >(way.id)));
 
     if (meta)
       user_by_id[meta->user_id] = meta->user_name;
@@ -75,15 +83,23 @@ struct Way_Updater
   void set_way(Way&& way,
                const OSM_Element_Metadata* meta = nullptr)
   {
+    uint32_t tag_idx;
+
+    if (way.tags.empty())
+      tag_idx = Data_By_Id< Way_Skeleton >::EMPTY_TAG;
+    else
+    {
+      tag_idx = new_data.tags.size();
+      new_data.tags.emplace_back(std::move(way.tags));
+    }
+
     if (meta)
       new_data.data.push_back(Data_By_Id< Way_Skeleton >::Entry
-          (Uint31_Index(0xff), Way_Skeleton(way.id, std::move(way.nds), std::move(way.geometry)),
-           std::move(way.tags),
+          (Uint31_Index(0xff), tag_idx, Way_Skeleton(way.id, std::move(way.nds), std::move(way.geometry)),
            OSM_Element_Metadata_Skeleton< Way_Skeleton::Id_Type >(way.id, *meta)));
     else
       new_data.data.push_back(Data_By_Id< Way_Skeleton >::Entry
-          (Uint31_Index(0xff), Way_Skeleton(way.id, std::move(way.nds), std::move(way.geometry)),
-           std::move(way.tags),
+          (Uint31_Index(0xff), tag_idx, Way_Skeleton(way.id, std::move(way.nds), std::move(way.geometry)),
            OSM_Element_Metadata_Skeleton< Way_Skeleton::Id_Type >(way.id)));
 
     if (meta)

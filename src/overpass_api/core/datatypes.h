@@ -432,6 +432,23 @@ private:
 };
 
 
+template< typename Id_Type_ >
+struct OSM_Element_Metadata_Skeleton;
+
+struct OSM_Element_Metadata_Base
+{
+  OSM_Element_Metadata_Base() = default;
+
+  template< typename Id_Type >
+  OSM_Element_Metadata_Base(OSM_Element_Metadata_Skeleton< Id_Type > m) : version(m.version), timestamp(m.timestamp), changeset(m.changeset), user_id(m.user_id) {}
+
+  uint32 version{};
+  timestamp_t timestamp{};
+  uint32 changeset{};
+  uint32 user_id{};
+};
+
+
 struct OSM_Element_Metadata
 {
   OSM_Element_Metadata() = default;
@@ -462,6 +479,11 @@ struct OSM_Element_Metadata_Skeleton
 
   OSM_Element_Metadata_Skeleton(Id_Type ref_)
     : ref(ref_) {}
+
+  OSM_Element_Metadata_Skeleton(Id_Type ref_, const OSM_Element_Metadata_Base& meta)
+    : ref(ref_),
+      version(meta.version), timestamp(meta.timestamp),
+      changeset(meta.changeset), user_id(meta.user_id) {}
 
   OSM_Element_Metadata_Skeleton(Id_Type ref_, const OSM_Element_Metadata& meta)
     : ref(ref_),

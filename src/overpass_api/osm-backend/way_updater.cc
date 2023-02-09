@@ -997,7 +997,7 @@ void Way_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_stop
     {
       // Already free up other possibly large objects which are no longer needed
       new_node_idx_by_id.clear();
-      new_data.data.clear();
+      new_data.reset();
     });
   }
 
@@ -1138,7 +1138,7 @@ void Way_Updater::update(Osm_Backend_Callback* callback, Cpu_Stopwatch* cpu_stop
 
   callback->update_finished();
 
-  new_data.data.clear();
+  new_data.reset();
 
 //   ways_meta_to_insert.clear();
 //   ways_meta_to_delete.clear();
@@ -1278,5 +1278,5 @@ void Way_Updater::merge_files(const std::vector< std::string >& froms, const std
 void Way_Updater::release_mem()
 {
   // release more memory before starting "Reorganizing database..."
-  decltype(new_data.data){}.swap(new_data.data);
+  new_data.reset(true);
 }

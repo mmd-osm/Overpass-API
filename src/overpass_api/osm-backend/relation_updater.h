@@ -57,16 +57,24 @@ struct Relation_Updater
   void set_relation(const Relation& rel,
 		    const OSM_Element_Metadata* meta = nullptr)
   {
+    uint32_t tag_idx;
+
+    if (rel.tags.empty())
+      tag_idx = Data_By_Id< Relation_Skeleton >::EMPTY_TAG;
+    else
+    {
+      tag_idx = new_data.tags.size();
+      new_data.tags.push_back(rel.tags);
+    }
+
     if (meta)
       new_data.data.push_back(Data_By_Id< Relation_Skeleton >::Entry
-          (Uint31_Index(0xff), Relation_Skeleton(rel),
-           OSM_Element_Metadata_Skeleton< Relation_Skeleton::Id_Type >(rel.id, *meta),
-           rel.tags));
+          (Uint31_Index(0xff), tag_idx, Relation_Skeleton(rel),
+           OSM_Element_Metadata_Skeleton< Relation_Skeleton::Id_Type >(rel.id, *meta)));
     else
       new_data.data.push_back(Data_By_Id< Relation_Skeleton >::Entry
-          (Uint31_Index(0xff), Relation_Skeleton(rel),
-           OSM_Element_Metadata_Skeleton< Relation_Skeleton::Id_Type >(rel.id),
-           rel.tags));
+          (Uint31_Index(0xff), tag_idx, Relation_Skeleton(rel),
+           OSM_Element_Metadata_Skeleton< Relation_Skeleton::Id_Type >(rel.id)));
 
     if (meta)
       user_by_id[meta->user_id] = meta->user_name;
@@ -75,15 +83,23 @@ struct Relation_Updater
   void set_relation(Relation&& rel,
                     const OSM_Element_Metadata* meta = nullptr)
   {
+    uint32_t tag_idx;
+
+    if (rel.tags.empty())
+      tag_idx = Data_By_Id< Relation_Skeleton >::EMPTY_TAG;
+    else
+    {
+      tag_idx = new_data.tags.size();
+      new_data.tags.emplace_back(std::move(rel.tags));
+    }
+
     if (meta)
       new_data.data.push_back(Data_By_Id< Relation_Skeleton >::Entry
-          (Uint31_Index(0xff), Relation_Skeleton(rel.id, std::move(rel.members)),
-           std::move(rel.tags),
+          (Uint31_Index(0xff), tag_idx, Relation_Skeleton(rel.id, std::move(rel.members)),
            OSM_Element_Metadata_Skeleton< Relation_Skeleton::Id_Type >(rel.id, *meta)));
     else
       new_data.data.push_back(Data_By_Id< Relation_Skeleton >::Entry
-          (Uint31_Index(0xff), Relation_Skeleton(rel.id, std::move(rel.members)),
-           std::move(rel.tags),
+          (Uint31_Index(0xff), tag_idx, Relation_Skeleton(rel.id, std::move(rel.members)),
            OSM_Element_Metadata_Skeleton< Relation_Skeleton::Id_Type >(rel.id)));
 
     if (meta)
