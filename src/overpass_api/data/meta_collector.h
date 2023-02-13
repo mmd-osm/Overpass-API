@@ -84,6 +84,11 @@ private:
   Functor m_functor;
 
   void update_current_objects(const Index&);
+  bool is_sorted = false;
+  uint32_t remaining_linear_reads = 0;
+
+  constexpr static uint32_t MAX_LINEAR_READS = 10;
+
 };
 
 
@@ -239,7 +244,8 @@ void Meta_Collector< Index, Id_Type, Functor >::reset()
     ++(*range_it);
   }
 
-  std::sort(current_objects.begin(), current_objects.end());
+  remaining_linear_reads = MAX_LINEAR_READS;
+  is_sorted = false;
 }
 
 
@@ -270,10 +276,8 @@ void Meta_Collector< Index, Id_Type, Functor >::update_current_objects(const Ind
       ++(*range_it);
     }
   }
-
-  std::sort(current_objects.begin(), current_objects.end());
-//  const auto last = std::unique(current_objects.begin(), current_objects.end());
-//  current_objects.erase(last, current_objects.end());
+  remaining_linear_reads = MAX_LINEAR_READS;
+  is_sorted = false;
 }
 
 
@@ -285,14 +289,33 @@ const OSM_Element_Metadata_Skeleton< Id_Type >* Meta_Collector< Index, Id_Type, 
   if (!meta_db)
     return nullptr;
 
-  if (current_index && index < *last_index)
+  if (current_index && index < *last_index) {
     reset();
-  if (current_index && *current_index < index)
+  }
+  if (current_index && *current_index < index) {
     update_current_objects(index);
+  }
 
-  auto it
-      = std::lower_bound(current_objects.begin(), current_objects.end(),
-             OSM_Element_Metadata_Skeleton< Id_Type >(ref));
+  // lazy sorting: sort current_objects, if we hit the max. number of linear reads
+  if (!is_sorted && remaining_linear_reads == 0) {
+    std::sort(current_objects.begin(), current_objects.end());
+    is_sorted = true;
+  }
+
+  typename std::vector< OSM_Element_Metadata_Skeleton< Id_Type > >::const_iterator it;
+
+  if (is_sorted) {
+    it = std::lower_bound(current_objects.begin(), current_objects.end(),
+               OSM_Element_Metadata_Skeleton< Id_Type >(ref));
+  }
+  else
+  {
+    --remaining_linear_reads;
+    it = std::find_if(current_objects.begin(), current_objects.end(),
+        [ref](const OSM_Element_Metadata_Skeleton< Id_Type > el)
+        { return el.ref == ref; });
+  }
+
   if (it != current_objects.end() && it->ref == ref)
     return &*it;
   else
@@ -311,6 +334,11 @@ const OSM_Element_Metadata_Skeleton< Id_Type >* Meta_Collector< Index, Id_Type, 
     reset();
   if (current_index && *current_index < index)
     update_current_objects(index);
+
+  if (!is_sorted) {
+    std::sort(current_objects.begin(), current_objects.end());
+    is_sorted = true;
+  }
 
   auto it
       = std::lower_bound(current_objects.begin(), current_objects.end(),
