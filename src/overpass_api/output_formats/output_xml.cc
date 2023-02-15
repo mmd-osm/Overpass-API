@@ -74,13 +74,7 @@ void Output_XML::print_meta_xml(const OSM_Element_Metadata_Skeleton< Id_Type >& 
 		    const user_id_name_t& users)
 {
   std::string user = get_user(meta, users);
-  if (user.empty()) {
-    fmt::print(std::cout, FMT_STRING(R"( version="{:d}" timestamp="{}" changeset="{:d}" uid="{:d}")"), meta.version, iso_string(meta.timestamp), meta.changeset, meta.user_id);
-  }
-  else
-  {
-    fmt::print(std::cout, FMT_STRING(R"( version="{:d}" timestamp="{}" changeset="{:d}" uid="{:d}" user="{}")"), meta.version, iso_string(meta.timestamp), meta.changeset, meta.user_id, escape_xml(user));
-  }
+  fmt::print(std::cout, FMT_STRING(R"( version="{:d}" timestamp="{}" changeset="{:d}" uid="{:d}" user="{}")"), meta.version, iso_string(meta.timestamp), meta.changeset, meta.user_id, escape_xml(user));
 }
 
 void prepend_action(const Output_Handler::Feature_Action& action, bool allow_delta = true)

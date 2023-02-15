@@ -87,8 +87,7 @@ void Output_JSON::print_meta_json(const OSM_Element_Metadata_Skeleton< Id_Type >
         ",\n  \"version\": "<<meta.version<<
 	",\n  \"changeset\": "<<meta.changeset;
   std::string user = get_user(meta, users);
-  if (!user.empty())
-    std::cout<<",\n  \"user\": \""<<escape_cstr(user)<<"\"";
+  std::cout<<",\n  \"user\": \""<<escape_cstr(user)<<"\"";
   std::cout<<",\n  \"uid\": "<<meta.user_id;
 }
 
