@@ -510,7 +510,7 @@ void compute_idx_and_geometry
           auto it2 = nit->second.begin();
           while (it2 != nit->second.end() && it2->second.timestamp < expiration_timestamp)
             ++it2;
-          if (it2 != nit->second.end() && (node_idxs.empty() || !(node_idxs.back() == it2->first)))
+          if (it2 != nit->second.end())
             node_idxs.push_back(it2->first);
           // Otherwise the node has expired before our relation - something has gone wrong seriously.
         }
@@ -526,7 +526,7 @@ void compute_idx_and_geometry
           auto it2 = nit->second.begin();
           while (it2 != nit->second.end() && it2->second.timestamp < expiration_timestamp)
             ++it2;
-          if (it2 != nit->second.end() && (way_idxs.empty() || !(way_idxs.back() == it2->first)))
+          if (it2 != nit->second.end())
             way_idxs.push_back(it2->first);
           // Otherwise the way has expired before our relation - something has gone wrong seriously.
         }
@@ -537,13 +537,10 @@ void compute_idx_and_geometry
   }
 
   std::vector< uint32 > member_idxs;
-  member_idxs.reserve(node_idxs.size() + way_idxs.size());
-
   for (std::vector< Uint31_Index >::const_iterator it = node_idxs.begin(); it != node_idxs.end(); ++it)
     member_idxs.push_back(it->val());
   for (std::vector< Uint31_Index >::const_iterator it = way_idxs.begin(); it != way_idxs.end(); ++it)
     member_idxs.push_back(it->val());
-
   std::sort(member_idxs.begin(), member_idxs.end());
   member_idxs.erase(std::unique(member_idxs.begin(), member_idxs.end()), member_idxs.end());
 
