@@ -51,11 +51,9 @@ void Difference_Statement::add_statement(Statement* statement, std::string text)
 
   if (substatements.size() >= 2)
   {
-    std::ostringstream temp;
-    temp<<"A set difference always requires exactly two substatements: "
-          "the set of elements to copy to the result minus "
-          "the set of elements to leave out in the result.";
-    add_static_error(temp.str());
+    add_static_error("A set difference always requires exactly two substatements: "
+        "the set of elements to copy to the result minus "
+        "the set of elements to leave out in the result.");
   }
 
   if (!statement->get_result_name().empty())

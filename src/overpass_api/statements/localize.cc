@@ -58,12 +58,12 @@ Localize_Statement::Localize_Statement
   if (!attributes["s"].empty() || !attributes["n"].empty()
       || !attributes["w"].empty() || !attributes["e"].empty())
   {
-    south = atof(attributes["s"].c_str());
+    south = std::stod(attributes["s"]);
     if ((south < -90.0) || (south > 90.0) || (attributes["s"] == ""))
       add_static_error("For the attribute \"s\" of the element \"bbox-query\""
           " the only allowed values are floats between -90.0 and 90.0.");
 
-    north = atof(attributes["n"].c_str());
+    north = std::stod(attributes["n"]);
     if ((north < -90.0) || (north > 90.0) || (attributes["n"] == ""))
       add_static_error("For the attribute \"n\" of the element \"bbox-query\""
           " the only allowed values are floats between -90.0 and 90.0.");
@@ -71,12 +71,12 @@ Localize_Statement::Localize_Statement
       add_static_error("The value of attribute \"n\" of the element \"bbox-query\""
           " must always be greater or equal than the value of attribute \"s\".");
 
-    west = atof(attributes["w"].c_str());
+    west = std::stod(attributes["w"]);
     if ((west < -180.0) || (west > 180.0) || (attributes["w"] == ""))
       add_static_error("For the attribute \"w\" of the element \"bbox-query\""
           " the only allowed values are floats between -180.0 and 180.0.");
 
-    east = atof(attributes["e"].c_str());
+    east = std::stod(attributes["e"]);
     if ((east < -180.0) || (east > 180.0) || (attributes["e"] == ""))
       add_static_error("For the attribute \"e\" of the element \"bbox-query\""
           " the only allowed values are floats between -180.0 and 180.0.");

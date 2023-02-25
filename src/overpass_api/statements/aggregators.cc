@@ -470,11 +470,7 @@ Evaluator_Set_Count::Evaluator_Set_Count
 
   if (!try_parse_object_type(attributes["type"], to_count))
   {
-    std::ostringstream temp("");
-    temp<<"For the attribute \"type\" of the element \"eval-set-count\""
-        <<" the only allowed values are \"nodes\", \"ways\", \"relations\", \"deriveds\","
-        " \"nwr\", \"nw\", \"wr\", or \"nr\" strings.";
-    add_static_error(temp.str());
+    add_static_error("For the attribute \"type\" of the element \"eval-set-count\" the only allowed values are \"nodes\", \"ways\", \"relations\", \"deriveds\", \"nwr\", \"nw\", \"wr\", or \"nr\" strings.");
   }
 }
 

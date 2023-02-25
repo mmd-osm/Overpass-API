@@ -2425,12 +2425,10 @@ Recurse_Statement::Recurse_Statement
   else
   {
     // type = 0;
-    std::ostringstream temp;
-    temp<<"For the attribute \"type\" of the element \"recurse\""
-	<<" the only allowed values are \"relation-relation\", \"relation-backwards\","
-	<<"\"relation-way\", \"relation-node\", \"way-node\", \"way-relation\","
-	<<"\"node-relation\", \"node-way\", \"down\", \"down-rel\", \"up\", or \"up-rel\".";
-    add_static_error(temp.str());
+    add_static_error("For the attribute \"type\" of the element \"recurse\""
+        " the only allowed values are \"relation-relation\", \"relation-backwards\","
+        "\"relation-way\", \"relation-node\", \"way-node\", \"way-relation\","
+        "\"node-relation\", \"node-way\", \"down\", \"down-rel\", \"up\", or \"up-rel\".");
   }
 
   if (!attributes["role"].empty() || attributes["role-restricted"] == "yes")
@@ -2441,11 +2439,9 @@ Recurse_Statement::Recurse_Statement
         && type != Recurse::RELATION_NR
         && type != Recurse::NODE_RELATION && type != Recurse::WAY_RELATION)
     {
-      std::ostringstream temp;
-      temp<<"A role can only be specified for values \"relation-relation\", \"relation-backwards\","
-          <<"\"relation-way\", \"relation-node\", \"way-relation\","
-          <<"or \"node-relation\".";
-      add_static_error(temp.str());
+      add_static_error("A role can only be specified for values \"relation-relation\", \"relation-backwards\","
+          "\"relation-way\", \"relation-node\", \"way-relation\","
+          "or \"node-relation\".");
     }
     else
     {

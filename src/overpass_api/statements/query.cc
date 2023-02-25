@@ -77,10 +77,7 @@ Query_Statement::Query_Statement
   else
   {
     type = 0;
-    std::ostringstream temp;
-    temp<<"For the attribute \"type\" of the element \"query\""
-        <<" the only allowed values are \"node\", \"way\", \"relation\", \"nwr\", \"nw\", \"wr\", \"nr\", or \"area\".";
-    add_static_error(temp.str());
+    add_static_error("For the attribute \"type\" of the element \"query\" the only allowed values are \"node\", \"way\", \"relation\", \"nwr\", \"nw\", \"wr\", \"nr\", or \"area\".");
   }
 
   if (global_settings.get_global_bbox_limitation().valid())
@@ -2361,10 +2358,7 @@ Has_Kv_Statement::Has_Kv_Statement
 
   if (key.empty() && attributes["regk"].empty())
   {
-    std::ostringstream temp("");
-    temp<<"For the attribute \"k\" of the element \"has-kv\""
-	<<" the only allowed values are non-empty strings.";
-    add_static_error(temp.str());
+    add_static_error("For the attribute \"k\" of the element \"has-kv\" the only allowed values are non-empty strings.");
   }
 
   if (attributes["case"] != "ignore")
@@ -2379,16 +2373,11 @@ Has_Kv_Statement::Has_Kv_Statement
   {
     if (!key.empty())
     {
-      std::ostringstream temp("");
-      temp<<"In the element \"has-kv\" only one of the attributes \"k\" and \"regk\""
-            " can be nonempty.";
-      add_static_error(temp.str());
+      add_static_error("In the element \"has-kv\" only one of the attributes \"k\" and \"regk\" can be nonempty.");
     }
     if (!value.empty())
     {
-      std::ostringstream temp("");
-      temp<<"In the element \"has-kv\" the attribute \"regk\" must be combined with \"regv\".";
-      add_static_error(temp.str());
+      add_static_error("In the element \"has-kv\" the attribute \"regk\" must be combined with \"regv\".");
     }
 
     try
@@ -2406,10 +2395,7 @@ Has_Kv_Statement::Has_Kv_Statement
   {
     if (!value.empty())
     {
-      std::ostringstream temp("");
-      temp<<"In the element \"has-kv\" only one of the attributes \"v\" and \"regv\""
-            " can be nonempty.";
-      add_static_error(temp.str());
+      add_static_error("In the element \"has-kv\" only one of the attributes \"v\" and \"regv\" can be nonempty.");
     }
 
     try
@@ -2439,9 +2425,7 @@ Has_Kv_Statement::Has_Kv_Statement
   }
   else
   {
-    std::ostringstream temp("");
-    temp<<"In the element \"has-kv\" the attribute \"modv\" can only be empty or std::set to \"not\".";
-    add_static_error(temp.str());
+    add_static_error("In the element \"has-kv\" the attribute \"modv\" can only be empty or std::set to \"not\".");
   }
 }
 
