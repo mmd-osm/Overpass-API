@@ -849,65 +849,85 @@ Around_Statement::Around_Statement
   input = attributes["from"];
   set_output(attributes["into"]);
 
-  radius = atof(attributes["radius"].c_str());
-  if ((radius < 0.0) || (attributes["radius"].empty()))
-  {
-    std::ostringstream temp;
-    temp<<"For the attribute \"radius\" of the element \"around\""
-        <<" the only allowed values are nonnegative floats.";
-    add_static_error(temp.str());
-  }
+  try {
 
-  double lat = 100.;
-  double lon = 0;
-  if (!attributes["lat"].empty())
-  {
-    lat = atof(attributes["lat"].c_str());
-    if ((lat < -90.0) || (lat > 90.0))
-      add_static_error("For the attribute \"lat\" of the element \"around\""
-          " the only allowed values are floats between -90.0 and 90.0 or an empty value.");
-  }
-
-  if (!attributes["lon"].empty())
-  {
-    lon = atof(attributes["lon"].c_str());
-    if ((lon < -180.0) || (lon > 180.0))
-      add_static_error("For the attribute \"lon\" of the element \"around\""
-          " the only allowed values are floats between -1800.0 and 180.0 or an empty value.");
-  }
-
-  if (!attributes["polyline"].empty())
-  {
-    if (!attributes["lat"].empty() || !attributes["lon"].empty())
-      add_static_error("In \"around\", the attribute \"polyline\" cannot be used if \"lat\" or \"lon\" are used.");
-
-    std::string& polystring = attributes["polyline"];
-    std::string::size_type from = 0;
-    std::string::size_type to = polystring.find(',');
-    while (to != std::string::npos)
+    radius = std::stod(attributes["radius"]);
+    if ((radius < 0.0) || (attributes["radius"].empty()))
     {
-      double lat = atof(polystring.substr(from, to).c_str());
-      from = to+1;
-      to = polystring.find(',', from);
-      if (to != std::string::npos)
-      {
-        points.push_back(Point_Double(lat, atof(polystring.substr(from, to).c_str())));
-        from = to+1;
-        to = polystring.find(',', from);
-      }
-      else
-        points.push_back(Point_Double(lat, atof(polystring.substr(from).c_str())));
+      add_static_error("For the attribute \"radius\" of the element \"around\" the only allowed values are nonnegative floats.");
+    }
+  }
+  catch (std::invalid_argument&)
+  {
+    add_static_error("Invalid radius value");
+  }
+  catch (std::out_of_range&)
+  {
+    add_static_error("Radius value out of range");
+  }
+
+  try {
+
+    double lat = 100.;
+    double lon = 0;
+    if (!attributes["lat"].empty())
+    {
+      lat = std::stod(attributes["lat"]);
+      if ((lat < -90.0) || (lat > 90.0))
+        add_static_error("For the attribute \"lat\" of the element \"around\""
+            " the only allowed values are floats between -90.0 and 90.0 or an empty value.");
     }
 
-    if ((points.back().lat < -90.0) || (points.back().lat > 90.0))
-      add_static_error("For a latitude entry in the attribute \"polyline\" of the element \"around\""
-          " the only allowed values are floats between -90.0 and 90.0 or an empty value.");
-    if ((points.back().lon < -180.0) || (points.back().lon > 180.0))
-      add_static_error("For a latitude entry in the attribute \"polyline\" of the element \"around\""
-          " the only allowed values are floats between -1800.0 and 180.0 or an empty value.");
+    if (!attributes["lon"].empty())
+    {
+      lon = std::stod(attributes["lon"]);
+      if ((lon < -180.0) || (lon > 180.0))
+        add_static_error("For the attribute \"lon\" of the element \"around\""
+            " the only allowed values are floats between -1800.0 and 180.0 or an empty value.");
+    }
+
+    if (!attributes["polyline"].empty())
+    {
+      if (!attributes["lat"].empty() || !attributes["lon"].empty())
+        add_static_error("In \"around\", the attribute \"polyline\" cannot be used if \"lat\" or \"lon\" are used.");
+
+      std::string& polystring = attributes["polyline"];
+      std::string::size_type from = 0;
+      std::string::size_type to = polystring.find(',');
+      while (to != std::string::npos)
+      {
+        double lat = std::stod(polystring.substr(from, to));
+        from = to+1;
+        to = polystring.find(',', from);
+        if (to != std::string::npos)
+        {
+          points.push_back(Point_Double(lat, std::stod(polystring.substr(from, to))));
+          from = to+1;
+          to = polystring.find(',', from);
+        }
+        else
+          points.push_back(Point_Double(lat, std::stod(polystring.substr(from))));
+      }
+
+      if ((points.back().lat < -90.0) || (points.back().lat > 90.0))
+        add_static_error("For a latitude entry in the attribute \"polyline\" of the element \"around\""
+            " the only allowed values are floats between -90.0 and 90.0 or an empty value.");
+      if ((points.back().lon < -180.0) || (points.back().lon > 180.0))
+        add_static_error("For a longitude entry in the attribute \"polyline\" of the element \"around\""
+            " the only allowed values are floats between -180.0 and 180.0 or an empty value.");
+    }
+    else if (lat < 100.)
+      points.push_back(Point_Double(lat, lon));
+
   }
-  else if (lat < 100.)
-    points.push_back(Point_Double(lat, lon));
+  catch (std::invalid_argument&)
+  {
+    add_static_error("Invalid longitude/latitude value");
+  }
+  catch (std::out_of_range&)
+  {
+    add_static_error("Longitude/latitude value out of range");
+  }
 
   prepare_points_ranges();
 }
