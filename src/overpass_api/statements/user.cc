@@ -231,7 +231,20 @@ User_Statement::User_Statement
   set_output(attributes["into"]);
 
   std::string user_name = attributes["name"];
-  uint32 user_id = atoll(attributes["uid"].c_str());
+  uint32 user_id{};
+
+  try {
+    user_id = attributes["uid"].empty() ? 0 : std::stoll(attributes["uid"]);
+  }
+  catch (std::invalid_argument&)
+  {
+    add_static_error("Invalid uid value");
+  }
+  catch (std::out_of_range&)
+  {
+    add_static_error("Uid value out of range");
+  }
+
 
   if (!user_name.empty())
     user_names.insert(user_name);
@@ -249,7 +262,19 @@ User_Statement::User_Statement
     }
     if (it->first.find("uid_") == 0)
     {
-      user_id = atoll(it->second.c_str());
+      try {
+        user_id = 0;
+        user_id = std::stoll(it->second);
+      }
+      catch (std::invalid_argument&)
+      {
+        add_static_error("Invalid uid value");
+      }
+      catch (std::out_of_range&)
+      {
+        add_static_error("Uid value out of range");
+      }
+
       if (user_id != 0)
         user_ids.insert(user_id);
     }
@@ -257,9 +282,7 @@ User_Statement::User_Statement
 
   if (!(user_ids.empty() ^ user_names.empty()))
   {
-    std::ostringstream temp;
-    temp<<"Exactly one of the two attributes \"name\" and \"uid\" must be set.";
-    add_static_error(temp.str());
+    add_static_error("Exactly one of the two attributes \"name\" and \"uid\" must be set.");
   }
 
   result_type = attributes["type"];
