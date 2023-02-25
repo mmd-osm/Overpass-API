@@ -164,44 +164,42 @@ Bbox_Query_Statement::Bbox_Query_Statement
   eval_attributes_array(get_name(), attributes, input_attributes);
 
   set_output(attributes["into"]);
-  south = atof(attributes["s"].c_str());
-  if ((south < -90.0) || (south > 90.0) || (attributes["s"].empty()))
-  {
-    std::ostringstream temp;
-    temp<<"For the attribute \"s\" of the element \"bbox-query\""
-    <<" the only allowed values are floats between -90.0 and 90.0.";
-    add_static_error(temp.str());
+
+  try {
+
+    south = std::stod(attributes["s"]);
+    if (south < -90.0 || south > 90.0)
+    {
+      add_static_error("For the attribute \"s\" of the element \"bbox-query\" the only allowed values are floats between -90.0 and 90.0.");
+    }
+    north = std::stod(attributes["n"]);
+    if (north < -90.0 || north > 90.0)
+    {
+      add_static_error("For the attribute \"n\" of the element \"bbox-query\" the only allowed values are floats between -90.0 and 90.0.");
+    }
+    if (north < south)
+    {
+      add_static_error("The value of attribute \"n\" of the element \"bbox-query\" must always be greater or equal than the value of attribute \"s\".");
+    }
+    west = std::stod(attributes["w"]);
+    if (west < -180.0 || west > 180.0)
+    {
+      add_static_error("For the attribute \"w\" of the element \"bbox-query\" the only allowed values are floats between -180.0 and 180.0.");
+    }
+    east = std::stod(attributes["e"]);
+    if (east < -180.0 || east > 180.0)
+    {
+      add_static_error("For the attribute \"e\" of the element \"bbox-query\" the only allowed values are floats between -180.0 and 180.0.");
+    }
+
   }
-  north = atof(attributes["n"].c_str());
-  if ((north < -90.0) || (north > 90.0) || (attributes["n"].empty()))
+  catch (std::invalid_argument&)
   {
-    std::ostringstream temp;
-    temp<<"For the attribute \"n\" of the element \"bbox-query\""
-    <<" the only allowed values are floats between -90.0 and 90.0.";
-    add_static_error(temp.str());
+    add_static_error("Invalid longitude/latitude value");
   }
-  if (north < south)
+  catch (std::out_of_range&)
   {
-    std::ostringstream temp;
-    temp<<"The value of attribute \"n\" of the element \"bbox-query\""
-    <<" must always be greater or equal than the value of attribute \"s\".";
-    add_static_error(temp.str());
-  }
-  west = atof(attributes["w"].c_str());
-  if ((west < -180.0) || (west > 180.0) || (attributes["w"].empty()))
-  {
-    std::ostringstream temp;
-    temp<<"For the attribute \"w\" of the element \"bbox-query\""
-    <<" the only allowed values are floats between -180.0 and 180.0.";
-    add_static_error(temp.str());
-  }
-  east = atof(attributes["e"].c_str());
-  if ((east < -180.0) || (east > 180.0) || (attributes["e"].empty()))
-  {
-    std::ostringstream temp;
-    temp<<"For the attribute \"e\" of the element \"bbox-query\""
-    <<" the only allowed values are floats between -180.0 and 180.0.";
-    add_static_error(temp.str());
+    add_static_error("Longitude/latitude value out of range");
   }
 }
 
