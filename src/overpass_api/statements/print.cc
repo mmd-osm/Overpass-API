@@ -109,7 +109,7 @@ Print_Statement::Print_Statement
   }
 
   if (!attributes["limit"].empty())
-    limit = atoll(attributes["limit"].c_str());
+    limit = std::stoll(attributes["limit"]);
 
   if (attributes["geometry"] == "skeleton")
     ;
@@ -120,12 +120,8 @@ Print_Statement::Print_Statement
   else if (attributes["geometry"] == "center")
     mode = mode | Output_Mode::CENTER;
   else
-  {
-    std::ostringstream temp;
-    temp<<"For the attribute \"geometry\" of the element \"print\""
-        <<" the only allowed values are \"skeleton\", \"full\", \"bounds\", or \"center\".";
-    add_static_error(temp.str());
-  }
+    add_static_error("For the attribute \"geometry\" of the element \"print\" the only allowed values are \"skeleton\", \"full\", \"bounds\", or \"center\".");
+
 
   if (attributes["ids"] == "yes")
     ;
@@ -139,51 +135,53 @@ Print_Statement::Print_Statement
     add_static_error(temp.str());
   }
 
-  south = atof(attributes["s"].c_str());
-  if ((south < -90.0) || (south > 90.0))
-  {
-    std::ostringstream temp;
-    temp<<"For the attribute \"s\" of the element \"print\""
-    <<" the only allowed values are floats between -90.0 and 90.0.";
-    add_static_error(temp.str());
-  }
-  north = atof(attributes["n"].c_str());
-  if ((north < -90.0) || (north > 90.0))
-  {
-    std::ostringstream temp;
-    temp<<"For the attribute \"n\" of the element \"print\""
-    <<" the only allowed values are floats between -90.0 and 90.0.";
-    add_static_error(temp.str());
-  }
-  if (north < south)
-  {
-    std::ostringstream temp;
-    temp<<"The value of attribute \"n\" of the element \"print\""
-    <<" must always be greater or equal than the value of attribute \"s\".";
-    add_static_error(temp.str());
-  }
 
-  west = atof(attributes["w"].c_str());
-  if ((west < -180.0) || (west > 180.0))
-  {
-    std::ostringstream temp;
-    temp<<"For the attribute \"w\" of the element \"print\""
-    <<" the only allowed values are floats between -180.0 and 180.0.";
-    add_static_error(temp.str());
-  }
-  east = atof(attributes["e"].c_str());
-  if ((east < -180.0) || (east > 180.0))
-  {
-    std::ostringstream temp;
-    temp<<"For the attribute \"e\" of the element \"print\""
-    <<" the only allowed values are floats between -180.0 and 180.0.";
-    add_static_error(temp.str());
-  }
   if ((attributes["n"].empty()) && (attributes["s"].empty()) &&
       (attributes["w"].empty()) && (attributes["e"].empty()))
   {
     south = 1.0;
     north = 0.0;
+  }
+  else
+  {
+    try {
+
+      south = std::stod(attributes["s"]);
+      if ((south < -90.0) || (south > 90.0))
+      {
+        add_static_error("For the attribute \"s\" of the element \"print\" the only allowed values are floats between -90.0 and 90.0.");
+      }
+      north = std::stod(attributes["n"]);
+      if ((north < -90.0) || (north > 90.0))
+      {
+        add_static_error("For the attribute \"n\" of the element \"print\" the only allowed values are floats between -90.0 and 90.0.");
+      }
+      if (north < south)
+      {
+        add_static_error("The value of attribute \"n\" of the element \"print\" must always be greater or equal than the value of attribute \"s\".");
+      }
+
+      west = std::stod(attributes["w"]);
+      if ((west < -180.0) || (west > 180.0))
+      {
+        add_static_error("For the attribute \"w\" of the element \"print\" the only allowed values are floats between -180.0 and 180.0.");
+      }
+
+      east = std::stod(attributes["e"]);
+      if ((east < -180.0) || (east > 180.0))
+      {
+        add_static_error("For the attribute \"e\" of the element \"print\" the only allowed values are floats between -180.0 and 180.0.");
+      }
+
+    }
+    catch (std::invalid_argument&)
+    {
+      add_static_error("Invalid longitude/latitude value");
+    }
+    catch (std::out_of_range&)
+    {
+      add_static_error("Longitude/latitude value out of range");
+    }
   }
 }
 
