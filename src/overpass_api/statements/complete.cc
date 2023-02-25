@@ -44,7 +44,7 @@ Complete_Statement::Complete_Statement
 
   if (!attributes["maxnum"].empty())
   {
-    long long maxnum = atoi(attributes["maxnum"].c_str());
+    long long maxnum = std::stoi(attributes["maxnum"]);
     if (maxnum <= 0 || maxnum > 1048576)
       add_static_error("Maximum loop number for complete must be an integer between \"1\" and \"1048576\".");
     else

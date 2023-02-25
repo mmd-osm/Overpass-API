@@ -564,9 +564,7 @@ Changed_Statement::Changed_Statement
 
   if (!behave_trivial && ((attributes["since"] == "auto") ^ (attributes["until"] == "auto")))
   {
-    std::ostringstream temp;
-    temp<<"The attributes \"since\" and \"until\" must be set either both or none.";
-    add_static_error(temp.str());
+    add_static_error("The attributes \"since\" and \"until\" must be set either both or none.");
   }
 
   std::string timestamp = attributes["since"];
@@ -586,7 +584,7 @@ Changed_Statement::Changed_Statement
   filter_changeset = 0;
   const auto changeset = attributes["changeset"];
   if (!changeset.empty()) {
-    filter_changeset = atol(changeset.c_str());
+    filter_changeset = std::stol(changeset);
     if (filter_changeset <= 0) {
       add_static_error("The attribute \"changeset\" must be a positive number");
     }
