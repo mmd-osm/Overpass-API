@@ -51,13 +51,34 @@ Timeline_Statement::Timeline_Statement
 	" the only allowed values are \"node\", \"way\", or \"relation\".");
   }
 
-  ref = atoll(attributes["ref"].c_str());
+  try {
+    ref = attributes["ref"].empty() ? 0 : std::stoll(attributes["ref"]);
+  }
+  catch (std::invalid_argument&)
+  {
+    add_static_error("Invalid ref value in timestamp");
+  }
+  catch (std::out_of_range&)
+  {
+    add_static_error("Ref value in timeline out of range");
+  }
+
 
   if (!ref)
     add_static_error("For the attribute \"ref\" of the element \"timeline\""
         " the only allowed values are positive integers.");
 
-  version = atoll(attributes["version"].c_str());
+  try {
+    version = attributes["version"].empty() ? 0 : std::stoll(attributes["version"]);
+  }
+  catch (std::invalid_argument&)
+  {
+    add_static_error("Invalid version value in timeline");
+  }
+  catch (std::out_of_range&)
+  {
+    add_static_error("Version value in timeline out of range");
+  }
 
   if (version == 0 && !attributes["version"].empty())
     add_static_error("For the attribute \"version\" of the element \"timeline\""
