@@ -217,31 +217,18 @@ void clear_common_values
           ++new_sit;
         else
         {
-          auto old_erase = old_sit;
-          ++old_sit;
-          old_it->second.erase(old_erase);
-          
-          auto new_erase = new_sit;
-          ++new_sit;
-          new_it->second.erase(new_erase);
+          old_sit = old_it->second.erase(old_sit);
+          new_sit = new_it->second.erase(new_sit);
         }
       }
       
       if (old_it->second.empty())
-      {
-        auto old_erase = old_it;
-        ++old_it;
-        attic_local_tags.erase(old_erase);
-      }
+        old_it = attic_local_tags.erase(old_it);
       else
         ++old_it;
       
       if (new_it->second.empty())
-      {
-        auto new_erase = new_it;
-        ++new_it;
-        new_local_tags.erase(new_erase);
-      }
+        new_it = new_local_tags.erase(new_it);
       else
         ++new_it;
     }
