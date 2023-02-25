@@ -273,52 +273,58 @@ Id_Query_Statement::Id_Query_Statement
   else
   {
     type = 0;
-    std::ostringstream temp;
-    temp<<"For the attribute \"type\" of the element \"id-query\""
-	<<" the only allowed values are \"node\", \"way\", \"relation\", or \"area\".";
-    add_static_error(temp.str());
+    add_static_error("For the attribute \"type\" of the element \"id-query\" the only allowed values are \"node\", \"way\", \"relation\", or \"area\".");
   }
 
-  uint64 ref = atoll(attributes["ref"].c_str());
+  try {
 
-  if (ref > 0)
-    refs.push_back(ref);
+    uint64 ref = attributes["ref"].empty() ? 0 : std::stoll(attributes["ref"]);
 
-  for (auto it = attributes.begin();
-      it != attributes.end(); ++it)
-  {
-    if (it->first.find("ref_") == 0)
+    if (ref > 0)
+      refs.push_back(ref);
+
+    for (auto it = attributes.begin();
+        it != attributes.end(); ++it)
     {
-      ref = atoll(it->second.c_str());
-      if (ref > 0)
-        refs.push_back(ref);
+      if (it->first.find("ref_") == 0)
+      {
+        ref = std::stoll(it->second);
+        if (ref > 0)
+          refs.push_back(ref);
+      }
     }
-  }
 
-  uint64 lower = atoll(attributes["lower"].c_str());
-  uint64 upper = atoll(attributes["upper"].c_str());
+    uint64 lower = attributes["lower"].empty() ? 0 : std::stoll(attributes["lower"]);
+    uint64 upper = attributes["upper"].empty() ? 0 : std::stoll(attributes["upper"]);
 
-  if (ref <= 0)
-  {
-    if (lower == 0 || upper == 0)
+    if (ref <= 0)
     {
-      std::ostringstream temp;
-      temp<<"For the attribute \"ref\" of the element \"id-query\""
-	  <<" the only allowed values are positive integers.";
-      add_static_error(temp.str());
+      if (lower == 0 || upper == 0)
+      {
+        add_static_error("For the attribute \"ref\" of the element \"id-query\" the only allowed values are positive integers.");
+      }
+      ++upper;
     }
-    ++upper;
-  }
-  else
-  {
-    lower = ref;
-    upper = ++ref;
-  }
+    else
+    {
+      lower = ref;
+      upper = ++ref;
+    }
 
-  if (lower > 0 && upper > 0)
+    if (lower > 0 && upper > 0)
+    {
+      for (uint64 i = lower; i < upper; ++i)
+        refs.push_back(i);
+    }
+
+  }
+  catch (std::invalid_argument&)
   {
-    for (uint64 i = lower; i < upper; ++i)
-      refs.push_back(i);
+    add_static_error("Invalid value in id query");
+  }
+  catch (std::out_of_range&)
+  {
+    add_static_error("Value out of range in id query");
   }
 
   std::sort(refs.begin(), refs.end());
