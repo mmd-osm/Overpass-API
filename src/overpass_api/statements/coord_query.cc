@@ -62,22 +62,26 @@ Coord_Query_Statement::Coord_Query_Statement
   lon = 200.0;
   if (!attributes["lat"].empty() || !attributes["lon"].empty())
   {
-    lat = atof(attributes["lat"].c_str());
-    if ((lat < -90.0) || (lat > 90.0) || (attributes["lat"].empty()))
-    {
-      std::ostringstream temp;
-      temp<<"For the attribute \"lat\" of the element \"coord-query\""
-          <<" the only allowed values are floats between -90.0 and 90.0.";
-      add_static_error(temp.str());
-    }
+    try {
+      lat = std::stod(attributes["lat"]);
+      if ((lat < -90.0) || (lat > 90.0) || (attributes["lat"].empty()))
+      {
+        add_static_error("For the attribute \"lat\" of the element \"coord-query\" the only allowed values are floats between -90.0 and 90.0.");
+      }
 
-    lon = atof(attributes["lon"].c_str());
-    if ((lon < -180.0) || (lon > 180.0) || (attributes["lon"].empty()))
+      lon = std::stod(attributes["lon"]);
+      if ((lon < -180.0) || (lon > 180.0) || (attributes["lon"].empty()))
+      {
+        add_static_error("For the attribute \"lon\" of the element \"coord-query\" the only allowed values are floats between -180.0 and 180.0.");
+      }
+    }
+    catch (std::invalid_argument&)
     {
-      std::ostringstream temp;
-      temp<<"For the attribute \"lon\" of the element \"coord-query\""
-          <<" the only allowed values are floats between -180.0 and 180.0.";
-      add_static_error(temp.str());
+      add_static_error("Invalid longitude/latitude value");
+    }
+    catch (std::out_of_range&)
+    {
+      add_static_error("Longitude/latitude value out of range");
     }
   }
 
