@@ -77,13 +77,10 @@ Osm_Script_Statement::Osm_Script_Statement
   
   eval_attributes_array(get_name(), attributes, input_attributes);
 
-  int32 timeout(atoi(attributes["timeout"].c_str()));
+  int32 timeout(std::stoi(attributes["timeout"]));
   if (timeout <= 0)
   {
-    std::ostringstream temp;
-    temp<<"For the attribute \"timeout\" of the element \"osm-script\""
-        <<" the only allowed values are positive integers.";
-    add_static_error(temp.str());
+    add_static_error("For the attribute \"timeout\" of the element \"osm-script\" the only allowed values are positive integers.");
   }
 
   // optionally limit query timeout
@@ -131,10 +128,7 @@ Osm_Script_Statement::Osm_Script_Statement
     global_settings.set_regexp_engine(attributes["regexp"]);
   else
   {
-    std::ostringstream temp;
-    temp<<"For the attribute \"regexp\" of the element \"osm-script\""
-        <<" the only allowed values are \"POSIX\", \"PCRE\", \"PCREJIT\" and \"ICU\".";
-    add_static_error(temp.str());
+    add_static_error("For the attribute \"regexp\" of the element \"osm-script\" the only allowed values are \"POSIX\", \"PCRE\", \"PCREJIT\" and \"ICU\".");
   }
 
   if (!attributes["bbox"].empty())
@@ -152,9 +146,7 @@ Osm_Script_Statement::Osm_Script_Statement
     }
     else
     {
-      std::ostringstream temp;
-      temp<<"A bounding box needs four comma-separated values.";
-      add_static_error(temp.str());
+      add_static_error("A bounding box needs four comma-separated values.");
     }
     if (pos != std::string::npos)
     {
@@ -164,9 +156,7 @@ Osm_Script_Statement::Osm_Script_Statement
     }
     else
     {
-      std::ostringstream temp;
-      temp<<"A bounding box needs four comma-separated values.";
-      add_static_error(temp.str());
+      add_static_error("A bounding box needs four comma-separated values.");
     }
     if (pos != std::string::npos)
     {
@@ -175,33 +165,38 @@ Osm_Script_Statement::Osm_Script_Statement
     }
     else
     {
-      std::ostringstream temp;
-      temp<<"A bounding box needs four comma-separated values.";
-      add_static_error(temp.str());
+      add_static_error("A bounding box needs four comma-separated values.");
     }
     bbox_attributes["e"] = bbox_s.substr(from);
 
-    double south = atof(bbox_attributes["s"].c_str());
-    double north = atof(bbox_attributes["n"].c_str());
-    if (south < -90.0 || south > 90.0 || north < -90.0 || north > 90.0)
-    {
-      std::ostringstream temp;
-      temp<<"Latitudes in bounding boxes must be between -90.0 and 90.0.";
-      add_static_error(temp.str());
-    }
+    try {
 
-    double west = atof(bbox_attributes["w"].c_str());
-    double east = atof(bbox_attributes["e"].c_str());
-    if (west < -180.0 || west > 180.0 || east < -180.0 || east > 180.0)
-    {
-      std::ostringstream temp;
-      temp<<"Longitudes in bounding boxes must be between -180.0 and 180.0.";
-      add_static_error(temp.str());
-    }
+      double south = std::stod(bbox_attributes["s"]);
+      double north = std::stod(bbox_attributes["n"]);
+      if (south < -90.0 || south > 90.0 || north < -90.0 || north > 90.0)
+      {
+        add_static_error("Latitudes in bounding boxes must be between -90.0 and 90.0.");
+      }
 
-    if (south >= -90.0 && south <= 90.0 && north >= -90.0 && north <= 90.0
-        && west >= -180.0 && west <= 180.0 && east >= -180.0 && east <= 180.0)
-      global_settings.set_global_bbox(Bbox_Double(south, west, north, east));
+      double west = std::stod(bbox_attributes["w"]);
+      double east = std::stod(bbox_attributes["e"]);
+      if (west < -180.0 || west > 180.0 || east < -180.0 || east > 180.0)
+      {
+        add_static_error("Longitudes in bounding boxes must be between -180.0 and 180.0.");
+      }
+
+      if (south >= -90.0 && south <= 90.0 && north >= -90.0 && north <= 90.0
+          && west >= -180.0 && west <= 180.0 && east >= -180.0 && east <= 180.0)
+        global_settings.set_global_bbox(Bbox_Double(south, west, north, east));
+    }
+    catch (std::invalid_argument&)
+    {
+      add_static_error("Bounding box: invalid longitude/latitude value");
+    }
+    catch (std::out_of_range&)
+    {
+      add_static_error("Bounding box: longitude/latitude value out of range");
+    }
   }
 
   if (!attributes["date"].empty())
@@ -227,15 +222,11 @@ Osm_Script_Statement::Osm_Script_Statement
 
     if (attributes["augmented"] != "deletions")
     {
-      std::ostringstream temp;
-      temp<<"The only allowed values for \"augmented\" are an empty value or \"deletions\".";
-      add_static_error(temp.str());
+      add_static_error("The only allowed values for \"augmented\" are an empty value or \"deletions\".");
     }
     if (attributes["from"].empty())
     {
-      std::ostringstream temp;
-      temp<<"The attribute \"augmented\" can only be set if the attribute \"from\" is set.";
-      add_static_error(temp.str());
+      add_static_error("The attribute \"augmented\" can only be set if the attribute \"from\" is set.");
     }
   }
 }
