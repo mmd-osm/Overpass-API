@@ -90,10 +90,7 @@ Print_Statement::Print_Statement
   else
   {
     mode = Output_Mode::ID;
-    std::ostringstream temp;
-    temp<<"For the attribute \"mode\" of the element \"print\""
-	<<" the only allowed values are \"ids_only\", \"skeleton\", \"body\", \"tags\",  \"count\", or \"meta\".";
-    add_static_error(temp.str());
+    add_static_error("For the attribute \"mode\" of the element \"print\" the only allowed values are \"ids_only\", \"skeleton\", \"body\", \"tags\",  \"count\", or \"meta\".");
   }
 
   if (attributes["order"] == "id")
@@ -102,14 +99,24 @@ Print_Statement::Print_Statement
     order = order_by_quadtile;
   else
   {
-    std::ostringstream temp;
-    temp<<"For the attribute \"order\" of the element \"print\""
-        <<" the only allowed values are \"id\" or \"quadtile\".";
-    add_static_error(temp.str());
+    add_static_error("For the attribute \"order\" of the element \"print\" the only allowed values are \"id\" or \"quadtile\".");
   }
 
-  if (!attributes["limit"].empty())
-    limit = std::stoll(attributes["limit"]);
+  try {
+
+    if (!attributes["limit"].empty())
+      limit = std::stoll(attributes["limit"]);
+    }
+
+  catch (std::invalid_argument&)
+  {
+    add_static_error("Invalid limit value");
+  }
+  catch (std::out_of_range&)
+  {
+    add_static_error("Limit value out of range");
+  }
+
 
   if (attributes["geometry"] == "skeleton")
     ;
@@ -129,10 +136,7 @@ Print_Statement::Print_Statement
     mode = mode & ~Output_Mode::ID;
   else
   {
-    std::ostringstream temp;
-    temp<<"For the attribute \"ids\" of the element \"print\""
-        <<" the only allowed values are \"yes\" or \"no\".";
-    add_static_error(temp.str());
+    add_static_error("For the attribute \"ids\" of the element \"print\" the only allowed values are \"yes\" or \"no\".");
   }
 
 
