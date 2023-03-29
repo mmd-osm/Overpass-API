@@ -42,7 +42,7 @@ jobs:
                libfcgi-dev libxml2-dev zlib1g-dev \
                expat libexpat1-dev liblz4-dev libbz2-dev libicu-dev \
                libfmt-dev libpcre2-dev libcereal-dev libtcmalloc-minimal4 libgoogle-perftools-dev \
-               cmake dpkg-dev 
+               cmake dpkg-dev libunwind-dev
 
     - name: Autobuild
       run: |
