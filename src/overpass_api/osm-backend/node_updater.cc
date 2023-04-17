@@ -268,7 +268,7 @@ std::map< Tag_Index_Local, std::set< Attic< Node_Skeleton::Id_Type > > >
 	{
 	  const auto & tags = new_data.tags[it->tag_idx];
           for (auto tag_it = tags.begin(); tag_it != tags.end(); ++tag_it)
-            result[Tag_Index_Local(it->idx.val() & 0x7fffff00, tag_it->first, void_tag_value())]
+            result[Tag_Index_Local(it->idx.val() & 0x7fffff00, tag_it->first, std::string(void_tag_value()))]
                 .insert(Attic< Node_Skeleton::Id_Type >(it->elem.id, it->meta.timestamp));
 	}
       }
@@ -291,7 +291,7 @@ std::map< Tag_Index_Local, std::set< Attic< Node_Skeleton::Id_Type > > >
       for (auto tag_it = tags.begin(); tag_it != tags.end(); ++tag_it)
       {
         if (old_keys.find(tag_it->first) == old_keys.end())
-          result[Tag_Index_Local(it->idx.val() & 0x7fffff00, tag_it->first, void_tag_value())]
+          result[Tag_Index_Local(it->idx.val() & 0x7fffff00, tag_it->first, std::string(void_tag_value()))]
               .insert(Attic< Node_Skeleton::Id_Type >(it->elem.id, it->meta.timestamp));
       }
     }
@@ -343,7 +343,7 @@ std::map< Tag_Index_Local, std::set< Attic< Node_Skeleton::Id_Type > > >
       it_id = unmatched_tags.begin(); it_id != unmatched_tags.end(); ++it_id)
   {
     for (auto it = it_id->second.begin(); it != it_id->second.end(); ++it)
-      result[Tag_Index_Local(idx_by_id.find(it_id->first)->second.val(), it->first, void_tag_value())]
+      result[Tag_Index_Local(idx_by_id.find(it_id->first)->second.val(), it->first, std::string(void_tag_value()))]
           .insert(Attic< Node_Skeleton::Id_Type >(it_id->first, timestamp_of[it_id->first]));
   }
 

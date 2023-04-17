@@ -1078,7 +1078,7 @@ void filter_ids_by_ntags
       ++attic_tag_it;
 
     bool valid = false;
-    std::string last_value = void_tag_value_space();
+    std::string last_value{void_tag_value_space()};
     while ((!(tag_it == items_db.range_end())) &&
         ((tag_it.index_handle().get_index()) & 0x7fffff00) == coarse_index &&
         tag_it.index_handle().get_key() == key_it->first)

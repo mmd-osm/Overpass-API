@@ -219,25 +219,15 @@ private:
   };
 };
 
-
-// void_tag initialization in settings.cc
-class void_tag {
-  public:
-     const static std::string void_tag_value;
-     const static std::string void_tag_value_space;
-};
-
-
-inline const std::string& void_tag_value()
-{
-  return void_tag::void_tag_value;
+inline std::string_view void_tag_value() {
+   constexpr static std::string_view s = "\xff";
+   return s;
 }
 
-inline const std::string& void_tag_value_space()
-{
-  return void_tag::void_tag_value_space;
+inline std::string_view void_tag_value_space() {
+   constexpr static std::string_view s = "\xff\x20";
+   return s;
 }
-
 
 template< class Index >
 Ranges< Tag_Index_Local > formulate_range_query(const std::set< Index >& coarse_indices)

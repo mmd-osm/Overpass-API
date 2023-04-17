@@ -556,7 +556,8 @@ std::map< Id_Type, std::pair< timestamp_t, Uint31_Index > > collect_attic_regkre
   std::map< Id_Type, std::map< std::string, std::pair< timestamp_t, Uint31_Index > > > timestamp_per_id;
   auto range_req = get_regk_req< Skeleton >(regk, rman, stmt);
 
-  std::string last_key = void_tag_value();
+  std::string last_key{void_tag_value()};
+
   bool matches = false;
 
   for (const auto & it2 : tags_db.as_range(range_req))

@@ -368,7 +368,7 @@ void filter_ids_by_tags
        it != tag_value_listeners.end(); ++it)
     tag_listeners.push_back(&*it);
 
-  std::string current_key = void_tag_value();
+  std::string current_key{void_tag_value()};
   std::string current_value;
   std::vector< std::pair< uint64, bool > > relevant_listeners;
   while ((!(tag_it == items_db.range_end())) &&
