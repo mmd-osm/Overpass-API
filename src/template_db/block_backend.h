@@ -221,8 +221,8 @@ private:
   void increment_idx();
   void increment_block();
 
-  typedef Index index_type;
-  typedef Object object_type;
+  using index_type = Index;
+  using object_type = Object;
 };
 
 
@@ -425,8 +425,8 @@ struct Block_Backend_Flat_Iterator final
   Block_Backend_Flat_Iterator(const Block_Backend_Flat_Iterator& rhs)
       : Block_Backend_Basic_Iterator< Index, Object, Assessor, File_Handle_ >(rhs) {}
 
-  typedef Index index_type;
-  typedef Object object_type;
+  using index_type = Index;
+  using object_type = Object;
 };
 
 
@@ -503,8 +503,8 @@ struct Block_Backend_Discrete_Iterator final
   Block_Backend_Discrete_Iterator(const Block_Backend_Discrete_Iterator& it)
     : Block_Backend_Basic_Iterator< Index, Object, Assessor, File_Handle_ >(it) {}
 
-  typedef Index index_type;
-  typedef Object object_type;
+  using index_type = Index;
+  using object_type = Object;
 };
 
 
@@ -582,8 +582,8 @@ struct Block_Backend_Range_Iterator final
     : Block_Backend_Basic_Iterator< Index, Object, Assessor,
         Range_File_Handle< File_Blocks< Index, Iterator >, Index > >
 {
-  typedef File_Blocks< Index, Iterator > File_Blocks_;
-  typedef Range_File_Handle< File_Blocks_, Index > File_Handle_;
+  using File_Blocks_ = File_Blocks< Index, Iterator >;
+  using File_Handle_ = Range_File_Handle< File_Blocks_, Index >;
 
   Block_Backend_Range_Iterator(
       File_Blocks_& file_blocks,
@@ -605,8 +605,8 @@ struct Block_Backend_Range_Iterator final
     : Block_Backend_Basic_Iterator< Index, Object,
         Assessor, File_Handle_ >(it) {}
 
-  typedef Index index_type;
-  typedef Object object_type;
+  using index_type = Index;
+  using object_type = Object;
 };
 
 
@@ -622,11 +622,11 @@ struct Block_Backend
     using default_range_assessor = Range_Idx_Assessor < TIndex, typename Ranges< TIndex >::Iterator >;
     using default_discrete_assessor = Discrete_Idx_Assessor< TIndex, TIterator >;
 
-    typedef Block_Backend_Flat_Iterator< TIndex, TObject, TIterator > Flat_Iterator;
-    typedef Block_Backend_Discrete_Iterator< TIndex, TObject, TIterator, TDiscreteAssessor > Discrete_Iterator;
-    typedef Block_Backend_Range_Iterator< TIndex, TObject, TIterator, TRangeAssessor> Range_Iterator;
+    using Flat_Iterator = Block_Backend_Flat_Iterator< TIndex, TObject, TIterator >;
+    using Discrete_Iterator = Block_Backend_Discrete_Iterator< TIndex, TObject, TIterator, TDiscreteAssessor >;
+    using Range_Iterator = Block_Backend_Range_Iterator< TIndex, TObject, TIterator, TRangeAssessor>;
 
-    typedef File_Blocks< TIndex, TIterator > File_Blocks_;
+    using File_Blocks_ = File_Blocks< TIndex, TIterator >;
 
     Block_Backend(File_Blocks_Index_Base* index_);
     ~Block_Backend();
@@ -650,6 +650,8 @@ struct Block_Backend
         { return Range_Iterator(file_blocks, arg.begin(), arg.end(), block_size); }
 
     const Range_Iterator& range_end() const { return *range_end_it; }
+
+private:
 
     struct Flat_Adapter {
       Flat_Adapter(Block_Backend* t) : t(t) {}
@@ -679,13 +681,15 @@ struct Block_Backend
       const TContainer & s;
     };
 
-    Flat_Adapter as_flat() { return Flat_Adapter(this); }
+public:
+
+    Flat_Adapter as_flat() & { return Flat_Adapter(this); }
 
     template <class TObj >
-    Range_Adapter<TObj> as_range(Ranges< TObj >& s)  { return Range_Adapter<TObj>(this, s); }
+    Range_Adapter<TObj> as_range(Ranges< TObj >& s) & { return Range_Adapter<TObj>(this, s); }
 
     template <class TContainer>
-    Discrete_Adapter<TContainer> as_discrete(TContainer& s) { return Discrete_Adapter<TContainer>(this, s); }
+    Discrete_Adapter<TContainer> as_discrete(TContainer& s) & { return Discrete_Adapter<TContainer>(this, s); }
 
     uint read_count() const { return file_blocks.read_count(); }
     void reset_read_count() const { file_blocks.reset_read_count(); }
