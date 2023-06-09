@@ -218,12 +218,20 @@ struct Test_File : File_Properties
 
   Block_Compression get_compression_method() const override
   {
-    return Block_Compression::NO_COMPRESSION;
+#ifdef HAVE_LZ4
+    return Block_Compression::LZ4_COMPRESSION;
+#else
+    return Block_Compression::ZLIB_COMPRESSION;
+#endif
   }
 
   Block_Compression get_map_compression_method() const override
   {
-    return Block_Compression::NO_COMPRESSION;
+#ifdef HAVE_LZ4
+    return Block_Compression::LZ4_COMPRESSION;
+#else
+    return Block_Compression::ZLIB_COMPRESSION;
+#endif
   }
 
   uint32 get_map_block_size() const override
