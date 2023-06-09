@@ -72,7 +72,7 @@ public:
     return void_blocks;
   }
 
-  static const int FILE_FORMAT_VERSION = 1007053000;
+  static constexpr int FILE_FORMAT_VERSION = 1007053000;
   const uint32 npos;
 
 private:
@@ -284,9 +284,8 @@ inline Random_File_Index::~Random_File_Index()
   // Write void blocks
   std::vector< uint8 > void_index_buf(void_blocks.size() * 8);
   auto* it_ptr = (std::pair< uint32, uint32 >*)(void_index_buf.data());
-  for (std::vector< std::pair< uint32, uint32 > >::const_iterator it(void_blocks.begin());
-      it != void_blocks.end(); ++it)
-    *(it_ptr++) = *it;
+  for (const auto & void_block : void_blocks)
+    *(it_ptr++) = void_block;
   try
   {
     Raw_File void_file(empty_index_file_name, O_RDWR|O_TRUNC, S_666, "Random_File:5");

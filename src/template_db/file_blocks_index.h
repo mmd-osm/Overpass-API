@@ -103,7 +103,7 @@ public:
     block_array.clear();
   }
 
-  static const int FILE_FORMAT_VERSION = 7560;
+  static constexpr int FILE_FORMAT_VERSION = 7560;
 
 private:
   const std::string index_file_name;
@@ -202,18 +202,16 @@ void File_Blocks_Index< TIndex >::init_structure_params()
 {
   if ((index_buf))
   {
-    if (file_name_extension_ != ".legacy")
-    {
-      if (*(int32*)index_buf.get() != FILE_FORMAT_VERSION && *(int32*)index_buf.get() != 7512)
-	throw File_Error(0, index_file_name, "File_Blocks_Index: Unsupported index file format version");
-      block_size_ = 1ull<<*(uint8*)(index_buf.get() + 4);
-      if (!block_size_)
-        throw File_Error(0, index_file_name, "File_Blocks_Index: Illegal block size");
-      compression_factor = 1u<<*(uint8*)(index_buf.get() + 5);
-      if (!compression_factor || compression_factor > block_size_)
-        throw File_Error(0, index_file_name, "File_Blocks_Index: Illegal compression factor");
-      compression_method = static_cast<Block_Compression>(*(uint16*)(index_buf.get() + 6));
-    }
+    if (*(int32*)index_buf.get() != FILE_FORMAT_VERSION && *(int32*)index_buf.get() != 7512)
+      throw File_Error(0, index_file_name, "File_Blocks_Index: Unsupported index file format version");
+    block_size_ = 1ull<<*(uint8*)(index_buf.get() + 4);
+    if (!block_size_)
+      throw File_Error(0, index_file_name, "File_Blocks_Index: Illegal block size");
+    compression_factor = 1u<<*(uint8*)(index_buf.get() + 5);
+    if (!compression_factor || compression_factor > block_size_)
+      throw File_Error(0, index_file_name, "File_Blocks_Index: Illegal compression factor");
+    compression_method = static_cast<Block_Compression>(*(uint16*)(index_buf.get() + 6));
+
     if (file_size % block_size_)
       throw File_Error(0, index_file_name, "File_Blocks_Index: Data file size does not match block size");
     block_count = file_size / block_size_;
@@ -224,80 +222,57 @@ void File_Blocks_Index< TIndex >::init_structure_params()
 template< class TIndex >
 void File_Blocks_Index< TIndex >::init_blocks()
 {
-  if ((index_buf))
+  if (!(index_buf))
+    return;
+
+  if (index_size > 0)
   {
-    if (file_name_extension_ == ".legacy")
-      // We support this way the old format although it has no version marker.
+    if (!writeable())
     {
-      uint32 pos = 0;
-      while (pos < index_size)
+      uint32 p = 8;
+      uint elems = 0;
+      while (p < index_size)
       {
-        TIndex index(index_buf.get() + pos);
-        File_Block_Index_Entry< TIndex >
-            entry(index,
-	    *(uint32*)(index_buf.get() + (pos + TIndex::size_of(index_buf.get() + pos))),
-	    1, //block size is always 1 in the legacy format
-	    *(uint32*)(index_buf.get() + (pos + TIndex::size_of(index_buf.get() + pos) + 4)));
-        if (writeable())
-          block_list.push_back(entry);
-        else
-          block_array.push_back(entry);
-        if (entry.pos >= block_count)
-	  throw File_Error(0, index_file_name, "File_Blocks_Index: bad pos in index file");
-        pos += TIndex::size_of(index_buf.get() + pos) + 8;
+        p += 12;
+        p += TIndex::size_of(index_buf.get() + p);
+        elems++;
       }
-    }
-    else if (index_size > 0)
-    {
-      if (!writeable())
-      {
-        uint32 p = 8;
-        uint elems = 0;
-        while (p < index_size)
-        {
-          p += 12;
-          p += TIndex::size_of(index_buf.get() + p);
-          elems++;
-        }
-        block_array.reserve(elems);
-      }
-
-      uint32 pos = 8;
-      while (pos < index_size)
-      {
-        auto entry_pos = unalignedLoad<uint32>(index_buf.get() + pos);
-        auto entry_size = unalignedLoad<uint32>(index_buf.get() + pos + 4);
-        auto entry_max_keyize = unalignedLoad<uint32>(index_buf.get() + pos + 8);
-
-        if (entry_pos >= block_count)
-          throw File_Error(0, index_file_name, "File_Blocks_Index: bad pos in index file");
-        if (entry_pos + entry_size > block_count)
-          throw File_Error(0, index_file_name, "File_Blocks_Index: bad size in index file");
-
-        if (writeable())
-        {
-          File_Block_Index_Entry< TIndex >
-              entry(std::move(TIndex(index_buf.get() + pos + 12)),
-              entry_pos,
-              entry_size,
-              entry_max_keyize);
-          block_list.push_back(entry);
-        }
-        else
-        {
-          block_array.emplace_back(std::move(TIndex(index_buf.get() + pos + 12)),
-              entry_pos,
-              entry_size,
-              entry_max_keyize);
-        }
-
-        pos += 12;
-        pos += TIndex::size_of(index_buf.get() + pos);
-      }
+      block_array.reserve(elems);
     }
 
-    index_buf.reset();
+    uint32 pos = 8;
+    while (pos < index_size)
+    {
+      auto entry_pos = unalignedLoad<uint32>(index_buf.get() + pos);
+      auto entry_size = unalignedLoad<uint32>(index_buf.get() + pos + 4);
+      auto entry_max_keyize = unalignedLoad<uint32>(index_buf.get() + pos + 8);
+
+      if (entry_pos >= block_count)
+        throw File_Error(0, index_file_name, "File_Blocks_Index: bad pos in index file");
+      if (entry_pos + entry_size > block_count)
+        throw File_Error(0, index_file_name, "File_Blocks_Index: bad size in index file");
+
+      if (writeable())
+      {
+        block_list.emplace_back(std::move(TIndex(index_buf.get() + pos + 12)),
+            entry_pos,
+            entry_size,
+            entry_max_keyize);
+      }
+      else
+      {
+        block_array.emplace_back(std::move(TIndex(index_buf.get() + pos + 12)),
+            entry_pos,
+            entry_size,
+            entry_max_keyize);
+      }
+
+      pos += 12;
+      pos += TIndex::size_of(index_buf.get() + pos);
+    }
   }
+
+  index_buf.reset();
 }
 
 
@@ -327,17 +302,15 @@ void File_Blocks_Index< TIndex >::init_void_blocks()
   if (!empty_index_file_used)
   {
     std::vector< bool > is_referred(block_count, false);
-    for (typename std::list< File_Block_Index_Entry< TIndex > >::const_iterator it = block_list.begin();
-        it != block_list.end(); ++it)
+    for (const auto & block : block_list)
     {
-      for (uint32 i = 0; i < it->size; ++i)
-        is_referred[it->pos + i] = true;
+      for (uint32 i = 0; i < block.size; ++i)
+        is_referred[block.pos + i] = true;
     }
-    for (typename std::vector< File_Block_Index_Entry< TIndex > >::const_iterator it = block_array.begin();
-        it != block_array.end(); ++it)
+    for (const auto & block : block_array)
     {
-      for (uint32 i = 0; i < it->size; ++i)
-        is_referred[it->pos + i] = true;
+      for (uint32 i = 0; i < block.size; ++i)
+        is_referred[block.pos + i] = true;
     }
 
     // determine void_blocks
@@ -404,9 +377,8 @@ File_Blocks_Index< TIndex >::~File_Blocks_Index()
   // Write void blocks
   std::vector< uint8 > void_index_buf(void_blocks.size() * sizeof(std::pair< uint32, uint32 >));
   auto* it_ptr = (std::pair< uint32, uint32 >*)(void_index_buf.data());
-  for (std::vector< std::pair< uint32, uint32 > >::const_iterator it(void_blocks.begin());
-      it != void_blocks.end(); ++it)
-    *(it_ptr++) = *it;
+  for (const auto & void_block : void_blocks)
+    *(it_ptr++) = void_block;
 
   try
   {
