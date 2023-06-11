@@ -675,27 +675,22 @@ std::map< Uint31_Index, std::vector< Way_Skeleton > > relation_way_members
   if (intersect_ids.empty())
     return result;
 
-  if (way_ranges)
-  {
-    if (!way_ranges->empty())
-    {
-      Uint31_Index cur_idx = way_ranges->begin()->first;
-      while (collect_items_range(stmt, rman, *osm_base_settings().WAYS, *way_ranges,
-          Id_Predicate< Way_Skeleton >(intersect_ids), cur_idx, result));
-    }
+  std::vector< Uint31_Index > req =
+      relation_way_member_indices< Relation_Skeleton >(stmt, rman, relations.begin(), relations.end());
+
+  std::set< std::pair< Uint31_Index, Uint31_Index > > wr;
+  for (const auto & v: req) {
+    wr.insert(std::make_pair(v, inc(v)));
   }
-  else
+
+  Ranges < Uint31_Index > way_rng(way_ranges ? *way_ranges : std::set< std::pair< Uint31_Index, Uint31_Index > >());
+  Ranges < Uint31_Index > rel_way_rng(std::move(wr));
+  Ranges < Uint31_Index > res_rng(way_ranges ? way_rng.intersect(rel_way_rng) : rel_way_rng);
+
+  if (!res_rng.empty())
   {
-    std::vector< Uint31_Index > req =
-        relation_way_member_indices< Relation_Skeleton >(stmt, rman, relations.begin(), relations.end());
-
-    std::set< std::pair< Uint31_Index, Uint31_Index > > wr;
-    for (const auto & v: req) {
-      wr.insert(std::make_pair(v, inc(v)));
-    }
-
-    Uint31_Index cur_idx = wr.begin()->first;
-    while (collect_items_range(stmt, rman, *osm_base_settings().WAYS, wr,
+    Uint31_Index cur_idx = (*res_rng.begin()).first;
+    while (collect_items_range(stmt, rman, *osm_base_settings().WAYS, res_rng.get_ranges(),
         Id_Predicate< Way_Skeleton >(intersect_ids), cur_idx, result));
 
 //    collect_items_discrete(stmt, rman, *osm_base_settings().WAYS, req,
@@ -841,9 +836,12 @@ std::map< Uint32_Index, std::vector< Node_Skeleton > > relation_node_members
   if (node_ids)
     sieve_first_arg(intersect_ids, *node_ids, invert_ids);
 
-  return paired_items_range(stmt, rman, intersect_ids,
-      node_ranges ? *node_ranges : relation_node_member_indices< Relation_Skeleton >(stmt, rman,
-          relations.begin(), relations.end())).first;
+  Ranges< Uint32_Index > node_rng(node_ranges ? *node_ranges : std::set< std::pair< Uint32_Index, Uint32_Index > >());
+  Ranges< Uint32_Index > rel_node_rng(relation_node_member_indices< Relation_Skeleton >(stmt, rman,
+      relations.begin(), relations.end()));
+  Ranges< Uint32_Index > res_rng(node_ranges ? node_rng.intersect(rel_node_rng) : rel_node_rng);
+
+  return paired_items_range(stmt, rman, intersect_ids, res_rng.get_ranges()).first;
 }
 
 
@@ -906,7 +904,6 @@ std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > > relation_node_me
           req, Id_Predicate< Node_Skeleton >(intersect_ids), cur_idx, current, attic));
     }
   }
-
 
   keep_matching_skeletons(result, current, attic, rman.get_desired_timestamp());
 

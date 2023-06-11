@@ -395,7 +395,7 @@ void collect_tags_framed
 
 template< typename Index, typename Object >
 Tag_Store< Index, Object >::Tag_Store(Resource_Manager& rman, bool use_global_cache)
-    : rman(&rman), transaction(rman.get_transaction()), use_index(false), ranges({}), use_global_cache(use_global_cache) {}
+    : rman(&rman), transaction(rman.get_transaction()), use_index(false), ranges(), use_global_cache(use_global_cache) {}
 
 template< typename Index, typename Object >
 std::map< Index, std::vector< Object > > Tag_Store< Index, Object >::filter_elements(const std::map< Index, std::vector< Object > >& elems)

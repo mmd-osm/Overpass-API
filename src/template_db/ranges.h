@@ -26,6 +26,7 @@ template< typename Index >
 class Ranges
 {
 public:
+  Ranges() = default;
   Ranges(const std::set< std::pair< Index, Index > >& data_) : data(data_) {}
   Ranges(std::set< std::pair< Index, Index > >&& data_) : data(std::move(data_)) {}
   Ranges(Index begin, Index end) : data({{ begin, end }}) {}
@@ -54,6 +55,9 @@ public:
   bool empty() const { return data.empty(); }
   
   Ranges skip_start(Index lower_bound);
+  Ranges intersect(const Ranges< Index >& rhs) const;
+
+  const std::set< std::pair< Index, Index > > & get_ranges() const { return data; }
 
 private:
   std::set< std::pair< Index, Index > > data;
@@ -63,12 +67,47 @@ private:
 template< typename Index >
 Ranges< Index > Ranges< Index >::skip_start(Index lower_bound)
 {
-  Ranges< Index > result({});
+  Ranges< Index > result;
   for (const auto& i : data)
   {
     if (lower_bound < i.second)
       result.data.insert({ std::max(i.first, lower_bound), i.second });
   }
+  return result;
+}
+
+
+template< typename Index >
+Ranges< Index > Ranges< Index >::intersect(const Ranges< Index >& rhs) const
+{
+//  if (rhs.is_global())
+//    return *this;
+//  else if (this->is_global())
+//    return rhs;
+//
+
+  Ranges< Index > result;
+  auto it_a = data.begin();
+  auto it_b = rhs.data.begin();
+
+  while (it_a != data.end() && it_b != rhs.data.end())
+  {
+    if (!(it_a->first < it_b->second))
+      ++it_b;
+    else if (!(it_b->first < it_a->second))
+      ++it_a;
+    else if (it_b->second < it_a->second)
+    {
+      result.data.insert({std::max(it_a->first, it_b->first), it_b->second});
+      ++it_b;
+    }
+    else
+    {
+      result.data.insert({std::max(it_a->first, it_b->first), it_a->second});
+      ++it_a;
+    }
+  }
+
   return result;
 }
 
