@@ -43,6 +43,10 @@ class Bbox_Constraint final : public Query_Constraint
         (Resource_Manager& rman, std::set< std::pair< Uint32_Index, Uint32_Index > >& ranges) override;
     bool get_ranges
         (Resource_Manager& rman, std::set< std::pair< Uint31_Index, Uint31_Index > >& ranges) override;
+
+    bool get_ranges(Resource_Manager& rman, Ranges< Uint32_Index >& ranges) override;
+    bool get_ranges(Resource_Manager& rman, Ranges< Uint31_Index >& ranges) override;
+
     void filter(Resource_Manager& rman, Set& into) override;
     void filter(const Statement& query, Resource_Manager& rman, Set& into) override;
     ~Bbox_Constraint() override = default;
@@ -66,6 +70,7 @@ Query_Filter_Strategy Bbox_Constraint::delivers_data(Resource_Manager& rman)
   return ((bbox_.north - bbox_.south) * std::abs(bbox_.east - bbox_.west) < 1.0) ? prefer_ranges : ids_useful;
 }
 
+// -----------------------------------------------------------------------------------------
 
 bool Bbox_Constraint::get_ranges
     (Resource_Manager& rman, std::set< std::pair< Uint32_Index, Uint32_Index > >& ranges)
@@ -82,6 +87,23 @@ bool Bbox_Constraint::get_ranges
   return true;
 }
 
+// -----------------------------------------------------------------------------------------
+
+bool Bbox_Constraint::get_ranges(Resource_Manager& rman, Ranges< Uint32_Index >& ranges)
+{
+  ranges = Ranges< Uint32_Index >(filter_.get_ranges_32());
+  return true;
+}
+
+
+bool Bbox_Constraint::get_ranges
+    (Resource_Manager& rman, Ranges< Uint31_Index >& ranges)
+{
+  ranges = Ranges< Uint31_Index >(filter_.get_ranges_31());
+  return true;
+}
+
+// -----------------------------------------------------------------------------------------
 
 void Bbox_Constraint::filter(Resource_Manager& rman, Set& into)
 {

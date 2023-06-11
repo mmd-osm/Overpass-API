@@ -467,6 +467,10 @@ class Around_Constraint final : public Query_Constraint
         (Resource_Manager& rman, std::set< std::pair< Uint32_Index, Uint32_Index > >& ranges) override;
     bool get_ranges
         (Resource_Manager& rman, std::set< std::pair< Uint31_Index, Uint31_Index > >& ranges) override;
+
+    bool get_ranges(Resource_Manager& rman, Ranges< Uint32_Index >& ranges) override;
+    bool get_ranges(Resource_Manager& rman, Ranges< Uint31_Index >& ranges) override;
+
     void filter(Resource_Manager& rman, Set& into) override;
     void filter(const Statement& query, Resource_Manager& rman, Set& into) override;
     ~Around_Constraint() override {
@@ -483,6 +487,8 @@ class Around_Constraint final : public Query_Constraint
     Way_Geometry_Store* wgs = nullptr;
     Way_Geometry_Store* attic_wgs = nullptr;
 };
+
+// -----------------------------------------------------------------------------------------
 
 
 bool Around_Constraint::get_ranges
@@ -504,6 +510,30 @@ bool Around_Constraint::get_ranges
   ranges = calc_parents(node_ranges);
   return true;
 }
+
+// -----------------------------------------------------------------------------------------
+
+bool Around_Constraint::get_ranges
+    (Resource_Manager& rman, Ranges< Uint32_Index >& ranges)
+{
+  ranges_used = true;
+
+  const Set* input = rman.get_set(around->get_source_name());
+  ranges = Ranges< Uint32_Index >(around->calc_ranges(input ? *input : Set(), rman));
+  return true;
+}
+
+
+bool Around_Constraint::get_ranges
+    (Resource_Manager& rman, Ranges< Uint31_Index >& ranges)
+{
+  Ranges< Uint32_Index > node_ranges;
+  this->get_ranges(rman, node_ranges);
+  ranges = Ranges< Uint31_Index >(calc_parents(node_ranges.get_ranges()));
+  return true;
+}
+
+// -----------------------------------------------------------------------------------------
 
 
 void Around_Constraint::filter(Resource_Manager& rman, Set& into)

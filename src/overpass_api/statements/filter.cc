@@ -32,6 +32,10 @@ class Filter_Constraint final : public Query_Constraint
     Filter_Constraint(Filter_Statement& stmt_) : stmt(&stmt_) {}
     bool get_ranges(Resource_Manager& rman, std::set< std::pair< Uint32_Index, Uint32_Index > >& ranges) override { return false; }
     bool get_ranges(Resource_Manager& rman, std::set< std::pair< Uint31_Index, Uint31_Index > >& ranges) override { return false; }
+
+    bool get_ranges(Resource_Manager& rman, Ranges< Uint32_Index >& ranges) override { return false; }
+    bool get_ranges(Resource_Manager& rman, Ranges< Uint31_Index >& ranges) override { return false; }
+
     void filter(Resource_Manager& rman, Set& into) override {}
     void filter(const Statement& query, Resource_Manager& rman, Set& into) override;
     ~Filter_Constraint() override = default;

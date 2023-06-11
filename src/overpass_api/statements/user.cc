@@ -57,6 +57,10 @@ class User_Constraint final : public Query_Constraint
 
     bool get_ranges(Resource_Manager& rman, std::set< std::pair< Uint31_Index, Uint31_Index > >& ranges) override;
     bool get_ranges(Resource_Manager& rman, std::set< std::pair< Uint32_Index, Uint32_Index > >& ranges) override;
+
+    bool get_ranges(Resource_Manager& rman, Ranges< Uint31_Index >& ranges) override;
+    bool get_ranges(Resource_Manager& rman, Ranges< Uint32_Index >& ranges) override;
+
     void filter(const Statement& query, Resource_Manager& rman, Set& into) override;
     ~User_Constraint() override = default;
   private:
@@ -319,6 +323,7 @@ std::set< Uint32_Index > User_Statement::get_ids(Transaction& transaction)
   return user_ids;
 }
 
+// ------------------------------------------------------------------------------------------------------------
 
 void calc_ranges
   (std::set< std::pair< Uint32_Index, Uint32_Index > >& node_req,
@@ -376,6 +381,60 @@ void User_Statement::calc_ranges
 
   ::calc_ranges(node_req, other_req, user_ids, transaction);
 }
+
+// ------------------------------------------------------------------------------------------------------------
+
+void calc_ranges
+  (Ranges< Uint32_Index >& node_req, Ranges< Uint31_Index >& other_req,
+   const std::set< Uint32_Index >& user_ids, Transaction& transaction)
+{
+
+  Block_Backend< Uint32_Index, Uint31_Index, std::set< Uint32_Index >::const_iterator > user_db
+      (transaction.data_index(meta_settings().USER_INDICES));
+
+  for (const auto & user_it : user_db.as_discrete(user_ids))
+  {
+    if ((user_it.object().val() & 0x80000000) == 0)
+    {
+      node_req.push_back(Uint32_Index(user_it.object().val()), Uint32_Index(user_it.object().val() + 0x100));
+      other_req.push_back(Uint31_Index(user_it.object().val()), Uint31_Index(user_it.object().val() + 0x100));
+    }
+    else if ((user_it.object().val() & 0xff) == 0)
+      other_req.push_back(Uint31_Index(user_it.object().val()), Uint31_Index(user_it.object().val() + 0x100));
+    else
+      other_req.push_back(Uint31_Index(user_it.object().val()), Uint31_Index(user_it.object().val() + 1));
+  }
+  node_req.sort();
+  other_req.sort();
+}
+
+
+bool User_Constraint::get_ranges(Resource_Manager& rman, Ranges< Uint32_Index >& ranges)
+{
+  Ranges< Uint31_Index > nonnodes;
+  calc_ranges(ranges, nonnodes, user->get_ids(*rman.get_transaction()), *rman.get_transaction());
+  return true;
+}
+
+
+bool User_Constraint::get_ranges(Resource_Manager& rman, Ranges< Uint31_Index >& ranges)
+{
+  Ranges< Uint32_Index > nodes;
+  calc_ranges(nodes, ranges, user->get_ids(*rman.get_transaction()), *rman.get_transaction());
+  return true;
+}
+
+
+void User_Statement::calc_ranges(
+    Ranges< Uint32_Index >& node_req, Ranges< Uint31_Index >& other_req, Transaction& transaction)
+{
+  if (!user_names.empty())
+    user_ids = get_user_ids(user_names, transaction);
+
+  ::calc_ranges(node_req, other_req, user_ids, transaction);
+}
+
+// ------------------------------------------------------------------------------------------------------------
 
 
 void User_Statement::execute(Resource_Manager& rman)

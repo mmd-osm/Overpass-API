@@ -70,6 +70,8 @@ class User_Statement final : public Output_Statement
          std::set< std::pair< Uint31_Index, Uint31_Index > >& other_req,
          Transaction& transaction);
 
+    void calc_ranges(Ranges< Uint32_Index >& node_req, Ranges< Uint31_Index >& other_req, Transaction& transaction);
+
     // Reads the user id from the database.
     std::set< Uint32_Index > get_ids(Transaction& transaction);
 

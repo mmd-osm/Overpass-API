@@ -156,6 +156,17 @@ class Pivot_Constraint final : public Query_Constraint
                           int type,
                           const std::vector< Uint32_Index >& ids,
                           bool invert_ids) override;
+
+    bool get_data(const Statement& query, Resource_Manager& rman, Set& into,
+                          const Ranges< Uint32_Index >& ranges,
+                          const std::vector< Node::Id_Type >& ids,
+                          bool invert_ids) override;
+    bool get_data(const Statement& query, Resource_Manager& rman, Set& into,
+                          const Ranges< Uint31_Index >& ranges,
+                          int type,
+                          const std::vector< Uint32_Index >& ids,
+                          bool invert_ids) override;
+
     void filter(Resource_Manager& rman, Set& into) override;
     ~Pivot_Constraint() override = default;
   private:
@@ -252,6 +263,26 @@ bool Pivot_Constraint::get_data
   }
 
   return true;
+}
+
+bool Pivot_Constraint::get_data
+    (const Statement& query, Resource_Manager& rman, Set& into,
+     const Ranges< Uint32_Index >& ranges,
+     const std::vector< Node_Skeleton::Id_Type >& ids,
+     bool invert_ids)
+{
+
+  return (get_data(query, rman, into, ranges.get_ranges(), ids, invert_ids));
+}
+
+bool Pivot_Constraint::get_data
+    (const Statement& query, Resource_Manager& rman, Set& into,
+     const Ranges< Uint31_Index >& ranges,
+     int type,
+     const std::vector< Uint32_Index >& ids,
+     bool invert_ids)
+{
+  return (get_data(query, rman, into, ranges.get_ranges(), type, ids, invert_ids));
 }
 
 void Pivot_Constraint::filter(Resource_Manager& rman, Set& into)

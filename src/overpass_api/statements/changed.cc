@@ -334,11 +334,6 @@ class Changed_Constraint final : public Query_Constraint
 
     Query_Filter_Strategy delivers_data(Resource_Manager& rman) override { return prefer_ranges; }
 
-//     bool get_ranges
-//         (Resource_Manager& rman, std::set< std::pair< Uint32_Index, Uint32_Index > >& ranges);
-//     bool get_ranges
-//         (Resource_Manager& rman, std::set< std::pair< Uint31_Index, Uint31_Index > >& ranges);
-
     bool get_node_ids
         (Resource_Manager& rman, std::vector< Node_Skeleton::Id_Type >& ids) override;
     bool get_way_ids

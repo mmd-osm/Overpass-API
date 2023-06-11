@@ -122,6 +122,9 @@ class Id_Query_Constraint final : public Query_Constraint
     bool get_ranges
         (Resource_Manager& rman, std::set< std::pair< Uint31_Index, Uint31_Index > >& ranges) override;
 
+    bool get_ranges(Resource_Manager& rman, Ranges< Uint32_Index >& ranges) override;
+    bool get_ranges(Resource_Manager& rman, Ranges< Uint31_Index >& ranges) override;
+
     bool get_node_ids
         (Resource_Manager& rman, std::vector< Node_Skeleton::Id_Type >& ids) override;
     bool get_way_ids
@@ -215,6 +218,24 @@ bool Id_Query_Constraint::get_ranges(Resource_Manager& rman, std::set< std::pair
   }
 
   return true;
+}
+
+bool Id_Query_Constraint::get_ranges(Resource_Manager& rman, Ranges< Uint32_Index >& ranges)
+{
+  std::set< std::pair< Uint32_Index, Uint32_Index > > ranges_set;
+
+  bool rc = get_ranges(rman, ranges_set);
+  ranges = Ranges< Uint32_Index >(std::move(ranges_set));
+  return rc;
+}
+
+bool Id_Query_Constraint::get_ranges(Resource_Manager& rman, Ranges< Uint31_Index >& ranges)
+{
+  std::set< std::pair< Uint31_Index, Uint31_Index > > ranges_set;
+
+  bool rc = get_ranges(rman, ranges_set);
+  ranges = Ranges< Uint31_Index >(std::move(ranges_set));
+  return rc;
 }
 
 

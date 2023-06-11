@@ -141,6 +141,9 @@ struct Uint32_Index
 
   friend std::ostream & operator<<(std::ostream &os, const Uint32_Index& t);
 
+  static Uint32_Index min() { return Uint32_Index(0u); }
+  static Uint32_Index max() { return Uint32_Index(0xffffffffu); }
+
   protected:
     uint32 value{};
 };
@@ -238,6 +241,9 @@ struct Uint31_Index : Uint32_Index
   {
     return val() & 0x80000000u;
   }
+
+  static Uint31_Index min() { return Uint31_Index(0u); }
+  static Uint31_Index max() { return Uint31_Index(0xffffffffu); }
 
   friend std::ostream & operator<<(std::ostream &os, const Uint31_Index& t);
 

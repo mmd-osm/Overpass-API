@@ -44,6 +44,10 @@ class Polygon_Constraint final : public Query_Constraint
         (Resource_Manager& rman, std::set< std::pair< Uint32_Index, Uint32_Index > >& ranges) override;
     bool get_ranges
         (Resource_Manager& rman, std::set< std::pair< Uint31_Index, Uint31_Index > >& ranges) override;
+
+    bool get_ranges(Resource_Manager& rman, Ranges< Uint32_Index >& ranges) override;
+    bool get_ranges(Resource_Manager& rman, Ranges< Uint31_Index >& ranges) override;
+
     void filter(Resource_Manager& rman, Set& into) override;
     void filter(const Statement& query, Resource_Manager& rman, Set& into) override;
     ~Polygon_Constraint() override = default;
@@ -61,6 +65,7 @@ Query_Filter_Strategy Polygon_Constraint::delivers_data(Resource_Manager& rman)
   return (polygon && !polygon->covers_large_area()) ? prefer_ranges : ids_useful;
 }
 
+// -----------------------------------------------------------------------------------------
 
 bool Polygon_Constraint::get_ranges
     (Resource_Manager& rman, std::set< std::pair< Uint32_Index, Uint32_Index > >& ranges)
@@ -77,6 +82,25 @@ bool Polygon_Constraint::get_ranges
   ranges = calc_parents(node_ranges);
   return true;
 }
+
+// -----------------------------------------------------------------------------------------
+
+bool Polygon_Constraint::get_ranges(Resource_Manager& rman, Ranges< Uint32_Index >& ranges)
+{
+  ranges = Ranges< Uint32_Index >(polygon->calc_ranges());
+  return true;
+}
+
+
+bool Polygon_Constraint::get_ranges(Resource_Manager& rman, Ranges< Uint31_Index >& ranges)
+{
+  auto node_ranges = polygon->calc_ranges();
+  ranges = Ranges< Uint31_Index >(calc_parents(node_ranges));
+  return true;
+}
+
+
+// -----------------------------------------------------------------------------------------
 
 
 void Polygon_Constraint::filter(Resource_Manager& rman, Set& into)
