@@ -63,7 +63,7 @@ public:
   
   Ranges intersect(const Ranges< Index >& rhs) const;
 //  Ranges union_(const Ranges& rhs) const;
-  Ranges skip_start(Index lower_bound);
+  Ranges skip_start(Index lower_bound) const;
   void swap(Ranges& rhs) { data.swap(rhs.data); }
 
   void sort();
@@ -90,7 +90,7 @@ private:
 
 
 template< typename Index >
-Ranges< Index > Ranges< Index >::skip_start(Index lower_bound)
+Ranges< Index > Ranges< Index >::skip_start(Index lower_bound) const
 {
   Ranges< Index > result;
   for (const auto& i : data)

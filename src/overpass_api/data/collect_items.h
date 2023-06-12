@@ -520,11 +520,22 @@ void collect_items_discrete_by_timestamp(const Statement* stmt, Resource_Manager
 }
 
 
-
 template < class Index, class Object, class Container, class Predicate >
 bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
+                   File_Properties& file_properties,
+                   const Container& req, const Predicate& predicate,
+                   Index& cur_idx,
+                   std::map< Index, std::vector< Object > >& result)
+{
+  Ranges< Index > ranges(req);
+  return collect_items_range(stmt, rman, file_properties, ranges, predicate, cur_idx, result);
+}
+
+
+template < class Index, class Object, class Predicate >
+bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
 		   File_Properties& file_properties,
-		   const Container& req, const Predicate& predicate,
+		   const Ranges< Index >& ranges, const Predicate& predicate,
 		   Index& cur_idx,
 		   std::map< Index, std::vector< Object > >& result)
 {
@@ -535,7 +546,6 @@ bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
 
   Block_Backend< Index, Object > db(rman.get_transaction()->data_index(&file_properties));
 
-  Ranges< Index > ranges(req);
   Ranges< Index > shortened = ranges.skip_start(cur_idx);
 
   std::vector< Object > vec;
@@ -586,11 +596,22 @@ bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
   return false;
 }
 
-
 template < class Index, class Object, class Container, class Functor >
 bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
                    File_Properties& file_properties,
                    const Container& req, Index& cur_idx,
+                   std::map< Index, std::vector< Object > >& result,
+                   Functor pred)
+{
+  Ranges< Index > ranges(req);
+  return collect_items_range(stmt, rman, file_properties, ranges, cur_idx, result, pred);
+}
+
+
+template < class Index, class Object, class Functor >
+bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
+                   File_Properties& file_properties,
+                   const Ranges< Index >& ranges, Index& cur_idx,
                    std::map< Index, std::vector< Object > >& result,
                    Functor pred)
 {
@@ -601,7 +622,6 @@ bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
 
   Block_Backend< Index, Object > db(rman.get_transaction()->data_index(&file_properties));
 
-  Ranges< Index > ranges(req);
   Ranges< Index > shortened = ranges.skip_start(cur_idx);
 
   std::vector< Object > vec;
@@ -652,7 +672,6 @@ bool collect_items_range(const Statement* stmt, Resource_Manager& rman,
   return false;
 }
 
-
 template < class Index, class Object, class Container, class Predicate >
 bool collect_items_range_by_timestamp(const Statement* stmt, Resource_Manager& rman,
                    const Container& req, const Predicate& predicate, Index& cur_idx,
@@ -660,6 +679,16 @@ bool collect_items_range_by_timestamp(const Statement* stmt, Resource_Manager& r
                    std::map< Index, std::vector< Attic< Object > > >& attic_result)
 {
   Ranges< Index > ranges(req);
+  return collect_items_range_by_timestamp(stmt, rman, ranges, predicate, cur_idx, result, attic_result);
+}
+
+
+template < class Index, class Object, class Predicate >
+bool collect_items_range_by_timestamp(const Statement* stmt, Resource_Manager& rman,
+                   const Ranges< Index >& ranges, const Predicate& predicate, Index& cur_idx,
+                   std::map< Index, std::vector< Object > >& result,
+                   std::map< Index, std::vector< Attic< Object > > >& attic_result)
+{
   Ranges< Index > shortened = ranges.skip_start(cur_idx);
 
   Block_Backend< Index, Object > current_db
