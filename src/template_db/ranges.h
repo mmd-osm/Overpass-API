@@ -27,8 +27,8 @@ class Ranges
 {
 public:
   Ranges() = default;
-  Ranges(const std::set< std::pair< Index, Index > >& data_) : data(data_) {}
-  Ranges(std::set< std::pair< Index, Index > >&& data_) : data(std::move(data_)) {}
+  explicit Ranges(const std::set< std::pair< Index, Index > >& data_) : data(data_) {}
+  explicit Ranges(std::set< std::pair< Index, Index > >&& data_) : data(std::move(data_)) {}
   Ranges(Index begin, Index end) : data({{ begin, end }}) {}
 
   Ranges(const Ranges< Index> & rng) = default;
@@ -65,6 +65,8 @@ public:
 //  Ranges union_(const Ranges& rhs) const;
   Ranges skip_start(Index lower_bound) const;
   void swap(Ranges& rhs) { data.swap(rhs.data); }
+
+  void condense_ranges();
 
   void sort();
 
@@ -195,6 +197,32 @@ void Ranges< Index >::sort()
 }
 
 
+template< typename Index >
+void Ranges< Index >::condense_ranges()
+{
+  std::set< std::pair< Index, Index > > result;
+  if (data.empty())
+    return;
+
+  auto it = data.begin();
+
+  Index last_first = it->first;
+  Index last_second = it->second;
+  ++it;
+  for (; it != data.end(); ++it)
+  {
+    if (last_second < it->first)
+    {
+      result.insert(std::make_pair(last_first, last_second));
+      last_first = it->first;
+    }
+    if (last_second < it->second)
+      last_second = it->second;
+  }
+  result.insert(std::make_pair(last_first, last_second));
+
+  data.swap(result);
+}
 
 
 #endif

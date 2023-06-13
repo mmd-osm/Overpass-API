@@ -1534,3 +1534,114 @@ void add_nw_member_objects(Resource_Manager& rman, const Statement* stmt, const 
     keep_matching_skeletons(into.nodes, into.attic_nodes, rman.get_desired_timestamp());
   }
 }
+
+// ------------------------------------------------------------------------------------------------
+// Ranges wrapper functions
+// ------------------------------------------------------------------------------------------------
+
+std::map< Uint31_Index, std::vector< Relation_Skeleton > > relation_relation_members
+    (const Statement& stmt, Resource_Manager& rman,
+     const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& parents,
+     const Ranges< Uint31_Index >& children_ranges,
+     const std::vector< Relation::Id_Type >& children_ids, bool invert_ids, const uint32* role_id)
+{
+  return relation_relation_members(stmt, rman, parents, &children_ranges.get_ranges(), &children_ids, invert_ids, role_id);
+}
+
+std::pair< std::map< Uint31_Index, std::vector< Relation_Skeleton > >,
+    std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > > > relation_relation_members
+    (const Statement& stmt, Resource_Manager& rman,
+     const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& parents,
+     const std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > >& attic_parents,
+     const Ranges< Uint31_Index >& children_ranges,
+     const std::vector< Relation::Id_Type >& children_ids, bool invert_ids, const uint32* role_id)
+{
+  return relation_relation_members(stmt, rman, parents, attic_parents, &children_ranges.get_ranges(), &children_ids, invert_ids, role_id);
+}
+
+std::map< Uint31_Index, std::vector< Way_Skeleton > > relation_way_members
+    (const Statement* stmt, Resource_Manager& rman,
+     const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& relations,
+     const Ranges< Uint31_Index >& way_ranges,
+     const std::vector< Way::Id_Type >& way_ids, bool invert_ids, const uint32* role_id)
+{
+  return relation_way_members(stmt, rman, relations, &way_ranges.get_ranges(), &way_ids, invert_ids, role_id);
+}
+
+std::pair< std::map< Uint31_Index, std::vector< Way_Skeleton > >,
+    std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > > > relation_way_members
+    (const Statement* stmt, Resource_Manager& rman,
+     const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& relations,
+     const std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > >& attic_relations,
+     const Ranges< Uint31_Index >& way_ranges,
+     const std::vector< Way::Id_Type >& way_ids, bool invert_ids, const uint32* role_id)
+{
+  return relation_way_members(stmt, rman, relations, attic_relations, &way_ranges.get_ranges(), &way_ids, invert_ids, role_id);
+}
+
+std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > > relation_way_members
+    (const Statement* stmt, Resource_Manager& rman,
+     const std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > >& relations,
+     const Ranges< Uint31_Index >& way_ranges)
+{
+  return relation_way_members(stmt, rman, relations, &way_ranges.get_ranges());
+}
+
+std::map< Uint32_Index, std::vector< Node_Skeleton > > relation_node_members
+    (const Statement* stmt, Resource_Manager& rman,
+     const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& relations,
+     const Ranges< Uint32_Index >& node_ranges,
+     const std::vector< Node::Id_Type >& node_ids, bool invert_ids, const uint32* role_id)
+{
+  return relation_node_members(stmt, rman, relations, &node_ranges.get_ranges(), &node_ids, invert_ids, role_id);
+}
+
+std::pair< std::map< Uint32_Index, std::vector< Node_Skeleton > >,
+    std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > > > relation_node_members
+    (const Statement* stmt, Resource_Manager& rman,
+     const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& relations,
+     const std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > >& attic_relations,
+     const Ranges< Uint32_Index >& node_ranges,
+     const std::vector< Node::Id_Type >& node_ids, bool invert_ids, const uint32* role_id)
+{
+  return relation_node_members(stmt, rman, relations, attic_relations, &node_ranges.get_ranges(), &node_ids, invert_ids, role_id);
+}
+
+std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > > relation_node_members
+    (const Statement* stmt, Resource_Manager& rman,
+     const std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > >& relations,
+     const Ranges< Uint32_Index >& node_ranges)
+{
+  return relation_node_members(stmt, rman, relations, &node_ranges.get_ranges());
+}
+
+std::pair< std::map< Uint32_Index, std::vector< Node_Skeleton > >,
+    std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > > > way_members
+    (const Statement* stmt, Resource_Manager& rman,
+     const std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
+     const std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >& attic_ways,
+     const std::vector< int >* pos,
+     const Ranges< Uint32_Index >* node_ranges,
+     const std::vector< Node::Id_Type >& node_ids, bool invert_ids)
+{
+  const Ranges< Uint32_Index > empty_range;
+
+  return way_members(stmt, rman, ways, attic_ways, pos,
+           (node_ranges != nullptr ? &node_ranges->get_ranges() : &empty_range.get_ranges()),
+           &node_ids, invert_ids);
+}
+
+void filter_ways_by_ranges(std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
+                           const Ranges< Uint31_Index >& ranges)
+{
+  filter_ways_by_ranges(ways, ranges.get_ranges());
+}
+
+void filter_ways_by_ranges(std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >& ways,
+                           const Ranges< Uint31_Index >& ranges)
+{
+  filter_ways_by_ranges(ways, ranges.get_ranges());
+}
+
+
+

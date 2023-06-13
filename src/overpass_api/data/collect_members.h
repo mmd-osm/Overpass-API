@@ -33,6 +33,87 @@
 class Resource_Manager;
 class Statement;
 
+// ------------------------------------------------------------------------------------------------
+// Ranges wrapper functions
+// ------------------------------------------------------------------------------------------------
+
+std::map< Uint31_Index, std::vector< Relation_Skeleton > > relation_relation_members
+    (const Statement& stmt, Resource_Manager& rman,
+     const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& parents,
+     const Ranges< Uint31_Index >& children_ranges,
+     const std::vector< Relation::Id_Type >& children_ids, bool invert_ids, const uint32* role_id = nullptr);
+
+std::pair< std::map< Uint31_Index, std::vector< Relation_Skeleton > >,
+    std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > > > relation_relation_members
+    (const Statement& stmt, Resource_Manager& rman,
+     const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& parents,
+     const std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > >& attic_parents,
+     const Ranges< Uint31_Index >& children_ranges,
+     const std::vector< Relation::Id_Type >& children_ids, bool invert_ids, const uint32* role_id = nullptr);
+
+std::map< Uint31_Index, std::vector< Way_Skeleton > > relation_way_members
+    (const Statement* stmt, Resource_Manager& rman,
+     const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& relations,
+     const Ranges< Uint31_Index >& way_ranges,
+     const std::vector< Way::Id_Type >& way_ids, bool invert_ids, const uint32* role_id = nullptr);
+
+std::pair< std::map< Uint31_Index, std::vector< Way_Skeleton > >,
+    std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > > > relation_way_members
+    (const Statement* stmt, Resource_Manager& rman,
+     const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& relations,
+     const std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > >& attic_relations,
+     const Ranges< Uint31_Index >& way_ranges,
+     const std::vector< Way::Id_Type >& way_ids, bool invert_ids, const uint32* role_id = nullptr);
+
+std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > > relation_way_members
+    (const Statement* stmt, Resource_Manager& rman,
+     const std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > >& relations,
+     const Ranges< Uint31_Index >& way_ranges);
+
+std::map< Uint32_Index, std::vector< Node_Skeleton > > relation_node_members
+    (const Statement* stmt, Resource_Manager& rman,
+     const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& relations,
+     const Ranges< Uint32_Index >& node_ranges,
+     const std::vector< Node::Id_Type >& node_ids, bool invert_ids = false, const uint32* role_id = nullptr);
+
+std::pair< std::map< Uint32_Index, std::vector< Node_Skeleton > >,
+    std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > > > relation_node_members
+    (const Statement* stmt, Resource_Manager& rman,
+     const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& relations,
+     const std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > >& attic_relations,
+     const Ranges< Uint32_Index >& node_ranges,
+     const std::vector< Node::Id_Type >& node_ids, bool invert_ids = false, const uint32* role_id = nullptr);
+
+std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > > relation_node_members
+    (const Statement* stmt, Resource_Manager& rman,
+     const std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > >& relations,
+     const Ranges< Uint32_Index >& node_ranges);
+
+std::pair< std::map< Uint32_Index, std::vector< Node_Skeleton > >,
+    std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > > > way_members
+    (const Statement* stmt, Resource_Manager& rman,
+     const std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
+     const std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >& attic_ways,
+     const std::vector< int >* pos,
+     const Ranges< Uint32_Index >* node_ranges,
+     const std::vector< Node::Id_Type >& node_ids, bool invert_ids = false);
+
+void filter_ways_by_ranges(std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
+                           const Ranges< Uint31_Index >& ranges);
+void filter_ways_by_ranges(std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >& ways,
+                           const Ranges< Uint31_Index >& ranges);
+
+template< typename Relation_Skeleton >
+void filter_relations_by_ranges(
+    std::map< Uint31_Index, std::vector< Relation_Skeleton > >& relations, const Ranges< Uint31_Index >& ranges)
+{
+  filter_relations_by_ranges(relations, ranges.get_ranges());
+
+}
+
+
+
+// -------------------------------------------------------------------------------------------
 
 std::map< Uint31_Index, std::vector< Relation_Skeleton > > relation_relation_members
     (const Statement& stmt, Resource_Manager& rman,
