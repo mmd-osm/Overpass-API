@@ -75,7 +75,7 @@ Query_Filter_Strategy Bbox_Constraint::delivers_data(Resource_Manager& rman)
 bool Bbox_Constraint::get_ranges
     (Resource_Manager& rman, std::set< std::pair< Uint32_Index, Uint32_Index > >& ranges)
 {
-  ranges = filter_.get_ranges_32();
+  ranges = filter_.get_ranges_32().get_ranges();
   return true;
 }
 
@@ -83,7 +83,7 @@ bool Bbox_Constraint::get_ranges
 bool Bbox_Constraint::get_ranges
     (Resource_Manager& rman, std::set< std::pair< Uint31_Index, Uint31_Index > >& ranges)
 {
-  ranges = filter_.get_ranges_31();
+  ranges = filter_.get_ranges_31().get_ranges();
   return true;
 }
 
