@@ -1026,6 +1026,24 @@ class Recurse_Constraint final : public Query_Constraint
                           int type,
                           const std::vector< Uint32_Index >& ids,
                           bool invert_ids) override;
+
+    bool get_way_ranges
+        (Resource_Manager& rman, Ranges< Uint31_Index >& ranges) override;
+    bool get_relation_ranges
+        (Resource_Manager& rman, Ranges< Uint31_Index >& ranges) override;
+    bool get_ranges
+        (Resource_Manager& rman, Ranges< Uint32_Index >& ranges) override;
+
+    bool get_data(const Statement& query, Resource_Manager& rman, Set& into,
+                          const Ranges< Uint32_Index >& ranges,
+                          const std::vector< Node::Id_Type >& ids,
+                          bool invert_ids) override;
+    bool get_data(const Statement& query, Resource_Manager& rman, Set& into,
+                          const Ranges< Uint31_Index >& ranges,
+                          int type,
+                          const std::vector< Uint32_Index >& ids,
+                          bool invert_ids) override;
+
     void filter(Resource_Manager& rman, Set& into) override;
     void filter(const Statement& query, Resource_Manager& rman, Set& into) override;
     ~Recurse_Constraint() override = default;
@@ -2947,3 +2965,125 @@ Query_Constraint* Recurse_Statement::get_query_constraint()
   constraints.push_back(new Recurse_Constraint(*this));
   return constraints.back();
 }
+
+// ------------------------------------------------------------------------------------------------
+// Ranges wrapper functions
+// ------------------------------------------------------------------------------------------------
+
+void collect_nodes(const Statement& query, Resource_Manager& rman,
+                   const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& rels,
+                   const Ranges< Uint32_Index >& ranges,
+                   const std::vector< Node::Id_Type >& ids, bool invert_ids,
+                   std::map< Uint32_Index, std::vector< Node_Skeleton > >& nodes,
+                   uint32* role_id = 0)
+{
+  nodes = relation_node_members(&query, rman, rels, ranges, ids, invert_ids, role_id);
+}
+
+
+void collect_nodes(const Statement& query, Resource_Manager& rman,
+                   const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& rels,
+                   const std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > >& attic_rels,
+                   const Ranges< Uint32_Index >& ranges,
+                   const std::vector< Node::Id_Type >& ids, bool invert_ids,
+                   std::map< Uint32_Index, std::vector< Node_Skeleton > >& nodes,
+                   std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > >& attic_nodes,
+                   uint32* role_id = 0)
+{
+  swap_components(relation_node_members
+      (&query, rman, rels, attic_rels, ranges, ids, invert_ids, role_id), nodes, attic_nodes);
+}
+
+
+void collect_nodes(const Statement& query, Resource_Manager& rman,
+                   const std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
+                   const std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >& attic_ways,
+                   const std::vector< int >* pos,
+                   const Ranges< Uint32_Index >& ranges,
+                   const std::vector< Node::Id_Type >& ids, bool invert_ids,
+                   std::map< Uint32_Index, std::vector< Node_Skeleton > >& nodes,
+                   std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > >& attic_nodes)
+{
+  swap_components(way_members(
+      &query, rman, ways, attic_ways, pos, ranges.is_global() ? 0 : &ranges, ids, invert_ids), nodes, attic_nodes);
+}
+
+
+void collect_relations(
+    const Statement& query, Resource_Manager& rman,
+    const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& rels,
+    const Ranges< Uint31_Index >& ranges,
+    const std::vector< Relation::Id_Type >& ids, bool invert_ids,
+    std::map< Uint31_Index, std::vector< Relation_Skeleton > >& relations,
+    uint32* role_id)
+{
+  relations = relation_relation_members(query, rman, rels, ranges, ids, invert_ids, role_id);
+}
+
+
+void collect_relations(
+    const Statement& query, Resource_Manager& rman,
+    const std::map< Uint31_Index, std::vector< Relation_Skeleton > >& rels,
+    const std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > >& attic_rels,
+    const Ranges< Uint31_Index >& ranges,
+    const std::vector< Relation::Id_Type >& ids, bool invert_ids,
+    std::map< Uint31_Index, std::vector< Relation_Skeleton > >& relations,
+    std::map< Uint31_Index, std::vector< Attic< Relation_Skeleton > > >& attic_relations,
+    uint32* role_id)
+{
+  swap_components(
+      relation_relation_members(query, rman, rels, attic_rels, ranges, ids, invert_ids, role_id),
+      relations, attic_relations);
+}
+
+
+
+
+bool Recurse_Constraint::get_ranges(Resource_Manager& rman, Ranges< Uint32_Index >& ranges)
+{
+  auto rng = ranges.get_ranges();
+  auto rc = get_ranges(rman, rng);
+  ranges = Ranges< Uint32_Index >(rng);
+  return rc;
+}
+
+
+bool Recurse_Constraint::get_way_ranges(Resource_Manager& rman, Ranges< Uint31_Index >& ranges)
+{
+  auto rng = ranges.get_ranges();
+  auto rc = get_way_ranges(rman, rng);
+  ranges = Ranges< Uint31_Index >(rng);
+  return rc;
+}
+
+
+bool Recurse_Constraint::get_relation_ranges(Resource_Manager& rman, Ranges< Uint31_Index >& ranges)
+{
+  auto rng = ranges.get_ranges();
+  auto rc = get_relation_ranges(rman, rng);
+  ranges = Ranges< Uint31_Index >(rng);
+  return rc;
+}
+
+
+bool Recurse_Constraint::get_data
+    (const Statement& query, Resource_Manager& rman, Set& into,
+     const Ranges< Uint32_Index >& ranges,
+     const std::vector< Node::Id_Type >& ids,
+     bool invert_ids)
+{
+  return get_data(query, rman, into, ranges.get_ranges(), ids, invert_ids);
+}
+
+
+bool Recurse_Constraint::get_data
+    (const Statement& query, Resource_Manager& rman, Set& into,
+     const Ranges< Uint31_Index >& ranges,
+     int type,
+     const std::vector< Uint32_Index >& ids,
+     bool invert_ids)
+{
+  return get_data(query, rman, into, ranges.get_ranges(), type, ids, invert_ids);
+}
+
+
