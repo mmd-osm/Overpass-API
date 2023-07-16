@@ -55,6 +55,8 @@ struct IntIndex
     return 4;
   }
 
+  static constexpr bool is_fixed_size() noexcept { return true; }
+
   void to_data(void* data) const
   {
     *(uint32*)data = value;

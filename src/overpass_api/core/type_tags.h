@@ -76,6 +76,8 @@ struct Tag_Index_Local
     return 7 + key.length() + value.length();
   }
 
+  static constexpr bool is_fixed_size() noexcept { return false; }
+
   static uint32 size_of(const void* data) noexcept
   {
     return unalignedLoad<uint16>(data) + unalignedLoad<uint16>((uint16*)data + 1) + 7;
@@ -401,6 +403,8 @@ struct Tag_Index_Global
   {
     return 4 + key.length() + value.length();
   }
+
+  static constexpr bool is_fixed_size() noexcept { return false; }
 
   static uint32 size_of(const void* data) noexcept
   {

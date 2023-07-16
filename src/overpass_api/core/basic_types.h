@@ -98,6 +98,8 @@ struct Uint32_Index
     return 4;
   }
 
+  static constexpr bool is_fixed_size() noexcept { return true; }
+
   void to_data(void* data) const noexcept
   {
     unalignedStore(data, value);
@@ -424,6 +426,7 @@ struct Uint40
   static constexpr uint32 max_size_of() noexcept { return 5; }
   static uint64 max_value() noexcept { return (1ull  << (8 * max_size_of())) - 1; }
   static uint32 size_of(const void* ) noexcept { return 5; }
+  static constexpr bool is_fixed_size() noexcept { return true; }
 
   void to_data(void* data) const noexcept
   {

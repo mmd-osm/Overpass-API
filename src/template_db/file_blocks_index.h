@@ -304,13 +304,11 @@ void File_Blocks_Index< TIndex >::init_void_blocks()
     std::vector< bool > is_referred(block_count, false);
     for (const auto & block : block_list)
     {
-      for (uint32 i = 0; i < block.size; ++i)
-        is_referred[block.pos + i] = true;
+      std::fill(is_referred.begin() + block.pos, is_referred.begin() + (block.pos + block.size), true);
     }
     for (const auto & block : block_array)
     {
-      for (uint32 i = 0; i < block.size; ++i)
-        is_referred[block.pos + i] = true;
+      std::fill(is_referred.begin() + block.pos, is_referred.begin() + (block.pos + block.size), true);
     }
 
     // determine void_blocks
@@ -320,12 +318,12 @@ void File_Blocks_Index< TIndex >::init_void_blocks()
       if (is_referred[i])
       {
         if (last_start < i)
-          void_blocks.push_back(std::make_pair(i - last_start, last_start));
+          void_blocks.emplace_back(i - last_start, last_start);
         last_start = i+1;
       }
     }
     if (last_start < block_count)
-      void_blocks.push_back(std::make_pair(block_count - last_start, last_start));
+      void_blocks.emplace_back(block_count - last_start, last_start);
   }
 
   std::stable_sort(void_blocks.begin(), void_blocks.end());
@@ -343,9 +341,17 @@ File_Blocks_Index< TIndex >::~File_Blocks_Index()
   uint32 index_size = 8;
   uint32 pos = 8;
 
-  for (typename std::list< File_Block_Index_Entry< TIndex > >::const_iterator
-      it(block_list.begin()); it != block_list.end(); ++it)
-    index_size += 12 + it->index.size_of();
+  if (TIndex::is_fixed_size()) {
+    if (!block_list.empty())
+      index_size += block_list.size() * (12 + (*block_list.begin()).index.size_of());
+
+  }
+  else
+  {
+    for (typename std::list< File_Block_Index_Entry< TIndex > >::const_iterator
+        it(block_list.begin()); it != block_list.end(); ++it)
+      index_size += 12 + it->index.size_of();
+  }
 
   auto index_buf = std::unique_ptr<uint8[]>(new uint8[index_size]);
 

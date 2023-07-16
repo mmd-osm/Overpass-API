@@ -40,6 +40,8 @@ struct IntIndex
   uint32 size_of() const { return (value < 24 ? 12 : value-12); }
   static uint32 size_of(void* data) { return (unalignedLoad<uint32>(data) < 24 ? 12 : unalignedLoad<uint32>(data)-12); }
 
+  static constexpr bool is_fixed_size() noexcept { return false; }
+
   void to_data(void* data) const
   {
     uint32 size = size_of();
