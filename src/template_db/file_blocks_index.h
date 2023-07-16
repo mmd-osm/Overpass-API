@@ -421,8 +421,7 @@ std::vector< bool > get_data_index_footprint
   std::vector< bool > result(index.block_count, true);
   for (auto it = index.get_void_blocks().begin(); it != index.get_void_blocks().end(); ++it)
   {
-    for (uint32 i = 0; i < it->first; ++i)
-      result[it->second + i] = false;
+    std::fill(result.begin() + it->second, result.begin() + (it->second + it->first), false);
   }
   return result;
 }
