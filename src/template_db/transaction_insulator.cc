@@ -245,9 +245,10 @@ std::vector< std::pair< uint32, uint32 > > condense_footprint(
   std::vector< std::pair< uint32, uint32 > > buffer;
   buffer.reserve(footprint.size());
   uint32 last_start = 0;
-  for (uint32 i = 0; i < footprint.size(); ++i)
+  uint32 i = 0;
+  for (bool ft : footprint)
   {
-    if (footprint[i])
+    if (ft)
     {
       if (last_start < i)
       {
@@ -255,6 +256,7 @@ std::vector< std::pair< uint32, uint32 > > condense_footprint(
       }
       last_start = i + 1;
     }
+    ++i;
   }
   if (last_start < footprint.size())
   {
