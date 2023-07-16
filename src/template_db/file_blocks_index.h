@@ -126,6 +126,7 @@ private:
   void init_structure_params();
   void init_blocks();
   void init_void_blocks();
+  void reserve_block_array();
 
 public:
   uint32 block_count;
@@ -218,6 +219,26 @@ void File_Blocks_Index< TIndex >::init_structure_params()
   }
 }
 
+template< class TIndex >
+void File_Blocks_Index< TIndex >::reserve_block_array()
+{
+  uint32 p = 8;
+  uint elems = 0;
+  if (TIndex::is_fixed_size())
+  {
+    elems = (index_size - p) / (12 + TIndex::size_of(index_buf.get() + 12 + p));
+  }
+  else
+  {
+    while (p < index_size)
+    {
+      p += 12;
+      p += TIndex::size_of(index_buf.get() + p);
+      elems++;
+    }
+  }
+  block_array.reserve(elems);
+}
 
 template< class TIndex >
 void File_Blocks_Index< TIndex >::init_blocks()
@@ -225,51 +246,44 @@ void File_Blocks_Index< TIndex >::init_blocks()
   if (!(index_buf))
     return;
 
-  if (index_size > 0)
+  if (index_size == 0)
   {
-    if (!writeable())
+    index_buf.reset();
+    return;
+  }
+
+  if (!writeable())
+    reserve_block_array();
+
+  uint32 pos = 8;
+  while (pos < index_size)
+  {
+    auto entry_pos = unalignedLoad<uint32>(index_buf.get() + pos);
+    auto entry_size = unalignedLoad<uint32>(index_buf.get() + pos + 4);
+    auto entry_max_keyize = unalignedLoad<uint32>(index_buf.get() + pos + 8);
+
+    if (entry_pos >= block_count)
+      throw File_Error(0, index_file_name, "File_Blocks_Index: bad pos in index file");
+    if (entry_pos + entry_size > block_count)
+      throw File_Error(0, index_file_name, "File_Blocks_Index: bad size in index file");
+
+    if (writeable())
     {
-      uint32 p = 8;
-      uint elems = 0;
-      while (p < index_size)
-      {
-        p += 12;
-        p += TIndex::size_of(index_buf.get() + p);
-        elems++;
-      }
-      block_array.reserve(elems);
+      block_list.emplace_back(std::move(TIndex(index_buf.get() + pos + 12)),
+          entry_pos,
+          entry_size,
+          entry_max_keyize);
+    }
+    else
+    {
+      block_array.emplace_back(std::move(TIndex(index_buf.get() + pos + 12)),
+          entry_pos,
+          entry_size,
+          entry_max_keyize);
     }
 
-    uint32 pos = 8;
-    while (pos < index_size)
-    {
-      auto entry_pos = unalignedLoad<uint32>(index_buf.get() + pos);
-      auto entry_size = unalignedLoad<uint32>(index_buf.get() + pos + 4);
-      auto entry_max_keyize = unalignedLoad<uint32>(index_buf.get() + pos + 8);
-
-      if (entry_pos >= block_count)
-        throw File_Error(0, index_file_name, "File_Blocks_Index: bad pos in index file");
-      if (entry_pos + entry_size > block_count)
-        throw File_Error(0, index_file_name, "File_Blocks_Index: bad size in index file");
-
-      if (writeable())
-      {
-        block_list.emplace_back(std::move(TIndex(index_buf.get() + pos + 12)),
-            entry_pos,
-            entry_size,
-            entry_max_keyize);
-      }
-      else
-      {
-        block_array.emplace_back(std::move(TIndex(index_buf.get() + pos + 12)),
-            entry_pos,
-            entry_size,
-            entry_max_keyize);
-      }
-
-      pos += 12;
-      pos += TIndex::size_of(index_buf.get() + pos);
-    }
+    pos += 12;
+    pos += TIndex::size_of(index_buf.get() + pos);
   }
 
   index_buf.reset();
