@@ -327,14 +327,16 @@ void File_Blocks_Index< TIndex >::init_void_blocks()
 
     // determine void_blocks
     uint32 last_start = 0;
-    for (uint32 i = 0; i < block_count; ++i)
+    uint32 i = 0;
+    for (bool referred : is_referred)
     {
-      if (is_referred[i])
+      if (referred)
       {
         if (last_start < i)
           void_blocks.emplace_back(i - last_start, last_start);
         last_start = i+1;
       }
+      ++i;
     }
     if (last_start < block_count)
       void_blocks.emplace_back(block_count - last_start, last_start);
