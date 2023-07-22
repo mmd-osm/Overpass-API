@@ -95,6 +95,25 @@ std::pair< std::map< Uint32_Index, std::vector< Node_Skeleton > >,
      const std::set< std::pair< Uint32_Index, Uint32_Index > >* node_ranges = nullptr,
      const std::vector< Node::Id_Type >* node_ids = nullptr, bool invert_ids = false);
 
+std::pair< std::map< Uint32_Index, std::vector< Node_Skeleton > >,
+    std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > > > way_cnt_members
+    (const Statement* stmt, Resource_Manager& rman,
+     const std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
+     const std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >& attic_ways,
+     unsigned int lower_limit, unsigned int upper_limit,
+     const std::set< std::pair< Uint32_Index, Uint32_Index > >* node_ranges = nullptr,
+     const std::vector< Node::Id_Type >* node_ids = nullptr, bool invert_ids = false);
+
+std::pair< std::map< Uint32_Index, std::vector< Node_Skeleton > >,
+    std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > > > way_link_members
+    (const Statement* stmt, Resource_Manager& rman,
+     const std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
+     const std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >& attic_ways,
+     unsigned int lower_limit, unsigned int upper_limit,
+     const std::set< std::pair< Uint32_Index, Uint32_Index > >* node_ranges = nullptr,
+     const std::vector< Node::Id_Type >* node_ids = nullptr, bool invert_ids = false);
+
+
 std::map< Uint32_Index, std::vector< Node_Skeleton > > way_members_hybrid
     (const Statement* stmt, Resource_Manager& rman,
      const std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways);
@@ -147,6 +166,16 @@ std::vector< Node::Id_Type > way_nd_ids(
     const std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
     const std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >& attic_ways,
     const std::vector< int >* pos);
+
+std::vector< Node::Id_Type > way_cnt_nd_ids(
+    const std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
+    const std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >& attic_ways,
+    unsigned int lower_limit, unsigned int upper_limit);
+
+std::vector< Node::Id_Type > way_link_nd_ids(
+    const std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
+    const std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >& attic_ways,
+    unsigned int lower_limit, unsigned int upper_limit);
 
 const std::map< uint32, std::string >& relation_member_roles(Transaction& transaction);
 uint32 determine_role_id(Transaction& transaction, const std::string& role);

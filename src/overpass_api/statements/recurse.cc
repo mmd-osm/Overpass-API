@@ -42,14 +42,16 @@ enum class Recurse {
   RELATION_WR = 7,
   RELATION_NR = 8,
   WAY_NODE = 9,
-  WAY_RELATION = 10,
-  NODE_RELATION = 11,
-  NODE_WAY = 12,
-  NODE_WR = 13,
-  DOWN = 14,
-  DOWN_REL = 15,
-  UP = 16,
-  UP_REL = 17
+  WAY_LINK = 10,
+  WAY_COUNT = 11,
+  WAY_RELATION = 12,
+  NODE_RELATION = 13,
+  NODE_WAY = 14,
+  NODE_WR = 15,
+  DOWN = 16,
+  DOWN_REL = 17,
+  UP = 18,
+  UP_REL = 19
 };
 
 Recurse_Statement::Statement_Maker Recurse_Statement::statement_maker;
@@ -66,6 +68,7 @@ Statement* Recurse_Statement::Criterion_Maker_1::create_criterion(const Token_No
 
   std::string from = "_";
   std::vector< std::string > roles;
+  std::string lower, upper;
   bool role_found = false;
 
   while (tree_it->token == "," && tree_it->rhs && tree_it->lhs)
@@ -77,7 +80,17 @@ Statement* Recurse_Statement::Criterion_Maker_1::create_criterion(const Token_No
   if (tree_it->token == ":" && tree_it->rhs)
   {
     role_found = true;
-    roles.push_back(decode_json(tree_it.rhs()->token, error_output));
+    if (tree_it.rhs()->token == "-")
+    {
+      if (tree_it.rhs()->lhs)
+        lower = tree_it.rhs().lhs()->token;
+      if (tree_it.rhs()->rhs)
+        upper = tree_it.rhs().rhs()->token;
+    }
+    else if (!tree_it.rhs()->lhs && !tree_it.rhs()->rhs)
+      roles.push_back(decode_json(tree_it.rhs()->token, error_output));
+    else
+      error_output->add_parse_error("Simple role token expected, structured syntax tree found.", line_nr);
     tree_it = tree_it.lhs();
   }
 
@@ -109,28 +122,42 @@ Statement* Recurse_Statement::Criterion_Maker_1::create_criterion(const Token_No
     else if (result_type == "nr")
       attributes["type"] = "relation-nr";
     else if (error_output)
-      error_output->add_parse_error("A recursion from type 'r' produces nodes, ways, or relations.", line_nr);
+      error_output->add_parse_error("A recursion of type 'r' produces nodes, ways, or relations.", line_nr);
   }
   else if (type == "w")
   {
     if (result_type == "node")
       attributes["type"] = "way-node";
     else if (error_output)
-      error_output->add_parse_error("A recursion from type 'w' produces nodes.", line_nr);
+      error_output->add_parse_error("A recursion of type 'w' produces nodes.", line_nr);
+  }
+  else if (type == "way_link")
+  {
+    if (result_type == "node")
+      attributes["type"] = "way-link";
+    else if (error_output)
+      error_output->add_parse_error("A recursion of type 'way_link' produces nodes.", line_nr);
+  }
+  else if (type == "way_cnt")
+  {
+    if (result_type == "node")
+      attributes["type"] = "way-count";
+    else if (error_output)
+      error_output->add_parse_error("A recursion of type 'way_cnt' produces nodes.", line_nr);
   }
   else if (type == "br")
   {
     if (result_type == "relation")
       attributes["type"] = "relation-backwards";
     else if (error_output)
-      error_output->add_parse_error("A recursion from type 'br' produces relations.", line_nr);
+      error_output->add_parse_error("A recursion of type 'br' produces relations.", line_nr);
   }
   else if (type == "bw")
   {
     if (result_type == "relation")
       attributes["type"] = "way-relation";
     else if (error_output)
-      error_output->add_parse_error("A recursion from type 'bw' produces relations.", line_nr);
+      error_output->add_parse_error("A recursion of type 'bw' produces relations.", line_nr);
   }
   else if (type == "bn")
   {
@@ -141,7 +168,7 @@ Statement* Recurse_Statement::Criterion_Maker_1::create_criterion(const Token_No
     else if (result_type == "wr")
       attributes["type"] = "node-wr";
     else if (error_output)
-      error_output->add_parse_error("A recursion from type 'bn' produces ways or relations.", line_nr);
+      error_output->add_parse_error("A recursion of type 'bn' produces ways or relations.", line_nr);
   }
   else
     return nullptr;
@@ -158,6 +185,24 @@ Statement* Recurse_Statement::Criterion_Maker_1::create_criterion(const Token_No
       attributes["pos"] = roles[0];
       for (uint i = 1; i < roles.size(); ++i)
         attributes["pos"] += "," + roles[i];
+    }
+    else if (type == "way_cnt" || type == "way_link")
+    {
+      if (role_found)
+      {
+        if (roles.empty())
+        {
+          attributes["lower"] = lower;
+          attributes["upper"] = upper;
+        }
+        else
+        {
+          attributes["lower"] = roles.back();
+          attributes["upper"] = roles.back();
+        }
+      }
+      else if (error_output)
+        error_output->add_parse_error("A recursion of type 'way_cnt' or 'way_link' must have a parameter.", line_nr);
     }
     else if (error_output)
       error_output->add_parse_error("A recursion of type '" + type + "' cannot have restrictions.", line_nr);
@@ -1056,7 +1101,9 @@ bool Recurse_Constraint::get_ranges(Resource_Manager& rman, std::set< std::pair<
 
       return true;
     }
-    else if (stmt->get_type() == Recurse::WAY_NODE)
+    else if (stmt->get_type() == Recurse::WAY_NODE ||
+             stmt->get_type() == Recurse::WAY_LINK ||
+             stmt->get_type() == Recurse::WAY_COUNT)
     {
       way_nd_indices(stmt, rman, input->ways.begin(), input->ways.end()).swap(ranges);
 
@@ -1292,6 +1339,15 @@ bool Recurse_Constraint::get_data
     else if (stmt->get_type() == Recurse::WAY_NODE)
       ::collect_nodes(query, rman, input->ways, input->attic_ways, stmt->get_pos(), ranges, ids, invert_ids,
           into.nodes, into.attic_nodes);
+    else if (stmt->get_type() == Recurse::WAY_COUNT)
+    {
+      swap_components(way_cnt_members(&query, rman, input->ways, input->attic_ways, stmt->get_lower(), stmt->get_upper(), &ranges, (ids.empty()? nullptr : &ids), invert_ids), into.nodes, into.attic_nodes);
+    }
+    else if (stmt->get_type() == Recurse::WAY_LINK)
+    {
+      swap_components(way_link_members(
+          &query, rman, input->ways, input->attic_ways, stmt->get_lower(), stmt->get_upper(), &ranges, (ids.empty()? nullptr : &ids), invert_ids), into.nodes, into.attic_nodes);
+    }
     else if (stmt->get_type() == Recurse::DOWN)
     {
       std::map< Uint32_Index, std::vector< Node_Skeleton > > rel_nodes;
@@ -2001,6 +2057,16 @@ void Recurse_Constraint::filter(Resource_Manager& rman, Set& into)
     ids = way_nd_ids(input->ways, input->attic_ways, stmt->get_pos());
     rman.health_check(*stmt);
   }
+  else if (stmt->get_type() == Recurse::WAY_COUNT)
+  {
+    ids = way_cnt_nd_ids(input->ways, input->attic_ways, stmt->get_lower(), stmt->get_upper());
+    rman.health_check(*stmt);
+  }
+  else if (stmt->get_type() == Recurse::WAY_LINK)
+  {
+    ids = way_link_nd_ids(input->ways, input->attic_ways, stmt->get_lower(), stmt->get_upper());
+    rman.health_check(*stmt);
+  }
   else if (stmt->get_type() == Recurse::RELATION_NODE || stmt->get_type() == Recurse::RELATION_NWR
       || stmt->get_type() == Recurse::RELATION_NW || stmt->get_type() == Recurse::RELATION_NR)
   {
@@ -2372,13 +2438,15 @@ void Recurse_Constraint::filter(const Statement& query, Resource_Manager& rman, 
 
 Recurse_Statement::Recurse_Statement
     (int line_number_, const std::map< std::string, std::string >& input_attributes, Parsed_Query& global_settings)
-    : Output_Statement(line_number_), restrict_to_role(false)
+    : Output_Statement(line_number_), restrict_to_role(false), lower(1), upper(0)
 {
   std::map< std::string, std::string > attributes;
 
   attributes["from"] = "_";
   attributes["into"] = "_";
   attributes["pos"] = "";
+  attributes["lower"] = "";
+  attributes["upper"] = "";
   attributes["type"] = "";
   attributes["role"] = "";
   attributes["role-restricted"] = "no";
@@ -2406,6 +2474,10 @@ Recurse_Statement::Recurse_Statement
     type = Recurse::RELATION_NR;
   else if (attributes["type"] == "way-node")
     type = Recurse::WAY_NODE;
+  else if (attributes["type"] == "way-link")
+    type = Recurse::WAY_LINK;
+  else if (attributes["type"] == "way-count")
+    type = Recurse::WAY_COUNT;
   else if (attributes["type"] == "down")
     type = Recurse::DOWN;
   else if (attributes["type"] == "down-rel")
@@ -2473,6 +2545,20 @@ Recurse_Statement::Recurse_Statement
 
     std::sort(pos.begin(), pos.end());
   }
+
+  if (!attributes["lower"].empty() || !attributes["upper"].empty())
+  {
+    int64_t lower_i = atoll(attributes["lower"].c_str());
+    int64_t upper_i = atoll(attributes["upper"].c_str());
+    if (lower_i <= 0)
+      add_static_error("lower must be an integer greater or equal 1");
+    if (attributes["upper"].empty())
+      upper_i = std::numeric_limits< unsigned int >::max();
+    else if (upper_i < lower_i)
+      add_static_error("upper must be an integer greater or equal lower");
+    lower = lower_i;
+    upper = upper_i;
+  }
 }
 
 
@@ -2489,6 +2575,8 @@ std::string Recurse_Statement::to_target_type(Recurse type)
     return "way";
   case Recurse::RELATION_NODE:
   case Recurse::WAY_NODE:
+  case Recurse::WAY_LINK:
+  case Recurse::WAY_COUNT:
     return "node";
   case Recurse::RELATION_NWR:
     return "nwr";
@@ -2526,6 +2614,10 @@ std::string Recurse_Statement::to_xml_representation(Recurse type)
     return "relation-nr";
   case Recurse::WAY_NODE:
     return "way-node";
+  case Recurse::WAY_LINK:
+    return "way-link";
+  case Recurse::WAY_COUNT:
+    return "way-count";
   case Recurse::WAY_RELATION:
     return "way-relation";
   case Recurse::NODE_RELATION:
@@ -2564,6 +2656,10 @@ std::string Recurse_Statement::to_ql_representation(Recurse type)
     return "r";
   case Recurse::WAY_NODE:
     return "w";
+  case Recurse::WAY_LINK:
+    return "way_link";
+  case Recurse::WAY_COUNT:
+    return "way_cnt";
   case Recurse::WAY_RELATION:
     return "bw";
   case Recurse::NODE_RELATION:
@@ -2733,6 +2829,14 @@ void Recurse_Statement::execute(Resource_Manager& rman)
       swap_components(way_members(this, rman, input_set->ways, input_set->attic_ways, get_pos()),
           into.nodes, into.attic_nodes);
     }
+  }
+  else if (type == Recurse::WAY_COUNT)
+  {
+    swap_components(way_cnt_members(this, rman, input_set->ways, input_set->attic_ways, lower, upper, 0, {}, true), into.nodes, into.attic_nodes);
+  }
+  else if (type == Recurse::WAY_LINK)
+  {
+    swap_components(way_link_members(this, rman, input_set->ways, input_set->attic_ways, lower, upper, 0, {}, true), into.nodes, into.attic_nodes);
   }
   else if (type == Recurse::DOWN)
     add_nw_member_objects(rman, this, *input_set, into, input, this->get_result_name());

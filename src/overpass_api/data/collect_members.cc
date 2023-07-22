@@ -22,6 +22,38 @@
 
 //-----------------------------------------------------------------------------
 
+template< typename Container >
+void way_nd_ids_plain(const Container& ways, std::vector< Node::Id_Type >& ids)
+{
+  for (const auto& i : ways)
+  {
+    for (const auto& j : i.second)
+    {
+      for (auto k : j.nds())
+        ids.push_back(k);
+    }
+  }
+}
+
+
+template< typename Container >
+void way_nd_firstlast(const Container& ways, std::vector< Node::Id_Type >& ids)
+{
+  for (const auto& i : ways)
+  {
+    for (const auto& j : i.second)
+    {
+      if (j.nds().empty())
+        continue;
+      ids.push_back(j.nds().front());
+      ids.push_back(j.nds().back());
+    }
+  }
+}
+
+
+//-----------------------------------------------------------------------------
+
 IdSetHybrid< Node::Id_Type::Id_Type > way_nd_ids_hybrid(
     std::map< Uint31_Index, std::vector< Way_Skeleton > >&& ways)
 {
@@ -157,6 +189,80 @@ std::vector< Node::Id_Type > way_nd_ids(
 
   std::sort(ids.begin(), ids.end());
   ids.erase(unique(ids.begin(), ids.end()), ids.end());
+
+  return ids;
+}
+
+std::vector< Node::Id_Type > way_cnt_nd_ids(
+    const std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
+    const std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >& attic_ways,
+    unsigned int lower_limit, unsigned int upper_limit)
+{
+  std::vector< Node::Id_Type > ids;
+  way_nd_ids_plain(ways, ids);
+  if (!attic_ways.empty())
+    way_nd_ids_plain(attic_ways, ids);
+
+  std::sort(ids.begin(), ids.end());
+
+  size_t lower = 0;
+  size_t upper = 0;
+  size_t target = 0;
+  while (lower < ids.size())
+  {
+    while (upper < ids.size() && ids[lower] == ids[upper])
+      ++upper;
+    if (lower_limit <= upper - lower && upper - lower <= upper_limit)
+      ids[target++] = ids[lower];
+    lower = upper;
+  }
+  ids.resize(target);
+
+  return ids;
+}
+
+
+std::vector< Node::Id_Type > way_link_nd_ids(
+    const std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
+    const std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >& attic_ways,
+    unsigned int lower_limit, unsigned int upper_limit)
+{
+  std::vector< Node::Id_Type > ids;
+
+  way_nd_ids_plain(ways, ids);
+  if (!attic_ways.empty())
+    way_nd_ids_plain(attic_ways, ids);
+
+  std::sort(ids.begin(), ids.end());
+
+  std::vector< Node::Id_Type > fl_ids;
+  way_nd_firstlast(ways, fl_ids);
+  if (!attic_ways.empty())
+    way_nd_firstlast(attic_ways, fl_ids);
+
+  std::sort(fl_ids.begin(), fl_ids.end());
+
+  size_t lower = 0;
+  size_t upper = 0;
+  size_t fl_lower = 0;
+  size_t fl_upper = 0;
+  size_t target = 0;
+  while (lower < ids.size())
+  {
+    while (upper < ids.size() && ids[lower] == ids[upper])
+      ++upper;
+    while (fl_lower < fl_ids.size() && fl_ids[fl_lower] < ids[lower])
+      ++fl_lower;
+    fl_upper = fl_lower;
+    while (fl_upper < fl_ids.size() && fl_ids[fl_upper] == ids[lower])
+      ++fl_upper;
+    if (lower_limit <= 2*(upper - lower) + fl_lower - fl_upper
+        && 2*(upper - lower) + fl_lower - fl_upper <= upper_limit)
+      ids[target++] = ids[lower];
+    lower = upper;
+    fl_lower = fl_upper;
+  }
+  ids.resize(target);
 
   return ids;
 }
@@ -950,6 +1056,46 @@ std::pair< std::map< Uint32_Index, std::vector< Node_Skeleton > >,
     const std::vector< Node::Id_Type >* node_ids, bool invert_ids)
 {
   std::vector< Node::Id_Type > intersect_ids = way_nd_ids(ways, attic_ways, pos);
+  if (stmt)
+    rman.health_check(*stmt);
+  if (node_ids)
+    sieve_first_arg(intersect_ids, *node_ids, invert_ids);
+
+  return paired_items_range(stmt, rman, intersect_ids,
+      node_ranges ? *node_ranges :
+          way_nd_indices(stmt, rman, ways.begin(), ways.end(), attic_ways.begin(), attic_ways.end()));
+}
+
+std::pair< std::map< Uint32_Index, std::vector< Node_Skeleton > >,
+    std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > > > way_cnt_members(
+    const Statement* stmt, Resource_Manager& rman,
+    const std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
+    const std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >& attic_ways,
+    unsigned int lower_limit, unsigned int upper_limit,
+    const std::set< std::pair< Uint32_Index, Uint32_Index > >* node_ranges,
+    const std::vector< Node::Id_Type >* node_ids, bool invert_ids)
+{
+  std::vector< Node::Id_Type > intersect_ids = way_cnt_nd_ids(ways, attic_ways, lower_limit, upper_limit);
+  if (stmt)
+    rman.health_check(*stmt);
+  if (node_ids)
+    sieve_first_arg(intersect_ids, *node_ids, invert_ids);
+
+  return paired_items_range(stmt, rman, intersect_ids,
+      node_ranges ? *node_ranges :
+          way_nd_indices(stmt, rman, ways.begin(), ways.end(), attic_ways.begin(), attic_ways.end()));
+}
+
+std::pair< std::map< Uint32_Index, std::vector< Node_Skeleton > >,
+    std::map< Uint32_Index, std::vector< Attic< Node_Skeleton > > > > way_link_members(
+    const Statement* stmt, Resource_Manager& rman,
+    const std::map< Uint31_Index, std::vector< Way_Skeleton > >& ways,
+    const std::map< Uint31_Index, std::vector< Attic< Way_Skeleton > > >& attic_ways,
+    unsigned int lower_limit, unsigned int upper_limit,
+    const std::set< std::pair< Uint32_Index, Uint32_Index > >* node_ranges,
+    const std::vector< Node::Id_Type >* node_ids, bool invert_ids)
+{
+  std::vector< Node::Id_Type > intersect_ids = way_link_nd_ids(ways, attic_ways, lower_limit, upper_limit);
   if (stmt)
     rman.health_check(*stmt);
   if (node_ids)

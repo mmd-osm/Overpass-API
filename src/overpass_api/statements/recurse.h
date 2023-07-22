@@ -59,6 +59,8 @@ class Recurse_Statement final : public Output_Statement
       Criterion_Maker_1()
       {
         Statement::maker_by_ql_criterion()["w"] = this;
+        Statement::maker_by_ql_criterion()["way_link"] = this;
+        Statement::maker_by_ql_criterion()["way_cnt"] = this;
         Statement::maker_by_ql_criterion()["r"] = this;
         Statement::maker_by_ql_criterion()["bn"] = this;
         Statement::maker_by_ql_criterion()["bw"] = this;
@@ -102,6 +104,7 @@ class Recurse_Statement final : public Output_Statement
           + (!role.empty() ? std::string(" role=\"") + escape_xml(role) + "\"" : "")
           + (restrict_to_role ? " role-restricted=\"yes\"" : "")
           + dump_xml_pos_restrictions()
+          + (lower <= upper ? std::string(" lower=\"") + to_string(lower) + "\" upper=\"" + to_string(upper) + "\"" : "")
           + dump_xml_result_name() + "/>\n";
     }
 #endif
@@ -113,6 +116,9 @@ class Recurse_Statement final : public Output_Statement
           + (restrict_to_role || !pos.empty() ? ":" : "")
           + (restrict_to_role ? std::string("\"") + escape_cstr(role) + "\"" : "")
           + dump_ql_pos_restrictions()
+          + (lower < upper ? ":" + to_string(lower) + "-"
+              + (upper == std::numeric_limits< unsigned int >::max() ? "" : to_string(upper)) : "")
+          + (lower == upper ? ":" + to_string(lower) : "")
           + ")";
     }
 
@@ -125,6 +131,9 @@ class Recurse_Statement final : public Output_Statement
             + (restrict_to_role || !pos.empty() ? ":" : "")
             + (restrict_to_role ? std::string("\"") + escape_cstr(role) + "\"" : "")
             + dump_ql_pos_restrictions()
+            + (lower < upper ? ":" + to_string(lower) + "-"
+                + (upper == std::numeric_limits< unsigned int >::max() ? "" : to_string(upper)) : "")
+            + (lower == upper ? ":" + to_string(lower) : "")
             + ")" + dump_ql_result_name() + ";";
       else
         return (input != "_" ? std::string(".") + input + " " : "")
@@ -133,6 +142,8 @@ class Recurse_Statement final : public Output_Statement
     std::string dump_pretty_ql(const std::string& indent) const override { return indent + dump_compact_ql(indent); }
 
     const std::vector< int >* get_pos() const { return pos.empty() ? nullptr : &pos; }
+    unsigned int get_lower() const { return lower; }
+    unsigned int get_upper() const { return upper; }
 
   private:
     std::string input;
@@ -140,6 +151,8 @@ class Recurse_Statement final : public Output_Statement
     std::string role;
     bool restrict_to_role;
     std::vector< int > pos;
+    unsigned int lower;
+    unsigned int upper;
     std::vector< Query_Constraint* > constraints;
 
     std::string dump_ql_pos_restrictions() const
