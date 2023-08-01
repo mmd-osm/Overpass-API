@@ -52,8 +52,7 @@ struct Handle_Base<Object,  void_t<decltype( typename Object::template Handle_Me
 template< typename Object >
 struct Idx_Handle
 {
-  Idx_Handle()
-      : ptr_to_raw(nullptr) {}
+  Idx_Handle() = default;
 
   Idx_Handle(const Idx_Handle& rhs)
       : ptr_to_raw(rhs.ptr_to_raw) {}
@@ -63,7 +62,7 @@ struct Idx_Handle
     ptr_to_raw = ptr;
   }
 
-  [[nodiscard]] Object object() const
+  [[nodiscard]] Object object() const noexcept(noexcept(std::declval<Object(uint8*)>()))
   {
     return Object(ptr_to_raw);
   }
@@ -74,7 +73,7 @@ struct Idx_Handle
   }
 
 private:
-  uint8* ptr_to_raw;
+  uint8* ptr_to_raw = nullptr;
 };
 
 template< typename Object >
@@ -82,7 +81,8 @@ struct Handle : Idx_Handle< Object >, public Handle_Base<Object>::type
 {
  private:
   template< typename Functor >
-  auto apply_func(Functor f) const -> decltype(f(std::declval<const void *>()));
+  auto apply_func(Functor f) const noexcept(noexcept(f(std::declval<const void *>())))
+                             -> decltype(f(std::declval<const void *>()));
 
   friend typename Handle_Base<Object>::type;
 };
@@ -90,7 +90,8 @@ struct Handle : Idx_Handle< Object >, public Handle_Base<Object>::type
 
 template< typename Object >
 template< typename Functor >
-inline auto Handle< Object >::apply_func(Functor f) const -> decltype(f(std::declval<const void *>()))
+inline auto Handle< Object >::apply_func(Functor f) const noexcept(noexcept(f(std::declval<const void *>())))
+                                                 -> decltype(f(std::declval<const void *>()))
 {
   // Static type check assumes a Functor class to have a "using reference_type" declaration,
   // which has to match the data type that is required to handle the raw data in "const void* data".
@@ -112,17 +113,17 @@ struct Block_Backend_Basic_Iterator
 
   Block_Backend_Basic_Iterator& operator++();
 
-  bool is_end() const
+  bool is_end() const noexcept
   {
     return obj_offset == 0 || idx_block_offset == 0;
   }
 
-  bool operator==(const Block_Backend_Basic_Iterator& rhs) const
+  bool operator==(const Block_Backend_Basic_Iterator& rhs) const noexcept
   {
     return obj_offset == rhs.obj_offset && file_handle == rhs.file_handle;
   }
 
-  bool operator!=(const Block_Backend_Basic_Iterator& rhs) const {
+  bool operator!=(const Block_Backend_Basic_Iterator& rhs) const noexcept {
     return !(operator==(rhs));
   }
 
@@ -138,22 +139,22 @@ struct Block_Backend_Basic_Iterator
     return obj_cache.object();
   }
 
-  [[nodiscard]] const Handle< Index >& index_handle() const
+  [[nodiscard]] const Handle< Index >& index_handle() const noexcept
   {
     return idx_cache;
   }
 
-  [[nodiscard]] const Handle< Object >& handle() const
+  [[nodiscard]] const Handle< Object >& handle() const noexcept
   {
     return obj_cache;
   }
 
-  bool start_of_new_index() const
+  bool start_of_new_index() const noexcept
   {
      return start_new_index;
   }
 
-  void skip_current_index()
+  void skip_current_index() noexcept
   {
     skip_current_idx = true;
   }
