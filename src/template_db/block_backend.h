@@ -687,10 +687,10 @@ public:
     Flat_Adapter as_flat() & { return Flat_Adapter(this); }
 
     template <class TObj >
-    Range_Adapter<TObj> as_range(Ranges< TObj >& s) & { return Range_Adapter<TObj>(this, s); }
+    Range_Adapter<TObj> as_range(const Ranges< TObj >& s) & { return Range_Adapter<TObj>(this, s); }
 
     template <class TContainer>
-    Discrete_Adapter<TContainer> as_discrete(TContainer& s) & { return Discrete_Adapter<TContainer>(this, s); }
+    Discrete_Adapter<TContainer> as_discrete(const TContainer& s) & { return Discrete_Adapter<TContainer>(this, s); }
 
     uint read_count() const { return file_blocks.read_count(); }
     void reset_read_count() const { file_blocks.reset_read_count(); }

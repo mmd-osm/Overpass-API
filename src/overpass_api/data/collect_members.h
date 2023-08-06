@@ -1253,4 +1253,69 @@ void filter_elems_for_closed_ways(std::map< Index, std::vector< Object > >& arg)
   }
 }
 
+template< typename Index, typename Object >
+struct Timeless
+{
+  Timeless& swap(
+      std::map< Index, std::vector< Object > >& rhs_current,
+      std::map< Index, std::vector< Attic< Object > > >& rhs_attic)
+  {
+    current.swap(rhs_current);
+    attic.swap(rhs_attic);
+    return *this;
+  }
+
+  Timeless& sort()
+  {
+    sort_second(current);
+    sort_second(attic);
+    return *this;
+  }
+
+  Timeless& set_union(const Timeless< Index, Object >& rhs)
+  {
+    indexed_set_union(current, rhs.current);
+    indexed_set_union(attic, rhs.attic);
+    return *this;
+  }
+
+  template< typename Predicate >
+  Timeless& filter_items(const Predicate& predicate)
+  {
+    ::filter_items(predicate, current);
+    ::filter_items(predicate, attic);
+    return *this;
+  }
+
+  Timeless& filter_by_id(const std::vector< typename Object::Id_Type >& ids)
+  {
+    for (auto& i : current)
+    {
+      std::vector< Object > into;
+      for (const auto& j : i.second)
+      {
+        if (std::binary_search(ids.begin(), ids.end(), j.id))
+          into.push_back(j);
+      }
+      into.swap(i.second);
+    }
+    for (auto& i : attic)
+    {
+      std::vector< Attic< Object > > into;
+      for (const auto& j : i.second)
+      {
+        if (std::binary_search(ids.begin(), ids.end(), j.id))
+          into.push_back(j);
+      }
+      into.swap(i.second);
+    }
+
+    return *this;
+  }
+
+  std::map< Index, std::vector< Object > > current;
+  std::map< Index, std::vector< Attic< Object > > > attic;
+};
+
+
 #endif

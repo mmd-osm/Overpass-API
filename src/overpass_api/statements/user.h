@@ -37,6 +37,8 @@
 class User_Statement final : public Output_Statement
 {
   public:
+    enum Criterion { last, touched };
+
     User_Statement(int line_number_, const std::map< std::string, std::string >& input_attributes,
                    Parsed_Query& global_settings);
     std::string get_name() const override { return "user"; }
@@ -58,7 +60,9 @@ class User_Statement final : public Output_Statement
       Criterion_Maker()
       {
         Statement::maker_by_ql_criterion()["uid"] = this;
+        Statement::maker_by_ql_criterion()["uid_touched"] = this;
         Statement::maker_by_ql_criterion()["user"] = this;
+        Statement::maker_by_ql_criterion()["user_touched"] = this;
       }
     };
     static Criterion_Maker criterion_maker;
@@ -75,6 +79,8 @@ class User_Statement final : public Output_Statement
 
     // Works only if get_id(Transaction&) has been called before.
     std::set< Uint32_Index > get_ids() const { return user_ids; }
+
+    Criterion get_criterion() const { return criterion; }
 
 #ifdef HAVE_OVERPASS_XML
     std::string dump_xml(const std::string& indent) const override
@@ -99,6 +105,9 @@ class User_Statement final : public Output_Statement
           result += " name_" + to_string(++counter) + "=\"" + escape_xml(*it) + "\"";
       }
 
+      if (criterion == touched)
+        result += " criterion=\"touched\"";
+
       return result + dump_xml_result_name() + "/>\n";
     }
 #endif
@@ -110,7 +119,8 @@ class User_Statement final : public Output_Statement
     std::string dump_pretty_ql(const std::string& indent) const override { return indent + dump_compact_ql(indent); }
     std::string dump_ql_in_query(const std::string&) const override
     {
-      std::string result = user_ids.empty() ? "(user:" : "(uid:";
+      std::string result = user_ids.empty() ? "(user" : "(uid";
+      result += (criterion == last ? ":" : "_touched:");
 
       if (!user_ids.empty())
       {
@@ -138,6 +148,7 @@ class User_Statement final : public Output_Statement
     std::string result_type;
     std::vector< Query_Constraint* > constraints;
     const Bbox_Double* bbox_limitation;
+    Criterion criterion = last;
 };
 
 #endif
