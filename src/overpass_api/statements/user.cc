@@ -27,6 +27,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <optional>
 #include <sstream>
 #include <vector>
 
@@ -71,6 +72,10 @@ class User_Constraint final : public Query_Constraint
     }
 
     User_Statement* user;
+
+    std::optional< std::vector< typename Node_Skeleton::Id_Type > > node_ids_touched_cached;
+    std::optional< std::vector< typename Way_Skeleton::Id_Type > > way_ids_touched_cached;
+    std::optional< std::vector< typename Relation_Skeleton::Id_Type > > rel_ids_touched_cached;
 };
 
 
@@ -137,8 +142,8 @@ void user_filter_map_attic
 }
 
 template< typename Index, typename Object >
-std::vector< typename Object::Id_Type > touched_ids_by_users(
-    Resource_Manager& rman, const Ranges< Index >& ranges, const std::set< Uint32_Index >& user_ids)
+std::vector< typename Object::Id_Type > touched_ids_by_user(
+    Resource_Manager& rman, const Ranges< Index >& ranges, const Uint32_Index& user_id)
 {
   std::vector< typename Object::Id_Type > result;
 
@@ -148,12 +153,10 @@ std::vector< typename Object::Id_Type > touched_ids_by_users(
 
     for (const auto & it : cur_meta_db.as_range(ranges))
     {
-      const auto meta_ref = it.object().ref;
-      const auto meta_user_id = it.object().user_id;
+      if (!(user_id == it.object().user_id))
+        continue;
 
-      if (user_ids.find(meta_user_id) != user_ids.end()
-          && (result.empty() || !(result.back() == meta_ref)))
-        result.push_back(meta_ref);
+      result.emplace_back(it.object().ref);
     }
   }
   {
@@ -162,11 +165,54 @@ std::vector< typename Object::Id_Type > touched_ids_by_users(
 
     for (const auto & it : attic_meta_db.as_range(ranges))
     {
-      const auto meta_ref = it.object().ref;
-      const auto meta_user_id = it.object().user_id;
+      if (!(user_id == it.object().user_id))
+        continue;
 
-      if (user_ids.find(meta_user_id) != user_ids.end()
-          && (result.empty() || !(result.back() == meta_ref)))
+      const auto meta_ref = it.object().ref;
+
+      if (result.empty() || !(result.back() == meta_ref))
+        result.push_back(meta_ref);
+    }
+  }
+
+  std::sort(result.begin(), result.end());
+  result.erase(std::unique(result.begin(), result.end()), result.end());
+
+  return result;
+}
+
+
+template< typename Index, typename Object >
+std::vector< typename Object::Id_Type > touched_ids_by_users(
+    Resource_Manager& rman, const Ranges< Index >& ranges, const std::set< Uint32_Index >& user_ids)
+{
+  std::vector< typename Object::Id_Type > result;
+
+  if (user_ids.size() == 1)
+    return touched_ids_by_user<Index, Object>(rman, ranges, *user_ids.begin());
+
+  {
+    Block_Backend< Index, OSM_Element_Metadata_Skeleton< typename Object::Id_Type > > cur_meta_db(
+      rman.get_transaction()->data_index(current_meta_file_properties< Object >()));
+
+    for (const auto & it : cur_meta_db.as_range(ranges))
+    {
+      if (user_ids.find(it.object().user_id) != user_ids.end())
+        result.emplace_back(it.object().ref);
+    }
+  }
+  {
+    Block_Backend< Index, OSM_Element_Metadata_Skeleton< typename Object::Id_Type > > attic_meta_db(
+      rman.get_transaction()->data_index(attic_meta_file_properties< Object >()));
+
+    for (const auto & it : attic_meta_db.as_range(ranges))
+    {
+      if (user_ids.find(it.object().user_id) == user_ids.end())
+        continue;
+
+      const auto meta_ref = it.object().ref;
+
+      if (result.empty() || !(result.back() == meta_ref))
         result.push_back(meta_ref);
     }
   }
@@ -280,7 +326,9 @@ void User_Constraint::filter(const Statement& query, Resource_Manager& rman, Set
 
     if (!into.nodes.empty() || !into.attic_nodes.empty())
     {
+
       Timeless< Uint32_Index, Node_Skeleton >{ into.nodes, into.attic_nodes }.filter_by_id(
+           (node_ids_touched_cached) ?  *node_ids_touched_cached :
           touched_ids_by_users< Uint32_Index, Node_Skeleton >(
               rman, node_ranges, user->get_ids(*rman.get_transaction())))
           .swap(into.nodes, into.attic_nodes);
@@ -289,6 +337,7 @@ void User_Constraint::filter(const Statement& query, Resource_Manager& rman, Set
     if (!into.ways.empty() || !into.attic_ways.empty())
     {
       Timeless< Uint31_Index, Way_Skeleton >{ into.ways, into.attic_ways }.filter_by_id(
+          (way_ids_touched_cached) ?  *way_ids_touched_cached :
           touched_ids_by_users< Uint31_Index, Way_Skeleton >(
               rman, other_ranges, user->get_ids(*rman.get_transaction())))
           .swap(into.ways, into.attic_ways);
@@ -297,6 +346,7 @@ void User_Constraint::filter(const Statement& query, Resource_Manager& rman, Set
     if (!into.nodes.empty() || !into.attic_nodes.empty())
     {
       Timeless< Uint31_Index, Relation_Skeleton >{ into.relations, into.attic_relations }.filter_by_id(
+          (rel_ids_touched_cached) ?  *rel_ids_touched_cached :
           touched_ids_by_users< Uint31_Index, Relation_Skeleton >(
               rman, other_ranges, user->get_ids(*rman.get_transaction())))
           .swap(into.relations, into.attic_relations);
@@ -525,6 +575,11 @@ bool User_Constraint::get_node_ids(Resource_Manager& rman, std::vector< Node_Ske
   if (user->get_criterion() != User_Statement::touched)
     return false;
 
+  if (node_ids_touched_cached) {
+    ids = *node_ids_touched_cached;
+    return true;
+  }
+
   std::set< std::pair< Uint32_Index, Uint32_Index > > node_rng;
   calc_ranges_32(node_rng, user->get_ids(*rman.get_transaction()), *rman.get_transaction());
 
@@ -532,6 +587,9 @@ bool User_Constraint::get_node_ids(Resource_Manager& rman, std::vector< Node_Ske
 
   touched_ids_by_users< Uint32_Index, Node_Skeleton >(
       rman, node_ranges, user->get_ids(*rman.get_transaction())).swap(ids);
+
+  node_ids_touched_cached = ids;
+
   return true;
 }
 
@@ -541,6 +599,11 @@ bool User_Constraint::get_way_ids(Resource_Manager& rman, std::vector< Way_Skele
   if (user->get_criterion() != User_Statement::touched)
     return false;
 
+  if (way_ids_touched_cached) {
+    ids = *way_ids_touched_cached;
+    return true;
+  }
+
   std::set< std::pair< Uint31_Index, Uint31_Index > > other_rng;
   calc_ranges_31(other_rng, user->get_ids(*rman.get_transaction()), *rman.get_transaction());
 
@@ -548,6 +611,9 @@ bool User_Constraint::get_way_ids(Resource_Manager& rman, std::vector< Way_Skele
 
   touched_ids_by_users< Uint31_Index, Way_Skeleton >(
       rman, other_ranges, user->get_ids(*rman.get_transaction())).swap(ids);
+
+  way_ids_touched_cached = ids;
+
   return true;
 }
 
@@ -557,6 +623,11 @@ bool User_Constraint::get_relation_ids(Resource_Manager& rman, std::vector< Rela
   if (user->get_criterion() != User_Statement::touched)
     return false;
 
+  if (rel_ids_touched_cached) {
+    ids = *rel_ids_touched_cached;
+    return true;
+  }
+
   std::set< std::pair< Uint31_Index, Uint31_Index > > other_rng;
   calc_ranges_31(other_rng, user->get_ids(*rman.get_transaction()), *rman.get_transaction());
 
@@ -564,6 +635,9 @@ bool User_Constraint::get_relation_ids(Resource_Manager& rman, std::vector< Rela
 
   touched_ids_by_users< Uint31_Index, Relation_Skeleton >(
       rman, other_ranges, user->get_ids(*rman.get_transaction())).swap(ids);
+
+  rel_ids_touched_cached = ids;
+
   return true;
 }
 
@@ -572,8 +646,6 @@ void User_Statement::execute(Resource_Manager& rman)
 {
   Set into;
   User_Constraint constraint(*this);
-
-
 
   if (rman.get_desired_timestamp() == NOW)
   {
