@@ -153,10 +153,10 @@ std::vector< typename Object::Id_Type > touched_ids_by_user(
 
     for (const auto & it : cur_meta_db.as_range(ranges))
     {
-      if (!(user_id == it.object().user_id))
+      if (!(user_id == it.handle().get_user_id()))
         continue;
 
-      result.emplace_back(it.object().ref);
+      result.emplace_back(it.handle().get_ref());
     }
   }
   {
@@ -165,10 +165,10 @@ std::vector< typename Object::Id_Type > touched_ids_by_user(
 
     for (const auto & it : attic_meta_db.as_range(ranges))
     {
-      if (!(user_id == it.object().user_id))
+      if (!(user_id == it.handle().get_user_id()))
         continue;
 
-      const auto meta_ref = it.object().ref;
+      const auto meta_ref = it.handle().get_ref();
 
       if (result.empty() || !(result.back() == meta_ref))
         result.push_back(meta_ref);
@@ -197,8 +197,8 @@ std::vector< typename Object::Id_Type > touched_ids_by_users(
 
     for (const auto & it : cur_meta_db.as_range(ranges))
     {
-      if (user_ids.find(it.object().user_id) != user_ids.end())
-        result.emplace_back(it.object().ref);
+      if (user_ids.find(it.handle().get_user_id()) != user_ids.end())
+        result.emplace_back(it.handle().get_ref());
     }
   }
   {
@@ -207,10 +207,10 @@ std::vector< typename Object::Id_Type > touched_ids_by_users(
 
     for (const auto & it : attic_meta_db.as_range(ranges))
     {
-      if (user_ids.find(it.object().user_id) == user_ids.end())
+      if (user_ids.find(it.handle().get_user_id()) == user_ids.end())
         continue;
 
-      const auto meta_ref = it.object().ref;
+      const auto meta_ref = it.handle().get_ref();
 
       if (result.empty() || !(result.back() == meta_ref))
         result.push_back(meta_ref);
@@ -233,9 +233,9 @@ void calc_ranges_32
 
   for (const auto & user_it : user_db.as_discrete(user_ids))
   {
-    if ((user_it.object().val() & 0x80000000) == 0)
-      node_req.insert(std::make_pair(Uint32_Index(user_it.object().val()),
-                                Uint32_Index(user_it.object().val() + 0x100)));
+    if ((user_it.handle().get_val() & 0x80000000) == 0)
+      node_req.insert(std::make_pair(Uint32_Index(user_it.handle().get_val()),
+                                Uint32_Index(user_it.handle().get_val() + 0x100)));
   }
 }
 
@@ -250,15 +250,15 @@ void calc_ranges_31
 
   for (const auto & user_it : user_db.as_discrete(user_ids))
   {
-    if ((user_it.object().val() & 0x80000000) == 0)
-      other_req.insert(std::make_pair(Uint31_Index(user_it.object().val()),
-                                 Uint31_Index(user_it.object().val() + 0x100)));
-    else if ((user_it.object().val() & 0xff) == 0)
-      other_req.insert(std::make_pair(Uint31_Index(user_it.object().val()),
-                                 Uint31_Index(user_it.object().val() + 0x100)));
+    if ((user_it.handle().get_val() & 0x80000000) == 0)
+      other_req.insert(std::make_pair(Uint31_Index(user_it.handle().get_val()),
+                                 Uint31_Index(user_it.handle().get_val() + 0x100)));
+    else if ((user_it.handle().get_val() & 0xff) == 0)
+      other_req.insert(std::make_pair(Uint31_Index(user_it.handle().get_val()),
+                                 Uint31_Index(user_it.handle().get_val() + 0x100)));
     else
-      other_req.insert(std::make_pair(Uint31_Index(user_it.object().val()),
-                                 Uint31_Index(user_it.object().val() + 1)));
+      other_req.insert(std::make_pair(Uint31_Index(user_it.handle().get_val()),
+                                 Uint31_Index(user_it.handle().get_val() + 1)));
   }
 }
 
@@ -273,19 +273,19 @@ void calc_ranges
 
   for (const auto & user_it : user_db.as_discrete(user_ids))
   {
-    if ((user_it.object().val() & 0x80000000) == 0)
+    if ((user_it.handle().get_val() & 0x80000000) == 0)
     {
-      node_req.insert(std::make_pair(Uint32_Index(user_it.object().val()),
-                                Uint32_Index(user_it.object().val() + 0x100)));
-      other_req.insert(std::make_pair(Uint31_Index(user_it.object().val()),
-                                 Uint31_Index(user_it.object().val() + 0x100)));
+      node_req.insert(std::make_pair(Uint32_Index(user_it.handle().get_val()),
+                                Uint32_Index(user_it.handle().get_val() + 0x100)));
+      other_req.insert(std::make_pair(Uint31_Index(user_it.handle().get_val()),
+                                 Uint31_Index(user_it.handle().get_val() + 0x100)));
     }
-    else if ((user_it.object().val() & 0xff) == 0)
-      other_req.insert(std::make_pair(Uint31_Index(user_it.object().val()),
-                                 Uint31_Index(user_it.object().val() + 0x100)));
+    else if ((user_it.handle().get_val() & 0xff) == 0)
+      other_req.insert(std::make_pair(Uint31_Index(user_it.handle().get_val()),
+                                 Uint31_Index(user_it.handle().get_val() + 0x100)));
     else
-      other_req.insert(std::make_pair(Uint31_Index(user_it.object().val()),
-                                 Uint31_Index(user_it.object().val() + 1)));
+      other_req.insert(std::make_pair(Uint31_Index(user_it.handle().get_val()),
+                                 Uint31_Index(user_it.handle().get_val() + 1)));
   }
 }
 
