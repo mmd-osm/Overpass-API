@@ -541,12 +541,16 @@ struct OSM_Element_Metadata_Skeleton
 template <class T, class Object>
 struct Metadata_Handle_Methods
 {
-  timestamp_t inline get_timestamp() const {
-     return (static_cast<const T*>(this)->apply_func(Metadata_Timestamp_Functor<typename Object::Id_Type>()));
-  }
-
   typename Object::Id_Type inline get_ref() const {
      return (static_cast<const T*>(this)->apply_func(Metadata_Reference_Functor<typename Object::Id_Type>()));
+  }
+
+  uint32 inline get_version() const {
+     return (static_cast<const T*>(this)->apply_func(Metadata_Version_Functor<typename Object::Id_Type>()));
+  }
+
+  timestamp_t inline get_timestamp() const {
+     return (static_cast<const T*>(this)->apply_func(Metadata_Timestamp_Functor<typename Object::Id_Type>()));
   }
 
   uint32 inline get_changeset() const {
@@ -564,26 +568,26 @@ struct Metadata_Handle_Methods
 private:
 
   template <typename Id_Type >
-  struct Metadata_UserId_Functor {
-    Metadata_UserId_Functor() = default;
+  struct Metadata_Reference_Functor {
+    Metadata_Reference_Functor() = default;
 
     using reference_type = OSM_Element_Metadata_Skeleton<Id_Type>;
 
-    uint32 operator()(const void* data) const
+    Id_Type operator()(const void* data) const
      {
-       return unalignedLoad<uint32>((int8*)data + Id_Type::max_size_of() + 12);
+       return Id_Type(data);
      }
   };
 
   template <typename Id_Type >
-  struct Metadata_Changeset_Functor {
-    Metadata_Changeset_Functor() = default;
+  struct Metadata_Version_Functor {
+    Metadata_Version_Functor() = default;
 
     using reference_type = OSM_Element_Metadata_Skeleton<Id_Type>;
 
     uint32 operator()(const void* data) const
      {
-       return unalignedLoad<uint32>((int8*)data + Id_Type::max_size_of() + 8);
+       return unalignedLoad<uint32>((int8*)data + Id_Type::max_size_of());
      }
   };
 
@@ -600,14 +604,26 @@ private:
   };
 
   template <typename Id_Type >
-  struct Metadata_Reference_Functor {
-    Metadata_Reference_Functor() = default;
+  struct Metadata_Changeset_Functor {
+    Metadata_Changeset_Functor() = default;
 
     using reference_type = OSM_Element_Metadata_Skeleton<Id_Type>;
 
-    Id_Type operator()(const void* data) const
+    uint32 operator()(const void* data) const
      {
-       return Id_Type(data);
+       return unalignedLoad<uint32>((int8*)data + Id_Type::max_size_of() + 8);
+     }
+  };
+
+  template <typename Id_Type >
+  struct Metadata_UserId_Functor {
+    Metadata_UserId_Functor() = default;
+
+    using reference_type = OSM_Element_Metadata_Skeleton<Id_Type>;
+
+    uint32 operator()(const void* data) const
+     {
+       return unalignedLoad<uint32>((int8*)data + Id_Type::max_size_of() + 12);
      }
   };
 };
