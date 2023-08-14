@@ -26,7 +26,9 @@
 
 #include "sys/types.h"
 #include "locale.h"
+#ifdef HAVE_POSIX
 #include "regex.h"
+#endif
 
 #include <iostream>
 #include <string>
@@ -40,7 +42,7 @@ using icu::UnicodeString;
 using icu::RegexMatcher;
 #endif
 
-#ifdef HAVE_PCRE
+#if defined(HAVE_PCRE) || defined(HAVE_PCREJIT)
 #define PCRE2_CODE_UNIT_WIDTH 8
 #include <pcre2.h>
 #endif
@@ -95,8 +97,8 @@ class Regular_Expression
     Strategy strategy;
 };
 
-
-class Regular_Expression_POSIX : public Regular_Expression
+#ifdef HAVE_POSIX
+class Regular_Expression_POSIX final : public Regular_Expression
 {
   public:
 
@@ -153,13 +155,13 @@ class Regular_Expression_POSIX : public Regular_Expression
   private:
     regex_t preg;
 };
-
+#endif
 
 
 
 #ifdef HAVE_ICU
 
-class Regular_Expression_ICU : public Regular_Expression
+class Regular_Expression_ICU final : public Regular_Expression
 {
   public:
 
@@ -265,9 +267,9 @@ class Regular_Expression_ICU : public Regular_Expression
 
 #endif
 
-#ifdef HAVE_PCRE
+#if defined(HAVE_PCRE) || defined(HAVE_PCREJIT)
 
-class Regular_Expression_PCRE : public Regular_Expression
+class Regular_Expression_PCRE final : public Regular_Expression
 {
   public:
 
@@ -301,6 +303,7 @@ class Regular_Expression_PCRE : public Regular_Expression
           throw Regular_Expression_Error(std::string(reinterpret_cast<const char*>(buffer), size));
         }
 
+#ifdef HAVE_PCREJIT
         if (enable_jit) {
           pcre2_config(PCRE2_CONFIG_JIT, &pcre2_jit_on);
         }
@@ -323,6 +326,7 @@ class Regular_Expression_PCRE : public Regular_Expression
 
           pcre2_jit_stack_assign(mcontext, NULL, jit_stack);
         }
+#endif
 
         match_data = pcre2_match_data_create_from_pattern(re, NULL);
         if (match_data == nullptr) {
@@ -367,9 +371,17 @@ class Regular_Expression_PCRE : public Regular_Expression
 
       uint32_t options = 0;
 
-      int rc;
+      int rc = 0;
 
+#if defined(HAVE_PCRE) && defined(HAVE_PCREJIT)
       if (pcre2_jit_on) {
+#elif defined(HAVE_PCREJIT)
+      if (true) {
+#else
+      if (false) {
+#endif
+
+#ifdef HAVE_PCREJIT
         rc = pcre2_jit_match(
           re,                                            /* the compiled pattern */
           reinterpret_cast<PCRE2_SPTR>(line.data()),     /* the subject string */
@@ -378,8 +390,10 @@ class Regular_Expression_PCRE : public Regular_Expression
           options,                                       /* options */
           match_data,                                    /* block for storing the result */
           NULL);                                         /* use default match context */
+#endif
       }
       else {
+#ifdef HAVE_PCRE
         rc = pcre2_match(
           re,                                            /* the compiled pattern */
           reinterpret_cast<PCRE2_SPTR>(line.data()),     /* the subject string */
@@ -388,6 +402,7 @@ class Regular_Expression_PCRE : public Regular_Expression
           options,                                       /* options */
           match_data,                                    /* block for storing the result */
           NULL);                                         /* use default match context */
+#endif
       }
 
       if (rc < 0)  {
@@ -426,9 +441,17 @@ class Regular_Expression_PCRE : public Regular_Expression
 
       uint32_t options = 0;
 
-      int rc;
+      int rc = 0;
 
+#if defined(HAVE_PCRE) && defined(HAVE_PCREJIT)
       if (pcre2_jit_on) {
+#elif defined(HAVE_PCREJIT)
+      if (true) {
+#else
+      if (false) {
+#endif
+
+#ifdef HAVE_PCREJIT
         rc = pcre2_jit_match(
           re,                                            /* the compiled pattern */
           reinterpret_cast<PCRE2_SPTR>(line.data()),     /* the subject string */
@@ -437,8 +460,10 @@ class Regular_Expression_PCRE : public Regular_Expression
           options,                                       /* options */
           match_data,                                    /* block for storing the result */
           NULL);                                         /* use default match context */
+#endif
       }
       else {
+#ifdef HAVE_PCRE
         rc = pcre2_match(
           re,                                            /* the compiled pattern */
           reinterpret_cast<PCRE2_SPTR>(line.data()),     /* the subject string */
@@ -447,6 +472,7 @@ class Regular_Expression_PCRE : public Regular_Expression
           options,                                       /* options */
           match_data,                                    /* block for storing the result */
           NULL);                                         /* use default match context */
+#endif
       }
 
       if (rc < 0)  {
@@ -488,30 +514,26 @@ class Regular_Expression_Factory
 
 public:
 
-  static Regular_Expression* get_regexp_engine(const std::string& engine, const std::string& regex, bool case_sensitive )
+  static Regular_Expression* get_regexp(const std::string& engine, const std::string& regex, bool case_sensitive )
   {
-    if (engine == "ICU") {
-#ifdef HAVE_ICU
-      return new Regular_Expression_ICU(regex, case_sensitive);
-#else
-      throw std::runtime_error("ICU support not available");
-#endif
-    } else if (engine == "PCRE") {
-#ifdef HAVE_PCRE
-      return new Regular_Expression_PCRE(regex, case_sensitive, false);
-#else
-      throw std::runtime_error("PCRE support not available");
-#endif
-   } else if (engine == "PCREJIT") {
-#ifdef HAVE_PCRE
-      return new Regular_Expression_PCRE(regex, case_sensitive, true);
-#else
-      throw std::runtime_error("PCRE support not available");
-#endif
-    }
 
-    // always fall back to POSIX
-    return new Regular_Expression_POSIX(regex, case_sensitive);
+#ifdef HAVE_ICU
+    if (engine == "ICU") return new Regular_Expression_ICU(regex, case_sensitive);
+#endif
+
+#ifdef HAVE_PCRE
+    if (engine == "PCRE") return new Regular_Expression_PCRE(regex, case_sensitive, false);
+#endif
+
+#ifdef HAVE_PCREJIT
+   if (engine == "PCREJIT") return new Regular_Expression_PCRE(regex, case_sensitive, true);
+#endif
+
+#ifdef HAVE_POSIX
+    if (engine == "POSIX") return new Regular_Expression_POSIX(regex, case_sensitive);
+#endif
+
+    throw std::runtime_error("No suitable regular expression engine found.");
   }
 };
 

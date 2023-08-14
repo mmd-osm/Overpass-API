@@ -151,8 +151,10 @@ AC_LANG_POP([C++])
 
 
 AC_DEFINE(HAVE_LIBOSMIUM, 1, [Define if you have libosmium library])
+AC_DEFINE(HAVE_POSIX, 1, [Define if you have C POSIX regex library])
 AC_DEFINE(HAVE_ICU, 1, [Define if you have ICU library])
 AC_DEFINE(HAVE_PCRE, 1, [Define if you have PCRE library])
+AC_DEFINE(HAVE_PCREJIT, 1, [Define if you have PCRE library with JIT])
 AC_DEFINE(HAVE_OPENMP, 1, [Define if you have OpenMP])
 
 # Some unused output formats are no longer compiled in by default

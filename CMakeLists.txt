@@ -17,7 +17,9 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 option(HAVE_OVERPASS_XML "Build with Overpass XML dialect" ON)
 option(HAVE_FASTCGI   "Build with FastCGI library" ON)
+option(HAVE_POSIX     "Use C POSIX regular expresions" ON)
 option(HAVE_PCRE      "Build with PCRE library" ON)
+option(HAVE_PCREJIT   "Build with PCRE library (JIT)" ON)
 option(HAVE_ICU       "BUild with ICU library" OFF)
 option(HAVE_TCMALLOC  "Build with tcmalloc library" ON)
 option(HAVE_LZ4       "Build with lz4 library" ON)
@@ -107,7 +109,7 @@ if (HAVE_FASTCGI)
   find_package(FCGI++ REQUIRED)
 endif()
 
-if (HAVE_PCRE)
+if (HAVE_PCRE OR HAVE_PCREJIT)
   find_package(PCRE2 REQUIRED)
 endif()
 
@@ -160,7 +162,7 @@ if (HAVE_TCMALLOC)
   list(APPEND LIBS ${Tcmalloc_LIBRARY})
 endif()
 
-if (HAVE_PCRE)
+if (HAVE_PCRE OR HAVE_PCREJIT)
   list(APPEND LIBS ${PCRE2_LIBRARIES})
 endif()
 

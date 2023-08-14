@@ -19,12 +19,15 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <string>
+#include <vector>
 
 #include "../core/settings.h"
 #include "../frontend/output_handler_parser.h"
 #include "bbox_query.h"
 #include "osm_script.h"
 #include "print.h"
+
 
 
 Generic_Statement_Maker< Osm_Script_Statement > Osm_Script_Statement::statement_maker("osm-script");
@@ -63,6 +66,7 @@ Osm_Script_Statement::Osm_Script_Statement
        desired_timestamp(NOW), comparison_timestamp(0), add_deletion_information(false),
        max_allowed_time(0), max_allowed_space(0)
 {
+
   std::map< std::string, std::string > attributes;
 
   attributes["bbox"] = "";
@@ -121,14 +125,17 @@ Osm_Script_Statement::Osm_Script_Statement
     }
   }
   
-  if (attributes["regexp"] == "POSIX" ||
-      attributes["regexp"] == "ICU" ||
-      attributes["regexp"] == "PCRE" ||
-      attributes["regexp"] == "PCREJIT")
+  if (std::find(supported_engines.begin(), supported_engines.end(), attributes["regexp"]) != supported_engines.end())
     global_settings.set_regexp_engine(attributes["regexp"]);
   else
   {
-    add_static_error("For the attribute \"regexp\" of the element \"osm-script\" the only allowed values are \"POSIX\", \"PCRE\", \"PCREJIT\" and \"ICU\".");
+    if (!supported_engines.empty()) {
+      std::ostringstream oss;
+      std::copy(supported_engines.begin(), supported_engines.end(), std::ostream_iterator<std::string>(oss, ", "));
+      std::string tmp = oss.str();
+      std::string res(tmp.data(), tmp.size() - 2);
+      add_static_error("For the attribute \"regexp\" of the element \"osm-script\" the only allowed values are: " + res + ".");
+    }
   }
 
   if (!attributes["bbox"].empty())

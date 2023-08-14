@@ -25,6 +25,11 @@
 #include "bbox_query.h"
 #include "statement.h"
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#undef VERSION
+#endif
+
 
 class Output_Handle;
 
@@ -54,6 +59,24 @@ class Osm_Script_Statement : public Statement
     uint32 max_allowed_time;
     uint64 max_allowed_space;
     Statement::Factory* factory = nullptr;
+
+    inline static const std::vector<std::string> supported_engines
+    {
+    #ifdef HAVE_POSIX
+      "POSIX",
+    #endif
+    #ifdef HAVE_ICU
+      "ICU",
+    #endif
+    #ifdef HAVE_PCRE
+      "PCRE",
+    #endif
+    #ifdef HAVE_PCREJIT
+      "PCREJIT",
+    #endif
+     };
+
 };
+
 
 #endif

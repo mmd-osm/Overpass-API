@@ -1,5 +1,7 @@
 #cmakedefine HAVE_FASTCGI 1
+#cmakedefine HAVE_POSIX 1
 #cmakedefine HAVE_PCRE 1
+#cmakedefine HAVE_PCREJIT 1
 #cmakedefine HAVE_TCMALLOC 1
 #cmakedefine HAVE_LZ4 1
 #cmakedefine HAVE_OPENMP 1

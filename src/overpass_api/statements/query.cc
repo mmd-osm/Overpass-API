@@ -158,7 +158,7 @@ void Query_Statement::add_statement(Statement* statement, std::string text)
 
 
 
-struct Trivial_Regex
+struct Trivial_Regex final
 {
 public:
   bool matches(const std::string&, bool use_buffer = true) const { return true; }
@@ -2382,7 +2382,7 @@ Has_Kv_Statement::Has_Kv_Statement
 
     try
     {
-      key_regex = Regular_Expression_Factory::get_regexp_engine(global_settings.get_regexp_engine(), attributes["regk"], case_sensitive);
+      key_regex = Regular_Expression_Factory::get_regexp(global_settings.get_regexp_engine(), attributes["regk"], case_sensitive);
       key = attributes["regk"];
     }
     catch (Regular_Expression_Error& e)
@@ -2400,7 +2400,7 @@ Has_Kv_Statement::Has_Kv_Statement
 
     try
     {
-      regex = Regular_Expression_Factory::get_regexp_engine(global_settings.get_regexp_engine(), attributes["regv"], case_sensitive);
+      regex = Regular_Expression_Factory::get_regexp(global_settings.get_regexp_engine(), attributes["regv"], case_sensitive);
       value = attributes["regv"];
     }
     catch (Regular_Expression_Error& e)
