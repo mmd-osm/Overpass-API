@@ -419,9 +419,7 @@ struct Way_Delta
       expand_diff(reference.geometry(), geometry_removed, geometry_added, geom_);
       if (!geom_.empty() && nds_.size() != geom_.size())
       {
-	std::ostringstream out;
-	out<<"Bad geometry for way "<<id.val();
-	throw std::logic_error(out.str());
+        throw_bad_geom_with_debug_info(nds_, geom_, reference);
       }
       return Way_Skeleton(id, std::move(nds_), std::move(geom_));
     }
@@ -454,9 +452,7 @@ struct Way_Delta
       expand_diff_fast(reference.geometry(), geometry_removed, geometry_added, geom_);
       if ((!geom_.empty() && nds_.size() != geom_.size()))
       {
-        std::ostringstream out;
-        out<<"Bad geometry for way "<<id.val();
-        throw std::logic_error(out.str());
+        throw_bad_geom_with_debug_info(nds_, geom_, reference);
       }
       return Way_Skeleton(id, std::move(nds_), std::move(geom_));
     }
@@ -558,6 +554,50 @@ struct Way_Delta
   template <class T, class Object>
   using Handle_Methods = Way_Delta_Handle_Methods<T, Object>;
 
+private:
+
+  void throw_bad_geom_with_debug_info(const std::vector< Node::Id_Type > &nds_,
+      const std::vector< Quad_Coord > &geom_, const Way_Skeleton &reference) const
+  {
+    std::ostringstream out;
+    out << "Bad geometry for way " << id.val() << ": nds";
+    for (std::vector< Node::Id_Type >::const_iterator it = nds_.begin();
+        it != nds_.end(); ++it)
+      out << ' ' << it->val();
+    out << ", geom";
+    for (std::vector< Quad_Coord >::const_iterator it = geom_.begin();
+        it != geom_.end(); ++it)
+      out << ' ' << ::lat(it->ll_upper, it->ll_lower) << ','
+          << ::lon(it->ll_upper, it->ll_lower);
+    out << " by applying nds_removed ";
+    for (std::vector< uint >::const_iterator it = nds_removed.begin();
+        it != nds_removed.end(); ++it)
+      out << ' ' << *it;
+    out << ", nds_added";
+    for (std::vector< std::pair< uint, Node::Id_Type > >::const_iterator it =
+        nds_added.begin(); it != nds_added.end(); ++it)
+      out << ' ' << it->first << ',' << it->second.val();
+    out << ", geom_removed";
+    for (std::vector< uint >::const_iterator it = geometry_removed.begin();
+        it != geometry_removed.end(); ++it)
+      out << ' ' << *it;
+    out << ", geom_added";
+    for (std::vector< std::pair< uint, Quad_Coord > >::const_iterator it =
+        geometry_added.begin(); it != geometry_added.end(); ++it)
+      out << ' ' << it->first << ' '
+          << ::lat(it->second.ll_upper, it->second.ll_lower) << ','
+          << ::lon(it->second.ll_upper, it->second.ll_lower);
+    out << " on nds";
+    for (std::vector< Node::Id_Type >::const_iterator it =
+        reference.nds().begin(); it != reference.nds().end(); ++it)
+      out << ' ' << it->val();
+    out << ", geom";
+    for (std::vector< Quad_Coord >::const_iterator it =
+        reference.geometry().begin(); it != reference.geometry().end(); ++it)
+      out << ' ' << ::lat(it->ll_upper, it->ll_lower) << ','
+          << ::lon(it->ll_upper, it->ll_lower);
+    throw std::logic_error(out.str());
+  }
 };
 
 template <class T, class Object>
