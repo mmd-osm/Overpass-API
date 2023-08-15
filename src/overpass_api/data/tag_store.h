@@ -29,6 +29,7 @@
 
 #include <map>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 
@@ -55,7 +56,7 @@ public:
   const std::vector< std::pair< std::string, std::string > >* get(const Index& index, const Object& elem);
 
 private:
-  std::map< typename Object::Id_Type, std::vector< std::pair< std::string, std::string > > > tags_by_id;
+  std::unordered_map< typename Object::Id_Type, std::vector< std::pair< std::string, std::string > > > tags_by_id;
   Resource_Manager* rman = nullptr;
   Transaction* transaction = nullptr;
   bool use_index = false;
@@ -98,7 +99,7 @@ public:
 
 template< class Id_Type >
 void collect_attic_tags
-  (std::map< Id_Type, std::vector< std::pair< std::string, std::string > > >& tags_by_id,
+  (std::unordered_map< Id_Type, std::vector< std::pair< std::string, std::string > > >& tags_by_id,
    const Block_Backend< Tag_Index_Local, Id_Type >& current_items_db,
    typename Block_Backend< Tag_Index_Local, Id_Type >::Range_Iterator& current_tag_it,
    const Block_Backend< Tag_Index_Local, Attic< Id_Type > >& attic_items_db,
@@ -205,7 +206,7 @@ void collect_attic_tags
 
 template< class Id_Type >
 void collect_attic_tags
-  (std::map< Id_Type, std::vector< std::pair< std::string, std::string > > >& tags_by_id,
+  (std::unordered_map< Id_Type, std::vector< std::pair< std::string, std::string > > >& tags_by_id,
    const Block_Backend< Tag_Index_Local, Id_Type >& current_items_db,
    typename Block_Backend< Tag_Index_Local, Id_Type >::Range_Iterator& current_tag_it,
    const Block_Backend< Tag_Index_Local, Attic< Id_Type > >& attic_items_db,
@@ -262,7 +263,7 @@ void collect_tags
 
 template< class Id_Type >
 void collect_tags_single
-  (std::map< Id_Type, std::vector< std::pair< std::string, std::string > > >& tags_by_id,
+  (std::unordered_map< Id_Type, std::vector< std::pair< std::string, std::string > > >& tags_by_id,
    const Block_Backend< Tag_Index_Local, Id_Type >& items_db,
    typename Block_Backend< Tag_Index_Local, Id_Type >::Range_Iterator& tag_it,
    const Id_Type id, uint32 coarse_index)
@@ -304,7 +305,7 @@ void collect_tags_single
 
 template< class Id_Type >
 void collect_tags
-  (std::map< Id_Type, std::vector< std::pair< std::string, std::string > > >& tags_by_id,
+  (std::unordered_map< Id_Type, std::vector< std::pair< std::string, std::string > > >& tags_by_id,
    const Block_Backend< Tag_Index_Local, Id_Type >& items_db,
    typename Block_Backend< Tag_Index_Local, Id_Type >::Range_Iterator& tag_it,
    const std::vector< Id_Type >& ids, uint32 coarse_index)
@@ -349,7 +350,7 @@ void collect_tags
 
 template< class Id_Type >
 void collect_tags_framed
-  (std::map< Id_Type, std::vector< std::pair< std::string, std::string > > >& tags_by_id,
+  (std::unordered_map< Id_Type, std::vector< std::pair< std::string, std::string > > >& tags_by_id,
    const Block_Backend< Tag_Index_Local, Id_Type >& items_db,
    typename Block_Backend< Tag_Index_Local, Id_Type >::Range_Iterator& tag_it,
    std::map< uint32, std::vector< Id_Type > >& ids_by_coarse,
