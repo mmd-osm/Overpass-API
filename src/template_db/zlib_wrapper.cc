@@ -26,20 +26,8 @@
 #include <vector>
 
 
-namespace
-{
-  template < typename T >
-  std::string to_string(T t)
-  {
-    std::ostringstream out;
-    out<<std::setprecision(14)<<t;
-    return out.str();
-  }
-}
-
-
 Zlib_Deflate::Error::Error(int error_code_)
-    : std::runtime_error("Zlib_Deflate: " + to_string(error_code_)), error_code(error_code_)
+    : std::runtime_error("Zlib_Deflate: " + std::to_string(error_code_)), error_code(error_code_)
 {}
 
 
@@ -77,7 +65,7 @@ int Zlib_Deflate::compress(const void* in, int in_size, void* out, int out_buffe
 
 
 Zlib_Inflate::Error::Error(int error_code_)
-    : std::runtime_error("Zlib_Inflate: " + to_string(error_code_)), error_code(error_code_)
+    : std::runtime_error("Zlib_Inflate: " + std::to_string(error_code_)), error_code(error_code_)
 {}
 
 

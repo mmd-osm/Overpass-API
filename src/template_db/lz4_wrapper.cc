@@ -25,20 +25,9 @@
 #include <stdexcept>
 
 
-namespace
-{
-  template < typename T >
-  std::string to_string(T t)
-  {
-    std::ostringstream out;
-    out<<std::setprecision(14)<<t;
-    return out.str();
-  }
-}
-
 
 LZ4_Deflate::Error::Error(int error_code_)
-    : std::runtime_error("LZ4_Deflate: " + to_string(error_code_)), error_code(error_code_)
+    : std::runtime_error("LZ4_Deflate: " + std::to_string(error_code_)), error_code(error_code_)
 {}
 
 
@@ -75,7 +64,7 @@ int LZ4_Deflate::compress(const void* in, int in_size, void* out, int out_buffer
 
 
 LZ4_Inflate::Error::Error(int error_code_)
-    : std::runtime_error("LZ4_Inflate: " + to_string(error_code_)), error_code(error_code_)
+    : std::runtime_error("LZ4_Inflate: " + std::to_string(error_code_)), error_code(error_code_)
 {}
 
 
