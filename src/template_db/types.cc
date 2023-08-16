@@ -16,40 +16,26 @@
  * along with Overpass_API.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <filesystem>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include "types.h"
 
 #include <cstring>
 #include <memory>
+#include <thread>
+
+namespace fs = std::filesystem;
 
 void copy_file(const std::string& source, const std::string& dest)
 {
-  if (!file_exists(source))
-    return;
+  std::error_code ec;
 
-  Raw_File source_file(source, O_RDONLY, S_666, "Dispatcher:1");
-  uint64 size = source_file.size("Dispatcher:2");
-  uint64 source_size = size;
-  Raw_File dest_file(dest, O_RDWR|O_CREAT, S_666, "Dispatcher:3");
-  dest_file.resize(size, "Dispatcher:4");
-
-  auto buf = std::unique_ptr<uint8[]>(new uint8[64*1024]);
-
-  uint64 bytes_written = 0;
-
-  while (size > 0)
-  {
-    ssize_t rc = read(source_file.fd(), buf.get(), 64*1024);
-    if (rc == -1) {
-      throw File_Error(errno, source,  "Dispatcher:4");
-    }
-    size = rc;
-    dest_file.write(buf.get(), size, "Dispatcher:5");
-    bytes_written += size;
+  try {
+    fs::copy_file(source, dest, {}, ec);
+  } catch(fs::filesystem_error& e) {
+    throw File_Error(ec.value(), source, "Dispatcher::1");
   }
-  if (bytes_written != source_size)
-    throw File_Error(errno, source,  "Dispatcher:6");
 }
 
 void rename_file(const std::string& source, const std::string& dest)
@@ -79,10 +65,7 @@ bool& fastcgi_enabled()
 
 void millisleep(uint32 milliseconds)
 {
-  struct timeval timeout_;
-  timeout_.tv_sec = milliseconds/1000;
-  timeout_.tv_usec = milliseconds*1000;
-  select(FD_SETSIZE, NULL, NULL, NULL, &timeout_);
+  std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
 }
 
 
