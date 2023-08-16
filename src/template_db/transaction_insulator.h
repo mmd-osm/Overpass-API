@@ -53,7 +53,7 @@ public:
   void read_finished(pid_t pid);
   std::set< pid_t > registered_pids() const;
 
-  void copy_shadows_to_mains();
+//  void copy_shadows_to_mains();
   void rename_shadows_to_mains();
   void copy_mains_to_shadows();
   void remove_shadows();
