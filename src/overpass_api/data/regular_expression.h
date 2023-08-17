@@ -526,11 +526,12 @@ public:
 #endif
 
 #ifdef HAVE_PCREJIT
-   if (engine == "PCREJIT") return new Regular_Expression_PCRE(regex, case_sensitive, true);
+    if (engine == "PCREJIT") return new Regular_Expression_PCRE(regex, case_sensitive, true);
 #endif
 
 #ifdef HAVE_POSIX
-    if (engine == "POSIX") return new Regular_Expression_POSIX(regex, case_sensitive);
+    // empty engine name is a fallback for the query unit test
+    if (engine == "POSIX" || engine.empty()) return new Regular_Expression_POSIX(regex, case_sensitive);
 #endif
 
     throw std::runtime_error("No suitable regular expression engine found.");
