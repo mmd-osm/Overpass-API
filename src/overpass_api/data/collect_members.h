@@ -27,6 +27,7 @@
 #include <cassert>
 #include <map>
 #include <set>
+#include <unordered_map>
 #include <vector>
 
 
@@ -309,17 +310,14 @@ void filter_attic_elements
   if (timestamp != NOW)
   {
     std::vector< Index > idx_set;
-    for (typename std::map< Index, std::vector< Skeleton > >::const_iterator it = current.begin();
-         it != current.end(); ++it)
-      idx_set.push_back(it->first);
-    for (typename std::map< Index, std::vector< Attic< Skeleton > > >::const_iterator it = attic.begin();
-         it != attic.end(); ++it)
-      idx_set.push_back(it->first);
+    for (const auto & [key, _] : current)
+      idx_set.push_back(key);
+
+    for (const auto & [key, _] : attic)
+      idx_set.push_back(key);
+
     std::sort(idx_set.begin(), idx_set.end());
     idx_set.erase(std::unique(idx_set.begin(), idx_set.end()), idx_set.end());
-
-    // Remove elements that have been deleted at the given point of time
-    std::map< Index, std::vector< typename Skeleton::Id_Type > > deleted_items;
 
     Block_Backend< Index, Attic< typename Skeleton::Id_Type >, typename std::vector< Index >::const_iterator >
         undeleted_db(rman.get_transaction()->data_index(attic_undeleted_file_properties< Skeleton >()));
@@ -367,13 +365,12 @@ void filter_attic_elements
     // Confirm elements that are backed by meta data
     // Update element's expiration timestamp if a meta exists that is older than the current
     // expiration date and younger than timestamp
-    std::map< Index, std::map< typename Skeleton::Id_Type, std::pair< timestamp_t, timestamp_t > > >
+    std::unordered_map< Index, std::unordered_map< typename Skeleton::Id_Type, std::pair< timestamp_t, timestamp_t > > >
         timestamp_by_id_by_idx;
     for (typename std::map< Index, std::vector< Skeleton > >::const_iterator it = current.begin();
          it != current.end(); ++it)
     {
-      std::map< typename Skeleton::Id_Type, std::pair< timestamp_t, timestamp_t > >& entry
-          = timestamp_by_id_by_idx[it->first];
+      auto & entry = timestamp_by_id_by_idx[it->first];
       for (auto it2 = it->second.begin();
            it2 != it->second.end(); ++it2)
         entry[it2->id] = std::make_pair(0, NOW);
@@ -381,8 +378,7 @@ void filter_attic_elements
     for (typename std::map< Index, std::vector< Attic< Skeleton > > >::const_iterator it = attic.begin();
          it != attic.end(); ++it)
     {
-      std::map< typename Skeleton::Id_Type, std::pair< timestamp_t, timestamp_t > >& entry
-          = timestamp_by_id_by_idx[it->first];
+      auto& entry = timestamp_by_id_by_idx[it->first];
       for (auto it2 = it->second.begin();
            it2 != it->second.end(); ++it2)
         entry[it2->id] = std::make_pair(0, it2->timestamp);
@@ -393,21 +389,25 @@ void filter_attic_elements
         attic_meta_db(rman.get_transaction()->data_index
           (attic_meta_file_properties< Skeleton >()));
 
-    for (const auto & it : attic_meta_db.as_discrete(idx_set))
     {
-      std::map< typename Skeleton::Id_Type, std::pair< timestamp_t, timestamp_t > >& entry =
-          timestamp_by_id_by_idx[it.index_handle().id()];
+      std::unordered_map< typename Skeleton::Id_Type, std::pair< timestamp_t, timestamp_t > > * entry = nullptr;
 
-      auto tit = entry.find(it.handle().get_ref());
-      if (tit != entry.end())
+      for (auto it = attic_meta_db.discrete_begin(idx_set.begin(), idx_set.end()); it != attic_meta_db.discrete_end(); ++it)
       {
+        if (it.start_of_new_index())
+          entry = &timestamp_by_id_by_idx[it.index_handle().id()];
 
-        auto current_timestamp = it.handle().get_timestamp();
+        auto tit = entry->find(it.handle().get_ref());
+        if (tit != entry->end())
+        {
 
-        if (timestamp < current_timestamp)
-          tit->second.second = std::min(tit->second.second, current_timestamp);
-        else
-          tit->second.first = std::max(tit->second.first, current_timestamp);
+          auto current_timestamp = it.handle().get_timestamp();
+
+          if (timestamp < current_timestamp)
+            tit->second.second = std::min(tit->second.second, current_timestamp);
+          else
+            tit->second.first = std::max(tit->second.first, current_timestamp);
+        }
       }
     }
 
@@ -417,18 +417,22 @@ void filter_attic_elements
         meta_db(rman.get_transaction()->data_index
           (current_meta_file_properties< Skeleton >()));
 
-    for (const auto & it : meta_db.as_discrete(idx_set))
     {
-      std::map< typename Skeleton::Id_Type, std::pair< timestamp_t, timestamp_t > >& entry
-          = timestamp_by_id_by_idx[it.index_handle().id()];
+      std::unordered_map< typename Skeleton::Id_Type, std::pair< timestamp_t, timestamp_t > > * entry = nullptr;
 
-      auto tit = entry.find(it.handle().get_ref());
-      if (tit != entry.end())
+      for (auto it = meta_db.discrete_begin(idx_set.begin(), idx_set.end()); it != meta_db.discrete_end(); ++it)
       {
-        if (timestamp < it.handle().get_timestamp())
-          tit->second.second = std::min(tit->second.second, it.handle().get_timestamp());
-        else
-          tit->second.first = std::max(tit->second.first, it.handle().get_timestamp());
+        if (it.start_of_new_index())
+          entry = &timestamp_by_id_by_idx[it.index_handle().id()];
+
+        auto tit = entry->find(it.handle().get_ref());
+        if (tit != entry->end())
+        {
+          if (timestamp < it.handle().get_timestamp())
+            tit->second.second = std::min(tit->second.second, it.handle().get_timestamp());
+          else
+            tit->second.first = std::max(tit->second.first, it.handle().get_timestamp());
+        }
       }
     }
 
@@ -437,8 +441,7 @@ void filter_attic_elements
          it != current.end(); ++it)
     {
       std::vector< Skeleton > result;
-      std::map< typename Skeleton::Id_Type, std::pair< timestamp_t, timestamp_t > >& entry
-          = timestamp_by_id_by_idx[it->first];
+      auto & entry = timestamp_by_id_by_idx[it->first];
 
       for (typename std::vector< Skeleton >::const_iterator it2 = it->second.begin();
            it2 != it->second.end(); ++it2)
@@ -460,8 +463,7 @@ void filter_attic_elements
          it != attic.end(); ++it)
     {
       std::vector< Attic< Skeleton > > result;
-      std::map< typename Skeleton::Id_Type, std::pair< timestamp_t, timestamp_t > >& entry
-          = timestamp_by_id_by_idx[it->first];
+      auto& entry = timestamp_by_id_by_idx[it->first];
 
       for (typename std::vector< Attic< Skeleton > >::const_iterator it2 = it->second.begin();
            it2 != it->second.end(); ++it2)

@@ -19,6 +19,7 @@
 #ifndef DE__OSM3S___OVERPASS_API__DATA__COLLECT_ITEMS_H
 #define DE__OSM3S___OVERPASS_API__DATA__COLLECT_ITEMS_H
 
+#include "abstract_processing.h"
 #include "filenames.h"
 
 #include <exception>
@@ -228,7 +229,10 @@ void filter_items_by_timestamp(
       else
       {
         if (NOW == timestamp_of(*it2) &&
-            std::binary_search(timestamp_by_id_current.begin(), timestamp_by_id_current.end(), it2->id))
+            !timestamp_by_id_current.empty() &&
+            (!(it2->id < timestamp_by_id_current.front())) &&
+            (!(timestamp_by_id_current.back() < it2->id)) &&
+            monobound_binary_search(timestamp_by_id_current, it2->id))
         {
           *target_it = *it2;
           ++target_it;
@@ -301,8 +305,11 @@ bool collect_items_by_timestamp(const Statement* stmt, Resource_Manager& rman,
     reconstruct_items(current_begin, current_end, index, predicate, result[index], timestamp_by_id_attic, timestamp_by_id_current, timestamp, count);
     reconstruct_items(attic_begin, attic_end, index, predicate, attic_result[index], timestamp_by_id_attic, timestamp_by_id_current, timestamp, count);
 
-    std::sort(timestamp_by_id_attic.begin(), timestamp_by_id_attic.end());
-    std::sort(timestamp_by_id_current.begin(), timestamp_by_id_current.end());
+    if (!std::is_sorted(timestamp_by_id_attic.begin(), timestamp_by_id_attic.end()))
+      std::sort(timestamp_by_id_attic.begin(), timestamp_by_id_attic.end());
+
+    if (!std::is_sorted(timestamp_by_id_current.begin(), timestamp_by_id_current.end()))
+      std::sort(timestamp_by_id_current.begin(), timestamp_by_id_current.end());
 
     filter_items_by_timestamp(timestamp_by_id_attic, timestamp_by_id_current, result[index]);
     filter_items_by_timestamp(timestamp_by_id_attic, timestamp_by_id_current, attic_result[index]);
@@ -358,8 +365,11 @@ bool collect_items_by_timestamp(const Statement* stmt, Resource_Manager& rman,
     reconstruct_items(stmt, rman, current_begin, current_end, attic_begin, attic_end, index,
                       predicate, result[index], attic_result[index], timestamp_by_id_attic, timestamp_by_id_current, timestamp);
 
-    std::sort(timestamp_by_id_attic.begin(), timestamp_by_id_attic.end());
-    std::sort(timestamp_by_id_current.begin(), timestamp_by_id_current.end());
+    if (!std::is_sorted(timestamp_by_id_attic.begin(), timestamp_by_id_attic.end()))
+      std::sort(timestamp_by_id_attic.begin(), timestamp_by_id_attic.end());
+
+    if (!std::is_sorted(timestamp_by_id_current.begin(), timestamp_by_id_current.end()))
+      std::sort(timestamp_by_id_current.begin(), timestamp_by_id_current.end());
 
     filter_items_by_timestamp(timestamp_by_id_attic, timestamp_by_id_current, result[index]);
     filter_items_by_timestamp(timestamp_by_id_attic, timestamp_by_id_current, attic_result[index]);
@@ -419,8 +429,11 @@ bool collect_items_by_timestamp(const Statement* stmt, Resource_Manager& rman,
     reconstruct_items(stmt, rman, current_begin, current_end, attic_begin, attic_end, index,
                       predicate, result[index], attic_result[index], timestamp_by_id_attic, timestamp_by_id_current, timestamp);
 
-    std::sort(timestamp_by_id_attic.begin(), timestamp_by_id_attic.end());
-    std::sort(timestamp_by_id_current.begin(), timestamp_by_id_current.end());
+    if (!std::is_sorted(timestamp_by_id_attic.begin(), timestamp_by_id_attic.end()))
+      std::sort(timestamp_by_id_attic.begin(), timestamp_by_id_attic.end());
+
+    if (!std::is_sorted(timestamp_by_id_current.begin(), timestamp_by_id_current.end()))
+      std::sort(timestamp_by_id_current.begin(), timestamp_by_id_current.end());
 
     filter_items_by_timestamp(timestamp_by_id_attic, timestamp_by_id_current, result[index]);
     filter_items_by_timestamp(timestamp_by_id_attic, timestamp_by_id_current, attic_result[index]);
