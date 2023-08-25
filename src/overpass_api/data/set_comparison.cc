@@ -752,8 +752,6 @@ void Set_Comparison::clear_relations(Resource_Manager& rman, bool add_deletion_i
 		    : OSM_Element_Metadata_Skeleton< Relation_Skeleton::Id_Type >(),
 		std::vector< std::pair< std::string, std::string > >())));
       }
-
-      req = get_indexes_< Uint31_Index, Relation_Skeleton >(searched_ids, rman, true);
     }
 
     searched_ids.clear();
