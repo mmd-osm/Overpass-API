@@ -19,6 +19,7 @@
 #include "../../template_db/block_backend.h"
 #include "../../template_db/random_file.h"
 #include "../core/settings.h"
+#include "../data/abstract_processing.h"
 #include "../data/collect_members.h"
 #include "around.h"
 #include "recurse.h"
@@ -1431,7 +1432,7 @@ bool Around_Statement::is_inside(double lat, double lon) const
 
   if (points.size() == 1) {
 
-    if (std::binary_search(single_point_index.begin(), single_point_index.end(), idx))
+    if (monobound_binary_search(single_point_index, idx))
     {
 
       if ((radius > 0 && great_circle_dist(points[0].lat, points[0].lon, lat, lon) <= radius)

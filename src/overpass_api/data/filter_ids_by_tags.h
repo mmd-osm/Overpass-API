@@ -19,6 +19,9 @@
 #ifndef DE__OSM3S___OVERPASS_API__DATA__FILTER_IDS_BY_TAGS_H
 #define DE__OSM3S___OVERPASS_API__DATA__FILTER_IDS_BY_TAGS_H
 
+#include "abstract_processing.h"
+
+
 
 template< typename Id_Type >
 void filter_ids_by_tags
@@ -101,12 +104,12 @@ void filter_ids_by_tags
 
     Id_Type object_id = tag_it.handle().id();
 
-    if (key_relevant && valid && std::binary_search(old_ids.begin(), old_ids.end(), object_id))
+    if (key_relevant && valid && monobound_binary_search(old_ids, object_id))
       new_ids.push_back(object_id);
 
     if (!matched_by_both_regexes.empty() &&
-	(std::binary_search(old_ids.begin(), old_ids.end(), object_id) ||
-	 std::binary_search(new_ids.begin(), new_ids.end(), object_id)))
+	(monobound_binary_search(old_ids, object_id) ||
+	 monobound_binary_search(new_ids, object_id)))
     {
       for (std::vector< uint64 >::const_iterator reg_it = matched_by_both_regexes.begin();
 	  reg_it != matched_by_both_regexes.end(); ++reg_it)
@@ -137,7 +140,7 @@ void filter_ids_by_tags
 
     for (auto it2 = it->begin(); it2 != it->end(); ++it2)
     {
-      if (std::binary_search(old_ids.begin(), old_ids.end(), *it2))
+      if (monobound_binary_search(old_ids, *it2))
 	new_ids.push_back(*it2);
     }
 
@@ -207,7 +210,7 @@ public:
 
   void eval_id(Id_Type id, timestamp_t timestamp, bool value_relevant) override
   {
-    if (std::binary_search(old_ids_->begin(), old_ids_->end(), id))
+    if (monobound_binary_search(*old_ids_, id))
     {
       std::pair< timestamp_t, timestamp_t >& timestamp_ref = timestamps[id];
       if (timestamp_ref.second == 0 || timestamp <= timestamp_ref.second)
@@ -266,7 +269,7 @@ public:
 
   void eval_id(Id_Type id, timestamp_t timestamp, bool value_relevant) override
   {
-    if (std::binary_search(old_ids_->begin(), old_ids_->end(), id))
+    if (monobound_binary_search(*old_ids_, id))
     {
       std::pair< timestamp_t, timestamp_t >& timestamp_ref = timestamps[id];
       timestamp_ref.second = timestamp;

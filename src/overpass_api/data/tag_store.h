@@ -382,7 +382,7 @@ void collect_tags_framed
 
     if (!(current < lower_id_bound) &&
       (current < upper_id_bound) &&
-       binary_search(ids_by_coarse_ref.begin(), ids_by_coarse_ref.end(), current))
+       monobound_binary_search(ids_by_coarse_ref, current))
     {
       auto elem = tag_it.index();
       tags_by_id[current].push_back

@@ -1180,7 +1180,7 @@ void filter_by_ids(
         for (auto eit = item_it->second.begin();
              eit != item_it->second.end(); ++eit)
         {
-          if (binary_search(it->second.begin(), it->second.end(), eit->id))
+          if (monobound_binary_search(it->second, eit->id))
             result[item_it->first.val()].push_back(*eit);
         }
         ++item_it;
@@ -1200,7 +1200,7 @@ void filter_by_ids(
         for (auto eit = item_it->second.begin();
              eit != item_it->second.end(); ++eit)
         {
-          if (binary_search(it->second.begin(), it->second.end(), eit->id))
+          if (monobound_binary_search(it->second, eit->id))
             result[item_it->first.val()].push_back(*eit);
         }
         ++item_it;
@@ -1212,7 +1212,7 @@ void filter_by_ids(
         for (auto eit = attic_item_it->second.begin();
              eit != attic_item_it->second.end(); ++eit)
         {
-          if (binary_search(it->second.begin(), it->second.end(), eit->id))
+          if (monobound_binary_search(it->second, eit->id))
             attic_result[attic_item_it->first.val()].push_back(*eit);
         }
         ++attic_item_it;

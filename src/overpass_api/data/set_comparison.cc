@@ -16,6 +16,7 @@
  * along with Overpass_API.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "abstract_processing.h"
 #include "../statements/evaluator.h"
 #include "set_comparison.h"
 
@@ -294,7 +295,7 @@ void Set_Comparison::tags_quadtile
     for (auto it2(item_it->second.begin());
         it2 != item_it->second.end(); ++it2)
     {
-      if (std::binary_search(id_list.begin(), id_list.end(), it2->id))
+      if (monobound_binary_search(id_list, it2->id))
         print_item(extra_data, item_it->first.val(), *it2, tag_store.get(item_it->first, *it2),
             meta_printer.get(item_it->first, it2->id), extra_data.users);
     }
@@ -320,7 +321,7 @@ void Set_Comparison::tags_quadtile_attic
     for (auto it2(item_it->second.begin());
         it2 != item_it->second.end(); ++it2)
     {
-      if (std::binary_search(id_list.begin(), id_list.end(), it2->id))
+      if (monobound_binary_search(id_list, it2->id))
         print_item(extra_data, item_it->first.val(), *it2, tag_store.get(item_it->first, *it2),
                  meta_printer.get(item_it->first, it2->id, it2->timestamp), extra_data.users);
     }
@@ -383,7 +384,7 @@ std::map< typename Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< typename Sk
       !(it == attic_meta_db.discrete_end()); ++it)
   {
     if (!(timestamp < it.handle().get_timestamp())
-        && std::binary_search(searched_ids.begin(), searched_ids.end(), it.handle().get_ref()))
+        && monobound_binary_search(searched_ids, it.handle().get_ref()))
     {
       auto meta_it = result.find(it.handle().get_ref());
       if (meta_it == result.end())
@@ -404,7 +405,7 @@ std::map< typename Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< typename Sk
       !(it == meta_db.discrete_end()); ++it)
   {
     if (!(timestamp < it.handle().get_timestamp())
-        && std::binary_search(searched_ids.begin(), searched_ids.end(), it.handle().get_ref()))
+        && monobound_binary_search(searched_ids, it.handle().get_ref()))
     {
       auto meta_it = result.find(it.handle().get_ref());
       if (meta_it == result.end())
@@ -484,7 +485,7 @@ void Set_Comparison::clear_nodes(Resource_Manager& rman, bool add_deletion_infor
 	std::map< Node_Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< Node::Id_Type > >::const_iterator
 	    meta_it = found_meta.find(it->elem.id);
 	result.different_nodes.push_back(std::make_pair(*it,
-	    Node_With_Context(std::binary_search(found_ids.begin(), found_ids.end(), it->elem.id) ? 0xfdu : 0xffu,
+	    Node_With_Context(monobound_binary_search(found_ids, it->elem.id) ? 0xfdu : 0xffu,
 		Node_Skeleton(it->elem.id), 0,
 	        meta_it != found_meta.end() ? meta_it->second
 		    : OSM_Element_Metadata_Skeleton< Node_Skeleton::Id_Type >(),
@@ -613,7 +614,7 @@ void Set_Comparison::clear_ways(Resource_Manager& rman, bool add_deletion_inform
 	std::map< Way_Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< Way::Id_Type > >::const_iterator
 	    meta_it = found_meta.find(it->elem.id);
 	result.different_ways.push_back(std::make_pair(*it,
-	    Way_With_Context(std::binary_search(found_ids.begin(), found_ids.end(), it->elem.id) ? 0xfdu : 0xffu,
+	    Way_With_Context(monobound_binary_search(found_ids, it->elem.id) ? 0xfdu : 0xffu,
 		Way_Skeleton(it->elem.id),
 		std::vector< Quad_Coord >(),
 	        0, meta_it != found_meta.end() ? meta_it->second
@@ -640,7 +641,7 @@ void Set_Comparison::clear_ways(Resource_Manager& rman, bool add_deletion_inform
     {
       if (it->first.idx.val() == 0xffu)
       {
-        it->first.idx = std::binary_search(found_ids.begin(), found_ids.end(), it->second.elem.id) ? 0xfdu : 0xffu;
+        it->first.idx = monobound_binary_search(found_ids, it->second.elem.id) ? 0xfdu : 0xffu;
         it->first.elem = Way_Skeleton(it->second.elem.id);
 
 	std::map< Way_Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< Way::Id_Type > >::const_iterator
@@ -745,7 +746,7 @@ void Set_Comparison::clear_relations(Resource_Manager& rman, bool add_deletion_i
 	std::map< Relation_Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< Relation::Id_Type > >::const_iterator
 	    meta_it = found_meta.find(it->elem.id);
 	result.different_relations.push_back(std::make_pair(*it,
-	    Relation_With_Context(std::binary_search(found_ids.begin(), found_ids.end(), it->elem.id) ? 0xfdu : 0xffu,
+	    Relation_With_Context(monobound_binary_search(found_ids, it->elem.id) ? 0xfdu : 0xffu,
 		Relation_Skeleton(it->elem.id),
 		std::vector< std::vector< Quad_Coord > >(),
 	        0, meta_it != found_meta.end() ? meta_it->second
@@ -772,7 +773,7 @@ void Set_Comparison::clear_relations(Resource_Manager& rman, bool add_deletion_i
     {
       if (it->first.idx.val() == 0xffu)
       {
-        it->first.idx = std::binary_search(found_ids.begin(), found_ids.end(), it->second.elem.id) ? 0xfdu : 0xffu;
+        it->first.idx = monobound_binary_search(found_ids, it->second.elem.id) ? 0xfdu : 0xffu;
         it->first.elem = Relation_Skeleton(it->second.elem.id);
 
 	std::map< Relation_Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< Relation::Id_Type > >::const_iterator
@@ -1189,7 +1190,7 @@ void filter_by_id(std::map< Index, std::vector< Maybe_Attic > >& items, const st
     for (typename std::vector< Maybe_Attic >::const_iterator it_elem = it_idx->second.begin();
         it_elem != it_idx->second.end(); ++it_elem)
     {
-      if (std::binary_search(id_list.begin(), id_list.end(), it_elem->id))
+      if (monobound_binary_search(id_list, it_elem->id))
         result.push_back(*it_elem);
     }
     result.swap(it_idx->second);
