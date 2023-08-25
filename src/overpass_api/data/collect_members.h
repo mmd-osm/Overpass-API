@@ -365,7 +365,7 @@ void filter_attic_elements
     // Confirm elements that are backed by meta data
     // Update element's expiration timestamp if a meta exists that is older than the current
     // expiration date and younger than timestamp
-    std::unordered_map< Index, std::unordered_map< typename Skeleton::Id_Type, std::pair< timestamp_t, timestamp_t > > >
+    osm3s::unordered_map< Index, osm3s::unordered_map< typename Skeleton::Id_Type, std::pair< timestamp_t, timestamp_t > > >
         timestamp_by_id_by_idx;
     for (typename std::map< Index, std::vector< Skeleton > >::const_iterator it = current.begin();
          it != current.end(); ++it)
@@ -390,7 +390,7 @@ void filter_attic_elements
           (attic_meta_file_properties< Skeleton >()));
 
     {
-      std::unordered_map< typename Skeleton::Id_Type, std::pair< timestamp_t, timestamp_t > > * entry = nullptr;
+      osm3s::unordered_map< typename Skeleton::Id_Type, std::pair< timestamp_t, timestamp_t > > * entry = nullptr;
 
       for (auto it = attic_meta_db.discrete_begin(idx_set.begin(), idx_set.end()); it != attic_meta_db.discrete_end(); ++it)
       {
@@ -418,7 +418,7 @@ void filter_attic_elements
           (current_meta_file_properties< Skeleton >()));
 
     {
-      std::unordered_map< typename Skeleton::Id_Type, std::pair< timestamp_t, timestamp_t > > * entry = nullptr;
+      osm3s::unordered_map< typename Skeleton::Id_Type, std::pair< timestamp_t, timestamp_t > > * entry = nullptr;
 
       for (auto it = meta_db.discrete_begin(idx_set.begin(), idx_set.end()); it != meta_db.discrete_end(); ++it)
       {

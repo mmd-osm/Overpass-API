@@ -1289,19 +1289,19 @@ struct Tags_By_Id_Cache
 {
 public:
   template <typename T>
-  std::unordered_map< typename T::Id_Type, kv_pairs> & get() = delete;
+  osm3s::unordered_map< typename T::Id_Type, kv_pairs> & get() = delete;
 
 private:
-  std::unordered_map< Node_Skeleton::Id_Type, kv_pairs > t_by_id_node;
-  std::unordered_map< Way_Skeleton::Id_Type, kv_pairs > t_by_id_way;
-  std::unordered_map< Relation_Skeleton::Id_Type, kv_pairs > t_by_id_relation;
-  std::unordered_map< Area_Skeleton::Id_Type, kv_pairs > t_by_id_area;
+  osm3s::unordered_map< Node_Skeleton::Id_Type, kv_pairs > t_by_id_node;
+  osm3s::unordered_map< Way_Skeleton::Id_Type, kv_pairs > t_by_id_way;
+  osm3s::unordered_map< Relation_Skeleton::Id_Type, kv_pairs > t_by_id_relation;
+  osm3s::unordered_map< Area_Skeleton::Id_Type, kv_pairs > t_by_id_area;
 };
 
-template<> inline std::unordered_map< Node_Skeleton::Id_Type, kv_pairs > &     Tags_By_Id_Cache::get< Node_Skeleton >()     { return t_by_id_node; }
-template<> inline std::unordered_map< Way_Skeleton::Id_Type, kv_pairs > &      Tags_By_Id_Cache::get< Way_Skeleton >()      { return t_by_id_way; }
-template<> inline std::unordered_map< Relation_Skeleton::Id_Type, kv_pairs > & Tags_By_Id_Cache::get< Relation_Skeleton >() { return t_by_id_relation; }
-template<> inline std::unordered_map< Area_Skeleton::Id_Type, kv_pairs > &     Tags_By_Id_Cache::get< Area_Skeleton >()     { return t_by_id_area; }
+template<> inline osm3s::unordered_map< Node_Skeleton::Id_Type, kv_pairs > &     Tags_By_Id_Cache::get< Node_Skeleton >()     { return t_by_id_node; }
+template<> inline osm3s::unordered_map< Way_Skeleton::Id_Type, kv_pairs > &      Tags_By_Id_Cache::get< Way_Skeleton >()      { return t_by_id_way; }
+template<> inline osm3s::unordered_map< Relation_Skeleton::Id_Type, kv_pairs > & Tags_By_Id_Cache::get< Relation_Skeleton >() { return t_by_id_relation; }
+template<> inline osm3s::unordered_map< Area_Skeleton::Id_Type, kv_pairs > &     Tags_By_Id_Cache::get< Area_Skeleton >()     { return t_by_id_area; }
 
 using user_id_name_t = std::vector< std::pair< uint32, std::string > >;
 

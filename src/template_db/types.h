@@ -19,6 +19,11 @@
 #ifndef DE__OSM3S___TEMPLATE_DB__TYPES_H
 #define DE__OSM3S___TEMPLATE_DB__TYPES_H
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#undef VERSION
+#endif
+
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -34,13 +39,28 @@
 #include <sstream>
 #include <string>
 #include <type_traits>
+#include <unordered_map>
 #include <vector>
+
+#include "unordered_dense.h"
 
 #ifdef NATIVE_LARGE_FILES
 #define ftruncate64 ftruncate
 #define lseek64 lseek
 #define open64 open
 #endif
+
+namespace osm3s {
+  template< class Key, class T >
+#ifndef HAVE_ANKERL
+  using unordered_map = std::unordered_map< Key, T>;
+#else
+  using unordered_map = ankerl::unordered_dense::map< Key, T>;
+#endif
+
+  template< class Key, class T >
+  using map = std::map< Key, T>;
+}
 
 typedef unsigned int uint;
 

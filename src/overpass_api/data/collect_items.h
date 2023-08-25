@@ -748,9 +748,14 @@ std::vector< Index > get_indexes_
   Random_File< typename Skeleton::Id_Type, Index > current(rman.get_transaction()->random_index
       (current_skeleton_file_properties< Skeleton >()));
   for (auto it = ids.begin(); it != ids.end(); ++it)
-    result.push_back(current.get(it->val()));
+  {
+    auto v = current.get(it->val());
+    if (result.empty() || !(result.back() == v))
+      result.push_back(v);
+  }
 
-  std::sort(result.begin(), result.end());
+  if (!std::is_sorted(result.begin(), result.end()))
+    std::sort(result.begin(), result.end());
   result.erase(std::unique(result.begin(), result.end()), result.end());
 
   if (rman.get_desired_timestamp() != NOW || get_attic_idxs)
@@ -774,7 +779,8 @@ std::vector< Index > get_indexes_
     for (const auto & it : idx_list_db.as_discrete(idx_list_ids))
       result.push_back(it.object());
 
-    std::sort(result.begin(), result.end());
+    if (!std::is_sorted(result.begin(), result.end()))
+      std::sort(result.begin(), result.end());
     result.erase(std::unique(result.begin(), result.end()), result.end());
   }
 

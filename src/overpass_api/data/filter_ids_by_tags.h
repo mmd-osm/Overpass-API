@@ -241,7 +241,7 @@ private:
   std::string value_;
   std::vector< Regular_Expression* > conditions_;
   const std::vector< Id_Type >* old_ids_;
-  std::map< Id_Type, std::pair< timestamp_t, timestamp_t > > timestamps;
+  osm3s::unordered_map< Id_Type, std::pair< timestamp_t, timestamp_t > > timestamps;
 };
 
 
@@ -295,8 +295,7 @@ public:
 
   void commit_ids()
   {
-    for (typename std::map< Id_Type, std::pair< timestamp_t, timestamp_t > >::const_iterator it = timestamps.begin();
-	it != timestamps.end(); ++it)
+    for (auto it = timestamps.begin(); it != timestamps.end(); ++it)
     {
       if (0 < it->second.first && it->second.first <= it->second.second)
         new_ids_.push_back(it->first);
@@ -310,7 +309,7 @@ private:
   Regular_Expression* value_;
   const std::vector< Id_Type >* old_ids_;
   std::vector< Id_Type > new_ids_;
-  std::map< Id_Type, std::pair< timestamp_t, timestamp_t > > timestamps;
+  osm3s::unordered_map< Id_Type, std::pair< timestamp_t, timestamp_t > > timestamps;
 };
 
 

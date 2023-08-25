@@ -368,12 +368,12 @@ std::vector< typename Skeleton::Id_Type > find_still_existing_skeletons
 
 
 template< typename Index, typename Skeleton >
-std::map< typename Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type > >
+osm3s::unordered_map< typename Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type > >
     find_meta_elements
     (Resource_Manager& rman, timestamp_t timestamp, const std::vector< Index >& idx_set,
      const std::vector< typename Skeleton::Id_Type >& searched_ids)
 {
-  std::map< typename Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type > > result;
+  osm3s::unordered_map< typename Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type > > result;
 
   Block_Backend< Index, OSM_Element_Metadata_Skeleton< typename Skeleton::Id_Type >,
         typename std::vector< Index >::const_iterator >
@@ -475,14 +475,14 @@ void Set_Comparison::clear_nodes(Resource_Manager& rman, bool add_deletion_infor
     std::vector< Node_Skeleton::Id_Type > found_ids
         = find_still_existing_skeletons< Uint32_Index, Node_Skeleton >(
             rman, rman.get_desired_timestamp(), req, searched_ids);
-    std::map< Node_Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< Node::Id_Type > > found_meta
+    osm3s::unordered_map< Node_Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< Node::Id_Type > > found_meta
         = find_meta_elements< Uint32_Index, Node_Skeleton >(rman, rman.get_diff_to_timestamp(), req, searched_ids);
 
     for (std::vector< Node_With_Context >::const_iterator it = nodes.begin(); it != nodes.end(); ++it)
     {
       if (it->idx.val() != 0xffu)
       {
-	std::map< Node_Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< Node::Id_Type > >::const_iterator
+        osm3s::unordered_map< Node_Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< Node::Id_Type > >::const_iterator
 	    meta_it = found_meta.find(it->elem.id);
 	result.different_nodes.push_back(std::make_pair(*it,
 	    Node_With_Context(monobound_binary_search(found_ids, it->elem.id) ? 0xfdu : 0xffu,
@@ -511,10 +511,10 @@ void Set_Comparison::clear_nodes(Resource_Manager& rman, bool add_deletion_infor
     {
       if (it->first.idx.val() == 0xffu)
       {
-        it->first.idx = std::binary_search(found_ids.begin(), found_ids.end(), it->second.elem.id) ? 0xfdu : 0xffu;
+        it->first.idx = monobound_binary_search(found_ids, it->second.elem.id) ? 0xfdu : 0xffu;
         it->first.elem = Node_Skeleton(it->second.elem.id);
 
-	std::map< Node_Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< Node::Id_Type > >::const_iterator
+        osm3s::unordered_map< Node_Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< Node::Id_Type > >::const_iterator
 	    meta_it = found_meta.find(it->second.elem.id);
         if (meta_it != found_meta.end())
           it->first.meta = meta_it->second;
@@ -604,14 +604,14 @@ void Set_Comparison::clear_ways(Resource_Manager& rman, bool add_deletion_inform
     std::vector< Way_Skeleton::Id_Type > found_ids
         = find_still_existing_skeletons< Uint31_Index, Way_Skeleton >(
             rman, rman.get_desired_timestamp(), req, searched_ids);
-    std::map< Way_Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< Way::Id_Type > > found_meta
+    osm3s::unordered_map< Way_Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< Way::Id_Type > > found_meta
         = find_meta_elements< Uint31_Index, Way_Skeleton >(rman, rman.get_diff_to_timestamp(), req, searched_ids);
 
     for (std::vector< Way_With_Context >::const_iterator it = ways.begin(); it != ways.end(); ++it)
     {
       if (it->idx.val() != 0xffu)
       {
-	std::map< Way_Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< Way::Id_Type > >::const_iterator
+        osm3s::unordered_map< Way_Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< Way::Id_Type > >::const_iterator
 	    meta_it = found_meta.find(it->elem.id);
 	result.different_ways.push_back(std::make_pair(*it,
 	    Way_With_Context(monobound_binary_search(found_ids, it->elem.id) ? 0xfdu : 0xffu,
@@ -644,7 +644,7 @@ void Set_Comparison::clear_ways(Resource_Manager& rman, bool add_deletion_inform
         it->first.idx = monobound_binary_search(found_ids, it->second.elem.id) ? 0xfdu : 0xffu;
         it->first.elem = Way_Skeleton(it->second.elem.id);
 
-	std::map< Way_Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< Way::Id_Type > >::const_iterator
+        osm3s::unordered_map< Way_Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< Way::Id_Type > >::const_iterator
 	    meta_it = found_meta.find(it->second.elem.id);
         if (meta_it != found_meta.end())
           it->first.meta = meta_it->second;
@@ -735,7 +735,8 @@ void Set_Comparison::clear_relations(Resource_Manager& rman, bool add_deletion_i
     std::vector< Relation_Skeleton::Id_Type > found_ids
         = find_still_existing_skeletons< Uint31_Index, Relation_Skeleton >(
             rman, rman.get_diff_to_timestamp(), req, searched_ids);
-    std::map< Relation_Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< Relation::Id_Type > > found_meta
+
+    osm3s::unordered_map< Relation_Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< Relation::Id_Type > > found_meta
         = find_meta_elements< Uint31_Index, Relation_Skeleton >(
             rman, rman.get_diff_to_timestamp(), req, searched_ids);
 
@@ -743,7 +744,7 @@ void Set_Comparison::clear_relations(Resource_Manager& rman, bool add_deletion_i
     {
       if (it->idx.val() != 0xffu)
       {
-	std::map< Relation_Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< Relation::Id_Type > >::const_iterator
+        osm3s::unordered_map< Relation_Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< Relation::Id_Type > >::const_iterator
 	    meta_it = found_meta.find(it->elem.id);
 	result.different_relations.push_back(std::make_pair(*it,
 	    Relation_With_Context(monobound_binary_search(found_ids, it->elem.id) ? 0xfdu : 0xffu,
@@ -776,7 +777,7 @@ void Set_Comparison::clear_relations(Resource_Manager& rman, bool add_deletion_i
         it->first.idx = monobound_binary_search(found_ids, it->second.elem.id) ? 0xfdu : 0xffu;
         it->first.elem = Relation_Skeleton(it->second.elem.id);
 
-	std::map< Relation_Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< Relation::Id_Type > >::const_iterator
+        osm3s::unordered_map< Relation_Skeleton::Id_Type, OSM_Element_Metadata_Skeleton< Relation::Id_Type > >::const_iterator
 	    meta_it = found_meta.find(it->second.elem.id);
         if (meta_it != found_meta.end())
           it->first.meta = meta_it->second;
