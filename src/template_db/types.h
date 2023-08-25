@@ -42,7 +42,9 @@
 #include <unordered_map>
 #include <vector>
 
+#ifdef HAVE_ANKERL
 #include "unordered_dense.h"
+#endif
 
 #ifdef NATIVE_LARGE_FILES
 #define ftruncate64 ftruncate
