@@ -200,6 +200,18 @@ namespace std {
   };
 }
 
+#ifdef HAVE_ANKERL
+template <>
+struct ankerl::unordered_dense::hash<Uint32_Index> {
+    using is_avalanching = void;
+
+    [[nodiscard]] auto operator()(Uint32_Index const& x) const noexcept -> uint64_t {
+        return detail::wyhash::hash(x.val());
+    }
+};
+
+#endif
+
 
 inline Uint32_Index inc(Uint32_Index idx) noexcept
 {
@@ -308,6 +320,18 @@ namespace std {
   };
 }
 
+
+#ifdef HAVE_ANKERL
+template <>
+struct ankerl::unordered_dense::hash<Uint31_Index> {
+    using is_avalanching = void;
+
+    [[nodiscard]] auto operator()(Uint31_Index const& x) const noexcept -> uint64_t {
+        return detail::wyhash::hash(x.val());
+    }
+};
+
+#endif
 
 
 inline unsigned long long difference(Uint31_Index lhs, Uint31_Index rhs)

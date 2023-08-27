@@ -40,6 +40,7 @@
 #include <string>
 #include <type_traits>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #ifdef HAVE_ANKERL
@@ -59,6 +60,14 @@ namespace osm3s {
 #else
   using unordered_map = ankerl::unordered_dense::map< Key, T>;
 #endif
+
+  template < class Key >
+#ifndef HAVE_ANKERL
+  using unordered_set = std::unordered_set< Key >;
+#else
+  using unordered_set = ankerl::unordered_dense::set< Key >;
+#endif
+
 
   template< class Key, class T >
   using map = std::map< Key, T>;
