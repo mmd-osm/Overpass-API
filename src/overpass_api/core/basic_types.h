@@ -934,6 +934,8 @@ private:
 
 template <class T> class SharedDataPointer
 {
+  static_assert(std::is_base_of<SharedData, T>::value, "T must be a classes derived from SharedData");
+
 public:
   typedef T Type;
   typedef T *pointer;
