@@ -49,7 +49,7 @@ Opaque_Geometry* make_linestring_way_geom(const std::vector< Quad_Coord >& geome
 
 
 const Opaque_Geometry& Geometry_From_Quad_Coords::make_way_geom(
-    const Way_Skeleton& skel, unsigned int mode, Way_Bbox_Geometry_Store* store)
+    const Way_Skeleton& skel, unsigned int mode, const Way_Bbox_Geometry_Store* const store)
 {
   delete geom;
   geom = nullptr;
@@ -93,7 +93,7 @@ const Opaque_Geometry& Geometry_From_Quad_Coords::make_way_geom(
 
 
 const Opaque_Geometry& Geometry_From_Quad_Coords::make_way_geom(
-    const std::vector< Quad_Coord >* geometry, const std::pair< Quad_Coord, Quad_Coord* >* bounds)
+    const std::vector< Quad_Coord >* geometry, const std::pair< Quad_Coord, Quad_Coord* >* const bounds)
 {
   delete geom;
   geom = nullptr;
@@ -150,9 +150,10 @@ Opaque_Geometry* make_verbatim_rel_geom(const std::vector< std::vector< Quad_Coo
       else
       {
         std::vector< Point_Double > coords;
+        coords.reserve(it->size());
         for (auto it2 = it->begin(); it2 != it->end(); ++it2)
           coords.push_back(Point_Double(::lat(it2->ll_upper, it2->ll_lower), ::lon(it2->ll_upper, it2->ll_lower)));
-        cp_geom->add_component(new Linestring_Geometry(coords));
+        cp_geom->add_component(new Linestring_Geometry(std::move(coords)));
       }
     }
     return cp_geom;
@@ -191,7 +192,7 @@ Opaque_Geometry* make_verbatim_rel_geom(const std::vector< std::vector< Quad_Coo
 
 
 const Opaque_Geometry& Geometry_From_Quad_Coords::make_relation_geom(
-    const Relation_Skeleton& skel, unsigned int mode, Relation_Geometry_Store* store)
+    const Relation_Skeleton& skel, unsigned int mode, const Relation_Geometry_Store* const store)
 {
   delete geom;
   geom = nullptr;
@@ -281,7 +282,7 @@ const Opaque_Geometry& Geometry_From_Quad_Coords::make_relation_geom(
 
 
 const Opaque_Geometry& Geometry_From_Quad_Coords::make_relation_geom(
-    const std::vector< std::vector< Quad_Coord > >* geometry, const std::pair< Quad_Coord, Quad_Coord* >* bounds)
+    const std::vector< std::vector< Quad_Coord > >* geometry, const std::pair< Quad_Coord, Quad_Coord* >* const bounds)
 {
   delete geom;
   geom = nullptr;

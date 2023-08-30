@@ -194,11 +194,14 @@ struct Extra_Data
 {
   enum class Member_Roles { not_needed, needed };
 
+  enum class Geometry_Store { not_needed, ways, relations };
+
   Extra_Data(
       Resource_Manager& rman, const Statement& stmt, const Set& to_print,
       unsigned int mode_, Output_Handler::Feature_Action action_,
       double south, double north, double west, double east,
       Member_Roles mr,
+      Geometry_Store gs,
       bool lazy_loading = false);
   ~Extra_Data();
 
@@ -223,26 +226,33 @@ Extra_Data::Extra_Data(
     unsigned int mode_, Output_Handler::Feature_Action action_,
     double south, double north, double west, double east,
     Member_Roles mr,
+    Geometry_Store gs,
     bool lazy_loading)
     : mode(mode_), action(action_)
 {
   if (mode & (Output_Mode::GEOMETRY | Output_Mode::BOUNDS | Output_Mode::CENTER))
   {
-    way_geometry_store = new Way_Bbox_Geometry_Store(to_print.ways, stmt, rman, south, north, west, east, lazy_loading);
-    if (rman.get_desired_timestamp() < NOW)
+    if (gs == Geometry_Store::ways)
     {
-      attic_way_geometry_store = new Way_Bbox_Geometry_Store(
-          to_print.attic_ways, stmt, rman,
-          south, north, west, east, lazy_loading);
+      way_geometry_store = new Way_Bbox_Geometry_Store(to_print.ways, stmt, rman, south, north, west, east, lazy_loading);
+      if (rman.get_desired_timestamp() < NOW)
+      {
+        attic_way_geometry_store = new Way_Bbox_Geometry_Store(
+            to_print.attic_ways, stmt, rman,
+            south, north, west, east, lazy_loading);
+      }
     }
 
-    relation_geometry_store = new Relation_Geometry_Store(
-        to_print.relations, stmt, rman, south, north, west, east);
-    if (rman.get_desired_timestamp() < NOW)
+    if (gs == Geometry_Store::relations)
     {
-      attic_relation_geometry_store = new Relation_Geometry_Store(
-          to_print.attic_relations, stmt, rman,
-          south, north, west, east);
+      relation_geometry_store = new Relation_Geometry_Store(
+          to_print.relations, stmt, rman, south, north, west, east);
+      if (rman.get_desired_timestamp() < NOW)
+      {
+        attic_relation_geometry_store = new Relation_Geometry_Store(
+            to_print.attic_relations, stmt, rman,
+            south, north, west, east);
+      }
     }
   }
 
@@ -282,7 +292,7 @@ Extra_Data::~Extra_Data()
 }
 
 
-void print_item(Extra_Data& extra_data, Output_Handler& output, uint32 ll_upper, const Node_Skeleton& skel,
+void print_item(const Extra_Data& extra_data, Output_Handler& output, uint32 ll_upper, const Node_Skeleton& skel,
                     const std::vector< std::pair< std::string, std::string > >* tags = nullptr,
                     const OSM_Element_Metadata_Skeleton< Node_Skeleton::Id_Type >* meta = nullptr)
 {
@@ -291,7 +301,7 @@ void print_item(Extra_Data& extra_data, Output_Handler& output, uint32 ll_upper,
 }
 
 
-void print_item(Extra_Data& extra_data, Output_Handler& output, uint32 ll_upper, const Way_Skeleton& skel,
+void print_item(const Extra_Data& extra_data, Output_Handler& output, uint32 ll_upper, const Way_Skeleton& skel,
                     const std::vector< std::pair< std::string, std::string > >* tags = nullptr,
                     const OSM_Element_Metadata_Skeleton< Way_Skeleton::Id_Type >* meta = nullptr)
 {
@@ -302,7 +312,7 @@ void print_item(Extra_Data& extra_data, Output_Handler& output, uint32 ll_upper,
 }
 
 
-void print_item(Extra_Data& extra_data, Output_Handler& output, uint32 ll_upper, const Attic< Way_Skeleton >& skel,
+void print_item(const Extra_Data& extra_data, Output_Handler& output, uint32 ll_upper, const Attic< Way_Skeleton >& skel,
                     const std::vector< std::pair< std::string, std::string > >* tags = nullptr,
                     const OSM_Element_Metadata_Skeleton< Way_Skeleton::Id_Type >* meta = nullptr)
 {
@@ -313,7 +323,7 @@ void print_item(Extra_Data& extra_data, Output_Handler& output, uint32 ll_upper,
 }
 
 
-void print_item(Extra_Data& extra_data, Output_Handler& output, uint32 ll_upper, const Relation_Skeleton& skel,
+void print_item(const Extra_Data& extra_data, Output_Handler& output, uint32 ll_upper, const Relation_Skeleton& skel,
                     const std::vector< std::pair< std::string, std::string > >* tags = nullptr,
                     const OSM_Element_Metadata_Skeleton< Relation_Skeleton::Id_Type >* meta = nullptr)
 {
@@ -324,7 +334,7 @@ void print_item(Extra_Data& extra_data, Output_Handler& output, uint32 ll_upper,
 }
 
 
-void print_item(Extra_Data& extra_data, Output_Handler& output, uint32 ll_upper, const Attic< Relation_Skeleton >& skel,
+void print_item(const Extra_Data& extra_data, Output_Handler& output, uint32 ll_upper, const Attic< Relation_Skeleton >& skel,
                     const std::vector< std::pair< std::string, std::string > >* tags = nullptr,
                     const OSM_Element_Metadata_Skeleton< Relation_Skeleton::Id_Type >* meta = nullptr)
 {
@@ -335,7 +345,7 @@ void print_item(Extra_Data& extra_data, Output_Handler& output, uint32 ll_upper,
 }
 
 
-void print_item(Extra_Data& extra_data, Output_Handler& output, uint32 ll_upper, const Area_Skeleton& skel,
+void print_item(const Extra_Data& extra_data, Output_Handler& output, uint32 ll_upper, const Area_Skeleton& skel,
                     const std::vector< std::pair< std::string, std::string > >* tags = nullptr,
                     const OSM_Element_Metadata_Skeleton< Area_Skeleton::Id_Type >* meta = nullptr)
 {
@@ -344,7 +354,7 @@ void print_item(Extra_Data& extra_data, Output_Handler& output, uint32 ll_upper,
 }
 
 
-void print_item(Extra_Data& extra_data, Output_Handler& output, uint32 ll_upper, const Derived_Structure& skel,
+void print_item(const Extra_Data& extra_data, Output_Handler& output, uint32 ll_upper, const Derived_Structure& skel,
                     const std::vector< std::pair< std::string, std::string > >* tags = nullptr,
                     const OSM_Element_Metadata_Skeleton< Derived_Skeleton::Id_Type >* meta = nullptr)
 {
@@ -645,7 +655,7 @@ typename std::vector< OSM_Element_Metadata_Skeleton< Id_Type > >::const_iterator
 
 template< class Index, class Object >
 void tags_by_id
-  (Extra_Data& extra_data, const std::map< Index, std::vector< Object > >& items,
+  (const Extra_Data& extra_data, const std::map< Index, std::vector< Object > >& items,
    uint32 FLUSH_SIZE, Output_Handler& output,
    Resource_Manager& rman, Meta_Collector< Index, typename Object::Id_Type >* meta_printer,
    Tag_Store< Index, Object >& tag_store, uint32 limit, uint32& element_count)
@@ -701,7 +711,7 @@ template< class Index, class Object >
 void tags_by_id_attic
   (const std::map< Index, std::vector< Object > >& current_items,
    const std::map< Index, std::vector< Attic< Object > > >& attic_items,
-   Extra_Data& extra_data, uint32 FLUSH_SIZE, Output_Handler& output,
+   const Extra_Data& extra_data, uint32 FLUSH_SIZE, Output_Handler& output,
    Resource_Manager& rman, Transaction& transaction, uint32 limit, uint32& element_count)
 {
   std::vector< Maybe_Attic_Ref< Index, Object > > items_by_id = collect_items_by_id(current_items, attic_items);
@@ -775,7 +785,7 @@ void tags_by_id_attic
 
 template< class Index, class Object >
 void tags_by_id
-  (Extra_Data& extra_data, const std::map< Index, std::vector< Object > >& items,
+  (const Extra_Data& extra_data, const std::map< Index, std::vector< Object > >& items,
    const std::map< Index, std::vector< Attic< Object > > >& attic_items,
    unsigned int mode, uint32 FLUSH_SIZE, Output_Handler& output, Resource_Manager& rman,
    uint32 limit, uint32& element_count)
@@ -873,7 +883,6 @@ void Print_Statement::execute(Resource_Manager& rman)
   Extra_Data::Member_Roles mr( (output_items->relations.empty() && output_items->attic_relations.empty()) ?
                                 Extra_Data::Member_Roles::not_needed :  Extra_Data::Member_Roles::needed);
 
-  Extra_Data extra_data(rman, *this, *output_items, mode, feature_action, south, north, west, east, mr, use_lazy_loading);
   Output_Handler& output_handler = *rman.get_global_settings().get_output_handler();
   uint32 element_count = 0;
 
@@ -881,12 +890,23 @@ void Print_Statement::execute(Resource_Manager& rman)
   {
     if (mode & Output_Mode::TAGS)
     {
-      tags_by_id(extra_data, output_items->nodes, output_items->attic_nodes, mode, NODE_FLUSH_SIZE,
-		 output_handler, rman, limit, element_count);
-      tags_by_id(extra_data, output_items->ways, output_items->attic_ways, mode, WAY_FLUSH_SIZE,
-		 output_handler, rman, limit, element_count);
-      tags_by_id(extra_data, output_items->relations, output_items->attic_relations, mode, RELATION_FLUSH_SIZE,
-		 output_handler, rman, limit, element_count);
+      {
+        Extra_Data extra_data(rman, *this, *output_items, mode, feature_action, south, north, west, east, mr, Extra_Data::Geometry_Store::not_needed, use_lazy_loading);
+        tags_by_id(extra_data, output_items->nodes, output_items->attic_nodes, mode, NODE_FLUSH_SIZE,
+	  	   output_handler, rman, limit, element_count);
+      }
+      {
+        Extra_Data extra_data(rman, *this, *output_items, mode, feature_action, south, north, west, east, mr, Extra_Data::Geometry_Store::ways, use_lazy_loading);
+        tags_by_id(extra_data, output_items->ways, output_items->attic_ways, mode, WAY_FLUSH_SIZE,
+		   output_handler, rman, limit, element_count);
+      }
+      {
+        Extra_Data extra_data(rman, *this, *output_items, mode, feature_action, south, north, west, east, mr, Extra_Data::Geometry_Store::relations, use_lazy_loading);
+        tags_by_id(extra_data, output_items->relations, output_items->attic_relations, mode, RELATION_FLUSH_SIZE,
+		   output_handler, rman, limit, element_count);
+      }
+
+      Extra_Data extra_data(rman, *this, *output_items, mode, feature_action, south, north, west, east, mr, Extra_Data::Geometry_Store::not_needed, use_lazy_loading);
 
       if (rman.get_area_transaction())
       {
@@ -902,12 +922,24 @@ void Print_Statement::execute(Resource_Manager& rman)
     }
     else
     {
-      by_id(output_items->nodes, output_items->attic_nodes,
-            output_handler, *rman.get_transaction(), extra_data, limit, element_count);
-      by_id(output_items->ways, output_items->attic_ways,
-            output_handler, *rman.get_transaction(), extra_data, limit, element_count);
-      by_id(output_items->relations, output_items->attic_relations,
-            output_handler, *rman.get_transaction(), extra_data, limit, element_count);
+      {
+        Extra_Data extra_data(rman, *this, *output_items, mode, feature_action, south, north, west, east, mr, Extra_Data::Geometry_Store::not_needed, use_lazy_loading);
+        by_id(output_items->nodes, output_items->attic_nodes,
+              output_handler, *rman.get_transaction(), extra_data, limit, element_count);
+      }
+      {
+        Extra_Data extra_data(rman, *this, *output_items, mode, feature_action, south, north, west, east, mr, Extra_Data::Geometry_Store::ways, use_lazy_loading);
+        by_id(output_items->ways, output_items->attic_ways,
+              output_handler, *rman.get_transaction(), extra_data, limit, element_count);
+      }
+      {
+        Extra_Data extra_data(rman, *this, *output_items, mode, feature_action, south, north, west, east, mr, Extra_Data::Geometry_Store::relations, use_lazy_loading);
+        by_id(output_items->relations, output_items->attic_relations,
+              output_handler, *rman.get_transaction(), extra_data, limit, element_count);
+      }
+
+      Extra_Data extra_data(rman, *this, *output_items, mode, feature_action, south, north, west, east, mr, Extra_Data::Geometry_Store::not_needed, use_lazy_loading);
+
       if (rman.get_area_transaction())
         by_id(output_items->areas, output_handler, *rman.get_area_transaction(), extra_data, limit, element_count);
       by_id(output_items->deriveds, output_handler, *rman.get_transaction(), extra_data, limit, element_count);
@@ -917,26 +949,51 @@ void Print_Statement::execute(Resource_Manager& rman)
   {
     if (mode & Output_Mode::TAGS)
     {
-      tags_quadtile_(extra_data, output_items->nodes,
-		    output_handler, rman, *rman.get_transaction(), limit, element_count);
-
-      if (rman.get_desired_timestamp() != NOW)
-        tags_quadtile_attic_(extra_data, output_items->attic_nodes,
+      {
+        Extra_Data extra_data(rman, *this, *output_items, mode, feature_action, south, north, west, east, mr, Extra_Data::Geometry_Store::not_needed, use_lazy_loading);
+        tags_quadtile_(extra_data, output_items->nodes,
                       output_handler, rman, *rman.get_transaction(), limit, element_count);
 
-      tags_quadtile_(extra_data, output_items->ways,
-		    output_handler, rman, *rman.get_transaction(), limit, element_count);
+        if (rman.get_desired_timestamp() != NOW)
+          tags_quadtile_attic_(extra_data, output_items->attic_nodes,
+                        output_handler, rman, *rman.get_transaction(), limit, element_count);
+      }
 
-      if (rman.get_desired_timestamp() != NOW)
-        tags_quadtile_attic_(extra_data, output_items->attic_ways,
+      {
+        Extra_Data extra_data(rman, *this, *output_items, mode, feature_action, south, north, west, east, mr, Extra_Data::Geometry_Store::ways, use_lazy_loading);
+        tags_quadtile_(extra_data, output_items->ways,
                       output_handler, rman, *rman.get_transaction(), limit, element_count);
 
-      tags_quadtile_(extra_data, output_items->relations,
-		    output_handler, rman, *rman.get_transaction(), limit, element_count);
+        if (rman.get_desired_timestamp() != NOW)
+          tags_quadtile_attic_(extra_data, output_items->attic_ways,
+                        output_handler, rman, *rman.get_transaction(), limit, element_count);
+      }
+
+      for (const auto & [key, val] : output_items->relations)
+      {
+        Set tmp_set;
+        tmp_set.relations[key] = val;
+
+        Extra_Data extra_data(rman, *this, tmp_set, mode, feature_action, south, north, west, east, mr, Extra_Data::Geometry_Store::relations, use_lazy_loading);
+        tags_quadtile_(extra_data, tmp_set.relations,
+                      output_handler, rman, *rman.get_transaction(), limit, element_count);
+      }
 
       if (rman.get_desired_timestamp() != NOW)
-        tags_quadtile_attic_(extra_data, output_items->attic_relations,
-                      output_handler, rman, *rman.get_transaction(), limit, element_count);
+      {
+        for (const auto & [key, val] : output_items->attic_relations)
+        {
+          Set tmp_set;
+          tmp_set.attic_relations[key] = val;
+
+          Extra_Data extra_data(rman, *this, tmp_set, mode, feature_action, south, north, west, east, mr, Extra_Data::Geometry_Store::relations, use_lazy_loading);
+
+          tags_quadtile_attic_(extra_data, tmp_set.attic_relations,
+                               output_handler, rman, *rman.get_transaction(), limit, element_count);
+        }
+      }
+
+      Extra_Data extra_data(rman, *this, *output_items, mode, feature_action, south, north, west, east, mr, Extra_Data::Geometry_Store::not_needed, use_lazy_loading);
 
       if (rman.get_area_transaction())
         tags_quadtile_(extra_data, output_items->areas,
@@ -947,14 +1004,37 @@ void Print_Statement::execute(Resource_Manager& rman)
     }
     else
     {
-      quadtile_(output_items->nodes, output_handler, *rman.get_transaction(), extra_data, limit, element_count);
-      quadtile_(output_items->attic_nodes, output_handler, *rman.get_transaction(), extra_data, limit, element_count);
+      {
+        Extra_Data extra_data(rman, *this, *output_items, mode, feature_action, south, north, west, east, mr, Extra_Data::Geometry_Store::not_needed, use_lazy_loading);
+        quadtile_(output_items->nodes, output_handler, *rman.get_transaction(), extra_data, limit, element_count);
+        quadtile_(output_items->attic_nodes, output_handler, *rman.get_transaction(), extra_data, limit, element_count);
+      }
 
-      quadtile_(output_items->ways, output_handler, *rman.get_transaction(), extra_data, limit, element_count);
-      quadtile_(output_items->attic_ways, output_handler, *rman.get_transaction(), extra_data, limit, element_count);
+      {
+        Extra_Data extra_data(rman, *this, *output_items, mode, feature_action, south, north, west, east, mr, Extra_Data::Geometry_Store::ways, use_lazy_loading);
+        quadtile_(output_items->ways, output_handler, *rman.get_transaction(), extra_data, limit, element_count);
+        quadtile_(output_items->attic_ways, output_handler, *rman.get_transaction(), extra_data, limit, element_count);
+      }
 
-      quadtile_(output_items->relations, output_handler, *rman.get_transaction(), extra_data, limit, element_count);
-      quadtile_(output_items->attic_relations, output_handler, *rman.get_transaction(), extra_data, limit, element_count);
+      for (const auto & [key, val] : output_items->relations)
+      {
+        Set tmp_set;
+        tmp_set.relations[key] = val;
+
+        Extra_Data extra_data(rman, *this, tmp_set, mode, feature_action, south, north, west, east, mr, Extra_Data::Geometry_Store::relations, use_lazy_loading);
+        quadtile_(tmp_set.relations, output_handler, *rman.get_transaction(), extra_data, limit, element_count);
+      }
+
+      for (const auto & [key, val] : output_items->attic_relations)
+      {
+        Set tmp_set;
+        tmp_set.attic_relations[key] = val;
+
+        Extra_Data extra_data(rman, *this, tmp_set, mode, feature_action, south, north, west, east, mr, Extra_Data::Geometry_Store::relations, use_lazy_loading);
+        quadtile_(tmp_set.attic_relations, output_handler, *rman.get_transaction(), extra_data, limit, element_count);
+      }
+
+      Extra_Data extra_data(rman, *this, *output_items, mode, feature_action, south, north, west, east, mr, Extra_Data::Geometry_Store::not_needed, use_lazy_loading);
 
       if (rman.get_area_transaction())
         quadtile_(output_items->areas, output_handler, *rman.get_area_transaction(), extra_data, limit, element_count);

@@ -29,14 +29,14 @@ struct Geometry_From_Quad_Coords
   Geometry_From_Quad_Coords() = default;
   ~Geometry_From_Quad_Coords() { delete geom; }
 
-  const Opaque_Geometry& make_way_geom(const Way_Skeleton& skel, unsigned int mode, Way_Bbox_Geometry_Store* store);
+  const Opaque_Geometry& make_way_geom(const Way_Skeleton& skel, unsigned int mode, const Way_Bbox_Geometry_Store* const store);
   const Opaque_Geometry& make_relation_geom(
-      const Relation_Skeleton& skel, unsigned int mode, Relation_Geometry_Store* store);
+      const Relation_Skeleton& skel, unsigned int mode, const Relation_Geometry_Store* const store);
 
   const Opaque_Geometry& make_way_geom(
-      const std::vector< Quad_Coord >* geometry, const std::pair< Quad_Coord, Quad_Coord* >* bounds);
+      const std::vector< Quad_Coord >* geometry, const std::pair< Quad_Coord, Quad_Coord* >* const bounds);
   const Opaque_Geometry& make_relation_geom(
-      const std::vector< std::vector< Quad_Coord > >* geometry, const std::pair< Quad_Coord, Quad_Coord* >* bounds);
+      const std::vector< std::vector< Quad_Coord > >* geometry, const std::pair< Quad_Coord, Quad_Coord* >* const bounds);
 
 private:
   Opaque_Geometry* geom = nullptr;

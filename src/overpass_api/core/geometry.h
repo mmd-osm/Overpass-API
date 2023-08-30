@@ -378,6 +378,7 @@ class Linestring_Geometry final : public Opaque_Geometry
 {
 public:
   Linestring_Geometry(const std::vector< Point_Double >& points_) : points(points_) {}
+  Linestring_Geometry(std::vector< Point_Double >&& points_) : points(std::move(points_)) {}
   ~Linestring_Geometry() override { delete bounds; }
   Opaque_Geometry* clone() const override { return new Linestring_Geometry(points); }
 
