@@ -58,7 +58,8 @@
 const unsigned long STDIN_MAX = 1000000;
 
 
-int handle_request(const std::string & content, bool is_cgi, Index_Cache* ic)
+template <class T>
+int handle_request(const std::string & content, bool is_cgi, Index_Cache* ic, T finished_processing)
 {
   Parsed_Query global_settings;
   Web_Output error_output(Error_Output::ASSISTING);
@@ -133,7 +134,11 @@ int handle_request(const std::string & content, bool is_cgi, Index_Cache* ic)
         throw;
       }
 
+      error_output.write_footer();
 
+      // In case of FastCGI, we can already close the remote connection at this point and continue with the Dispatcher_Stub
+      // destructor afterwards. There's no point for a remote client to wait for the cleanup to finish.
+      finished_processing();
     }
   }
 
@@ -254,7 +259,7 @@ int main(int argc, char *argv[])
 
 #endif
 
-    int ret = handle_request("", true, &ic);
+    int ret = handle_request("", true, &ic, []() {});
     return (ret);
 
 #ifdef HAVE_FASTCGI
@@ -311,7 +316,8 @@ int main(int argc, char *argv[])
 
       initialize();
 
-      int ret = handle_request(content, FCGX_IsCGI(), &ic);
+      int ret = handle_request(content, FCGX_IsCGI(), &ic,
+          [&request]() { FCGX_Finish_r(&request); });
 
       // Restart process after error or a certain number of time / requests
       time_t elapsed_time = time(NULL) - start_time;
