@@ -180,7 +180,6 @@ Example syntax for changeset 46503970: (syntax is subject to change)
   Note: POSIX regular expressions still require additional copying due to API limitations.
 - Key value queries to validate first element of a new index only. Immediately skip all elements, in case key value pairs are not matching.
 - Replace std::map based user data cache by std::vector, also avoid expensive sorting operations for millions of user id/display_name pairs.
-- Added cmake option for packed, 4 byte aligned structs for some frequently used core data types (Nodes, Way, Relations, Areas). Requires clang++ (experimental)
 - Use monobound_binary_search instead of std::binary_search for some hot code paths.
 - Make updater and backend use std::vector instead of std::set, and std::unordered_map instead of std::map
 - Added multi-threaded processing in updater

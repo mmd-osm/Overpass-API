@@ -98,11 +98,7 @@ struct Node_Equal_Id {
 template <class T, class Object>
 struct Node_Skeleton_Handle_Methods;
 
-struct
-#ifdef HAVE_WORD_ALIGNMENT
-__attribute__ ((packed, aligned(4)))
-#endif
-Node_Skeleton
+struct Node_Skeleton
 {
   typedef Node::Id_Type Id_Type;
   typedef Node_Skeleton Delta;
@@ -153,10 +149,6 @@ Node_Skeleton
   template <class T, class Object>
   using Handle_Methods = Node_Skeleton_Handle_Methods<T, Object>;
 };
-
-#ifdef HAVE_WORD_ALIGNMENT
-static_assert(sizeof(Node_Skeleton) == 12, "Node_Skeleton has wrong size");
-#endif
 
 
 template <class T, class Object>

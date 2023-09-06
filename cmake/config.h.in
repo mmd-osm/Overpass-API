@@ -7,7 +7,6 @@
 #cmakedefine HAVE_OPENMP 1
 #cmakedefine HAVE_ICU 1
 #cmakedefine HAVE_OVERPASS_XML 1
-#cmakedefine HAVE_WORD_ALIGNMENT 1
 #cmakedefine HAVE_ANKERL 0
 #cmakedefine OSMIUM_WITH_LZ4 1
 #cmakedefine HAVE_LIBOSMIUM ${HAVE_LIBOSMIUM}
