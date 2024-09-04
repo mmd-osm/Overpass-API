@@ -126,6 +126,13 @@ inline void unalignedStore(void *ptr, T t)
 
 // Generic helper functions to print contents of std::map and std::vector
 
+template<typename T1, typename T2>
+std::ostream& operator << (std::ostream& stream, const std::pair <T1, T2> & val)
+{
+  stream << "{" << val.first << " " << val.second << "}";
+  return stream;
+}
+
 template < typename... Args >
 std::ostream& operator << (std::ostream& stream, const std::vector <Args...> & container)
 {
@@ -151,13 +158,6 @@ std::ostream& operator << (std::ostream& stream, const std::map <Args...> & cont
   stream << "{ ";
   for (auto&& elem : container) stream << elem << " ";
   stream << "}";
-  return stream;
-}
-
-template<typename T1, typename T2>
-std::ostream& operator << (std::ostream& stream, const std::pair <T1, T2> & val)
-{
-  stream << "{" << val.first << " " << val.second << "}";
   return stream;
 }
 
