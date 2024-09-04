@@ -267,6 +267,16 @@ void Coord_Query_Statement::execute(Resource_Manager& rman)
     }
   }
 
+  // Remove duplicate lat/lon entries
+  for (auto& coord : coord_per_req) {
+    auto& coords_vec = coord.second;
+
+    if (!std::is_sorted(coords_vec.begin(), coords_vec.end())) {
+      std::sort(coords_vec.begin(), coords_vec.end());
+    }
+    coords_vec.erase(std::unique(coords_vec.begin(), coords_vec.end()), coords_vec.end());
+  }
+
   std::map< std::pair< double, double >, std::map< Area::Id_Type, int > > areas_inside;
   std::set< Area::Id_Type > areas_found;
 
